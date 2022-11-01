@@ -1565,14 +1565,14 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<void> cloneFileInLocalDirectory(
+  _i22.Future<void> saveInFileInfo(
     _i38.File? file,
     String? uploadKey,
     String? name,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #cloneFileInLocalDirectory,
+          #saveInFileInfo,
           [
             file,
             uploadKey,
@@ -1631,6 +1631,14 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+  @override
+  bool fileExitInCache(String? uuid) => (super.noSuchMethod(
+        Invocation.method(
+          #fileExitInCache,
+          [uuid],
+        ),
+        returnValue: false,
+      ) as bool);
   @override
   _i22.Future<String?> getFileIfExist(
     String? uuid,
@@ -2519,9 +2527,9 @@ class MockCoreServices extends _i1.Mock implements _i50.CoreServices {
         returnValueForMissingStub: null,
       );
   @override
-  void retryFasterConnection() => super.noSuchMethod(
+  void fasterRetryConnection() => super.noSuchMethod(
         Invocation.method(
-          #retryFasterConnection,
+          #fasterRetryConnection,
           [],
         ),
         returnValueForMissingStub: null,

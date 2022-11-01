@@ -1,154 +1,79 @@
-import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
+import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:random_string/random_string.dart';
 
-class ConnectionStatus extends StatelessWidget {
+class ConnectionStatus extends StatefulWidget {
+  const ConnectionStatus({super.key});
+
+  @override
+  State<ConnectionStatus> createState() => _ConnectionStatusState();
+}
+
+class _ConnectionStatusState extends State<ConnectionStatus> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  static final _coreServices = GetIt.I.get<CoreServices>();
-  static final _routingServices = GetIt.I.get<RoutingService>();
-
-  const ConnectionStatus({super.key});
+  static final _coreService = GetIt.I.get<CoreServices>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Normal,
-      stream: _messageRepo.updatingStatus,
-      builder: (context, snapshot) {
-        final status = snapshot.data ?? TitleStatusConditions.Normal;
 
-        return AnimatedOpacity(
-          duration: SUPER_SLOW_ANIMATION_DURATION,
-          opacity: status != TitleStatusConditions.Normal ? 1 : 0,
-          child: AnimatedContainer(
-            width: double.infinity,
-            clipBehavior: Clip.hardEdge,
-            height: status != TitleStatusConditions.Normal ? 44 : 0,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: status == TitleStatusConditions.Connected ||
-                      status == TitleStatusConditions.Normal ||
-                      status == TitleStatusConditions.Updating ||
-                      status == TitleStatusConditions.Syncing
-                  ? elevation(
-                      theme.colorScheme.primaryContainer,
-                      theme.colorScheme.primary,
-                      5,
-                    )
-                  : theme.colorScheme.surfaceVariant.withOpacity(0.5),
-              borderRadius: tertiaryBorder,
-            ),
-            curve: Curves.easeInOut,
-            duration: SUPER_SLOW_ANIMATION_DURATION,
-            child: Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      if (status == TitleStatusConditions.Disconnected)
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 23,
-                          onPressed: _routingServices.openConnectionSettingPage,
-                          icon: Icon(
-                            CupertinoIcons.settings,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      const SizedBox(width: 8),
-                      Text(
-                        textDirection: _i18n.defaultTextDirection,
-                        title(status),
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
+    return StreamBuilder<TitleStatusConditions>(
+      initialData: TitleStatusConditions.Connected,
+      stream: _messageRepo.updatingStatus.stream,
+      builder: (c, status) {
+        final state = title(status.data!);
+
+        return AnimatedSwitchWidget(
+          child: StreamBuilder<dynamic>(
+            key: Key(state),
+            stream: _i18n.localeStream,
+            builder: (context, snapshot) {
+              return Directionality(
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (status.data == TitleStatusConditions.Disconnected) {
+                          _routingService.openConnectionSettingPage();
+                        }
+                      },
+                      child: Text(
+                        state,
+                        style: theme.textTheme.headline6,
+                        key: ValueKey(randomString(10)),
+                      ),
+                    ),
+                    if (status.data != TitleStatusConditions.Connected)
+                      DotAnimation(
+                        dotsColor: theme.textTheme.headline6?.color ??
+                            theme.colorScheme.primary,
+                      ),
+                    if (status.data == TitleStatusConditions.Disconnected)
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 23,
+                        onPressed: _coreService.fasterRetryConnection,
+                        icon: Icon(
+                          CupertinoIcons.refresh,
+                          color: theme.primaryColor,
                         ),
                       ),
-                      const SizedBox(width: 5),
-                      if (status == TitleStatusConditions.Connecting ||
-                          status == TitleStatusConditions.Syncing ||
-                          status == TitleStatusConditions.Updating)
-                        SizedBox(
-                          width: 11,
-                          height: 11,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                    ],
-                  ),
-                  if (status == TitleStatusConditions.Disconnected)
-                    StreamBuilder<int>(
-                      initialData: 0,
-                      stream: disconnectedTime.stream,
-                      builder: (c, timeSnapShot) {
-                        if (timeSnapShot.hasData && timeSnapShot.data != null) {
-                          if (timeSnapShot.data! > 0) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 16.0),
-                                  child: TextButton(
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: const Size(25, 15),
-                                      alignment: Alignment.center,
-                                    ),
-                                    onPressed:
-                                        _coreServices.retryFasterConnection,
-                                    child: Row(
-                                      textDirection: _i18n.defaultTextDirection,
-                                      children: [
-                                        Text(
-                                          _i18n.get("reconnecting"),
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
-                                        CircularCountDownTimer(
-                                          key: UniqueKey(),
-                                          duration: timeSnapShot.data!,
-                                          width: 16,
-                                          strokeWidth: 0,
-                                          height: 16,
-                                          isReverseAnimation: true,
-                                          ringColor: Colors.transparent,
-                                          fillColor: Colors.transparent,
-                                          backgroundColor: Colors.transparent,
-                                          textStyle: Theme.of(context)
-                                              .primaryTextTheme
-                                              .bodyText2
-                                              ?.copyWith(fontSize: 12),
-                                          textFormat: CountdownTextFormat.S,
-                                          isReverse: true,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // const SizedBox(width: 6),
-                              ],
-                            );
-                          }
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    )
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         );
       },
@@ -164,9 +89,7 @@ class ConnectionStatus extends StatelessWidget {
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return _i18n.get("connected").capitalCase;
-      case TitleStatusConditions.Normal:
-        return _i18n.get("connected").capitalCase;
+        return _i18n.get("chats").capitalCase;
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
     }

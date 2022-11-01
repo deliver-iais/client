@@ -110,6 +110,7 @@ import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
+import 'repository/caching_repo.dart';
 import 'repository/mucRepo.dart';
 import 'repository/show_case_repo.dart';
 
@@ -154,7 +155,9 @@ Future<void> setupDI() async {
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
-  registerSingleton<NotificationForegroundService>(NotificationForegroundService());
+  registerSingleton<NotificationForegroundService>(
+    NotificationForegroundService(),
+  );
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
   registerSingleton<FileRepo>(FileRepo());
@@ -165,6 +168,7 @@ Future<void> setupDI() async {
   registerSingleton<MediaRepo>(MediaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
+  registerSingleton<CachingRepo>(CachingRepo());
 
   try {
     registerSingleton<AudioService>(AudioService());

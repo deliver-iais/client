@@ -111,6 +111,7 @@ class LastMessage extends StatelessWidget {
             ],
           ),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (showSeenStatus && !isReceivedMessage)
