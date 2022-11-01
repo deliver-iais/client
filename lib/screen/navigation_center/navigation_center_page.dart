@@ -647,7 +647,7 @@ class NavigationCenterState extends State<NavigationCenter>
             const SizedBox(
               width: 8,
             ),
-            if (true)
+            if (SHOWCASES_IS_AVAILABLE)
               DescribedFeatureOverlay(
                 featureId: FEATURE_2,
                 tapTarget: const Icon(Icons.storefront_outlined),
