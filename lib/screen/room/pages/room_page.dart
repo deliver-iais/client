@@ -122,10 +122,6 @@ class RoomPageState extends State<RoomPage> {
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
 
-  // final _messageWidgetCache =
-  //     LruCache<int, Widget?>(storage: InMemoryStorage(0));
-  // final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(1000));
-
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _room = BehaviorSubject<Room>();
