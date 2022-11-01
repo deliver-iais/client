@@ -86,7 +86,7 @@ class SeenStatus extends StatelessWidget {
                     children: [
                       statusWidget(
                         context,
-                        seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SEEN,
+                        seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SENT,
                       )
                     ],
                   ),
