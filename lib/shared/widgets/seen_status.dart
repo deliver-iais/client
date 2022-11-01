@@ -82,13 +82,9 @@ class SeenStatus extends StatelessWidget {
                 return AnimatedSwitcher(
                   duration: SLOW_ANIMATION_DURATION,
                   switchInCurve: Curves.easeIn,
-                  child: Stack(
-                    children: [
-                      statusWidget(
-                        context,
-                        seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SENT,
-                      )
-                    ],
+                  child: statusWidget(
+                    context,
+                    seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SENT,
                   ),
                 );
               },
