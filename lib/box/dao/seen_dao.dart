@@ -103,13 +103,13 @@ class SeenDaoImpl extends SeenDao {
   static String _key2() => "my-seen";
 
   Future<BoxPlus<Seen>> _openOthersSeen() {
-    super.open(_key(), MY_SEEN_TABLE_NAME);
+    super.open(_key(), OTHER_SEEN_TABLE_NAME);
     return gen(Hive.openBox<Seen>(_key()));
   }
 
   Future<BoxPlus<Seen>> _openMySeen() async {
     try {
-      super.open(_key2(), OTHER_SEEN_TABLE_NAME);
+      super.open(_key2(), MY_SEEN_TABLE_NAME);
       return gen(Hive.openBox<Seen>(_key2()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_key2());
