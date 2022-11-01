@@ -59,7 +59,8 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                     ),
                     if (status.data != TitleStatusConditions.Connected)
                       DotAnimation(
-                        dotsColor: theme.colorScheme.primary,
+                        dotsColor: theme.textTheme.headline6?.color ??
+                            theme.colorScheme.primary,
                       ),
                     if (status.data == TitleStatusConditions.Disconnected)
                       IconButton(
