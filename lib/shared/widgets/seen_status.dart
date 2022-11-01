@@ -78,7 +78,6 @@ class SeenStatus extends StatelessWidget {
                 );
                 final seen = (snapshot.data?.messageId ?? -1) >= messageId!;
 
-                // TODO(bitbeter): refactor this, add more animations in whole widget
                 return AnimatedSwitcher(
                   duration: SLOW_ANIMATION_DURATION,
                   switchInCurve: Curves.easeIn,
