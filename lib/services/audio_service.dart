@@ -161,8 +161,6 @@ class AudioService {
 
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
-  bool _isPauseOnCall = false;
-
   AudioService() {
     _mainPlayer.completedStream.listen((_) async {
       //todo check to see if message has been edited or deleted
@@ -280,7 +278,6 @@ class AudioService {
   void stopAudio() {
     _trackStream.add(null);
     _mainPlayer.stop();
-    _isPauseOnCall = false;
   }
 
   void changeAudioPlaybackRate(double rate) =>
@@ -384,16 +381,6 @@ class AudioService {
   bool recorderIsAvailable() => _recorder.recorderIsAvailable();
 
   void lockRecorder() => _recorder.lock();
-
-  void audioToggleOnCall() {
-    if (playerState.value == AudioPlayerState.playing) {
-      pauseAudio();
-      _isPauseOnCall = true;
-    } else if(_isPauseOnCall){
-      resumeAudio();
-      _isPauseOnCall = false;
-    }
-  }
 
 }
 
