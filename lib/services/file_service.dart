@@ -593,6 +593,7 @@ class FileService {
         format == "mkv" ||
         format == "jfif" ||
         format == "webm" ||
+        format == "log" ||
         format == "webp";
   }
 }
