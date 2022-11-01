@@ -151,7 +151,7 @@ class AccountSettingsState extends State<AccountSettings> {
             (_account.username == null ||
                 _account.username != _usernameTextController.text)) {
           _usernameIsAvailable = await _accountRepo.idIsAvailable(username);
-          if (_usernameIsAvailable) {
+          if (!_usernameIsAvailable) {
             _usernameFormKey.currentState?.validate();
           }
         }
