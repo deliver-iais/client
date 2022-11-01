@@ -99,14 +99,16 @@ class DBManager {
     bool removeOld = false,
   }) async {
     final boxes = await BoxDao.getAll();
+
+    // Remove Older Tables than version "1.9.7"
     if (removeOld) {
       await (BoxDao.removeOldDb(deleteSharedDao: deleteSharedDao));
-    } else {
-      for (final boxInfo in boxes) {
-        if (boxInfo.version != _getDbVersions()[boxInfo.name] &&
-            (!deleteSharedDao || boxInfo.dbKey != "shared")) {
-          unawaited(BoxDao.deleteBox(boxInfo.dbKey));
-        }
+    }
+
+    for (final boxInfo in boxes) {
+      if (boxInfo.version != _getDbVersions()[boxInfo.name] &&
+          (!deleteSharedDao || boxInfo.dbKey != "shared")) {
+        unawaited(BoxDao.deleteBox(boxInfo.dbKey));
       }
     }
   }
