@@ -276,7 +276,7 @@ class FileService {
     try {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      await Directory('$directory/$APPLICATION_FOLDER_NAME')
+      await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
           .create(recursive: true);
       final f = File(
         '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
