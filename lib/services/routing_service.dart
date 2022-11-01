@@ -253,10 +253,10 @@ class RoutingService {
         ),
       );
 
-  void openAccountSettings({bool forceToSetUsernameAndName = false}) => _push(
+  void openAccountSettings({bool forceToSetName = false}) => _push(
         AccountSettings(
           key: const ValueKey("/account-settings"),
-          forceToSetName: forceToSetUsernameAndName,
+          forceToSetName: forceToSetName,
         ),
       );
 
