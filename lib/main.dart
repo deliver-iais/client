@@ -75,6 +75,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/log.dart';
@@ -203,6 +204,7 @@ Future<void> setupDI() async {
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
+  registerSingleton<DragAndDropService>(DragAndDropService());
 }
 
 Future<void> dbSetupDI() async {
