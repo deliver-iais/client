@@ -251,7 +251,7 @@ class AccountRepo {
 
   Future<void> _updateSessionInformationIfNeed() async {
     final version = await _sharedDao.get(SHARED_DAO_VERSION);
-    if (version != null && shouldUpdateSessionPlatformInformation(version)) {
+    if (version == null || shouldUpdateSessionPlatformInformation(version)) {
       try {
         await _sdr.sessionServiceClient.updateSessionPlatformInformation(
           UpdateSessionPlatformInformationReq()
@@ -316,7 +316,7 @@ class AccountRepo {
   }
 
   Future<bool> shouldShowNewFeatureDialog() async {
-    final pv = await _sharedDao.get(SHARED_DAO_DB_VERSION);
+    final pv = await _sharedDao.get(SHARED_DAO_VERSION);
     return shouldShowNewFeaturesDialog(pv);
   }
 
