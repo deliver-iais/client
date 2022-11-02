@@ -365,7 +365,6 @@ class AccountSettingsState extends State<AccountSettings> {
                                                     _i18n.get(
                                                       "username",
                                                     ),
-                                                    isOptional: true,
                                                     hintText: "alice_bob",
                                                   ),
                                                 ),
