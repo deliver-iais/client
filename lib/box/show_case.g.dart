@@ -8,7 +8,7 @@ part of 'show_case.dart';
 
 class ShowCaseAdapter extends TypeAdapter<ShowCase> {
   @override
-  final int typeId = 37;
+  final int typeId = 30;
 
   @override
   ShowCase read(BinaryReader reader) {

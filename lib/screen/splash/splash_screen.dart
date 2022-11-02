@@ -94,7 +94,7 @@ class SplashScreenState extends State<SplashScreen>
 
   Future<void> _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken().ignore();
-    final hasProfile = await _accountRepo.profileInfoIsSet();
+    final hasProfile = await _accountRepo.hasProfile(retry: true);
     if (!mounted) return;
     if (hasProfile) {
       Navigator.pushReplacement(
@@ -110,7 +110,9 @@ class SplashScreenState extends State<SplashScreen>
         context,
         MaterialPageRoute(
           builder: (c) {
-            return const AccountSettings(forceToSetUsernameAndName: true);
+            return const AccountSettings(
+              forceToSetName: true,
+            );
           },
         ),
       ).ignore();

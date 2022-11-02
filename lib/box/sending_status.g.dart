@@ -14,28 +14,28 @@ class SendingStatusAdapter extends TypeAdapter<SendingStatus> {
   SendingStatus read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 2:
-        return SendingStatus.UPLOAD_FILE_COMPELED;
+        return SendingStatus.UPLOAD_FILE_COMPLETED;
       case 3:
-        return SendingStatus.UPLIOD_FILE_FAIL;
+        return SendingStatus.UPLOAD_FILE_FAIL;
       case 4:
-        return SendingStatus.UPLOAD_FILE_INPROGRSS;
+        return SendingStatus.UPLOAD_FILE_IN_PROGRESS;
       case 1:
         return SendingStatus.PENDING;
       default:
-        return SendingStatus.UPLOAD_FILE_COMPELED;
+        return SendingStatus.UPLOAD_FILE_COMPLETED;
     }
   }
 
   @override
   void write(BinaryWriter writer, SendingStatus obj) {
     switch (obj) {
-      case SendingStatus.UPLOAD_FILE_COMPELED:
+      case SendingStatus.UPLOAD_FILE_COMPLETED:
         writer.writeByte(2);
         break;
-      case SendingStatus.UPLIOD_FILE_FAIL:
+      case SendingStatus.UPLOAD_FILE_FAIL:
         writer.writeByte(3);
         break;
-      case SendingStatus.UPLOAD_FILE_INPROGRSS:
+      case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
         writer.writeByte(4);
         break;
       case SendingStatus.PENDING:

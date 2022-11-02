@@ -1,4 +1,4 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:hive/hive.dart';
@@ -13,7 +13,7 @@ abstract class MediaMetaDataDao {
   Future clear(String roomUid);
 }
 
-class MediaMetaDataDaoImpl implements MediaMetaDataDao {
+class MediaMetaDataDaoImpl extends MediaMetaDataDao {
   @override
   Stream<MediaMetaData?> get(String roomUid) async* {
     final box = await _open();
@@ -53,8 +53,8 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
 
   static String _key() => "media_meta_data";
 
-  static Future<BoxPlus<MediaMetaData>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<MediaMetaData>> _open() {
+    DBManager.open(_key(), TableInfo.MEDIA_META_DATA_TABLE_NAME);
     return gen(Hive.openBox<MediaMetaData>(_key()));
   }
 }
