@@ -53,7 +53,11 @@ class CustomMaterialTextSelectionControls
                 handlePaste(delegate);
               } else {
                 CustomTextSelectionMethods.desktopPastHandle(
-                    delegate, textController, roomUid, buildContext);
+                  delegate,
+                  textController,
+                  roomUid,
+                  buildContext,
+                );
               }
             }
           : null,

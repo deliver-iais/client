@@ -56,7 +56,7 @@ class CustomDesktopTextSelectionControls extends TextSelectionControls {
       textLineHeight: textLineHeight,
       handlePaste: canPaste(delegate)
           ? () {
-        if (!isDesktop || roomUid == null) {
+              if (!isDesktop || roomUid == null) {
                 handlePaste(delegate);
               } else {
                 CustomTextSelectionMethods.desktopPastHandle(
@@ -279,8 +279,9 @@ class _DesktopTextSelectionControlsToolbarState
     }
 
     Color? color;
-    if (!(widget.isAnyThingSelected != null && widget.isAnyThingSelected!()))
+    if (!(widget.isAnyThingSelected != null && widget.isAnyThingSelected!())) {
       color = Colors.grey;
+    }
 
     if (widget.handleCut != null) {
       addToolbarButton(
@@ -533,7 +534,7 @@ class _DesktopTextSelectionToolbarButton extends StatelessWidget {
           alignment: Alignment.centerLeft,
           enabledMouseCursor: SystemMouseCursors.basic,
           disabledMouseCursor: SystemMouseCursors.basic,
-          primary: primary,
+          foregroundColor: primary,
           shape: const RoundedRectangleBorder(),
           minimumSize: const Size(kMinInteractiveDimension, 36.0),
           padding: _kToolbarButtonPadding,
