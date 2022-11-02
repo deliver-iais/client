@@ -5,7 +5,7 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:hive/hive.dart';
 
-abstract class MucDao extends DBManager {
+abstract class MucDao {
   Future<Muc?> get(String uid);
 
   Stream<Muc?> watch(String uid);
@@ -116,14 +116,14 @@ class MucDaoImpl extends MucDao {
   static String _keyMuc() => "muc";
 
   Future<BoxPlus<Muc>> _openMuc() {
-    super.open(_keyMuc(), TableInfo.MUC_TABLE_NAME);
+    DBManager.open(_keyMuc(), TableInfo.MUC_TABLE_NAME);
     return gen(Hive.openBox<Muc>(_keyMuc()));
   }
 
   static String _keyMembers(String uid) => "member-$uid";
 
   Future<BoxPlus<Member>> _openMembers(String uid) {
-    super.open(_keyMembers(uid.replaceAll(":", "-")), TableInfo.MEMBER_TABLE_NAME);
+    DBManager.open(_keyMembers(uid.replaceAll(":", "-")), TableInfo.MEMBER_TABLE_NAME);
     return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
   }
 

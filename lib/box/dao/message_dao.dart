@@ -6,7 +6,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
-abstract class MessageDao extends DBManager {
+abstract class MessageDao {
   Future<void> saveMessage(Message message);
 
   Future<void> deleteMessage(Message message);
@@ -165,7 +165,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
-      super.open(_keyMessages(uid.replaceAll(":", "-")), TableInfo.MESSAGE_TABLE_NAME);
+      DBManager.open(_keyMessages(uid.replaceAll(":", "-")), TableInfo.MESSAGE_TABLE_NAME);
       return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
@@ -175,7 +175,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
     try {
-      super.open(_keyPending(), TableInfo.PENDING_MESSAGE_TABLE_NAME);
+      DBManager.open(_keyPending(), TableInfo.PENDING_MESSAGE_TABLE_NAME);
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());
@@ -192,7 +192,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<PendingMessage>> _openPendingEditedMessages() async {
     try {
-      super.open(_keyPendingEdited(), TableInfo.EDIT_PENDING_TABLE_NAME);
+      DBManager.open(_keyPendingEdited(), TableInfo.EDIT_PENDING_TABLE_NAME);
       return gen(Hive.openBox<PendingMessage>(_keyPendingEdited()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPendingEdited());

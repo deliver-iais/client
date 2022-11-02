@@ -8,7 +8,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
 
-abstract class RoomDao extends DBManager {
+abstract class RoomDao {
   Future<void> updateRoom({
     required String uid,
     Message? lastMessage,
@@ -175,7 +175,7 @@ class RoomDaoImpl extends RoomDao {
 
   Future<BoxPlus<Room>> _openRoom() async {
     try {
-      super.open(_keyRoom(), TableInfo.ROOM_TABLE_NAME);
+      DBManager.open(_keyRoom(), TableInfo.ROOM_TABLE_NAME);
       return gen(Hive.openBox<Room>(_keyRoom()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

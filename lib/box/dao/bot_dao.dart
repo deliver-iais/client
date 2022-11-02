@@ -3,7 +3,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class BotDao extends DBManager {
+abstract class BotDao {
   Future<BotInfo?> get(String uid);
 
   Future<void> save(BotInfo botInfo);
@@ -27,7 +27,7 @@ class BotDaoImpl extends BotDao {
   static String _key() => "bot";
 
   Future<BoxPlus<BotInfo>> _open() {
-    super.open(_key(), TableInfo.BOT_INFO_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.BOT_INFO_TABLE_NAME);
     return gen(Hive.openBox<BotInfo>(_key()));
   }
 }

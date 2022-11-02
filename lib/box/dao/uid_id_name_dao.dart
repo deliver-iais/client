@@ -4,7 +4,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
-abstract class UidIdNameDao extends DBManager {
+abstract class UidIdNameDao {
   Future<UidIdName?> getByUid(String uid);
 
   Stream<String?> watchIdByUid(String uid);
@@ -101,12 +101,12 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   static String _key2() => "id-uid-name";
 
   Future<BoxPlus<UidIdName>> _open() {
-    super.open(_key(), TableInfo.UID_ID_NAME_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.UID_ID_NAME_TABLE_NAME);
     return gen(Hive.openBox<UidIdName>(_key()));
   }
 
   Future<BoxPlus<String>> _open2() {
-    super.open(_key2(), TableInfo.ID_UID_NAME_TABLE_NAME);
+    DBManager.open(_key2(), TableInfo.ID_UID_NAME_TABLE_NAME);
     return gen(Hive.openBox<String>(_key2()));
   }
 }

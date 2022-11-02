@@ -3,7 +3,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class ContactDao extends DBManager {
+abstract class ContactDao {
   Future<Contact?> get(int countryCode, int nationalNumber);
 
   Future<Contact?> getByUid(String uid);
@@ -90,7 +90,7 @@ class ContactDaoImpl extends ContactDao {
   static String _key() => "contact";
 
   Future<BoxPlus<Contact>> _open() {
-    super.open(_key(), TableInfo.CONTACT_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.CONTACT_TABLE_NAME);
     return gen(Hive.openBox<Contact>(_key()));
   }
 

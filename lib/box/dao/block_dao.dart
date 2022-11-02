@@ -2,7 +2,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class BlockDao extends DBManager {
+abstract class BlockDao {
   Future<bool> isBlocked(String uid);
 
   Stream<bool?> watchIsBlocked(String uid);
@@ -46,7 +46,7 @@ class BlockDaoImpl extends BlockDao {
   static String _key() => "block";
 
   Future<BoxPlus<bool>> _open() {
-    super.open(_key(), TableInfo.BLOCK_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.BLOCK_TABLE_NAME);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

@@ -3,7 +3,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:hive/hive.dart';
 
-abstract class ShowCaseDao extends DBManager {
+abstract class ShowCaseDao {
   Future<List<ShowCase>> getAllShowCases();
 
   Future<ShowCase?> getShowCase(int index);
@@ -36,7 +36,7 @@ class ShowCaseDaoImpl extends ShowCaseDao {
   static String _key() => "show-case";
 
   Future<BoxPlus<ShowCase>> _open() {
-    super.open(_key(), TableInfo.SHOW_CASE_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.SHOW_CASE_TABLE_NAME);
     return gen(Hive.openBox<ShowCase>(_key()));
   }
 }

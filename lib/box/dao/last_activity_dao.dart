@@ -3,7 +3,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:hive/hive.dart';
 
-abstract class LastActivityDao extends DBManager {
+abstract class LastActivityDao {
   Future<LastActivity?> get(String uid);
 
   Stream<LastActivity?> watch(String uid);
@@ -38,7 +38,7 @@ class LastActivityDaoImpl extends LastActivityDao {
   static String _key() => "last-activity";
 
   Future<BoxPlus<LastActivity>> _open() {
-    super.open(_key(), TableInfo.LAST_ACTIVITY_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.LAST_ACTIVITY_TABLE_NAME);
     return gen(Hive.openBox<LastActivity>(_key()));
   }
 }

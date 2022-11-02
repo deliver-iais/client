@@ -53,7 +53,7 @@ enum TableInfo {
 }
 
 class DBManager {
-  void open(String key, TableInfo table) => BoxDao.addBox(
+  static void open(String key, TableInfo table) => BoxDao.addBox(
         key,
         BoxInfo(dbKey: key, name: table.name, version: table.version),
       );

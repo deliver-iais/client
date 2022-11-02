@@ -5,7 +5,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:hive/hive.dart';
 
-abstract class SeenDao extends DBManager {
+abstract class SeenDao {
   Future<Seen?> getOthersSeen(String uid);
 
   Stream<Seen?> watchOthersSeen(String uid);
@@ -103,13 +103,13 @@ class SeenDaoImpl extends SeenDao {
   static String _key2() => "my-seen";
 
   Future<BoxPlus<Seen>> _openOthersSeen() {
-    super.open(_key(), TableInfo.OTHER_SEEN_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.OTHER_SEEN_TABLE_NAME);
     return gen(Hive.openBox<Seen>(_key()));
   }
 
   Future<BoxPlus<Seen>> _openMySeen() async {
     try {
-      super.open(_key2(), TableInfo.MY_SEEN_TABLE_NAME);
+      DBManager.open(_key2(), TableInfo.MY_SEEN_TABLE_NAME);
       return gen(Hive.openBox<Seen>(_key2()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_key2());

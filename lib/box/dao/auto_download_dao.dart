@@ -5,7 +5,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
 
-abstract class AutoDownloadDao extends DBManager {
+abstract class AutoDownloadDao {
   Future<bool> isPhotoAutoDownloadEnable(AutoDownloadRoomCategory category);
 
   Future<bool> isFileAutoDownloadEnable(AutoDownloadRoomCategory category);
@@ -34,7 +34,7 @@ class AutoDownloadDaoImpl extends AutoDownloadDao {
   static String _key() => "auto_download";
 
   Future<BoxPlus<AutoDownload>> _open() {
-    super.open(_key(), TableInfo.AUTO_DOWNLOAD_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.AUTO_DOWNLOAD_TABLE_NAME);
     return gen(Hive.openBox<AutoDownload>(_key()));
   }
 

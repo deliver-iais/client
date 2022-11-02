@@ -3,7 +3,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:hive/hive.dart';
 
-abstract class MediaMetaDataDao extends DBManager {
+abstract class MediaMetaDataDao {
   Future save(MediaMetaData mediaMetaData);
 
   Stream<MediaMetaData?> get(String roomUid);
@@ -54,7 +54,7 @@ class MediaMetaDataDaoImpl extends MediaMetaDataDao {
   static String _key() => "media_meta_data";
 
   Future<BoxPlus<MediaMetaData>> _open() {
-    super.open(_key(), TableInfo.MEDIA_META_DATA_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.MEDIA_META_DATA_TABLE_NAME);
     return gen(Hive.openBox<MediaMetaData>(_key()));
   }
 }

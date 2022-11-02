@@ -2,7 +2,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class MuteDao extends DBManager {
+abstract class MuteDao {
   Future<bool> isMuted(String uid);
 
   Stream<bool> watchIsMuted(String uid);
@@ -46,7 +46,7 @@ class MuteDaoImpl extends MuteDao {
   static String _key() => "mute";
 
   Future<BoxPlus<bool>> _open() {
-    super.open(_key(), TableInfo.MUTE_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.MUTE_TABLE_NAME);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

@@ -3,7 +3,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class FileDao extends DBManager {
+abstract class FileDao {
   Future<FileInfo?> get(String uuid, String sizeType);
 
   Future<void> save(FileInfo fileInfo);
@@ -40,7 +40,7 @@ class FileDaoImpl extends FileDao {
   static String _key(String size) => "file-info-$size";
 
   Future<BoxPlus<FileInfo>> _open(String size) {
-    super.open(_key(size), TableInfo.FILE_INFO_TABLE_NAME);
+    DBManager.open(_key(size), TableInfo.FILE_INFO_TABLE_NAME);
     return gen(Hive.openBox<FileInfo>(_key(size)));
   }
 }

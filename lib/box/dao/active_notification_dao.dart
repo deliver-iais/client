@@ -3,7 +3,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class ActiveNotificationDao extends DBManager {
+abstract class ActiveNotificationDao {
   Future<List<ActiveNotification>> getRoomActiveNotification(String roomUid);
 
   Future<ActiveNotification?> getActiveNotification(
@@ -59,7 +59,7 @@ class ActiveNotificationDaoImpl extends ActiveNotificationDao {
   static String _key(String roomUid) => "active-notification-$roomUid";
 
   Future<BoxPlus<ActiveNotification>> _open(String uid) {
-    super.open(_key(uid), TableInfo.ACTIVE_NOTIFICATION_TABLE_NAME);
+    DBManager.open(_key(uid), TableInfo.ACTIVE_NOTIFICATION_TABLE_NAME);
     return gen(
       Hive.openBox<ActiveNotification>(_key(uid)),
     );

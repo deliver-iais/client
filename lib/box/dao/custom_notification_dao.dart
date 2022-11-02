@@ -2,7 +2,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class CustomNotificationDao extends DBManager {
+abstract class CustomNotificationDao {
   Future<bool> HaveCustomNotificationSound(String uid);
 
   Future<void> setCustomNotificationSound(String uid, String fileName);
@@ -16,7 +16,7 @@ class CustomNotificationDaoImpl extends CustomNotificationDao {
   static String _key() => "customNotification";
 
   Future<BoxPlus<String>> _open() {
-    super.open(_key(), TableInfo.CUSTOM_NOTIFICATION_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.CUSTOM_NOTIFICATION_TABLE_NAME);
     return gen(Hive.openBox<String>(_key()));
   }
 

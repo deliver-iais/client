@@ -3,7 +3,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:hive/hive.dart';
 
-abstract class LiveLocationDao extends DBManager {
+abstract class LiveLocationDao {
   Future<LiveLocation?> getLiveLocation(String uuid);
 
   Future<void> saveLiveLocation(LiveLocation liveLocation);
@@ -37,7 +37,7 @@ class LiveLocationDaoImpl extends LiveLocationDao {
   static String _key() => "live_location";
 
   Future<BoxPlus<LiveLocation>> _open() {
-    super.open(_key(), TableInfo.LIVE_LOCATION_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.LIVE_LOCATION_TABLE_NAME);
     return gen(Hive.openBox<LiveLocation>(_key()));
   }
 }

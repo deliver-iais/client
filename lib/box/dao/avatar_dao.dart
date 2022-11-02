@@ -6,7 +6,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class AvatarDao extends DBManager {
+abstract class AvatarDao {
   Stream<List<Avatar?>> watchAvatars(String uid);
 
   Stream<Avatar?> watchLastAvatar(String uid);
@@ -147,7 +147,7 @@ class AvatarDaoImpl extends AvatarDao {
   static String _key2() => "last-avatar";
 
   Future<BoxPlus<Avatar>> _open(String uid) {
-    super.open(_key(uid.replaceAll(":", "-")), TableInfo.AVATAR_TABLE_NAME);
+    DBManager.open(_key(uid.replaceAll(":", "-")), TableInfo.AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
   }
 
@@ -156,7 +156,7 @@ class AvatarDaoImpl extends AvatarDao {
       Hive.box<Avatar>(_key(uid)).close();
 
   Future<BoxPlus<Avatar>> _open2() {
-    super.open(_key2(), TableInfo.AVATAR_TABLE_NAME);
+    DBManager.open(_key2(), TableInfo.AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key2()));
   }
 

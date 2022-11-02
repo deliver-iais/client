@@ -3,7 +3,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class CurrentCallInfoDao extends DBManager {
+abstract class CurrentCallInfoDao {
   Future<CurrentCallInfo?> get();
 
   Future<void> save(CurrentCallInfo currentCallInfo);
@@ -33,7 +33,7 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   static String _key() => "current_call";
 
   Future<BoxPlus<CurrentCallInfo>> _open() {
-    super.open(_key(), TableInfo.CURRENT_CALL_INFO_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.CURRENT_CALL_INFO_TABLE_NAME);
     return gen(Hive.openBox<CurrentCallInfo>(_key()));
   }
 

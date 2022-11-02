@@ -2,7 +2,7 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class SharedDao extends DBManager {
+abstract class SharedDao {
   Future<String?> get(String key);
 
   Stream<String?> getStream(String key, {String? defaultValue});
@@ -75,7 +75,7 @@ class SharedDaoImpl extends SharedDao {
   static String _key() => "shared";
 
   Future<BoxPlus> _open() {
-    super.open(_key(), TableInfo.SHARED_TABLE_NAME);
+    DBManager.open(_key(), TableInfo.SHARED_TABLE_NAME);
     return gen(Hive.openBox(_key()));
   }
 }
