@@ -9,7 +9,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
@@ -40,7 +40,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -234,9 +233,8 @@ class InputMessageWidgetState extends State<InputMessage> {
     selectionControls = CustomTextSelectionController(
       buildContext: context,
       textController: widget.textController,
-      captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
-    );
+    ).getCustomTextSelectionController();
     super.initState();
   }
 
