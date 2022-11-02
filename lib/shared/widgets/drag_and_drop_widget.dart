@@ -2,6 +2,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -17,81 +18,90 @@ class DragDropWidget extends StatelessWidget {
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _logger = GetIt.I.get<Logger>();
+  static final _dragAndDropService = GetIt.I.get<DragAndDropService>();
 
   final Widget child;
   final String roomUid;
   final double height;
   final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
-  final bool enabled;
 
   const DragDropWidget({
     super.key,
     required this.child,
     required this.roomUid,
     required this.height,
-    this.enabled = true,
     this.resetRoomPageDetails,
     this.replyMessageId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return isWeb
-        ? Stack(
-            children: [
-              if (enabled)
-                SizedBox(
-                  height: height,
-                  child: DropzoneView(
-                    operation: DragOperation.copy,
-                    cursor: CursorType.grab,
-                    onDropMultiple: (files) async {
-                      try {
-                        if (files != null) {
-                          final inputFiles = <model.File>[];
-                          for (final File file in (files)) {
-                            final url =
-                                Url.createObjectUrlFromBlob(file.slice());
-                            inputFiles.add(
-                              model.File(
-                                url,
-                                file.name,
-                                extension: file.type,
-                                size: file.size,
-                              ),
-                            );
+    return StreamBuilder<bool>(
+      stream: _dragAndDropService.isDragEnable,
+      builder: (context, snapshot) {
+        final enabled = snapshot.data ?? true;
+        return isWeb
+            ? Stack(
+                children: [
+                  if (enabled)
+                    SizedBox(
+                      height: height,
+                      child: DropzoneView(
+                        operation: DragOperation.copy,
+                        cursor: CursorType.grab,
+                        onDropMultiple: (files) async {
+                          try {
+                            if (files != null &&
+                                _routingServices.isInRoom(roomUid)) {
+                              final inputFiles = <model.File>[];
+                              for (final File file in (files)) {
+                                final url =
+                                    Url.createObjectUrlFromBlob(file.slice());
+                                inputFiles.add(
+                                  model.File(
+                                    url,
+                                    file.name,
+                                    extension: file.type,
+                                    size: file.size,
+                                  ),
+                                );
+                              }
+                              _sendInputFiles(inputFiles, context).ignore();
+                            }
+                          } catch (e) {
+                            _logger.e(e);
                           }
-                          _sendInputFiles(inputFiles, context).ignore();
-                        }
-                      } catch (e) {
-                        _logger.e(e);
-                      }
-                    },
-                  ),
-                ),
-              child,
-            ],
-          )
-        : DropTarget(
-            enable: enabled,
-            onDragDone: (d) async {
-              final files = <model.File>[];
-              for (final element in d.files) {
-                files.add(
-                  model.File(
-                    element.path,
-                    element.name,
-                    extension: element.path.split(".").last,
-                    size: await element.length(),
-                  ),
-                );
-              }
-              // ignore: use_build_context_synchronously
-              _sendInputFiles(files, context).ignore();
-            },
-            child: child,
-          );
+                        },
+                      ),
+                    ),
+                  child,
+                ],
+              )
+            : DropTarget(
+                enable: enabled,
+                onDragDone: (d) async {
+                  if (d.files.isNotEmpty &&
+                      _routingServices.isInRoom(roomUid)) {
+                    final files = <model.File>[];
+                    for (final element in d.files) {
+                      files.add(
+                        model.File(
+                          element.path,
+                          element.name,
+                          extension: element.path.split(".").last,
+                          size: await element.length(),
+                        ),
+                      );
+                    }
+                    // ignore: use_build_context_synchronously
+                    _sendInputFiles(files, context).ignore();
+                  }
+                },
+                child: child,
+              );
+      },
+    );
   }
 
   Future<void> _sendInputFiles(
@@ -128,6 +138,7 @@ class DragDropWidget extends StatelessWidget {
     int? replyMessageId,
     void Function()? resetRoomPageDetails,
   ) {
+    _dragAndDropService.disableDrag();
     showCaptionDialog(
       context: context,
       files: files,
@@ -135,6 +146,5 @@ class DragDropWidget extends StatelessWidget {
       replyMessageId: replyMessageId ?? 0,
       resetRoomPageDetails: resetRoomPageDetails,
     );
-    _routingServices.openRoom(roomUid);
   }
 }
