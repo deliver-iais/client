@@ -381,7 +381,6 @@ class AudioService {
   bool recorderIsAvailable() => _recorder.recorderIsAvailable();
 
   void lockRecorder() => _recorder.lock();
-
 }
 
 class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
