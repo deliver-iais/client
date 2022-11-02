@@ -79,43 +79,48 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       // width: pointSize,
                       // height: pointSize,
                       point: LatLng(
-                          widget.position.latitude, widget.position.longitude,),
+                        widget.position.latitude,
+                        widget.position.longitude,
+                      ),
                       builder: (_) {
                         return Container(
-                            padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            // borderRadius: BorderRadius.circular(48.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: (theme.colorScheme.primary
+                                    .withOpacity(0.7)),
+                                blurRadius: 20.0,
+                              )
+                            ],
+                          ),
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            // padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              // borderRadius: BorderRadius.circular(48.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: (theme.colorScheme.primary
-                                      .withOpacity(0.7)),
-                                  blurRadius: 20.0,
-                                )
-                              ],
+                              border: Border.all(color: Colors.white),
+                              color: theme.colorScheme.primary,
                             ),
-                            child: Container(
-                                width: 200,
-                                height: 200,
-                                // padding: EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white),
-                                    color: theme.colorScheme.primary)));
+                          ),
+                        );
                       },
                     ),
-                      Marker(
-                        point: latLng,
-                        builder: (_) {
-                          return GestureDetector(
-                            child: Icon(
-                              Icons.location_pin,
-                              color: Theme.of(context).errorColor,
-                              size: 28,
-                            ),
-                          );
-                        },
-                      )
+                    Marker(
+                      point: latLng,
+                      builder: (_) {
+                        return GestureDetector(
+                          child: Icon(
+                            Icons.location_pin,
+                            color: Theme.of(context).errorColor,
+                            size: 28,
+                          ),
+                        );
+                      },
+                    )
                   ],
                 )
               ],
@@ -159,7 +164,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (widget.position.latitude != latLng.latitude || widget.position.longitude != latLng.longitude)
+                            if (widget.position.latitude != latLng.latitude ||
+                                widget.position.longitude != latLng.longitude)
                               Text(
                                 _i18n.get(
                                   "send_this_location",
@@ -173,7 +179,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                                 ),
                                 style: const TextStyle(fontSize: 18),
                               ),
-                            if (widget.position.latitude != latLng.latitude || widget.position.longitude != latLng.longitude )
+                            if (widget.position.latitude != latLng.latitude ||
+                                widget.position.longitude != latLng.longitude)
                               Text("${latLng.latitude},${latLng.longitude}")
                             else
                               Text("${widget.position.accuracy}")
@@ -199,6 +206,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
       ),
     );
   }
+
   void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
     setState(() {
@@ -209,6 +217,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
       }
     });
   }
+
   double _getPointX(BuildContext context) {
     return MediaQuery.of(context).size.width / 2;
   }
@@ -226,7 +235,6 @@ class AttachLocation {
     return FutureBuilder(
       future: Geolocator.getCurrentPosition(),
       builder: (c, position) {
-        print(position.data);
         if (position.hasData && position.data != null) {
           return PointToLatLngPage(
             position: position.data!,
@@ -360,7 +368,9 @@ class AttachLocation {
                   ),
                   onPressed: () {
                     _messageRepo.sendLocationMessage(
-                        LatLng(position.latitude, position.longitude), roomUid,);
+                      LatLng(position.latitude, position.longitude),
+                      roomUid,
+                    );
                     Navigator.pop(c);
                   },
                   child: Text(_i18n.get("send")),

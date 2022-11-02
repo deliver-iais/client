@@ -13,7 +13,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   geolocator_windows
   image_compression_flutter
   just_audio_windows
-  maps_launcher
   pasteboard
   permission_handler_windows
   url_launcher_windows

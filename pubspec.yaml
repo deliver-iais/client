@@ -117,11 +117,12 @@ dependencies:
       url: https://github.com/bdlukaa/just_audio
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
+  location: 4.4.0
   logger: 1.1.0
   lottie: 1.4.3
+  map_launcher: 2.4.0
   marquee: 2.2.3
   material_color_utilities: 0.1.5
-  map_launcher: ^2.4.0
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime_type: 1.0.0
@@ -182,7 +183,6 @@ dependencies:
       path: plugins/window_size
       ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
-  location: ^4.4.0
 
 
 

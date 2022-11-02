@@ -9,7 +9,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_window
   file_selector_linux
   image_compression_flutter
-  maps_launcher
   pasteboard
   url_launcher_linux
   window_size

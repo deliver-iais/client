@@ -20,6 +20,7 @@ import 'package:deliver/screen/profile/widgets/all_image_page.dart';
 import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
@@ -40,6 +41,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -48,9 +50,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../screen/room/messageWidgets/location_message.dart';
-import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 
 // Pages
 final _globalKeyNavigationCenter = GlobalKey();
@@ -199,15 +198,15 @@ class RoutingService {
     );
   }
 
-  void openLocation(
-      final Location location,
-      Uid from,
-      Message message
-      ) => _push(
-    LocationPage(key: const ValueKey("/location"),location: location, from: from, message: message,),
-
-  );
-
+  void openLocation(final Location location, Uid from, Message message) =>
+      _push(
+        LocationPage(
+          key: const ValueKey("/location"),
+          location: location,
+          from: from,
+          message: message,
+        ),
+      );
 
   void openProfile(String roomId) => _push(
         ProfilePage(
