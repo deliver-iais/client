@@ -10,39 +10,39 @@ import 'dart:ui' as _i10;
 import 'package:deliver/box/account.dart' as _i64;
 import 'package:deliver/box/avatar.dart' as _i33;
 import 'package:deliver/box/bot_info.dart' as _i13;
-import 'package:deliver/box/call_status.dart' as _i81;
-import 'package:deliver/box/call_type.dart' as _i82;
+import 'package:deliver/box/call_status.dart' as _i82;
+import 'package:deliver/box/call_type.dart' as _i83;
 import 'package:deliver/box/contact.dart' as _i61;
-import 'package:deliver/box/current_call_info.dart' as _i80;
+import 'package:deliver/box/current_call_info.dart' as _i81;
 import 'package:deliver/box/dao/block_dao.dart' as _i53;
-import 'package:deliver/box/dao/custom_notification_dao.dart' as _i70;
-import 'package:deliver/box/dao/last_activity_dao.dart' as _i84;
-import 'package:deliver/box/dao/media_dao.dart' as _i71;
-import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i77;
+import 'package:deliver/box/dao/custom_notification_dao.dart' as _i71;
+import 'package:deliver/box/dao/last_activity_dao.dart' as _i85;
+import 'package:deliver/box/dao/media_dao.dart' as _i72;
+import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i78;
 import 'package:deliver/box/dao/message_dao.dart' as _i24;
-import 'package:deliver/box/dao/muc_dao.dart' as _i86;
+import 'package:deliver/box/dao/muc_dao.dart' as _i87;
 import 'package:deliver/box/dao/mute_dao.dart' as _i56;
-import 'package:deliver/box/dao/room_dao.dart' as _i27;
+import 'package:deliver/box/dao/room_dao.dart' as _i28;
 import 'package:deliver/box/dao/seen_dao.dart' as _i44;
 import 'package:deliver/box/dao/shared_dao.dart' as _i51;
 import 'package:deliver/box/dao/uid_id_name_dao.dart' as _i57;
-import 'package:deliver/box/last_activity.dart' as _i85;
+import 'package:deliver/box/db_manager.dart' as _i27;
+import 'package:deliver/box/last_activity.dart' as _i86;
 import 'package:deliver/box/livelocation.dart' as _i42;
-import 'package:deliver/box/media.dart' as _i72;
-import 'package:deliver/box/media_meta_data.dart' as _i75;
-import 'package:deliver/box/media_type.dart' as _i73;
+import 'package:deliver/box/media.dart' as _i73;
+import 'package:deliver/box/media_meta_data.dart' as _i76;
+import 'package:deliver/box/media_type.dart' as _i74;
 import 'package:deliver/box/member.dart' as _i62;
 import 'package:deliver/box/message.dart' as _i25;
 import 'package:deliver/box/muc.dart' as _i66;
 import 'package:deliver/box/muc_type.dart' as _i68;
 import 'package:deliver/box/pending_message.dart' as _i26;
-import 'package:deliver/box/reply_keyboard_markup.dart' as _i28;
 import 'package:deliver/box/role.dart' as _i67;
 import 'package:deliver/box/room.dart' as _i29;
 import 'package:deliver/box/seen.dart' as _i2;
 import 'package:deliver/box/uid_id_name.dart' as _i58;
 import 'package:deliver/localization/i18n.dart' as _i54;
-import 'package:deliver/models/call_event_type.dart' as _i79;
+import 'package:deliver/models/call_event_type.dart' as _i80;
 import 'package:deliver/repository/accountRepo.dart' as _i63;
 import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i32;
@@ -51,18 +51,18 @@ import 'package:deliver/repository/botRepo.dart' as _i69;
 import 'package:deliver/repository/contactRepo.dart' as _i59;
 import 'package:deliver/repository/fileRepo.dart' as _i37;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i41;
-import 'package:deliver/repository/mediaRepo.dart' as _i74;
+import 'package:deliver/repository/mediaRepo.dart' as _i75;
 import 'package:deliver/repository/mucRepo.dart' as _i65;
 import 'package:deliver/repository/roomRepo.dart' as _i30;
-import 'package:deliver/services/call_service.dart' as _i78;
+import 'package:deliver/services/call_service.dart' as _i79;
 import 'package:deliver/services/core_services.dart' as _i50;
 import 'package:deliver/services/data_stream_services.dart' as _i46;
 import 'package:deliver/services/file_service.dart' as _i40;
 import 'package:deliver/services/firebase_services.dart' as _i36;
 import 'package:deliver/services/muc_services.dart' as _i45;
-import 'package:deliver/services/notification_services.dart' as _i83;
-import 'package:deliver/services/url_handler_service.dart' as _i88;
-import 'package:deliver/services/ux_service.dart' as _i87;
+import 'package:deliver/services/notification_services.dart' as _i84;
+import 'package:deliver/services/url_handler_service.dart' as _i89;
+import 'package:deliver/services/ux_service.dart' as _i88;
 import 'package:deliver/shared/language.dart' as _i55;
 import 'package:deliver/theme/extra_theme.dart' as _i19;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart' as _i12;
@@ -73,11 +73,12 @@ import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart'
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart' as _i31;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as _i16;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart'
-    as _i89;
+    as _i90;
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as _i60;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as _i39;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as _i43;
-import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart' as _i76;
+import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart' as _i70;
+import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart' as _i77;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as _i47;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i11;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i34;
@@ -723,12 +724,69 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Stream<_i26.PendingMessage?>.empty(),
       ) as _i22.Stream<_i26.PendingMessage?>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [RoomDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
+class MockRoomDao extends _i1.Mock implements _i28.RoomDao {
   MockRoomDao() {
     _i1.throwOnMissingStub(this);
   }
@@ -749,7 +807,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
-    _i28.ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     bool? forceToUpdateReplyKeyboardMarkup = false,
   }) =>
       (super.noSuchMethod(
@@ -826,6 +884,63 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Future<List<_i29.Room>>.value(<_i29.Room>[]),
       ) as _i22.Future<List<_i29.Room>>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [RoomRepo].
@@ -1148,7 +1263,7 @@ class MockRoomRepo extends _i1.Mock implements _i30.RoomRepo {
       ) as _i22.Future<void>);
   @override
   _i22.Future<void> updateReplyKeyboard(
-    _i28.ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     String? uid,
   ) =>
       (super.noSuchMethod(
@@ -1902,6 +2017,63 @@ class MockSeenDao extends _i1.Mock implements _i44.SeenDao {
             #uid: uid,
             #messageId: messageId,
             #hiddenMessageCount: hiddenMessageCount,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
           },
         ),
         returnValue: _i22.Future<void>.value(),
@@ -3775,6 +3947,63 @@ class MockSharedDao extends _i1.Mock implements _i51.SharedDao {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [AvatarRepo].
@@ -3929,6 +4158,63 @@ class MockBlockDao extends _i1.Mock implements _i53.BlockDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [I18N].
@@ -4051,6 +4337,63 @@ class MockMuteDao extends _i1.Mock implements _i56.MuteDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [UidIdNameDao].
@@ -4104,14 +4447,71 @@ class MockUidIdNameDao extends _i1.Mock implements _i57.UidIdNameDao {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<List<_i58.UidIdName>> search(String? text) => (super.noSuchMethod(
+  _i22.Future<List<_i58.UidIdName>> search(String? term) => (super.noSuchMethod(
         Invocation.method(
           #search,
-          [text],
+          [term],
         ),
         returnValue:
             _i22.Future<List<_i58.UidIdName>>.value(<_i58.UidIdName>[]),
       ) as _i22.Future<List<_i58.UidIdName>>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [ContactRepo].
@@ -4347,29 +4747,16 @@ class MockAccountRepo extends _i1.Mock implements _i63.AccountRepo {
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
   @override
-  _i22.Future<bool> profileInfoIsSet() => (super.noSuchMethod(
-        Invocation.method(
-          #profileInfoIsSet,
-          [],
-        ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
-  @override
-  _i22.Future<bool> fetchCurrentUserId({
-    bool? retry = false,
-    bool? forceToUpdate = false,
-  }) =>
+  _i22.Future<void> fetchCurrentUserId({bool? retry = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #fetchCurrentUserId,
           [],
-          {
-            #retry: retry,
-            #forceToUpdate: forceToUpdate,
-          },
+          {#retry: retry},
         ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
   _i22.Future<_i64.Account?> getAccount() => (super.noSuchMethod(
         Invocation.method(
@@ -4387,9 +4774,9 @@ class MockAccountRepo extends _i1.Mock implements _i63.AccountRepo {
         returnValue: _i22.Stream<_i64.Account?>.empty(),
       ) as _i22.Stream<_i64.Account?>);
   @override
-  _i22.Future<bool> checkUserName(String? username) => (super.noSuchMethod(
+  _i22.Future<bool> idIsAvailable(String? username) => (super.noSuchMethod(
         Invocation.method(
-          #checkUserName,
+          #idIsAvailable,
           [username],
         ),
         returnValue: _i22.Future<bool>.value(false),
@@ -4467,22 +4854,6 @@ class MockAccountRepo extends _i1.Mock implements _i63.AccountRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
-  @override
-  bool shouldRemoveDB(String? previousVersion) => (super.noSuchMethod(
-        Invocation.method(
-          #shouldRemoveDB,
-          [previousVersion],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool shouldMigrateDB(String? previousVersion) => (super.noSuchMethod(
-        Invocation.method(
-          #shouldMigrateDB,
-          [previousVersion],
-        ),
-        returnValue: false,
-      ) as bool);
   @override
   bool shouldUpdateSessionPlatformInformation(String? previousVersion) =>
       (super.noSuchMethod(
@@ -5076,7 +5447,7 @@ class MockBotRepo extends _i1.Mock implements _i69.BotRepo {
   _i22.Future<void> handleInlineMarkUpMessageCallBack(
     _i25.Message? message,
     _i17.BuildContext? context,
-    String? jsonData,
+    _i70.InlineKeyboardButton? button,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5084,7 +5455,7 @@ class MockBotRepo extends _i1.Mock implements _i69.BotRepo {
           [
             message,
             context,
-            jsonData,
+            button,
           ],
         ),
         returnValue: _i22.Future<void>.value(),
@@ -5113,7 +5484,7 @@ class MockBotRepo extends _i1.Mock implements _i69.BotRepo {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCustomNotificationDao extends _i1.Mock
-    implements _i70.CustomNotificationDao {
+    implements _i71.CustomNotificationDao {
   MockCustomNotificationDao() {
     _i1.throwOnMissingStub(this);
   }
@@ -5161,20 +5532,77 @@ class MockCustomNotificationDao extends _i1.Mock
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [MediaDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
+class MockMediaDao extends _i1.Mock implements _i72.MediaDao {
   MockMediaDao() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i22.Future<List<_i72.Media>> get(
+  _i22.Future<List<_i73.Media>> get(
     String? roomId,
-    _i73.MediaType? type,
+    _i74.MediaType? type,
     int? limit,
     int? offset,
   ) =>
@@ -5188,12 +5616,12 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
             offset,
           ],
         ),
-        returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
-      ) as _i22.Future<List<_i72.Media>>);
+        returnValue: _i22.Future<List<_i73.Media>>.value(<_i73.Media>[]),
+      ) as _i22.Future<List<_i73.Media>>);
   @override
-  _i22.Future<List<_i72.Media>> getByRoomIdAndType(
+  _i22.Future<List<_i73.Media>> getByRoomIdAndType(
     String? roomUid,
-    _i73.MediaType? type,
+    _i74.MediaType? type,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5203,10 +5631,10 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
             type,
           ],
         ),
-        returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
-      ) as _i22.Future<List<_i72.Media>>);
+        returnValue: _i22.Future<List<_i73.Media>>.value(<_i73.Media>[]),
+      ) as _i22.Future<List<_i73.Media>>);
   @override
-  _i22.Future<dynamic> save(_i72.Media? media) => (super.noSuchMethod(
+  _i22.Future<dynamic> save(_i73.Media? media) => (super.noSuchMethod(
         Invocation.method(
           #save,
           [media],
@@ -5217,7 +5645,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
   _i22.Future<int?> getIndexOfMedia(
     String? roomUid,
     int? messageId,
-    _i73.MediaType? type,
+    _i74.MediaType? type,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5234,7 +5662,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
   _i22.Stream<int> getIndexOfMediaAsStream(
     String? roomUid,
     int? messageId,
-    _i73.MediaType? type,
+    _i74.MediaType? type,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5271,12 +5699,69 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [MediaRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
+class MockMediaRepo extends _i1.Mock implements _i75.MediaRepo {
   MockMediaRepo() {
     _i1.throwOnMissingStub(this);
   }
@@ -5296,7 +5781,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  void saveMediaMetaData(_i75.MediaMetaData? metaData) => super.noSuchMethod(
+  void saveMediaMetaData(_i76.MediaMetaData? metaData) => super.noSuchMethod(
         Invocation.method(
           #saveMediaMetaData,
           [metaData],
@@ -5304,11 +5789,11 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<List<_i72.Media>?> getMediaAutoPlayListPageByMessageId({
+  _i22.Future<List<_i73.Media>?> getMediaAutoPlayListPageByMessageId({
     required int? messageId,
     required String? roomUid,
     required int? messageTime,
-    _i73.MediaType? type = _i73.MediaType.MUSIC,
+    _i74.MediaType? type = _i74.MediaType.MUSIC,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5321,13 +5806,13 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
             #type: type,
           },
         ),
-        returnValue: _i22.Future<List<_i72.Media>?>.value(),
-      ) as _i22.Future<List<_i72.Media>?>);
+        returnValue: _i22.Future<List<_i73.Media>?>.value(),
+      ) as _i22.Future<List<_i73.Media>?>);
   @override
-  _i22.Future<List<_i72.Media>?> getMediaAutoPlayListPageByIndex({
+  _i22.Future<List<_i73.Media>?> getMediaAutoPlayListPageByIndex({
     required String? roomUid,
     required int? mediaIndex,
-    _i73.MediaType? type = _i73.MediaType.MUSIC,
+    _i74.MediaType? type = _i74.MediaType.MUSIC,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5339,17 +5824,17 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
             #type: type,
           },
         ),
-        returnValue: _i22.Future<List<_i72.Media>?>.value(),
-      ) as _i22.Future<List<_i72.Media>?>);
+        returnValue: _i22.Future<List<_i73.Media>?>.value(),
+      ) as _i22.Future<List<_i73.Media>?>);
   @override
-  _i22.Future<_i75.MediaMetaData?> getMediaMetaData(String? roomUid) =>
+  _i22.Future<_i76.MediaMetaData?> getMediaMetaData(String? roomUid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getMediaMetaData,
           [roomUid],
         ),
-        returnValue: _i22.Future<_i75.MediaMetaData?>.value(),
-      ) as _i22.Future<_i75.MediaMetaData?>);
+        returnValue: _i22.Future<_i76.MediaMetaData?>.value(),
+      ) as _i22.Future<_i76.MediaMetaData?>);
   @override
   _i22.Future<void> updateMediaMetaData(
     _i3.Uid? roomUid,
@@ -5369,7 +5854,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
   @override
   void checkNeedFetchMedia(
     String? roomUid,
-    _i75.MediaMetaData? oldMediaMetaData,
+    _i76.MediaMetaData? oldMediaMetaData,
     _i14.GetMediaMetadataRes? getMediaMetadataRes,
   ) =>
       super.noSuchMethod(
@@ -5403,17 +5888,17 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
   @override
-  _i22.Stream<_i75.MediaMetaData?> getMediasMetaDataCountFromDB(
+  _i22.Stream<_i76.MediaMetaData?> getMediasMetaDataCountFromDB(
           _i3.Uid? roomId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getMediasMetaDataCountFromDB,
           [roomId],
         ),
-        returnValue: _i22.Stream<_i75.MediaMetaData?>.empty(),
-      ) as _i22.Stream<_i75.MediaMetaData?>);
+        returnValue: _i22.Stream<_i76.MediaMetaData?>.empty(),
+      ) as _i22.Stream<_i76.MediaMetaData?>);
   @override
-  _i22.Future<List<_i72.Media>> getLastMediasList(
+  _i22.Future<List<_i73.Media>> getLastMediasList(
     _i3.Uid? roomId,
     _i14.FetchMediasReq_MediaType? mediaType,
     int? pointer,
@@ -5429,20 +5914,20 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
             directionType,
           ],
         ),
-        returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
-      ) as _i22.Future<List<_i72.Media>>);
+        returnValue: _i22.Future<List<_i73.Media>>.value(<_i73.Media>[]),
+      ) as _i22.Future<List<_i73.Media>>);
   @override
-  _i73.MediaType findFetchedMediaType(
+  _i74.MediaType findFetchedMediaType(
           _i14.FetchMediasReq_MediaType? mediaType) =>
       (super.noSuchMethod(
         Invocation.method(
           #findFetchedMediaType,
           [mediaType],
         ),
-        returnValue: _i73.MediaType.IMAGE,
-      ) as _i73.MediaType);
+        returnValue: _i74.MediaType.IMAGE,
+      ) as _i74.MediaType);
   @override
-  _i14.FetchMediasReq_MediaType convertType(_i73.MediaType? mediaType) =>
+  _i14.FetchMediasReq_MediaType convertType(_i74.MediaType? mediaType) =>
       (super.noSuchMethod(
         Invocation.method(
           #convertType,
@@ -5457,9 +5942,9 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
       ) as _i14.FetchMediasReq_MediaType);
   @override
-  _i22.Future<List<_i72.Media>?> getMediaPage(
+  _i22.Future<List<_i73.Media>?> getMediaPage(
     String? roomUid,
-    _i73.MediaType? type,
+    _i74.MediaType? type,
     int? page,
     int? index,
   ) =>
@@ -5473,8 +5958,8 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
             index,
           ],
         ),
-        returnValue: _i22.Future<List<_i72.Media>?>.value(),
-      ) as _i22.Future<List<_i72.Media>?>);
+        returnValue: _i22.Future<List<_i73.Media>?>.value(),
+      ) as _i22.Future<List<_i73.Media>?>);
   @override
   void saveMediaFromMessage(_i25.Message? message) => super.noSuchMethod(
         Invocation.method(
@@ -5484,7 +5969,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<List<_i72.Media>?> fetchMoreMedia(
+  _i22.Future<List<_i73.Media>?> fetchMoreMedia(
     String? roomUid,
     _i14.FetchMediasReq_MediaType? mediaType,
     int? pointer, {
@@ -5501,10 +5986,10 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
           ],
           {#fetchingDirectionType: fetchingDirectionType},
         ),
-        returnValue: _i22.Future<List<_i72.Media>?>.value(),
-      ) as _i22.Future<List<_i72.Media>?>);
+        returnValue: _i22.Future<List<_i73.Media>?>.value(),
+      ) as _i22.Future<List<_i73.Media>?>);
   @override
-  String findFetchedMediaJson(_i76.Media? media) => (super.noSuchMethod(
+  String findFetchedMediaJson(_i77.Media? media) => (super.noSuchMethod(
         Invocation.method(
           #findFetchedMediaJson,
           [media],
@@ -5529,25 +6014,25 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i73.MediaType loadTypeFromString(String? type) => (super.noSuchMethod(
+  _i74.MediaType loadTypeFromString(String? type) => (super.noSuchMethod(
         Invocation.method(
           #loadTypeFromString,
           [type],
         ),
-        returnValue: _i73.MediaType.IMAGE,
-      ) as _i73.MediaType);
+        returnValue: _i74.MediaType.IMAGE,
+      ) as _i74.MediaType);
 }
 
 /// A class which mocks [MediaMetaDataDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
+class MockMediaMetaDataDao extends _i1.Mock implements _i78.MediaMetaDataDao {
   MockMediaMetaDataDao() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i22.Future<dynamic> save(_i75.MediaMetaData? mediaMetaData) =>
+  _i22.Future<dynamic> save(_i76.MediaMetaData? mediaMetaData) =>
       (super.noSuchMethod(
         Invocation.method(
           #save,
@@ -5556,22 +6041,22 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
   @override
-  _i22.Stream<_i75.MediaMetaData?> get(String? roomUid) => (super.noSuchMethod(
+  _i22.Stream<_i76.MediaMetaData?> get(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #get,
           [roomUid],
         ),
-        returnValue: _i22.Stream<_i75.MediaMetaData?>.empty(),
-      ) as _i22.Stream<_i75.MediaMetaData?>);
+        returnValue: _i22.Stream<_i76.MediaMetaData?>.empty(),
+      ) as _i22.Stream<_i76.MediaMetaData?>);
   @override
-  _i22.Future<_i75.MediaMetaData?> getAsFuture(String? roomUid) =>
+  _i22.Future<_i76.MediaMetaData?> getAsFuture(String? roomUid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getAsFuture,
           [roomUid],
         ),
-        returnValue: _i22.Future<_i75.MediaMetaData?>.value(),
-      ) as _i22.Future<_i75.MediaMetaData?>);
+        returnValue: _i22.Future<_i76.MediaMetaData?>.value(),
+      ) as _i22.Future<_i76.MediaMetaData?>);
   @override
   _i22.Future<dynamic> clear(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -5580,24 +6065,81 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
         ),
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [CallService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCallService extends _i1.Mock implements _i78.CallService {
+class MockCallService extends _i1.Mock implements _i79.CallService {
   MockCallService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.BehaviorSubject<_i79.CallEvents> get callEvents => (super.noSuchMethod(
+  _i4.BehaviorSubject<_i80.CallEvents> get callEvents => (super.noSuchMethod(
         Invocation.getter(#callEvents),
-        returnValue: _FakeBehaviorSubject_2<_i79.CallEvents>(
+        returnValue: _FakeBehaviorSubject_2<_i80.CallEvents>(
           this,
           Invocation.getter(#callEvents),
         ),
-      ) as _i4.BehaviorSubject<_i79.CallEvents>);
+      ) as _i4.BehaviorSubject<_i80.CallEvents>);
   @override
   bool get shouldRemoveData => (super.noSuchMethod(
         Invocation.getter(#shouldRemoveData),
@@ -5625,10 +6167,10 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: null,
       );
   @override
-  _i78.UserCallState get getUserCallState => (super.noSuchMethod(
+  _i79.UserCallState get getUserCallState => (super.noSuchMethod(
         Invocation.getter(#getUserCallState),
-        returnValue: _i78.UserCallState.IN_GROUP_CALL,
-      ) as _i78.UserCallState);
+        returnValue: _i79.UserCallState.IN_GROUP_CALL,
+      ) as _i79.UserCallState);
   @override
   _i3.Uid get getRoomUid => (super.noSuchMethod(
         Invocation.getter(#getRoomUid),
@@ -5659,7 +6201,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
       ) as _i15.RTCVideoRenderer);
   @override
-  set setUserCallState(_i78.UserCallState? cs) => super.noSuchMethod(
+  set setUserCallState(_i79.UserCallState? cs) => super.noSuchMethod(
         Invocation.setter(
           #setUserCallState,
           cs,
@@ -5683,7 +6225,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: null,
       );
   @override
-  void addCallEvent(_i79.CallEvents? event) => super.noSuchMethod(
+  void addCallEvent(_i80.CallEvents? event) => super.noSuchMethod(
         Invocation.method(
           #addCallEvent,
           [event],
@@ -5691,7 +6233,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<void> saveCallOnDb(_i80.CurrentCallInfo? callInfo) =>
+  _i22.Future<void> saveCallOnDb(_i81.CurrentCallInfo? callInfo) =>
       (super.noSuchMethod(
         Invocation.method(
           #saveCallOnDb,
@@ -5701,13 +6243,13 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Stream<_i80.CurrentCallInfo?> watchCurrentCall() => (super.noSuchMethod(
+  _i22.Stream<_i81.CurrentCallInfo?> watchCurrentCall() => (super.noSuchMethod(
         Invocation.method(
           #watchCurrentCall,
           [],
         ),
-        returnValue: _i22.Stream<_i80.CurrentCallInfo?>.empty(),
-      ) as _i22.Stream<_i80.CurrentCallInfo?>);
+        returnValue: _i22.Stream<_i81.CurrentCallInfo?>.empty(),
+      ) as _i22.Stream<_i81.CurrentCallInfo?>);
   @override
   _i22.Future<void> removeCallFromDb() => (super.noSuchMethod(
         Invocation.method(
@@ -5718,13 +6260,13 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<_i80.CurrentCallInfo?> loadCurrentCall() => (super.noSuchMethod(
+  _i22.Future<_i81.CurrentCallInfo?> loadCurrentCall() => (super.noSuchMethod(
         Invocation.method(
           #loadCurrentCall,
           [],
         ),
-        returnValue: _i22.Future<_i80.CurrentCallInfo?>.value(),
-      ) as _i22.Future<_i80.CurrentCallInfo?>);
+        returnValue: _i22.Future<_i81.CurrentCallInfo?>.value(),
+      ) as _i22.Future<_i81.CurrentCallInfo?>);
   @override
   _i22.Future<void> initRenderer() => (super.noSuchMethod(
         Invocation.method(
@@ -5735,27 +6277,27 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i81.CallStatus findCallEventStatusProto(
+  _i82.CallStatus findCallEventStatusProto(
           _i16.CallEvent_CallStatus? eventCallStatus) =>
       (super.noSuchMethod(
         Invocation.method(
           #findCallEventStatusProto,
           [eventCallStatus],
         ),
-        returnValue: _i81.CallStatus.CREATED,
-      ) as _i81.CallStatus);
+        returnValue: _i82.CallStatus.CREATED,
+      ) as _i82.CallStatus);
   @override
-  _i82.CallType findCallEventType(_i16.CallEvent_CallType? eventCallType) =>
+  _i83.CallType findCallEventType(_i16.CallEvent_CallType? eventCallType) =>
       (super.noSuchMethod(
         Invocation.method(
           #findCallEventType,
           [eventCallType],
         ),
-        returnValue: _i82.CallType.VIDEO,
-      ) as _i82.CallType);
+        returnValue: _i83.CallType.VIDEO,
+      ) as _i83.CallType);
   @override
   _i16.CallEvent_CallType findProtoCallEventType(
-          _i82.CallType? eventCallType) =>
+          _i83.CallType? eventCallType) =>
       (super.noSuchMethod(
         Invocation.method(
           #findProtoCallEventType,
@@ -5771,7 +6313,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
       ) as _i16.CallEvent_CallType);
   @override
   _i16.CallEvent_CallStatus findCallEventStatusDB(
-          _i81.CallStatus? eventCallStatus) =>
+          _i82.CallStatus? eventCallStatus) =>
       (super.noSuchMethod(
         Invocation.method(
           #findCallEventStatusDB,
@@ -5786,7 +6328,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
       ) as _i16.CallEvent_CallStatus);
   @override
-  String writeCallEventsToJson(_i79.CallEvents? event) => (super.noSuchMethod(
+  String writeCallEventsToJson(_i80.CallEvents? event) => (super.noSuchMethod(
         Invocation.method(
           #writeCallEventsToJson,
           [event],
@@ -5810,7 +6352,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNotificationServices extends _i1.Mock
-    implements _i83.NotificationServices {
+    implements _i84.NotificationServices {
   MockNotificationServices() {
     _i1.throwOnMissingStub(this);
   }
@@ -5894,33 +6436,90 @@ class MockNotificationServices extends _i1.Mock
 /// A class which mocks [LastActivityDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
+class MockLastActivityDao extends _i1.Mock implements _i85.LastActivityDao {
   MockLastActivityDao() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i22.Future<_i85.LastActivity?> get(String? uid) => (super.noSuchMethod(
+  _i22.Future<_i86.LastActivity?> get(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #get,
           [uid],
         ),
-        returnValue: _i22.Future<_i85.LastActivity?>.value(),
-      ) as _i22.Future<_i85.LastActivity?>);
+        returnValue: _i22.Future<_i86.LastActivity?>.value(),
+      ) as _i22.Future<_i86.LastActivity?>);
   @override
-  _i22.Stream<_i85.LastActivity?> watch(String? uid) => (super.noSuchMethod(
+  _i22.Stream<_i86.LastActivity?> watch(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [uid],
         ),
-        returnValue: _i22.Stream<_i85.LastActivity?>.empty(),
-      ) as _i22.Stream<_i85.LastActivity?>);
+        returnValue: _i22.Stream<_i86.LastActivity?>.empty(),
+      ) as _i22.Stream<_i86.LastActivity?>);
   @override
-  _i22.Future<void> save(_i85.LastActivity? lastActivity) =>
+  _i22.Future<void> save(_i86.LastActivity? lastActivity) =>
       (super.noSuchMethod(
         Invocation.method(
           #save,
           [lastActivity],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
@@ -5930,7 +6529,7 @@ class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
 /// A class which mocks [MucDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMucDao extends _i1.Mock implements _i86.MucDao {
+class MockMucDao extends _i1.Mock implements _i87.MucDao {
   MockMucDao() {
     _i1.throwOnMissingStub(this);
   }
@@ -6060,12 +6659,69 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+  @override
+  void open(
+    String? key,
+    _i27.TableInfo? table,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #open,
+          [
+            key,
+            table,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> deleteDB({bool? deleteSharedDao = true}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteDB,
+          [],
+          {#deleteSharedDao: deleteSharedDao},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i27.TableInfo? getTableInfo(String? name) =>
+      (super.noSuchMethod(Invocation.method(
+        #getTableInfo,
+        [name],
+      )) as _i27.TableInfo?);
+  @override
+  int getDbVersionHashcode() => (super.noSuchMethod(
+        Invocation.method(
+          #getDbVersionHashcode,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> migrate({
+    bool? deleteSharedDao = true,
+    bool? removeOld = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #migrate,
+          [],
+          {
+            #deleteSharedDao: deleteSharedDao,
+            #removeOld: removeOld,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }
 
 /// A class which mocks [UxService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUxService extends _i1.Mock implements _i87.UxService {
+class MockUxService extends _i1.Mock implements _i88.UxService {
   MockUxService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6264,7 +6920,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
 /// A class which mocks [UrlHandlerService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
+class MockUrlHandlerService extends _i1.Mock implements _i89.UrlHandlerService {
   MockUrlHandlerService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6306,7 +6962,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
   _i22.Future<void> handleIdLink(
     _i17.BuildContext? context,
     String? node,
-    _i89.Categories? category,
+    _i90.Categories? category,
   ) =>
       (super.noSuchMethod(
         Invocation.method(

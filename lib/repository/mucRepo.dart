@@ -307,7 +307,7 @@ class MucRepo {
   }
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
-    final member = await _mucDao.getMember(memberUid, mucUid);
+    final member = await _mucDao.getMember(mucUid, memberUid);
     if (member == null) return false;
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
@@ -323,7 +323,7 @@ class MucRepo {
   }
 
   Future<bool> isMucOwner(String userUid, String mucUid) async {
-    final member = await _mucDao.getMember(userUid, mucUid);
+    final member = await _mucDao.getMember(mucUid, userUid);
     if (member != null) {
       if (member.role == MucRole.OWNER) {
         return true;

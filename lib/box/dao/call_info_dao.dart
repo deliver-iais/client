@@ -1,5 +1,5 @@
-import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 
 import 'package:hive/hive.dart';
@@ -40,8 +40,8 @@ class CallInfoDaoImpl implements CallInfoDao {
 
   static String _key() => "call_list";
 
-  static Future<BoxPlus<CallInfo>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<CallInfo>> _open() {
+    DBManager.open(_key(), TableInfo.CALL_INFO_TABLE_NAME);
     return gen(Hive.openBox<CallInfo>(_key()));
   }
 }

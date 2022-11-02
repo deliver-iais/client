@@ -30,7 +30,7 @@ class RoomAdapter extends TypeAdapter<Room> {
       synced: fields[10] as bool,
       lastCurrentUserSentMessageId: fields[11] as int,
       seenSynced: fields[12] as bool,
-      replyKeyboardMarkup: fields[13] as ReplyKeyboardMarkup?,
+      replyKeyboardMarkup: fields[13] as String?,
     );
   }
 

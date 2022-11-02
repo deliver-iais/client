@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -77,7 +79,7 @@ class VerificationPageState extends State<VerificationPage> {
     _contactRepo.getContacts().ignore();
 
     if (await _accountRepo.hasProfile(retry: true)) {
-      await _accountRepo.fetchCurrentUserId(retry: true);
+      unawaited(_accountRepo.fetchCurrentUserId(retry: true));
       navigatorState.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (c) {
@@ -90,7 +92,7 @@ class VerificationPageState extends State<VerificationPage> {
       navigatorState.push(
         MaterialPageRoute(
           builder: (c) {
-            return const AccountSettings(forceToSetUsernameAndName: true);
+            return const AccountSettings(forceToSetName: true);
           },
         ),
       ).ignore();

@@ -12,7 +12,6 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -342,7 +341,7 @@ class RoomRepo {
       );
 
   Future<void> updateReplyKeyboard(
-    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     String uid,
   ) =>
       _roomDao.updateRoom(

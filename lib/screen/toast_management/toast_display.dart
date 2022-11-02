@@ -14,6 +14,9 @@ class ToastDisplay {
     required String toastText,
   }) {
     final i18n = GetIt.I.get<I18N>();
+    if (toastContext != null) {
+      FToast().init(toastContext);
+    }
 
     final theme = Theme.of(FToast().context!);
 

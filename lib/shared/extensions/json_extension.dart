@@ -1,7 +1,9 @@
+// import 'package:deliver/box/message_markup.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/payment.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -47,6 +49,11 @@ extension JsonMapper on String {
       SharePrivateDataRequest.fromJson(this);
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
+
+  MessageMarkup toMessageMarkup() => MessageMarkup.fromJson(this);
+
+  ReplyKeyboardMarkup toReplyKeyboardMarkup() =>
+      ReplyKeyboardMarkup.fromJson(this);
 
   Showcase toShowCase() {
     return Showcase.fromJson(this);

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -34,10 +33,8 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
@@ -311,8 +308,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   },
                 ),
                 InputSuggestionsWidget(
-                  inputSuggestions: widget
-                          .currentRoom.lastMessage?.markup?.inputSuggestions ??
+                  inputSuggestions: widget.currentRoom.lastMessage?.markup
+                          ?.toMessageMarkup()
+                          .inputSuggestions ??
                       [],
                   textController: widget.textController,
                 ),
@@ -407,7 +405,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     ),
                     child: ReplyKeyboardMarkupWidget(
                       replyKeyboardMarkup:
-                          widget.currentRoom.replyKeyboardMarkup!,
+                          widget.currentRoom.replyKeyboardMarkup!.toReplyKeyboardMarkup(),
                       showReplyMarkUp: _showReplyMarkUp,
                       roomUid: widget.currentRoom.uid,
                       textController: widget.textController,
@@ -606,18 +604,16 @@ class InputMessageWidgetState extends State<InputMessage> {
                     EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
                 border: InputBorder.none,
                 counterText: "",
-                hintText: hasMarkUpPlaceHolder(
-                  widget.currentRoom.lastMessage?.markup,
-                )
-                    ? widget
-                        .currentRoom.lastMessage!.markup!.inputFieldPlaceHolder
+                hintText: _hasMarkUpPlaceHolder()
+                    ? widget.currentRoom.lastMessage!.markup!
+                        .toMessageMarkup()
+                        .inputFieldPlaceholder
                     : _i18n.get("write_a_message"),
-                hintTextDirection: hasMarkUpPlaceHolder(
-                  widget.currentRoom.lastMessage?.markup,
-                )
+                hintTextDirection: _hasMarkUpPlaceHolder()
                     ? _i18n.getDirection(
                         widget.currentRoom.lastMessage!.markup!
-                            .inputFieldPlaceHolder,
+                            .toMessageMarkup()
+                            .inputFieldPlaceholder,
                       )
                     : _i18n.defaultTextDirection,
                 hintStyle: theme.textTheme.bodyMedium,
@@ -990,8 +986,9 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
   }
 
-  bool hasMarkUpPlaceHolder(MessageMarkup? markUp) {
-    return markUp?.inputFieldPlaceHolder != null &&
-        markUp!.inputFieldPlaceHolder.isNotEmpty;
-  }
+  bool _hasMarkUpPlaceHolder() =>
+      widget.currentRoom.lastMessage?.markup
+          ?.toMessageMarkup()
+          .hasInputFieldPlaceholder() ??
+      false;
 }
