@@ -26,9 +26,9 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AccountSettings extends StatefulWidget {
-  final bool forceToSetUsernameAndName;
+  final bool forceToSetName;
 
-  const AccountSettings({super.key, this.forceToSetUsernameAndName = false});
+  const AccountSettings({super.key, this.forceToSetName = false});
 
   @override
   AccountSettingsState createState() => AccountSettingsState();
@@ -36,7 +36,7 @@ class AccountSettings extends StatefulWidget {
 
 class AccountSettingsState extends State<AccountSettings> {
   final _i18n = GetIt.I.get<I18N>();
-  final subject = BehaviorSubject<String>();
+  final _idIsIsAvailableChecker = BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -49,8 +49,7 @@ class AccountSettingsState extends State<AccountSettings> {
   Account _account = Account();
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  final BehaviorSubject<bool> _usernameIsAvailable =
-      BehaviorSubject.seeded(true);
+  bool _usernameIsAvailable = true;
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
@@ -144,17 +143,16 @@ class AccountSettingsState extends State<AccountSettings> {
   void initState() {
     try {
       _accountRepo.hasProfile();
-      subject
+      _idIsIsAvailableChecker
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
-        _getUsernameSuggestion(username);
-        if (_usernameFormKey.currentState?.validate() ?? false) {
-          if ((_account.username == null) ||
-              _account.username != _usernameTextController.text) {
-            _usernameIsAvailable
-                .add(await _accountRepo.checkUserName(username));
-          } else {
-            _usernameIsAvailable.add(true);
+        _usernameIsAvailable = true;
+        if ((_usernameFormKey.currentState?.validate() ?? false) &&
+            (_account.username == null ||
+                _account.username != _usernameTextController.text)) {
+          _usernameIsAvailable = await _accountRepo.idIsAvailable(username);
+          if (!_usernameIsAvailable) {
+            _usernameFormKey.currentState?.validate();
           }
         }
       });
@@ -167,7 +165,7 @@ class AccountSettingsState extends State<AccountSettings> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (widget.forceToSetUsernameAndName) return false;
+        if (widget.forceToSetName) return false;
         return true;
       },
       child: Scaffold(
@@ -178,14 +176,14 @@ class AccountSettingsState extends State<AccountSettings> {
             title: Column(
               children: [
                 Text(_i18n.get("account_info")),
-                if (widget.forceToSetUsernameAndName)
+                if (widget.forceToSetName)
                   Text(
                     _i18n.get("should_set_username_and_name"),
                     style: theme.textTheme.headline6!.copyWith(fontSize: 10),
                   )
               ],
             ),
-            leading: !widget.forceToSetUsernameAndName
+            leading: !widget.forceToSetName
                 ? _routingService.backButtonLeading()
                 : null,
           ),
@@ -357,7 +355,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                                   onChanged: (str) {
                                                     _usernameTextController
                                                         .text = str;
-                                                    subject.add(str);
+                                                    _idIsIsAvailableChecker
+                                                        .add(str);
                                                   },
                                                   maxLength: 20,
                                                   validator: validateUsername,
@@ -366,7 +365,6 @@ class AccountSettingsState extends State<AccountSettings> {
                                                     _i18n.get(
                                                       "username",
                                                     ),
-                                                    isOptional: true,
                                                     hintText: "alice_bob",
                                                   ),
                                                 ),
@@ -436,30 +434,6 @@ class AccountSettingsState extends State<AccountSettings> {
                                         ),
                                       ],
                                     ),
-                                    StreamBuilder<bool>(
-                                      stream: _usernameIsAvailable,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData &&
-                                            snapshot.data != null &&
-                                            !snapshot.data!) {
-                                          return Row(
-                                            children: [
-                                              Text(
-                                                _i18n.get(
-                                                  "username_already_exist",
-                                                ),
-                                                style: const TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      },
-                                    ),
                                     if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
                                       TextFormField(
                                         minLines: 1,
@@ -507,7 +481,7 @@ class AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  List<String> _getUsernameSuggestion(String input) {
+  Future<List<String>> _getUsernameSuggestion(String input) async {
     final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
     var name = _firstnameTextController.text;
     name = regex.hasMatch(name)
@@ -530,16 +504,25 @@ class AccountSettingsState extends State<AccountSettings> {
     final u1 = name + lastName;
     final u2 = "${name}_$lastName";
     final u3 = name.isEmpty ? lastName : name;
-    final sug = <String>[u1, u2, u3];
+    var suggestion = <String>[u1, u2, u3];
     if (name.isNotEmpty && lastName.isNotEmpty) {
-      sug.add("${name.substring(0, 1)}_$lastName");
+      suggestion.add("${name.substring(0, 1)}_$lastName");
     }
-    return sug
+    suggestion = suggestion
         .map<String>(
           (e) => e.length > 20 ? e.substring(0, 20).trim() : e.trim(),
         )
         .where((element) => element.length > 4 && element.contains(input))
         .toList();
+
+    final res = <String>[];
+    for (final element in suggestion) {
+      if ((_account.username != null && _account.username == element) ||
+          await _accountRepo.idIsAvailable(element)) {
+        res.add(element);
+      }
+    }
+    return res;
   }
 
   InputDecoration buildInputDecoration(
@@ -563,25 +546,25 @@ class AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateFirstName(String? value) {
-    if (value == null) return null;
-    if (value.isEmpty) {
+    if (value == null || value.isEmpty) {
       return _i18n.get("firstname_not_empty");
-    } else {
-      return null;
     }
+    return null;
   }
 
   String? validateUsername(String? value) {
+    if (value == null || value.isEmpty) return null;
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
-    if (value!.isEmpty) {
-      _usernameIsAvailable.add(true);
-      return _i18n.get("username_not_empty");
-    } else if (value.contains(".")) {
+    if (value.contains(".")) {
       return _i18n.get("cannot_contain_dots");
     } else if (!regex.hasMatch(value)) {
-      _usernameIsAvailable.add(true);
       return _i18n.get("username_not_valid");
+    }
+    if (!_usernameIsAvailable) {
+      return _i18n.get(
+        "username_already_exist",
+      );
     }
     return null;
   }
@@ -604,47 +587,45 @@ class AccountSettingsState extends State<AccountSettings> {
     if (checkUserName) {
       final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
-        if (_usernameIsAvailable.value) {
-          var setPrivateInfo = await _accountRepo.setAccountDetails(
-            username: _usernameTextController.text,
-            firstname: _firstnameTextController.text,
-            lastname: _lastnameTextController.text,
-            description: _descriptionTextController.text,
-          );
-          if (_emailTextController.text.isNotEmpty &&
-              _emailTextController.text != _account.email) {
-            try {
-              final res =
-                  await _accountRepo.updateEmail(_emailTextController.text);
-              if (!res) {
-                ToastDisplay.showToast(
-                  toastContext: context,
-                  toastText: _i18n.get("email_not_verified"),
-                );
-                setPrivateInfo = false;
-              }
-            } catch (e) {
+        var setPrivateInfo = await _accountRepo.setAccountDetails(
+          username: _usernameTextController.text,
+          firstname: _firstnameTextController.text,
+          lastname: _lastnameTextController.text,
+          description: _descriptionTextController.text,
+        );
+        if (_emailTextController.text.isNotEmpty &&
+            _emailTextController.text != _account.email) {
+          try {
+            final res =
+                await _accountRepo.updateEmail(_emailTextController.text);
+            if (!res) {
               ToastDisplay.showToast(
                 toastContext: context,
-                toastText: _i18n.get("error_occurred_in_save_email"),
+                toastText: _i18n.get("email_not_verified"),
               );
               setPrivateInfo = false;
             }
+          } catch (e) {
+            ToastDisplay.showToast(
+              toastContext: context,
+              toastText: _i18n.get("error_occurred_in_save_email"),
+            );
+            setPrivateInfo = false;
           }
+        }
 
-          if (setPrivateInfo) {
-            if (widget.forceToSetUsernameAndName) {
-              navigatorState.pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (c) {
-                    return const HomePage();
-                  },
-                ),
-                (r) => false,
-              ).ignore();
-            } else {
-              _routingService.pop();
-            }
+        if (setPrivateInfo) {
+          if (widget.forceToSetName) {
+            navigatorState.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (c) {
+                  return const HomePage();
+                },
+              ),
+              (r) => false,
+            ).ignore();
+          } else {
+            _routingService.pop();
           }
         }
       }

@@ -174,9 +174,9 @@ class VideoMessageState extends State<VideoMessage> {
 
   Widget _buildVideoUploadUi(File video, PendingMessage pendingMessage) {
     switch (pendingMessage.status) {
-      case SendingStatus.UPLOAD_FILE_INPROGRSS:
+      case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
       case SendingStatus.PENDING:
-      case SendingStatus.UPLOAD_FILE_COMPELED:
+      case SendingStatus.UPLOAD_FILE_COMPLETED:
         return Stack(
           children: [
             Center(
@@ -214,7 +214,7 @@ class VideoMessageState extends State<VideoMessage> {
             ),
           ],
         );
-      case SendingStatus.UPLIOD_FILE_FAIL:
+      case SendingStatus.UPLOAD_FILE_FAIL:
         return Stack(
           children: [
             Center(

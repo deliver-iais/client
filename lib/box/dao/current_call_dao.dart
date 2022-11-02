@@ -1,8 +1,7 @@
+import 'package:deliver/box/current_call_info.dart';
+import 'package:deliver/box/db_manager.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
-
-import '../box_info.dart';
-import '../current_call_info.dart';
-import '../hive_plus.dart';
 
 abstract class CurrentCallInfoDao {
   Future<CurrentCallInfo?> get();
@@ -16,7 +15,7 @@ abstract class CurrentCallInfoDao {
   Future<void> clear();
 }
 
-class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
+class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   @override
   Future<CurrentCallInfo?> get() async {
     final box = await _open();
@@ -33,8 +32,8 @@ class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
 
   static String _key() => "current_call";
 
-  static Future<BoxPlus<CurrentCallInfo>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<CurrentCallInfo>> _open() {
+    DBManager.open(_key(), TableInfo.CURRENT_CALL_INFO_TABLE_NAME);
     return gen(Hive.openBox<CurrentCallInfo>(_key()));
   }
 

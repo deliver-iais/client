@@ -58,7 +58,7 @@ class _CircularFileStatusIndicatorState
           if (pendingMessage.hasData &&
               pendingMessage.data != null &&
               (pendingMessage.data!.status ==
-                      SendingStatus.UPLOAD_FILE_COMPELED ||
+                      SendingStatus.UPLOAD_FILE_COMPLETED ||
                   !(widget.message.forwardedFrom == null ||
                       widget.message.forwardedFrom!.isEmpty))) {
             return FutureBuilder<String?>(
@@ -81,7 +81,7 @@ class _CircularFileStatusIndicatorState
               widget.message.packetId,
             ),
             sendingFileFailed: pendingMessage.data != null &&
-                pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
+                pendingMessage.data!.status == SendingStatus.UPLOAD_FILE_FAIL,
             onResendFileMessage: () =>
                 _messageRepo.resendFileMessage(pendingMessage.data!),
           );
@@ -115,7 +115,7 @@ class _CircularFileStatusIndicatorState
                         .resendFileMessage(pendingEditedMessage.data!),
                     sendingFileFailed: pendingEditedMessage.data != null &&
                         pendingEditedMessage.data!.status ==
-                            SendingStatus.UPLIOD_FILE_FAIL,
+                            SendingStatus.UPLOAD_FILE_FAIL,
                   );
                 }
                 return buildLoadFileStatus(file: file);
