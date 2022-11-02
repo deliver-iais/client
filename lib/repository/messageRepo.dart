@@ -105,7 +105,7 @@ class MessageRepo {
   bool _updateState = false;
 
   MessageRepo() {
-    createConnectionStatusHandler();
+    unawaited(createConnectionStatusHandler());
   }
 
   Future<void> createConnectionStatusHandler() async {
@@ -566,7 +566,7 @@ class MessageRepo {
     for (final room in rooms) {
       final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
-          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
       await _savePendingMessage(pm);
       pendingMessages.add(pm);
@@ -583,7 +583,7 @@ class MessageRepo {
       for (final pendingMessage in pendingMessages) {
         final newPm = pendingMessage.copyWith(
           msg: pendingMessage.msg.copyWith(json: newJson),
-          status: SendingStatus.UPLOAD_FILE_COMPELED,
+          status: SendingStatus.UPLOAD_FILE_COMPLETED,
         );
         _sendMessageToServer(newPm);
         await _savePendingMessage(newPm);
@@ -613,13 +613,14 @@ class MessageRepo {
       file.name,
     );
 
-    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+    final pm =
+        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
     await _savePendingMessage(pm);
 
     final m = await _sendFileToServerOfPendingMessage(pm);
     if (m != null &&
-        m.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+        m.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
         _fileOfMessageIsValid(m.msg.json.toFile())) {
       _sendMessageToServer(m);
     } else if (m != null) {
@@ -735,20 +736,20 @@ class MessageRepo {
     file_pb.File? updatedFile;
     final file = file_pb.File.fromJson(pm.msg.json);
     await _savePendingEditedMessage(
-      pm.copyWith(status: SendingStatus.UPLOAD_FILE_INPROGRSS),
+      pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
     updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(
           msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
-          status: SendingStatus.UPLOAD_FILE_COMPELED,
+          status: SendingStatus.UPLOAD_FILE_COMPLETED,
         ),
       );
     } else {
       await _savePendingEditedMessage(
         pm.copyWith(
-          status: SendingStatus.UPLIOD_FILE_FAIL,
+          status: SendingStatus.UPLOAD_FILE_FAIL,
         ),
       );
     }
@@ -781,7 +782,7 @@ class MessageRepo {
 
       final newPm = pm.copyWith(
         msg: pm.msg.copyWith(json: newJson),
-        status: SendingStatus.UPLOAD_FILE_COMPELED,
+        status: SendingStatus.UPLOAD_FILE_COMPLETED,
       );
 
       // Update pending messages table
@@ -794,7 +795,7 @@ class MessageRepo {
         pm.packetId,
       ); //check pending message  delete when  file  uploading
       if (p != null) {
-        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        final newPm = pm.copyWith(status: SendingStatus.UPLOAD_FILE_FAIL);
         return newPm;
       }
       return null;
@@ -869,13 +870,13 @@ class MessageRepo {
       if (!pendingMessage.failed ||
           pendingMessage.msg.type == MessageType.CALL) {
         switch (pendingMessage.status) {
-          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+          case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
             break;
           case SendingStatus.PENDING:
-          case SendingStatus.UPLOAD_FILE_COMPELED:
+          case SendingStatus.UPLOAD_FILE_COMPLETED:
             _sendMessageToServer(pendingMessage);
             break;
-          case SendingStatus.UPLIOD_FILE_FAIL:
+          case SendingStatus.UPLOAD_FILE_FAIL:
             await resendFileMessage(pendingMessage);
             break;
         }
@@ -886,7 +887,7 @@ class MessageRepo {
   Future<void> resendFileMessage(PendingMessage pendingMessage) async {
     final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
     if (pm != null &&
-        pm.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+        pm.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
         _fileOfMessageIsValid(pm.msg.json.toFile())) {
       _sendMessageToServer(pm);
     }
@@ -898,13 +899,13 @@ class MessageRepo {
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
-          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+          case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
             break;
           case SendingStatus.PENDING:
-          case SendingStatus.UPLOAD_FILE_COMPELED:
+          case SendingStatus.UPLOAD_FILE_COMPLETED:
             await updateMessageAtServer(pendingMessage);
             break;
-          case SendingStatus.UPLIOD_FILE_FAIL:
+          case SendingStatus.UPLOAD_FILE_FAIL:
             final updatedFile = await _sendFileToServerOfPendingEditedMessage(
               pendingMessage,
             );
@@ -913,7 +914,7 @@ class MessageRepo {
                 pendingMessage.copyWith(
                   msg: pendingMessage.msg
                       .copyWith(json: updatedFile.writeToJson()),
-                  status: SendingStatus.UPLOAD_FILE_COMPELED,
+                  status: SendingStatus.UPLOAD_FILE_COMPLETED,
                 ),
               );
             }
@@ -1417,7 +1418,7 @@ class MessageRepo {
               json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
               edited: true,
             ),
-            SendingStatus.UPLOAD_FILE_INPROGRSS,
+            SendingStatus.UPLOAD_FILE_IN_PROGRESS,
           ),
         );
         if (updatedFile != null && caption != null) {

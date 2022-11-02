@@ -30,7 +30,7 @@ class MessageAdapter extends TypeAdapter<Message> {
       edited: fields[8] as bool,
       encrypted: fields[9] as bool,
       forwardedFrom: fields[7] as String?,
-      markup: fields[13] as MessageMarkup?,
+      markup: fields[13] as String?,
     );
   }
 

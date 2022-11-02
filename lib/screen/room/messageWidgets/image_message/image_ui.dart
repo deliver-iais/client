@@ -279,9 +279,9 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {
       switch (pendingMessage.data!.status) {
-        case SendingStatus.UPLOAD_FILE_COMPELED:
+        case SendingStatus.UPLOAD_FILE_COMPLETED:
           return const SizedBox.shrink();
-        case SendingStatus.UPLIOD_FILE_FAIL:
+        case SendingStatus.UPLOAD_FILE_FAIL:
           return buildLoadFileStatus(
             sendingFileFailed: true,
             onResendFileMessage: () => _messageRepo.resendFileMessage(
@@ -290,7 +290,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
             onCancel: () => _deletePendingMessage(),
             isPendingMessage: true,
           );
-        case SendingStatus.UPLOAD_FILE_INPROGRSS:
+        case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
         case SendingStatus.PENDING:
           return buildLoadFileStatus(
             onCancel: () => _deletePendingMessage(),

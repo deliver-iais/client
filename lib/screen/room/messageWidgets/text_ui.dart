@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection/text_selections/custom_desktop_text_selection_controls.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -126,7 +127,14 @@ class _TextUIState extends State<TextUI> {
           children: [
             Container(
               key: _textBoxKey,
-              child: isDesktop ? SelectionArea(child: text) : text,
+              child: isDesktop
+                  ? SelectionArea(
+                      selectionControls: (isDesktop)
+                          ? CustomDesktopTextSelectionControls()
+                          : null,
+                      child: text,
+                    )
+                  : text,
             ),
             StreamBuilder<double>(
               stream: _textBoxWidth,

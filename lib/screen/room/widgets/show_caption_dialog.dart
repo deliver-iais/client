@@ -9,6 +9,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -52,6 +53,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   static final _fileService = GetIt.I.get<FileService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
+  final _dragAndDropService = GetIt.I.get<DragAndDropService>();
 
   final TextEditingController _editingController = TextEditingController();
 
@@ -197,6 +199,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           const Spacer(),
           TextButton(
             onPressed: () {
+              _dragAndDropService.enableDrag();
               Navigator.pop(context);
             },
             child: Text(
@@ -209,6 +212,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           ),
           TextButton(
             onPressed: () {
+              _dragAndDropService.enableDrag();
               send();
             },
             child: Text(

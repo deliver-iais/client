@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -49,7 +48,7 @@ class Message {
   bool isHidden;
 
   @HiveField(13)
-  MessageMarkup? markup;
+  String? markup;
 
   Message({
     required this.roomUid,

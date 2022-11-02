@@ -1,4 +1,4 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
@@ -12,7 +12,7 @@ abstract class BlockDao {
   Future<void> unblock(String uid);
 }
 
-class BlockDaoImpl implements BlockDao {
+class BlockDaoImpl extends BlockDao {
   @override
   Future<bool> isBlocked(String uid) async {
     final box = await _open();
@@ -45,8 +45,8 @@ class BlockDaoImpl implements BlockDao {
 
   static String _key() => "block";
 
-  static Future<BoxPlus<bool>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<bool>> _open() {
+    DBManager.open(_key(), TableInfo.BLOCK_TABLE_NAME);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

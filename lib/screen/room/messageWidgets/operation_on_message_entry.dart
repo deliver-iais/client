@@ -426,7 +426,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
       pendingMessage.msg.type == MessageType.FILE
-          ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPELED
+          ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPLETED
           : pendingMessage.failed;
 
   Widget deleteMenuWidget(

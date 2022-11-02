@@ -4,6 +4,7 @@ import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_event.dart';
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
@@ -26,11 +27,8 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
-import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/file_info.dart';
-import 'package:deliver/box/inline_keyboard_button.dart';
-import 'package:deliver/box/inline_keyboard_markup.dart';
-import 'package:deliver/box/inline_keyboard_row.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -38,14 +36,10 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/reply_keyboard_button.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
-import 'package:deliver/box/reply_keyboard_row.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -75,6 +69,7 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/log.dart';
@@ -203,6 +198,7 @@ Future<void> setupDI() async {
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
+  registerSingleton<DragAndDropService>(DragAndDropService());
 }
 
 Future<void> dbSetupDI() async {
@@ -241,13 +237,7 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(MucTypeAdapter())
     ..registerAdapter(AutoDownloadAdapter())
-    ..registerAdapter(MessageMarkupAdapter())
-    ..registerAdapter(InlineKeyboardButtonAdapter())
-    ..registerAdapter(InlineKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardButtonAdapter())
-    ..registerAdapter(ReplyKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardRowAdapter())
-    ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(BoxInfoAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter());
 

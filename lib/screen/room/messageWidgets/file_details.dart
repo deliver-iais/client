@@ -69,7 +69,7 @@ class FileDetails extends StatelessWidget {
         padding: const EdgeInsets.only(left: 3, right: 3, top: 1, bottom: 1),
         decoration: BoxDecoration(
           color: withColor
-              ? Theme.of(context).backgroundColor.withOpacity(0.2)
+              ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
               : null,
           borderRadius: BorderRadius.circular(15.0),
         ),
