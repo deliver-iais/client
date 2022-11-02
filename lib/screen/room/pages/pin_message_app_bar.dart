@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -169,15 +170,27 @@ class PinMessageAppBar extends StatelessWidget {
 
   Widget buildPinMessageActions(Message? mes, BuildContext context) {
     final theme = Theme.of(context);
-    if (mes?.markup?.inlineKeyboardMarkup?.rows.length == 1 &&
-        mes?.markup?.inlineKeyboardMarkup?.rows.first.buttons.length == 1) {
-      final inlineKeyboardButton =
-          mes!.markup!.inlineKeyboardMarkup!.rows.first.buttons.first;
+    if (mes?.markup?.toMessageMarkup().inlineKeyboardMarkup.rows.length == 1 &&
+        mes?.markup
+                ?.toMessageMarkup()
+                .inlineKeyboardMarkup
+                .rows
+                .first
+                .buttons
+                .length ==
+            1) {
+      final inlineKeyboardButton = mes!.markup!
+          .toMessageMarkup()
+          .inlineKeyboardMarkup
+          .rows
+          .first
+          .buttons
+          .first;
       return TextButton(
         onPressed: () => _botRepo.handleInlineMarkUpMessageCallBack(
           mes,
           context,
-          inlineKeyboardButton.json,
+          inlineKeyboardButton,
         ),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(

@@ -1,15 +1,8 @@
 import 'dart:convert';
 
-import 'package:deliver/box/inline_keyboard_button.dart';
-import 'package:deliver/box/inline_keyboard_markup.dart';
-import 'package:deliver/box/inline_keyboard_row.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/reply_keyboard_button.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
-import 'package:deliver/box/reply_keyboard_row.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -494,20 +487,10 @@ class MessageExtractorServices {
       encrypted: message.encrypted,
       type: getMessageType(message.whichType()),
       isHidden: isHidden,
-      markup: extractMessageMarkup(message),
+      markup: message.hasMessageMarkup()
+          ? message.messageMarkup.writeToJson()
+          : null,
     );
-  }
-
-  MessageMarkup? extractMessageMarkup(message_pb.Message message) {
-    return message.hasMessageMarkup()
-        ? MessageMarkup(
-            inlineKeyboardMarkup: extractInlineKeyboardMarkup(
-              message.messageMarkup.inlineKeyboardMarkup,
-            ),
-            inputFieldPlaceHolder: message.messageMarkup.inputFieldPlaceholder,
-            inputSuggestions: message.messageMarkup.inputSuggestions,
-          )
-        : null;
   }
 
   String findInlineKeyboardButtonJson(markup_pb.InlineKeyboardButton button) {
@@ -522,46 +505,7 @@ class MessageExtractorServices {
     return jsonEncode(json);
   }
 
-  InlineKeyboardMarkup extractInlineKeyboardMarkup(
-    markup_pb.InlineKeyboardMarkup inlineKeyboardMarkup,
-  ) {
-    return InlineKeyboardMarkup(
-      rows: inlineKeyboardMarkup.rows
-          .map(
-            (e) => InlineKeyboardRow(
-              buttons: e.buttons
-                  .map(
-                    (button) => InlineKeyboardButton(
-                      text: button.text,
-                      json: findInlineKeyboardButtonJson(button),
-                    ),
-                  )
-                  .toList(),
-            ),
-          )
-          .toList(),
-    );
-  }
 
-  ReplyKeyboardMarkup extractReplyKeyboardMarkup(
-    markup_pb.ReplyKeyboardMarkup replyKeyboardMarkup,
-  ) {
-    return ReplyKeyboardMarkup(
-      rows: replyKeyboardMarkup.rows
-          .map(
-            (e) => ReplyKeyboardRow(
-              buttons: e.buttons
-                  .map(
-                    (button) => ReplyKeyboardButton(
-                      text: button.text,
-                      sendOnClick: button.sendOnClick,
-                    ),
-                  )
-                  .toList(),
-            ),
-          )
-          .toList(),
-      oneTimeKeyboard: replyKeyboardMarkup.oneTimeKeyboard,
-    );
-  }
+
+
 }

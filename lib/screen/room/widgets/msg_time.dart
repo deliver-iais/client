@@ -14,9 +14,7 @@ class MsgTime extends StatelessWidget {
 
     return Text(
       '$msgHour:$msgMin',
-      style: const TextStyle(
-        fontStyle: FontStyle.italic,
-      ),
+      style: const TextStyle(fontStyle: FontStyle.italic),
     );
   }
 }

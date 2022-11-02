@@ -27,7 +27,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
@@ -177,7 +176,6 @@ class NavigationCenterState extends State<NavigationCenter>
             child: Column(
               children: <Widget>[
                 const HasCallRow(),
-                const ConnectionStatus(),
                 RepaintBoundary(
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,
@@ -556,72 +554,64 @@ class NavigationCenterState extends State<NavigationCenter>
         child: AppBar(
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: Row(
-            children: [
-              const SizedBox(
-                width: 10,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: DescribedFeatureOverlay(
+              featureId: FEATURE_3,
+              tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 30),
+              backgroundColor: theme.colorScheme.tertiaryContainer,
+              targetColor: theme.colorScheme.tertiary,
+              title: Text(
+                _i18n.get("setting_icon_feature_discovery_title"),
+                textDirection: _i18n.defaultTextDirection,
+                style: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
               ),
-              DescribedFeatureOverlay(
-                featureId: FEATURE_3,
-                tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("setting_icon_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
+              overflowMode: OverflowMode.extendBackground,
+              description: FeatureDiscoveryDescriptionWidget(
+                permissionWidget: (!isDesktop)
+                    ? TextButton(
+                        onPressed: () {
+                          FeatureDiscovery.dismissAll(context);
+                          _routingService.openContacts();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(_i18n.get("sync_contact")),
+                            const Icon(
+                              Icons.arrow_forward,
+                            )
+                          ],
+                        ),
+                      )
+                    : null,
+                description:
+                    _i18n.get("setting_icon_feature_discovery_description"),
+                descriptionStyle: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
                 ),
-                overflowMode: OverflowMode.extendBackground,
-                description: FeatureDiscoveryDescriptionWidget(
-                  permissionWidget: (!isDesktop)
-                      ? TextButton(
-                          onPressed: () {
-                            FeatureDiscovery.dismissAll(context);
-                            _routingService.openContacts();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_i18n.get("sync_contact")),
-                              const Icon(
-                                Icons.arrow_forward,
-                              )
-                            ],
-                          ),
-                        )
-                      : null,
-                  description:
-                      _i18n.get("setting_icon_feature_discovery_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: GestureDetector(
-                  child: Center(
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: CircleAvatarWidget(
-                        _authRepo.currentUserUid,
-                        20,
-                      ),
+              ),
+              child: GestureDetector(
+                child: Center(
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: CircleAvatarWidget(
+                      _authRepo.currentUserUid,
+                      20,
                     ),
                   ),
-                  onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    _routingServices.openSettings(popAllBeforePush: true);
-                  },
                 ),
+                onTap: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _routingServices.openSettings(popAllBeforePush: true);
+                },
               ),
-            ],
+            ),
           ),
           titleSpacing: 8.0,
-          title: Text(
-            _i18n.get("chats"),
-            style: theme.textTheme.headline6,
-            key: ValueKey(randomString(10)),
-          ),
+          title: const ConnectionStatus(),
           actions: [
             if (!isDesktop)
               DescribedFeatureOverlay(
@@ -654,9 +644,7 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
               ),
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(width: 8),
             if (SHOWCASES_IS_AVAILABLE)
               DescribedFeatureOverlay(
                 featureId: FEATURE_2,

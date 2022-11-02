@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
@@ -80,6 +81,7 @@ class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
+  static final _cachingRepo = GetIt.I.get<CachingRepo>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
   final messageBoxWidth = BehaviorSubject.seeded(0.0);
@@ -88,6 +90,14 @@ class BoxContentState extends State<BoxContent> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        if (widget.message.id != null &&
+            _messageBoxKey.currentContext?.size != null) {
+          _cachingRepo.setMessageDimensionsSize(
+            widget.message.roomUid,
+            widget.message.id!,
+            _messageBoxKey.currentContext!.size!,
+          );
+        }
         messageBoxWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
       }
     });

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -10,7 +9,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
@@ -34,16 +33,13 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -237,9 +233,8 @@ class InputMessageWidgetState extends State<InputMessage> {
     selectionControls = CustomTextSelectionController(
       buildContext: context,
       textController: widget.textController,
-      captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
-    );
+    ).getCustomTextSelectionController();
     super.initState();
   }
 
@@ -311,8 +306,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   },
                 ),
                 InputSuggestionsWidget(
-                  inputSuggestions: widget
-                          .currentRoom.lastMessage?.markup?.inputSuggestions ??
+                  inputSuggestions: widget.currentRoom.lastMessage?.markup
+                          ?.toMessageMarkup()
+                          .inputSuggestions ??
                       [],
                   textController: widget.textController,
                 ),
@@ -407,7 +403,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     ),
                     child: ReplyKeyboardMarkupWidget(
                       replyKeyboardMarkup:
-                          widget.currentRoom.replyKeyboardMarkup!,
+                          widget.currentRoom.replyKeyboardMarkup!.toReplyKeyboardMarkup(),
                       showReplyMarkUp: _showReplyMarkUp,
                       roomUid: widget.currentRoom.uid,
                       textController: widget.textController,
@@ -606,18 +602,16 @@ class InputMessageWidgetState extends State<InputMessage> {
                     EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
                 border: InputBorder.none,
                 counterText: "",
-                hintText: hasMarkUpPlaceHolder(
-                  widget.currentRoom.lastMessage?.markup,
-                )
-                    ? widget
-                        .currentRoom.lastMessage!.markup!.inputFieldPlaceHolder
+                hintText: _hasMarkUpPlaceHolder()
+                    ? widget.currentRoom.lastMessage!.markup!
+                        .toMessageMarkup()
+                        .inputFieldPlaceholder
                     : _i18n.get("write_a_message"),
-                hintTextDirection: hasMarkUpPlaceHolder(
-                  widget.currentRoom.lastMessage?.markup,
-                )
+                hintTextDirection: _hasMarkUpPlaceHolder()
                     ? _i18n.getDirection(
                         widget.currentRoom.lastMessage!.markup!
-                            .inputFieldPlaceHolder,
+                            .toMessageMarkup()
+                            .inputFieldPlaceholder,
                       )
                     : _i18n.defaultTextDirection,
                 hintStyle: theme.textTheme.bodyMedium,
@@ -990,8 +984,9 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
   }
 
-  bool hasMarkUpPlaceHolder(MessageMarkup? markUp) {
-    return markUp?.inputFieldPlaceHolder != null &&
-        markUp!.inputFieldPlaceHolder.isNotEmpty;
-  }
+  bool _hasMarkUpPlaceHolder() =>
+      widget.currentRoom.lastMessage?.markup
+          ?.toMessageMarkup()
+          .hasInputFieldPlaceholder() ??
+      false;
 }

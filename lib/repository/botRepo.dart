@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -15,6 +14,7 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -102,19 +102,18 @@ class BotRepo {
   Future<void> handleInlineMarkUpMessageCallBack(
     Message message,
     BuildContext context,
-    String jsonData,
+      InlineKeyboardButton button,
   ) async {
     final urlHandlerService = GetIt.I.get<UrlHandlerService>();
-    final json = jsonDecode(jsonData) as Map;
-    final isUrlInlineKeyboardMarkup = json['url'] != null;
-    if (isUrlInlineKeyboardMarkup) {
+
+    if (button.hasUrl()) {
       await urlHandlerService.onUrlTap(
-        json['url'],
+        button.url.url,
         context,
       );
-    } else if (json['data'] != null) {
+    } else if (button.hasCallback()) {
       final result = await sendCallbackQuery(
-        json['data'],
+        button.callback.data,
         message,
       );
       if (result != null) {

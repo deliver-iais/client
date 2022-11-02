@@ -73,7 +73,7 @@ class CoreServices {
     startCheckerTimer();
   }
 
-  void retryFasterConnection() {
+  void fasterRetryConnection() {
     backoffTime = MIN_BACKOFF_TIME;
     retryConnection();
   }

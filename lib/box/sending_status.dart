@@ -9,13 +9,13 @@ part 'sending_status.g.dart';
 enum SendingStatus {
 
   @HiveField(2)
-  UPLOAD_FILE_COMPELED,
+  UPLOAD_FILE_COMPLETED,
 
   @HiveField(3)
-  UPLIOD_FILE_FAIL,
+  UPLOAD_FILE_FAIL,
 
   @HiveField(4)
-  UPLOAD_FILE_INPROGRSS,
+  UPLOAD_FILE_IN_PROGRESS,
 
   @HiveField(1)
   PENDING
