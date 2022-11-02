@@ -59,7 +59,7 @@ class ActiveNotificationDaoImpl extends ActiveNotificationDao {
   static String _key(String roomUid) => "active-notification-$roomUid";
 
   Future<BoxPlus<ActiveNotification>> _open(String uid) {
-    super.open(_key(uid), ACTIVE_NOTIFICATION_TABLE_NAME);
+    super.open(_key(uid), TableInfo.ACTIVE_NOTIFICATION_TABLE_NAME);
     return gen(
       Hive.openBox<ActiveNotification>(_key(uid)),
     );

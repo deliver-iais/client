@@ -289,7 +289,7 @@ MockAccountRepo getAndRegisterAccountRepo({bool hasProfile = false}) {
   ).thenAnswer((realInvocation) => Future.value(hasProfile));
 
   when(service.fetchCurrentUserId(retry: true))
-      .thenAnswer((realInvocation) => Future.value(true));
+      .thenAnswer((realInvocation) => Future.value());
 
   return service;
 }

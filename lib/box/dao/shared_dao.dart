@@ -75,7 +75,7 @@ class SharedDaoImpl extends SharedDao {
   static String _key() => "shared";
 
   Future<BoxPlus> _open() {
-    super.open(_key(), SHARED_TABLE_NAME);
+    super.open(_key(), TableInfo.SHARED_TABLE_NAME);
     return gen(Hive.openBox(_key()));
   }
 }

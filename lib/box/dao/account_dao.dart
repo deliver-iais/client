@@ -25,7 +25,7 @@ class AccountDaoImpl extends AccountDao {
   static String _key() => "account";
 
   Future<BoxPlus<Account>> _open() {
-    super.open(_key(), ACCOUNT_TABLE_NAME);
+    super.open(_key(), TableInfo.ACCOUNT_TABLE_NAME);
     return gen(Hive.openBox<Account>(_key()));
   }
 

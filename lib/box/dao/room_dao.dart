@@ -175,7 +175,7 @@ class RoomDaoImpl extends RoomDao {
 
   Future<BoxPlus<Room>> _openRoom() async {
     try {
-      super.open(_keyRoom(), ROOM_TABLE_NAME);
+      super.open(_keyRoom(), TableInfo.ROOM_TABLE_NAME);
       return gen(Hive.openBox<Room>(_keyRoom()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

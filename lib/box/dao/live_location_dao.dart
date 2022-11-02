@@ -37,7 +37,7 @@ class LiveLocationDaoImpl extends LiveLocationDao {
   static String _key() => "live_location";
 
   Future<BoxPlus<LiveLocation>> _open() {
-    super.open(_key(), LIVE_LOCATION_TABLE_NAME);
+    super.open(_key(), TableInfo.LIVE_LOCATION_TABLE_NAME);
     return gen(Hive.openBox<LiveLocation>(_key()));
   }
 }

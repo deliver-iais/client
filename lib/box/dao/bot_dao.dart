@@ -27,7 +27,7 @@ class BotDaoImpl extends BotDao {
   static String _key() => "bot";
 
   Future<BoxPlus<BotInfo>> _open() {
-    super.open(_key(), BOT_INFO_TABLE_NAME);
+    super.open(_key(), TableInfo.BOT_INFO_TABLE_NAME);
     return gen(Hive.openBox<BotInfo>(_key()));
   }
 }

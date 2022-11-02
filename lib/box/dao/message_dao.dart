@@ -165,7 +165,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
-      super.open(_keyMessages(uid.replaceAll(":", "-")), MESSAGE_TABLE_NAME);
+      super.open(_keyMessages(uid.replaceAll(":", "-")), TableInfo.MESSAGE_TABLE_NAME);
       return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
@@ -175,7 +175,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
     try {
-      super.open(_keyPending(), PENDING_MESSAGE_TABLE_NAME);
+      super.open(_keyPending(), TableInfo.PENDING_MESSAGE_TABLE_NAME);
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());
@@ -192,7 +192,7 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<PendingMessage>> _openPendingEditedMessages() async {
     try {
-      super.open(_keyPendingEdited(), EDIT_PENDING_TABLE_NAME);
+      super.open(_keyPendingEdited(), TableInfo.EDIT_PENDING_TABLE_NAME);
       return gen(Hive.openBox<PendingMessage>(_keyPendingEdited()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPendingEdited());

@@ -228,7 +228,7 @@ class AccountRepo {
   Future<void> checkUpdatePlatformSessionInformation() async {
     final pDbVersion = await _sharedDao.get(SHARED_DAO_DB_VERSION);
     if (pDbVersion == null ||
-        int.parse(pDbVersion) != _dbManager.getDbVersion()) {
+        int.parse(pDbVersion) != _dbManager.getDbVersionHashcode()) {
       try {
         await _dbManager.migrate(
           deleteSharedDao: false,
@@ -242,7 +242,7 @@ class AccountRepo {
       unawaited(
         _sharedDao.put(
           SHARED_DAO_DB_VERSION,
-          _dbManager.getDbVersion().toString(),
+          _dbManager.getDbVersionHashcode().toString(),
         ),
       );
     }
