@@ -179,11 +179,6 @@ class ChatItemState extends State<ChatItem> {
   }
 
   Widget buildChatItemWidget(String name) {
-    if(widget.room.lastMessage == null){
-      return const SizedBox.shrink();
-    }
-    final isReceivedMessage =
-        !_authRepo.isCurrentUser(widget.room.lastMessage!.from);
     final theme = Theme.of(context);
     return Row(
       children: <Widget>[
@@ -314,7 +309,9 @@ class ChatItemState extends State<ChatItem> {
                               color: theme.colorScheme.onPrimary,
                             ),
                           ),
-                        if (isReceivedMessage)
+                        if (widget.room.lastMessage != null &&
+                            !_authRepo
+                                .isCurrentUser(widget.room.lastMessage!.from))
                           Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: UnreadMessageCounterWidget(
