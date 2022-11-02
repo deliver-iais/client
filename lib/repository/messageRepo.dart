@@ -18,6 +18,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -26,6 +27,7 @@ import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -71,7 +73,6 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
-  Normal
 }
 
 const EMPTY_MESSAGE = "{}";
@@ -98,12 +99,14 @@ class MessageRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _i18n = GetIt.I.get<I18N>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
-  final updatingStatus = BehaviorSubject.seeded(TitleStatusConditions.Normal);
+  final updatingStatus =
+      BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool _updateState = false;
 
   MessageRepo() {
-    createConnectionStatusHandler();
+    unawaited(createConnectionStatusHandler());
   }
 
   Future<void> createConnectionStatusHandler() async {
@@ -118,7 +121,7 @@ class MessageRepo {
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          if (updatingStatus.value != TitleStatusConditions.Normal) {
+          if (updatingStatus.value != TitleStatusConditions.Connected) {
             updatingStatus.add(TitleStatusConditions.Connecting);
           }
           break;
@@ -148,19 +151,13 @@ class MessageRepo {
 
   Future<void> update() async {
     _logger.i('updating -----------------');
-    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
-      updatingStatus.add(TitleStatusConditions.Connected);
-    }
+    updatingStatus.add(TitleStatusConditions.Connected);
+
     if (await updatingMessages()) {
       await updatingLastSeen();
       _roomRepo.fetchBlockedRoom().ignore();
     }
-    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
-      updatingStatus.add(TitleStatusConditions.Connected);
-      Timer(const Duration(seconds: 1), () {
-        updatingStatus.add(TitleStatusConditions.Normal);
-      });
-    }
+    updatingStatus.add(TitleStatusConditions.Connected);
 
     sendPendingMessages().ignore();
     sendPendingEditedMessages().ignore();
@@ -561,7 +558,7 @@ class MessageRepo {
     String? caption,
   }) async {
     final fileUuid = _getPacketId();
-    await _fileRepo.cloneFileInLocalDirectory(
+    await _fileRepo.saveInFileInfo(
       dart_file.File(file.path),
       fileUuid,
       file.name,
@@ -570,7 +567,7 @@ class MessageRepo {
     for (final room in rooms) {
       final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
-          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
       await _savePendingMessage(pm);
       pendingMessages.add(pm);
@@ -587,7 +584,7 @@ class MessageRepo {
       for (final pendingMessage in pendingMessages) {
         final newPm = pendingMessage.copyWith(
           msg: pendingMessage.msg.copyWith(json: newJson),
-          status: SendingStatus.UPLOAD_FILE_COMPELED,
+          status: SendingStatus.UPLOAD_FILE_COMPLETED,
         );
         _sendMessageToServer(newPm);
         await _savePendingMessage(newPm);
@@ -611,22 +608,30 @@ class MessageRepo {
       caption: caption,
     );
 
-    await _fileRepo.cloneFileInLocalDirectory(
+    await _fileRepo.saveInFileInfo(
       dart_file.File(file.path),
       packetId,
       file.name,
     );
 
-    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+    final pm =
+        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
     await _savePendingMessage(pm);
 
     final m = await _sendFileToServerOfPendingMessage(pm);
     if (m != null &&
-        m.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+        m.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
         _fileOfMessageIsValid(m.msg.json.toFile())) {
       _sendMessageToServer(m);
     } else if (m != null) {
+      try {
+        ToastDisplay.showToast(
+          toastText: _i18n.get("error_occurred"),
+        );
+      } catch (e) {
+        _logger.e(e);
+      }
       return _messageDao.savePendingMessage(m);
     }
   }
@@ -657,11 +662,10 @@ class MessageRepo {
     var tempType = "";
 
     try {
-      tempType = file.extension ?? _findType(file.path);
+      tempType = _findType(isWeb ? file.name : file.path);
     } catch (e) {
       _logger.e("Error in getting file type", e);
     }
-
 
     final f = dart_file.File(file.path);
 
@@ -733,20 +737,20 @@ class MessageRepo {
     file_pb.File? updatedFile;
     final file = file_pb.File.fromJson(pm.msg.json);
     await _savePendingEditedMessage(
-      pm.copyWith(status: SendingStatus.UPLOAD_FILE_INPROGRSS),
+      pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
     updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(
           msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
-          status: SendingStatus.UPLOAD_FILE_COMPELED,
+          status: SendingStatus.UPLOAD_FILE_COMPLETED,
         ),
       );
     } else {
       await _savePendingEditedMessage(
         pm.copyWith(
-          status: SendingStatus.UPLIOD_FILE_FAIL,
+          status: SendingStatus.UPLOAD_FILE_FAIL,
         ),
       );
     }
@@ -779,7 +783,7 @@ class MessageRepo {
 
       final newPm = pm.copyWith(
         msg: pm.msg.copyWith(json: newJson),
-        status: SendingStatus.UPLOAD_FILE_COMPELED,
+        status: SendingStatus.UPLOAD_FILE_COMPLETED,
       );
 
       // Update pending messages table
@@ -792,7 +796,7 @@ class MessageRepo {
         pm.packetId,
       ); //check pending message  delete when  file  uploading
       if (p != null) {
-        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        final newPm = pm.copyWith(status: SendingStatus.UPLOAD_FILE_FAIL);
         return newPm;
       }
       return null;
@@ -867,22 +871,26 @@ class MessageRepo {
       if (!pendingMessage.failed ||
           pendingMessage.msg.type == MessageType.CALL) {
         switch (pendingMessage.status) {
-          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+          case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
             break;
           case SendingStatus.PENDING:
-          case SendingStatus.UPLOAD_FILE_COMPELED:
+          case SendingStatus.UPLOAD_FILE_COMPLETED:
             _sendMessageToServer(pendingMessage);
             break;
-          case SendingStatus.UPLIOD_FILE_FAIL:
-            final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
-            if (pm != null &&
-                pm.status == SendingStatus.UPLOAD_FILE_COMPELED &&
-                _fileOfMessageIsValid(pm.msg.json.toFile())) {
-              _sendMessageToServer(pm);
-            }
+          case SendingStatus.UPLOAD_FILE_FAIL:
+            await resendFileMessage(pendingMessage);
             break;
         }
       }
+    }
+  }
+
+  Future<void> resendFileMessage(PendingMessage pendingMessage) async {
+    final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
+    if (pm != null &&
+        pm.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
+        _fileOfMessageIsValid(pm.msg.json.toFile())) {
+      _sendMessageToServer(pm);
     }
   }
 
@@ -892,13 +900,13 @@ class MessageRepo {
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
-          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+          case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
             break;
           case SendingStatus.PENDING:
-          case SendingStatus.UPLOAD_FILE_COMPELED:
+          case SendingStatus.UPLOAD_FILE_COMPLETED:
             await updateMessageAtServer(pendingMessage);
             break;
-          case SendingStatus.UPLIOD_FILE_FAIL:
+          case SendingStatus.UPLOAD_FILE_FAIL:
             final updatedFile = await _sendFileToServerOfPendingEditedMessage(
               pendingMessage,
             );
@@ -907,7 +915,7 @@ class MessageRepo {
                 pendingMessage.copyWith(
                   msg: pendingMessage.msg
                       .copyWith(json: updatedFile.writeToJson()),
-                  status: SendingStatus.UPLOAD_FILE_COMPELED,
+                  status: SendingStatus.UPLOAD_FILE_COMPLETED,
                 ),
               );
             }
@@ -1392,7 +1400,7 @@ class MessageRepo {
       file_pb.File? updatedFile;
       if (file != null) {
         final uploadKey = _getPacketId();
-        await _fileRepo.cloneFileInLocalDirectory(
+        await _fileRepo.saveInFileInfo(
           dart_file.File(file.path),
           uploadKey,
           file.name,
@@ -1411,7 +1419,7 @@ class MessageRepo {
               json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
               edited: true,
             ),
-            SendingStatus.UPLOAD_FILE_INPROGRSS,
+            SendingStatus.UPLOAD_FILE_IN_PROGRESS,
           ),
         );
         if (updatedFile != null && caption != null) {

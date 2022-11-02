@@ -14,10 +14,12 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:proximity_sensor/proximity_sensor.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:window_size/window_size.dart';
@@ -54,9 +56,13 @@ class CallScreenState extends State<CallScreen> {
   final _callService = GetIt.I.get<CallService>();
   late final String random;
   Timer? endCallTimer;
+  bool _isNear = false;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
+  late StreamSubscription<dynamic> _streamSubscription;
+
+  static const MethodChannel _channel = MethodChannel('screen_management');
 
   @override
   void initState() {
@@ -165,9 +171,10 @@ class CallScreenState extends State<CallScreen> {
       );
     }
     if (isAndroid) {
-      for (final subscription in _accelerometerEvents) {
-        subscription?.cancel();
-      }
+      // for (final subscription in _accelerometerEvents) {
+      //   subscription?.cancel();
+      // }
+      _streamSubscription.cancel();
       setOnLockScreenVisibility();
     }
   }
@@ -181,12 +188,15 @@ class CallScreenState extends State<CallScreen> {
   Future<void> _listenSensor() async {
     _accelerometerEvents.add(
       accelerometerEvents.listen((event) {
-        if (event.z < 5 && event.y > 1) {
-          //_logger.i('Proximity sensor detected');
+        if (event.z < 5 && event.y > 1 && _isNear) {
+          _channel.invokeMethod("turnOff");
         } else {
-          //_logger.i('Proximity sensor not detected');
+          _channel.invokeMethod("turnOn");
         }
       }),
+    );
+    _streamSubscription = ProximitySensor.events.listen(
+      (event) => setState(() => _isNear = (event > 0)),
     );
   }
 
@@ -374,16 +384,16 @@ class CallScreenState extends State<CallScreen> {
                     callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall:
-                        widget.isIncomingCall && !_callRepo.isConnected,
+                    // isIncomingCall:
+                    //     widget.isIncomingCall && !_callRepo.isConnected,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
-                    isIncomingCall:
-                        widget.isIncomingCall && !_callRepo.isConnected,
+                    // isIncomingCall:
+                    //     widget.isIncomingCall && !_callRepo.isConnected,
                     hangUp: _hangUp,
                   );
           case CallStatus.BUSY:

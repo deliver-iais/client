@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -266,10 +266,10 @@ class RoutingService {
         ),
       );
 
-  void openAccountSettings({bool forceToSetUsernameAndName = false}) => _push(
+  void openAccountSettings({bool forceToSetName = false}) => _push(
         AccountSettings(
           key: const ValueKey("/account-settings"),
-          forceToSetUsernameAndName: forceToSetUsernameAndName,
+          forceToSetName: forceToSetName,
         ),
       );
 

@@ -107,6 +107,7 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isInitRenderer = false;
+  bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
 
   bool get isCaller => _isCaller;
@@ -134,6 +135,7 @@ class CallRepo {
   int? _startCallTime = 0;
   int? _callDuration = 0;
   int? _endCallTime = 0;
+  int _shareDelay = 1;
 
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
@@ -248,6 +250,7 @@ class CallRepo {
                       CallNotificationActionInBackground(
                         roomId: event.roomUid!.asString(),
                         isCallAccepted: true,
+                        isVideo: _isVideo,
                       ),
                     );
                   } else {
@@ -616,9 +619,11 @@ class CallRepo {
   }
 
   void onRTCPeerConnectionDisconnected() {
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 2), () {
       if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
-        callingStatus.add(CallStatus.DISCONNECTED);
+        if(_peerConnection!.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected){
+          callingStatus.add(CallStatus.DISCONNECTED);
+        }
         try {} catch (e) {
           _logger.e(e);
         }
@@ -704,18 +709,25 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
-    Timer(const Duration(seconds: 1), () async {
+    await _ShareCameraStatusFromDataChannel();
+    if (!isDesktop) {
+      _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
+    }
+  }
+
+  Future<void> _ShareCameraStatusFromDataChannel() async {
+    Timer(Duration(seconds: 1 * _shareDelay), () async {
       if (_isDCReceived) {
         if (sharing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
         } else if (videoing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
         }
+      } else {
+        _shareDelay = _shareDelay * 2;
+        await _ShareCameraStatusFromDataChannel();
       }
     });
-    if (!isDesktop) {
-      _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
-    }
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
@@ -1067,11 +1079,13 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
+    _audioToggleOnCall();
     if (_isNotificationSelected) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
           roomId: roomId.asString(),
           isCallAccepted: false,
+          isVideo: _isVideo,
         ),
       );
     } else if (!isDuplicated) {
@@ -1080,6 +1094,7 @@ class CallRepo {
           CallNotificationActionInBackground(
             roomId: roomId.asString(),
             isCallAccepted: false,
+            isVideo: _isVideo,
           ),
         );
       } else {
@@ -1632,6 +1647,7 @@ class CallRepo {
         _audioService
           ..turnUpTheCallVolume()
           ..stopCallAudioPlayer();
+        _audioToggleOnCall();
       });
     }
   }
@@ -1697,6 +1713,17 @@ class CallRepo {
       _localStreamShare = null;
     }
   }
+
+  void _audioToggleOnCall() {
+    if (_audioService.playerState.value == AudioPlayerState.playing) {
+      _audioService.pauseAudio();
+      _isAudioToggleOnCall = true;
+    } else if(_isAudioToggleOnCall){
+      _audioService.resumeAudio();
+      _isAudioToggleOnCall = false;
+    }
+  }
+
 
 // ignore: non_constant_identifier_names
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
