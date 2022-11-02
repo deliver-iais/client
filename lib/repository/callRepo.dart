@@ -107,6 +107,7 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isInitRenderer = false;
+  bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
 
   bool get isCaller => _isCaller;
@@ -1078,6 +1079,7 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
+    _audioToggleOnCall();
     if (_isNotificationSelected) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
@@ -1645,6 +1647,7 @@ class CallRepo {
         _audioService
           ..turnUpTheCallVolume()
           ..stopCallAudioPlayer();
+        _audioToggleOnCall();
       });
     }
   }
@@ -1710,6 +1713,17 @@ class CallRepo {
       _localStreamShare = null;
     }
   }
+
+  void _audioToggleOnCall() {
+    if (_audioService.playerState.value == AudioPlayerState.playing) {
+      _audioService.pauseAudio();
+      _isAudioToggleOnCall = true;
+    } else if(_isAudioToggleOnCall){
+      _audioService.resumeAudio();
+      _isAudioToggleOnCall = false;
+    }
+  }
+
 
 // ignore: non_constant_identifier_names
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
