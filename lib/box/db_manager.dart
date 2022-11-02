@@ -67,8 +67,10 @@ class DBManager {
   TableInfo? getTableInfo(String name) =>
       TableInfo.values.firstWhereOrNull((ti) => ti.name == name);
 
-  int getDbVersionHashcode() =>
-      const DeepCollectionEquality().hash(TableInfo.values);
+  int getDbVersionHashcode() {
+    return const DeepCollectionEquality()
+        .hash(TableInfo.values.map((e) => "${e.name}-${e.version}"));
+  }
 
   Future<void> migrate({
     bool deleteSharedDao = true,
