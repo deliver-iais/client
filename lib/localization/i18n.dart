@@ -63,8 +63,15 @@ class I18N {
         : key.replaceAll("_", " ");
   }
 
-  String verb(String key, {bool isFirstPerson = false}) {
-    return get(key) +
+  String verb(
+    String key, {
+    bool isFirstPerson = false,
+    bool needParticleSuffixed = false,
+  }) {
+    return (needParticleSuffixed
+            ? (_values!["_particle_suffixed_"] ?? "")
+            : "") +
+        get(key) +
         (isFirstPerson ? (_values!["_first_person_verb_extra_"] ?? "") : "");
   }
 
