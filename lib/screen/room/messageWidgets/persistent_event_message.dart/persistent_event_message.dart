@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -160,12 +159,15 @@ class PersistentEventMessage extends StatelessWidget {
   }) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        final issuer = await _persistentEventHandlerService
+        final tuple = await _persistentEventHandlerService
             .getIssuerNameFromMucSpecificPersistentEvent(
           persistentEventMessage.mucSpecificPersistentEvent,
+          message.roomUid,
+          isChannel: isChannel,
         );
+        final issuer = tuple.item1;
         final Widget issuerWidget = MouseRegion(
-          cursor: SystemMouseCursors.click,
+          cursor: tuple.item2 ? SystemMouseCursors.click : MouseCursor.defer,
           child: GestureDetector(
             child: Text(
               issuer,
@@ -176,10 +178,14 @@ class PersistentEventMessage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => _routingServices.openRoom(
-              persistentEventMessage.mucSpecificPersistentEvent.issuer
-                  .asString(),
-            ),
+            onTap: () {
+              if (tuple.item2) {
+                _routingServices.openRoom(
+                  persistentEventMessage.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                );
+              }
+            },
           ),
         );
         Widget? assigneeWidget;
@@ -224,9 +230,10 @@ class PersistentEventMessage extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Text(
-                '"${content.substring(0, min(content.length, 15))}"',
+                content,
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
+                textDirection: _i18n.getDirection(content),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

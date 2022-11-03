@@ -1,30 +1,48 @@
+import 'dart:math';
+
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tuple/tuple.dart';
 
 class PersistentEventHandlerService {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  Future<String> getIssuerNameFromMucSpecificPersistentEvent(
+  Future<Tuple2<String, bool>> getIssuerNameFromMucSpecificPersistentEvent(
     MucSpecificPersistentEvent mucSpecificPersistentEvent,
-  ) async {
-    return _roomRepo.getSlangName(
-      mucSpecificPersistentEvent.issuer,
+    String roomUid, {
+    required bool isChannel,
+  }) async {
+    if (isChannel) {
+      final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        roomUid,
+      );
+      if (!isMucOwnerOrAdminInChannel) {
+        return Tuple2(_i18n.get("admin"), false);
+      }
+    }
+    return Tuple2(
+      await _roomRepo.getSlangName(
+        mucSpecificPersistentEvent.issuer,
+      ),
+      true,
     );
   }
 
   Future<String?> getAssignerNameFromMucSpecificPersistentEvent(
-    MucSpecificPersistentEvent mucSpecificPersistentEvent,
-  ) async {
+      MucSpecificPersistentEvent mucSpecificPersistentEvent,) async {
     if ({
       MucSpecificPersistentEvent_Issue.ADD_USER,
       MucSpecificPersistentEvent_Issue.MUC_CREATED,
@@ -37,16 +55,14 @@ class PersistentEventHandlerService {
     return null;
   }
 
-  Future<String> getPinnedMessageBriefContent(
-    String roomUid,
-    int messageId,
-  ) async {
+  Future<String> getPinnedMessageBriefContent(String roomUid,
+      int messageId,) async {
     final message = await _messageDao.getMessage(
       roomUid,
       messageId,
     );
     final messageSRF =
-        await _messageExtractorServices.extractMessageSimpleRepresentative(
+    await _messageExtractorServices.extractMessageSimpleRepresentative(
       _messageExtractorServices.extractProtocolBufferMessage(message!),
     );
     var content = "";
@@ -61,11 +77,10 @@ class PersistentEventHandlerService {
           .where((e) => e.isNotEmpty)
           .join(" ");
     }
-    return content;
+    return '"${content.substring(0, min(content.length, 15))}${content.length > 15 ? "..." : ""}"';
   }
 
-  String getMucSpecificPersistentEventIssue(
-    PersistentEvent persistentEventMessage, {
+  String getMucSpecificPersistentEventIssue(PersistentEvent persistentEventMessage, {
     bool isChannel = false,
   }) {
     switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
