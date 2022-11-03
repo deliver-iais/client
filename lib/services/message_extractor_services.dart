@@ -6,6 +6,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/persistent_evet_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -18,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -26,6 +28,7 @@ class MessageExtractorServices {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
 
   MessageBrief extractMessageBrief(Message msg) {
     var text = "";
@@ -85,7 +88,7 @@ class MessageExtractorServices {
     final roomUid = getRoomUidOf(_authRepo, mrb.from.asUid(), mrb.to.asUid());
     final from = mrb.from.asUid();
     final roomName = await _roomRepo.getSlangName(roomUid);
-    final sender = await _roomRepo.getSlangName(mrb.from.asUid());
+    final sender = await getMessageSender(mrb.from.asUid(), roomUid);
     final type = mrb.type;
     const typeDetails = "";
     final text = mrb.text;
@@ -108,13 +111,26 @@ class MessageExtractorServices {
     );
   }
 
+  Future<String> getMessageSender(Uid from, Uid roomUid) async {
+    if (roomUid.isChannel()) {
+      final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        roomUid.asString(),
+      );
+      if (!isMucOwnerOrAdminInChannel) {
+        return _i18n.get("admin");
+      }
+    }
+    return _roomRepo.getSlangName(from);
+  }
+
   Future<MessageSimpleRepresentative> extractMessageSimpleRepresentative(
     message_pb.Message msg,
   ) async {
     final roomUid = getRoomUid(_authRepo, msg);
     final from = msg.from;
     final roomName = await _roomRepo.getSlangName(roomUid);
-    final sender = await _roomRepo.getSlangName(msg.from);
+    final sender = await getMessageSender(msg.from, roomUid);
     final type = getMessageType(msg.whichType());
 
     var typeDetails = "";
@@ -268,10 +284,13 @@ class MessageExtractorServices {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
         final persistentEventHandlerService =
             GetIt.I.get<PersistentEventHandlerService>();
-        final issuer = await persistentEventHandlerService
-            .getIssuerNameFromMucSpecificPersistentEvent(
+        final issuer = (await persistentEventHandlerService
+                .getIssuerNameFromMucSpecificPersistentEvent(
           pe.mucSpecificPersistentEvent,
-        );
+          roomUid,
+          isChannel: isChannel,
+        ))
+            .item1;
         String? pinMessage;
         if (pe.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
