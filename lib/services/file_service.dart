@@ -17,6 +17,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image/image.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
@@ -278,10 +279,9 @@ class FileService {
           await ExtStorage.getExternalStoragePublicDirectory(directory);
       await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
           .create(recursive: true);
-      final f = File(
+      File(
         '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
-      );
-      await f.writeAsBytes(
+      ).writeAsBytesSync(
         name.endsWith(".webp")
             ? await convertImageToJpg(File(path))
             : File(path).readAsBytesSync(),
@@ -318,8 +318,7 @@ class FileService {
       final ad = (fileFormat != address.split(".").last)
           ? "$address.$fileFormat"
           : address;
-      final f = File(ad.replaceAll(".webp", ".jpg"));
-      await f.writeAsBytes(
+      File(ad.replaceAll(".webp", ".jpg")).writeAsBytesSync(
         convertToJpg && path.endsWith(".webp")
             ? await convertImageToJpg(File(path))
             : File(path).readAsBytesSync(),
@@ -365,18 +364,9 @@ class FileService {
     }
   }
 
-  Future<Uint8List> convertImageToJpg(File file) async {
-    final bytes = await file.readAsBytes();
-    final input = ImageFile(
-      filePath: file.path,
-      rawBytes: bytes,
-    ); // set the input image file
-    const config = Configuration(
-      quality: 30,
-    );
-
-    final param = ImageFileConfiguration(input: input, config: config);
-    return (await compressor.compressJpg(param)).rawBytes;
+  Future<List<int>> convertImageToJpg(File file) async {
+    final image = decodeImage(file.readAsBytesSync())!;
+    return encodeJpg(image);
   }
 
   Future<String> compressImageInDesktop(File file) async {
