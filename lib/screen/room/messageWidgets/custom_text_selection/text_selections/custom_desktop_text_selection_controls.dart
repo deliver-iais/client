@@ -1,10 +1,8 @@
-import 'dart:ui';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection/methods/custom_text_selection_methods.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
-import 'package:deliver/theme/theme.dart';
+import 'package:deliver/shared/widgets/blur_widget/blur_menu_card.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/material.dart';
@@ -414,27 +412,10 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
 
   // Builds a desktop toolbar in the Material style.
   static Widget _defaultToolbarBuilder(BuildContext context, Widget child) {
-    return Container(
-      width: _kToolbarWidth,
-      decoration: BoxDecoration(
-        boxShadow: DEFAULT_BOX_SHADOWS,
-        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.5),
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Material(
-            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
-            clipBehavior: Clip.antiAlias,
-            elevation: 1.0,
-            type: MaterialType.card,
-            child: child,
-          ),
-        ),
+    return BlurMenuCard(
+      child: SizedBox(
+        width: _kToolbarWidth,
+        child: child,
       ),
     );
   }
