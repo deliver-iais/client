@@ -2454,11 +2454,14 @@ class MockDataStreamServices extends _i1.Mock
       ) as _i22.Future<void>);
   @override
   _i22.Future<List<_i25.Message>> saveFetchMessages(
-          List<_i46.Message>? messages) =>
+    List<_i46.Message>? messages, {
+    bool? isLastMessage = false,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #saveFetchMessages,
           [messages],
+          {#isLastMessage: isLastMessage},
         ),
         returnValue: _i22.Future<List<_i25.Message>>.value(<_i25.Message>[]),
       ) as _i22.Future<List<_i25.Message>>);
