@@ -1719,20 +1719,23 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void saveFileToSpecifiedAddress(
-    String? path,
+    String? uuid,
     String? name,
-    String? address,
-  ) =>
+    String? address, {
+    bool? convertToJpg = true,
+  }) =>
       super.noSuchMethod(
         Invocation.method(
           #saveFileToSpecifiedAddress,
           [
-            path,
+            uuid,
             name,
             address,
           ],
+          {#convertToJpg: convertToJpg},
         ),
         returnValueForMissingStub: null,
       );

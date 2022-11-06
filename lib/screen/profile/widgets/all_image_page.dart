@@ -16,6 +16,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/profile/widgets/operation_on_image.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -637,25 +638,36 @@ class _AllImagePageState extends State<AllImagePage>
                 color: Colors.white,
               ),
             ),
-            IconButton(
-              tooltip:
-                  isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
-              onPressed: () async {
-                final message = await getMessage();
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  isDesktop
-                      ? OperationOnMessage.SHOW_IN_FOLDER
-                      : OperationOnMessage.SHARE,
-                );
-              },
-              icon: Icon(
-                isDesktop ? CupertinoIcons.folder_open : Icons.share_rounded,
-                color: Colors.white,
+            if (isAndroid)
+              IconButton(
+                tooltip: _i18n.get("share"),
+                onPressed: () async {
+                  final message = await getMessage();
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SHARE,
+                  );
+                },
+                icon: const Icon(
+                  Icons.share_rounded,
+                  color: Colors.white,
+                ),
               ),
-            ),
+            if (isDesktop)
+              PopupMenuButton(
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                itemBuilder: (cc) => <PopupMenuEntry>[
+                  OperationOnImage(
+                    getMessage: getMessage,
+                  )
+                ],
+              )
           ],
         ),
       ),
