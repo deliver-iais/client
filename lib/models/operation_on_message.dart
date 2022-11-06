@@ -3,6 +3,7 @@
 enum OperationOnMessage {
   REPLY,
   COPY,
+  SAVE_AS,
   FORWARD,
   DELETE,
   EDIT,
