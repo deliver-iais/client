@@ -50,10 +50,10 @@ class ShowCaseRepo {
       // ),
       Showcase(
         singleBanner: BannerCase(
-          uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+          uid: "3:fec74bc5-a8e6-4020-933e-784b1f3c6c05".asUid(),
           bannerImg: File(
-            uuid: "89ea82cd-e8fc-425f-8ff3-084870b4f864",
-            name: "1664362602484.webp",
+            uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
+            name: "1667989130491.jpeg",
           ),
         ),
       ),
@@ -99,6 +99,13 @@ class ShowCaseRepo {
             //   ),
             // ),
             BannerCase(
+              uid: "3:fec74bc5-a8e6-4020-933e-784b1f3c6c05".asUid(),
+              bannerImg: File(
+                uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
+                name: "1667989130491.jpeg",
+              ),
+            ),
+            BannerCase(
               uid: "4:quiztest_bot".asUid(),
               bannerImg: File(
                 uuid: "e5eeddb6-e59a-4b60-8c17-e27fe9f76c47",
@@ -119,20 +126,20 @@ class ShowCaseRepo {
                 name: "1664446020902.jpeg",
               ),
             ),
-            BannerCase(
-              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
-              bannerImg: File(
-                uuid: "5cee9920-8676-437e-994c-b0015f83f1a2",
-                name: "1664446035532.jpeg",
-              ),
-            ),
-            BannerCase(
-              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
-              bannerImg: File(
-                uuid: "00394804-79a6-4d62-8a1f-1a1d41b7230e",
-                name: "1664446007055.jpeg",
-              ),
-            ),
+            // BannerCase(
+            //   uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+            //   bannerImg: File(
+            //     uuid: "5cee9920-8676-437e-994c-b0015f83f1a2",
+            //     name: "1664446035532.jpeg",
+            //   ),
+            // ),
+            // BannerCase(
+            //   uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+            //   bannerImg: File(
+            //     uuid: "00394804-79a6-4d62-8a1f-1a1d41b7230e",
+            //     name: "1664446007055.jpeg",
+            //   ),
+            // ),
           ],
           name: "مالیات",
         ),
