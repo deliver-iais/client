@@ -136,8 +136,7 @@ class UxService {
       _isAutoNightModeEnable;
 
   void toggleThemeLightingMode() {
-    _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
-    _isAutoNightModeEnable.add(false);
+    _disableAutoNightMode();
     if (_themeIsDark.value) {
       toggleThemeToLightMode();
     } else {
@@ -145,12 +144,23 @@ class UxService {
     }
   }
 
-  void toggleThemeToLightMode() {
+  void toggleThemeToLightMode({bool forceToDisableAutoNightMode = false}) {
+    if (forceToDisableAutoNightMode) {
+      _disableAutoNightMode();
+    }
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
   }
 
-  void toggleThemeToDarkMode() {
+  void _disableAutoNightMode() {
+    _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
+    _isAutoNightModeEnable.add(false);
+  }
+
+  void toggleThemeToDarkMode({bool forceToDisableAutoNightMode = false}) {
+    if (forceToDisableAutoNightMode) {
+      _disableAutoNightMode();
+    }
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, true);
     _themeIsDark.add(true);
   }

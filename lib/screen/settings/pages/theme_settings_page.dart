@@ -209,7 +209,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     children: [
                       Section(
                         title: _i18n.get("theme"),
-                        children: [_buildThemeSelection()],
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: _buildThemeSelection(),
+                          )
+                        ],
                       ),
                       Section(
                         title: _i18n.get("advanced_settings"),
@@ -441,7 +446,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               selectedBorderColor: Color(colorPalette.primary.get(60)),
               onTap: () {
                 setState(() {
-                  _uxService.toggleThemeLightingMode();
+                  _uxService.toggleThemeToDarkMode(
+                    forceToDisableAutoNightMode: true,
+                  );
                 });
               },
               child: _darkThemeSelectionItemBackground(colorPalette),
@@ -456,7 +463,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               selectedBorderColor: Color(colorPalette.primary.get(60)),
               onTap: () {
                 setState(() {
-                  _uxService.toggleThemeLightingMode();
+                  _uxService.toggleThemeToLightMode(
+                    forceToDisableAutoNightMode: true,
+                  );
                 });
               },
               child: _lightThemeSelectionItemBackground(colorPalette),
