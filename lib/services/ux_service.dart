@@ -44,12 +44,16 @@ class UxService {
   UxService() {
     _sharedDao
         .getBooleanStream(
-          SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
-          defaultValue: true,
-        )
-        .distinct()
-        .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
-
+      SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+      defaultValue: true,
+    )
+        .listen((isEnable) {
+      _isAutoNightModeEnable.add(isEnable);
+      checkPlatformBrightness();
+    });
+    window.onPlatformBrightnessChanged = () {
+      checkPlatformBrightness();
+    };
     _sharedDao
         .getBooleanStream(SHARED_DAO_THEME_SHOW_COLORFUL)
         .distinct()
@@ -89,6 +93,14 @@ class UxService {
     });
   }
 
+  void checkPlatformBrightness() {
+    if (isAutoNightModeEnable) {
+      window.platformBrightness == Brightness.dark
+          ? toggleThemeToDarkMode()
+          : toggleThemeToLightMode();
+    }
+  }
+
   Stream<int> get themeIndexStream => _themeIndex.distinct();
 
   Stream<int> get patternIndexStream => _patternIndex.distinct();
@@ -119,6 +131,9 @@ class UxService {
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
+
+  BehaviorSubject<bool> get isAutoNightModeEnableStream =>
+      _isAutoNightModeEnable;
 
   void toggleThemeLightingMode() {
     _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
@@ -175,10 +190,10 @@ class UxService {
     );
   }
 
-  void toggleIsAutoNightMode() {
+  void enableAutoNightMode() {
     _sharedDao.putBoolean(
       SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
-      !isAutoNightModeEnable,
+      true,
     );
   }
 
