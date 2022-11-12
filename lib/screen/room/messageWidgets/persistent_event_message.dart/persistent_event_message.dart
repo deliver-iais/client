@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/services/persistent_evet_handler_service.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';

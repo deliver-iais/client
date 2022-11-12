@@ -77,7 +77,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/persistent_evet_handler_service.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
