@@ -14,11 +14,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PointToLatLngPage extends StatefulWidget {
-  Position position;
-  Uid roomUid;
+  final Position position;
+  final Uid roomUid;
 
-  PointToLatLngPage({Key? key, required this.position, required this.roomUid})
-      : super(key: key);
+  const PointToLatLngPage({
+    Key? key,
+    required this.position,
+    required this.roomUid,
+  }) : super(key: key);
 
   @override
   PointToLatlngPage createState() {
@@ -30,26 +33,26 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   late final MapController mapController = MapController();
   final pointSize = 10.0;
   final pointY = 100.0;
-  late LatLng latLng;
+  late LatLng currentLocation;
+  late LatLng pointerLocation;
 
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _uxService = GetIt.I.get<UxService>();
 
   // late final BuildContext context;
 
   @override
   void initState() {
     super.initState();
-    latLng = LatLng(widget.position.latitude, widget.position.longitude);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // updatePoint(null, context);
-    });
+    currentLocation =
+        LatLng(widget.position.latitude, widget.position.longitude);
+    pointerLocation = currentLocation;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final _uxService = GetIt.I.get<UxService>();
     return Scaffold(
       body: ListView(
         children: [
@@ -61,7 +64,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                 onMapEvent: (event) {
                   updatePoint(null, context);
                 },
-                center: latLng,
+                center: pointerLocation,
                 zoom: 5,
                 minZoom: 15,
               ),
@@ -78,10 +81,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                     Marker(
                       // width: pointSize,
                       // height: pointSize,
-                      point: LatLng(
-                        widget.position.latitude,
-                        widget.position.longitude,
-                      ),
+                      point: currentLocation,
                       builder: (_) {
                         return Container(
                           padding: const EdgeInsets.all(8),
@@ -110,7 +110,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       },
                     ),
                     Marker(
-                      point: latLng,
+                      point: pointerLocation,
                       builder: (_) {
                         return GestureDetector(
                           child: Icon(
@@ -164,8 +164,10 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (widget.position.latitude != latLng.latitude ||
-                                widget.position.longitude != latLng.longitude)
+                            if (currentLocation.latitude !=
+                                    pointerLocation.latitude ||
+                                currentLocation.longitude !=
+                                    pointerLocation.longitude)
                               Text(
                                 _i18n.get(
                                   "send_this_location",
@@ -179,9 +181,13 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                                 ),
                                 style: const TextStyle(fontSize: 18),
                               ),
-                            if (widget.position.latitude != latLng.latitude ||
-                                widget.position.longitude != latLng.longitude)
-                              Text("${latLng.latitude},${latLng.longitude}")
+                            if (widget.position.latitude !=
+                                    pointerLocation.latitude ||
+                                widget.position.longitude !=
+                                    pointerLocation.longitude)
+                              Text(
+                                "${pointerLocation.latitude},${pointerLocation.longitude}",
+                              )
                             else
                               Text("${widget.position.accuracy}")
                           ],
@@ -193,7 +199,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                     Navigator.of(context).pop();
                     _messageRepo.sendLocationMessage(
                       // LatLng(widget.position.latitude, widget.position.longitude),
-                      latLng,
+                      pointerLocation,
                       widget.roomUid,
                     );
                   },
@@ -213,7 +219,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
       final newLocation =
           mapController.pointToLatLng(CustomPoint(pointX, pointY));
       if (newLocation != null) {
-        latLng = newLocation;
+        pointerLocation = newLocation;
       }
     });
   }
