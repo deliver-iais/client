@@ -87,7 +87,6 @@ class SenderAndContent extends StatelessWidget {
                   messageSR: snapshot.data!,
                   showSender: true,
                   showSeenStatus: false,
-                  lastMessageId: 0,
                   highlightColor: messageColorScheme.primary,
                   expandContent: expandContent,
                 ),

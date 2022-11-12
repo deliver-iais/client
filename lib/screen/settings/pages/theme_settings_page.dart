@@ -16,6 +16,7 @@ import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../shared/widgets/settings_ui/box_ui.dart';
@@ -209,27 +210,10 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       Section(
                         title: _i18n.get("theme"),
                         children: [
-                          SettingsTile.switchTile(
-                            title: _i18n.get("dark_mode"),
-                            leading: const Icon(CupertinoIcons.moon),
-                            switchValue: _uxService.themeIsDark,
-                            onToggle: (value) {
-                              setState(() {
-                                _uxService.toggleThemeLightingMode();
-                              });
-                            },
-                          ),
-                          SettingsTile.switchTile(
-                            title: _i18n.get("auto_night_mode"),
-                            leading:
-                                const Icon(CupertinoIcons.circle_lefthalf_fill),
-                            switchValue: _uxService.isAutoNightModeEnable,
-                            onToggle: (value) {
-                              setState(() {
-                                _uxService.toggleIsAutoNightMode();
-                              });
-                            },
-                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: _buildThemeSelection(),
+                          )
                         ],
                       ),
                       Section(
@@ -442,6 +426,226 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildThemeSelection() {
+    final colorPalette = CorePalette.of(palettes[_uxService.themeIndex].value);
+    return Column(
+      children: [
+        SettingsTile(
+          title: _i18n.get("select_theme"),
+          leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+          trailing: const SizedBox.shrink(),
+        ),
+        Wrap(
+          children: [
+            _buildThemeSelectionItem(
+              text: _i18n.get("dark_mode"),
+              selectedBorderColor: Color(colorPalette.primary.get(60)),
+              onTap: () {
+                setState(() {
+                  _uxService.toggleThemeToDarkMode(
+                    forceToDisableAutoNightMode: true,
+                  );
+                });
+              },
+              child: _darkThemeSelectionItemBackground(colorPalette),
+              isSelected:
+                  _uxService.themeIsDark && !_uxService.isAutoNightModeEnable,
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            _buildThemeSelectionItem(
+              text: _i18n.get("light_mode"),
+              selectedBorderColor: Color(colorPalette.primary.get(60)),
+              onTap: () {
+                setState(() {
+                  _uxService.toggleThemeToLightMode(
+                    forceToDisableAutoNightMode: true,
+                  );
+                });
+              },
+              child: _lightThemeSelectionItemBackground(colorPalette),
+              isSelected:
+                  !_uxService.themeIsDark && !_uxService.isAutoNightModeEnable,
+            ),
+            const SizedBox(
+              width: 8,
+            ),
+            _buildThemeSelectionItem(
+              text: _i18n.get("os_default"),
+              selectedBorderColor: Color(colorPalette.primary.get(60)),
+              onTap: () {
+                setState(() {
+                  _uxService.enableAutoNightMode();
+                });
+              },
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    child: SizedBox(
+                      width: 60,
+                      height: 85,
+                      child: _lightThemeSelectionItemBackground(
+                        colorPalette,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    left: 15,
+                    child: SizedBox(
+                      width: 60,
+                      height: 85,
+                      child: _darkThemeSelectionItemBackground(
+                        colorPalette,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              isSelected: _uxService.isAutoNightModeEnable,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemeSelectionItem({
+    required Widget child,
+    required String text,
+    required Color selectedBorderColor,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: () => onTap(),
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          children: [
+            Container(
+              height: 100,
+              decoration: isSelected
+                  ? BoxDecoration(
+                      borderRadius: tertiaryBorder,
+                      border: Border.all(
+                        color: selectedBorderColor,
+                        width: 2,
+                        strokeAlign: StrokeAlign.outside,
+                      ),
+                    )
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: child,
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _lightThemeSelectionItemBackground(CorePalette colorPalette) {
+    return _buildThemeSelectionItemBackground(
+      patternColor: Color(colorPalette.primary.get(66)).withOpacity(0.5),
+      backGroundColor: Color(colorPalette.primary.get(88)),
+      box1Color: Color(colorPalette.primary.get(92)),
+      box2Color: Colors.white,
+      iconColor: Color(colorPalette.primary.get(50)),
+      icon: CupertinoIcons.sun_max_fill,
+    );
+  }
+
+  Widget _darkThemeSelectionItemBackground(CorePalette colorPalette) {
+    return _buildThemeSelectionItemBackground(
+      patternColor: Color(colorPalette.primary.get(70)).withOpacity(0.5),
+      backGroundColor: Colors.black,
+      box1Color: Color(colorPalette.primary.get(50)),
+      box2Color: Color(colorPalette.neutral.get(30)),
+      iconColor: Color(colorPalette.primary.get(90)),
+      icon: CupertinoIcons.moon_fill,
+    );
+  }
+
+  Widget _buildThemeSelectionItemBackground({
+    required Color patternColor,
+    required Color backGroundColor,
+    required Color box1Color,
+    required Color box2Color,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: tertiaryBorder,
+        color: backGroundColor,
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            child: Image(
+              width: 260,
+              image: AssetImage(
+                "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+              ),
+              color: patternColor,
+              fit: BoxFit.fill,
+              repeat: ImageRepeat.repeat,
+            ),
+          ),
+          Positioned(
+            top: 10,
+            right: 5,
+            child: Container(
+              width: 35,
+              height: 20,
+              decoration: BoxDecoration(
+                borderRadius: tertiaryBorder,
+                color: box1Color,
+                boxShadow: DEFAULT_BOX_SHADOWS,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 35,
+            left: 5,
+            child: Container(
+              width: 40,
+              height: 20,
+              decoration: BoxDecoration(
+                borderRadius: tertiaryBorder,
+                color: box2Color,
+                boxShadow: DEFAULT_BOX_SHADOWS,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Icon(
+                icon,
+                color: iconColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

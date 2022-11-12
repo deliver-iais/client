@@ -270,11 +270,18 @@ class FileRepo {
   }
 
   void saveFileToSpecifiedAddress(
-    String path,
+    String uuid,
     String name,
-    String address,
-  ) {
-    _fileService.saveFileToSpecifiedAddress(path, name, address);
+    String address, {
+    bool convertToJpg = true,
+  }) {
+    getFileIfExist(uuid, name).then(
+      (path) => _fileService.saveFileToSpecifiedAddress(
+        path!,
+        address,
+        convertToJpg: convertToJpg,
+      ),
+    );
   }
 
   void copyFileToPasteboard(

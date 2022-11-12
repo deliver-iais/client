@@ -1,4 +1,4 @@
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/blur_widget/blur_popup_menu_card.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
 
@@ -41,14 +41,12 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     return material.showMenu<T>(
       context: context,
       position: position,
-      items: items,
-      elevation: 4,
-      shape: OutlineInputBorder(
-        borderRadius: buttonBorder,
-        borderSide: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
+      items: <PopupMenuEntry<T>>[
+        BlurPopupMenuCard(
+          items: items,
+        )
+      ],
+      color: Colors.transparent,
     );
   }
 }

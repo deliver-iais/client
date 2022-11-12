@@ -18,6 +18,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showSavedMessageLogoIfNeeded;
   final bool hideName;
   final bool isHeroEnabled;
+  final bool forceToUpdateAvatar;
   final BorderRadius? borderRadius;
   final _streamKey = GlobalKey();
   final _futureKey = GlobalKey();
@@ -36,6 +37,7 @@ class CircleAvatarWidget extends StatelessWidget {
     this.hideName = false,
     this.isHeroEnabled = true,
     this.showSavedMessageLogoIfNeeded = false,
+    this.forceToUpdateAvatar = false,
   });
 
   bool isSavedMessage() =>
@@ -92,7 +94,10 @@ class CircleAvatarWidget extends StatelessWidget {
       return StreamBuilder<String?>(
         key: _streamKey,
         initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-        stream: _avatarRepo.getLastAvatarFilePathStream(contactUid),
+        stream: _avatarRepo.getLastAvatarFilePathStream(
+          contactUid,
+          forceToUpdate: forceToUpdateAvatar,
+        ),
         builder: (context, snapshot) => builder(context, snapshot, textColor),
       );
     }
