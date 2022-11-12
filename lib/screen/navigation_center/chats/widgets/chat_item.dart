@@ -171,7 +171,6 @@ class ChatItemState extends State<ChatItem> {
   Widget buildLastMessage(Message message) {
     return AsyncLastMessage(
       message: message,
-      lastMessageId: widget.room.lastMessageId,
       showSeenStatus: _authRepo.isCurrentUser(message.from),
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
