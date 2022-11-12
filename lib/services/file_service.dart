@@ -17,6 +17,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image/image.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
@@ -132,9 +133,11 @@ class FileService {
     return File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> _downloadedFileDir(String fileUuid, String fileType) async {
+  Future<File> _downloadedFileDir(String filePath) async {
     final directory = await getDownloadsDirectory();
-    return File('${directory!.path}/$fileUuid.$fileType');
+    await Directory('${directory!.path}/$APPLICATION_FOLDER_NAME')
+        .create(recursive: true);
+    return File("${directory.path}/$APPLICATION_FOLDER_NAME/$filePath");
   }
 
   Future<File> localThumbnailFile(
@@ -274,8 +277,15 @@ class FileService {
     try {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
-      await f.writeAsBytes(File(path).readAsBytesSync());
+      await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
+          .create(recursive: true);
+      File(
+        '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
+      ).writeAsBytesSync(
+        name.endsWith(".webp")
+            ? await convertImageToJpg(File(path))
+            : File(path).readAsBytesSync(),
+      );
     } catch (_) {}
   }
 
@@ -286,10 +296,13 @@ class FileService {
   ) async {
     try {
       final file = await _downloadedFileDir(
-        uuid,
-        name.split('.').last.replaceAll("webp", "jpg"),
+        name.replaceAll(".webp", ".jpg"),
       );
-      file.writeAsBytesSync(File(filePath).readAsBytesSync());
+      file.writeAsBytesSync(
+        name.endsWith(".webp")
+            ? (await convertImageToJpg(File(filePath)))
+            : File(filePath).readAsBytesSync(),
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -297,12 +310,19 @@ class FileService {
 
   Future<void> saveFileToSpecifiedAddress(
     String path,
-    String name,
-    String address,
-  ) async {
+    String address, {
+    bool convertToJpg = true,
+  }) async {
     try {
-      final f = File(address);
-      await f.writeAsBytes(File(path).readAsBytesSync());
+      final fileFormat = path.split(".").last;
+      final ad = (fileFormat != address.split(".").last)
+          ? "$address.$fileFormat"
+          : address;
+      File(ad.replaceAll(".webp", ".jpg")).writeAsBytesSync(
+        convertToJpg && path.endsWith(".webp")
+            ? await convertImageToJpg(File(path))
+            : File(path).readAsBytesSync(),
+      );
     } catch (_) {}
   }
 
@@ -342,6 +362,11 @@ class FileService {
       _logger.e(e);
       return null;
     }
+  }
+
+  Future<List<int>> convertImageToJpg(File file) async {
+    final image = decodeImage(file.readAsBytesSync())!;
+    return encodeJpg(image);
   }
 
   Future<String> compressImageInDesktop(File file) async {

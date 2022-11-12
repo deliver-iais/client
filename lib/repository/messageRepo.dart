@@ -982,7 +982,7 @@ class MessageRepo {
 
   Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
         uid: pm.roomUid,
-        lastMessage: pm.msg,
+        lastMessage: pm.msg.isHidden ? null : pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
       );

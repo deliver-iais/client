@@ -74,6 +74,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                         widget.roomUid,
                         40,
                         showSavedMessageLogoIfNeeded: true,
+                        forceToUpdateAvatar: true,
                       ),
                       onTap: () async {
                         final lastAvatar =

@@ -1721,18 +1721,20 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
       );
   @override
   void saveFileToSpecifiedAddress(
-    String? path,
+    String? uuid,
     String? name,
-    String? address,
-  ) =>
+    String? address, {
+    bool? convertToJpg = true,
+  }) =>
       super.noSuchMethod(
         Invocation.method(
           #saveFileToSpecifiedAddress,
           [
-            path,
+            uuid,
             name,
             address,
           ],
+          {#convertToJpg: convertToJpg},
         ),
         returnValueForMissingStub: null,
       );
@@ -3982,12 +3984,16 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
   String verb(
     String? key, {
     bool? isFirstPerson = false,
+    bool? needParticleSuffixed = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #verb,
           [key],
-          {#isFirstPerson: isFirstPerson},
+          {
+            #isFirstPerson: isFirstPerson,
+            #needParticleSuffixed: needParticleSuffixed,
+          },
         ),
         returnValue: '',
       ) as String);
@@ -6113,6 +6119,15 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         returnValue: false,
       ) as bool);
   @override
+  _i4.BehaviorSubject<bool> get isAutoNightModeEnableStream =>
+      (super.noSuchMethod(
+        Invocation.getter(#isAutoNightModeEnableStream),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#isAutoNightModeEnableStream),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
   void init() => super.noSuchMethod(
         Invocation.method(
           #init,
@@ -6124,6 +6139,14 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
   void reInitialize() => super.noSuchMethod(
         Invocation.method(
           #reInitialize,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void checkPlatformBrightness() => super.noSuchMethod(
+        Invocation.method(
+          #checkPlatformBrightness,
           [],
         ),
         returnValueForMissingStub: null,
@@ -6151,18 +6174,22 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         returnValueForMissingStub: null,
       );
   @override
-  void toggleThemeToLightMode() => super.noSuchMethod(
+  void toggleThemeToLightMode({bool? forceToDisableAutoNightMode = false}) =>
+      super.noSuchMethod(
         Invocation.method(
           #toggleThemeToLightMode,
           [],
+          {#forceToDisableAutoNightMode: forceToDisableAutoNightMode},
         ),
         returnValueForMissingStub: null,
       );
   @override
-  void toggleThemeToDarkMode() => super.noSuchMethod(
+  void toggleThemeToDarkMode({bool? forceToDisableAutoNightMode = false}) =>
+      super.noSuchMethod(
         Invocation.method(
           #toggleThemeToDarkMode,
           [],
+          {#forceToDisableAutoNightMode: forceToDisableAutoNightMode},
         ),
         returnValueForMissingStub: null,
       );
@@ -6207,9 +6234,9 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         returnValueForMissingStub: null,
       );
   @override
-  void toggleIsAutoNightMode() => super.noSuchMethod(
+  void enableAutoNightMode() => super.noSuchMethod(
         Invocation.method(
-          #toggleIsAutoNightMode,
+          #enableAutoNightMode,
           [],
         ),
         returnValueForMissingStub: null,
