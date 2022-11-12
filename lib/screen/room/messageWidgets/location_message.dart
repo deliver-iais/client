@@ -130,7 +130,6 @@ class LocationDialog extends StatelessWidget {
   final double size = isDesktop ? 500 : 350;
   static final _i18n = GetIt.I.get<I18N>();
   final _uxService = GetIt.I.get<UxService>();
-  final String _roomName = "";
 
   LocationDialog({super.key, required this.location, required this.from});
 
@@ -207,7 +206,7 @@ class LocationDialog extends StatelessWidget {
                     onPressed: () => MapLauncher.showMarker(
                       mapType: MapType.google,
                       coords: map.Coords(location.latitude, location.longitude),
-                      title: "$_roomName location",
+                      title: locationToString(location),
                     ),
                     child: Text(_i18n.get("open_in")),
                   ),
@@ -258,8 +257,6 @@ class LocationPage extends StatelessWidget {
                     const SizedBox(width: 6),
                     TextButton(
                       onPressed: () async {
-                        final roomName =
-                            await _roomRepo.getName(message.from.asUid());
                         isIOS
                             ? await MapLauncher.showMarker(
                                 mapType: MapType.apple,
@@ -267,7 +264,7 @@ class LocationPage extends StatelessWidget {
                                   location.latitude,
                                   location.longitude,
                                 ),
-                                title: "$roomName location",
+                                title: locationToString(location),
                               )
                             : MapLauncher.showMarker(
                                 mapType: MapType.google,
@@ -275,7 +272,7 @@ class LocationPage extends StatelessWidget {
                                   location.latitude,
                                   location.longitude,
                                 ),
-                                title: "$roomName location",
+                                title: locationToString(location),
                               );
                       },
                       child: Text(_i18n.get("open_in")),
@@ -561,4 +558,8 @@ Future<Position> _determinePosition() async {
     );
   }
   return Geolocator.getCurrentPosition();
+}
+
+String locationToString(Location location) {
+  return "${location.latitude}, ${location.longitude}";
 }
