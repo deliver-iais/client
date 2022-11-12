@@ -262,16 +262,6 @@ class SettingsPageState extends State<SettingsPage> {
                       });
                     },
                   ),
-                  SettingsTile.switchTile(
-                    title: _i18n.get("auto_night_mode"),
-                    leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
-                    switchValue: _uxService.isAutoNightModeEnable,
-                    onToggle: (value) {
-                      setState(() {
-                        _uxService.toggleIsAutoNightMode();
-                      });
-                    },
-                  ),
                   SettingsTile(
                     title: _i18n.get("advanced_settings"),
                     leading: const Icon(CupertinoIcons.paintbrush),
