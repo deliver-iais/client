@@ -68,16 +68,14 @@ class LocationMessageWidget extends StatelessWidget {
                   enableScrollWheel: false,
                   onTap: (_, point) async {
                     isWeb || isDesktop
-                        ?
-                        await showDialog(
+                        ? await showDialog(
                             context: context,
                             builder: (_) => LocationDialog(
                               location: location,
                               from: message.from.asUid(),
                             ),
                           )
-                        :
-                        _routingServices.openLocation(
+                        : _routingServices.openLocation(
                             location,
                             message.from.asUid(),
                             message,
@@ -133,7 +131,9 @@ class LocationDialog extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
   final _uxService = GetIt.I.get<UxService>();
   final String _roomName = "";
+
   LocationDialog({super.key, required this.location, required this.from});
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -228,16 +228,17 @@ class LocationPage extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _uxService = GetIt.I.get<UxService>();
-  String _roomName = "";
   final position = _determinePosition();
   final Message message;
   late final MapController _mapController = MapController();
+
   LocationPage({
     super.key,
     required this.location,
     required this.from,
     required this.message,
   });
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -257,18 +258,24 @@ class LocationPage extends StatelessWidget {
                     const SizedBox(width: 6),
                     TextButton(
                       onPressed: () async {
+                        final roomName =
+                            await _roomRepo.getName(message.from.asUid());
                         isIOS
                             ? await MapLauncher.showMarker(
                                 mapType: MapType.apple,
                                 coords: map.Coords(
-                                    location.latitude, location.longitude,),
-                                title: "$_roomName location",
+                                  location.latitude,
+                                  location.longitude,
+                                ),
+                                title: "$roomName location",
                               )
                             : MapLauncher.showMarker(
                                 mapType: MapType.google,
                                 coords: map.Coords(
-                                    location.latitude, location.longitude,),
-                                title: "$_roomName location",
+                                  location.latitude,
+                                  location.longitude,
+                                ),
+                                title: "$roomName location",
                               );
                       },
                       child: Text(_i18n.get("open_in")),
@@ -311,30 +318,32 @@ class LocationPage extends StatelessWidget {
                           builder: (_) {
                             return Container(
                               alignment: Alignment.topCenter,
-                                padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                // borderRadius: BorderRadius.circular(48.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (theme.colorScheme.primary
+                                        .withOpacity(0.7)),
+                                    blurRadius: 20.0,
+                                  )
+                                ],
+                              ),
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                // padding: EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  // borderRadius: BorderRadius.circular(48.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (theme.colorScheme.primary
-                                          .withOpacity(0.7)),
-                                      blurRadius: 20.0,
-                                    )
-                                  ],
+                                  border: Border.all(color: Colors.white),
+                                  color: theme.colorScheme.primary,
                                 ),
-                                child: Container(
-                                    width: 200,
-                                    height: 200,
-                                    // padding: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white),
-                                        color: theme.colorScheme.primary,),),);
+                              ),
+                            );
                           },
                         ),
                       Marker(
-
                         point: LatLng(location.latitude, location.longitude),
                         builder: (_) {
                           return GestureDetector(
@@ -380,136 +389,138 @@ class LocationPage extends StatelessWidget {
             ),
           ),
           Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Align(
-                alignment: FractionalOffset.bottomCenter,
-                child: Container(
-                  height: 140,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(15.0),
-                      topLeft: Radius.circular(15.0),
-                    ),
+            textDirection: _i18n.defaultTextDirection,
+            child: Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Container(
+                height: 140,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(15.0),
+                    topLeft: Radius.circular(15.0),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 20.0,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatarWidget(from, 25),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(
-                                  height: 1,
-                                ),
-                                FutureBuilder<String>(
-                                  initialData: _roomRepo
-                                      .fastForwardName(message.from.asUid()),
-                                  future:
-                                      _roomRepo.getName(message.from.asUid()),
-                                  builder: (context, snapshot) {
-                                    _roomName =
-                                        snapshot.data ?? _i18n.get("loading");
-                                    return RoomName(
-                                      uid: message.from.asUid(),
-                                      name: _roomName,
-                                    );
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                FutureBuilder(
-                                  future: _distance(message),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      var distance = snapshot.data;
-                                      distance = double.parse("$distance")
-                                          .toStringAsFixed(3);
-                                      return Text(
-                                        "$distance ${_i18n.get("away")}",
-                                      );
-                                    } else {
-                                      return Text(
-                                        _i18n.get("locating"),
-                                      );
-                                    }
-                                  },
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 20.0,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatarWidget(from, 25),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ElevatedButton(
-                                style: ButtonStyle(
-                                  fixedSize: MaterialStateProperty.all(
-                                    const Size(380, 50),
-                                  ),
-                                  shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                  ),
-                                  padding: MaterialStateProperty.all(
-                                    const EdgeInsets.all(10),
-                                  ),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      theme.colorScheme.primary,),
-                                  textStyle: MaterialStateProperty.all(
-                                    const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  isIOS
-                                      ? await MapLauncher.showDirections(
-                                          mapType: MapType.apple,
-                                          destination: map.Coords(
-                                            location.latitude,
-                                            location.longitude,
-                                          ),
-                                        )
-                                      : MapLauncher.showDirections(
-                                          mapType: MapType.google,
-                                          destination: map.Coords(
-                                            location.latitude,
-                                            location.longitude,
-                                          ),
-                                        );
+                              const SizedBox(
+                                height: 1,
+                              ),
+                              FutureBuilder<String>(
+                                initialData: _roomRepo
+                                    .fastForwardName(message.from.asUid()),
+                                future: _roomRepo.getName(message.from.asUid()),
+                                builder: (context, snapshot) {
+                                  final roomName =
+                                      snapshot.data ?? _i18n.get("loading");
+                                  return RoomName(
+                                    uid: message.from.asUid(),
+                                    name: roomName,
+                                  );
                                 },
-                                child: Text(
-                                  _i18n.get("direction"),
-                                  style: TextStyle(
-                                      color: theme.colorScheme.surface,),
-                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              FutureBuilder(
+                                future: _distance(message),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    var distance = snapshot.data;
+                                    distance = double.parse("$distance")
+                                        .toStringAsFixed(3);
+                                    return Text(
+                                      "$distance ${_i18n.get("away")}",
+                                    );
+                                  } else {
+                                    return Text(
+                                      _i18n.get("locating"),
+                                    );
+                                  }
+                                },
                               )
                             ],
                           ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                  const Size(380, 50),
+                                ),
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.all(10),
+                                ),
+                                backgroundColor: MaterialStateProperty.all(
+                                  theme.colorScheme.primary,
+                                ),
+                                textStyle: MaterialStateProperty.all(
+                                  const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              onPressed: () async {
+                                isIOS
+                                    ? await MapLauncher.showDirections(
+                                        mapType: MapType.apple,
+                                        destination: map.Coords(
+                                          location.latitude,
+                                          location.longitude,
+                                        ),
+                                      )
+                                    : MapLauncher.showDirections(
+                                        mapType: MapType.google,
+                                        destination: map.Coords(
+                                          location.latitude,
+                                          location.longitude,
+                                        ),
+                                      );
+                              },
+                              child: Text(
+                                _i18n.get("direction"),
+                                style: TextStyle(
+                                  color: theme.colorScheme.surface,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ),)
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -527,6 +538,7 @@ Future<double> _distance(Message message) async {
   );
   return distance / 1609.344;
 }
+
 Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
