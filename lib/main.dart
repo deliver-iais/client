@@ -201,7 +201,8 @@ Future<void> setupDI() async {
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
   registerSingleton<DragAndDropService>(DragAndDropService());
   registerSingleton<PersistentEventHandlerService>(
-      PersistentEventHandlerService());
+    PersistentEventHandlerService(),
+  );
 }
 
 Future<void> dbSetupDI() async {
