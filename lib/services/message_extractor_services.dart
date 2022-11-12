@@ -6,7 +6,9 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -17,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -25,6 +28,7 @@ class MessageExtractorServices {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
 
   MessageBrief extractMessageBrief(Message msg) {
     var text = "";
@@ -84,7 +88,7 @@ class MessageExtractorServices {
     final roomUid = getRoomUidOf(_authRepo, mrb.from.asUid(), mrb.to.asUid());
     final from = mrb.from.asUid();
     final roomName = await _roomRepo.getSlangName(roomUid);
-    final sender = await _roomRepo.getSlangName(mrb.from.asUid());
+    final sender = await getMessageSender(mrb.from.asUid(), roomUid);
     final type = mrb.type;
     const typeDetails = "";
     final text = mrb.text;
@@ -107,13 +111,26 @@ class MessageExtractorServices {
     );
   }
 
+  Future<String> getMessageSender(Uid from, Uid roomUid) async {
+    if (roomUid.isChannel()) {
+      final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        roomUid.asString(),
+      );
+      if (!isMucOwnerOrAdminInChannel) {
+        return _i18n.get("admin");
+      }
+    }
+    return _roomRepo.getSlangName(from);
+  }
+
   Future<MessageSimpleRepresentative> extractMessageSimpleRepresentative(
     message_pb.Message msg,
   ) async {
     final roomUid = getRoomUid(_authRepo, msg);
     final from = msg.from;
     final roomName = await _roomRepo.getSlangName(roomUid);
-    final sender = await _roomRepo.getSlangName(msg.from);
+    final sender = await getMessageSender(msg.from, roomUid);
     final type = getMessageType(msg.whichType());
 
     var typeDetails = "";
@@ -184,6 +201,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.persistEvent:
         typeDetails = await getPersistentEventText(
+          roomUid.asString(),
           msg.persistEvent,
           isChannel: msg.to.isChannel(),
         );
@@ -258,115 +276,51 @@ class MessageExtractorServices {
   }
 
   Future<String> getPersistentEventText(
+    String roomUid,
     PersistentEvent pe, {
     bool isChannel = false,
   }) async {
     switch (pe.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        final issuer =
-            await _roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-        final assignee = await _roomRepo
-            .getSlangName(pe.mucSpecificPersistentEvent.assignee);
-        switch (pe.mucSpecificPersistentEvent.issue) {
-          case MucSpecificPersistentEvent_Issue.ADD_USER:
-            return [
-              issuer,
-              _i18n.verb(
-                "added",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-            return [
-              issuer,
-              _i18n.verb(
-                isChannel ? "change_channel_avatar" : "change_group_avatar",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              // assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.JOINED_USER:
-            return [
-              issuer,
-              _i18n.verb(
-                "joined",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              // assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.KICK_USER:
-            return [
-              issuer,
-              _i18n.verb(
-                "kicked",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-            return [
-              issuer,
-              _i18n.verb(
-                "left",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              // assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-            return [
-              issuer,
-              _i18n.verb(
-                "created",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-            return [
-              issuer,
-              _i18n.verb(
-                "changed_name",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              assignee
-            ].join(" ").trim();
-
-          case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-            return [
-              issuer,
-              _i18n.verb(
-                "pinned",
-                isFirstPerson: _authRepo.isCurrentUser(
-                  pe.mucSpecificPersistentEvent.issuer.asString(),
-                ),
-              ),
-              assignee
-            ].join(" ").trim();
-          case MucSpecificPersistentEvent_Issue.DELETED:
-            break;
+        final persistentEventHandlerService =
+            GetIt.I.get<PersistentEventHandlerService>();
+        final issuer = (await persistentEventHandlerService
+                .getIssuerNameFromMucSpecificPersistentEvent(
+          pe.mucSpecificPersistentEvent,
+          roomUid,
+          isChannel: isChannel,
+        ))
+            .item1;
+        String? pinMessage;
+        if (pe.mucSpecificPersistentEvent.issue ==
+            MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
+          pinMessage =
+              await persistentEventHandlerService.getPinnedMessageBriefContent(
+            roomUid,
+            pe.mucSpecificPersistentEvent.messageId.toInt(),
+          );
         }
-        break;
+        final issue = persistentEventHandlerService
+            .getMucSpecificPersistentEventIssue(pe, isChannel: isChannel);
+        final assignee = await persistentEventHandlerService
+            .getAssignerNameFromMucSpecificPersistentEvent(
+          pe.mucSpecificPersistentEvent,
+        );
+        return [
+          issuer,
+          if (_i18n.isPersian)
+            [
+              issue,
+              if (pinMessage != null) pinMessage,
+              if (assignee != null) assignee
+            ].reversed.join(" ").trim()
+          else
+            [
+              issue,
+              if (pinMessage != null) pinMessage,
+              if (assignee != null) assignee
+            ].join(" ").trim()
+        ].join(" ").trim();
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         return "";
       case PersistentEvent_Type.botSpecificPersistentEvent:
@@ -387,7 +341,6 @@ class MessageExtractorServices {
       case PersistentEvent_Type.notSet:
         return "";
     }
-    return "";
   }
 
   message_pb.Message extractProtocolBufferMessage(Message message) {
@@ -504,8 +457,4 @@ class MessageExtractorServices {
     }
     return jsonEncode(json);
   }
-
-
-
-
 }
