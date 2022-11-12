@@ -3984,12 +3984,16 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
   String verb(
     String? key, {
     bool? isFirstPerson = false,
+    bool? needParticleSuffixed = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #verb,
           [key],
-          {#isFirstPerson: isFirstPerson},
+          {
+            #isFirstPerson: isFirstPerson,
+            #needParticleSuffixed: needParticleSuffixed,
+          },
         ),
         returnValue: '',
       ) as String);
