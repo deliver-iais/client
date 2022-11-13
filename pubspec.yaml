@@ -120,6 +120,7 @@ dependencies:
   latlong2: 0.8.1
   logger: 1.1.0
   lottie: 1.4.3
+  map_launcher: 2.4.0
   marquee: 2.2.3
   material_color_utilities: 0.1.5
   meta: 1.8.0

@@ -65,7 +65,7 @@ class ShareBoxState extends State<ShareBox> {
   bool selected = false;
   TextEditingController captionTextController = TextEditingController();
 
-  BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
+  BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.6);
 
   Page currentPage = Page.gallery;
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -284,7 +284,7 @@ class ShareBoxState extends State<ShareBox> {
                                         setState(() {
                                           _audioPlayer.stop();
                                           currentPage = Page.location;
-                                          initialChildSize.add(0.5);
+                                          initialChildSize.add(0.6);
                                         });
                                       }
                                     }
