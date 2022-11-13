@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
@@ -9,7 +8,6 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
@@ -34,7 +32,7 @@ class HomePageState extends State<HomePage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _uxService = GetIt.I.get<UxService>();
+
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
@@ -47,13 +45,7 @@ class HomePageState extends State<HomePage> {
       //its work property without VPN
       FirebaseAnalytics.instance.logEvent(name: "user_starts_app");
     }
-    if (mounted) {
-      toggleTheme();
-    }
 
-    window.onPlatformBrightnessChanged = () {
-      toggleTheme();
-    };
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {
       checkHaveShareInput(context);
@@ -76,16 +68,6 @@ class HomePageState extends State<HomePage> {
     _contactRepo.sendNotSyncedContactInStartTime();
 
     super.initState();
-  }
-
-  void toggleTheme() {
-    setState(() {
-      if (_uxService.isAutoNightModeEnable) {
-        window.platformBrightness == Brightness.dark
-            ? _uxService.toggleThemeToDarkMode()
-            : _uxService.toggleThemeToLightMode();
-      }
-    });
   }
 
   Future<void> checkAddToHomeInWeb(BuildContext context) async {

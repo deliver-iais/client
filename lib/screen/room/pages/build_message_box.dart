@@ -32,6 +32,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -624,6 +625,9 @@ class OperationOnMessageSelection {
       case OperationOnMessage.SAVE:
         onSave();
         break;
+      case OperationOnMessage.SAVE_AS:
+        onSaveAs();
+        break;
     }
   }
 
@@ -736,6 +740,27 @@ class OperationOnMessageSelection {
   void onSave() {
     final file = message.json.toFile();
     _fileRepo.saveDownloadedFileInWeb(file.uuid, file.name, file.type);
+  }
+
+  void onSaveAs() {
+    final file = message.json.toFile();
+    Future.delayed(const Duration(milliseconds: 350)).then((value) {
+      FilePicker.platform
+          .saveFile(
+        lockParentWindow: true,
+        dialogTitle: 'Save file',
+        fileName: file.name,
+      )
+          .then((outputFile) {
+        if (outputFile != null) {
+          _fileRepo.saveFileToSpecifiedAddress(
+            file.uuid,
+            file.name,
+            outputFile,
+          );
+        }
+      });
+    });
   }
 
   void onDeleteMessage() {

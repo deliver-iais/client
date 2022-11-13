@@ -450,7 +450,7 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
       await _roomDao.updateRoom(
         uid: msg.roomUid,
-        lastMessage: msg,
+        lastMessage:msg.isHidden ? null : msg,
         lastMessageId: msg.id,
       );
       _notificationServices

@@ -1207,6 +1207,9 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    if (isAndroid) {
+      cancelVibration().ignore();
+    }
     _isAccepted = true;
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
@@ -1359,6 +1362,7 @@ class CallRepo {
 
   Future<void> cancelCallNotification() async {
     if (isAndroid && !_isCaller) {
+      cancelVibration().ignore();
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     } else if (isWindows) {

@@ -9,8 +9,17 @@ Future<void> vibrate({
   int amplitude = -1,
 }) async {
   if (hasVibrationCapability && (await Vibration.hasVibrator() ?? false)) {
-    return Vibration.vibrate(duration: duration);
+    return Vibration.vibrate(
+      duration: duration,
+      pattern: pattern,
+      repeat: repeat,
+      intensities: intensities,
+      amplitude: amplitude,
+    );
   }
+}
+Future<void> cancelVibration(){
+  return Vibration.cancel();
 }
 
 void quickVibrate() {
