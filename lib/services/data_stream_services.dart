@@ -27,7 +27,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
@@ -450,7 +449,7 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
       await _roomDao.updateRoom(
         uid: msg.roomUid,
-        lastMessage:msg.isHidden ? null : msg,
+        lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
       );
       _notificationServices
@@ -725,7 +724,7 @@ class DataStreamServices {
 
       try {
         appRunInForeground =
-            isAndroid && isLastMessage && !_appLifecycleService.appIsActive();
+            isLastMessage && !_appLifecycleService.appIsActive();
       } catch (e) {
         _logger.e(e);
       }
