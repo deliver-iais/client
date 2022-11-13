@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -10,10 +11,8 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -36,24 +35,7 @@ class HomePageState extends State<HomePage> {
 
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-
-  void _addLifeCycleListener() {
-    if (isDesktop) {
-      DesktopLifecycle.instance.isActive.addListener(() {
-        if (DesktopLifecycle.instance.isActive.value) {
-          _coreServices.checkConnectionTimer();
-        }
-      });
-    } else {
-      SystemChannels.lifecycle.setMessageHandler((message) async {
-        if (message != null &&
-            message == AppLifecycleState.resumed.toString()) {
-          _coreServices.checkConnectionTimer();
-        }
-        return message;
-      });
-    }
-  }
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   @override
   void initState() {
@@ -75,7 +57,13 @@ class HomePageState extends State<HomePage> {
     checkIfVersionChange();
     checkAddToHomeInWeb(context);
 
-    _addLifeCycleListener();
+    _appLifecycleService
+      ..startLifeCycListener()
+      ..watchAppAppLifecycle().listen((event) {
+        if (event == AppLifecycle.RESUME) {
+          _coreServices.checkConnectionTimer();
+        }
+      });
 
     _contactRepo.sendNotSyncedContactInStartTime();
 

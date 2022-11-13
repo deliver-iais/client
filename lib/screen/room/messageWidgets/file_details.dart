@@ -44,7 +44,7 @@ class FileDetails extends StatelessWidget {
                     initialData: const {},
                     stream: _fileService.filesProgressBarStatus.stream,
                     builder: (c, map) {
-                      final progress = map.data![file.uuid] ?? 0.001;
+                      final progress = map.data![file.uuid] ?? 0;
                       return _buildText(
                         "${sizeFormatter((progress * file.size.toInt()).toInt())} / ${sizeFormatter(file.size.toInt())}",
                         context,

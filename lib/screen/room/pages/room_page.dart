@@ -38,6 +38,7 @@ import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -61,7 +62,6 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +107,7 @@ class RoomPageState extends State<RoomPage> {
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
+  static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -396,9 +397,8 @@ class RoomPageState extends State<RoomPage> {
   void initState() {
     _roomRepo.updateUserInfo(widget.roomId.asUid());
     if (isDesktop) {
-      DesktopLifecycle.instance.isActive.addListener(() {
-        _appIsActive = DesktopLifecycle.instance.isActive.value;
-
+      _appLifecycleService.watchAppAppLifecycle().listen((event) {
+        _appIsActive = event == AppLifecycle.ACTIVE;
         if (_appIsActive) {
           _sendSeenMessage(_backgroundMessages);
           _backgroundMessages.clear();
