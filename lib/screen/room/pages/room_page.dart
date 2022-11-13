@@ -536,7 +536,7 @@ class RoomPageState extends State<RoomPage> {
         _cachingRepo.setMessage(widget.roomId, value.id, msg);
       }
       // Refresh message widget cache
-      _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
+      // _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
     });
   }
 
@@ -1406,21 +1406,7 @@ class RoomPageState extends State<RoomPage> {
     if (tuple == null || tuple.item2 == null) {
       return SizedBox(height: _defaultMessageHeight);
     }
-
-    Widget? w;
-
-    if (!tuple.item2!.isHidden) {
-      w = _cachingRepo.getMessageWidget(widget.roomId, index);
-    }
-
-    if (w == null) {
-      w = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
-        _cachingRepo.setMessageWidget(widget.roomId, index, w);
-      }
-    }
-
-    return w;
+    return _buildMessageBox(index, tuple);
   }
 
   Widget _buildMessageBox(int index, Tuple2<Message?, Message?> tuple) {
