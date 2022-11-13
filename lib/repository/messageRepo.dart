@@ -670,7 +670,9 @@ class MessageRepo {
     final f = dart_file.File(file.path);
 
     try {
-      tempFileSize = f.statSync().size;
+      if (!isWeb) {
+        tempFileSize = f.statSync().size;
+      }
       _logger.d(
         "File size set to file size: $tempFileSize",
       );

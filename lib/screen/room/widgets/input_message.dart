@@ -402,8 +402,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                       maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
                     ),
                     child: ReplyKeyboardMarkupWidget(
-                      replyKeyboardMarkup:
-                          widget.currentRoom.replyKeyboardMarkup!.toReplyKeyboardMarkup(),
+                      replyKeyboardMarkup: widget
+                          .currentRoom.replyKeyboardMarkup!
+                          .toReplyKeyboardMarkup(),
                       showReplyMarkUp: _showReplyMarkUp,
                       roomUid: widget.currentRoom.uid,
                       textController: widget.textController,
@@ -915,9 +916,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         for (final file in result!.files) {
           res.add(
             File(
-              isWeb
-                  ? Uri.dataFromBytes(file.bytes!.toList()).toString()
-                  : file.path!,
+              isWeb ? String.fromCharCodes(file.bytes!) : file.path!,
               file.name,
               size: file.size,
               extension: file.extension,
