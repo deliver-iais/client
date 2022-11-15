@@ -169,7 +169,7 @@ class ShowCaseRepo {
       //     ),
       //     description: "پایگاه خبری تحلیلی سازمان مالیاتی کشور",
       //     name: "اینتا",
-      //     url: "https://https://www.tax.gov.ir/Pages/HomePage",
+      //     url: "https://www.tax.gov.ir/Pages/HomePage",
       //   ),
       // ),
       // Showcase(
