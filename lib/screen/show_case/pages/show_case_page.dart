@@ -5,6 +5,7 @@ import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.d
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
+import 'package:deliver/screen/show_case/widgets/single_url/single_url_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -110,11 +111,14 @@ class _ShowcasePageState extends State<ShowcasePage> {
           isPrimary: showCase.primary,
         );
       case Showcase_Type.singleUrl:
-        // todo: Handle this case.
-        return const SizedBox.shrink();
+        return SingleUrlWidget(
+          urlCase: showCase.singleUrl,
+          isAdvertisement: showCase.isAdvertisement,
+          isPrimary: showCase.primary,
+        );
       case Showcase_Type.groupedUrl:
         return GroupedUrlWidget(
-          groupedUrls: showCase.groupedUrl,
+          showCase: showCase,
         );
       case Showcase_Type.notSet:
         return const SizedBox.shrink();

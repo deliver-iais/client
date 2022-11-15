@@ -9,8 +9,8 @@ class GroupedShowCaseListWidget extends StatelessWidget {
   final bool isPrimary;
   final VoidCallback? onArrowButtonPressed;
   final bool needArrowIcon;
-  final int itemListLength;
-  final Widget Function(int) itemList;
+  final int listItemsLength;
+  final Widget Function(int) listItems;
   final double height;
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -18,8 +18,8 @@ class GroupedShowCaseListWidget extends StatelessWidget {
     Key? key,
     required this.title,
     this.onArrowButtonPressed,
-    required this.itemList,
-    required this.itemListLength,
+    required this.listItems,
+    required this.listItemsLength,
     this.height = 140,
     required this.isAdvertisement,
     required this.isPrimary,
@@ -36,7 +36,8 @@ class GroupedShowCaseListWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 15,vertical:needArrowIcon? 0:8 ),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 15, vertical: needArrowIcon ? 0 : 8,),
               child: Row(
                 children: [
                   if (isAdvertisement) ...[
@@ -85,7 +86,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
     return SizedBox(
       height: height,
       child: ListView.builder(
-        itemCount: itemListLength,
+        itemCount: listItemsLength,
         scrollDirection: Axis.horizontal,
         itemBuilder: (ctx, index) {
           return isPrimary
@@ -96,10 +97,10 @@ class GroupedShowCaseListWidget extends StatelessWidget {
                       color: theme.primaryColor.withOpacity(0.2),
                       borderRadius: tertiaryBorder,
                     ),
-                    child: itemList(index),
+                    child: listItems(index),
                   ),
                 )
-              : itemList(index);
+              : listItems(index);
         },
       ),
     );
