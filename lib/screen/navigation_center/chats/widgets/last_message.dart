@@ -123,10 +123,8 @@ class LastMessage extends StatelessWidget {
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
                 maxLines: maxLine ?? (showSender ? 1 : 2),
-                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
                 textDirection: TextDirection.rtl,
-                softWrap: false,
                 text: TextSpan(
                   children: [
                     if (mb.typeDetails.isNotEmpty)
