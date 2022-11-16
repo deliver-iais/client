@@ -260,7 +260,8 @@ class ChatItemState extends State<ChatItem> {
                                         ActivityType.NO_ACTIVITY)
                                 ? ActivityStatus(
                                     key: ValueKey(
-                                        "activity-status${widget.room.uid}"),
+                                      "activity-status${widget.room.uid}",
+                                    ),
                                     activity: s.data!,
                                     roomUid: widget.room.uid.asUid(),
                                   )
