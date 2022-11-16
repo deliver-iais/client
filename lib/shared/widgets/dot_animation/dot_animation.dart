@@ -1,4 +1,4 @@
-import 'package:deliver/shared/widgets/dot_animation/dot_widget.dart';
+import 'package:deliver/shared/widgets/dot_animation/delay_tween.dart';
 import 'package:flutter/material.dart';
 
 class DotAnimation extends StatefulWidget {
@@ -12,80 +12,51 @@ class DotAnimation extends StatefulWidget {
 
 class _DotAnimationState extends State<DotAnimation>
     with TickerProviderStateMixin {
-  late List<AnimationController> _dotAnimationControllers;
-  final List<Animation<double>> _animations = [];
+  late AnimationController _controller;
 
   @override
   void initState() {
-    _initDotAnimation();
     super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
   }
 
-  void _initDotAnimation() {
-    _dotAnimationControllers = List.generate(
-      3,
-      (index) {
-        return AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 300),
-        );
-      },
-    ).toList();
-
-    for (var i = 0; i < 3; i++) {
-      _animations.add(
-        Tween<double>(begin: 0, end: -3).animate(_dotAnimationControllers[i]),
-      );
-    }
-
-    for (var i = 0; i < 3; i++) {
-      _dotAnimationControllers[i].addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _dotAnimationControllers[i].reverse();
-
-          if (i != 2) {
-            _dotAnimationControllers[i + 1].forward();
-          }
-        }
-
-        if (i == 2 && status == AnimationStatus.dismissed) {
-          _dotAnimationControllers[0].forward();
-        }
-      });
-    }
-
-    _dotAnimationControllers.first.forward();
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2),
+      padding: const EdgeInsets.all(2),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (index) {
-          return AnimatedBuilder(
-            animation: _dotAnimationControllers[index],
-            builder: (context, child) {
-              return Container(
-                padding: const EdgeInsets.all(2.5),
-                child: Transform.translate(
-                  offset: Offset(0, _animations[index].value),
-                  child: DotWidget(color: widget.dotsColor),
-                ),
-              );
-            },
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(3, (i) {
+          return ScaleTransition(
+            scale: DelayTween(begin: 0.5, end: 1.0, delay: i * .2)
+                .animate(_controller),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: SizedBox.fromSize(
+                size: const Size.square(4),
+                child: _itemBuilder(i),
+              ),
+            ),
           );
-        }).toList(),
+        }),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    for (final controller in _dotAnimationControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  Widget _itemBuilder(int index) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: widget.dotsColor,
+          shape: BoxShape.circle,
+        ),
+      );
 }
