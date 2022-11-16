@@ -259,14 +259,17 @@ class ChatItemState extends State<ChatItem> {
                                     s.data!.typeOfActivity !=
                                         ActivityType.NO_ACTIVITY)
                                 ? ActivityStatus(
-                                    key: UniqueKey(),
+                                    key: ValueKey(
+                                        "activity-status${widget.room.uid}"),
                                     activity: s.data!,
                                     roomUid: widget.room.uid.asUid(),
                                   )
                                 : FutureBuilder<Seen>(
                                     future:
                                         _roomRepo.getMySeen(widget.room.uid),
-                                    key: UniqueKey(),
+                                    key: ValueKey(
+                                      "future-builder${widget.room.uid}-${widget.room.lastMessageId}",
+                                    ),
                                     builder: (context, snapshot) {
                                       var unreadCount = 0;
                                       if (snapshot.hasData &&
