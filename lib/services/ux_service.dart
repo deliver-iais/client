@@ -26,6 +26,8 @@ class UxService {
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
+  final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
+  final _keyBoardSizeLandScape = BehaviorSubject<double?>.seeded(null);
 
   late StreamSubscription<bool> _isAllNotificationDisabledSubscribe;
 
@@ -50,6 +52,24 @@ class UxService {
         .listen((isEnable) {
       _isAutoNightModeEnable.add(isEnable);
       checkPlatformBrightness();
+    });
+    _sharedDao
+        .getStream(
+      SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
+    )
+        .listen((value) {
+      if(value!=null) {
+        _keyBoardSizePortrait.add(double.parse(value));
+      }
+    });
+    _sharedDao
+        .getStream(
+      SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
+    )
+        .listen((value) {
+      if(value!=null) {
+        _keyBoardSizeLandScape.add(double.parse(value));
+      }
     });
     window.onPlatformBrightnessChanged = () {
       checkPlatformBrightness();
@@ -132,6 +152,10 @@ class UxService {
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
+ double? getKeyBoardSizePortrait() => _keyBoardSizePortrait.value;
+
+  double? getKeyBoardSizeLandScape() => _keyBoardSizeLandScape.value;
+
   BehaviorSubject<bool> get isAutoNightModeEnableStream =>
       _isAutoNightModeEnable;
 
@@ -150,6 +174,14 @@ class UxService {
     }
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
+  }
+  void setKeyBoardSizePortrait(double size) {
+    _sharedDao.put(SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT, size.toString());
+    _keyBoardSizePortrait.add(size);
+  }
+  void setKeyBoardSizeLandScape(double size) {
+    _sharedDao.put(SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE, size.toString());
+    _keyBoardSizeLandScape.add(size);
   }
 
   void _disableAutoNightMode() {
