@@ -40,6 +40,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -104,6 +105,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  final keyboardVisibilityController = KeyboardVisibilityController();
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -138,13 +140,18 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
-    widget.focusNode.addListener(() {
-      if (!isDesktop) {
-        _showEmojiKeyboard.add(false);
-        _showReplyMarkUp.add(false);
-      }
-    });
-
+    if (!isDesktop) {
+      keyboardVisibilityController.onChange.listen((visible) {
+        if (visible) {
+          if (_showEmojiKeyboard.value) {
+            _showEmojiKeyboard.add(false);
+            if (_showReplyMarkUp.value) {
+              _showReplyMarkUp.add(false);
+            }
+          }
+        }
+      });
+    }
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     currentRoom = widget.currentRoom;
@@ -402,8 +409,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                       maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
                     ),
                     child: ReplyKeyboardMarkupWidget(
-                      replyKeyboardMarkup:
-                          widget.currentRoom.replyKeyboardMarkup!.toReplyKeyboardMarkup(),
+                      replyKeyboardMarkup: widget
+                          .currentRoom.replyKeyboardMarkup!
+                          .toReplyKeyboardMarkup(),
                       showReplyMarkUp: _showReplyMarkUp,
                       roomUid: widget.currentRoom.uid,
                       textController: widget.textController,
@@ -413,48 +421,58 @@ class InputMessageWidgetState extends State<InputMessage> {
                   stream: _showEmojiKeyboard,
                   builder: (context, back) {
                     final showEmojiKeyboard = back.data ?? false;
-
+                    final mq = MediaQuery.of(context);
+                    final bottomOffset =
+                        mq.viewInsets.bottom + mq.padding.bottom;
+                    if (isAndroid) {
+                      setKeyBoardSize(bottomOffset, mq);
+                    }
                     return AnimatedContainer(
-                      duration: SLOW_ANIMATION_DURATION,
-                      curve: Curves.easeInOut,
-                      height: showEmojiKeyboard ? 270.0 : 0,
-                      child: EmojiKeyboard(
-                        onTap: (emoji) {
-                          if (widget.textController.text.isNotEmpty) {
-                            final start =
-                                widget.textController.selection.baseOffset;
-                            var block_1 =
-                                widget.textController.text.substring(0, start);
-                            block_1 = block_1.substring(0, start);
-                            final block_2 =
-                                widget.textController.text.substring(
-                              start,
-                              widget.textController.text.length,
-                            );
-                            widget.textController.text =
-                                block_1 + emoji + block_2;
-                            widget.textController.selection =
-                                TextSelection.fromPosition(
-                              TextPosition(
-                                offset: widget.textController.text.length -
-                                    block_2.length,
-                              ),
-                            );
-                          } else {
-                            widget.textController.text =
-                                widget.textController.text + emoji;
-                            widget.textController.selection =
-                                TextSelection.fromPosition(
-                              TextPosition(
-                                offset: widget.textController.text.length,
-                              ),
-                            );
-                          }
-                          if (isDesktop) {
-                            widget.focusNode.requestFocus();
-                          }
-                        },
-                      ),
+                      duration: const Duration(milliseconds: 275),
+                      curve: Curves.fastOutSlowIn,
+                      height: showEmojiKeyboard
+                          ? getKeyboardSize(mq)
+                          : bottomOffset,
+                      child: showEmojiKeyboard
+                          ? EmojiKeyboard(
+                              onTap: (emoji) {
+                                if (widget.textController.text.isNotEmpty) {
+                                  final start = widget
+                                      .textController.selection.baseOffset;
+                                  var block_1 = widget.textController.text
+                                      .substring(0, start);
+                                  block_1 = block_1.substring(0, start);
+                                  final block_2 =
+                                      widget.textController.text.substring(
+                                    start,
+                                    widget.textController.text.length,
+                                  );
+                                  widget.textController.text =
+                                      block_1 + emoji + block_2;
+                                  widget.textController.selection =
+                                      TextSelection.fromPosition(
+                                    TextPosition(
+                                      offset:
+                                          widget.textController.text.length -
+                                              block_2.length,
+                                    ),
+                                  );
+                                } else {
+                                  widget.textController.text =
+                                      widget.textController.text + emoji;
+                                  widget.textController.selection =
+                                      TextSelection.fromPosition(
+                                    TextPosition(
+                                      offset: widget.textController.text.length,
+                                    ),
+                                  );
+                                }
+                                if (isDesktop) {
+                                  widget.focusNode.requestFocus();
+                                }
+                              },
+                            )
+                          : Container(color: theme.colorScheme.surfaceVariant),
                     );
                   },
                 ),
@@ -464,6 +482,28 @@ class InputMessageWidgetState extends State<InputMessage> {
         ),
       ),
     );
+  }
+
+  double getKeyboardSize(MediaQueryData mq) {
+    if (mq.orientation == Orientation.landscape) {
+      return _uxService.getKeyBoardSizeLandScape() ?? 200;
+    } else {
+      return _uxService.getKeyBoardSizePortrait() ?? 254;
+    }
+  }
+
+  void setKeyBoardSize(double bottomOffset, MediaQueryData mq) {
+    if (bottomOffset != 0) {
+      if (mq.orientation == Orientation.portrait) {
+        if (_uxService.getKeyBoardSizePortrait() == null) {
+          _uxService.setKeyBoardSizePortrait(bottomOffset);
+        }
+      } else {
+        if (_uxService.getKeyBoardSizeLandScape() == null) {
+          _uxService.setKeyBoardSizeLandScape(bottomOffset);
+        }
+      }
+    }
   }
 
   StreamBuilder<bool> buildEmojiKeyboardActions() {
@@ -480,19 +520,19 @@ class InputMessageWidgetState extends State<InputMessage> {
           onPressed: () {
             _showReplyMarkUp.add(false);
             if (showEmojiKeyboard) {
-              _showEmojiKeyboard.add(false);
               widget.focusNode.requestFocus();
-            } else if (!showEmojiKeyboard) {
+              Timer(
+                  const Duration(
+                    milliseconds: 200,
+                  ), () {
+                _showEmojiKeyboard.add(false);
+              });
+            } else {
               if (isDesktop) {
                 _showEmojiKeyboard.add(true);
               } else {
                 FocusScope.of(context).unfocus();
-                Timer(
-                    const Duration(
-                      milliseconds: 200,
-                    ), () {
-                  _showEmojiKeyboard.add(true);
-                });
+                _showEmojiKeyboard.add(true);
               }
             }
           },
