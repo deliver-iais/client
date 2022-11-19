@@ -490,22 +490,18 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   double getKeyboardSize(MediaQueryData mq) {
     if (mq.orientation == Orientation.landscape) {
-      return _uxService.getKeyBoardSizeLandScape() ?? 200;
+      return _uxService.getKeyBoardSizeLandscape() ?? 200;
     } else {
       return _uxService.getKeyBoardSizePortrait() ?? 254;
     }
   }
 
   void setKeyBoardSize(double bottomOffset, MediaQueryData mq) {
-    if (bottomOffset != 0) {
+    if (bottomOffset > 0) {
       if (mq.orientation == Orientation.portrait) {
-        if (_uxService.getKeyBoardSizePortrait() == null) {
-          _uxService.setKeyBoardSizePortrait(bottomOffset);
-        }
+        _uxService.setKeyBoardSizePortrait(bottomOffset);
       } else {
-        if (_uxService.getKeyBoardSizeLandScape() == null) {
-          _uxService.setKeyBoardSizeLandScape(bottomOffset);
-        }
+        _uxService.setKeyBoardSizeLandScape(bottomOffset);
       }
     }
   }
@@ -525,12 +521,12 @@ class InputMessageWidgetState extends State<InputMessage> {
             _showReplyMarkUp.add(false);
             if (showEmojiKeyboard) {
               widget.focusNode.requestFocus();
-              Timer(
-                  const Duration(
-                    milliseconds: 200,
-                  ), () {
-                _showEmojiKeyboard.add(false);
-              });
+              // Timer(
+              //     const Duration(
+              //       milliseconds: 200,
+              //     ), () {
+              _showEmojiKeyboard.add(false);
+              // });
             } else {
               if (isDesktop) {
                 _showEmojiKeyboard.add(true);
