@@ -389,8 +389,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                                     _messageRepo.sendFileMessage(
                                       widget.currentRoom.uid.asUid(),
                                       File(res, res),
+                                      replyToId: _replyMessageId,
                                     ),
                                   );
+                                  if (_replyMessageId > 0) {
+                                    widget.resetRoomPageDetails!();
+                                  }
                                 }
                               },
                               roomUid: widget.currentRoom.uid.asUid(),
