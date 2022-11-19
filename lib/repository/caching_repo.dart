@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 // TODO(bitbeter): add some dynamic storage size instead of 1000 based on devise available memory if it is possible
 class RoomCache {
   final message = LruCache<int, Message>(storage: InMemoryStorage(1000));
-  final widget = LruCache<int, Widget?>(storage: InMemoryStorage(1000));
+  // TODO(bitbeter): bug exists in here
+  final widget = LruCache<int, Widget?>(storage: InMemoryStorage(0));
   final size = LruCache<int, Size>(storage: InMemoryStorage(1000));
 }
 
@@ -32,10 +33,12 @@ class CachingRepo {
 
     if (r == null) {
       final rc = RoomCache();
-      rc.widget.set(id, widget);
+      // TODO(bitbeter): bug exists in here
+      // rc.widget.set(id, widget);
       _rooms.set(roomId, rc);
     } else {
-      r.widget.set(id, widget);
+      // TODO(bitbeter): bug exists in here
+      // r.widget.set(id, widget);
     }
   }
 
