@@ -916,7 +916,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         for (final file in result!.files) {
           res.add(
             File(
-              isWeb ? String.fromCharCodes(file.bytes!) : file.path!,
+              isWeb ? Uri.dataFromBytes(file.bytes!).toString() : file.path!,
               file.name,
               size: file.size,
               extension: file.extension,

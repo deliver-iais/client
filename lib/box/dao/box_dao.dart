@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
@@ -13,7 +14,12 @@ class BoxDao {
 
   static Future<void> deleteBox(String key) async {
     try {
-      return Hive.deleteBoxFromDisk(key);
+      if (isWeb) {
+        final box = await Hive.openBox(key);
+        return box.deleteFromDisk();
+      } else {
+        return Hive.deleteBoxFromDisk(key);
+      }
     } catch (e) {
       GetIt.I.get<Logger>().e(e);
     }
