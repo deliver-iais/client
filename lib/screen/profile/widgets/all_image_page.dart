@@ -61,8 +61,7 @@ class AllImagePage extends StatefulWidget {
 class _AllImagePageState extends State<AllImagePage>
     with SingleTickerProviderStateMixin {
   late final _pageController = PageController(initialPage: initialIndex ?? 0);
-  final PhotoViewScaleStateController _scaleStateController =
-      PhotoViewScaleStateController();
+
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -113,7 +112,6 @@ class _AllImagePageState extends State<AllImagePage>
   @override
   void dispose() {
     _pageController.dispose();
-    _scaleStateController.dispose();
     super.dispose();
   }
 
@@ -275,18 +273,15 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   Widget buildImage(String filePath, int index) {
-    return GestureDetector(
-      onDoubleTapDown: (d) => _handleDoubleTap(d),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: AnimatedBuilder(
-            animation: animationList[animationIndex],
-            child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
-            builder: (context, child) => Transform.rotate(
-              angle: animationList[animationIndex].value,
-              child: child,
-            ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: AnimatedBuilder(
+          animation: animationList[animationIndex],
+          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+          builder: (context, child) => Transform.rotate(
+            angle: animationList[animationIndex].value,
+            child: child,
           ),
         ),
       ),
@@ -401,7 +396,6 @@ class _AllImagePageState extends State<AllImagePage>
                             initialScale: PhotoViewComputedScale.contained,
                             minScale: PhotoViewComputedScale.contained,
                             maxScale: PhotoViewComputedScale.covered * 4.1,
-                            scaleStateController: _scaleStateController,
                           );
                         },
                       ),
@@ -493,10 +487,6 @@ class _AllImagePageState extends State<AllImagePage>
         )
       ],
     );
-  }
-
-  void _handleDoubleTap(TapDownDetails details) {
-    _scaleStateController.scaleState = PhotoViewScaleState.covering;
   }
 
   Widget buildCaptionSection({
