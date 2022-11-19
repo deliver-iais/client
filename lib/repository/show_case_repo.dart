@@ -160,11 +160,49 @@ class ShowCaseRepo {
       //     ],
       //   ),
       // ),
+      // Showcase(
+      //   isAdvertisement: true,
+      //   singleUrl: UrlCase(
+      //     img: File(
+      //       uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
+      //       name: "1667989130491.jpeg",
+      //     ),
+      //     description: "پایگاه خبری تحلیلی سازمان مالیاتی کشور",
+      //     name: "اینتا",
+      //     url: "https://www.tax.gov.ir/Pages/HomePage",
+      //   ),
+      // ),
+      // Showcase(
+      //   isAdvertisement: true,
+      //   groupedUrl: GroupedUrls(
+      //     name: "مالیات",
+      //     urlsList: [
+      //       UrlCase(
+      //         img: File(
+      //           uuid: "5cee9920-8676-437e-994c-b0015f83f1a2",
+      //           name: "1664446035532.jpeg",
+      //         ),
+      //         description: "پایگاه خبری تحلیلی سازمان مالیاتی کشور",
+      //         name: "اینتا",
+      //         url: "https://www.tax.gov.ir/Pages/HomePage",
+      //       ),
+      //       UrlCase(
+      //         img: File(
+      //           uuid: "e5eeddb6-e59a-4b60-8c17-e27fe9f76c47",
+      //           name: "1664365328848.webp",
+      //         ),
+      //         description: "پایگاه خبری تحلیلی سازمان مالیاتی کشور",
+      //         name: "اینتا",
+      //         url: "https://www.tax.gov.ir/Pages/HomePage",
+      //       ),
+      //     ],
+      //   ),
+      // ),
     ];
     //return fake data
-    return _saveFetchedMedias(fakeData, pointer);
+    return _saveFetchedShowCases(fakeData, pointer);
     // if (result.showcases.isNotEmpty) {
-    //   return _saveFetchedMedias(result.showcases, pointer);
+    //   return _saveFetchedShowCases(result.showcases, pointer);
     // }
     // return null;
   }
@@ -173,7 +211,7 @@ class ShowCaseRepo {
     return Showcase.fromJson(showCaseJson).whichType();
   }
 
-  Future<List<ShowCase>> _saveFetchedMedias(
+  Future<List<ShowCase>> _saveFetchedShowCases(
     List<Showcase> getShowCases,
     int pointer,
   ) async {

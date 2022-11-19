@@ -16,8 +16,8 @@ class GroupedBanner extends StatelessWidget {
       isPrimary: showCase.primary,
       isAdvertisement: showCase.isAdvertisement,
       title: showCase.groupedBanners.name,
-      itemListLength: showCase.groupedBanners.bannersList.length,
-      itemList: (index) => _buildGroupedBannerItem(index, context),
+      listItemsLength: showCase.groupedBanners.bannersList.length,
+      listItems: (index) => _buildGroupedBannerItem(index, context),
       needArrowIcon: false,
     );
   }

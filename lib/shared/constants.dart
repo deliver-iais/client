@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -247,7 +248,8 @@ const double APPBAR_HEIGHT = 56.0;
 const double FLUID_MAX_WIDTH = 500.0;
 const double FLUID_MAX_HEIGHT = 640.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
-const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double LARGE_BREAKDOWN_SIZE_WIDTH = 768.0;
+const double LARGE_BREAKDOWN_SIZE_HEIGHT = 550.0;
 const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
@@ -262,10 +264,17 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 ////////////////////// Functions //////////////////////
 
 // Screen Breakdown
-bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE;
+bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
-bool isLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery.of(context).size.width);
+bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
+
+bool isLarge(BuildContext context) {
+  if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
+    return isLargeWidth(MediaQuery.of(context).size.width);
+  } else {
+    return isLargeHeight(MediaQuery.of(context).size.height);
+  }
+}
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 

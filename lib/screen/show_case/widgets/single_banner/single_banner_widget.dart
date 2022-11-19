@@ -104,7 +104,3 @@ class SingleBannerWidget extends StatelessWidget {
     );
   }
 }
-// Row(
-// mainAxisAlignment:MainAxisAlignment.center ,
-//
-// children: [
