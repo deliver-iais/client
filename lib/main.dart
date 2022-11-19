@@ -94,9 +94,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:phone_state/phone_state.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:telephony/telephony.dart';
 import 'package:window_size/window_size.dart';
-
+import 'package:workmanager/workmanager.dart';
+import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -274,12 +278,90 @@ Future initializeFirebase() async {
   );
 }
 
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    try{
+      FlutterIncomingCall.onEvent.listen((w){
+        print(w.toString());
+      });
+    }catch(e){
+
+    }
+    try {
+      // print("start task");
+      // try{
+      //   Telephony.backgroundInstance.listenIncomingSms(
+      //     onNewMessage: (ed) => {
+      //       print("mmessae"),
+      //     },
+      //     // onBackgroundMessage: backgroundMessageHandler,
+      //   );
+      // }catch(e){
+      //   print("message exp");
+      // }c
+      PhoneState.phoneStateStream.listen((event) {
+        print("incoming call");
+      });
+      return false;
+    } catch (e) {
+      print(e.toString());
+    }
+
+    // switch (task) {
+    //   case "updating":
+    //     print("update message ---");
+    //     break;
+    //   case "simple":
+    //   // Telephony.backgroundInstance.listenIncomingSms(
+    //   //   onNewMessage: (ed) => {
+    //   //     print("mmessahe"),
+    //   //   },
+    //   //   onBackgroundMessage: (e) => {print("bakc msg")},
+    //   // );
+    //   // PhoneState.phoneStateStream.listen((event) {
+    //   //   print("incoming call");
+    //   // });
+    // }
+    return Future.value(true);
+  });
+}
+init()async {
+  await Permission.phone.request();
+  // FlutterIncomingCall.configure(
+  //     appName: 'example_incoming_call',
+  //     duration: 30000,
+  //     android: ConfigAndroid(
+  //       vibration: true,
+  //       ringtonePath: 'default',
+  //       channelId: 'calls',
+  //       channelName: 'Calls channel name',
+  //       channelDescription: 'Calls channel description',
+  //     ),
+  //     ios: ConfigIOS(
+  //       iconName: 'AppIcon40x40',
+  //       ringtonePath: null,
+  //       includesCallsInRecents: false,
+  //       supportsVideo: true,
+  //       maximumCallGroups: 2,
+  //       maximumCallsPerCallGroup: 1,
+  //     )
+  // );
+
+  Workmanager().initialize(
+    callbackDispatcher, // The top level function, aka callbackDispatcher
+    //     true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+  );
+  Workmanager().registerOneOffTask("simple", "simple");
+
+}
 // ignore: avoid_void_async
 void main() async {
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();
-
+  init();
   logger.i("Application has been started.");
 
   if (hasFirebaseCapability) {

@@ -13,14 +13,13 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 import android.os.Bundle;
 import android.os.PowerManager;
-
+import androidx.annotation.NonNull;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-import io.flutter.plugins.GeneratedPluginRegistrant;
 
 import io.flutter.embedding.android.FlutterActivity;
 
@@ -29,6 +28,7 @@ import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin;
 import io.flutter.plugins.pathprovider.PathProviderPlugin;
 
 import java.util.ArrayList;
+import io.flutter.embedding.engine.FlutterEngine;
 
 public class Application extends FlutterActivity implements PluginRegistrantCallback {
     private static final String GET_MEDIA_CHANNEL = "read_external";
@@ -102,6 +102,10 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                 });
     }
 
+    @Override
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+    }
     @Override
     public void registerWith(PluginRegistry registry) {
         FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));

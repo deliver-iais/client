@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -139,6 +140,7 @@
                         android:pathPrefix="/spda"
                 />
             </intent-filter>
+
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -203,6 +205,43 @@
                     android:resource="@xml/filepaths"
                     tools:replace="android:resource"/>
         </provider>
+
+
+        <receiver android:name="com.shounakmulay.telephony.sms.IncomingSmsReceiver"
+                  android:permission="android.permission.BROADCAST_SMS" android:exported="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+        <service
+                android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
+                android:permission="android.permission.BIND_JOB_SERVICE"
+                android:exported="false"/>
+        <receiver
+                android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
+                android:exported="false"/>
+        <receiver
+                android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
+                android:enabled="false"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+<!--        <activity-->
+<!--                android:name="com.github.alezhka.flutter_incoming_call.IncomingCallActivity"-->
+<!--                android:theme="@style/Theme.AppCompat"-->
+<!--                android:screenOrientation="portrait"-->
+<!--                android:showOnLockScreen="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.github.alezhka.flutter_incoming_call.activity.ACTION_INCOMING_CALL" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <receiver android:name="com.github.alezhka.flutter_incoming_call.CallBroadcastReceiver"
+                  android:enabled="true"
+                  android:exported="false"/>
 
     </application>
 </manifest>
