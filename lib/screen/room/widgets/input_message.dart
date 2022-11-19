@@ -382,8 +382,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                                     _messageRepo.sendFileMessage(
                                       widget.currentRoom.uid.asUid(),
                                       File(res, res),
+                                      replyToId: _replyMessageId,
                                     ),
                                   );
+                                  if (_replyMessageId > 0) {
+                                    widget.resetRoomPageDetails!();
+                                  }
                                 }
                               },
                               roomUid: widget.currentRoom.uid.asUid(),
@@ -402,8 +406,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                       maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
                     ),
                     child: ReplyKeyboardMarkupWidget(
-                      replyKeyboardMarkup:
-                          widget.currentRoom.replyKeyboardMarkup!.toReplyKeyboardMarkup(),
+                      replyKeyboardMarkup: widget
+                          .currentRoom.replyKeyboardMarkup!
+                          .toReplyKeyboardMarkup(),
                       showReplyMarkUp: _showReplyMarkUp,
                       roomUid: widget.currentRoom.uid,
                       textController: widget.textController,
