@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -26,6 +27,10 @@ class UxService {
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
+  final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
+  final _keyBoardSizeLandscape = BehaviorSubject<double?>.seeded(null);
+  double maxKeyboardSizePortrait = 0;
+  double maxKeyboardSizeLandscape = 0;
 
   late StreamSubscription<bool> _isAllNotificationDisabledSubscribe;
 
@@ -50,6 +55,24 @@ class UxService {
         .listen((isEnable) {
       _isAutoNightModeEnable.add(isEnable);
       checkPlatformBrightness();
+    });
+    _sharedDao
+        .getStream(
+      SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
+    )
+        .listen((value) {
+      if (value != null) {
+        _keyBoardSizePortrait.add(double.parse(value));
+      }
+    });
+    _sharedDao
+        .getStream(
+      SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
+    )
+        .listen((value) {
+      if (value != null) {
+        _keyBoardSizeLandscape.add(double.parse(value));
+      }
     });
     window.onPlatformBrightnessChanged = () {
       checkPlatformBrightness();
@@ -132,6 +155,10 @@ class UxService {
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
+  double? getKeyBoardSizePortrait() => _keyBoardSizePortrait.value;
+
+  double? getKeyBoardSizeLandscape() => _keyBoardSizeLandscape.value;
+
   BehaviorSubject<bool> get isAutoNightModeEnableStream =>
       _isAutoNightModeEnable;
 
@@ -150,6 +177,32 @@ class UxService {
     }
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
+  }
+
+  void setKeyBoardSizePortrait(double size) {
+    final savedSize = getKeyBoardSizePortrait();
+    maxKeyboardSizePortrait = max(maxKeyboardSizePortrait, size);
+
+    if (savedSize != maxKeyboardSizePortrait) {
+      _sharedDao.put(
+        SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
+        maxKeyboardSizePortrait.toString(),
+      );
+      _keyBoardSizePortrait.add(maxKeyboardSizePortrait);
+    }
+  }
+
+  void setKeyBoardSizeLandScape(double size) {
+    final savedSize = getKeyBoardSizeLandscape();
+    maxKeyboardSizeLandscape = max(maxKeyboardSizeLandscape, size);
+
+    if (savedSize != maxKeyboardSizeLandscape) {
+      _sharedDao.put(
+        SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
+        maxKeyboardSizeLandscape.toString(),
+      );
+      _keyBoardSizeLandscape.add(maxKeyboardSizeLandscape);
+    }
   }
 
   void _disableAutoNightMode() {
