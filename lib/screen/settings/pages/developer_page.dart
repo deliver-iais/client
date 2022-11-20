@@ -449,7 +449,7 @@ class DeveloperPageState extends State<DeveloperPage> {
                         label: "Refresh Token",
                       ),
                       Debug(
-                        _authRepo.refreshToken,
+                        _authRepo.accessToken,
                         label: "Access Token",
                       ),
                     ],
