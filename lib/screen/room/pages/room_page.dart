@@ -193,6 +193,7 @@ class RoomPageState extends State<RoomPage> {
               backgroundColor: Colors.transparent,
               extendBodyBehindAppBar: true,
               appBar: buildAppbar(),
+              resizeToAvoidBottomInset: false,
               body: buildBody(),
             ),
           ],
