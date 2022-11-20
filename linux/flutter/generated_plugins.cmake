@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_lifecycle
   desktop_window
   file_selector_linux
+  flutter_webrtc
   image_compression_flutter
   pasteboard
   url_launcher_linux
