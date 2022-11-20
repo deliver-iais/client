@@ -184,8 +184,10 @@ class UxService {
     maxKeyboardSizePortrait = max(maxKeyboardSizePortrait, size);
 
     if (savedSize != maxKeyboardSizePortrait) {
-      _sharedDao.put(SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
-          maxKeyboardSizePortrait.toString());
+      _sharedDao.put(
+        SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
+        maxKeyboardSizePortrait.toString(),
+      );
       _keyBoardSizePortrait.add(maxKeyboardSizePortrait);
     }
   }
@@ -195,8 +197,10 @@ class UxService {
     maxKeyboardSizeLandscape = max(maxKeyboardSizeLandscape, size);
 
     if (savedSize != maxKeyboardSizeLandscape) {
-      _sharedDao.put(SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
-          maxKeyboardSizeLandscape.toString());
+      _sharedDao.put(
+        SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
+        maxKeyboardSizeLandscape.toString(),
+      );
       _keyBoardSizeLandscape.add(maxKeyboardSizeLandscape);
     }
   }
