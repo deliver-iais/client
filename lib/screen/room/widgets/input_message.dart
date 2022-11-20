@@ -513,7 +513,11 @@ class InputMessageWidgetState extends State<InputMessage> {
           onPressed: () {
             if (emojiKeyboardIsOn) {
               widget.focusNode.requestFocus();
-              _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+              if (hasVirtualKeyboardCapability) {
+                _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+              } else {
+                _keyboardStatus.add(KeyboardStatus.OFF);
+              }
             } else {
               if (hasVirtualKeyboardCapability) {
                 FocusScope.of(context).unfocus();
@@ -558,7 +562,11 @@ class InputMessageWidgetState extends State<InputMessage> {
                     onPressed: () {
                       if (replyKeyboardIsOn) {
                         widget.focusNode.requestFocus();
-                        _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                        if (hasVirtualKeyboardCapability) {
+                          _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                        } else {
+                          _keyboardStatus.add(KeyboardStatus.OFF);
+                        }
                       } else {
                         if (hasVirtualKeyboardCapability) {
                           FocusScope.of(context).unfocus();
