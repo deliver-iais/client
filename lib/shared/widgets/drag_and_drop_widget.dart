@@ -62,7 +62,7 @@ class DragDropWidget extends StatelessWidget {
                                   model.File(
                                     url,
                                     file.name,
-                                    extension: file.type,
+                                    extension: file.name.split(".").last,
                                     size: file.size,
                                   ),
                                 );
