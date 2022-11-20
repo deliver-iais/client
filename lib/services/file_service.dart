@@ -501,14 +501,19 @@ class FileService {
       }
       FormData? formData;
       if (isWeb) {
-        final r = await http.get(
-          Uri.parse(filePath),
-        );
+        final file = Uint8List.fromList(filePath.codeUnits);
+
         formData = FormData.fromMap({
           "file": MultipartFile.fromBytes(
-            r.bodyBytes,
+            file.toList(),
+            filename: filename,
             contentType:
                 MediaType.parse(mime(filename) ?? "application/octet-stream"),
+            headers: {
+              Headers.contentLengthHeader: [
+                file.length.toString()
+              ], // set content-length
+            },
           )
         });
       } else {
