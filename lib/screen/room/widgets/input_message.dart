@@ -265,6 +265,15 @@ class InputMessageWidgetState extends State<InputMessage> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant InputMessage oldWidget) {
+    if (!keyboardVisibilityController.isVisible &&
+        _keyboardStatus.valueOrNull == KeyboardStatus.DEFAULT_KEYBOARD) {
+      _keyboardStatus.add(KeyboardStatus.OFF);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
   int get _replyMessageId => widget.replyMessageIdStream.value?.id ?? 0;
 
   @override
