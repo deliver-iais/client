@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dart_vlc/dart_vlc.dart' as vlc;
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -131,7 +133,7 @@ AudioPlayerModule getAudioPlayerModule() {
   if (isAndroid || isIOS) {
     return AudioPlayersAudioPlayer();
   } else if (isWindows || isMacOS) {
-    return JustAudioAudioPlayer();
+    return VlcAudioAudioPlayer();
   } else {
     return FakeAudioPlayer();
   }
@@ -695,4 +697,83 @@ class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
             return AudioPlayerState.stopped;
         }
       }).shareValueSeeded(AudioPlayerState.stopped);
+}
+
+class VlcAudioAudioPlayer implements AudioPlayerModule {
+  final _logger = GetIt.I.get<Logger>();
+
+  final vlc.Player _audioPlayer = vlc.Player(
+    id: 0,
+    registerTexture: !isWindows,
+  );
+
+  double playbackRate = 1.0;
+
+  @override
+  ValueStream<Duration> get positionStream => _audioPlayer.positionStream
+      .mapNotNull((e) => e.position)
+      .shareValueSeeded(Duration.zero);
+
+  @override
+  Stream get completedStream =>
+      _audioPlayer.playbackStream.where((event) => event.isCompleted);
+
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
+
+  @override
+  ValueStream<AudioPlayerState> get stateStream => _audioCurrentState;
+
+  VlcAudioAudioPlayer();
+
+  @override
+  Future<void> play(String path) async {
+    try {
+      _audioCurrentState.add(AudioPlayerState.playing);
+      _audioPlayer.open(
+        vlc.Playlist(
+          medias: [
+            vlc.Media.file(
+              File(path),
+            )
+          ],
+        ),
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  void seek(Duration duration) => _audioPlayer.seek(duration);
+
+  @override
+  void pause() {
+    if (_audioPlayer.playback.isPlaying) {
+      _audioCurrentState.add(AudioPlayerState.paused);
+      _audioPlayer.pause();
+    }
+  }
+
+  @override
+  void stop() {
+    try {
+      _audioCurrentState.add(AudioPlayerState.stopped);
+      _audioPlayer.stop();
+    } catch (_) {}
+  }
+
+  @override
+  void resume() {
+    _audioCurrentState.add(AudioPlayerState.playing);
+    _audioPlayer.play();
+  }
+
+  @override
+  void setPlaybackRate(double playbackRate) {
+    this.playbackRate = playbackRate;
+    _audioPlayer.setRate(playbackRate);
+  }
+
+  @override
+  double getPlaybackRate() => playbackRate;
 }

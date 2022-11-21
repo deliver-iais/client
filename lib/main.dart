@@ -1,3 +1,4 @@
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
@@ -212,39 +213,7 @@ Future<void> dbSetupDI() async {
 
   await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
-  Hive
-    ..registerAdapter(AvatarAdapter())
-    ..registerAdapter(AccountAdapter())
-    ..registerAdapter(LastActivityAdapter())
-    ..registerAdapter(ContactAdapter())
-    ..registerAdapter(UidIdNameAdapter())
-    ..registerAdapter(SeenAdapter())
-    ..registerAdapter(FileInfoAdapter())
-    ..registerAdapter(MucAdapter())
-    ..registerAdapter(MucRoleAdapter())
-    ..registerAdapter(MemberAdapter())
-    ..registerAdapter(BotInfoAdapter())
-    ..registerAdapter(RoomAdapter())
-    ..registerAdapter(PendingMessageAdapter())
-    ..registerAdapter(MessageAdapter())
-    ..registerAdapter(MessageBriefAdapter())
-    ..registerAdapter(MessageTypeAdapter())
-    ..registerAdapter(SendingStatusAdapter())
-    ..registerAdapter(MediaAdapter())
-    ..registerAdapter(MediaMetaDataAdapter())
-    ..registerAdapter(MediaTypeAdapter())
-    ..registerAdapter(LiveLocationAdapter())
-    ..registerAdapter(CallInfoAdapter())
-    ..registerAdapter(CallEventAdapter())
-    ..registerAdapter(CallStatusAdapter())
-    ..registerAdapter(CallTypeAdapter())
-    ..registerAdapter(AutoDownloadRoomCategoryAdapter())
-    ..registerAdapter(CurrentCallInfoAdapter())
-    ..registerAdapter(MucTypeAdapter())
-    ..registerAdapter(AutoDownloadAdapter())
-    ..registerAdapter(BoxInfoAdapter())
-    ..registerAdapter(ActiveNotificationAdapter())
-    ..registerAdapter(ShowCaseAdapter());
+  Hive..registerAdapter(AvatarAdapter())..registerAdapter(AccountAdapter())..registerAdapter(LastActivityAdapter())..registerAdapter(ContactAdapter())..registerAdapter(UidIdNameAdapter())..registerAdapter(SeenAdapter())..registerAdapter(FileInfoAdapter())..registerAdapter(MucAdapter())..registerAdapter(MucRoleAdapter())..registerAdapter(MemberAdapter())..registerAdapter(BotInfoAdapter())..registerAdapter(RoomAdapter())..registerAdapter(PendingMessageAdapter())..registerAdapter(MessageAdapter())..registerAdapter(MessageBriefAdapter())..registerAdapter(MessageTypeAdapter())..registerAdapter(SendingStatusAdapter())..registerAdapter(MediaAdapter())..registerAdapter(MediaMetaDataAdapter())..registerAdapter(MediaTypeAdapter())..registerAdapter(LiveLocationAdapter())..registerAdapter(CallInfoAdapter())..registerAdapter(CallEventAdapter())..registerAdapter(CallStatusAdapter())..registerAdapter(CallTypeAdapter())..registerAdapter(AutoDownloadRoomCategoryAdapter())..registerAdapter(CurrentCallInfoAdapter())..registerAdapter(MucTypeAdapter())..registerAdapter(AutoDownloadAdapter())..registerAdapter(BoxInfoAdapter())..registerAdapter(ActiveNotificationAdapter())..registerAdapter(ShowCaseAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -281,6 +250,7 @@ Future initializeFirebase() async {
 
 // ignore: avoid_void_async
 void main() async {
+  await DartVLC.initialize(useFlutterNativeView: true);
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -370,11 +340,11 @@ class MyApp extends StatelessWidget {
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
               statusBarIconBrightness:
-                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              _uxService.themeIsDark ? Brightness.light : Brightness.dark,
               systemNavigationBarColor:
-                  _uxService.theme.colorScheme.onInverseSurface,
+              _uxService.theme.colorScheme.onInverseSurface,
               systemNavigationBarIconBrightness:
-                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),
             child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),

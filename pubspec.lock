@@ -57,6 +57,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.10"
+  audio_video_progress_bar:
+    dependency: transitive
+    description:
+      name: audio_video_progress_bar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.11.0"
   audioplayers:
     dependency: "direct main"
     description:
@@ -364,6 +371,24 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.4"
+  dart_vlc:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
+      resolved-ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
+      url: "https://github.com/androidwoman/dart_vlc"
+    source: git
+    version: "0.3.1"
+  dart_vlc_ffi:
+    dependency: "direct dev"
+    description:
+      path: ffi
+      ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
+      resolved-ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
+      url: "https://github.com/androidwoman/dart_vlc"
+    source: git
+    version: "0.1.8"
   dart_webrtc:
     dependency: transitive
     description:
@@ -778,7 +803,7 @@ packages:
       name: flutter_local_notifications_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "1.0.0"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
@@ -798,6 +823,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
+  flutter_native_view:
+    dependency: transitive
+    description:
+      name: flutter_native_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1654,6 +1686,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.5"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   screenshot:
     dependency: "direct main"
     description:
@@ -2122,7 +2161,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.1.1"
   win_toast:
     dependency: "direct main"
     description:
@@ -2132,6 +2171,13 @@ packages:
       url: "https://github.com/deliveriais/flutter-plugins"
     source: git
     version: "0.0.2"
+  window_manager:
+    dependency: transitive
+    description:
+      name: window_manager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.7"
   window_size:
     dependency: "direct main"
     description:
