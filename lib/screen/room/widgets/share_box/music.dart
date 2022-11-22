@@ -82,9 +82,10 @@ class ShareBoxMusicState extends State<ShareBoxMusic> {
                 ),
                 onTap: () async {
                   final size = await fileItem.length();
-                  if (size > MAX_FILE_SIZE_BYTE && size <= MIN_FILE_SIZE_BYTE) {
+                  if (size > MAX_FILE_SIZE_BYTE || size <= MIN_FILE_SIZE_BYTE) {
                     FileErrorDialog(
                       isFileFormatAccept: true,
+                      isFileSizeZero: size <= MIN_FILE_SIZE_BYTE,
                       invalidFormatFileName: "",
                       invalidSizeFileName: fileItem.path.split("/").last,
                     );

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
@@ -201,21 +203,31 @@ class ShareBoxState extends State<ShareBox> {
                                   send: () {
                                     _audioPlayer.stop();
                                     Navigator.pop(co);
-                                    messageRepo.sendMultipleFilesMessages(
-                                      widget.currentRoomId,
-                                      finalSelected.values
-                                          .toList()
-                                          .map(
-                                            (path) => model.File(
-                                              path,
-                                              path.split("/").last,
-                                            ),
-                                          )
-                                          .toList(),
-                                      replyToId: widget.replyMessageId,
-                                      caption: _captionEditingController.text,
-                                    );
-
+                                    // messageRepo.sendMultipleFilesMessages(
+                                    //   widget.currentRoomId,
+                                    //   finalSelected.values
+                                    //       .toList()
+                                    //       .map(
+                                    //         (path) => model.File(
+                                    //           path,
+                                    //           path.split("/").last,
+                                    //         ),
+                                    //       )
+                                    //       .toList(),
+                                    //   replyToId: widget.replyMessageId,
+                                    //   caption: _captionEditingController.text,
+                                    // );
+                                    final files = finalSelected.values
+                                        .toList()
+                                        .map(
+                                          (path) => model.File(
+                                            path,
+                                            path.split("/").last,
+                                            size: File(path).lengthSync(),
+                                          ),
+                                        )
+                                        .toList();
+                                    showCaptionDialog(files: files);
                                     setState(() {
                                       finalSelected.clear();
                                       selectedAudio.clear();
@@ -324,6 +336,28 @@ class ShareBoxState extends State<ShareBox> {
   }
 
   bool isSelected() => finalSelected.values.isNotEmpty;
+
+  int get _replyMessageId => widget.replyMessageId;
+
+  void showCaptionDialog({
+    IconData? icons,
+    String? type,
+    required List<model.File> files,
+  }) {
+    if (files.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ShowCaptionDialog(
+          resetRoomPageDetails: widget.resetRoomPageDetails,
+          replyMessageId: _replyMessageId,
+          files: files,
+          currentRoom: widget.currentRoomId,
+        );
+      },
+    );
+  }
 
   Widget circleButton(
     Function() onTap,

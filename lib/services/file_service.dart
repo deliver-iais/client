@@ -561,35 +561,66 @@ class FileService {
 
   bool isFileFormatAccepted(String format) {
     format = format.toLowerCase();
-    return format == "doc" ||
+    return format == "mp3" ||
+        format == "mp4" ||
         format == "pdf" ||
+        format == "jpeg" ||
+        format == "jpg" ||
+        format == "apk" ||
+        format == "txt" ||
+        format == "doc" ||
+        format == "docx" ||
+        format == "zip" ||
+        format == "rar" ||
+        format == "webp" ||
+        format == "ogg" ||
         format == "svg" ||
         format == "csv" ||
         format == "xls" ||
-        format == "txt" ||
-        format == "jpg" ||
-        format == "jpeg" ||
-        format == "png" ||
         format == "gif" ||
-        format == "txt" ||
-        format == "rar" ||
-        format == "zip" ||
-        format == "mp3" ||
-        format == "mp4" ||
+        format == "png" ||
         format == "m4a" ||
-        format == "ogg" ||
         format == "xml" ||
         format == "pptx" ||
-        format == "docx" ||
         format == "xlsm" ||
         format == "xlsx" ||
         format == "crt" ||
         format == "tgs" ||
-        format == "apk" ||
         format == "mkv" ||
         format == "jfif" ||
-        format == "webm" ||
-        format == "log" ||
-        format == "webp";
+        format == "ico" ||
+        format == "wav" ||
+        format == "opus" ||
+        format == "pem" ||
+        format == "ipa" ||
+        format == "tar" ||
+        format == "gzip" ||
+        format == "psd" ||
+        format == "env" ||
+        format == "exe" ||
+        format == "json" ||
+        format == "html" ||
+        format == "css" ||
+        format == "scss" ||
+        format == "js" ||
+        format == "ts" ||
+        format == "java" ||
+        format == "kt" ||
+        format == "yaml" ||
+        format == "yml" ||
+        format == "properties" ||
+        format == "srt" ||
+        format == "py" ||
+        format == "conf" ||
+        format == "config" ||
+        format == "icns" ||
+        format == "dart" ||
+        format == "c" ||
+        format == "md" ||
+        format == "bmp" ||
+        format == "pom" ||
+        format == "jar" ||
+        format == "msi" ||
+        format == "webm";
   }
 }

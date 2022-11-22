@@ -307,7 +307,7 @@ public class StoragePathPlugin {
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
 
-        final String[] selectionArgs = new String[]{mp3, mp4, pdf, jpeg, jpg, apk, txt, doc, docx, zip, tar, webp, pgg, svg, csv, xls, gif, png, m4a, xml, pptx, xlsm, xlsx, crt, tsg, mkv, jfif, ico, wav, opus, pem, ipa, tar, gzip, psd, env, exe, json, html, css, scss, js, ts, java, kt, yaml, yml, properties, srt, xml, py, conf, config, icns, dart, c, md, bmp, pom, jar, msi, webm};
+        final String[] selectionArgs = new String[]{mp3, mp4, pdf, jpeg, jpg, apk, txt, doc, docx, zip, tar, webp, ogg, svg, csv, xls, gif, png, m4a, xml, pptx, xlsm, xlsx, crt, tsg, mkv, jfif, ico, wav, opus, pem, ipa, tar, gzip, psd, env, exe, json, html, css, scss, js, ts, java, kt, yaml, yml, properties, srt, xml, py, conf, config, icns, dart, c, md, bmp, pom, jar, msi, webm};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;

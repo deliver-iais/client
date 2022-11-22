@@ -61,6 +61,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final FocusNode _captionFocusNode = FocusNode();
   bool _isFileFormatAccept = false;
   bool _isFileSizeAccept = false;
+  bool _isFileSizeZero = false;
   model.File? _editedFile;
   String _invalidFormatFileName = "";
   String _invalidSizeFileName = "";
@@ -76,12 +77,13 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           element.extension ?? element.name.split(".").last,
         );
         final size = element.size ?? 0;
-        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE && size > MIN_FILE_SIZE_BYTE;
+        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
+        _isFileSizeZero = size <= MIN_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
           break;
         }
-        if (!_isFileSizeAccept) {
+        if (!_isFileSizeAccept || _isFileSizeZero) {
           _invalidSizeFileName = element.name;
           break;
         }
@@ -98,9 +100,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return !_isFileFormatAccept || !_isFileSizeAccept
+    return !_isFileFormatAccept || !_isFileSizeAccept || _isFileSizeZero
         ? FileErrorDialog(
             isFileFormatAccept: _isFileFormatAccept,
+            isFileSizeZero: _isFileSizeZero,
             invalidFormatFileName: _invalidFormatFileName,
             invalidSizeFileName: _invalidSizeFileName,
           )
@@ -524,17 +527,18 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     for (final element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
-      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE && element.size > MIN_FILE_SIZE_BYTE;
+      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
+      _isFileSizeZero = element.size <= MIN_FILE_SIZE_BYTE;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;
       }
-      if (!_isFileSizeAccept) {
+      if (!_isFileSizeAccept || _isFileSizeZero) {
         _invalidSizeFileName = element.name;
         break;
       }
     }
-    if (_isFileFormatAccept && _isFileSizeAccept) {
+    if (_isFileFormatAccept && _isFileSizeAccept && !_isFileSizeZero) {
       return result;
     } else {
       if (isDesktop) {
@@ -554,15 +558,18 @@ class FileErrorDialog extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
   final bool _isFileFormatAccept;
+  final bool _isFileSizeZero;
   final String _invalidFormatFileName;
   final String _invalidSizeFileName;
 
   const FileErrorDialog({
     super.key,
     required bool isFileFormatAccept,
+    required bool isFileSizeZero,
     required String invalidFormatFileName,
     required String invalidSizeFileName,
   })  : _isFileFormatAccept = isFileFormatAccept,
+        _isFileSizeZero = isFileSizeZero,
         _invalidFormatFileName = invalidFormatFileName,
         _invalidSizeFileName = invalidSizeFileName;
 
@@ -598,6 +605,9 @@ class FileErrorDialog extends StatelessWidget {
               if (!_isFileFormatAccept) ...[
                 Text(_invalidFormatFileName),
                 Text(_i18n.get("cant_sent"))
+              ] else if (_isFileSizeZero) ...[
+                Text(_invalidSizeFileName),
+                Text(_i18n.get("file_size_zero")),
               ] else ...[
                 Text(_invalidSizeFileName),
                 Text(_i18n.get("file_size_error")),
