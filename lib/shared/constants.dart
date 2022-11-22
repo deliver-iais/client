@@ -47,6 +47,7 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
+const MIN_FILE_SIZE_BYTE = 0.0; //0MB
 const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 

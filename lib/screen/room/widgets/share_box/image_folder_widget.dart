@@ -198,7 +198,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                         image: Image.file(
                                           File(imagePath),
                                           height: 500,
-                                          cacheWidth: 500,
+                                          cacheWidth: 200,
                                         ).image,
                                         fit: BoxFit.cover,
                                       ),
