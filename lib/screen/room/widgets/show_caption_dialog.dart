@@ -76,7 +76,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           element.extension ?? element.name.split(".").last,
         );
         final size = element.size ?? 0;
-        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
+        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE && size > MIN_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
           break;
@@ -524,7 +524,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     for (final element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
-      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
+      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE && element.size > MIN_FILE_SIZE_BYTE;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;

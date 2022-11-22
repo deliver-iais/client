@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -35,6 +36,7 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final _dio = Dio();
 
@@ -162,7 +164,7 @@ class FileService {
               GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
           options.headers["service"] = "ms-file";
-
+          options.headers["Accept-Language"] = _i18n.locale.languageCode;
           return handler.next(options); //continue
         },
       ),

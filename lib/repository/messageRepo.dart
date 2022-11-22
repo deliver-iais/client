@@ -564,11 +564,12 @@ class MessageRepo {
       file.name,
     );
     final pendingMessages = <PendingMessage>[];
+    final pendingMessagePacketId = <String>[];
     for (final room in rooms) {
       final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
           _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
-
+      pendingMessagePacketId.add(pm.packetId);
       await _savePendingMessage(pm);
       pendingMessages.add(pm);
     }
@@ -576,6 +577,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fileUuid,
       file.name,
+      packetIds: pendingMessagePacketId,
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
 
@@ -741,7 +743,7 @@ class MessageRepo {
     await _savePendingEditedMessage(
       pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
-    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
+    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(
@@ -776,6 +778,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fakeFileInfo.uuid,
       fakeFileInfo.name,
+      packetIds: [pm.packetId],
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
     if (fileInfo != null) {
