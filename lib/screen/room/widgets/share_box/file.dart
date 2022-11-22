@@ -129,10 +129,7 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                           },
                         ),
                       ),
-                      Container(
-                        height: 15,
-                        color: theme.highlightColor,
-                      ),
+                      const Divider(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
