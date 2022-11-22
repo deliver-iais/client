@@ -172,7 +172,7 @@
   "file": "File",
   "file_saved": "file saved to downloads",
   "file_size_error": "File size is more than 100 MB The selected file size must be less than 100 MB",
-  "file_size_zero": "File Size Couldn't Be Zero(File is Empty)",
+  "file_size_zero": "File Size Couldn't Be Zero (File is Empty)",
   "files": "Files",
   "files_selected": " files selected",
   "firstName": "First name",
