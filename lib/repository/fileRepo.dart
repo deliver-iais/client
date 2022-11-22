@@ -5,6 +5,7 @@ import 'dart:io' as io;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -16,8 +17,6 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
-
-import 'messageRepo.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
