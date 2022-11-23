@@ -213,6 +213,15 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
+        <receiver android:name="com.shounakmulay.telephony.sms.PhoneStateReceiver"
+                  android:permission="android.permission.READ_PHONE_STATE" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
         <service
                 android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
                 android:permission="android.permission.BIND_JOB_SERVICE"
@@ -239,9 +248,6 @@
 <!--            </intent-filter>-->
 <!--        </activity>-->
 
-        <receiver android:name="com.github.alezhka.flutter_incoming_call.CallBroadcastReceiver"
-                  android:enabled="true"
-                  android:exported="false"/>
 
     </application>
 </manifest>

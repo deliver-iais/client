@@ -31,10 +31,7 @@ import 'package:telephony/telephony.dart';
 
 // import 'package:sms_advanced/sms_advanced.dart';
 //
-@pragma('vm:entry-point')
-Future<void> backgroundMessageHandler(SmsMessage message) async {
-  print("back sms" + (message.body ?? "body"));
-}
+
 
 @pragma('vm:entry-point')
 void backgroundFetchHeadlessTask() async {
@@ -178,12 +175,7 @@ class HomePageState extends State<HomePage> {
     //   frequency: const Duration(hours: 1),
     // );
     //
-    // telephony.listenIncomingSms(
-    //   onBackgroundMessage: backgroundMessageHandler,
-    //   onNewMessage: (SmsMessage message) {
-    //     print("new message" + (message.body ?? ""));
-    //   },
-    // );
+
 
     Workmanager().registerOneOffTask("simple", "simple");
 

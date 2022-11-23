@@ -1,3 +1,4 @@
+
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
@@ -94,13 +95,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:phone_state/phone_state.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:telephony/telephony.dart';
 import 'package:window_size/window_size.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:flutter_incoming_call/flutter_incoming_call.dart';
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -278,57 +275,78 @@ Future initializeFirebase() async {
   );
 }
 
+@pragma('vm:entry-point')
+Future<void> backgroundMessageHandler(SmsMessage message) async {
+  print("back sms" + (message.body ?? "body"));
+}
+
+// @pragma('vm:entry-point')
+// void backgroundFetchHeadlessTask(HeadlessTask task) async {
+//   print("starttttttt");
+//   PhoneState.phoneStateStream.listen((event) {
+//     print("incoming call");
+//   });
+//   // BackgroundFetch.finish(taskId);
+// }
+
 @pragma(
     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    try{
-      FlutterIncomingCall.onEvent.listen((w){
-        print(w.toString());
-      });
-    }catch(e){
-
-    }
-    try {
-      // print("start task");
-      // try{
-      //   Telephony.backgroundInstance.listenIncomingSms(
-      //     onNewMessage: (ed) => {
-      //       print("mmessae"),
-      //     },
-      //     // onBackgroundMessage: backgroundMessageHandler,
-      //   );
-      // }catch(e){
-      //   print("message exp");
-      // }c
-      PhoneState.phoneStateStream.listen((event) {
-        print("incoming call");
-      });
-      return false;
-    } catch (e) {
-      print(e.toString());
-    }
-
-    // switch (task) {
-    //   case "updating":
-    //     print("update message ---");
-    //     break;
-    //   case "simple":
-    //   // Telephony.backgroundInstance.listenIncomingSms(
-    //   //   onNewMessage: (ed) => {
-    //   //     print("mmessahe"),
-    //   //   },
-    //   //   onBackgroundMessage: (e) => {print("bakc msg")},
-    //   // );
-    //   // PhoneState.phoneStateStream.listen((event) {
-    //   //   print("incoming call");
-    //   // });
-    // }
-    return Future.value(true);
-  });
+  // PhoneState.phoneStateStream.listen((event) {
+  //   print("incoming call");
+  // });
+  // Workmanager().executeTask((task, inputData) async {
+  //   try {} catch (e) {}
+  //   try {
+  //     // print("start task");
+  //     // try{
+  //     //   Telephony.backgroundInstance.listenIncomingSms(
+  //     //     onNewMessage: (ed) => {
+  //     //       print("mmessae"),
+  //     //     },
+  //     //     // onBackgroundMessage: backgroundMessageHandler,
+  //     //   );
+  //     // }catch(e){
+  //     //   print("message exp");
+  //     // }c
+  //     // PhoneState.phoneStateStream.listen((event) {
+  //     //   print("incoming call");
+  //     // });
+  //     return false;
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  //
+  //   // switch (task) {
+  //   //   case "updating":
+  //   //     print("update message ---");
+  //   //     break;
+  //   //   case "simple":
+  //   //   // Telephony.backgroundInstance.listenIncomingSms(
+  //   //   //   onNewMessage: (ed) => {
+  //   //   //     print("mmessahe"),
+  //   //   //   },
+  //   //   //   onBackgroundMessage: (e) => {print("bakc msg")},
+  //   //   // );
+  //   //   // PhoneState.phoneStateStream.listen((event) {
+  //   //   //   print("incoming call");
+  //   //   // });
+  //   // }
+  //   return Future.value(false);
+  // });
 }
-init()async {
-  await Permission.phone.request();
+
+init() async {
+  // await Permission.phone.request();
+  final Telephony telephony = Telephony.instance;
+  await telephony.requestPhonePermissions;
+  await telephony.requestSmsPermissions;
+  telephony.listenIncomingSms(
+    onBackgroundMessage: backgroundMessageHandler,
+    onNewMessage: (SmsMessage message) {
+      print("new message" + (message.body ?? ""));
+    },
+  );
   // FlutterIncomingCall.configure(
   //     appName: 'example_incoming_call',
   //     duration: 30000,
@@ -349,13 +367,15 @@ init()async {
   //     )
   // );
 
-  Workmanager().initialize(
-    callbackDispatcher, // The top level function, aka callbackDispatcher
-    //     true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-  );
-  Workmanager().registerOneOffTask("simple", "simple");
+  // Workmanager().initialize(
+  //   callbackDispatcher, // The top level function, aka callbackDispatcher
+  //   //     true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+  // );
+  // Workmanager().registerOneOffTask("simple", "simple");
+  // Workmanager().registerPeriodicTask("simple", "simple");
 
 }
+
 // ignore: avoid_void_async
 void main() async {
   final logger = Logger();
