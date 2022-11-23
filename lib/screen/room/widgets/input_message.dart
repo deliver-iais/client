@@ -152,11 +152,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (!isDesktop) {
       keyboardVisibilityController.onChange.listen((visible) {
         if (visible) {
-          final mq = MediaQuery.of(context);
-          final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
-          if (isAndroid) {
-            setKeyBoardSize(bottomOffset, mq);
-          }
           _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
         } else if (_keyboardStatus.valueOrNull ==
             KeyboardStatus.DEFAULT_KEYBOARD) {
@@ -278,6 +273,11 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
+    if (isAndroid) {
+      setKeyBoardSize(bottomOffset, mq);
+    }
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
