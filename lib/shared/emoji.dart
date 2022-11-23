@@ -1,15 +1,14 @@
 /// All Groups
 enum EmojiGroup {
   smileysEmotion,
-  activities,
   peopleBody,
+  animalsNature,
   objects,
   travelPlaces,
-  component,
-  animalsNature,
-  foodDrink,
   symbols,
-  flags
+  foodDrink,
+  activities,
+  flags,
 }
 
 /// All Subgroups
@@ -67995,7 +67994,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: light skin tone, medium-light skin tone',
+    'woman and man holding hands: light skin tone, medium-light skin tone',
     char: '\u{1F469}\u{1F3FB}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FC}',
     shortName: 'woman_and_man_holding_hands_tone1_tone2',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68224,7 +68223,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium-light skin tone, light skin tone',
+    'woman and man holding hands: medium-light skin tone, light skin tone',
     char: '\u{1F469}\u{1F3FC}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FB}',
     shortName: 'woman_and_man_holding_hands_tone2_tone1',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68339,7 +68338,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium-light skin tone, medium skin tone',
+    'woman and man holding hands: medium-light skin tone, medium skin tone',
     char: '\u{1F469}\u{1F3FC}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FD}',
     shortName: 'woman_and_man_holding_hands_tone2_tone3',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68397,7 +68396,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium-light skin tone, medium-dark skin tone',
+    'woman and man holding hands: medium-light skin tone, medium-dark skin tone',
     char: '\u{1F469}\u{1F3FC}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FE}',
     shortName: 'woman_and_man_holding_hands_tone2_tone4',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68569,7 +68568,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium skin tone, medium-light skin tone',
+    'woman and man holding hands: medium skin tone, medium-light skin tone',
     char: '\u{1F469}\u{1F3FD}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FC}',
     shortName: 'woman_and_man_holding_hands_tone3_tone2',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68684,7 +68683,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium skin tone, medium-dark skin tone',
+    'woman and man holding hands: medium skin tone, medium-dark skin tone',
     char: '\u{1F469}\u{1F3FD}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FE}',
     shortName: 'woman_and_man_holding_hands_tone3_tone4',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68856,7 +68855,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium-dark skin tone, medium-light skin tone',
+    'woman and man holding hands: medium-dark skin tone, medium-light skin tone',
     char: '\u{1F469}\u{1F3FE}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FC}',
     shortName: 'woman_and_man_holding_hands_tone4_tone2',
     emojiGroup: EmojiGroup.peopleBody,
@@ -68914,7 +68913,7 @@ final List<Emoji> _emojis = [
   ),
   Emoji(
     name:
-        'woman and man holding hands: medium-dark skin tone, medium skin tone',
+    'woman and man holding hands: medium-dark skin tone, medium skin tone',
     char: '\u{1F469}\u{1F3FE}\u{200D}\u{1F91D}\u{200D}\u{1F468}\u{1F3FD}',
     shortName: 'woman_and_man_holding_hands_tone4_tone3',
     emojiGroup: EmojiGroup.peopleBody,
@@ -76520,110 +76519,6 @@ final List<Emoji> _emojis = [
       'united kingdom',
       'london',
       'uk'
-    ],
-  ),
-  Emoji(
-    name: 'curly hair',
-    char: '\u{1F9B1}',
-    shortName: 'curly_haired',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.hairStyle,
-    keywords: [
-      'uc11',
-      'diversity',
-      'body',
-      'hair',
-      'afro',
-      'diverse',
-      'modifier',
-      'modifiers',
-      'equality',
-      'body part',
-      'anatomy',
-      "'fro",
-      'curls',
-      'frizzy',
-      'perm'
-    ],
-  ),
-  Emoji(
-    name: 'red hair',
-    char: '\u{1F9B0}',
-    shortName: 'red_haired',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.hairStyle,
-    keywords: [
-      'uc11',
-      'diversity',
-      'body',
-      'hair',
-      'ginger',
-      'diverse',
-      'modifier',
-      'modifiers',
-      'equality',
-      'body part',
-      'anatomy'
-    ],
-  ),
-  Emoji(
-    name: 'white hair',
-    char: '\u{1F9B3}',
-    shortName: 'white_haired',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.hairStyle,
-    keywords: [
-      'uc11',
-      'old people',
-      'diversity',
-      'body',
-      'hair',
-      'grey hair',
-      'grandparents',
-      'elderly',
-      'grandma',
-      'grandpa',
-      'grandmother',
-      'grandfather',
-      'mamie',
-      'papy',
-      'diverse',
-      'modifier',
-      'modifiers',
-      'equality',
-      'body part',
-      'anatomy',
-      'silver hair'
-    ],
-  ),
-  Emoji(
-    name: 'bald',
-    char: '\u{1F9B2}',
-    shortName: 'bald',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.hairStyle,
-    keywords: [
-      'uc11',
-      'old people',
-      'diversity',
-      'body',
-      'shaved head',
-      'hairless',
-      'grandparents',
-      'elderly',
-      'grandma',
-      'grandpa',
-      'grandmother',
-      'grandfather',
-      'mamie',
-      'papy',
-      'diverse',
-      'modifier',
-      'modifiers',
-      'equality',
-      'body part',
-      'anatomy',
-      'balding'
     ],
   ),
   Emoji(
@@ -117007,51 +116902,6 @@ final List<Emoji> _emojis = [
     keywords: ['flag', 'uc6', 'country', 'flag', 'countries', 'flags'],
   ),
   Emoji(
-    name: 'light skin tone',
-    char: '\u{1F3FB}',
-    shortName: 'tone1',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.skinTone,
-    keywords: ['uc8'],
-    modifiable: true,
-  ),
-  Emoji(
-    name: 'medium-light skin tone',
-    char: '\u{1F3FC}',
-    shortName: 'tone2',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.skinTone,
-    keywords: ['uc8'],
-    modifiable: true,
-  ),
-  Emoji(
-    name: 'medium skin tone',
-    char: '\u{1F3FD}',
-    shortName: 'tone3',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.skinTone,
-    keywords: ['uc8'],
-    modifiable: true,
-  ),
-  Emoji(
-    name: 'medium-dark skin tone',
-    char: '\u{1F3FE}',
-    shortName: 'tone4',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.skinTone,
-    keywords: ['uc8'],
-    modifiable: true,
-  ),
-  Emoji(
-    name: 'dark skin tone',
-    char: '\u{1F3FF}',
-    shortName: 'tone5',
-    emojiGroup: EmojiGroup.component,
-    emojiSubgroup: EmojiSubgroup.skinTone,
-    keywords: ['uc8'],
-    modifiable: true,
-  ),
-  Emoji(
     name: 'regional indicator symbol letter z',
     char: '\u{1F1FF}',
     shortName: 'regional_indicator_z',
@@ -117508,7 +117358,7 @@ class Emoji {
   /// Returns Emoji by [char] and character
   factory Emoji.byChar(String char) {
     return _emojis.firstWhere(
-      (emoji) => emoji.char == char,
+          (emoji) => emoji.char == char,
     );
   }
 
@@ -117521,7 +117371,7 @@ class Emoji {
   /// Returns Emoji by [name] as short name.
   factory Emoji.byShortName(String name) {
     return _emojis.firstWhere(
-      (emoji) => emoji.char == name,
+          (emoji) => emoji.char == name,
     );
   }
 
@@ -117545,8 +117395,8 @@ class Emoji {
   static List<String> disassemble(String emoji, {bool noSkin = false}) {
     final emojiRunes = emoji.runes.toList()
       ..removeWhere(
-        (codeChar) =>
-            ZeroWidthCharCodes.contains(codeChar) ||
+            (codeChar) =>
+        ZeroWidthCharCodes.contains(codeChar) ||
             (noSkin && _isFitzpatrickCode(codeChar)),
       );
     return emojiRunes.map((char) => String.fromCharCode(char)).toList();
@@ -117606,31 +117456,30 @@ class Emoji {
 
   // todo: support unspecified gender for "... holding hands", "kiss", "couple with heart" and "family".
   /// stabilize [skin] and [gender] of [emoji], if `true`.
-  static String stabilize(
-    String emoji, {
+  static String stabilize(String emoji, {
     bool skin = true,
     bool gender = false,
   }) {
     if (gender) {
       emoji = emoji
           .replaceAll(
-            '\u{200D}\u{2642}\u{FE0F}',
-            '',
-          ) // remove ZWJ man from emoji
+        '\u{200D}\u{2642}\u{FE0F}',
+        '',
+      ) // remove ZWJ man from emoji
           .replaceAll(
-            '\u{200D}\u{2640}\u{FE0F}',
-            '',
-          ) // remove ZWJ woman from emoji
+        '\u{200D}\u{2640}\u{FE0F}',
+        '',
+      ) // remove ZWJ woman from emoji
           .replaceAll('\u{1F468}', '\u{1F9D1}') // replace man with person
           .replaceAll('\u{1F469}', '\u{1F9D1}') // replace woman with person
           .replaceAll(
-            '\u{1F474}',
-            '\u{1F9D3}',
-          ) // replace old man with old person
+        '\u{1F474}',
+        '\u{1F9D3}',
+      ) // replace old man with old person
           .replaceAll(
-            '\u{1F475}',
-            '\u{1F9D3}',
-          ); // replace old woman with old person
+        '\u{1F475}',
+        '\u{1F9D3}',
+      ); // replace old woman with old person
     }
 
     final emojiRunes = emoji.runes.toList();
