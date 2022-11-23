@@ -22,7 +22,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.7";
+const VERSION = "1.9.8";
 
 // Time Constants
 const ONLINE_TIME = 60000;
