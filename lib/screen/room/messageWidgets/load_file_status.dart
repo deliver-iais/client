@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -163,15 +164,22 @@ class LoadFileStatusState extends State<LoadFileStatus>
                       child: child,
                     );
                   },
-                  child: CircularPercentIndicator(
-                    radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
-                        LOADING_INDICATOR_PADDING,
-                    lineWidth: 4.0,
-                    circularStrokeCap: CircularStrokeCap.round,
-                    percent: max(min(progress, 1), 0.0001),
-                    backgroundColor: widget.background,
-                    progressColor: widget.foreground,
-                  ),
+                  child: (progress < 0.95)
+                      ? CircularPercentIndicator(
+                          radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
+                              LOADING_INDICATOR_PADDING,
+                          lineWidth: 4.0,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          percent: max(min(progress, 1), 0.0001),
+                          backgroundColor: widget.background,
+                          progressColor: widget.foreground,
+                        )
+                      : SpinKitRing(
+                          color: widget.foreground,
+                          size: 80,
+                          lineWidth: 4.0,
+                          duration: const Duration(milliseconds: 2000),
+                        ),
                 ),
               ),
             ),
