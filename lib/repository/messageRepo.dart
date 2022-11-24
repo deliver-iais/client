@@ -164,8 +164,9 @@ class MessageRepo {
     _logger.i('updating done -----------------');
   }
 
-  @visibleForTesting
+  // @visibleForTesting
   Future<bool> updatingMessages() async {
+    print("message repo .... >>>>>> update ");
     var finished = false;
     var pointer = 0;
     final allRoomFetched =

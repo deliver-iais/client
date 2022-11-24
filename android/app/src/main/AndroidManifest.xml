@@ -213,13 +213,21 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name="com.shounakmulay.telephony.sms.ConnectivityReceiver"
+                  android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="com.shounakmulay.telephony.sms.PhoneStateReceiver"
                   android:permission="android.permission.READ_PHONE_STATE" android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
             </intent-filter>
         </receiver>
         <service
@@ -234,19 +242,19 @@
                 android:enabled="false"
                 android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-<!--        <activity-->
-<!--                android:name="com.github.alezhka.flutter_incoming_call.IncomingCallActivity"-->
-<!--                android:theme="@style/Theme.AppCompat"-->
-<!--                android:screenOrientation="portrait"-->
-<!--                android:showOnLockScreen="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.github.alezhka.flutter_incoming_call.activity.ACTION_INCOMING_CALL" />-->
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
+        <!--        <activity-->
+        <!--                android:name="com.github.alezhka.flutter_incoming_call.IncomingCallActivity"-->
+        <!--                android:theme="@style/Theme.AppCompat"-->
+        <!--                android:screenOrientation="portrait"-->
+        <!--                android:showOnLockScreen="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="com.github.alezhka.flutter_incoming_call.activity.ACTION_INCOMING_CALL" />-->
+        <!--                <category android:name="android.intent.category.DEFAULT" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity>-->
 
 
     </application>

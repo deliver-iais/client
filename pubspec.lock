@@ -22,13 +22,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.2.0"
-  android_alarm_manager_plus:
-    dependency: "direct main"
-    description:
-      name: android_alarm_manager_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   android_intent_plus:
     dependency: "direct main"
     description:
@@ -676,34 +669,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1+7"
-  flutter_background_service:
-    dependency: "direct main"
-    description:
-      name: flutter_background_service
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.4.5"
-  flutter_background_service_android:
-    dependency: transitive
-    description:
-      name: flutter_background_service_android
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.3"
-  flutter_background_service_ios:
-    dependency: transitive
-    description:
-      name: flutter_background_service_ios
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.4.0"
-  flutter_background_service_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_background_service_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.2.0"
   flutter_blurhash:
     dependency: "direct main"
     description:
@@ -1903,8 +1868,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "446cfe1a26e425f05a3d7148fcf6b7a8a9156b8c"
-      resolved-ref: "446cfe1a26e425f05a3d7148fcf6b7a8a9156b8c"
+      ref: b7c11f05f43465dc3a0f383c8b2c1f63ad76f1d5
+      resolved-ref: b7c11f05f43465dc3a0f383c8b2c1f63ad76f1d5
       url: "https://github.com/EsmaeilDansi/Telephony.git"
     source: git
     version: "0.2.0"
