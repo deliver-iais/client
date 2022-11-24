@@ -1,5 +1,6 @@
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -11,30 +12,38 @@ final _requestLock = Lock();
 
 class BackgroundService {
   final _telephony = Telephony.instance;
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<void> startBackgroundService() async {
     await Workmanager().initialize(
       backgroundHandler, // The top level function, aka callbackDispatcher
     );
 
-    await Workmanager().cancelByTag("update");
-
     await Workmanager().registerPeriodicTask(
       "update",
       "update",
       tag: "update",
+      initialDelay: const Duration(
+        minutes: 10,
+      ),
       frequency: const Duration(minutes: 16),
     );
-    if ((await _telephony.requestPhoneAndSmsPermissions) ?? false) {
+    _appLifecycleService.appInPermissionState = true;
+    if (await (_telephony.requestPhoneAndSmsPermissions) ?? false) {
+      _appLifecycleService
+        ..appInPermissionState = false
+        ..updateAppToActive();
       _telephony.listenIncomingSms(
-          onNewMessage: (_) {}, onBackgroundMessage: backgroundMessageHandler);
+        onNewMessage: (_) {},
+        onBackgroundMessage: backgroundMessageHandler,
+      );
     }
   }
 }
 
 @pragma('vm:entry-point')
 Future<void> backgroundMessageHandler(SmsMessage message) async {
-  print("start update by  call or sms");
+  print("start update by  call or sms or connection");
   await update();
 }
 
@@ -51,10 +60,9 @@ void backgroundHandler() {
 }
 
 Future<void> update() async {
-  print("background service --------- update...");
-  if (!_requestLock.locked) {
-    print("after update ");
-    await _requestLock.synchronized(() async {
+  await _requestLock.synchronized(() async {
+    print("update------");
+    try {
       try {
         // hive does not support multithreading
         await Hive.close();
@@ -62,7 +70,8 @@ Future<void> update() async {
       } catch (_) {
         GetIt.I.get<UxService>().reInitialize();
       }
+      GetIt.I.get<AppLifecycleService>().updateAppStateToPause();
       await GetIt.I.get<MessageRepo>().updatingMessages();
-    });
-  }
+    } catch (_) {}
+  });
 }

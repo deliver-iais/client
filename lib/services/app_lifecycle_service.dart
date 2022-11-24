@@ -17,7 +17,15 @@ class AppLifecycleService {
 
   AppLifecycle getAppLiveCycle() => _state.value;
 
-  bool appIsActive() => _state.value == AppLifecycle.ACTIVE;
+  void updateAppStateToPause() => _state.value = AppLifecycle.PAUSE;
+
+  bool appInPermissionState = false;
+
+  void updateAppToActive()=> _state.value = AppLifecycle.ACTIVE;
+
+
+  bool appIsActive() =>
+      _state.value == AppLifecycle.ACTIVE || appInPermissionState;
 
   Stream<AppLifecycle> watchAppAppLifecycle() => _state.stream;
 
@@ -34,7 +42,7 @@ class AppLifecycleService {
       SystemChannels.lifecycle.setMessageHandler((message) async {
         if (message != null) {
           if (message == AppLifecycleState.resumed.toString()) {
-            _state.add(AppLifecycle.RESUME);
+            _state.add(AppLifecycle.ACTIVE);
           } else if (message == AppLifecycleState.inactive.toString()) {
             _state.add(AppLifecycle.PAUSE);
           } else if (message == AppLifecycleState.paused.toString()) {

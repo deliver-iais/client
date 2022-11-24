@@ -14,13 +14,11 @@ import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
@@ -42,24 +40,6 @@ class HomePageState extends State<HomePage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _backgroundService = GetIt.I.get<BackgroundService>();
-
-  void _addLifeCycleListener() {
-    if (isDesktop) {
-      DesktopLifecycle.instance.isActive.addListener(() {
-        if (DesktopLifecycle.instance.isActive.value) {
-          _coreServices.checkConnectionTimer();
-        }
-      });
-    } else {
-      SystemChannels.lifecycle.setMessageHandler((message) async {
-        if (message != null &&
-            message == AppLifecycleState.resumed.toString()) {
-          _coreServices.checkConnectionTimer();
-        }
-        return message;
-      });
-    }
-  }
 
   @override
   void initState() {
