@@ -14,14 +14,14 @@ class RoomName extends StatelessWidget {
   final Uid uid;
   final String? name;
   final TextStyle? style;
-  final bool shouldShowDotAnimation;
+  final String? status;
 
   const RoomName({
     super.key,
     required this.uid,
     this.name,
     this.style,
-    this.shouldShowDotAnimation = false,
+    this.status,
   });
 
   @override
@@ -33,14 +33,13 @@ class RoomName extends StatelessWidget {
       builder: (context, snapshot) {
         final name = (snapshot.data ?? "");
         return Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
           mainAxisSize: MainAxisSize.min,
           textBaseline: TextBaseline.alphabetic,
           children: [
             Flexible(
               child: TextLoader(
                 Text(
-                  name,
+                  name.replaceAll('', '\u200B'),
                   style:
                       (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
                   maxLines: 1,
@@ -51,8 +50,13 @@ class RoomName extends StatelessWidget {
                 borderRadius: mainBorder,
               ),
             ),
-            if (shouldShowDotAnimation)
-              DotAnimation(dotsColor: Theme.of(context).primaryColor),
+            if (status != null) ...[
+              Text(
+                status!,
+                style: style,
+              ),
+              DotAnimation(dotsColor: Theme.of(context).primaryColor)
+            ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),
               future: _roomRepo.isVerified(uid),

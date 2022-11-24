@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.7";
+const VERSION = "1.9.8";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -46,6 +47,7 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
+const MIN_FILE_SIZE_BYTE = 0.0; //0MB
 const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 
@@ -132,6 +134,12 @@ const SHARED_DAO_BAD_CERTIFICATE_CONNECTION =
     "SHARED_DAO_USE_CERTIFICATE_CONNECTION";
 const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
 const SHARED_DAO_FIREBASE_TOKEN = "SHARED_DAO_FIREBASE_TOKEN";
+
+//KEYBOARD SIZE
+const SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT = "SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT";
+
+const SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE =
+    "SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE";
 
 // FEATURE FLAGS
 const SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS =
@@ -247,7 +255,8 @@ const double APPBAR_HEIGHT = 56.0;
 const double FLUID_MAX_WIDTH = 500.0;
 const double FLUID_MAX_HEIGHT = 640.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
-const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double LARGE_BREAKDOWN_SIZE_WIDTH = 768.0;
+const double LARGE_BREAKDOWN_SIZE_HEIGHT = 550.0;
 const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
@@ -262,10 +271,17 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 ////////////////////// Functions //////////////////////
 
 // Screen Breakdown
-bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE;
+bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
-bool isLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery.of(context).size.width);
+bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
+
+bool isLarge(BuildContext context) {
+  if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
+    return isLargeWidth(MediaQuery.of(context).size.width);
+  } else {
+    return isLargeHeight(MediaQuery.of(context).size.height);
+  }
+}
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 

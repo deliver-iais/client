@@ -64,5 +64,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Needed to access location always when the app is open.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Needed to access location when the app is open and run in background.</string>
+    <key>EnableBackgroundLocationUpdates</key> <true/>
 </dict>
 </plist>

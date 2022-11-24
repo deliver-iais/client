@@ -150,6 +150,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   }
                                 },
                               ),
+                              childSize: const Size(300, 300),
                               initialScale: PhotoViewComputedScale.contained,
                               minScale: PhotoViewComputedScale.contained,
                               maxScale: PhotoViewComputedScale.covered * 4.1,

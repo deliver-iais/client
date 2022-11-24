@@ -178,7 +178,7 @@ class AvatarRepo {
     final cachedAvatar = _avatarCacheBehaviorSubjects.get(key);
 
     if (cachedAvatar != null) {
-      yield* cachedAvatar;
+      yield* cachedAvatar.asBroadcastStream();
     }
 
     final bs = BehaviorSubject<String>();
@@ -204,8 +204,7 @@ class AvatarRepo {
           final key = _getAvatarCacheKey(userUid);
           _avatarFilePathCache.set(key, "");
           _avatarCache.set(key, event);
-          bs.value = "";
-          _avatarCacheBehaviorSubjects.set(key, bs);
+          bs.add("");
         }
       }
     });
@@ -219,7 +218,7 @@ class AvatarRepo {
 
   Future<void> uploadAvatar(String path, Uid uid) async {
     await _fileRepo.saveInFileInfo(File(path), uid.node, path);
-    final fileInfo = await _fileRepo.uploadClonedFile(uid.node, path);
+    final fileInfo = await _fileRepo.uploadClonedFile(uid.node, path, packetIds: []);
     if (fileInfo != null) {
       final createdOn = clock.now().millisecondsSinceEpoch;
       await _setAvatarAtServer(fileInfo, createdOn, uid);

@@ -370,7 +370,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.9"
+    version: "1.0.11"
   date_time_format:
     dependency: "direct main"
     description:
@@ -396,11 +396,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.54"
-      resolved-ref: cec08f1f09503372379f730f1acf7d0d7df7b797
+      ref: "tags/v1.12.13-rc.55"
+      resolved-ref: "1d70b6004430cf41211e74e7c7a113625447d146"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.54"
+    version: "1.12.13-rc.55"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -821,7 +821,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.11"
+    version: "0.9.16"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1202,6 +1202,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.3"
+  map_launcher:
+    dependency: "direct main"
+    description:
+      name: map_launcher
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.4.0"
   marquee:
     dependency: "direct main"
     description:
@@ -2117,7 +2124,7 @@ packages:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.8"
+    version: "1.0.10"
   win32:
     dependency: transitive
     description:

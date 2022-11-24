@@ -50,7 +50,7 @@ dependencies:
 
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.54
+      ref: tags/v1.12.13-rc.55
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -87,7 +87,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.0.0
-  flutter_webrtc: 0.9.11
+  flutter_webrtc: 0.9.16
   fluttertoast: 8.1.1
   font_awesome_flutter: 10.2.1
   fuzzy: 0.4.0-nullsafety.0
@@ -123,6 +123,7 @@ dependencies:
   latlong2: 0.8.1
   logger: 1.1.0
   lottie: 1.4.3
+  map_launcher: 2.4.0
   marquee: 2.2.3
   material_color_utilities: 0.1.5
   meta: 1.8.0

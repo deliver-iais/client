@@ -1,17 +1,17 @@
 // ignore_for_file: constant_identifier_names
 
 const List<String> FARSI_FEATURE_LIST = [
+  'رفع مشکلات ارسال فایل در پیام رسان',
+  'اضافه شدن Reply با پیام صوتی',
+  'ازین پس شما میتوانید موقعیت مکانی به غیر از موقعیت خود ارسال نمایید',
   'رفع برخی باگ‌های تماس صوتی و تصویری',
-  'بهبود نمایش پیام‌های پین شده',
-  'قابلیت اضافه کردن مخاطبین با فایل‌های vcf',
-  'بهبود عملکرد در همگام سازی مخاطبین',
-  'و رفع برخی باگ‌های گزارش شده',
+  'و رفع بسیاری از باگ‌های گزارش شده',
 ];
 
 const List<String> ENGLISH_FEATURE_LIST = [
+  'Some bugs fixed in sending file',
+  'Now you can send reply with voice',
+  'Now you can send other location than your location',
   'Voice call and Video call bugs fixed',
-  'UX improvement of Pin Messages',
-  'Importing Contacts with VCF files',
-  'Better performance in Contacts Syncing',
-  'And some bugs fixed...',
+  'And many bugs fixed...',
 ];

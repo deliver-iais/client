@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // TODO(bitbeter): add some dynamic storage size instead of 1000 based on devise available memory if it is possible
 class RoomCache {
   final message = LruCache<int, Message>(storage: InMemoryStorage(1000));
+  // TODO(bitbeter): bug exists in here
   final widget = LruCache<int, Widget?>(storage: InMemoryStorage(0));
   final size = LruCache<int, Size>(storage: InMemoryStorage(1000));
 }
@@ -27,6 +28,20 @@ class CachingRepo {
     }
   }
 
+  void setMessageWidget(String roomId, int id, Widget? widget) {
+    final r = _rooms.get(roomId);
+
+    if (r == null) {
+      final rc = RoomCache();
+      // TODO(bitbeter): bug exists in here
+      // rc.widget.set(id, widget);
+      _rooms.set(roomId, rc);
+    } else {
+      // TODO(bitbeter): bug exists in here
+      // r.widget.set(id, widget);
+    }
+  }
+
   void setMessageDimensionsSize(String roomId, int id, Size size) {
     final r = _rooms.get(roomId);
 
@@ -36,6 +51,15 @@ class CachingRepo {
       _rooms.set(roomId, rc);
     } else {
       r.size.set(id, size);
+    }
+  }
+
+  Widget? getMessageWidget(String roomId, int id) {
+    final r = _rooms.get(roomId);
+    if (r == null) {
+      return null;
+    } else {
+      return r.widget.get(id);
     }
   }
 

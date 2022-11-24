@@ -6,19 +6,18 @@ import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/subjects.dart';
 
 class ReplyKeyboardMarkupWidget extends StatelessWidget {
   static final messageRepo = GetIt.I.get<MessageRepo>();
   final ReplyKeyboardMarkup replyKeyboardMarkup;
-  final BehaviorSubject<bool> showReplyMarkUp;
+  final void Function() closeReplyKeyboard;
   final String roomUid;
   final InputMessageTextController textController;
 
   const ReplyKeyboardMarkupWidget({
     Key? key,
     required this.replyKeyboardMarkup,
-    required this.showReplyMarkUp,
+    required this.closeReplyKeyboard,
     required this.roomUid,
     required this.textController,
   }) : super(key: key);
@@ -59,7 +58,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
                     clipBehavior: Clip.hardEdge,
                     onPressed: () {
                       if (replyKeyboardMarkup.oneTimeKeyboard) {
-                        showReplyMarkUp.add(false);
+                        closeReplyKeyboard.call();
                       }
                       if (button.sendOnClick) {
                         messageRepo.sendTextMessage(

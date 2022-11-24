@@ -64,6 +64,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/backgroundService.dart';
 import 'package:deliver/services/call_service.dart';
@@ -79,6 +80,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -188,7 +190,7 @@ Future<void> setupDI() async {
 
   registerSingleton<MessageExtractorServices>(MessageExtractorServices());
   registerSingleton<NotificationServices>(NotificationServices());
-
+  registerSingleton<AppLifecycleService>(AppLifecycleService());
   registerSingleton<DataStreamServices>(DataStreamServices());
   registerSingleton<CoreServices>(CoreServices());
   registerSingleton<FireBaseServices>(FireBaseServices());
@@ -200,6 +202,9 @@ Future<void> setupDI() async {
   registerSingleton<UrlHandlerService>(UrlHandlerService());
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
   registerSingleton<DragAndDropService>(DragAndDropService());
+  registerSingleton<PersistentEventHandlerService>(
+    PersistentEventHandlerService(),
+  );
   registerSingleton<BackgroundService>(BackgroundService());
 }
 
@@ -276,12 +281,12 @@ Future initializeFirebase() async {
   );
 }
 
-
 // ignore: avoid_void_async
 void main() async {
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();
+
   logger.i("Application has been started.");
 
   if (hasFirebaseCapability) {

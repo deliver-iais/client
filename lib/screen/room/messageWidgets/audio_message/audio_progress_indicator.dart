@@ -17,13 +17,13 @@ class AudioProgressIndicator extends StatefulWidget {
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
-  super.key,
-  required this.audioUuid,
-  required this.audioPath,
-  required this.audioDuration,
-  required this.maxWidth,
-  this.colorScheme,
-  required this.audioWaveData,
+    super.key,
+    required this.audioUuid,
+    required this.audioPath,
+    required this.audioDuration,
+    required this.maxWidth,
+    this.colorScheme,
+    required this.audioWaveData,
   });
 
   @override
@@ -59,9 +59,6 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
         if (position.hasData && position.data != null) {
           return Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
               Stack(
                 children: [
                   if (isVoiceFile(widget.audioPath))
@@ -95,7 +92,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       width: widget.maxWidth,
                     ),
                   if ((position.data!.inMilliseconds /
-                      widget.audioDuration.inMilliseconds) <=
+                          widget.audioDuration.inMilliseconds) <=
                       1)
                     Opacity(
                       opacity: isVoiceFile(widget.audioPath) ? 0 : 1,
@@ -114,7 +111,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                               audioPlayerService.seekTime(
                                 Duration(
                                   milliseconds: (value *
-                                      widget.audioDuration.inMilliseconds)
+                                          widget.audioDuration.inMilliseconds)
                                       .round(),
                                 ),
                               );
@@ -127,13 +124,13 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                 ],
               ),
               const SizedBox(
-                height: 10,
+                height: 6,
               ),
             ],
           );
         } else {
           return const SizedBox(
-            height: 40,
+            height: 16,
           );
         }
       },

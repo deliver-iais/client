@@ -20,6 +20,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -58,6 +59,7 @@ class DataStreamServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -182,6 +184,7 @@ class DataStreamServices {
       bool? hasMentioned;
       if (roomUid.category == Categories.GROUP) {
         if (message.text.text
+            .replaceAll("\n", " ")
             .split(" ")
             .contains("@${(await _accountRepo.getAccount())!.username}")) {
           hasMentioned = true;
@@ -447,7 +450,7 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
       await _roomDao.updateRoom(
         uid: msg.roomUid,
-        lastMessage: msg,
+        lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
       );
       _notificationServices
@@ -630,7 +633,8 @@ class DataStreamServices {
         ..limit = 1,
     );
 
-    final messages = await saveFetchMessages(fetchMessagesRes.messages);
+    final messages =
+        await saveFetchMessages(fetchMessagesRes.messages, isLastMessage: true);
 
     for (final msg in messages) {
       if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
@@ -708,18 +712,28 @@ class DataStreamServices {
   }
 
   Future<List<message_model.Message>> saveFetchMessages(
-    List<Message> messages,
-  ) async {
+    List<Message> messages, {
+    bool isLastMessage = false,
+  }) async {
     final msgList = <message_model.Message>[];
     for (final message in messages) {
       if (messages.last.id - message.id < 100) {
         await _checkForReplyKeyBoard(message);
       }
       await _messageDao.deletePendingMessage(message.packetId);
+      var appRunInForeground = false;
+
+      try {
+        appRunInForeground =
+            isLastMessage && !_appLifecycleService.appIsActive();
+      } catch (e) {
+        _logger.e(e);
+      }
+
       try {
         final m = await handleIncomingMessage(
           message,
-          isOnlineMessage: false,
+          isOnlineMessage: appRunInForeground,
         );
 
         if (m == null) continue;

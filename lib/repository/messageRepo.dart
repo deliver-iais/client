@@ -62,6 +62,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
@@ -514,7 +515,7 @@ class MessageRepo {
   }
 
   Future<void> sendLocationMessage(
-    location.Position locationData,
+    LatLng locationData,
     Uid room, {
     String? forwardedFrom,
     int replyId = 0,
@@ -564,11 +565,12 @@ class MessageRepo {
       file.name,
     );
     final pendingMessages = <PendingMessage>[];
+    final pendingMessagePacketId = <String>[];
     for (final room in rooms) {
       final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
           _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
-
+      pendingMessagePacketId.add(pm.packetId);
       await _savePendingMessage(pm);
       pendingMessages.add(pm);
     }
@@ -576,6 +578,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fileUuid,
       file.name,
+      packetIds: pendingMessagePacketId,
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
 
@@ -670,7 +673,9 @@ class MessageRepo {
     final f = dart_file.File(file.path);
 
     try {
-      tempFileSize = f.statSync().size;
+      if (!isWeb) {
+        tempFileSize = f.statSync().size;
+      }
       _logger.d(
         "File size set to file size: $tempFileSize",
       );
@@ -739,7 +744,7 @@ class MessageRepo {
     await _savePendingEditedMessage(
       pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
-    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
+    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(
@@ -774,6 +779,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fakeFileInfo.uuid,
       fakeFileInfo.name,
+      packetIds: [pm.packetId],
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
     if (fileInfo != null) {
@@ -982,7 +988,7 @@ class MessageRepo {
 
   Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
         uid: pm.roomUid,
-        lastMessage: pm.msg,
+        lastMessage: pm.msg.isHidden ? null : pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
       );

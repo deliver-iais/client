@@ -26,6 +26,7 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:mockito/mockito.dart';
 
 import '../constants/constants.dart';
@@ -681,7 +682,8 @@ void main() {
           () async {
             final messageDao = getAndRegisterMessageDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+                LatLng(testPosition.latitude, testPosition.longitude), testUid);
             verify(messageDao.savePendingMessage(pm));
           },
         );
@@ -692,7 +694,8 @@ void main() {
           () async {
             final roomDao = getAndRegisterRoomDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+                LatLng(testPosition.latitude, testPosition.longitude), testUid);
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -710,7 +713,8 @@ void main() {
           () async {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+                LatLng(testPosition.latitude, testPosition.longitude), testUid);
             final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
@@ -744,6 +748,7 @@ void main() {
                 "946672200000000",
                 "test",
                 sendActivity: anyNamed("sendActivity"),
+                packetIds: [pm.packetId],
               ),
             );
           },
@@ -844,6 +849,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -970,6 +976,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -1019,6 +1026,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -1936,7 +1944,13 @@ void main() {
             testMessage.copyWith(id: 0),
             file: model.File("test", "test"),
           );
-          verify(fileRepo.uploadClonedFile("946672200000", "test"));
+          verify(
+            fileRepo.uploadClonedFile(
+              "946672200000",
+              "test",
+              packetIds: [],
+            ),
+          );
         });
       });
       test('When called should updateMessage', () async {

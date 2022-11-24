@@ -506,36 +506,85 @@ class UrlHandlerService {
   }
 
   void handleNormalLink(String uri, BuildContext context) {
+    final theme = Theme.of(context);
     Future.delayed(Duration.zero, () {
       showDialog(
         context: context,
-        barrierDismissible: false,
         builder: (c) {
-          return AlertDialog(
-            content: Text(
-              "Do you want to open the\n$uri",
+          return Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: AlertDialog(
+              title: Text(_i18n.get("open_link_title")),
+              content: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 330,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withOpacity(0.5),
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(4)),
+                        ),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    uri,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              VerticalDivider(
+                                color:
+                                    theme.colorScheme.primary.withOpacity(0.5),
+                              ),
+                              InkWell(
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(Icons.copy),
+                                ),
+                                onTap: () {
+                                  saveToClipboard(uri, context: c);
+                                  Navigator.pop(c);
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(c),
+                  child: Text(_i18n.get("cancel")),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(c);
+                    await launchUrl(Uri.parse(uri));
+                  },
+                  child: Text(_i18n.get("open")),
+                ),
+              ],
             ),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(c),
-                child: Text(_i18n.get("cancel")),
-              ),
-              TextButton(
-                onPressed: () {
-                  saveToClipboard(uri, context: c);
-                  Navigator.pop(c);
-                },
-                child: Text(_i18n.get("copy")),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(c);
-                  await launchUrl(Uri.parse(uri));
-                },
-                child: Text(_i18n.get("open")),
-              ),
-            ],
           );
         },
       );

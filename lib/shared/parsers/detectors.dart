@@ -125,7 +125,7 @@ Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
           match.substring(match.indexOf("[") + 1, match.indexOf("]")),
     );
 
-Detector idDetector() => simpleRegexDetector(IdFeature.regex, {IdFeature()});
+Detector idDetector() => idRegexDetector(IdFeature.regex, {IdFeature()});
 
 Detector emojiDetector() => simpleRegexDetector(
       EmojiFeature.regex,
@@ -203,6 +203,30 @@ Detector simpleRegexDetector(
 }) =>
     (block) => RegExp(source)
         .allMatches(synthesizeToOriginalWord(block.text))
+        .map(
+          (e) => Partition(
+            e.start,
+            e.end,
+            features,
+            replacedText: replacer?.call(
+              block.text.substring(e.start, e.end),
+            ),
+          ),
+        )
+        .toList();
+
+Detector idRegexDetector(
+  String source,
+  Set<Feature> features, {
+  String Function(String)? replacer,
+}) =>
+    (block) => RegExp(source)
+        .allMatches(synthesizeToOriginalWord(block.text))
+        .where(
+          (e) => (e.start == 0 ||
+              block.text[e.start - 1] == " " ||
+              block.text[e.start - 1] == "\n"),
+        )
         .map(
           (e) => Partition(
             e.start,

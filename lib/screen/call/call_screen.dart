@@ -457,6 +457,9 @@ class CallScreenState extends State<CallScreen> {
   void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopCallAudioPlayer();
-    _callRepo.endCall();
+    if(!_callService.isHangedUp) {
+      _callRepo.endCall();
+      _callService.setCallHangedUp = true;
+    }
   }
 }

@@ -15,7 +15,6 @@ class AsyncLastMessage extends StatelessWidget {
       GetIt.I.get<MessageExtractorServices>();
 
   final Future<MessageSimpleRepresentative> messageSRF;
-  final int lastMessageId;
   final bool showSender;
   final bool showSeenStatus;
   final bool expandContent;
@@ -25,7 +24,6 @@ class AsyncLastMessage extends StatelessWidget {
   AsyncLastMessage({
     super.key,
     required Message message,
-    required this.lastMessageId,
     this.showSender = false,
     this.showSeenStatus = true,
     this.expandContent = true,
@@ -50,7 +48,6 @@ class AsyncLastMessage extends StatelessWidget {
         return LastMessage(
           key: key,
           messageSR: snapshot.data!,
-          lastMessageId: lastMessageId,
           showSender: showSender,
           showSeenStatus: showSeenStatus,
           expandContent: expandContent,
@@ -66,7 +63,7 @@ class LastMessage extends StatelessWidget {
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
   final MessageSimpleRepresentative messageSR;
-  final int lastMessageId;
+
   final bool showSender;
   final int? maxLine;
   final bool showSeenStatus;
@@ -76,7 +73,6 @@ class LastMessage extends StatelessWidget {
   const LastMessage({
     super.key,
     required this.messageSR,
-    required this.lastMessageId,
     this.showSender = false,
     this.showSeenStatus = true,
     this.expandContent = true,
@@ -127,10 +123,8 @@ class LastMessage extends StatelessWidget {
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
                 maxLines: maxLine ?? (showSender ? 1 : 2),
-                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
                 textDirection: TextDirection.rtl,
-                softWrap: false,
                 text: TextSpan(
                   children: [
                     if (mb.typeDetails.isNotEmpty)

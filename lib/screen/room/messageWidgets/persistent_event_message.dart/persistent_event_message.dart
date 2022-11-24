@@ -1,13 +1,9 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -19,12 +15,11 @@ import 'package:get_it/get_it.dart';
 
 class PersistentEventMessage extends StatelessWidget {
   final Message message;
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _persistentEventHandlerService =
+      GetIt.I.get<PersistentEventHandlerService>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  static final _messageDao = GetIt.I.get<MessageDao>();
   final void Function(int, int) onPinMessageClick;
   final PersistentEvent persistentEventMessage;
   final double maxWidth;
@@ -164,11 +159,15 @@ class PersistentEventMessage extends StatelessWidget {
   }) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        final issuer = await _roomRepo.getSlangName(
-          persistentEventMessage.mucSpecificPersistentEvent.issuer,
+        final tuple = await _persistentEventHandlerService
+            .getIssuerNameFromMucSpecificPersistentEvent(
+          persistentEventMessage.mucSpecificPersistentEvent,
+          message.roomUid,
+          isChannel: isChannel,
         );
+        final issuer = tuple.item1;
         final Widget issuerWidget = MouseRegion(
-          cursor: SystemMouseCursors.click,
+          cursor: tuple.item2 ? SystemMouseCursors.click : MouseCursor.defer,
           child: GestureDetector(
             child: Text(
               issuer,
@@ -179,10 +178,14 @@ class PersistentEventMessage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => _routingServices.openRoom(
-              persistentEventMessage.mucSpecificPersistentEvent.issuer
-                  .asString(),
-            ),
+            onTap: () {
+              if (tuple.item2) {
+                _routingServices.openRoom(
+                  persistentEventMessage.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                );
+              }
+            },
           ),
         );
         Widget? assigneeWidget;
@@ -191,14 +194,15 @@ class PersistentEventMessage extends StatelessWidget {
           MucSpecificPersistentEvent_Issue.MUC_CREATED,
           MucSpecificPersistentEvent_Issue.KICK_USER
         }.contains(persistentEventMessage.mucSpecificPersistentEvent.issue)) {
-          final assignee = await _roomRepo.getSlangName(
-            persistentEventMessage.mucSpecificPersistentEvent.assignee,
+          final assignee = await _persistentEventHandlerService
+              .getAssignerNameFromMucSpecificPersistentEvent(
+            persistentEventMessage.mucSpecificPersistentEvent,
           );
           assigneeWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Text(
-                assignee.trim(),
+                assignee!.trim(),
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: const TextStyle(
@@ -217,14 +221,19 @@ class PersistentEventMessage extends StatelessWidget {
         Widget? pinedMessageWidget;
         if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
-          final content = await getPinnedMessageBriefContent();
+          final content =
+              await _persistentEventHandlerService.getPinnedMessageBriefContent(
+            message.roomUid,
+            persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt(),
+          );
           pinedMessageWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Text(
-                content.substring(0, min(content.length, 15)),
+                content,
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
+                textDirection: _i18n.getDirection(content),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -241,7 +250,7 @@ class PersistentEventMessage extends StatelessWidget {
         }
 
         final issueWidget = Text(
-          getMucSpecificPersistentEventIssue(
+          _persistentEventHandlerService.getMucSpecificPersistentEventIssue(
             persistentEventMessage,
             isChannel: isChannel,
           ),
@@ -252,10 +261,17 @@ class PersistentEventMessage extends StatelessWidget {
         return [
           issuerWidget,
           const SizedBox(width: 3),
-          issueWidget,
-          const SizedBox(width: 3),
-          if (assigneeWidget != null) assigneeWidget,
-          if (pinedMessageWidget != null) pinedMessageWidget,
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Row(
+              children: [
+                issueWidget,
+                const SizedBox(width: 3),
+                if (assigneeWidget != null) assigneeWidget,
+                if (pinedMessageWidget != null) pinedMessageWidget,
+              ],
+            ),
+          ),
         ];
       case PersistentEvent_Type.messageManipulationPersistentEvent:
         return null;
@@ -273,120 +289,5 @@ class PersistentEventMessage extends StatelessWidget {
       case PersistentEvent_Type.notSet:
         return null;
     }
-  }
-
-  String getMucSpecificPersistentEventIssue(
-    PersistentEvent persistentEventMessage, {
-    bool isChannel = false,
-  }) {
-    switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
-      case MucSpecificPersistentEvent_Issue.ADD_USER:
-        return _i18n.verb(
-          "added",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-
-      case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-        return _i18n.verb(
-          isChannel ? "change_channel_avatar" : "change_group_avatar",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-
-      case MucSpecificPersistentEvent_Issue.JOINED_USER:
-        return _i18n.verb(
-          "joined",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-      case MucSpecificPersistentEvent_Issue.KICK_USER:
-        return _i18n.verb(
-          "kicked",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-
-      case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-        return _i18n.verb(
-          "left",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-
-      case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-        return _i18n.verb(
-          "created",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-
-      case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-        return _i18n.verb(
-          "changed_name",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-      case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-        return _i18n.verb(
-          "pinned",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
-      case MucSpecificPersistentEvent_Issue.DELETED:
-        return "";
-    }
-    return "";
-  }
-
-  // TODO(hasan): better implementation.
-  Future<String> getPinnedMessageBriefContent() async {
-    final m = await _messageDao.getMessage(
-      message.roomUid,
-      persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt(),
-    );
-    if (m != null) {
-      switch (m.type) {
-        case MessageType.TEXT:
-          return m.json.toText().text;
-
-        case MessageType.FILE:
-          return m.json.toFile().caption;
-
-        case MessageType.LOCATION:
-          return _i18n.get("location");
-
-        case MessageType.LIVE_LOCATION:
-          return _i18n.get("live_location");
-
-        case MessageType.FORM:
-          return _i18n.get("form");
-
-        case MessageType.STICKER:
-        case MessageType.POLL:
-        case MessageType.PERSISTENT_EVENT:
-        case MessageType.BUTTONS:
-        case MessageType.SHARE_UID:
-        case MessageType.FORM_RESULT:
-        case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-        case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-        case MessageType.CALL:
-        case MessageType.TABLE:
-        case MessageType.TRANSACTION:
-        case MessageType.PAYMENT_INFORMATION:
-        case MessageType.NOT_SET:
-          return "";
-      }
-    }
-
-    return "";
   }
 }
