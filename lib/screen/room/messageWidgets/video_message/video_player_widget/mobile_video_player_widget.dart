@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:chewie/chewie.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -8,21 +9,22 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoPlayerWidget extends StatefulWidget {
+class MobileVideoPlayerWidget extends StatefulWidget {
   final String videoFilePath;
   final bool showAppBar;
 
-  const VideoPlayerWidget({
+  const MobileVideoPlayerWidget({
     super.key,
     required this.videoFilePath,
     required this.showAppBar,
   });
 
   @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+  State<MobileVideoPlayerWidget> createState() =>
+      _MobileVideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
   final _uxService = GetIt.I.get<UxService>();
   final _routingService = GetIt.I.get<RoutingService>();
   late VideoPlayerController _controller;

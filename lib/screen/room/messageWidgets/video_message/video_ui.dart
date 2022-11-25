@@ -1,12 +1,12 @@
 import 'dart:io';
+
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
@@ -32,6 +32,7 @@ class VideoUi extends StatefulWidget {
 class VideoUiState extends State<VideoUi> {
   late final VideoPlayerController _videoPlayerController;
   static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -60,27 +61,11 @@ class VideoUiState extends State<VideoUi> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        GestureDetector(
-          onTap: () {
-            if (isDesktop) {
-              OpenFilex.open(widget.videoFilePath);
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return Hero(
-                      tag: widget.videoMessage.uuid,
-                      child: VideoPlayerWidget(
-                        videoFilePath: widget.videoFilePath,
-                        showAppBar: true,
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-          },
+        InkWell(
+          onTap: () => _routingService.openVideoPlayerPage(
+            videoFilePath: widget.videoFilePath,
+            heroTag: widget.videoMessage.uuid,
+          ),
           child: LimitedBox(
             maxWidth: MediaQuery.of(context).size.width,
             maxHeight: MediaQuery.of(context).size.height / 2,
@@ -111,8 +96,11 @@ class VideoUiState extends State<VideoUi> {
                         }
                       },
                     )
-                  : VideoPlayer(
-                      _videoPlayerController,
+                  : Hero(
+                      tag: widget.videoMessage.uuid,
+                      child: VideoPlayer(
+                        _videoPlayerController,
+                      ),
                     ),
             ),
           ),
@@ -129,26 +117,10 @@ class VideoUiState extends State<VideoUi> {
               padding: EdgeInsets.zero,
               icon: Icon(Icons.play_arrow, color: widget.foreground),
               iconSize: 42,
-              onPressed: () {
-                if (isDesktop) {
-                  OpenFilex.open(widget.videoFilePath);
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return Hero(
-                          tag: widget.videoMessage.uuid,
-                          child: VideoPlayerWidget(
-                            videoFilePath: widget.videoFilePath,
-                            showAppBar: true,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
+              onPressed: () => _routingService.openVideoPlayerPage(
+                videoFilePath: widget.videoFilePath,
+                heroTag: widget.videoMessage.uuid,
+              ),
             ),
           ),
         )

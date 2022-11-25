@@ -7,14 +7,13 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget.dart';
-import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/desktop_video_player_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/mobile_video_player_widget.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AllVideoPage extends StatefulWidget {
@@ -37,7 +36,6 @@ class _AllVideoPageState extends State<AllVideoPage> {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
@@ -129,17 +127,18 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                 if (filePath.hasData && filePath.data != null) {
                                   _fileCache.set(index, filePath.data);
                                   if (isDesktop) {
-                                    OpenFilex.open(filePath.data ?? "");
-                                    _routingServices.pop();
-                                    return const SizedBox.shrink();
+                                    return DesktopVideoPlayer(
+                                      videoFilePath: filePath.data!,
+                                      showAppBar: false,
+                                    );
                                   } else {
-                                    return VideoPlayerWidget(
+                                    return MobileVideoPlayerWidget(
                                       videoFilePath: filePath.data!,
                                       showAppBar: false,
                                     );
                                   }
                                 } else {
-                                  return  Center(
+                                  return Center(
                                     child: CircularProgressIndicator(
                                       color: theme.primaryColor,
                                     ),
@@ -148,7 +147,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                               },
                             );
                           } else {
-                            return  Center(
+                            return Center(
                               child: CircularProgressIndicator(
                                 color: theme.primaryColor,
                               ),
