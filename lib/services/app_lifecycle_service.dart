@@ -21,8 +21,7 @@ class AppLifecycleService {
 
   bool appInPermissionState = false;
 
-  void updateAppToActive()=> _state.value = AppLifecycle.ACTIVE;
-
+  void updateAppToActive() => _state.value = AppLifecycle.ACTIVE;
 
   bool appIsActive() =>
       _state.value == AppLifecycle.ACTIVE || appInPermissionState;

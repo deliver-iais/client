@@ -26,13 +26,12 @@ class BackgroundService {
       initialDelay: const Duration(
         minutes: 10,
       ),
-      frequency: const Duration(minutes: 16),
+      frequency: const Duration(minutes: 30),
     );
     _appLifecycleService.appInPermissionState = true;
+
     if (await (_telephony.requestPhoneAndSmsPermissions) ?? false) {
-      _appLifecycleService
-        ..appInPermissionState = false
-        ..updateAppToActive();
+      _appLifecycleService.appInPermissionState = false;
       _telephony.listenIncomingSms(
         onNewMessage: (_) {},
         onBackgroundMessage: backgroundMessageHandler,
@@ -43,7 +42,6 @@ class BackgroundService {
 
 @pragma('vm:entry-point')
 Future<void> backgroundMessageHandler(SmsMessage message) async {
-  print("start update by  call or sms or connection");
   await update();
 }
 
@@ -61,7 +59,6 @@ void backgroundHandler() {
 
 Future<void> update() async {
   await _requestLock.synchronized(() async {
-    print("update------");
     try {
       try {
         // hive does not support multithreading
