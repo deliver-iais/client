@@ -3,12 +3,15 @@ import 'dart:math';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+// import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 const LOADING_INDICATOR_WIDGET_SIZE = 50.0;
 const LOADING_INDICATOR_PADDING = 2.0;
+const LOADING_INDICATOR_RADIUS =
+    (LOADING_INDICATOR_WIDGET_SIZE / 2) - LOADING_INDICATOR_PADDING;
 
 class LoadFileStatus extends StatefulWidget {
   final String uuid;
@@ -166,19 +169,20 @@ class LoadFileStatusState extends State<LoadFileStatus>
                   },
                   child: (progress < 0.95)
                       ? CircularPercentIndicator(
-                          radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
-                              LOADING_INDICATOR_PADDING,
+                          radius: LOADING_INDICATOR_RADIUS,
                           lineWidth: 4.0,
                           circularStrokeCap: CircularStrokeCap.round,
                           percent: max(min(progress, 1), 0.0001),
                           backgroundColor: widget.background,
                           progressColor: widget.foreground,
                         )
-                      : SpinKitRing(
-                          color: widget.foreground,
-                          size: 80,
-                          lineWidth: 4.0,
-                          duration: const Duration(milliseconds: 2000),
+                      : SizedBox(
+                          height: LOADING_INDICATOR_RADIUS * 2,
+                          width: LOADING_INDICATOR_RADIUS * 2,
+                          child: CircularProgressIndicator(
+                            backgroundColor: widget.background,
+                            color: widget.foreground,
+                          ),
                         ),
                 ),
               ),
