@@ -8,6 +8,8 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 const LOADING_INDICATOR_WIDGET_SIZE = 50.0;
 const LOADING_INDICATOR_PADDING = 2.0;
+const LOADING_INDICATOR_RADIUS =
+    (LOADING_INDICATOR_WIDGET_SIZE / 2) - LOADING_INDICATOR_PADDING;
 
 class LoadFileStatus extends StatefulWidget {
   final String uuid;
@@ -163,15 +165,23 @@ class LoadFileStatusState extends State<LoadFileStatus>
                       child: child,
                     );
                   },
-                  child: CircularPercentIndicator(
-                    radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
-                        LOADING_INDICATOR_PADDING,
-                    lineWidth: 4.0,
-                    circularStrokeCap: CircularStrokeCap.round,
-                    percent: max(min(progress, 1), 0.0001),
-                    backgroundColor: widget.background,
-                    progressColor: widget.foreground,
-                  ),
+                  child: (progress < 0.95)
+                      ? CircularPercentIndicator(
+                          radius: LOADING_INDICATOR_RADIUS,
+                          lineWidth: 4.0,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          percent: max(min(progress, 1), 0.0001),
+                          backgroundColor: widget.background,
+                          progressColor: widget.foreground,
+                        )
+                      : SizedBox(
+                          height: LOADING_INDICATOR_RADIUS * 2,
+                          width: LOADING_INDICATOR_RADIUS * 2,
+                          child: CircularProgressIndicator(
+                            backgroundColor: widget.background,
+                            color: widget.foreground,
+                          ),
+                        ),
                 ),
               ),
             ),
