@@ -14,7 +14,7 @@ import 'package:deliver/screen/room/messageWidgets/input_message_text_controller
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
-import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
+import 'package:deliver/screen/room/widgets/emoji/emoji_keybord_widget.dart';
 import 'package:deliver/screen/room/widgets/markup/input_suggestions_widget.dart';
 import 'package:deliver/screen/room/widgets/markup/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -45,7 +45,13 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum KeyboardStatus { OFF, DEFAULT_KEYBOARD, EMOJI_KEYBOARD, REPLY_KEYBOARD }
+enum KeyboardStatus {
+  OFF,
+  DEFAULT_KEYBOARD,
+  EMOJI_KEYBOARD,
+  EMOJI_KEYBOARD_SEARCH,
+  REPLY_KEYBOARD
+}
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -157,7 +163,9 @@ class InputMessageWidgetState extends State<InputMessage> {
           if (isAndroid) {
             setKeyBoardSize(bottomOffset, mq);
           }
-          _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+          if (_keyboardStatus.value != KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+            _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+          }
         } else if (_keyboardStatus.valueOrNull ==
             KeyboardStatus.DEFAULT_KEYBOARD) {
           _keyboardStatus.add(KeyboardStatus.OFF);
@@ -282,7 +290,11 @@ class InputMessageWidgetState extends State<InputMessage> {
     return WillPopScope(
       onWillPop: () async {
         if (_keyboardStatus.valueOrNull != KeyboardStatus.OFF) {
-          _keyboardStatus.add(KeyboardStatus.OFF);
+          if (_keyboardStatus.value == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+            _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD);
+          } else {
+            _keyboardStatus.add(KeyboardStatus.OFF);
+          }
           return false;
         } else {
           return true;
@@ -422,13 +434,23 @@ class InputMessageWidgetState extends State<InputMessage> {
               builder: (context, back) {
                 final riseKeyboard =
                     (back.data ?? KeyboardStatus.OFF) != KeyboardStatus.OFF;
-
+                final searchKeyboard = (back.data ?? KeyboardStatus.OFF) ==
+                    KeyboardStatus.EMOJI_KEYBOARD_SEARCH;
                 Widget child = Container(
                   color: theme.colorScheme.surfaceVariant,
                 );
 
-                if (back.data == KeyboardStatus.EMOJI_KEYBOARD) {
-                  child = EmojiKeyboard(
+                if (back.data == KeyboardStatus.EMOJI_KEYBOARD ||
+                    back.data == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+                  child = EmojiKeyboardWidget(
+                    onEmojiSearch: (isSearchFocused) {
+                      if (isSearchFocused) {
+                        _keyboardStatus
+                            .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
+                      } else if (widget.focusNode.hasFocus) {
+                        _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                      }
+                    },
                     onTap: (emoji) {
                       if (widget.textController.text.isNotEmpty) {
                         final start =
@@ -477,7 +499,11 @@ class InputMessageWidgetState extends State<InputMessage> {
                 return AnimatedContainer(
                   duration: ANIMATION_DURATION,
                   curve: Curves.easeInOut,
-                  height: riseKeyboard ? getKeyboardSize() : 0,
+                  height: riseKeyboard
+                      ? searchKeyboard
+                          ? getKeyboardSize() + 200
+                          : getKeyboardSize()
+                      : 0,
                   child: child,
                 );
               },
@@ -512,7 +538,9 @@ class InputMessageWidgetState extends State<InputMessage> {
       stream: _keyboardStatus,
       builder: (context, snapshot) {
         final emojiKeyboardIsOn = !((snapshot.data ?? KeyboardStatus.OFF) !=
-            KeyboardStatus.EMOJI_KEYBOARD);
+                KeyboardStatus.EMOJI_KEYBOARD &&
+            (snapshot.data ?? KeyboardStatus.OFF) !=
+                KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
         return IconButton(
           icon: Icon(
             emojiKeyboardIsOn
