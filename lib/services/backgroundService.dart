@@ -26,7 +26,7 @@ class BackgroundService {
       initialDelay: const Duration(
         minutes: 10,
       ),
-      frequency: const Duration(minutes: 30),
+      frequency: const Duration(hours: 1),
     );
     _appLifecycleService.appInPermissionState = true;
 
