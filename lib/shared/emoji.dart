@@ -11252,8 +11252,8 @@ enum EmojiGroup {
   travelPlaces,
   symbols,
   foodDrink,
-  activities,
   flags,
+  activities,
 }
 
 /// All Skin Tones

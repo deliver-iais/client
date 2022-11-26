@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
@@ -106,20 +108,22 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                             style: const TextStyle(fontSize: 20),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                itemCount: EmojiGroup.values.length,
-                                itemBuilder: (c, index) {
-                                  return buildTabBarContainer(
-                                      theme, EmojiGroup.values[index], () {
-                                    Scrollable.ensureVisible(
-                                      _headersKeyList[index].currentContext!,
-                                      duration: SUPER_SLOW_ANIMATION_DURATION,
-                                      curve: Curves.fastOutSlowIn,
-                                    );
-                                  });
-                                },
+                              child: Center(
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  itemCount: EmojiGroup.values.length,
+                                  itemBuilder: (c, index) {
+                                    return buildTabBarContainer(
+                                        theme, EmojiGroup.values[index], () {
+                                      Scrollable.ensureVisible(
+                                        _headersKeyList[index].currentContext!,
+                                        duration: SUPER_SLOW_ANIMATION_DURATION,
+                                        curve: Curves.fastOutSlowIn,
+                                      );
+                                    });
+                                  },
+                                ),
                               ),
                             ),
                           ),
@@ -246,17 +250,15 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   }
 
   void _onScrollEnded(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     final columns = _getColumnsCount();
     var offset = 0.0;
     var selectedGroup = EmojiGroup.smileysEmotion;
     for (final group in EmojiGroup.values) {
       offset = offset +
-          (width / columns) *
-              (((Emoji.byGroup(group).length / columns)).round()) +
-          30;
-      if (_scrollController.offset > offset) {
-        selectedGroup = EmojiGroup.values[group.index + 1];
+          (45) * (((Emoji.byGroup(group).length / columns).ceil())) +
+          45;
+      if (_scrollController.offset > offset + 50) {
+        selectedGroup = EmojiGroup.values[min(group.index + 1, 8)];
       }
     }
     _selectedEmojiGroup.add(selectedGroup);
@@ -413,10 +415,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     final columns = _getColumnsCount();
     // Calculate position of emoji in the grid
     final row =
-        (Emoji.byGroup(EmojiGroup.smileysEmotion).length / columns).round() +
-            (index ~/ columns);
+        (Emoji.byGroup(EmojiGroup.smileysEmotion).length / columns).ceil() +
+           max((index / columns).ceil(),1) ;
     final column = index % columns;
-
     // Calculate position for skin tone dialog
     final renderBox = context.findRenderObject()! as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
