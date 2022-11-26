@@ -152,6 +152,7 @@ class HomePageState extends State<HomePage> {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
       showDialog(builder: (context) => NewFeatureDialog(), context: context)
           .ignore();
+      unawaited(_accountRepo.updatePlatformVersion());
     }
   }
 }
