@@ -15,7 +15,7 @@ class LoadFileStatus extends StatefulWidget {
   final String uuid;
   final String name;
   final Color background;
-  final bool isPendingMessage;
+  final bool isUploading;
   final Color foreground;
   final void Function()? onDownload;
   final void Function()? onCancel;
@@ -29,7 +29,7 @@ class LoadFileStatus extends StatefulWidget {
     required this.name,
     required this.onDownload,
     required this.background,
-    required this.isPendingMessage,
+    required this.isUploading,
     required this.foreground,
     this.onCancel,
     this.sendingFileFailed = false,
@@ -70,7 +70,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
       height: LOADING_INDICATOR_WIDGET_SIZE,
       decoration:
           BoxDecoration(shape: BoxShape.circle, color: widget.background),
-      child: widget.isPendingMessage ? buildUpload() : buildDownload(),
+      child: widget.isUploading ? buildUpload() : buildDownload(),
     );
   }
 
@@ -165,22 +165,22 @@ class LoadFileStatusState extends State<LoadFileStatus>
                       child: child,
                     );
                   },
-                  child: (progress < 0.95)
-                      ? CircularPercentIndicator(
-                          radius: LOADING_INDICATOR_RADIUS,
-                          lineWidth: 4.0,
-                          circularStrokeCap: CircularStrokeCap.round,
-                          percent: max(min(progress, 1), 0.0001),
-                          backgroundColor: widget.background,
-                          progressColor: widget.foreground,
-                        )
-                      : SizedBox(
+                  child: (progress >= 0.95 && widget.isUploading)
+                      ? SizedBox(
                           height: LOADING_INDICATOR_RADIUS * 2,
                           width: LOADING_INDICATOR_RADIUS * 2,
                           child: CircularProgressIndicator(
                             backgroundColor: widget.background,
                             color: widget.foreground,
                           ),
+                        )
+                      : CircularPercentIndicator(
+                          radius: LOADING_INDICATOR_RADIUS,
+                          lineWidth: 4.0,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          percent: max(min(progress, 1), 0.0001),
+                          backgroundColor: widget.background,
+                          progressColor: widget.foreground,
                         ),
                 ),
               ),
