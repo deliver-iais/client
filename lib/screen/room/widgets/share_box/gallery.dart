@@ -108,6 +108,7 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
 
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: theme.colorScheme.surfaceVariant,
       body: StreamBuilder<List<AssetPathEntity>?>(
         stream: _folders,
         builder: (context, folders) {
@@ -132,13 +133,10 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                 if (index <= 0) {
                   return Container(
                     clipBehavior: Clip.hardEdge,
-                    margin: const EdgeInsets.all(18.0),
+                    margin: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Theme.of(co).primaryColor,
                       borderRadius: secondaryBorder,
-                      border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(0.7),
-                      ),
                       boxShadow: [
                         BoxShadow(
                           color: theme.colorScheme.shadow.withOpacity(0.3),
@@ -148,30 +146,24 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                         ),
                       ],
                     ),
-                    child: Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: const BoxDecoration(
-                        borderRadius: secondaryBorder,
-                      ),
-                      child: _controller != null &&
-                              _controller!.value.isInitialized
-                          ? GestureDetector(
-                              onTap: () {
-                                openCamera(() {
-                                  Navigator.pop(context);
-                                });
-                              },
-                              child: CameraPreview(
-                                _controller!,
-                                child: const Icon(
-                                  Icons.photo_camera,
-                                  size: 50,
-                                  color: Colors.white,
+                    child:
+                        _controller != null && _controller!.value.isInitialized
+                            ? GestureDetector(
+                                onTap: () {
+                                  openCamera(() {
+                                    Navigator.pop(context);
+                                  });
+                                },
+                                child: CameraPreview(
+                                  _controller!,
+                                  child: const Icon(
+                                    Icons.photo_camera,
+                                    size: 50,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
+                              )
+                            : const SizedBox.shrink(),
                   );
                 } else {
                   return GestureDetector(
@@ -197,11 +189,10 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                         ),
                       );
                     },
-                    child: AnimatedPadding(
-                      duration: const Duration(milliseconds: 200),
+                    child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: FutureBuilder<List<AssetEntity>>(
-                        future: folder!.getAssetListPaged(page: 0, size: 3),
+                        future: folder!.getAssetListPaged(page: 0, size: 2),
                         builder: (context, snapshot) {
                           if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                             return Stack(
@@ -230,15 +221,15 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
     return <Widget>[
       for (var i = 0; i < assets.length; i++)
         Positioned(
-          right: (2 - i) * 8,
-          top: (2 - i) * 6,
+          right: i * 6 + 10,
+          top: (1 - i) * 7 + 6,
           child: FutureBuilder<File?>(
             future: assets[i].file,
             builder: (context, fileSnapshot) {
               if (fileSnapshot.hasData && fileSnapshot.data != null) {
                 return Container(
-                  width: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
-                  height: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
+                  width: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
+                  height: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     borderRadius: secondaryBorder,
@@ -251,14 +242,14 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                         spreadRadius: 2,
                         blurRadius: 3,
                         offset:
-                            const Offset(0, 3), // changes position of shadow
+                            const Offset(0, 4), // changes position of shadow
                       ),
                     ],
                     image: DecorationImage(
                       image: Image.file(
                         fileSnapshot.data!,
-                        cacheWidth: 500,
-                        height: 500,
+                        cacheWidth: 200,
+                        height: ((2 - i) * 10) + 480,
                       ).image,
                       fit: BoxFit.cover,
                     ),
@@ -268,12 +259,12 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                           alignment: Alignment.bottomLeft,
                           child: Container(
                             padding: const EdgeInsets.only(
-                              top: 4,
-                              bottom: 6,
+                              top: 6,
+                              bottom: 4,
                               left: 6,
-                              right: 6,
+                              right: 4,
                             ),
-                            width: MediaQuery.of(context).size.width / 2 - 44,
+                            width: MediaQuery.of(context).size.width / 2 - 40,
                             decoration: BoxDecoration(
                               borderRadius: secondaryBorder.copyWith(
                                 topLeft: Radius.zero,
@@ -291,12 +282,19 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                                   ), // changes position of shadow
                                 ),
                               ],
-                              color: Theme.of(context).colorScheme.background,
+                              color: theme.colorScheme.onSurfaceVariant,
                               // borderRadius: mainBorder,
                             ),
                             child: Text(
                               folderName,
-                              style: Theme.of(context).textTheme.bodyText1,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.surfaceVariant,
+                                  ),
                             ),
                           ),
                         )

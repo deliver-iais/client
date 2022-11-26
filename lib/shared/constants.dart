@@ -22,7 +22,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.7";
+const VERSION = "1.9.8";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -47,6 +47,7 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
+const MIN_FILE_SIZE_BYTE = 0.0; //0MB
 const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 

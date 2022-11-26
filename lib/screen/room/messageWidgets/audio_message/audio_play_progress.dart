@@ -2,6 +2,7 @@ import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_
 import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/size_formatter.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -38,19 +39,20 @@ class AudioPlayProgress extends StatelessWidget {
                 final track =
                     trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
 
-                if (audioUuid.contains(track.uuid) &&
-                    state != AudioPlayerState.stopped) {
-                  return AudioProgressIndicator(
-                    maxWidth: maxWidth,
-                    colorScheme: colorScheme,
-                    audioUuid: track.uuid,
-                    audioPath: track.path,
-                    audioDuration: track.duration,
-                    audioWaveData: audio.audioWaveform.data,
-                  );
-                } else {
-                  return buildPadding(context);
-                }
+                return AnimatedSwitcher(
+                  duration: SLOW_ANIMATION_DURATION,
+                  child: audioUuid.contains(track.uuid) &&
+                          state != AudioPlayerState.stopped
+                      ? AudioProgressIndicator(
+                          maxWidth: maxWidth,
+                          colorScheme: colorScheme,
+                          audioUuid: track.uuid,
+                          audioPath: track.path,
+                          audioDuration: track.duration,
+                          audioWaveData: audio.audioWaveform.data,
+                        )
+                      : buildPadding(context),
+                );
               },
             ),
             TimeProgressIndicator(
@@ -65,12 +67,12 @@ class AudioPlayProgress extends StatelessWidget {
 
   Widget buildPadding(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 26,
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           "${sizeFormatter(audio.size.toInt())} ${findFileType(audio.name)}",
-          style: const TextStyle(fontSize: 10),
+          style: const TextStyle(fontSize: 11),
         ),
       ),
     );

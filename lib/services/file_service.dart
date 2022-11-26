@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -35,6 +36,7 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final _dio = Dio();
 
@@ -162,7 +164,7 @@ class FileService {
               GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
           options.headers["service"] = "ms-file";
-
+          options.headers["Accept-Language"] = _i18n.locale.languageCode;
           return handler.next(options); //continue
         },
       ),
@@ -559,35 +561,66 @@ class FileService {
 
   bool isFileFormatAccepted(String format) {
     format = format.toLowerCase();
-    return format == "doc" ||
+    return format == "mp3" ||
+        format == "mp4" ||
         format == "pdf" ||
+        format == "jpeg" ||
+        format == "jpg" ||
+        format == "apk" ||
+        format == "txt" ||
+        format == "doc" ||
+        format == "docx" ||
+        format == "zip" ||
+        format == "rar" ||
+        format == "webp" ||
+        format == "ogg" ||
         format == "svg" ||
         format == "csv" ||
         format == "xls" ||
-        format == "txt" ||
-        format == "jpg" ||
-        format == "jpeg" ||
-        format == "png" ||
         format == "gif" ||
-        format == "txt" ||
-        format == "rar" ||
-        format == "zip" ||
-        format == "mp3" ||
-        format == "mp4" ||
+        format == "png" ||
         format == "m4a" ||
-        format == "ogg" ||
         format == "xml" ||
         format == "pptx" ||
-        format == "docx" ||
         format == "xlsm" ||
         format == "xlsx" ||
         format == "crt" ||
         format == "tgs" ||
-        format == "apk" ||
         format == "mkv" ||
         format == "jfif" ||
-        format == "webm" ||
-        format == "log" ||
-        format == "webp";
+        format == "ico" ||
+        format == "wav" ||
+        format == "opus" ||
+        format == "pem" ||
+        format == "ipa" ||
+        format == "tar" ||
+        format == "gzip" ||
+        format == "psd" ||
+        format == "env" ||
+        format == "exe" ||
+        format == "json" ||
+        format == "html" ||
+        format == "css" ||
+        format == "scss" ||
+        format == "js" ||
+        format == "ts" ||
+        format == "java" ||
+        format == "kt" ||
+        format == "yaml" ||
+        format == "yml" ||
+        format == "properties" ||
+        format == "srt" ||
+        format == "py" ||
+        format == "conf" ||
+        format == "config" ||
+        format == "icns" ||
+        format == "dart" ||
+        format == "c" ||
+        format == "md" ||
+        format == "bmp" ||
+        format == "pom" ||
+        format == "jar" ||
+        format == "msi" ||
+        format == "webm";
   }
 }
