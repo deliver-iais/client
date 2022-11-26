@@ -340,8 +340,8 @@ class RoomPageState extends State<RoomPage> {
         children: [
           StreamBuilder(
             stream:
-                MergeStream([_pendingMessages, _room, _pendingEditedMessage])
-                    .debounceTime(const Duration(milliseconds: 50)),
+            MergeStream([_pendingMessages, _room, _pendingEditedMessage])
+                .debounceTime(const Duration(milliseconds: 50)),
             builder: (context, event) {
               // Set Item Count
               _itemCount = room.lastMessageId +
@@ -363,8 +363,8 @@ class RoomPageState extends State<RoomPage> {
                   scale: isDesktop && _messageReplyHistory.isNotEmpty
                       ? 1
                       : snapshot.data == true
-                          ? 1
-                          : 0,
+                      ? 1
+                      : 0,
                   duration: SLOW_ANIMATION_DURATION,
                   child: scrollDownButtonWidget(),
                 ),
@@ -379,13 +379,13 @@ class RoomPageState extends State<RoomPage> {
   Future<void> _getScrollPosition() async {
     _shouldScrollToLastMessageInRoom =
         _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
-      if (shouldScroll) {
-        _scrollToLastMessage(isForced: true);
-      }
-    });
+          if (shouldScroll) {
+            _scrollToLastMessage(isForced: true);
+          }
+        });
 
     final scrollPosition =
-        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
+    await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
     if (scrollPosition != null) {
       final arr = scrollPosition.split("-");
@@ -421,7 +421,7 @@ class RoomPageState extends State<RoomPage> {
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
-              widget.forwardedMessages!.isNotEmpty) ||
+          widget.forwardedMessages!.isNotEmpty) ||
           widget.shareUid != null ||
           (widget.forwardedMedia != null && widget.forwardedMedia!.isNotEmpty),
     );
@@ -438,12 +438,12 @@ class RoomPageState extends State<RoomPage> {
           _isLastMessages = true;
         }
         final firstVisibleItem =
-            position.where((position) => position.itemLeadingEdge > 0).reduce(
-                  (first, position) =>
-                      position.itemLeadingEdge > first.itemLeadingEdge
-                          ? position
-                          : first,
-                );
+        position.where((position) => position.itemLeadingEdge > 0).reduce(
+              (first, position) =>
+          position.itemLeadingEdge > first.itemLeadingEdge
+              ? position
+              : first,
+        );
 
         // Save scroll position of first complete visible item
         _sharedDao.put(
@@ -537,7 +537,7 @@ class RoomPageState extends State<RoomPage> {
         _cachingRepo.setMessage(widget.roomId, value.id, msg);
       }
       // Refresh message widget cache
-      // _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
+      _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
     });
   }
 
@@ -558,11 +558,11 @@ class RoomPageState extends State<RoomPage> {
     _positionSubject
         .where(
           (_) => ModalRoute.of(context)?.isCurrent ?? false,
-        ) // is in current page
+    ) // is in current page
         .map((event) => event + room.firstMessageId + 1)
         .where(
           (idx) => _lastReceivedMessageId < idx && idx > _lastShowedMessageId,
-        )
+    )
         .map((event) => _lastReceivedMessageId = event)
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
@@ -587,7 +587,7 @@ class RoomPageState extends State<RoomPage> {
     }
 
     final lastSeenMessages = messages.reduce(
-      (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
+          (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
     );
 
     final lastId = (lastSeenMessages.id ?? 0);
@@ -797,10 +797,10 @@ class RoomPageState extends State<RoomPage> {
     return widget.roomId.asUid().category != Categories.CHANNEL
         ? buildNewMessageInput()
         : MuteAndUnMuteRoomWidget(
-            roomId: widget.roomId,
-            scrollToMessage: _handleScrollToMsg,
-            inputMessage: buildNewMessageInput(),
-          );
+      roomId: widget.roomId,
+      scrollToMessage: _handleScrollToMsg,
+      inputMessage: buildNewMessageInput(),
+    );
   }
 
   Widget scrollDownButtonWidget() {
@@ -861,29 +861,29 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-        stream: _editableMessage,
-        builder: (c, data) {
-          return NewMessageInput(
-            currentRoomId: widget.roomId,
-            deleteSelectedMessage: _deleteSelectedMessage,
-            replyMessageIdStream: _repliedMessage,
-            editableMessage: _editableMessage.value,
-            resetRoomPageDetails: _resetRoomPageDetails,
-            waitingForForward: _waitingForForwardedMessage.value,
-            sendForwardMessage: _sendForwardMessage,
-            scrollToLastSentMessage: _scrollToLastMessage,
-            handleScrollToMessage: _handleScrollToMsg,
-            focusNode: _inputMessageFocusNode,
-            textController: _inputMessageTextController,
-          );
-        },
+    stream: _editableMessage,
+    builder: (c, data) {
+      return NewMessageInput(
+        currentRoomId: widget.roomId,
+        deleteSelectedMessage: _deleteSelectedMessage,
+        replyMessageIdStream: _repliedMessage,
+        editableMessage: _editableMessage.value,
+        resetRoomPageDetails: _resetRoomPageDetails,
+        waitingForForward: _waitingForForwardedMessage.value,
+        sendForwardMessage: _sendForwardMessage,
+        scrollToLastSentMessage: _scrollToLastMessage,
+        handleScrollToMessage: _handleScrollToMsg,
+        focusNode: _inputMessageFocusNode,
+        textController: _inputMessageTextController,
       );
+    },
+  );
 
   void _handleScrollToMsg(
-    int direction,
-    bool ctrlIsPressed,
-    bool hasPermission,
-  ) {
+      int direction,
+      bool ctrlIsPressed,
+      bool hasPermission,
+      ) {
     final lastMessage = room.lastMessage;
     if (lastMessage != null) {
       if (hasPermission &&
@@ -940,130 +940,130 @@ class RoomPageState extends State<RoomPage> {
             builder: (context, snapshot) {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
-                      useCustomPosition: true,
-                      featureId: FEATURE_4,
-                      tapTarget: IconButton(
-                        icon: const Icon(CupertinoIcons.phone),
-                        onPressed: () {},
-                      ),
-                      backgroundColor: theme.colorScheme.tertiaryContainer,
-                      targetColor: theme.colorScheme.tertiary,
-                      title: Text(
-                        _i18n.get("call_feature_discovery_title"),
-                        textDirection: _i18n.defaultTextDirection,
-                        style: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
+                useCustomPosition: true,
+                featureId: FEATURE_4,
+                tapTarget: IconButton(
+                  icon: const Icon(CupertinoIcons.phone),
+                  onPressed: () {},
+                ),
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
+                title: Text(
+                  _i18n.get("call_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                overflowMode: OverflowMode.extendBackground,
+                description: FeatureDiscoveryDescriptionWidget(
+                  permissionWidget: isAndroid
+                      ? FutureBuilder<int>(
+                    future: getDeviceVersion(),
+                    builder: (context, version) {
+                      return version.data != null &&
+                          version.data! >= 31
+                          ? Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 350,
                         ),
-                      ),
-                      overflowMode: OverflowMode.extendBackground,
-                      description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: isAndroid
-                            ? FutureBuilder<int>(
-                                future: getDeviceVersion(),
-                                builder: (context, version) {
-                                  return version.data != null &&
-                                          version.data! >= 31
-                                      ? Container(
-                                          constraints: const BoxConstraints(
-                                            maxWidth: 350,
-                                          ),
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            borderRadius: secondaryBorder / 1.2,
-                                            border: Border.all(
-                                              color: theme
-                                                  .colorScheme.onErrorContainer,
-                                            ),
-                                            color: theme
-                                                .colorScheme.errorContainer,
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Text(
-                                                _i18n.get(
-                                                  "alert_window_permission",
-                                                ),
-                                                textDirection:
-                                                    _i18n.defaultTextDirection,
-                                                style: TextStyle(
-                                                  color: theme.colorScheme
-                                                      .onErrorContainer,
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 10.0,
-                                                ),
-                                                child: Text(
-                                                  _i18n.get(
-                                                    "alert_window_permission_attention",
-                                                  ),
-                                                  textDirection: _i18n
-                                                      .defaultTextDirection,
-                                                  style: TextStyle(
-                                                    color:
-                                                        theme.colorScheme.error,
-                                                  ),
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  FeatureDiscovery.dismissAll(
-                                                    context,
-                                                  );
-                                                  await Permission
-                                                      .systemAlertWindow
-                                                      .request();
-                                                },
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                        8.0,
-                                                      ),
-                                                      child: Text(
-                                                        _i18n.get(
-                                                          "go_to_setting",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const Icon(
-                                                      Icons.arrow_forward,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : const SizedBox.shrink();
-                                },
-                              )
-                            : null,
-                        description:
-                            _i18n.get("call_feature_discovery_description"),
-                        descriptionStyle: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: secondaryBorder / 1.2,
+                          border: Border.all(
+                            color: theme
+                                .colorScheme.onErrorContainer,
+                          ),
+                          color: theme
+                              .colorScheme.errorContainer,
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => openCallScreen(isVideoCall: true),
-                            icon: const Icon(Icons.videocam_rounded),
-                          ),
-                          IconButton(
-                            onPressed: () => openCallScreen(),
-                            icon: const Icon(Icons.local_phone_rounded),
-                          ),
-                        ],
-                      ),
-                    )
+                        child: Column(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              _i18n.get(
+                                "alert_window_permission",
+                              ),
+                              textDirection:
+                              _i18n.defaultTextDirection,
+                              style: TextStyle(
+                                color: theme.colorScheme
+                                    .onErrorContainer,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 10.0,
+                              ),
+                              child: Text(
+                                _i18n.get(
+                                  "alert_window_permission_attention",
+                                ),
+                                textDirection: _i18n
+                                    .defaultTextDirection,
+                                style: TextStyle(
+                                  color:
+                                  theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                FeatureDiscovery.dismissAll(
+                                  context,
+                                );
+                                await Permission
+                                    .systemAlertWindow
+                                    .request();
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.all(
+                                      8.0,
+                                    ),
+                                    child: Text(
+                                      _i18n.get(
+                                        "go_to_setting",
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                          : const SizedBox.shrink();
+                    },
+                  )
+                      : null,
+                  description:
+                  _i18n.get("call_feature_discovery_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => openCallScreen(isVideoCall: true),
+                      icon: const Icon(Icons.videocam_rounded),
+                    ),
+                    IconButton(
+                      onPressed: () => openCallScreen(),
+                      icon: const Icon(Icons.local_phone_rounded),
+                    ),
+                  ],
+                ),
+              )
                   : const SizedBox.shrink();
             },
           ),
@@ -1205,8 +1205,8 @@ class RoomPageState extends State<RoomPage> {
 
     final scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
-            ? _lastShowedMessageId
-            : _itemCount
+        ? _lastShowedMessageId
+        : _itemCount
         : 0);
 
     var initialScrollIndex = scrollIndex;
@@ -1216,7 +1216,7 @@ class RoomPageState extends State<RoomPage> {
         _lastScrollPositionIndex != -1) {
       initialScrollIndex = _lastScrollPositionIndex;
       initialAlignment =
-          _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
+      _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
     return NotificationListener<ScrollNotification>(
@@ -1227,8 +1227,8 @@ class RoomPageState extends State<RoomPage> {
           _calmScrollEvent();
         }
         if ((scrollNotification.metrics.pixels -
-                    scrollNotification.metrics.maxScrollExtent)
-                .abs() <
+            scrollNotification.metrics.maxScrollExtent)
+            .abs() <
             100) {
           _isScrolling.add(false);
         }
@@ -1277,9 +1277,9 @@ class RoomPageState extends State<RoomPage> {
                 FutureBuilder<int?>(
                   future: _timeAt(index),
                   builder: (context, snapshot) =>
-                      snapshot.hasData && snapshot.data != null
-                          ? ChatTime(currentMessageTime: date(snapshot.data!))
-                          : const SizedBox.shrink(),
+                  snapshot.hasData && snapshot.data != null
+                      ? ChatTime(currentMessageTime: date(snapshot.data!))
+                      : const SizedBox.shrink(),
                 ),
               ],
             );
@@ -1297,13 +1297,13 @@ class RoomPageState extends State<RoomPage> {
   void _calmScrollEvent() {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
-    });
+          if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+        });
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
-    int index,
-  ) {
+      int index,
+      ) {
     final id = index + 1;
     final cachedPrevMsg = _cachingRepo.getMessage(widget.roomId, id - 1);
     final cachedMsg = _cachingRepo.getMessage(widget.roomId, id);
@@ -1314,8 +1314,8 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<Tuple2<Message?, Message?>> _fetchMessageAndMessageBefore(
-    int index,
-  ) async {
+      int index,
+      ) async {
     return Tuple2(
       await _messageAtIndex(index - 1),
       await _messageAtIndex(index),
@@ -1326,8 +1326,8 @@ class RoomPageState extends State<RoomPage> {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
         : (await _messageRepo.getPendingEditedMessage(widget.roomId, index + 1))
-                ?.msg ??
-            await _getMessage(index + 1, useCache: useCache);
+        ?.msg ??
+        await _getMessage(index + 1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {
@@ -1393,7 +1393,7 @@ class RoomPageState extends State<RoomPage> {
           key: ValueKey(index),
           duration: FAST_ANIMATION_DURATION,
           color: _selectedMessages.containsKey(index + 1) ||
-                  (snapshot.data! == index + 1)
+              (snapshot.data! == index + 1)
               ? Theme.of(context).primaryColor.withAlpha(100)
               : Colors.transparent,
           curve: Curves.elasticOut,
@@ -1407,7 +1407,21 @@ class RoomPageState extends State<RoomPage> {
     if (tuple == null || tuple.item2 == null) {
       return SizedBox(height: _defaultMessageHeight);
     }
-    return _buildMessageBox(index, tuple);
+
+    Widget? w;
+
+    if (!tuple.item2!.isHidden) {
+      w = _cachingRepo.getMessageWidget(widget.roomId, index);
+    }
+
+    if (w == null) {
+      w = _buildMessageBox(index, tuple);
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
+        _cachingRepo.setMessageWidget(widget.roomId, index, w);
+      }
+    }
+
+    return w;
   }
 
   Widget _buildMessageBox(int index, Tuple2<Message?, Message?> tuple) {
@@ -1563,9 +1577,9 @@ class RoomPageState extends State<RoomPage> {
           } else {
             _lastPinedMessage.add(
               _pinMessages[_pinMessages.indexWhere(
-                        (e) => e.id == _lastPinedMessage.value,
-                      ) -
-                      1]
+                    (e) => e.id == _lastPinedMessage.value,
+              ) -
+                  1]
                   .id!,
             );
           }
