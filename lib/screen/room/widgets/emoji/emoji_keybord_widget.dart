@@ -257,7 +257,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
       offset = offset +
           (45) * (((Emoji.byGroup(group).length / columns).ceil())) +
           45;
-      if (_scrollController.offset > offset + 50) {
+      if (_scrollController.offset > offset + 45) {
         selectedGroup = EmojiGroup.values[min(group.index + 1, 8)];
       }
     }
@@ -414,10 +414,12 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   Rect _calculateEmojiPosition(int index) {
     final columns = _getColumnsCount();
     // Calculate position of emoji in the grid
+
+    final column = index % columns;
     final row =
         (Emoji.byGroup(EmojiGroup.smileysEmotion).length / columns).ceil() +
-           max((index / columns).ceil(),1) ;
-    final column = index % columns;
+            (index / columns).ceil() +
+            (column == 0 ? 1 : 0);
     // Calculate position for skin tone dialog
     final renderBox = context.findRenderObject()! as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
