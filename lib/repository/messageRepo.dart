@@ -21,6 +21,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/models/message_event.dart';
+import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
@@ -110,7 +111,9 @@ class MessageRepo {
   }
 
   Future<void> createConnectionStatusHandler() async {
-    await update();
+    if (_authRepo.isLogin()) {
+      await update();
+    }
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
@@ -177,84 +180,54 @@ class MessageRepo {
 
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
-        final getAllUserRoomMetaRes =
-            await _sdr.queryServiceClient.getAllUserRoomMeta(
-          GetAllUserRoomMetaReq()
-            ..pointer = pointer
-            ..limit = FETCH_ROOM_METADATA_LIMIT,
-        );
-        finished = getAllUserRoomMetaRes.finished;
-        if (finished) {
-          _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true).ignore();
+        var isFetchCorrectly = false;
+        var getAllUserRoomMetaRes = GetAllUserRoomMetaRes.getDefault();
+        var reTryFailedFetch = 3;
+        while (!isFetchCorrectly && reTryFailedFetch > 0) {
+          getAllUserRoomMetaRes =
+              await _sdr.queryServiceClient.getAllUserRoomMeta(
+            GetAllUserRoomMetaReq()
+              ..pointer = pointer
+              ..limit = FETCH_ROOM_METADATA_LIMIT,
+          );
+          if (!getAllUserRoomMetaRes.finished &&
+              getAllUserRoomMetaRes.roomsMeta.length ==
+                  FETCH_ROOM_METADATA_LIMIT) {
+            isFetchCorrectly = true;
+          } else if (getAllUserRoomMetaRes.finished) {
+            isFetchCorrectly = true;
+          } else {
+            reTryFailedFetch--;
+          }
         }
-        for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+
+        final roomsMeta = getAllUserRoomMetaRes.roomsMeta;
+        for (final roomMetadata in roomsMeta) {
           try {
-            final room =
-                await _roomDao.getRoom(roomMetadata.roomUid.asString());
-            if (roomMetadata.presenceType == PresenceType.ACTIVE) {
-              if (room != null &&
-                  room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
-                  hasFirebaseCapability) {
-                _fireBaseServices
-                    .sendGlitchReportForFirebaseNotification(
-                      roomMetadata.roomUid.asString(),
-                    )
-                    .ignore();
-              }
-              try {
-                if (room != null &&
-                    room.lastMessage != null &&
-                    room.lastMessage!.id != null &&
-                    room.lastMessage!.id! >=
-                        roomMetadata.lastMessageId.toInt() &&
-                    room.lastMessage!.id != 0 &&
-                    room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
-                  if (allRoomFetched) {
-                    finished = true;
-                  }
-                  break;
-                }
-                // no more updating needed after this room
+            await updateRoom(roomMetadata);
 
-              } catch (e) {
-                _logger.e(e);
-              }
-              if (allRoomFetched && _updateState) {
-                updatingStatus.add(TitleStatusConditions.Updating);
-              }
-              _roomDao
-                  .updateRoom(
-                    uid: roomMetadata.roomUid.asString(),
-                    deleted: false,
-                    synced: false,
-                    lastCurrentUserSentMessageId:
-                        roomMetadata.lastCurrentUserSentMessageId.toInt(),
-                    lastMessageId: roomMetadata.lastMessageId.toInt(),
-                    firstMessageId: roomMetadata.firstMessageId.toInt(),
-                    lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-                  )
-                  .ignore();
+            if (allRoomFetched && _updateState) {
+              updatingStatus.add(TitleStatusConditions.Updating);
+            }
 
-              if (pointer <= FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
-                await fetchRoomLastMessage(
-                  roomMetadata.roomUid.asString(),
-                  roomMetadata.lastMessageId.toInt(),
-                  roomMetadata.firstMessageId.toInt(),
-                );
-              }
-            } else {
-              _roomDao
-                  .updateRoom(
-                    uid: roomMetadata.roomUid.asString(),
-                    deleted: true,
-                    lastMessageId: roomMetadata.lastMessageId.toInt(),
-                    firstMessageId: roomMetadata.firstMessageId.toInt(),
-                    lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-                  )
-                  .ignore();
+            if (allRoomFetched &&
+                pointer == FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
+              finished = true;
+              await getRoomsLastMessage();
+              backgroundRoomMetaUpdateAsync(
+                roomsMeta.sublist(roomsMeta.indexOf(roomMetadata)),
+              ).ignore();
+              break;
             }
           } catch (e) {
             _logger.e(e);
+          }
+        }
+
+        if (!finished) {
+          finished = getAllUserRoomMetaRes.finished;
+          if (finished) {
+            _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true).ignore();
           }
         }
       } on GrpcError catch (e) {
@@ -269,6 +242,93 @@ class MessageRepo {
       pointer += FETCH_ROOM_METADATA_LIMIT;
     }
     return true;
+  }
+
+  Future<void> getRoomsLastMessage() async {
+    final rooms = await _roomDao.getAllRooms();
+    var pointer = 0;
+    for (final room in rooms) {
+      if (pointer <= FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
+        await fetchRoomLastMessage(
+          room.uid,
+          room.lastMessageId,
+          room.firstMessageId,
+        );
+      } else {
+        break;
+      }
+      pointer++;
+    }
+  }
+
+  Future<void> backgroundRoomMetaUpdateAsync(
+    List<RoomMetadata> roomsMetaData,
+  ) async {
+    for (final roomMetadata in roomsMetaData) {
+      await updateRoom(roomMetadata);
+    }
+    // no more updating needed after this room
+    backgroundLastMessageUpdateAsync().ignore();
+  }
+
+  Future<void> updateRoom(RoomMetadata roomMetadata) async {
+    try {
+      final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+      if (roomMetadata.presenceType == PresenceType.ACTIVE) {
+        if (room != null &&
+            room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
+            hasFirebaseCapability) {
+          _fireBaseServices
+              .sendGlitchReportForFirebaseNotification(
+                roomMetadata.roomUid.asString(),
+              )
+              .ignore();
+        }
+        if (room == null ||
+            (roomMetadata.lastUpdate.toInt() != room!.lastUpdateTime ||
+                room.deleted)) {
+          _roomDao
+              .updateRoom(
+                uid: roomMetadata.roomUid.asString(),
+                deleted: false,
+                synced: false,
+                lastCurrentUserSentMessageId:
+                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
+                lastMessageId: roomMetadata.lastMessageId.toInt(),
+                firstMessageId: roomMetadata.firstMessageId.toInt(),
+                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+              )
+              .ignore();
+        }
+      } else {
+        _roomDao
+            .updateRoom(
+              uid: roomMetadata.roomUid.asString(),
+              deleted: true,
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+            )
+            .ignore();
+      }
+    } catch (e, t) {
+      _logger
+        ..e(e)
+        ..e(t);
+    }
+  }
+
+  Future<void> backgroundLastMessageUpdateAsync() async {
+    final rooms = await _roomDao.getAllRooms();
+    for (final room in rooms) {
+      if (!room.synced) {
+        await fetchRoomLastMessage(
+          room.uid,
+          room.lastMessageId,
+          room.firstMessageId,
+        );
+      }
+    }
   }
 
   Future<void> fetchRoomLastMessage(
@@ -743,7 +803,8 @@ class MessageRepo {
     await _savePendingEditedMessage(
       pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
-    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
+    updatedFile = await _fileRepo
+        .uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(
