@@ -185,7 +185,7 @@ class VideoMessageState extends State<VideoMessage> {
                 name: video.name,
                 isPendingForwarded: (widget.message.forwardedFrom != null &&
                     widget.message.forwardedFrom!.isNotEmpty),
-                isPendingMessage: true,
+                isUploading: true,
                 onDownload: () => {},
                 onCancel: () => {
                   if (widget.message.id == null)
@@ -221,7 +221,7 @@ class VideoMessageState extends State<VideoMessage> {
               child: LoadFileStatus(
                 uuid: video.uuid,
                 name: video.name,
-                isPendingMessage: true,
+                isUploading: true,
                 onDownload: () => {},
                 sendingFileFailed: true,
                 onCancel: () {

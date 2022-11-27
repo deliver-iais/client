@@ -162,7 +162,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                     uuid: json["uuid"],
                                     name: json["name"],
                                     onCancel: () {},
-                                    isPendingMessage: false,
+                                    isUploading: false,
                                     onDownload: () async {
                                       await _fileRepo.getFile(
                                         json["uuid"],

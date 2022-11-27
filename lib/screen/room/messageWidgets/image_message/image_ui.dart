@@ -313,7 +313,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       child: LoadFileStatus(
         uuid: widget.image.uuid,
         name: widget.image.name,
-        isPendingMessage: isPendingMessage,
+        isUploading: isPendingMessage,
         onDownload: () => onDownload?.call(),
         onCancel: () => onCancel?.call(),
         resendFileMessage: () => onResendFileMessage?.call(),
