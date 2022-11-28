@@ -46,8 +46,6 @@ class AuthRepo {
 
   String? get accessToken => _accessToken;
 
-  bool isLogin() => _accessToken != null && _accessToken!.isNotEmpty;
-
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
