@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -14,6 +15,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -37,6 +39,7 @@ import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -49,6 +52,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -73,6 +77,7 @@ class ProfilePageState extends State<ProfilePage>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
@@ -157,6 +162,96 @@ class ProfilePageState extends State<ProfilePage>
                 child: NestedScrollView(
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
+                      SliverAppBar.medium(
+                        automaticallyImplyLeading: false,
+                        flexibleSpace: FlexibleSpaceBar(
+                          titlePadding: EdgeInsets.all(2.0),
+                          expandedTitleScale: 1.1,
+                          title: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      FutureBuilder<String>(
+                                        initialData: _roomRepo.fastForwardName(widget.roomUid),
+                                        future: _roomRepo.getName(widget.roomUid),
+                                        builder: (context, snapshot) {
+                                          _roomName = snapshot.data ?? _i18n.get("loading");
+                                          return Padding(
+                                            padding: const EdgeInsets.only(left: 4),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(left: 2.0),
+                                                      child: RoomName(uid: widget.roomUid, name: _roomName),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Divider(
+                                                  color: Colors.transparent,
+                                                    height: 5
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:MainAxisAlignment.end,
+                                                  children: [
+                                                  StreamBuilder<LastActivity?>(
+                                                    stream: _lastActivityRepo.watch(widget.roomUid!.asString()),
+                                                    builder: (c, userInfo) {
+                                                      if (userInfo.hasData && userInfo.data != null) {
+                                                        if (isOnline(userInfo.data!.time)) {
+                                                          return Text(
+                                                            _i18n.get("online"),
+                                                            maxLines: 1,
+                                                            key: ValueKey(randomString(10)),
+                                                            overflow: TextOverflow.fade,
+                                                            softWrap: false,
+                                                            style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                                          );
+                                                        } else {
+                                                          final lastActivityTime =
+                                                          dateTimeFromNowFormat(date(userInfo.data!.time));
+                                                          return Text(
+                                                            "${_i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? _i18n.get("just_now") : lastActivityTime} ",
+                                                            maxLines: 1,
+                                                            key: ValueKey(randomString(10)),
+                                                            overflow: TextOverflow.fade,
+                                                            softWrap: false,
+                                                            style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                                          );
+                                                        }
+                                                      }
+                                                      return const SizedBox.shrink();
+                                                    },
+                                                  ),
+                                                ],)
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              ProfileAvatar(
+                                roomUid: widget.roomUid,
+                                canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // title: Text("Test"),
+                      ),
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
@@ -398,11 +493,7 @@ class ProfilePageState extends State<ProfilePage>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ProfileAvatar(
-                  roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-                ),
-                // _buildMenu(context)
+
               ],
             ),
             if (!widget.roomUid.isGroup())
@@ -600,21 +691,11 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final theme = Theme.of(context);
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
       child: AppBar(
         titleSpacing: 8,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: FutureBuilder<String>(
-            initialData: _roomRepo.fastForwardName(widget.roomUid),
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (context, snapshot) {
-              _roomName = snapshot.data ?? _i18n.get("loading");
-              return RoomName(uid: widget.roomUid, name: _roomName);
-            },
-          ),
-        ),
         actions: <Widget>[
           _buildMenu(context),
         ],
