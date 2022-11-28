@@ -114,6 +114,13 @@ class UxService {
         } catch (_) {}
       }
     });
+    _sharedDao.get("isShowCaseEnable").then(
+      (value) {
+        if (value == null) {
+          _sharedDao.putBoolean("isShowCaseEnable", SHOWCASES_IS_AVAILABLE);
+        }
+      },
+    );
   }
 
   void checkPlatformBrightness() {

@@ -60,7 +60,7 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
-const bool SHOWCASES_IS_AVAILABLE = false;
+const bool SHOWCASES_IS_AVAILABLE = true;
 
 // Fake User Constants
 final FAKE_USER_UID = Uid()
@@ -249,6 +249,7 @@ const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
+const ULTRA_SLOW_ANIMATION_DURATION = Duration(seconds: 1);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;

@@ -8,6 +8,7 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -75,6 +76,8 @@ class NavigationCenterState extends State<NavigationCenter>
       BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
 
+  bool _isShowCaseEnable = false;
+
   @override
   void initState() {
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
@@ -92,6 +95,8 @@ class NavigationCenterState extends State<NavigationCenter>
       }
     });
 
+    checkShowCase();
+
     _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
@@ -101,6 +106,14 @@ class NavigationCenterState extends State<NavigationCenter>
       checkSearchBoxIsOpenOrNot,
     );
     super.initState();
+  }
+
+  Future<void> checkShowCase() async {
+    _sharedDao.getBooleanStream("isShowCaseEnable").listen((event) {
+      _isShowCaseEnable = event;
+    });
+
+    _isShowCaseEnable = await _sharedDao.getBoolean("isShowCaseEnable");
   }
 
   @override
@@ -210,8 +223,25 @@ class NavigationCenterState extends State<NavigationCenter>
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: ChatsPage(
-                          scrollController: _scrollController,
+                        child: AnimatedSwitcher(
+                          duration: SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (child, animation) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(1.2, 0),
+                                end: const Offset(0, 0),
+                              ).animate(animation),
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: !_isShowCaseEnable
+                              ? ChatsPage(
+                                  scrollController: _scrollController,
+                                )
+                              : const ShowcasePage(),
                         ),
                       );
                     }
@@ -628,7 +658,9 @@ class NavigationCenterState extends State<NavigationCenter>
             ),
           ),
           titleSpacing: 8.0,
-          title: const ConnectionStatus(),
+          title: ConnectionStatus(
+            isShowCase: _isShowCaseEnable,
+          ),
           actions: [
             if (!isDesktop)
               DescribedFeatureOverlay(
@@ -683,8 +715,13 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
                 child: IconButton(
-                  onPressed: () => _routingService.openShowcase(),
-                  icon: const Icon(Icons.storefront_outlined),
+                  onPressed: () async {
+                    await _sharedDao.toggleBoolean("isShowCaseEnable");
+                    setState(() {});
+                  },
+                  icon: !_isShowCaseEnable
+                      ? const Icon(Icons.storefront_outlined)
+                      : const Icon(CupertinoIcons.chat_bubble_text),
                 ),
               ),
             const SizedBox(
