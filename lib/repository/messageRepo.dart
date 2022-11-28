@@ -164,7 +164,7 @@ class MessageRepo {
 
     sendPendingMessages().ignore();
     sendPendingEditedMessages().ignore();
-    unawaited(_fetchNotSyncedRoom());
+    // unawaited(_fetchNotSyncedRoom());
     _logger.i('updating done -----------------');
   }
 
@@ -210,15 +210,15 @@ class MessageRepo {
               updatingStatus.add(TitleStatusConditions.Updating);
             }
 
-            if (allRoomFetched &&
-                pointer == FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
-              finished = true;
-              await getRoomsLastMessage();
-              backgroundRoomMetaUpdateAsync(
-                roomsMeta.sublist(roomsMeta.indexOf(roomMetadata)),
-              ).ignore();
-              break;
-            }
+            // if (allRoomFetched &&
+            //     pointer == FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
+            //   finished = true;
+            //   await getRoomsLastMessage();
+            //   backgroundRoomMetaUpdateAsync(
+            //     roomsMeta.sublist(roomsMeta.indexOf(roomMetadata)),
+            //   ).ignore();
+            //   break;
+            // }
           } catch (e) {
             _logger.e(e);
           }
