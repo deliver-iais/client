@@ -24,7 +24,7 @@ class BackgroundService {
       "update",
       tag: "update",
       initialDelay: const Duration(
-        minutes: 10,
+        minutes: 5,
       ),
       frequency: const Duration(hours: 1),
     );
@@ -54,38 +54,25 @@ class BackgroundService {
 }
 
 @pragma('vm:entry-point')
-Future<void> backgroundMessageHandler(SmsMessage message) async {
-
-  await update(updateFirebaseToken:message.body =="CONNECTION");
-}
+Future<void> backgroundMessageHandler(SmsMessage message) => update();
 
 @pragma('vm:entry-point')
 void backgroundHandler() {
-  Workmanager().executeTask((task, inputData) async {
-    switch (task) {
-      case "update":
-        await update();
-        break;
-    }
-    return Future.value(true);
-  });
+  Workmanager().executeTask((task, inputData) => update());
 }
 
-Future<void> update({bool updateFirebaseToken = false}) async {
-  print("update in packground.......");
+Future<bool> update() async {
+  try {
     try {
-      try {
-        // hive does not support multithreading
-        await Hive.close();
-        await setupDI();
-      } catch (_) {
-        GetIt.I.get<UxService>().reInitialize();
-      }
-      GetIt.I.get<AppLifecycleService>().updateAppStateToPause();
-      await GetIt.I.get<MessageRepo>().updatingMessages();
-      if(updateFirebaseToken){
-         unawaited (GetIt.I.get<FireBaseServices>().updateFirebaseToken());
-      }
-    } catch (_) {}
-
+      // hive does not support multithreading
+      await Hive.close();
+      await setupDI();
+    } catch (_) {
+      GetIt.I.get<UxService>().reInitialize();
+    }
+    GetIt.I.get<AppLifecycleService>().updateAppStateToPause();
+    await GetIt.I.get<MessageRepo>().updatingMessages();
+    unawaited(GetIt.I.get<FireBaseServices>().updateFirebaseToken());
+  } catch (_) {}
+  return Future.value(true);
 }

@@ -19,12 +19,7 @@ class AppLifecycleService {
 
   void updateAppStateToPause() => _state.value = AppLifecycle.PAUSE;
 
-  bool appInPermissionState = false;
-
-  void updateAppToActive() => _state.value = AppLifecycle.ACTIVE;
-
-  bool appIsActive() =>
-      _state.value == AppLifecycle.ACTIVE || appInPermissionState;
+  bool appIsActive() => _state.value == AppLifecycle.ACTIVE;
 
   Stream<AppLifecycle> watchAppAppLifecycle() => _state.stream;
 

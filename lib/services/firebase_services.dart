@@ -53,7 +53,13 @@ class FireBaseServices {
       await _setFirebaseSetting();
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
-          var token = await _firebaseMessaging.getToken();
+          String? token;
+          try {
+            token = await _firebaseMessaging.getToken();
+          } catch (e) {
+            _logger.e(e);
+          }
+
           token ??= await _sharedDao.get(SHARED_DAO_FIREBASE_TOKEN);
           if (token != null && token.isNotEmpty) {
             _saveFirebaseToken(token);
@@ -72,7 +78,9 @@ class FireBaseServices {
 
   Future<void> updateFirebaseToken() async {
     try {
-      final firebaseToken = await FirebaseMessaging.instance.getToken();
+      _firebaseMessaging = FirebaseMessaging.instance;
+      await _firebaseMessaging.requestPermission();
+      final firebaseToken = await _firebaseMessaging.getToken();
       if (firebaseToken != null) {
         _saveFirebaseToken(firebaseToken);
       }
