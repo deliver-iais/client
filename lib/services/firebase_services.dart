@@ -101,18 +101,16 @@ class FireBaseServices {
 
   Future<void> _sendFirebaseToken(String fireBaseToken) async {
     try {
-      if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
-        try {
-          await _services.firebaseServiceClient
-              .registration(RegistrationReq()..tokenId = fireBaseToken);
+      try {
+        await _services.firebaseServiceClient
+            .registration(RegistrationReq()..tokenId = fireBaseToken);
 
-          return _sharedDao.putBoolean(
-            SHARED_DAO_FIREBASE_SETTING_IS_SET,
-            true,
-          );
-        } catch (e) {
-          _logger.e(e);
-        }
+        return _sharedDao.putBoolean(
+          SHARED_DAO_FIREBASE_SETTING_IS_SET,
+          true,
+        );
+      } catch (e) {
+        _logger.e(e);
       }
     } catch (e) {
       _logger.e(e.toString());
