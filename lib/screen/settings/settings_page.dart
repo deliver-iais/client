@@ -378,7 +378,7 @@ class SettingsPageState extends State<SettingsPage> {
             actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
             content: Text(
               _i18n.get("notification_advance_mode_description"),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.justify,
             ),
             actions: [
               TextButton(
