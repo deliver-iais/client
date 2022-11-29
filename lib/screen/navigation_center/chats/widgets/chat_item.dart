@@ -87,7 +87,7 @@ class ChatItemState extends State<ChatItem> {
       widget.room.lastMessageId,
       widget.room.firstMessageId,
     );
-    _messageRepo.fetchRoomLastSeen(widget.room.uid).ignore();
+    await _messageRepo.fetchRoomLastSeen(widget.room.uid);
   }
 
   @override

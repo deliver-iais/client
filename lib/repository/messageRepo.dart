@@ -184,20 +184,28 @@ class MessageRepo {
         var getAllUserRoomMetaRes = GetAllUserRoomMetaRes.getDefault();
         var reTryFailedFetch = 3;
         while (!isFetchCorrectly && reTryFailedFetch > 0) {
-          getAllUserRoomMetaRes =
-              await _sdr.queryServiceClient.getAllUserRoomMeta(
-            GetAllUserRoomMetaReq()
-              ..pointer = pointer
-              ..limit = FETCH_ROOM_METADATA_LIMIT,
-          );
-          if (!getAllUserRoomMetaRes.finished &&
-              getAllUserRoomMetaRes.roomsMeta.length ==
-                  FETCH_ROOM_METADATA_LIMIT) {
-            isFetchCorrectly = true;
-          } else if (getAllUserRoomMetaRes.finished) {
-            isFetchCorrectly = true;
-          } else {
+          try {
+            getAllUserRoomMetaRes =
+                await _sdr.queryServiceClient.getAllUserRoomMeta(
+              GetAllUserRoomMetaReq()
+                ..pointer = pointer
+                ..limit = FETCH_ROOM_METADATA_LIMIT,
+            );
+            if (!getAllUserRoomMetaRes.finished &&
+                getAllUserRoomMetaRes.roomsMeta.length ==
+                    FETCH_ROOM_METADATA_LIMIT) {
+              isFetchCorrectly = true;
+            } else if (getAllUserRoomMetaRes.finished) {
+              isFetchCorrectly = true;
+            } else {
+              reTryFailedFetch--;
+            }
+          } on GrpcError catch (e) {
             reTryFailedFetch--;
+            _logger.e(e);
+          } catch (e) {
+            reTryFailedFetch--;
+            _logger.e(e);
           }
         }
 
@@ -362,7 +370,7 @@ class MessageRepo {
   Future<void> fetchRoomLastSeen(String roomUid) async {
     final room = await _roomDao.getRoom(roomUid);
     if (room != null) {
-      _updateLastSeen(room).ignore();
+      await _updateLastSeen(room);
     }
   }
 
@@ -371,7 +379,7 @@ class MessageRepo {
     if (!_authRepo.isCurrentUser(room.lastMessage!.from)) {
       await fetchCurrentUserLastSeen(room);
     } else {
-      unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: true));
+      await _roomDao.updateRoom(uid: room.uid, seenSynced: true);
       final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
         fetchOtherSeen(room.uid.asUid()).toString();
@@ -423,42 +431,51 @@ class MessageRepo {
   Future<void> fetchCurrentUserLastSeen(Room room) async {
     final seen = await _seenDao.getMySeen(room.uid);
     if (seen.messageId < room.lastMessage!.id!) {
-      try {
-        final fetchCurrentUserSeenData =
-            await _sdr.queryServiceClient.fetchCurrentUserSeenData(
-          FetchCurrentUserSeenDataReq()..roomUid = room.uid.asUid(),
-        );
+      var reTryFailedFetch = 3;
+      while (reTryFailedFetch > 0) {
+        try {
+          reTryFailedFetch--;
 
-        final newSeenMessageId = max(
-          fetchCurrentUserSeenData.seen.id.toInt(),
-          room.lastCurrentUserSentMessageId,
-        );
-
-        await _seenDao.updateMySeen(
-          uid: room.uid,
-          messageId: newSeenMessageId,
-        );
-
-        return fetchHiddenMessageCount(
-          room.uid.asUid(),
-          newSeenMessageId,
-        );
-      } on GrpcError catch (e) {
-        _logger
-          ..wtf(room.uid)
-          ..e(e);
-        if (e.code == StatusCode.notFound) {
-          unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: true));
-          return _seenDao.updateMySeen(
-            uid: room.uid,
-            messageId: 0,
+          final fetchCurrentUserSeenData =
+              await _sdr.queryServiceClient.fetchCurrentUserSeenData(
+            FetchCurrentUserSeenDataReq()..roomUid = room.uid.asUid(),
           );
-        } else {
-          unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
+
+          final newSeenMessageId = max(
+            fetchCurrentUserSeenData.seen.id.toInt(),
+            room.lastCurrentUserSentMessageId,
+          );
+
+          await _seenDao.updateMySeen(
+            uid: room.uid,
+            messageId: newSeenMessageId,
+          );
+
+          return fetchHiddenMessageCount(
+            room.uid.asUid(),
+            newSeenMessageId,
+          );
+        } on GrpcError catch (e) {
+          _logger
+            ..wtf(room.uid)
+            ..e(e);
+          if (reTryFailedFetch == 0) {
+            if (e.code == StatusCode.notFound) {
+              unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: true));
+              return _seenDao.updateMySeen(
+                uid: room.uid,
+                messageId: 0,
+              );
+            } else {
+              unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
+            }
+          }
+        } catch (e) {
+          if (reTryFailedFetch == 0) {
+            unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
+          }
+          _logger.e(e);
         }
-      } catch (e) {
-        unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
-        _logger.e(e);
       }
     }
   }
