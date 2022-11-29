@@ -93,7 +93,6 @@ class FireBaseServices {
 
   Future<void> _sendFirebaseToken(String fireBaseToken) async {
     try {
-      return;
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
           await _services.firebaseServiceClient
