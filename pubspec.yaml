@@ -171,7 +171,7 @@ dependencies:
   synchronized: 3.0.0+3
   telephony:
     git:
-      ref: b7c11f05f43465dc3a0f383c8b2c1f63ad76f1d5
+      ref: fdf93b3dc72ff7a911de0ce187949338486753e7
       url: https://github.com/EsmaeilDansi/Telephony.git
   tuple: 2.0.1
   universal_html: 2.0.8

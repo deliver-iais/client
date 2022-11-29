@@ -213,8 +213,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.shounakmulay.telephony.sms.ConnectivityReceiver"
-                  android:enabled="true" android:exported="true">
+        <receiver android:name="com.shounakmulay.telephony.sms.ConnectivityReceiver" android:enabled="true"
+                  android:exported="false">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>

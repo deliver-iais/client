@@ -51,7 +51,39 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      return _sendFirebaseToken(await _firebaseMessaging.getToken());
+      if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
+        try {
+          var token = await _firebaseMessaging.getToken();
+          token ??= await _sharedDao.get(SHARED_DAO_FIREBASE_TOKEN);
+          if (token != null && token.isNotEmpty) {
+            _saveFirebaseToken(token);
+            unawaited(_sendFirebaseToken(token));
+          }
+        } catch (e) {
+          _logger.e(e);
+        }
+      }
+    }
+  }
+
+  void _saveFirebaseToken(String token) {
+    unawaited(_sharedDao.put(SHARED_DAO_FIREBASE_TOKEN, token));
+  }
+
+  Future<void> updateFirebaseToken() async {
+    try {
+      final firebaseToken = await FirebaseMessaging.instance.getToken();
+      if (firebaseToken != null) {
+        _saveFirebaseToken(firebaseToken);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> resetFirebaseSetting() async {
+    try {} catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -59,13 +91,14 @@ class FireBaseServices {
     _firebaseMessaging.deleteToken();
   }
 
-  Future<void> _sendFirebaseToken(String? fireBaseToken) async {
+  Future<void> _sendFirebaseToken(String fireBaseToken) async {
     try {
+      return;
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
           await _services.firebaseServiceClient
-              .registration(RegistrationReq()..tokenId = fireBaseToken!);
-          unawaited(_sharedDao.put(SHARED_DAO_FIREBASE_TOKEN, fireBaseToken));
+              .registration(RegistrationReq()..tokenId = fireBaseToken);
+
           return _sharedDao.putBoolean(
             SHARED_DAO_FIREBASE_SETTING_IS_SET,
             true,

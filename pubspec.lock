@@ -1875,8 +1875,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b7c11f05f43465dc3a0f383c8b2c1f63ad76f1d5
-      resolved-ref: b7c11f05f43465dc3a0f383c8b2c1f63ad76f1d5
+      ref: fdf93b3dc72ff7a911de0ce187949338486753e7
+      resolved-ref: fdf93b3dc72ff7a911de0ce187949338486753e7
       url: "https://github.com/EsmaeilDansi/Telephony.git"
     source: git
     version: "0.2.0"

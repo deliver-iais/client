@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/services/backgroundService.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -45,6 +46,7 @@ class SettingsPageState extends State<SettingsPage> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _backgroundService = GetIt.I.get<BackgroundService>();
   StreamSubscription<Account?>? subscription;
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
@@ -216,6 +218,19 @@ class SettingsPageState extends State<SettingsPage> {
                       () => _uxService.toggleIsAllNotificationDisabled(),
                     ),
                   ),
+                  if (isAndroid)
+                    SettingsTile.switchTile(
+                      title: _i18n.get("notification_advanced_mode"),
+                      leading: const Icon(CupertinoIcons.bell_circle_fill),
+                      switchValue:
+                          !_uxService.isNotificationAdvanceModeDisabled,
+                      onToggle: (value) => value
+                          ? _showNotificationAdvanceModeDialog()
+                          : setState(() {
+                              _uxService
+                                  .toggleIsAdvanceNotificationModeDisabled();
+                            }),
+                    ),
                   SettingsTile(
                     title: _i18n.get("language"),
                     subtitle: _i18n.locale.language().name,
@@ -352,6 +367,33 @@ class SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  void _showNotificationAdvanceModeDialog() {
+    showDialog(
+        context: context,
+        builder: (c) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+            content: Text(
+              _i18n.get("notification_advance_mode_description"),
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(c);
+                  setState(() {
+                    _uxService.toggleIsAdvanceNotificationModeDisabled();
+                  });
+                  _backgroundService.enableListenOnSmsAnCall();
+                },
+                child: Text(_i18n.get("continue")),
+              ),
+            ],
+          );
+        });
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {

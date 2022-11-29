@@ -70,7 +70,7 @@ class HomePageState extends State<HomePage> {
       });
 
     _contactRepo.sendNotSyncedContactInStartTime();
-    _backgroundService.startBackgroundService();
+    if (isAndroid) _backgroundService.startBackgroundService();
 
     super.initState();
   }
