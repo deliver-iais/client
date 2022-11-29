@@ -66,29 +66,27 @@ class ProfileAvatarState extends State<ProfileAvatar> {
           } else {
             return Row(
               children: [
-                Center(
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      child: CircleAvatarWidget(
-                        widget.roomUid,
-                        40,
-                        showSavedMessageLogoIfNeeded: true,
-                        forceToUpdateAvatar: true,
-                      ),
-                      onTap: () async {
-                        final lastAvatar =
-                            await _avatarRepo.getLastAvatar(widget.roomUid);
-                        if (lastAvatar?.createdOn != null &&
-                            lastAvatar!.createdOn > 0) {
-                          _routingService.openShowAllAvatars(
-                            uid: widget.roomUid,
-                            hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                            heroTag: widget.roomUid.asString(),
-                          );
-                        }
-                      },
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    child: CircleAvatarWidget(
+                      widget.roomUid,
+                      40,
+                      showSavedMessageLogoIfNeeded: true,
+                      forceToUpdateAvatar: true,
                     ),
+                    onTap: () async {
+                      final lastAvatar =
+                          await _avatarRepo.getLastAvatar(widget.roomUid);
+                      if (lastAvatar?.createdOn != null &&
+                          lastAvatar!.createdOn > 0) {
+                        _routingService.openShowAllAvatars(
+                          uid: widget.roomUid,
+                          hasPermissionToDeleteAvatar: widget.canSetAvatar,
+                          heroTag: widget.roomUid.asString(),
+                        );
+                      }
+                    },
                   ),
                 ),
                 if (widget.canSetAvatar) const SizedBox(width: 8),

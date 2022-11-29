@@ -174,82 +174,61 @@ class ProfilePageState extends State<ProfilePage>
                           primary: true,
                           stretch: true,
                           backgroundColor: theme.bottomAppBarColor,
+                          expandedHeight: 170,
                           flexibleSpace: FlexibleSpaceBar(
                             titlePadding: EdgeInsets.only(left: 35.0,right: 35.0,top: 2.0,bottom: 2.0),
                             stretchModes: [StretchMode.zoomBackground,StretchMode.blurBackground],
                             expandedTitleScale: 1.1,
                             title: Row(
-                              // mainAxisSize: MainAxisSize.,
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: ProfileAvatar(
-                                    roomUid: widget.roomUid,
-                                    canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-                                  ),
+                                ProfileAvatar(
+                                  roomUid: widget.roomUid,
+                                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
                                 ),
-                                Expanded(
-                                  flex: 2,
+                                // Expanded(child: RoomName(uid: widget.roomUid)),
+                                Flexible(
                                   child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      FutureBuilder<String>(
-                                        initialData: _roomRepo.fastForwardName(widget.roomUid),
-                                        future: _roomRepo.getName(widget.roomUid),
-                                        builder: (context, snapshot) {
-                                          _roomName = snapshot.data ?? _i18n.get("loading");
-                                          return Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Expanded(child: RoomName(uid: widget.roomUid, name: _roomName)),
-                                                ],
-                                              ),
-                                              Divider(
-                                                  color: Colors.transparent,
-                                                  height: 5
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:MainAxisAlignment.start,
-                                                children: [
-                                                  StreamBuilder<LastActivity?>(
-                                                    stream: _lastActivityRepo.watch(widget.roomUid!.asString()),
-                                                    builder: (c, userInfo) {
-                                                      if (userInfo.hasData && userInfo.data != null) {
-                                                        if (isOnline(userInfo.data!.time)) {
-                                                          return Text(
-                                                            _i18n.get("online"),
-                                                            maxLines: 1,
-                                                            key: ValueKey(randomString(10)),
-                                                            overflow: TextOverflow.fade,
-                                                            softWrap: false,
-                                                            style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
-                                                          );
-                                                        } else {
-                                                          final lastActivityTime =
-                                                          dateTimeFromNowFormat(date(userInfo.data!.time));
-                                                          return Text(
-                                                            "${_i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? _i18n.get("just_now") : lastActivityTime} ",
-                                                            maxLines: 1,
-                                                            key: ValueKey(randomString(10)),
-                                                            overflow: TextOverflow.fade,
-                                                            softWrap: false,
-                                                            style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
-                                                          );
-                                                        }
-                                                      }
-                                                      return const SizedBox.shrink();
-                                                    },
-                                                  ),
-                                                ],)
-                                            ],
-                                          );
-                                        },
+                                      Flexible(child: RoomName(uid: widget.roomUid,maxLines: 2,)),
+                                      Divider(
+                                          color: Colors.transparent,
+                                          height: 5
                                       ),
+                                      StreamBuilder<LastActivity?>(
+                                        stream: _lastActivityRepo.watch(widget.roomUid.asString()),
+                                        builder: (c, userInfo) {
+                                          if (userInfo.hasData && userInfo.data != null) {
+                                            if (isOnline(userInfo.data!.time)) {
+                                              return Text(
+                                                _i18n.get("online"),
+                                                maxLines: 1,
+                                                key: ValueKey(randomString(10)),
+                                                overflow: TextOverflow.fade,
+                                                softWrap: false,
+                                                style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                              );
+                                            } else {
+                                              final lastActivityTime =
+                                              dateTimeFromNowFormat(date(userInfo.data!.time));
+                                              return Text(
+                                                "${_i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? _i18n.get("just_now") : lastActivityTime} ",
+                                                maxLines: 1,
+                                                key: ValueKey(randomString(10)),
+                                                overflow: TextOverflow.fade,
+                                                softWrap: false,
+                                                style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                              );
+                                            }
+                                          }
+                                          return const SizedBox.shrink();
+                                        },
+                                      )
                                     ],
                                   ),
                                 ),
