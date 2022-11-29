@@ -393,7 +393,7 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ],
           );
-        });
+        },);
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
