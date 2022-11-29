@@ -49,6 +49,7 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -114,7 +115,7 @@ class ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: _buildAppBar(context),
+      // appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
           stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
@@ -162,18 +163,34 @@ class ProfilePageState extends State<ProfilePage>
                 child: NestedScrollView(
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
-                      SliverAppBar.medium(
-                        automaticallyImplyLeading: false,
-                        flexibleSpace: FlexibleSpaceBar(
-                          titlePadding: EdgeInsets.all(2.0),
-                          expandedTitleScale: 1.1,
-                          title: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: SliverAppBar.medium(
+                          actions: <Widget>[
+                            _buildMenu(context),
+                          ],
+                          leading: _routingService.backButtonLeading(),
+                          pinned: true,
+                          primary: true,
+                          stretch: true,
+                          backgroundColor: theme.bottomAppBarColor,
+                          flexibleSpace: FlexibleSpaceBar(
+                            titlePadding: EdgeInsets.only(left: 35.0,right: 35.0,top: 2.0,bottom: 2.0),
+                            stretchModes: [StretchMode.zoomBackground,StretchMode.blurBackground],
+                            expandedTitleScale: 1.1,
+                            title: Row(
+                              // mainAxisSize: MainAxisSize.,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: ProfileAvatar(
+                                    roomUid: widget.roomUid,
+                                    canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -183,27 +200,22 @@ class ProfilePageState extends State<ProfilePage>
                                         future: _roomRepo.getName(widget.roomUid),
                                         builder: (context, snapshot) {
                                           _roomName = snapshot.data ?? _i18n.get("loading");
-                                          return Padding(
-                                            padding: const EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(left: 2.0),
-                                                      child: RoomName(uid: widget.roomUid, name: _roomName),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Divider(
+                                          return Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Expanded(child: RoomName(uid: widget.roomUid, name: _roomName)),
+                                                ],
+                                              ),
+                                              Divider(
                                                   color: Colors.transparent,
-                                                    height: 5
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:MainAxisAlignment.end,
-                                                  children: [
+                                                  height: 5
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:MainAxisAlignment.start,
+                                                children: [
                                                   StreamBuilder<LastActivity?>(
                                                     stream: _lastActivityRepo.watch(widget.roomUid!.asString()),
                                                     builder: (c, userInfo) {
@@ -234,23 +246,18 @@ class ProfilePageState extends State<ProfilePage>
                                                     },
                                                   ),
                                                 ],)
-                                              ],
-                                            ),
+                                            ],
                                           );
                                         },
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              ProfileAvatar(
-                                roomUid: widget.roomUid,
-                                canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-                              ),
-                            ],
+
+                              ],
+                            ),
                           ),
                         ),
-                        // title: Text("Test"),
                       ),
                       _buildInfo(context),
                       SliverPersistentHeader(
