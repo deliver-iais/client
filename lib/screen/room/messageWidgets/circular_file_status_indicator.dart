@@ -170,7 +170,7 @@ class _CircularFileStatusIndicatorState
   }) {
     return LoadFileStatus(
       uuid: file.uuid,
-      isPendingMessage: widget.message.id == null,
+      isUploading: widget.message.id == null,
       name: file.name,
       onCancel: () => onCancel?.call(),
       sendingFileFailed: sendingFileFailed,

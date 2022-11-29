@@ -39,7 +39,14 @@ class RawKeyboardService {
     if (files.isNotEmpty) {
       for (final file in files) {
         name = file.replaceAll("\\", "/").split("/").last;
-        fileList.add(model.File(file, name, extension: name.split(".").last));
+        fileList.add(
+          model.File(
+            file,
+            name,
+            extension: name.split(".").last,
+            size: file.length,
+          ),
+        );
       }
     } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
@@ -48,8 +55,14 @@ class RawKeyboardService {
       ).create();
       file.writeAsBytesSync(image);
       name = file.path.replaceAll("\\", "/").split("/").last;
-      fileList
-          .add(model.File(file.path, name, extension: name.split(".").last));
+      fileList.add(
+        model.File(
+          file.path,
+          name,
+          extension: name.split(".").last,
+          size: await file.length(),
+        ),
+      );
     } else {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       final start = controller.selection.start;

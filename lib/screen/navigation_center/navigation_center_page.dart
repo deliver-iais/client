@@ -137,6 +137,20 @@ class NavigationCenterState extends State<NavigationCenter>
                       context: context,
                       items: [
                         PopupMenuItem<String>(
+                          key: const Key("contacts"),
+                          value: "contacts",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.person_2_alt),
+                              const SizedBox(width: 8),
+                              Text(
+                                _i18n.get("contacts"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<String>(
                           key: const Key("newGroup"),
                           value: "newGroup",
                           child: Row(
@@ -371,6 +385,9 @@ class NavigationCenterState extends State<NavigationCenter>
 
   void selectChatMenu(String key) {
     switch (key) {
+      case "contacts":
+        _routingService.openContacts();
+        break;
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
         break;

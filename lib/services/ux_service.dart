@@ -62,7 +62,7 @@ class UxService {
       SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
     )
         .listen((value) {
-      if (value != null) {
+      if (value != null && value != "null") {
         _keyBoardSizePortrait.add(double.parse(value));
       }
     });
@@ -71,7 +71,7 @@ class UxService {
       SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
     )
         .listen((value) {
-      if (value != null) {
+      if (value != null && value != "null") {
         _keyBoardSizeLandscape.add(double.parse(value));
       }
     });

@@ -87,7 +87,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
       child: LoadFileStatus(
         uuid: widget.file.uuid,
         name: widget.file.name,
-        isPendingMessage: isPendingMessage,
+        isUploading: isPendingMessage,
         onDownload: () => onTap(),
         onCancel: () {},
         background: widget.background.withOpacity(0.8),
