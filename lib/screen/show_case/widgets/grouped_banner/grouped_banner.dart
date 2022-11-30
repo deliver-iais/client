@@ -17,25 +17,29 @@ class GroupedBanner extends StatelessWidget {
       isAdvertisement: showCase.isAdvertisement,
       title: showCase.groupedBanners.name,
       listItemsLength: showCase.groupedBanners.bannersList.length,
-      listItems: (index) => _buildGroupedBannerItem(index, context),
+      listItems: (index) => _buildGroupedBannerItem(index, context, width: 285),
+      scrollController: ScrollController(),
       needArrowIcon: false,
     );
   }
 
-  Widget _buildGroupedBannerItem(int index, BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleBannerWidget(
-          bannerCase: showCase.groupedBanners.bannersList[index],
-          width: 300,
-          height: 170,
-          padding: 10,
-        ),
-        GroupedBannerItem(
-          uid: showCase.groupedBanners.bannersList[index].uid,
-        ),
-      ],
+  Widget _buildGroupedBannerItem(int index, BuildContext context, {double? width}) {
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SingleBannerWidget(
+            bannerCase: showCase.groupedBanners.bannersList[index],
+            width: 280,
+            height: 170,
+            padding: 10,
+          ),
+          GroupedBannerItem(
+            uid: showCase.groupedBanners.bannersList[index].uid,
+          ),
+        ],
+      ),
     );
   }
 }
