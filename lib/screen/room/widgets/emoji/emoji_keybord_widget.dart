@@ -15,6 +15,7 @@ import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -50,6 +51,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _hideHeaderAndFooter =
+      BehaviorSubject.seeded(false);
   final BehaviorSubject<List<Emoji>?> _searchEmojiResult =
       BehaviorSubject.seeded(null);
   var _isSearchModeEnable = false;
@@ -75,6 +78,19 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     });
     _scrollController.addListener(() {
       _closeSkinToneOverlay();
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        if (!_hideHeaderAndFooter.value) {
+          _hideHeaderAndFooter.add(true);
+        }
+      }
+
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (_hideHeaderAndFooter.value) {
+          _hideHeaderAndFooter.add(false);
+        }
+      }
     });
     super.initState();
   }
@@ -114,43 +130,53 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                   shrinkWrap: true,
                   slivers: <Widget>[
                     if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD)
-                      SliverPersistentHeader(
-                        pinned: true,
-                        delegate: PersistentEmojiHeader(
-                          widget: Container(
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.onInverseSurface,
-                              border: Border(
-                                bottom: BorderSide(color: theme.dividerColor),
-                              ),
-                            ),
-                            child: DefaultTextStyle(
-                              style: const TextStyle(fontSize: 20),
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: Center(
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    shrinkWrap: true,
-                                    itemCount: EmojiGroup.values.length,
-                                    itemBuilder: (c, index) {
-                                      return buildTabBarContainer(
-                                          theme, EmojiGroup.values[index], () {
-                                        Scrollable.ensureVisible(
-                                          _headersKeyList[index]
-                                              .currentContext!,
-                                          duration:
-                                              SUPER_SLOW_ANIMATION_DURATION,
-                                          curve: Curves.fastOutSlowIn,
-                                        );
-                                      });
-                                    },
+                      StreamBuilder<bool>(
+                        stream: _hideHeaderAndFooter,
+                        builder: (context, snapshot) {
+                          return SliverPersistentHeader(
+                            pinned: true,
+                            delegate: PersistentEmojiHeader(
+                              height: (snapshot.data ?? false)
+                                  ? 0
+                                  : PersistentEmojiHeaderHeight,
+                              widget: Container(
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.onInverseSurface,
+                                  border: Border(
+                                    bottom:
+                                        BorderSide(color: theme.dividerColor),
+                                  ),
+                                ),
+                                child: DefaultTextStyle(
+                                  style: const TextStyle(fontSize: 20),
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Center(
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        shrinkWrap: true,
+                                        itemCount: EmojiGroup.values.length,
+                                        itemBuilder: (c, index) {
+                                          return buildTabBarContainer(
+                                              theme, EmojiGroup.values[index],
+                                              () {
+                                            Scrollable.ensureVisible(
+                                              _headersKeyList[index]
+                                                  .currentContext!,
+                                              duration:
+                                                  SUPER_SLOW_ANIMATION_DURATION,
+                                              curve: Curves.fastOutSlowIn,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     SliverToBoxAdapter(
                       child: Container(
@@ -248,13 +274,17 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                   ],
                 ),
               ),
-              AnimatedContainer(
-                duration: ANIMATION_DURATION,
-                height: widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD
-                    ? 30
-                    : 0,
-                child: _buildSearchBar(),
-              )
+              if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD)
+                StreamBuilder<bool>(
+                  stream: _hideHeaderAndFooter,
+                  builder: (context, snapshot) {
+                    return AnimatedContainer(
+                      duration: ANIMATION_DURATION,
+                      height: snapshot.data ?? false ? 0 : 30,
+                      child: _buildSearchBar(),
+                    );
+                  },
+                )
             ],
           ),
         ),
