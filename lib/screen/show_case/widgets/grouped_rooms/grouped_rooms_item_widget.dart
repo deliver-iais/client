@@ -13,10 +13,8 @@ class GroupedRoomsItem extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   final Uid uid;
-  final int index;
 
-  const GroupedRoomsItem({Key? key, required this.uid, required this.index})
-      : super(key: key);
+  const GroupedRoomsItem({Key? key, required this.uid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

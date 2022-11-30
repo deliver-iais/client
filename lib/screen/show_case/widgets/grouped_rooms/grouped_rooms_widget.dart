@@ -24,7 +24,6 @@ class GroupedRoomsWidget extends StatelessWidget {
       listItemsLength: showCase.groupedRooms.roomsList.length,
       listItems: _buildGroupedRoomsItems,
       scrollController: ScrollController(),
-
     );
   }
 
@@ -33,8 +32,9 @@ class GroupedRoomsWidget extends StatelessWidget {
       width: 100,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child:
-            GroupedRoomsItem(uid: showCase.groupedRooms.roomsList[index].uid, index: index),
+        child: GroupedRoomsItem(
+          uid: showCase.groupedRooms.roomsList[index].uid,
+        ),
       ),
     );
   }

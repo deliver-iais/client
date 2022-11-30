@@ -31,8 +31,7 @@ class AllGroupedRoomsGridPage extends StatelessWidget {
               mainAxisExtent: 150,
             ),
             itemBuilder: (c, index) {
-              return GroupedRoomsItem(
-                  uid: groupedRooms.roomsList[index].uid, index: index);
+              return GroupedRoomsItem(uid: groupedRooms.roomsList[index].uid);
             },
           );
         },
