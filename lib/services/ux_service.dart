@@ -122,7 +122,6 @@ class UxService {
       defaultValue: true,
     )
         .listen((event) {
-      print(event);
       _isNotificationAdvanceModeDisabled.add(event);
     });
   }
