@@ -1,3 +1,4 @@
+
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
@@ -65,6 +66,7 @@ import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/backgroundService.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -98,7 +100,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -204,6 +205,7 @@ Future<void> setupDI() async {
   registerSingleton<PersistentEventHandlerService>(
     PersistentEventHandlerService(),
   );
+  registerSingleton<BackgroundService>(BackgroundService());
 }
 
 Future<void> dbSetupDI() async {

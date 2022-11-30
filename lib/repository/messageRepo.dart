@@ -29,6 +29,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -105,6 +106,7 @@ class MessageRepo {
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool _updateState = false;
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
@@ -168,7 +170,7 @@ class MessageRepo {
     _logger.i('updating done -----------------');
   }
 
-  @visibleForTesting
+  // @visibleForTesting
   Future<bool> updatingMessages() async {
     var finished = false;
     var pointer = 0;
@@ -177,7 +179,6 @@ class MessageRepo {
     if (!allRoomFetched && _updateState) {
       updatingStatus.add(TitleStatusConditions.Syncing);
     }
-
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
         var isFetchCorrectly = false;
@@ -255,12 +256,14 @@ class MessageRepo {
   Future<void> getRoomsLastMessage() async {
     final rooms = await _roomDao.getAllRooms();
     var pointer = 0;
+    final appRunInForeground = !_appLifecycleService.appIsActive();
     for (final room in rooms) {
       if (pointer <= FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
         await fetchRoomLastMessage(
           room.uid,
           room.lastMessageId,
           room.firstMessageId,
+          appRunInForeground: appRunInForeground,
         );
       } else {
         break;
@@ -342,12 +345,14 @@ class MessageRepo {
   Future<void> fetchRoomLastMessage(
     String roomUid,
     int lastMessageId,
-    int firstMessageId,
-  ) async {
+    int firstMessageId, {
+    bool appRunInForeground = false,
+  }) async {
     await _dataStreamServices.fetchLastNotHiddenMessage(
       roomUid.asUid(),
       lastMessageId,
       firstMessageId,
+      appRunInForeground: appRunInForeground,
     );
 
     await _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
