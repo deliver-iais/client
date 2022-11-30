@@ -11,7 +11,9 @@ import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 
 class ConnectionStatus extends StatefulWidget {
-  const ConnectionStatus({super.key});
+  final bool isShowCase;
+
+  const ConnectionStatus({super.key, required this.isShowCase});
 
   @override
   State<ConnectionStatus> createState() => _ConnectionStatusState();
@@ -51,7 +53,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                       },
                       child: Text(
                         state,
-                        style: theme.textTheme.headline6,
+                        style: theme.textTheme.headline6!.copyWith(fontSize: 20),
                         key: ValueKey(randomString(10)),
                       ),
                     ),
@@ -89,7 +91,11 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return _i18n.get("chats").capitalCase;
+        if (widget.isShowCase) {
+          return _i18n.get("showcase").capitalCase;
+        } else {
+          return _i18n.get("chats").capitalCase;
+        }
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
     }

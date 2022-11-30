@@ -683,7 +683,9 @@ void main() {
             final messageDao = getAndRegisterMessageDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
             await MessageRepo().sendLocationMessage(
-                LatLng(testPosition.latitude, testPosition.longitude), testUid);
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             verify(messageDao.savePendingMessage(pm));
           },
         );
@@ -695,7 +697,9 @@ void main() {
             final roomDao = getAndRegisterRoomDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
             await MessageRepo().sendLocationMessage(
-                LatLng(testPosition.latitude, testPosition.longitude), testUid);
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -714,7 +718,9 @@ void main() {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
             await MessageRepo().sendLocationMessage(
-                LatLng(testPosition.latitude, testPosition.longitude), testUid);
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
