@@ -27,6 +27,7 @@ import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
+import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
@@ -482,30 +483,7 @@ class ProfilePageState extends State<ProfilePage>
 
               ],
             ),
-            if (!widget.roomUid.isGroup())
-              StreamBuilder<String?>(
-                stream: _roomRepo.watchId(widget.roomUid),
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SettingsTile(
-                        title: _i18n.get("username"),
-                        subtitle: "${snapshot.data}",
-                        leading: const Icon(Icons.alternate_email),
-                        trailing: const Icon(Icons.copy),
-                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                        onPressed: (_) => saveToClipboard(
-                          "@${snapshot.data}",
-                          context: context,
-                        ),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
+            ProfileIdSettingsTile(widget.roomUid,theme),
             if (widget.roomUid.isUser())
               FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
@@ -825,6 +803,7 @@ class ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
+        final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),
