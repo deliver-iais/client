@@ -11490,11 +11490,14 @@ class Emoji {
 
   /// Returns Emoji by [name]
   factory Emoji.byName(String name) {
-    name = name.toLowerCase(); // todo: searchable name
+    name = name.toLowerCase();
     return _emojis.firstWhere((emoji) => emoji.name == name);
   }
+
   static Iterable<Emoji> search(String text) {
-    return _emojis.where((emoji) => emoji.name.contains(text));
+    final value=text.trim();
+    return _emojis.where(
+        (emoji) => emoji.name.contains(value) || emoji.shortName.contains(value),);
   }
 
   /// Returns list of Emojis in a same [group]
