@@ -47,8 +47,6 @@ class SettingsPageState extends State<SettingsPage> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   StreamSubscription<Account?>? subscription;
 
-  var con = ScrollController();
-
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
   final account = BehaviorSubject<Account?>.seeded(null);
 
