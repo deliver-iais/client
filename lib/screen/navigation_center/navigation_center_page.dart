@@ -76,7 +76,7 @@ class NavigationCenterState extends State<NavigationCenter>
       BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
 
-  bool _isShowCaseEnable = false;
+  bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
 
   @override
   void initState() {
