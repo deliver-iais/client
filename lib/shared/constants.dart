@@ -251,7 +251,6 @@ const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
-const ULTRA_SLOW_ANIMATION_DURATION = Duration(seconds: 1);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;
