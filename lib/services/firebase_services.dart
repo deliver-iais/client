@@ -89,12 +89,6 @@ class FireBaseServices {
     }
   }
 
-  Future<void> resetFirebaseSetting() async {
-    try {} catch (e) {
-      _logger.e(e);
-    }
-  }
-
   void deleteToken() {
     _firebaseMessaging.deleteToken();
   }
