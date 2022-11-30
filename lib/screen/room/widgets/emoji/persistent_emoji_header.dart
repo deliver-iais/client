@@ -1,28 +1,35 @@
+
 import 'package:flutter/material.dart';
-const double PersistentEmojiHeaderHeight = 52.0;
+
+const double PersistentEmojiHeaderHeight = 42.0;
+
 class PersistentEmojiHeader extends SliverPersistentHeaderDelegate {
   final Widget widget;
+  final double height;
 
-  PersistentEmojiHeader({required this.widget});
+  PersistentEmojiHeader({
+    required this.widget,
+    this.height = PersistentEmojiHeaderHeight,
+  });
 
   @override
   Widget build(
-      BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,
-      ) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox(
       width: double.infinity,
-      height: PersistentEmojiHeaderHeight,
+      height: height,
       child: Center(child: widget),
     );
   }
 
   @override
-  double get maxExtent => PersistentEmojiHeaderHeight;
+  double get maxExtent => height;
 
   @override
-  double get minExtent => PersistentEmojiHeaderHeight;
+  double get minExtent => height;
 
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {

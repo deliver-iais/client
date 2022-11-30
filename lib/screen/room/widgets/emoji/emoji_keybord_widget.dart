@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/emoji/persistent_emoji_header.dart';
+import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -20,13 +21,13 @@ import 'package:rxdart/rxdart.dart';
 class EmojiKeyboardWidget extends StatefulWidget {
   final void Function(String) onTap;
   final void Function(bool) onEmojiSearch;
-  final Function? onStickerTap;
+  final KeyboardStatus keyboardStatus;
 
   const EmojiKeyboardWidget({
     super.key,
     required this.onTap,
-    this.onStickerTap,
     required this.onEmojiSearch,
+    required this.keyboardStatus,
   });
 
   @override
@@ -49,14 +50,27 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final BehaviorSubject<List<Emoji>?> _searchEmojiResult =
+      BehaviorSubject.seeded(null);
+  var _isSearchModeEnable = false;
 
   @override
   void initState() {
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty) {
-        _hasText.add(true);
+        if (!_hasText.value) {
+          setState(() {
+            _isSearchModeEnable = true;
+          });
+          _hasText.add(true);
+        }
       } else {
-        _hasText.add(false);
+        if (_hasText.value) {
+          setState(() {
+            _isSearchModeEnable = false;
+          });
+          _hasText.add(false);
+        }
       }
     });
     _scrollController.addListener(() {
@@ -73,6 +87,11 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD &&
+        _searchFocusNode.hasFocus) {
+      _scrollController.jumpTo(50);
+      _searchFocusNode.unfocus();
+    }
     final theme = Theme.of(context);
 
     return NotificationListener<ScrollNotification>(
@@ -94,64 +113,70 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                   controller: _scrollController,
                   shrinkWrap: true,
                   slivers: <Widget>[
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: PersistentEmojiHeader(
-                        widget: Container(
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.onInverseSurface,
-                            border: Border(
-                              bottom: BorderSide(color: theme.dividerColor),
+                    if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD)
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: PersistentEmojiHeader(
+                          widget: Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.onInverseSurface,
+                              border: Border(
+                                bottom: BorderSide(color: theme.dividerColor),
+                              ),
                             ),
-                          ),
-                          child: DefaultTextStyle(
-                            style: const TextStyle(fontSize: 20),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Center(
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  itemCount: EmojiGroup.values.length,
-                                  itemBuilder: (c, index) {
-                                    return buildTabBarContainer(
-                                        theme, EmojiGroup.values[index], () {
-                                      Scrollable.ensureVisible(
-                                        _headersKeyList[index].currentContext!,
-                                        duration: SUPER_SLOW_ANIMATION_DURATION,
-                                        curve: Curves.fastOutSlowIn,
-                                      );
-                                    });
-                                  },
+                            child: DefaultTextStyle(
+                              style: const TextStyle(fontSize: 20),
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    itemCount: EmojiGroup.values.length,
+                                    itemBuilder: (c, index) {
+                                      return buildTabBarContainer(
+                                          theme, EmojiGroup.values[index], () {
+                                        Scrollable.ensureVisible(
+                                          _headersKeyList[index]
+                                              .currentContext!,
+                                          duration:
+                                              SUPER_SLOW_ANIMATION_DURATION,
+                                          curve: Curves.fastOutSlowIn,
+                                        );
+                                      });
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
                     SliverToBoxAdapter(
-                      child: Focus(
-                        onFocusChange: (hasFocus) {
-                          widget.onEmojiSearch(hasFocus);
-                          // setState(() {
-                          //   _isSearchFocused = hasFocus;
-                          // });
-                        },
-                        child: Directionality(
-                          textDirection: _i18n.defaultTextDirection,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              right: 25.0,
-                              left: 25,
-                              top: 15,
-                            ),
-                            child: SizedBox(
-                              height: 35,
+                      child: Container(
+                        height: 52,
+                        color: theme.colorScheme.onInverseSurface,
+                        child: Focus(
+                          onFocusChange: (hasFocus) {
+                            widget.onEmojiSearch(hasFocus);
+                          },
+                          child: Directionality(
+                            textDirection: _i18n.defaultTextDirection,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                right: 25.0,
+                                left: 25,
+                                top: 15,
+                              ),
                               child: AutoDirectionTextField(
                                 controller: _searchController,
                                 focusNode: _searchFocusNode,
-                                onChanged: (text) async {},
+                                onChanged: (text) async {
+                                  if (text.isNotEmpty) {
+                                    _searchEmojiResult
+                                        .add(Emoji.search(text).toList());
+                                  }
+                                },
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: _i18n.get("search"),
@@ -173,8 +198,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                                     builder: (c, ht) {
                                       if (ht.hasData && ht.data!) {
                                         return IconButton(
-                                          icon:
-                                              const Icon(CupertinoIcons.xmark),
+                                          icon: const Icon(
+                                            CupertinoIcons.xmark,
+                                          ),
                                           onPressed: () {
                                             _searchController.text = '';
                                           },
@@ -191,11 +217,44 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                         ),
                       ),
                     ),
-                    ..._buildEmojiGrid()
+                    if (_isSearchModeEnable)
+                      StreamBuilder<List<Emoji>?>(
+                        stream: _searchEmojiResult,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            if (snapshot.data!.isNotEmpty) {
+                              return _buildCategoryGrid(
+                                snapshot.data!.toList(),
+                              );
+                            } else {
+                              return SliverToBoxAdapter(
+                                child: SizedBox(
+                                  height: 50,
+                                  child: Center(
+                                    child: Text(_i18n.get("no_results")),
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            return const SliverToBoxAdapter(
+                              child: SizedBox.shrink(),
+                            );
+                          }
+                        },
+                      )
+                    else
+                      ..._buildEmojiGrid()
                   ],
                 ),
               ),
-              _buildSearchBar()
+              AnimatedContainer(
+                duration: ANIMATION_DURATION,
+                height: widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD
+                    ? 30
+                    : 0,
+                child: _buildSearchBar(),
+              )
             ],
           ),
         ),
@@ -208,10 +267,13 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.onInverseSurface,
-        border: Border(
-          bottom: BorderSide(color: theme.dividerColor),
-          top: BorderSide(color: theme.dividerColor),
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: theme.dividerColor,
+            blurRadius: 15.0,
+            offset: const Offset(0.0, 0.75),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -235,9 +297,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           const Spacer(),
           IconButton(
             onPressed: () {},
-            icon: Icon(
-              Icons.backspace_rounded,
-              color: theme.colorScheme.primary,
+            icon: const Icon(
+              Icons.backspace_outlined,
             ),
             visualDensity: VisualDensity.compact,
           ),
@@ -294,52 +355,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           ),
         ),
       ),
-      SliverGrid(
-        delegate:
-            SliverChildBuilderDelegate(childCount: emoji.length, (c, index) {
-          return Material(
-            color: Colors.white.withOpacity(0.0),
-            child: GestureDetector(
-              onSecondaryTap: () {
-                _openSkinToneOverlay(index, emoji.elementAt(index));
-              },
-              child: InkWell(
-                borderRadius: tertiaryBorder,
-                onTap: () {
-                  _onEmojiSelected(emoji.elementAt(index).toString());
-                },
-                onLongPress: () {
-                  vibrate(duration: 30);
-                  _openSkinToneOverlay(index, emoji.elementAt(index));
-                },
-                onTapDown: storePosition,
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        emoji.elementAt(index).toString(),
-                        style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
-                      ),
-                    ),
-                    if (_featureFlags.showDeveloperDetails)
-                      if (isAnimatedEmoji(emoji.elementAt(index).toString()))
-                        Center(
-                          child: Container(
-                            color: ACTIVE_COLOR,
-                            height: 10,
-                            width: 10,
-                          ),
-                        )
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: _getColumnsCount(),
-        ),
-      ),
+      _buildCategoryGrid(emoji.toList())
     ];
   }
 
@@ -351,6 +367,55 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         emoji,
       );
     }
+  }
+
+  SliverGrid _buildCategoryGrid(List<Emoji> emojiList) {
+    return SliverGrid(
+      delegate:
+          SliverChildBuilderDelegate(childCount: emojiList.length, (c, index) {
+        return Material(
+          color: Colors.white.withOpacity(0.0),
+          child: GestureDetector(
+            onSecondaryTap: () {
+              _openSkinToneOverlay(index, emojiList.elementAt(index));
+            },
+            child: InkWell(
+              borderRadius: tertiaryBorder,
+              onTap: () {
+                _onEmojiSelected(emojiList.elementAt(index).toString());
+              },
+              onLongPress: () {
+                vibrate(duration: 30);
+                _openSkinToneOverlay(index, emojiList.elementAt(index));
+              },
+              onTapDown: storePosition,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text(
+                      emojiList.elementAt(index).toString(),
+                      style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
+                    ),
+                  ),
+                  if (_featureFlags.showDeveloperDetails)
+                    if (isAnimatedEmoji(emojiList.elementAt(index).toString()))
+                      Center(
+                        child: Container(
+                          color: ACTIVE_COLOR,
+                          height: 10,
+                          width: 10,
+                        ),
+                      )
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: _getColumnsCount(),
+      ),
+    );
   }
 
   void _buildSkinToneOverlay(int index, Emoji emoji) {

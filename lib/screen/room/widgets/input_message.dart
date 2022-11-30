@@ -451,6 +451,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                         _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
                       }
                     },
+                    keyboardStatus: back.data!,
                     onTap: (emoji) {
                       if (widget.textController.text.isNotEmpty) {
                         final start =
@@ -501,7 +502,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   curve: Curves.easeInOut,
                   height: riseKeyboard
                       ? searchKeyboard
-                          ? getKeyboardSize() + 200
+                          ? getKeyboardSize() + 100
                           : getKeyboardSize()
                       : 0,
                   child: child,

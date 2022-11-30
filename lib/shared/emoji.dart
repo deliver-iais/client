@@ -11493,6 +11493,9 @@ class Emoji {
     name = name.toLowerCase(); // todo: searchable name
     return _emojis.firstWhere((emoji) => emoji.name == name);
   }
+  static Iterable<Emoji> search(String text) {
+    return _emojis.where((emoji) => emoji.name.contains(text));
+  }
 
   /// Returns list of Emojis in a same [group]
   static Iterable<Emoji> byGroup(EmojiGroup group) {
