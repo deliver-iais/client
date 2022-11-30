@@ -201,7 +201,7 @@ class DataStreamServices {
       );
 
       // Step 2 - Update User's Seen
-      await _fetchMySeen(roomUid.asString());
+      //await _fetchMySeen(roomUid.asString());
 
       // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {

@@ -68,10 +68,9 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    if (widget.room.lastMessage == null || !widget.room.synced) {
+    if (!widget.room.synced) {
       _fetchRoomLastMessageAndLastSeen();
-    }
-    if (widget.room.lastMessage != null && !widget.room.seenSynced) {
+    } else if (!widget.room.seenSynced) {
       _messageRepo.fetchRoomLastSeen(widget.room.uid);
     }
     if (widget.room.uid.asUid().category == Categories.USER) {
