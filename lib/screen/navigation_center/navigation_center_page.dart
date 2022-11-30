@@ -85,6 +85,7 @@ class NavigationCenterState extends State<NavigationCenter>
         _routingService.openRoom(event);
       }
     });
+
     modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
       if (event?.roomId.isNotEmpty ?? false) {
         _routingService.openCallScreen(
@@ -95,7 +96,17 @@ class NavigationCenterState extends State<NavigationCenter>
       }
     });
 
-    checkShowCase();
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_IS_SHOWCASE_ENABLE,
+          defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
+        )
+        .distinct()
+        .listen(
+          (event) => setState(
+            () => _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && event,
+          ),
+        );
 
     _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
@@ -105,15 +116,8 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
+
     super.initState();
-  }
-
-  Future<void> checkShowCase() async {
-    _sharedDao.getBooleanStream("isShowCaseEnable").listen((event) {
-      _isShowCaseEnable = event;
-    });
-
-    _isShowCaseEnable = await _sharedDao.getBoolean("isShowCaseEnable");
   }
 
   @override
@@ -715,10 +719,8 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
                 child: IconButton(
-                  onPressed: () async {
-                    await _sharedDao.toggleBoolean("isShowCaseEnable");
-                    setState(() {});
-                  },
+                  onPressed: () =>
+                      _sharedDao.toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
                   icon: !_isShowCaseEnable
                       ? const Icon(Icons.storefront_outlined)
                       : const Icon(CupertinoIcons.chat_bubble_text),
