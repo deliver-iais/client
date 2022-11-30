@@ -31,10 +31,11 @@ class BackgroundService {
     _setBackgroundService();
   }
 
-  Future<void> enableListenOnSmsAnCall() async {
+  Future<bool> enableListenOnSmsAnCall() async {
     final callGranted = await _telephony.requestPhonePermissions ?? false;
     final smsGranted = await _telephony.requestSmsPermissions ?? false;
     _setBackgroundService(listenOnSms: smsGranted, listenOnCall: callGranted);
+    return callGranted || smsGranted;
   }
 
   void _setBackgroundService({
