@@ -109,12 +109,16 @@ class CircleAvatarWidget extends StatelessWidget {
     Color textColor,
   ) {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-      return isWeb
+      final image = isWeb
           ? Image.network(snapshot.data!, fit: BoxFit.fill)
           : Image.file(
               File(snapshot.data!),
               fit: BoxFit.cover,
             );
+      return image;
+      // if(image.height == image.width){
+      //   image.fit =
+      // }
     } else {
       return showDisplayName(textColor);
     }

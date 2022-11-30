@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -12,6 +14,7 @@ import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -79,6 +82,7 @@ class ProfilePageState extends State<ProfilePage>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
@@ -174,12 +178,93 @@ class ProfilePageState extends State<ProfilePage>
                           pinned: true,
                           primary: true,
                           stretch: true,
-                          backgroundColor: theme.bottomAppBarColor,
+                          backgroundColor: theme.colorScheme.background,
                           expandedHeight: 170,
                           flexibleSpace: FlexibleSpaceBar(
-                            titlePadding: EdgeInsets.only(left: 35.0,right: 35.0,top: 2.0,bottom: 2.0),
-                            stretchModes: [StretchMode.zoomBackground,StretchMode.blurBackground],
+                            titlePadding: EdgeInsets.only(
+                                left: 35.0, right: 35.0, top: 2.0, bottom: 2.0),
+                            stretchModes: [
+                              StretchMode.zoomBackground,
+                              StretchMode.blurBackground
+                            ],
                             expandedTitleScale: 1.1,
+                            //TODO :  refactor this
+                            background: StreamBuilder<String?>(
+                              key: GlobalKey(),
+                              initialData: _avatarRepo
+                                  .fastForwardAvatarFilePath(widget.roomUid),
+                              stream: _avatarRepo.getLastAvatarFilePathStream(
+                                widget.roomUid,
+                                forceToUpdate: true,
+                              ),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.data!.isNotEmpty) {
+                                  final image = isWeb
+                                      ? Image.network(snapshot.data!,
+                                          fit: BoxFit.cover)
+                                      : Image.file(
+                                          File(snapshot.data!),
+                                          fit: BoxFit.cover,
+                                          // scale: 0.001,
+                                        );
+                                  return ShaderMask(
+                                    blendMode: BlendMode.srcOver,
+                                    shaderCallback: (bounds) => LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        stops: [0.5, 1],
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          theme.colorScheme.background
+                                              .withOpacity(0),
+                                          theme.colorScheme.background
+                                        ]).createShader(
+                                      Rect.fromLTWH(
+                                          0, 0, bounds.width, bounds.height),
+                                    ),
+                                    child: ColorFiltered(
+                                      colorFilter: ColorFilter.mode(
+                                          theme.colorScheme.background
+                                              .withOpacity(0.6),
+                                          BlendMode.srcOver),
+                                      child: ImageFiltered(
+                                          imageFilter: ImageFilter.blur(
+                                              sigmaX: 17.0, sigmaY: 17.0),
+                                          child: image),
+                                    ),
+                                  );
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Expanded(
+                                        child: Blur(
+                                          blur: 2.5,
+                                          blurColor: theme.backgroundColor,
+                                          child: Expanded(child: image),
+                                          // Center(child: image),
+                                          // BackdropFilter(
+                                          //   filter: ImageFilter.blur(sigmaX: 50.0, sigmaY: 50.0),
+                                          //   child: Container(
+                                          //     child: image,
+                                          //     decoration: BoxDecoration(
+                                          //         color: theme.colorScheme.background
+                                          //             .withOpacity(1)),
+                                          //   ),
+                                          // ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                  // if(image.height == image.width){
+                                  //   image.fit =
+                                  // }
+                                } else {
+                                  // TODO : fix this one
+                                  return FlutterLogo();
+                                  // return showDisplayName(textColor);
+                                }
+                              },
+                            ),
                             title: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -187,24 +272,30 @@ class ProfilePageState extends State<ProfilePage>
                               children: [
                                 ProfileAvatar(
                                   roomUid: widget.roomUid,
-                                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+                                  canSetAvatar:
+                                      _isMucAdminOrOwner || _isBotOwner,
                                 ),
                                 // Expanded(child: RoomName(uid: widget.roomUid)),
                                 Flexible(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Flexible(child: RoomName(uid: widget.roomUid,maxLines: 2,)),
+                                      Flexible(
+                                          child: RoomName(
+                                        uid: widget.roomUid,
+                                        maxLines: 2,
+                                      )),
                                       Divider(
-                                          color: Colors.transparent,
-                                          height: 5
-                                      ),
+                                          color: Colors.transparent, height: 5),
                                       StreamBuilder<LastActivity?>(
-                                        stream: _lastActivityRepo.watch(widget.roomUid.asString()),
+                                        stream: _lastActivityRepo
+                                            .watch(widget.roomUid.asString()),
                                         builder: (c, userInfo) {
-                                          if (userInfo.hasData && userInfo.data != null) {
+                                          if (userInfo.hasData &&
+                                              userInfo.data != null) {
                                             if (isOnline(userInfo.data!.time)) {
                                               return Text(
                                                 _i18n.get("online"),
@@ -212,18 +303,25 @@ class ProfilePageState extends State<ProfilePage>
                                                 key: ValueKey(randomString(10)),
                                                 overflow: TextOverflow.fade,
                                                 softWrap: false,
-                                                style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                                style: theme.textTheme.caption!
+                                                    .copyWith(
+                                                        color:
+                                                            theme.primaryColor),
                                               );
                                             } else {
                                               final lastActivityTime =
-                                              dateTimeFromNowFormat(date(userInfo.data!.time));
+                                                  dateTimeFromNowFormat(date(
+                                                      userInfo.data!.time));
                                               return Text(
                                                 "${_i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? _i18n.get("just_now") : lastActivityTime} ",
                                                 maxLines: 1,
                                                 key: ValueKey(randomString(10)),
                                                 overflow: TextOverflow.fade,
                                                 softWrap: false,
-                                                style: theme.textTheme.caption!.copyWith(color: theme.primaryColor),
+                                                style: theme.textTheme.caption!
+                                                    .copyWith(
+                                                        color:
+                                                            theme.primaryColor),
                                               );
                                             }
                                           }
@@ -233,7 +331,6 @@ class ProfilePageState extends State<ProfilePage>
                                     ],
                                   ),
                                 ),
-
                               ],
                             ),
                           ),
@@ -479,11 +576,9 @@ class ProfilePageState extends State<ProfilePage>
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-              ],
+              children: [],
             ),
-            ProfileIdSettingsTile(widget.roomUid,theme),
+            ProfileIdSettingsTile(widget.roomUid, theme),
             if (widget.roomUid.isUser())
               FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
