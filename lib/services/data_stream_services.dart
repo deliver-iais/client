@@ -561,6 +561,7 @@ class DataStreamServices {
     int lastMessageId,
     int firstMessageId, {
     bool retry = true,
+    bool appRunInForeground = false,
   }) async {
     var pointer = lastMessageId + 1;
     message_model.Message? lastNotHiddenMessage;
@@ -585,6 +586,7 @@ class DataStreamServices {
             roomUid,
             lastMessageId,
             firstMessageId,
+            appRunInForeground: appRunInForeground,
           );
           break;
         }
@@ -622,8 +624,9 @@ class DataStreamServices {
   Future<message_model.Message?> _getLastNotHiddenMessageFromServer(
     Uid roomUid,
     int pointer,
-    int firstMessageId,
-  ) async {
+    int firstMessageId, {
+    bool appRunInForeground = false,
+  }) async {
     final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
@@ -633,8 +636,8 @@ class DataStreamServices {
         ..limit = 1,
     );
 
-    final messages =
-        await saveFetchMessages(fetchMessagesRes.messages, isLastMessage: true);
+    final messages = await saveFetchMessages(fetchMessagesRes.messages,
+        appRunInForeground: appRunInForeground,);
 
     for (final msg in messages) {
       if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
@@ -713,7 +716,7 @@ class DataStreamServices {
 
   Future<List<message_model.Message>> saveFetchMessages(
     List<Message> messages, {
-    bool isLastMessage = false,
+    bool appRunInForeground = false,
   }) async {
     final msgList = <message_model.Message>[];
     for (final message in messages) {
@@ -721,14 +724,7 @@ class DataStreamServices {
         await _checkForReplyKeyBoard(message);
       }
       await _messageDao.deletePendingMessage(message.packetId);
-      var appRunInForeground = false;
 
-      try {
-        appRunInForeground =
-            isLastMessage && !_appLifecycleService.appIsActive();
-      } catch (e) {
-        _logger.e(e);
-      }
 
       try {
         final m = await handleIncomingMessage(

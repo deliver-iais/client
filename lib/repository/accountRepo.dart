@@ -252,15 +252,18 @@ class AccountRepo {
   Future<void> _updateSessionInformationIfNeed() async {
     final version = await _sharedDao.get(SHARED_DAO_VERSION);
     if (version == null || shouldUpdateSessionPlatformInformation(version)) {
-      try {
-        await _sdr.sessionServiceClient.updateSessionPlatformInformation(
-          UpdateSessionPlatformInformationReq()
-            ..platform = await getPlatformPB(),
-        );
-        unawaited(_sharedDao.put(SHARED_DAO_VERSION, VERSION));
-      } catch (e) {
-        _logger.e(e);
-      }
+      await updatePlatformVersion();
+    }
+  }
+
+  Future<void> updatePlatformVersion() async {
+    try {
+      await _sdr.sessionServiceClient.updateSessionPlatformInformation(
+        UpdateSessionPlatformInformationReq()..platform = await getPlatformPB(),
+      );
+      unawaited(_sharedDao.put(SHARED_DAO_VERSION, VERSION));
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

@@ -25,6 +25,7 @@ class UxService {
   final _showColorful = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
+  final _isNotificationAdvanceModeDisabled = BehaviorSubject.seeded(true);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
   final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
@@ -114,6 +115,15 @@ class UxService {
         } catch (_) {}
       }
     });
+
+    _sharedDao
+        .getBooleanStream(
+      SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED,
+      defaultValue: true,
+    )
+        .listen((event) {
+      _isNotificationAdvanceModeDisabled.add(event);
+    });
   }
 
   void checkPlatformBrightness() {
@@ -152,6 +162,9 @@ class UxService {
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
+
+  bool get isNotificationAdvanceModeDisabled =>
+      _isNotificationAdvanceModeDisabled.value;
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
@@ -250,6 +263,13 @@ class UxService {
     _sharedDao.putBoolean(
       SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
       !isAllNotificationDisabled,
+    );
+  }
+
+  void toggleIsAdvanceNotificationModeDisabled() {
+    _sharedDao.putBoolean(
+      SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED,
+      !isNotificationAdvanceModeDisabled,
     );
   }
 
