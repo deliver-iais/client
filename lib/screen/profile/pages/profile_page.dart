@@ -233,28 +233,7 @@ class ProfilePageState extends State<ProfilePage>
                                           child: image),
                                     ),
                                   );
-                                  Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Expanded(
-                                        child: Blur(
-                                          blur: 2.5,
-                                          blurColor: theme.backgroundColor,
-                                          child: Expanded(child: image),
-                                          // Center(child: image),
-                                          // BackdropFilter(
-                                          //   filter: ImageFilter.blur(sigmaX: 50.0, sigmaY: 50.0),
-                                          //   child: Container(
-                                          //     child: image,
-                                          //     decoration: BoxDecoration(
-                                          //         color: theme.colorScheme.background
-                                          //             .withOpacity(1)),
-                                          //   ),
-                                          // ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
+
                                   // if(image.height == image.width){
                                   //   image.fit =
                                   // }
