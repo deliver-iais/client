@@ -22,6 +22,7 @@ import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -40,6 +41,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -244,7 +246,8 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(AutoDownloadAdapter())
     ..registerAdapter(BoxInfoAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
-    ..registerAdapter(ShowCaseAdapter());
+    ..registerAdapter(ShowCaseAdapter())
+    ..registerAdapter(RecentEmojiAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -270,6 +273,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+  registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
 }
 
 Future initializeFirebase() async {

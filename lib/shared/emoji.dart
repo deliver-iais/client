@@ -1,7 +1,9 @@
+import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+final List<Emoji> _recentEmojis = [];
 final List<Emoji> _emojis = [
   Emoji(
     name: "grinning face",
@@ -11245,6 +11247,7 @@ final List<Emoji> _emojis = [
 
 /// All Groups
 enum EmojiGroup {
+  recentEmoji,
   smileysEmotion,
   peopleBody,
   animalsNature,
@@ -11479,7 +11482,9 @@ class Emoji {
   }
 
   /// Get all Emojis
-  static List<Emoji> all() => List.unmodifiable(_emojis);
+  static List<Emoji> all() => List.unmodifiable(_emojis + _recentEmojis);
+
+  static List<Emoji> recent() => List.unmodifiable( _recentEmojis);
 
   /// Returns Emoji by [char] and character
   factory Emoji.byChar(String char) {
@@ -11495,14 +11500,15 @@ class Emoji {
   }
 
   static Iterable<Emoji> search(String text) {
-    final value=text.trim();
+    final value = text.trim();
     return _emojis.where(
-        (emoji) => emoji.name.contains(value) || emoji.shortName.contains(value),);
+      (emoji) => emoji.name.contains(value) || emoji.shortName.contains(value),
+    );
   }
 
   /// Returns list of Emojis in a same [group]
   static Iterable<Emoji> byGroup(EmojiGroup group) {
-    return _emojis.where((emoji) => emoji.emojiGroup == group);
+    return all().where((emoji) => emoji.emojiGroup == group);
   }
 
   /// disassemble [emoji] to list of emojis, without skin tones if [noSkin] be `true`.
@@ -11530,6 +11536,21 @@ class Emoji {
     }
     codeCharPoints.add(variationSelector16);
     return String.fromCharCodes(codeCharPoints);
+  }
+
+  static void addRecentEmojis(List<RecentEmoji> recentEmoji) {
+    _recentEmojis
+      ..clear()
+      ..addAll(
+        recentEmoji.map(
+          (e) => Emoji(
+            name: "",
+            char: e.char,
+            shortName: "",
+            emojiGroup: EmojiGroup.recentEmoji,
+          ),
+        ),
+      );
   }
 
   /// Modify skin tone of [emoji] by requested [skinTone]
@@ -11588,6 +11609,8 @@ class Emoji {
         return _i18n.get("foodDrink");
       case EmojiGroup.activities:
         return _i18n.get("activities");
+      case EmojiGroup.recentEmoji:
+        return "";
     }
   }
 
@@ -11611,6 +11634,8 @@ class Emoji {
         return Icons.fastfood;
       case EmojiGroup.activities:
         return Icons.directions_run;
+      case EmojiGroup.recentEmoji:
+        return Icons.access_time;
     }
   }
 

@@ -234,6 +234,7 @@ const MUC_Type_TRACK_ID = 29;
 const SHOW_CASE_TRACK_ID = 30;
 const ACTIVE_NOTIFICATION_TRACK_ID = 31;
 const BOX_INFO_TRACK_ID = 32;
+const RECENT_EMOJI_TRACK_ID = 33;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
@@ -274,6 +275,9 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
+
+//Max Recent Emoji Length
+int MAX_RECENT_EMOJI_LENGTH=48;
 
 bool isLarge(BuildContext context) {
   if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
