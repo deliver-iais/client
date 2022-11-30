@@ -136,7 +136,7 @@ class RoomPageState extends State<RoomPage> {
   final _itemScrollController = ItemScrollController();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
-  final _time = BehaviorSubject<String>.seeded("");
+  final _timeHeader = BehaviorSubject<String>.seeded("");
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
@@ -149,9 +149,9 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
-  final _timeMessageMap = {};
+  final _scrollingState = BehaviorSubject.seeded(false);
+  Timer? _changeScrollStateTimer;
 
-  int lastTimeIndex = 0;
   StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
@@ -272,62 +272,7 @@ class RoomPageState extends State<RoomPage> {
                       ],
                     ),
                     builder: (context, snapshot) {
-                      return SizedBox(
-                        width: double.infinity,
-                        child: DebugC(
-                          isOpen: true,
-                          children: [
-                            Debug(
-                              seen.data?.messageId,
-                              label: "mySeen.messageId",
-                            ),
-                            Debug(
-                              seen.data?.hiddenMessageCount,
-                              label: "mySeen.hiddenMessageCount",
-                            ),
-                            Debug(widget.roomId, label: "uid"),
-                            Debug(
-                              room.firstMessageId,
-                              label: "room.firstMessageId",
-                            ),
-                            Debug(
-                              room.lastMessageId,
-                              label: "room.lastMessageId",
-                            ),
-                            Debug(
-                              _lastSeenMessageId,
-                              label: "_lastSeenMessageId",
-                            ),
-                            Debug(
-                              _lastShowedMessageId,
-                              label: "_lastShowedMessageId",
-                            ),
-                            Debug(_itemCount, label: "_itemCount"),
-                            Debug(
-                              _lastReceivedMessageId,
-                              label: "_lastReceivedMessageId",
-                            ),
-                            Debug(_pinMessages, label: "_pinMessages"),
-                            Debug(
-                              _selectedMessages,
-                              label: "_selectedMessages",
-                            ),
-                            Debug(
-                              _currentScrollIndex,
-                              label: "_currentScrollIndex",
-                            ),
-                            Debug(_appIsActive, label: "_appIsActive"),
-                            Debug(
-                              _backgroundMessages,
-                              label: "_backgroundMessages",
-                            ),
-                            Debug(
-                              _defaultMessageHeight,
-                              label: "_defaultMessageHeight",
-                            ),
-                          ],
-                        ),
-                      );
+                      return buildLogBox(seen);
                     },
                   );
                 },
@@ -337,27 +282,40 @@ class RoomPageState extends State<RoomPage> {
             pinMessageWidget(),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: APPBAR_HEIGHT),
-          child: Padding(
-            padding: const EdgeInsets.all(1.0),
-            child: StreamBuilder<String>(
-              stream: _time.stream,
-              builder: (context, dateSnapshot) {
-                if (dateSnapshot.hasData &&
-                    dateSnapshot.data != null &&
-                    dateSnapshot.data!.isNotEmpty) {
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    child: ChatTime(
-                      currentMessageTime: date(int.parse(dateSnapshot.data!)),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
+        StreamBuilder<bool>(
+          stream: _scrollingState.stream
+              .debounceTime(const Duration(milliseconds: 200)),
+          builder: (context, isScrollingSnapshot) {
+            if (isScrollingSnapshot.hasData && isScrollingSnapshot.data!) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: APPBAR_HEIGHT),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: StreamBuilder<String>(
+                    stream: _timeHeader.stream,
+                    builder: (context, dateSnapshot) {
+                      if (dateSnapshot.hasData &&
+                          dateSnapshot.data != null &&
+                          dateSnapshot.data!.isNotEmpty) {
+                        return Align(
+                          key: Key(dateSnapshot.data!),
+                          alignment: Alignment.topCenter,
+                          child: ChatTime(
+                            currentMessageTime:
+                                date(int.parse(dateSnapshot.data!)),
+                            backgroundColor:
+                                Theme.of(context).hintColor.withOpacity(0.3),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ],
     );
@@ -425,6 +383,15 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    _scrollingState.listen((value) {
+      if (value) {
+        _changeScrollStateTimer?.cancel();
+        _changeScrollStateTimer = Timer(const Duration(seconds: 1), () {
+          _scrollingState.add(false);
+        });
+      }
+    });
+
     _roomRepo.updateUserInfo(widget.roomId.asUid());
     if (isDesktop) {
       _appLifecycleService.watchAppAppLifecycle().listen((event) {
@@ -458,10 +425,8 @@ class RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
+      _scrollingState.add(true);
       final position = _itemPositionsListener.itemPositions.value;
-      // print("------------");
-      // print("last-----"+position.last.toString());
-      // print("first----"+position.first.toString());
 
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
@@ -482,19 +447,6 @@ class RoomPageState extends State<RoomPage> {
                       ? position
                       : first,
             );
-
-        // if (_timeMessageMap.keys.contains(firstVisibleItem.index) &&
-        //     _timeMessageMap.keys.contains(firstVisibleItem.index - 1)) {
-        //   if (_scrollDirection == ScrollDirection.ScrollUp) {
-        //     _time.add(
-        //       _timeMessageMap[firstVisibleItem.index - 1].toString(),
-        //     );
-        //   } else {
-        //     _time.add(
-        //       _timeMessageMap[firstVisibleItem.index].toString(),
-        //     );
-        //   }
-        // }
         // Save scroll position of first complete visible item
         _sharedDao.put(
           '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
@@ -537,9 +489,9 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
-    ItemPosition? firstVisibleItem;
+    int? firstVisibleItemIndex;
     if (_scrollDirection == ScrollDirection.ScrollUp) {
-      firstVisibleItem = positions
+      firstVisibleItemIndex = positions
           .where(
             (position) => position.itemLeadingEdge > 0,
           )
@@ -548,23 +500,85 @@ class RoomPageState extends State<RoomPage> {
                 position.itemLeadingEdge < first.itemLeadingEdge
                     ? position
                     : first,
-          );
+          )
+          .index;
     } else {
-      firstVisibleItem = positions
+      firstVisibleItemIndex = positions
           .where(
-            (position) => position.itemLeadingEdge > 0,
+            (position) => position.itemTrailingEdge < 1,
           )
           .reduce(
             (first, position) =>
-                position.itemLeadingEdge > first.itemLeadingEdge
+                position.itemTrailingEdge > first.itemTrailingEdge
                     ? position
                     : first,
-          );
+          )
+          .index;
     }
-    final message = await _getMessage(firstVisibleItem.index);
+    final message =
+        await _getMessage(firstVisibleItemIndex + room.firstMessageId);
     if (message != null) {
-      _time.add(message.time.toString());
+      _timeHeader.add(message.time.toString());
     }
+  }
+
+  SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
+    return SizedBox(
+      width: double.infinity,
+      child: DebugC(
+        isOpen: true,
+        children: [
+          Debug(
+            seen.data?.messageId,
+            label: "mySeen.messageId",
+          ),
+          Debug(
+            seen.data?.hiddenMessageCount,
+            label: "mySeen.hiddenMessageCount",
+          ),
+          Debug(widget.roomId, label: "uid"),
+          Debug(
+            room.firstMessageId,
+            label: "room.firstMessageId",
+          ),
+          Debug(
+            room.lastMessageId,
+            label: "room.lastMessageId",
+          ),
+          Debug(
+            _lastSeenMessageId,
+            label: "_lastSeenMessageId",
+          ),
+          Debug(
+            _lastShowedMessageId,
+            label: "_lastShowedMessageId",
+          ),
+          Debug(_itemCount, label: "_itemCount"),
+          Debug(
+            _lastReceivedMessageId,
+            label: "_lastReceivedMessageId",
+          ),
+          Debug(_pinMessages, label: "_pinMessages"),
+          Debug(
+            _selectedMessages,
+            label: "_selectedMessages",
+          ),
+          Debug(
+            _currentScrollIndex,
+            label: "_currentScrollIndex",
+          ),
+          Debug(_appIsActive, label: "_appIsActive"),
+          Debug(
+            _backgroundMessages,
+            label: "_backgroundMessages",
+          ),
+          Debug(
+            _defaultMessageHeight,
+            label: "_defaultMessageHeight",
+          ),
+        ],
+      ),
+    );
   }
 
   void _syncLastPinMessageWithItemPosition() {
@@ -1302,6 +1316,7 @@ class RoomPageState extends State<RoomPage> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
+        _scrollingState.add(true);
         if (scrollNotification is ScrollStartNotification) {
           _fireScrollEvent();
           _updateScrollDirection(scrollNotification.metrics.pixels);
@@ -1444,9 +1459,6 @@ class RoomPageState extends State<RoomPage> {
         final d1 = date(prevMsg.time);
         final d2 = date(msg.time);
         if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
-          _timeMessageMap[index] = msg.time;
-          _timeMessageMap[index - 1] = prevMsg.time;
-
           return msg.time;
         }
       }

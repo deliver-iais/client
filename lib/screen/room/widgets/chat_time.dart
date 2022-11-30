@@ -6,8 +6,10 @@ import 'package:get_it/get_it.dart';
 
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
+  final Color? backgroundColor;
 
-  const ChatTime({super.key, required this.currentMessageTime});
+  const ChatTime(
+      {super.key, required this.currentMessageTime, this.backgroundColor,});
 
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -28,11 +30,14 @@ class ChatTime extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Chip(
+        backgroundColor: backgroundColor,
         label: Padding(
           padding: const EdgeInsets.only(top: 4.0),
           child: Text(
             outT,
             textDirection: _i18n.defaultTextDirection,
+            // style:backgroundColor!= null? TextStyle(backgroundColor: backgroundColor)
+            //     : null,
           ),
         ),
         elevation: 2,
