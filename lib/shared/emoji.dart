@@ -1,5 +1,6 @@
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11551,6 +11552,11 @@ class Emoji {
           ),
         ),
       );
+  }
+
+  static int getColumnsCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    return (width - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) ~/ 45;
   }
 
   /// Modify skin tone of [emoji] by requested [skinTone]

@@ -2,19 +2,19 @@ import 'dart:math';
 
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
-import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
-import 'package:deliver/screen/room/widgets/emoji/persistent_emoji_header.dart';
+import 'package:deliver/screen/room/widgets/emoji/footer/search_bar_footer.dart';
+import 'package:deliver/screen/room/widgets/emoji/header/emoji_selection_header.dart';
+import 'package:deliver/screen/room/widgets/emoji/skin_tone_overlay/skin_tone_overlay.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/emoji.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,13 +25,13 @@ import 'package:rxdart/rxdart.dart';
 
 class EmojiKeyboardWidget extends StatefulWidget {
   final void Function(String) onTap;
-  final void Function(bool) onEmojiSearch;
+  final void Function(bool) onSearchEmoji;
   final KeyboardStatus keyboardStatus;
 
   const EmojiKeyboardWidget({
     super.key,
     required this.onTap,
-    required this.onEmojiSearch,
+    required this.onSearchEmoji,
     required this.keyboardStatus,
   });
 
@@ -47,20 +47,21 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
 
   final _scrollController = ScrollController(initialScrollOffset: 55);
-  OverlayEntry? _overlay;
-  final _selectedEmojiGroup = BehaviorSubject<EmojiGroup?>.seeded(null);
-  final _headersKeyList = List.generate(
-    EmojiGroup.values.length,
-    (i) => GlobalKey(debugLabel: EmojiGroup.values[i].toString()),
-  );
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final _selectedEmojiGroup = BehaviorSubject<EmojiGroup?>.seeded(null);
+  final BehaviorSubject<bool> _searchBoxHasText = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _hideHeaderAndFooter =
       BehaviorSubject.seeded(false);
   final BehaviorSubject<List<Emoji>?> _searchEmojiResult =
       BehaviorSubject.seeded(null);
-  var _isSearchModeEnable = false;
+
+  final _headersKeyList = List.generate(
+    EmojiGroup.values.length,
+    (i) => GlobalKey(debugLabel: EmojiGroup.values[i].toString()),
+  );
+  OverlayEntry? _skinToneOverlay;
+  bool _isSearchModeEnable = false;
 
   @override
   void initState() {
@@ -82,18 +83,18 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         );
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty) {
-        if (!_hasText.value) {
+        if (!_searchBoxHasText.value) {
           setState(() {
             _isSearchModeEnable = true;
           });
-          _hasText.add(true);
+          _searchBoxHasText.add(true);
         }
       } else {
-        if (_hasText.value) {
+        if (_searchBoxHasText.value) {
           setState(() {
             _isSearchModeEnable = false;
           });
-          _hasText.add(false);
+          _searchBoxHasText.add(false);
         }
       }
     });
@@ -156,131 +157,41 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                       controller: _scrollController,
                       shrinkWrap: true,
                       slivers: <Widget>[
+                        //selection header
+
                         if (widget.keyboardStatus ==
                             KeyboardStatus.EMOJI_KEYBOARD)
                           StreamBuilder<bool>(
                             stream: _hideHeaderAndFooter,
                             builder: (context, snapshot) {
-                              return SliverPersistentHeader(
-                                pinned: true,
-                                delegate: PersistentEmojiHeader(
-                                  height: (snapshot.data ?? false)
-                                      ? 0
-                                      : PersistentEmojiHeaderHeight,
-                                  widget: Container(
-                                    decoration: BoxDecoration(
-                                      color: theme.colorScheme.onInverseSurface,
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: theme.dividerColor,
-                                        ),
-                                      ),
-                                    ),
-                                    child: DefaultTextStyle(
-                                      style: const TextStyle(fontSize: 20),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Center(
-                                          child: ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            shrinkWrap: true,
-                                            itemCount: EmojiGroup.values.length,
-                                            itemBuilder: (c, index) {
-                                              return buildTabBarContainer(theme,
-                                                  EmojiGroup.values[index], () {
-                                                Scrollable.ensureVisible(
-                                                  _headersKeyList[index]
-                                                      .currentContext!,
-                                                  duration:
-                                                      SUPER_SLOW_ANIMATION_DURATION,
-                                                  curve: Curves.fastOutSlowIn,
-                                                );
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              return EmojiSelectionHeader(
+                                hideHeader: snapshot.data ?? false,
+                                selectedEmojiGroup: _selectedEmojiGroup,
+                                onEmojiGroupHeaderTap: (index) {
+                                  _closeSkinToneOverlay();
+                                  _selectedEmojiGroup
+                                      .add(EmojiGroup.values[index]);
+                                  Scrollable.ensureVisible(
+                                    _headersKeyList[index].currentContext!,
+                                    duration: SUPER_SLOW_ANIMATION_DURATION,
+                                    curve: Curves.fastOutSlowIn,
+                                  );
+                                },
                               );
                             },
                           ),
-                        SliverToBoxAdapter(
-                          child: Container(
-                            height: 60,
-                            color: theme.colorScheme.onInverseSurface,
-                            child: Focus(
-                              onFocusChange: (hasFocus) {
-                                widget.onEmojiSearch(hasFocus);
-                              },
-                              child: Directionality(
-                                textDirection: _i18n.defaultTextDirection,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 25.0,
-                                    left: 25,
-                                    top: 15,
-                                    bottom: 8,
-                                  ),
-                                  child: AutoDirectionTextField(
-                                    controller: _searchController,
-                                    focusNode: _searchFocusNode,
-                                    onChanged: (text) async {
-                                      if (text.isNotEmpty) {
-                                        _searchEmojiResult
-                                            .add(Emoji.search(text).toList());
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: _i18n.get("search"),
-                                      contentPadding:
-                                          const EdgeInsets.only(top: 15),
-                                      focusedBorder: const OutlineInputBorder(
-                                        borderRadius: mainBorder,
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      enabledBorder: const OutlineInputBorder(
-                                        borderRadius: mainBorder,
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      filled: true,
-                                      isDense: true,
-                                      prefixIcon:
-                                          const Icon(CupertinoIcons.search),
-                                      suffixIcon: StreamBuilder<bool?>(
-                                        stream: _hasText,
-                                        builder: (c, ht) {
-                                          if (ht.hasData && ht.data!) {
-                                            return IconButton(
-                                              icon: const Icon(
-                                                CupertinoIcons.xmark,
-                                              ),
-                                              onPressed: () {
-                                                _searchController.text = '';
-                                              },
-                                            );
-                                          } else {
-                                            return const SizedBox.shrink();
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+
+                        //search box
+                        _buildEmojiSearchBox(theme),
+
+                        //emoji grid
                         if (_isSearchModeEnable)
                           StreamBuilder<List<Emoji>?>(
                             stream: _searchEmojiResult,
                             builder: (context, snapshot) {
                               if (snapshot.hasData && snapshot.data != null) {
                                 if (snapshot.data!.isNotEmpty) {
-                                  return _buildCategoryGrid(
+                                  return _buildEmojiGrid(
                                     snapshot.data!.toList(),
                                   );
                                 } else {
@@ -301,10 +212,13 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                             },
                           )
                         else
-                          ..._buildEmojiGrid()
+                          ..._buildEmojiList()
                       ],
                     ),
                   ),
+
+                  //footer
+
                   if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD)
                     StreamBuilder<bool>(
                       stream: _hideHeaderAndFooter,
@@ -312,7 +226,20 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                         return AnimatedContainer(
                           duration: ANIMATION_DURATION,
                           height: snapshot.data ?? false ? 0 : 30,
-                          child: _buildSearchBar(),
+                          child: SearchBarFooter(
+                            onSearchIconTap: () {
+                              widget.onSearchEmoji(true);
+                              _scrollController.jumpTo(
+                                0,
+                              );
+                              Future.delayed(
+                                const Duration(milliseconds: 500),
+                                () {},
+                              ).then((_) {
+                                _searchFocusNode.requestFocus();
+                              });
+                            },
+                          ),
                         );
                       },
                     )
@@ -325,56 +252,75 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     );
   }
 
-  Widget _buildSearchBar() {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
+  Widget _buildEmojiSearchBox(ThemeData theme) {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 60,
         color: theme.colorScheme.onInverseSurface,
-        boxShadow: [
-          BoxShadow(
-            color: theme.dividerColor,
-            blurRadius: 15.0,
-            offset: const Offset(0.0, 0.75),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const SizedBox(
-            width: 10,
-          ),
-          IconButton(
-            onPressed: () {
-              widget.onEmojiSearch(true);
-              _scrollController.jumpTo(
-                0,
-              );
-              Future.delayed(const Duration(milliseconds: 500), () {})
-                  .then((_) {
-                _searchFocusNode.requestFocus();
-              });
-            },
-            icon: const Icon(CupertinoIcons.search),
-            visualDensity: VisualDensity.compact,
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.backspace_outlined,
+        child: Focus(
+          onFocusChange: (hasFocus) {
+            widget.onSearchEmoji(hasFocus);
+          },
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 25.0,
+                left: 25,
+                top: 15,
+                bottom: 8,
+              ),
+              child: AutoDirectionTextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                onChanged: (text) async {
+                  if (text.isNotEmpty) {
+                    _searchEmojiResult.add(Emoji.search(text).toList());
+                  }
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: _i18n.get("search"),
+                  contentPadding: const EdgeInsets.only(top: 15),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: mainBorder,
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: mainBorder,
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  isDense: true,
+                  prefixIcon: const Icon(CupertinoIcons.search),
+                  suffixIcon: StreamBuilder<bool?>(
+                    stream: _searchBoxHasText,
+                    builder: (c, ht) {
+                      if (ht.hasData && ht.data!) {
+                        return IconButton(
+                          icon: const Icon(
+                            CupertinoIcons.xmark,
+                          ),
+                          onPressed: () {
+                            _searchController.text = '';
+                          },
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
-            visualDensity: VisualDensity.compact,
           ),
-          const SizedBox(
-            width: 10,
-          ),
-        ],
+        ),
       ),
     );
   }
 
   void _onScrollEnded(BuildContext context) {
-    final columns = _getColumnsCount();
+    final columns = Emoji.getColumnsCount(context);
     var offset = 0.0;
     var selectedGroup = Emoji.recent().isNotEmpty
         ? EmojiGroup.recentEmoji
@@ -390,21 +336,21 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     _selectedEmojiGroup.add(selectedGroup);
   }
 
-  List<RenderObjectWidget> _buildEmojiGrid() {
-    final gridList = <RenderObjectWidget>[];
+  List<RenderObjectWidget> _buildEmojiList() {
+    final emojiList = <RenderObjectWidget>[];
 
     for (final emojiGroup in EmojiGroup.values) {
       final emoji = Emoji.byGroup(emojiGroup);
       if (emoji.isNotEmpty) {
-        gridList.addAll(_buildEmojiGridItem(emojiGroup, emoji));
+        emojiList.addAll(_buildGroupEmojiList(emojiGroup, emoji));
       }
     }
-    return gridList;
+    return emojiList;
   }
 
-  List<RenderObjectWidget> _buildEmojiGridItem(
+  List<RenderObjectWidget> _buildGroupEmojiList(
     EmojiGroup emojiGroup,
-    Iterable<Emoji> emoji,
+    Iterable<Emoji> emojiList,
   ) {
     final header = Emoji.convertEmojiGroupToHeader(emojiGroup);
     return [
@@ -427,7 +373,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           ),
         ),
       ),
-      _buildCategoryGrid(emoji.toList())
+      _buildEmojiGrid(emojiList.toList())
     ];
   }
 
@@ -436,10 +382,17 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     if (emoji.emojiGroup == EmojiGroup.recentEmoji) {
       _showClearRecentEmojiDialog();
     } else if (emoji.modifiable) {
-      _buildSkinToneOverlay(
+      _skinToneOverlay = SkinToneOverlay.getSkinToneOverlay(
         index,
         emoji,
+        context,
+        _scrollController.offset,
+        _onEmojiSelected,
+        hideHeaderAndFooter: _hideHeaderAndFooter.value,
       );
+      if (_skinToneOverlay != null) {
+        Overlay.of(context)?.insert(_skinToneOverlay!);
+      }
     }
   }
 
@@ -475,7 +428,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     );
   }
 
-  SliverGrid _buildCategoryGrid(List<Emoji> emojiList) {
+  SliverGrid _buildEmojiGrid(List<Emoji> emojiList) {
     return SliverGrid(
       delegate:
           SliverChildBuilderDelegate(childCount: emojiList.length, (c, index) {
@@ -521,124 +474,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         );
       }),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _getColumnsCount(),
+        crossAxisCount: Emoji.getColumnsCount(context),
       ),
     );
-  }
-
-  void _buildSkinToneOverlay(int index, Emoji emoji) {
-    final positionRect = _calculateEmojiPosition(index);
-    final theme = Theme.of(context);
-    _overlay = OverlayEntry(
-      builder: (context) => Positioned(
-        left: positionRect.left,
-        top: positionRect.top,
-        child: Container(
-          height: positionRect.width + 10,
-          decoration: const BoxDecoration(
-            boxShadow: DEFAULT_BOX_SHADOWS,
-            borderRadius: tertiaryBorder,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  boxShadow: DEFAULT_BOX_SHADOWS,
-                  borderRadius: tertiaryBorder,
-                ),
-                child: Row(
-                  children: [
-                    ...List.generate(
-                      fitzpatrick.values.length,
-                      (i) => _buildSkinToneEmoji(
-                        i,
-                        emoji.toString(),
-                        positionRect.width,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                top: positionRect.width,
-                left: (positionRect.width * (index % _getColumnsCount()) -
-                    positionRect.left +
-                    10),
-                child: ClipPath(
-                  clipper: TriangleClipper(),
-                  child: Container(
-                    color: theme.cardColor,
-                    height: 10,
-                    width: 15,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-    if (_overlay != null) {
-      Overlay.of(context)?.insert(_overlay!);
-    }
-  }
-
-  Rect _calculateEmojiPosition(int index) {
-    final columns = _getColumnsCount();
-    // Calculate position of emoji in the grid
-
-    final column = index % columns;
-    final row =
-        (Emoji.byGroup(EmojiGroup.smileysEmotion).length / columns).ceil() +
-            (index / columns).ceil() +
-            (column == 0 ? 1 : 0);
-    // Calculate position for skin tone dialog
-    final renderBox = context.findRenderObject()! as RenderBox;
-    final offset = renderBox.localToGlobal(Offset.zero);
-    final emojiSpace = renderBox.size.width / columns;
-    final topOffset = emojiSpace;
-    final leftOffset = _getLeftOffset(
-      emojiSpace,
-      column,
-      fitzpatrick.values.length,
-      columns,
-    );
-    final left = offset.dx -
-        (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) +
-        column * emojiSpace +
-        leftOffset;
-    final top =
-        (_hideHeaderAndFooter.value ? 1 : 2) * PersistentEmojiHeaderHeight +
-            15 +
-            offset.dy +
-            (row + 1) * emojiSpace -
-            _scrollController.offset -
-            topOffset +
-            (isDesktop ? 20 : 0);
-    return Rect.fromLTWH(left, top, emojiSpace, .0);
-  }
-
-  double _getLeftOffset(
-    double emojiWidth,
-    int column,
-    int skinToneCount,
-    int columns,
-  ) {
-    final remainingColumns = columns - (column + 1 + (skinToneCount ~/ 2));
-    if (column >= 0 && column < 3) {
-      return -1 * column * emojiWidth;
-    } else if (remainingColumns < 0) {
-      return -1 *
-          ((skinToneCount ~/ 2 - 2) + -1 * remainingColumns) *
-          emojiWidth;
-    }
-    return -1 * ((skinToneCount ~/ 2) * emojiWidth) + emojiWidth / 2;
-  }
-
-  int _getColumnsCount() {
-    final width = MediaQuery.of(context).size.width;
-    return (width - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) ~/ 45;
   }
 
   void _onEmojiSelected(String emoji) {
@@ -647,90 +485,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     _closeSkinToneOverlay();
   }
 
-  Color selectionColor(ThemeData theme, EmojiGroup emoji) {
-    if (isSelectedEmojiGroup(emoji)) {
-      return theme.colorScheme.primary;
-    } else {
-      return theme.colorScheme.onSurfaceVariant.withOpacity(0.7);
-    }
-  }
-
-  bool isSelectedEmojiGroup(EmojiGroup emoji) =>
-      emoji == _selectedEmojiGroup.value;
-
-  Widget buildTabBarContainer(
-    ThemeData theme,
-    EmojiGroup emojiGroup,
-    void Function() callback,
-  ) {
-    return emojiGroup != EmojiGroup.recentEmoji || Emoji.recent().isNotEmpty
-        ? StreamBuilder<EmojiGroup?>(
-            stream: _selectedEmojiGroup,
-            builder: (context, snapshot) {
-              return AnimatedContainer(
-                duration: ANIMATION_DURATION,
-                child: InkWell(
-                  onTap: () {
-                    _closeSkinToneOverlay();
-                    _selectedEmojiGroup.add(emojiGroup);
-                    callback();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(
-                      Emoji.convertEmojiGroupToIcon(emojiGroup),
-                      color: selectionColor(theme, emojiGroup),
-                    ),
-                  ),
-                ),
-              );
-            },
-          )
-        : const SizedBox.shrink();
-  }
-
   void _closeSkinToneOverlay() {
-    _overlay?.remove();
-    _overlay = null;
+    _skinToneOverlay?.remove();
+    _skinToneOverlay = null;
   }
-
-  Widget _buildSkinToneEmoji(int index, String emoji, double width) {
-    final modifyEmoji = Emoji.modify(emoji, fitzpatrick.values[index]);
-    return Material(
-      color: Colors.white.withOpacity(0.0),
-      child: InkWell(
-        borderRadius: tertiaryBorder,
-        onTap: () {
-          _onEmojiSelected(modifyEmoji);
-          Emoji.updateSkinTone(emoji, index);
-          _recentEmojisDao.addRecentEmoji(emoji, skinToneEmoji: modifyEmoji);
-          _emojiSkinToneDao
-              .addNewSkinTone(EmojiSkinTone(char: emoji, tone: index));
-        },
-        child: SizedBox(
-          height: width,
-          width: width - 10,
-          child: Center(
-            child: Text(
-              modifyEmoji,
-              style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class TriangleClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    return Path()
-      ..lineTo(size.width, 0.0)
-      ..lineTo(size.width / 2, size.height)
-      ..close();
-  }
-
-  @override
-  bool shouldReclip(TriangleClipper oldClipper) => false;
 }

@@ -443,7 +443,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 if (back.data == KeyboardStatus.EMOJI_KEYBOARD ||
                     back.data == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
                   child = EmojiKeyboardWidget(
-                    onEmojiSearch: (isSearchFocused) {
+                    onSearchEmoji: (isSearchFocused) {
                       if (isSearchFocused) {
                         _keyboardStatus
                             .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
