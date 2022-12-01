@@ -18,6 +18,7 @@ import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
+import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
@@ -29,6 +30,7 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manager.dart';
+import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
@@ -247,7 +249,8 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(BoxInfoAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter())
-    ..registerAdapter(RecentEmojiAdapter());
+    ..registerAdapter(RecentEmojiAdapter())
+    ..registerAdapter(EmojiSkinToneAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -274,6 +277,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
   registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
+  registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
 }
 
 Future initializeFirebase() async {

@@ -437,7 +437,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 final searchKeyboard = (back.data ?? KeyboardStatus.OFF) ==
                     KeyboardStatus.EMOJI_KEYBOARD_SEARCH;
                 Widget child = Container(
-                  color: theme.colorScheme.surfaceVariant,
+                  color: theme.colorScheme.onInverseSurface,
                 );
 
                 if (back.data == KeyboardStatus.EMOJI_KEYBOARD ||

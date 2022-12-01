@@ -11484,7 +11484,7 @@ class Emoji {
   /// Get all Emojis
   static List<Emoji> all() => List.unmodifiable(_emojis + _recentEmojis);
 
-  static List<Emoji> recent() => List.unmodifiable( _recentEmojis);
+  static List<Emoji> recent() => List.unmodifiable(_recentEmojis);
 
   /// Returns Emoji by [char] and character
   factory Emoji.byChar(String char) {
@@ -11587,6 +11587,20 @@ class Emoji {
       }
     }
     return String.fromCharCodes(finalCharCodes);
+  }
+
+  static void updateSkinTone(String char, int tone) {
+    final index = _emojis.indexWhere((element) => element.char == char);
+    if (index != -1) {
+      final emoji = _emojis[index];
+      _emojis[index] = Emoji(
+        shortName: emoji.shortName,
+        emojiGroup: emoji.emojiGroup,
+        char: modify(char, fitzpatrick.values[tone]),
+        name: emoji.name,
+        modifiable: emoji.modifiable,
+      );
+    }
   }
 
   static String convertEmojiGroupToHeader(EmojiGroup emojiGroup) {

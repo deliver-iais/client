@@ -9,7 +9,7 @@ abstract class RecentEmojiDao {
 
   Future<void> deleteAll();
 
-  Future<void> addRecentEmoji(String emoji);
+  Future<void> addRecentEmoji(String emoji, {String? skinToneEmoji});
 }
 
 class RecentEmojiImpl extends RecentEmojiDao {
@@ -24,13 +24,20 @@ class RecentEmojiImpl extends RecentEmojiDao {
       list.toList()..sort((a, b) => b.count.compareTo(a.count));
 
   @override
-  Future<void> addRecentEmoji(String emoji) async {
+  Future<void> addRecentEmoji(String emoji, {String? skinToneEmoji}) async {
     final box = await _open();
     final count = box.get(emoji)?.count ?? 0;
     if (box.values.length > MAX_RECENT_EMOJI_LENGTH - 1 && count == 0) {
       await box.delete(sorted(box.values).last.char);
     }
-    return box.put(emoji, RecentEmoji(char: emoji, count: count + 1));
+    if (skinToneEmoji != null) {
+      await box.delete(emoji);
+    }
+
+    await box.put(
+      skinToneEmoji ?? emoji,
+      RecentEmoji(char: skinToneEmoji ?? emoji, count: count + 1),
+    );
   }
 
   @override

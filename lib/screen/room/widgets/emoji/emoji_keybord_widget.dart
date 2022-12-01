@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
+import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -42,6 +44,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
+  static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
 
   final _scrollController = ScrollController(initialScrollOffset: 55);
   OverlayEntry? _overlay;
@@ -68,6 +71,15 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         _selectedEmojiGroup.add(EmojiGroup.smileysEmotion);
       }
     });
+    _emojiSkinToneDao.getAll().then(
+          (value) => {
+            if (value.isNotEmpty)
+              {
+                for (var element in value)
+                  {Emoji.updateSkinTone(element.char, element.tone)}
+              }
+          },
+        );
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty) {
         if (!_hasText.value) {
@@ -477,6 +489,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
               borderRadius: tertiaryBorder,
               onTap: () {
                 _onEmojiSelected(emojiList.elementAt(index).toString());
+                _recentEmojisDao
+                    .addRecentEmoji(emojiList.elementAt(index).toString());
               },
               onLongPress: () {
                 vibrate(duration: 30);
@@ -629,7 +643,6 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     vibrate(duration: 30);
     widget.onTap(emoji);
     _closeSkinToneOverlay();
-    _recentEmojisDao.addRecentEmoji(emoji);
   }
 
   Color selectionColor(ThemeData theme, EmojiGroup emoji) {
@@ -687,6 +700,10 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         borderRadius: tertiaryBorder,
         onTap: () {
           _onEmojiSelected(modifyEmoji);
+          Emoji.updateSkinTone(emoji, index);
+          _recentEmojisDao.addRecentEmoji(emoji, skinToneEmoji: modifyEmoji);
+          _emojiSkinToneDao
+              .addNewSkinTone(EmojiSkinTone(char: emoji, tone: index));
         },
         child: SizedBox(
           height: width,
