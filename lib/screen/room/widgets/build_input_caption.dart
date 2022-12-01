@@ -1,20 +1,21 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class BuildInputCaption extends StatelessWidget {
-  final BehaviorSubject<bool> insertCaption;
+  final _i18n = GetIt.I.get<I18N>();
   final TextEditingController captionEditingController;
   final void Function() send;
   final int count;
-  final bool needDarkBackground;
 
-  const BuildInputCaption({
+  BuildInputCaption({
     Key? key,
-    this.needDarkBackground = false,
-    required this.insertCaption,
     required this.captionEditingController,
     required this.send,
     required this.count,
@@ -23,135 +24,82 @@ class BuildInputCaption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final i18n = GetIt.I.get<I18N>();
+    return Container(
+      height: BOTTOM_BUTTONS_HEIGHT,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+      ),
+      child: Center(
+        child: AutoDirectionTextField(
+          decoration: InputDecoration(
+            hintText: _i18n.get("add_caption"),
+            border: InputBorder.none,
+            hintStyle: const TextStyle(fontSize: 16),
+            suffixIcon: buildSendButton(theme),
+            hintTextDirection: _i18n.defaultTextDirection,
+            isCollapsed: true,
+            // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
+            contentPadding: EdgeInsets.only(
+              top: 12,
+              bottom: isDesktop ? 9 : 16,
+              left: 16,
+              right: 8,
+            ),
+          ),
+          style: const TextStyle(fontSize: 16),
+          textInputAction: TextInputAction.newline,
+          minLines: 1,
+          maxLines: 15,
+          controller: captionEditingController,
+        ),
+      ),
+    );
+  }
+
+  Stack buildSendButton(ThemeData theme) {
     return Stack(
-      children: [
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.1),
-              ),),
-              color: needDarkBackground
-                  ? Colors.black.withAlpha(120)
-                  : theme.colorScheme.background,
+      alignment: Alignment.bottomRight,
+      children: <Widget>[
+        Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(
+              CupertinoIcons.arrow_up,
+              color: theme.colorScheme.primary,
             ),
-            child: AutoDirectionTextField(
-              decoration: InputDecoration(
-                hintText: i18n.get("add_caption"),
-                border: InputBorder.none,
-                hintStyle: TextStyle(
-                  fontSize: 16,
-                  color: needDarkBackground ? Colors.white70 : null,
-                ),
-                suffixIcon: StreamBuilder<bool>(
-                  stream: insertCaption,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      return IconButton(
-                        onPressed: () => send(),
-                        icon: const Icon(
-                          Icons.check_circle_outline,
-                          size: 35,
-                        ),
-                        color: theme.primaryColor,
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              ),
-              style: TextStyle(
-                fontSize: 17,
-                color: needDarkBackground ? Colors.white : null,
-              ),
-              textInputAction: TextInputAction.newline,
-              minLines: 1,
-              maxLines: 15,
-              controller: captionEditingController,
-            ),
+            onPressed: send,
           ),
         ),
         Positioned(
-          right: 15,
-          bottom: 20,
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: <Widget>[
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: StreamBuilder<bool>(
-                  stream: insertCaption,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        !snapshot.data!) {
-                      return ClipOval(
-                        child: Material(
-                          color: theme.primaryColor, // button color
-                          child: InkWell(
-                            splashColor: theme.primaryColor, // inkwell color
-                            child: const SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: Icon(
-                                Icons.send,
-                                size: 30,
-                                color: Colors.white,
-                              ),
-                            ),
-                            onTap: () => send(),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
+          top: 0,
+          left: 0,
+          child: AnimatedScale(
+            duration: VERY_SLOW_ANIMATION_DURATION,
+            curve: Curves.easeInOut,
+            scale: count > 0 ? 1 : 0,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: theme.colorScheme.primary,
               ),
-              if (count > 0)
-                Positioned(
-                  top: 34.0,
-                  right: 0.0,
-                  left: 35,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.background, // border color
-                      shape: BoxShape.circle,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2), // border width
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: theme.primaryColor, // inner circle color
-                        ),
-                        child: Center(
-                          child: Text(
-                            count.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ), // inner content
-                      ),
-                    ),
-                  ),
+              padding: const EdgeInsets.all(1),
+              width: 18,
+              height: 18,
+              child: AnimatedSwitchWidget(
+                child: Text(
+                  key: ValueKey(count),
+                  count.toString(),
+                  style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
                 ),
-            ],
+              ), // inner content
+            ),
           ),
-        )
+        ),
       ],
     );
   }

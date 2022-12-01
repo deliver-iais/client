@@ -9,9 +9,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ShareInputFile extends StatefulWidget {
   final List<String> inputSharedFilePath;
@@ -32,18 +30,8 @@ class _ShareInputFileState extends State<ShareInputFile> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  final _keyboardVisibilityController = KeyboardVisibilityController();
-  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final _selectedRooms = <Uid>[];
   final TextEditingController _textEditingController = TextEditingController();
-
-  @override
-  void initState() {
-    _keyboardVisibilityController.onChange.listen((event) {
-      _insertCaption.add(event);
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +57,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
               buildSend()
             else
               BuildInputCaption(
-                insertCaption: _insertCaption,
                 captionEditingController: _textEditingController,
                 count: _selectedRooms.length,
                 send: () {

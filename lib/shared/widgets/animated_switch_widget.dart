@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 
 class AnimatedSwitchWidget extends StatelessWidget {
@@ -12,7 +13,9 @@ class AnimatedSwitchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: VERY_SLOW_ANIMATION_DURATION,
+      switchInCurve: Curves.easeInOut,
+      switchOutCurve: Curves.easeInOut,
       transitionBuilder: (child, animation) {
         return RoundUpTransition(
           turns: animation,

@@ -68,98 +68,93 @@ class ShareBoxFileState extends State<ShareBoxFile> {
       future: getRecentFile(),
       builder: (context, files) {
         if (files.hasData && files.data != null) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: widget.selectedFiles.values.isNotEmpty ? 50 : 0,
-            ),
-            child: ListView.builder(
-              controller: widget.scrollController,
-              itemCount: files.data!.length + 1,
-              itemBuilder: (ctx, index) {
-                if (index == 0) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.add_circle_outlined,
-                                color: theme.primaryColor,
-                                size: 39,
+          return ListView.builder(
+            controller: widget.scrollController,
+            itemCount: files.data!.length + 1,
+            itemBuilder: (ctx, index) {
+              if (index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_circle_outlined,
+                              color: theme.primaryColor,
+                              size: 39,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              _i18n.get("choose_other_files"),
+                              style: const TextStyle(
+                                fontSize: 17,
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                _i18n.get("choose_other_files"),
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                ),
-                              ),
-                            ],
-                          ),
-                          onTap: () async {
-                            final result = await FilePicker.platform
-                                .pickFiles(allowMultiple: true);
-                            if (result != null && result.files.isNotEmpty) {
-                              if (mounted) {
-                                Navigator.pop(context);
-                              }
-                              showCaptionDialog(
-                                resetRoomPageDetails:
-                                    widget.resetRoomPageDetails,
-                                replyMessageId: widget.replyMessageId,
-                                roomUid: widget.roomUid,
-                                context: context,
-                                files: result.files
-                                    .map(
-                                      (e) => File(
-                                        e.path!,
-                                        e.name,
-                                        size: e.size,
-                                        extension: e.extension,
-                                      ),
-                                    )
-                                    .toList(),
-                              );
+                            ),
+                          ],
+                        ),
+                        onTap: () async {
+                          final result = await FilePicker.platform
+                              .pickFiles(allowMultiple: true);
+                          if (result != null && result.files.isNotEmpty) {
+                            if (mounted) {
+                              Navigator.pop(context);
                             }
-                          },
-                        ),
-                      ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          _i18n.get("recent_files"),
-                          style: TextStyle(
-                            color: theme.primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
-                      )
-                    ],
-                  );
-                } else {
-                  final fileItem = files.data![index - 1];
-                  final selected = widget.selectedFiles[index - 1] ?? false;
-
-                  return GestureDetector(
-                    child: Container(
-                      color:
-                          selected ? theme.primaryColor.withOpacity(0.3) : null,
-                      child: FileItem(
-                        file: fileItem,
+                            showCaptionDialog(
+                              resetRoomPageDetails:
+                                  widget.resetRoomPageDetails,
+                              replyMessageId: widget.replyMessageId,
+                              roomUid: widget.roomUid,
+                              context: context,
+                              files: result.files
+                                  .map(
+                                    (e) => File(
+                                      e.path!,
+                                      e.name,
+                                      size: e.size,
+                                      extension: e.extension,
+                                    ),
+                                  )
+                                  .toList(),
+                            );
+                          }
+                        },
                       ),
                     ),
-                    onTap: () => widget.onClick(index - 1, fileItem.path),
-                  );
-                }
-              },
-            ),
+                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        _i18n.get("recent_files"),
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              } else {
+                final fileItem = files.data![index - 1];
+                final selected = widget.selectedFiles[index - 1] ?? false;
+
+                return GestureDetector(
+                  child: Container(
+                    color:
+                        selected ? theme.primaryColor.withOpacity(0.3) : null,
+                    child: FileItem(
+                      file: fileItem,
+                    ),
+                  ),
+                  onTap: () => widget.onClick(index - 1, fileItem.path),
+                );
+              }
+            },
           );
         }
         return Center(

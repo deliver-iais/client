@@ -11,7 +11,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:rxdart/rxdart.dart';
@@ -46,20 +45,15 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _captionEditingController =
       TextEditingController();
-  final _keyboardVisibilityController = KeyboardVisibilityController();
   CameraController? _controller;
   late List<CameraDescription> _cameras;
   late BehaviorSubject<CameraController> _cameraController;
-  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final BehaviorSubject<List<AssetPathEntity>> _folders =
       BehaviorSubject.seeded([]);
 
   @override
   void initState() {
     _initFolders();
-    _keyboardVisibilityController.onChange.listen((event) {
-      _insertCaption.add(event);
-    });
 
     super.initState();
   }
@@ -410,7 +404,6 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                 caption: _captionEditingController.text,
               );
             },
-            insertCaption: _insertCaption,
             textEditingController: _captionEditingController,
             onEditEnd: (path) {
               imagePath = path;
