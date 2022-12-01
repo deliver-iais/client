@@ -608,12 +608,14 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) +
         column * emojiSpace +
         leftOffset;
-    final top = PersistentEmojiHeaderHeight +
-        offset.dy +
-        (row + 1) * emojiSpace -
-        _scrollController.offset -
-        topOffset +
-        (isDesktop ? 20 : 0);
+    final top =
+        (_hideHeaderAndFooter.value ? 1 : 2) * PersistentEmojiHeaderHeight +
+            15 +
+            offset.dy +
+            (row + 1) * emojiSpace -
+            _scrollController.offset -
+            topOffset +
+            (isDesktop ? 20 : 0);
     return Rect.fromLTWH(left, top, emojiSpace, .0);
   }
 
