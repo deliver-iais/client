@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -14,7 +14,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-class ImageFolderWidget extends StatefulWidget {
+class GalleryFolder extends StatefulWidget {
   final AssetPathEntity folder;
   final Uid roomUid;
   final void Function() pop;
@@ -22,7 +22,7 @@ class ImageFolderWidget extends StatefulWidget {
   final int replyMessageId;
   final void Function()? resetRoomPageDetails;
 
-  const ImageFolderWidget(
+  const GalleryFolder(
     this.folder,
     this.roomUid,
     this.pop, {
@@ -33,12 +33,12 @@ class ImageFolderWidget extends StatefulWidget {
   });
 
   @override
-  State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
+  State<GalleryFolder> createState() => _GalleryFolderState();
 }
 
 const int FETCH_IMAGE_PAGE_SIZE = 40;
 
-class _ImageFolderWidgetState extends State<ImageFolderWidget> {
+class _GalleryFolderState extends State<GalleryFolder> {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
@@ -242,7 +242,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                   duration: SLOW_ANIMATION_DURATION,
                   curve: Curves.easeInOut,
                   opacity: _selectedImage.isNotEmpty ? 1 : 0,
-                  child: BuildInputCaption(
+                  child: ShareBoxInputCaption(
                     captionEditingController: _textEditingController,
                     count: _selectedImage.length,
                     send: () {

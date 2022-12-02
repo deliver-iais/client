@@ -8,13 +8,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class BuildInputCaption extends StatelessWidget {
+class ShareBoxInputCaption extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
   final TextEditingController captionEditingController;
   final void Function() send;
   final int count;
 
-  BuildInputCaption({
+  ShareBoxInputCaption({
     Key? key,
     required this.captionEditingController,
     required this.send,
@@ -92,9 +92,10 @@ class BuildInputCaption extends StatelessWidget {
                   key: ValueKey(count),
                   count.toString(),
                   style: TextStyle(
-                      color: theme.colorScheme.onPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
+                    color: theme.colorScheme.onPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ), // inner content
             ),

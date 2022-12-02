@@ -11,6 +11,7 @@ import 'package:deliver/screen/room/messageWidgets/video_message/video_message.d
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -187,12 +188,7 @@ class FileMessageUiState extends State<FileMessageUi> {
     }
   }
 
-  bool isImageFile() {
-    return widget.file.type.contains('image') ||
-        widget.file.type.contains("png") ||
-        widget.file.type.contains("jpg");
-  }
+  bool isImageFile() => isImageFileExtension(widget.file.type);
 
-  bool isVideoFile() =>
-      widget.file.type.contains('video');
+  bool isVideoFile() => widget.file.type.contains('video');
 }

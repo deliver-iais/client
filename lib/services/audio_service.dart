@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
@@ -55,7 +55,7 @@ class AudioTrack {
         path = "",
         duration = Duration.zero;
 
-  bool isVoice() => isVoiceFile(path);
+  bool isVoice() => isVoiceFilePath(path);
 }
 
 enum AudioPlayerState {

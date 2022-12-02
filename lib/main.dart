@@ -66,7 +66,7 @@ import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/services/backgroundService.dart';
+import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';

@@ -545,16 +545,12 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     for (final file in files) {
-      if (files.last.path == file.path) {
-        await sendFileMessage(
-          room,
-          file,
-          caption: caption,
-          replyToId: replyToId,
-        );
-      } else {
-        await sendFileMessage(room, file, replyToId: replyToId);
-      }
+      await sendFileMessage(
+        room,
+        file,
+        caption: files.last.path == file.path ? caption : "",
+        replyToId: replyToId,
+      );
     }
   }
 

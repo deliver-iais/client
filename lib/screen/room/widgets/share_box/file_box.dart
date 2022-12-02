@@ -8,11 +8,12 @@ import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 
-class ShareBoxFile extends StatefulWidget {
+class FilesBox extends StatefulWidget {
   final ScrollController scrollController;
   final void Function(int, String) onClick;
   final Map<int, bool> selectedFiles;
@@ -20,7 +21,7 @@ class ShareBoxFile extends StatefulWidget {
   final void Function() resetRoomPageDetails;
   final int replyMessageId;
 
-  const ShareBoxFile({
+  const FilesBox({
     super.key,
     required this.scrollController,
     required this.onClick,
@@ -31,10 +32,10 @@ class ShareBoxFile extends StatefulWidget {
   });
 
   @override
-  ShareBoxFileState createState() => ShareBoxFileState();
+  FilesBoxState createState() => FilesBoxState();
 }
 
-class ShareBoxFileState extends State<ShareBoxFile> {
+class FilesBoxState extends State<FilesBox> {
   Future<List<io.FileSystemEntity>> getRecentFile() async {
     final files = <io.FileSystemEntity>[];
     var d = io.Directory(
@@ -76,23 +77,27 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    Container(
+                      color: theme.colorScheme.primaryContainer,
+                      padding: const EdgeInsets.all(16.0),
                       child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.add_circle_outlined,
-                              color: theme.primaryColor,
-                              size: 39,
+                              CupertinoIcons.square_stack_3d_up_fill,
+                              color: theme.colorScheme.onPrimaryContainer,
+                              size: 28,
                             ),
                             const SizedBox(
-                              width: 10,
+                              width: 8,
                             ),
                             Text(
                               _i18n.get("choose_other_files"),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 17,
+                                color: theme.colorScheme.onPrimaryContainer,
                               ),
                             ),
                           ],
@@ -105,8 +110,7 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                               Navigator.pop(context);
                             }
                             showCaptionDialog(
-                              resetRoomPageDetails:
-                                  widget.resetRoomPageDetails,
+                              resetRoomPageDetails: widget.resetRoomPageDetails,
                               replyMessageId: widget.replyMessageId,
                               roomUid: widget.roomUid,
                               context: context,
@@ -125,9 +129,11 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                         },
                       ),
                     ),
-                    const Divider(),
+                    const Divider(
+                      thickness: 2,
+                    ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Text(
                         _i18n.get("recent_files"),
                         style: TextStyle(
@@ -145,10 +151,16 @@ class ShareBoxFileState extends State<ShareBoxFile> {
 
                 return GestureDetector(
                   child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     color:
                         selected ? theme.primaryColor.withOpacity(0.3) : null,
-                    child: FileItem(
-                      file: fileItem,
+                    child: Column(
+                      children: [
+                        FileItem(
+                          file: fileItem,
+                        ),
+                        const Divider()
+                      ],
                     ),
                   ),
                   onTap: () => widget.onClick(index - 1, fileItem.path),

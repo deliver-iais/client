@@ -1,7 +1,6 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_play_progress.dart';
-import 'package:deliver/screen/room/messageWidgets/size_formatter.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -46,14 +45,14 @@ class FileDetails extends StatelessWidget {
                     builder: (c, map) {
                       final progress = map.data![file.uuid] ?? 0;
                       return _buildText(
-                        "${sizeFormatter((progress * file.size.toInt()).toInt())} / ${sizeFormatter(file.size.toInt())}",
+                        "${sizeToString((progress * file.size.toInt()).toInt())} / ${sizeToString(file.size.toInt())}",
                         context,
                       );
                     },
                   );
                 } else {
                   return _buildText(
-                    "${sizeFormatter(file.size.toInt())}  ${findFileType(file.name)}",
+                    "${sizeToString(file.size.toInt())}  ${getFileExtension(file.name)}",
                     context,
                   );
                 }

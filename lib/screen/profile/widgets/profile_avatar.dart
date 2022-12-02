@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -163,7 +163,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                   children: <Widget>[
                     Container(
                       padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
+                      child: GalleryBox(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
                         setAvatar: cropAvatar,
