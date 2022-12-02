@@ -27,14 +27,17 @@ import 'package:rxdart/rxdart.dart';
 class EmojiKeyboardWidget extends StatefulWidget {
   final void Function(String) onTap;
   final void Function(bool) onSearchEmoji;
-  final  VoidCallback? onSkinToneOverlay;
+  final VoidCallback? onSkinToneOverlay;
+  final VoidCallback onEmojiDeleted;
   final KeyboardStatus keyboardStatus;
 
   const EmojiKeyboardWidget({
     super.key,
     required this.onTap,
     required this.onSearchEmoji,
-    required this.keyboardStatus,  this.onSkinToneOverlay,
+    required this.keyboardStatus,
+    this.onSkinToneOverlay,
+    required this.onEmojiDeleted,
   });
 
   @override
@@ -48,7 +51,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
 
-  final _scrollController = ScrollController(initialScrollOffset: 55);
+  final _scrollController =
+      ScrollController(initialScrollOffset: hasVibrationCapability ? 55 : 0);
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final _selectedEmojiGroup = BehaviorSubject<EmojiGroup?>.seeded(null);
@@ -174,8 +178,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                         if (!hasVibrationCapability)
                           _buildSelectionHeaderWidget(),
 
+                        //todo(chitsaz) fix overlay problem with text field and add search box
                         //search box
-                        _buildEmojiSearchBox(theme),
+                        if (hasVibrationCapability) _buildEmojiSearchBox(theme),
 
                         //emoji grid
                         if (_isSearchModeEnable)
@@ -222,7 +227,6 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                         );
                       },
                     ),
-                  if (!hasVibrationCapability) _buildFooter(),
                 ],
               ),
             ),
@@ -237,6 +241,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
       duration: ANIMATION_DURATION,
       height: hideHeader ? 0 : 30,
       child: SearchBarFooter(
+        onEmojiDeleted: widget.onEmojiDeleted,
         onSearchIconTap: () {
           widget.onSearchEmoji(true);
           _scrollController.jumpTo(
@@ -346,7 +351,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
       offset = offset +
           (45) * (((Emoji.byGroup(group).length / columns).ceil())) +
           (group.index >= 1 ? 40 : 0);
-      if (_scrollController.offset >= offset + 60) {
+      if (_scrollController.offset >=
+          offset + (hasVibrationCapability ? 60 : 0)) {
         selectedGroup = EmojiGroup.values[min(group.index + 1, 9)];
       }
     }
