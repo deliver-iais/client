@@ -318,6 +318,8 @@
   "not_recommended": "توصیه نمیشود",
   "not_valid_input": "ورودی معتبر نیست",
   "notification": "اعلان",
+  "notification_advanced_mode": "حالت پیشرفته اعلان",
+  "notification_advance_mode_description": "به دلیل مشکات ایننرنت گاها ممکن است اعلان  پیام های جدید دریافت نشود، برای حل این مشکل ما با دریافت هر پیام و تماس، همگام سازی را انجام می دهیم",
   "notification_foreground": "دریافت نوتیفیکیشن های برنامه در پس زمینه فعال است",
   "notification_foreground_call": "تماس در پس زمینه فعال است",
   "notification_foreground_not_received": "نوتیفیکیشن های برنامه در پس زمینه فعال نمی باشند",

@@ -2413,6 +2413,7 @@ class MockDataStreamServices extends _i1.Mock
     int? lastMessageId,
     int? firstMessageId, {
     bool? retry = true,
+    bool? appRunInForeground = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2461,13 +2462,13 @@ class MockDataStreamServices extends _i1.Mock
   @override
   _i22.Future<List<_i25.Message>> saveFetchMessages(
     List<_i46.Message>? messages, {
-    bool? isLastMessage = false,
+    bool? appRunInForeground = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #saveFetchMessages,
           [messages],
-          {#isLastMessage: isLastMessage},
+          {#isLastMessage: appRunInForeground},
         ),
         returnValue: _i22.Future<List<_i25.Message>>.value(<_i25.Message>[]),
       ) as _i22.Future<List<_i25.Message>>);

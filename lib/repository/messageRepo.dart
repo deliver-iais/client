@@ -28,6 +28,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -104,6 +105,7 @@ class MessageRepo {
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool _updateState = false;
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
@@ -165,7 +167,7 @@ class MessageRepo {
     _logger.i('updating done -----------------');
   }
 
-  @visibleForTesting
+  // @visibleForTesting
   Future<bool> updatingMessages() async {
     var finished = false;
     var pointer = 0;
@@ -174,6 +176,7 @@ class MessageRepo {
     if (!allRoomFetched && _updateState) {
       updatingStatus.add(TitleStatusConditions.Syncing);
     }
+    final appRunInForeground = !_appLifecycleService.appIsActive();
 
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
@@ -240,6 +243,7 @@ class MessageRepo {
                   roomMetadata.roomUid.asString(),
                   roomMetadata.lastMessageId.toInt(),
                   roomMetadata.firstMessageId.toInt(),
+                  appRunInForeground: appRunInForeground,
                 );
               }
             } else {
@@ -274,12 +278,14 @@ class MessageRepo {
   Future<void> fetchRoomLastMessage(
     String roomUid,
     int lastMessageId,
-    int firstMessageId,
-  ) async {
+    int firstMessageId, {
+    bool appRunInForeground = false,
+  }) async {
     await _dataStreamServices.fetchLastNotHiddenMessage(
       roomUid.asUid(),
       lastMessageId,
       firstMessageId,
+      appRunInForeground: appRunInForeground,
     );
 
     await _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
@@ -743,7 +749,8 @@ class MessageRepo {
     await _savePendingEditedMessage(
       pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
-    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
+    updatedFile = await _fileRepo
+        .uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
     if (updatedFile != null) {
       await _savePendingEditedMessage(
         pm.copyWith(

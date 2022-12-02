@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
   final Widget Function(int) listItems;
   final double height;
   static final _i18n = GetIt.I.get<I18N>();
+  final ScrollController scrollController;
 
   const GroupedShowCaseListWidget({
     Key? key,
@@ -24,10 +27,46 @@ class GroupedShowCaseListWidget extends StatelessWidget {
     required this.isAdvertisement,
     required this.isPrimary,
     this.needArrowIcon = true,
+    required this.scrollController,
   }) : super(key: key);
+
+  void animateToMaxMin(
+    double max,
+    double min,
+    double direction,
+    int seconds,
+    ScrollController scrollController,
+  ) {
+    scrollController
+        .animateTo(
+      direction,
+      duration: Duration(seconds: seconds),
+      curve: Curves.easeInOut,
+    )
+        .then((value) {
+      Timer(const Duration(seconds: 5), () {
+        direction = direction >= max ? min : direction + 275;
+        animateToMaxMin(max, min, direction, seconds, scrollController);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (scrollController.hasClients) {
+        final minScrollExtent = scrollController.position.minScrollExtent;
+        final maxScrollExtent = scrollController.position.maxScrollExtent;
+        animateToMaxMin(
+          maxScrollExtent,
+          minScrollExtent,
+          275,
+          2,
+          scrollController,
+        );
+      }
+    });
+
     final theme = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -37,7 +76,9 @@ class GroupedShowCaseListWidget extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: 15, vertical: needArrowIcon ? 0 : 8,),
+                horizontal: 15,
+                vertical: needArrowIcon ? 0 : 8,
+              ),
               child: Row(
                 children: [
                   if (isAdvertisement) ...[
@@ -88,6 +129,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
       child: ListView.builder(
         itemCount: listItemsLength,
         scrollDirection: Axis.horizontal,
+        controller: scrollController,
         itemBuilder: (ctx, index) {
           return isPrimary
               ? Padding(
