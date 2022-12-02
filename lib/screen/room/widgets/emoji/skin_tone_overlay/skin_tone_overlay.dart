@@ -121,12 +121,11 @@ class SkinToneOverlay {
         leftOffset;
     final top = (hideHeaderAndFooter && hasVibrationCapability ? 1 : 2) *
             PERSISTENT_EMOJI_HEADER_HEIGHT +
-        15 +
+        (hasVibrationCapability ? 15 : 0) +
         offset.dy +
         (row) * emojiSpace -
         scrollOffset -
-        topOffset +
-        (isDesktop ? 30 : 0);
+        topOffset;
     return Rect.fromLTWH(left, top, emojiSpace, .0);
   }
 
