@@ -1,7 +1,8 @@
 
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
-const double PersistentEmojiHeaderHeight = 42.0;
+
 
 class PersistentEmojiHeader extends SliverPersistentHeaderDelegate {
   final Widget widget;
@@ -9,7 +10,7 @@ class PersistentEmojiHeader extends SliverPersistentHeaderDelegate {
 
   PersistentEmojiHeader({
     required this.widget,
-    this.height = PersistentEmojiHeaderHeight,
+    this.height = PERSISTENT_EMOJI_HEADER_HEIGHT,
   });
 
   @override

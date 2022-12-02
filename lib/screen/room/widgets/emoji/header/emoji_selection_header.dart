@@ -22,7 +22,7 @@ class EmojiSelectionHeader extends StatelessWidget {
     return SliverPersistentHeader(
       pinned: true,
       delegate: PersistentEmojiHeader(
-        height: (hideHeader) ? 0 : PersistentEmojiHeaderHeight,
+        height: (hideHeader) ? 0 : PERSISTENT_EMOJI_HEADER_HEIGHT,
         widget: Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.onInverseSurface,

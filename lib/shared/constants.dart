@@ -237,6 +237,11 @@ const BOX_INFO_TRACK_ID = 32;
 const RECENT_EMOJI_TRACK_ID = 33;
 const EMOJI_SKIN_TONE_TRACK_ID = 34;
 
+// Emoji
+const MAX_RECENT_EMOJI_LENGTH=48;
+const double PERSISTENT_EMOJI_HEADER_HEIGHT = 42.0;
+const double DESKTOP_EMOJI_OVERLAY_WIDTH = 360.0;
+
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
 const FEATURE_2 = 'feature2';
@@ -277,8 +282,6 @@ bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
-//Max Recent Emoji Length
-int MAX_RECENT_EMOJI_LENGTH=48;
 
 bool isLarge(BuildContext context) {
   if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {

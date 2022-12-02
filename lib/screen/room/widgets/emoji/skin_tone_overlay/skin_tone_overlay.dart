@@ -10,8 +10,6 @@ import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../header/persistent_emoji_header.dart';
-
 class SkinToneOverlay {
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
@@ -21,7 +19,8 @@ class SkinToneOverlay {
     Emoji emoji,
     BuildContext context,
     double offset,
-    void Function(String) onEmojiSelected, {
+    void Function(String) onEmojiSelected,
+    VoidCallback? onSkinToneOverlay, {
     bool hideHeaderAndFooter = false,
   }) {
     final positionRect = _calculateEmojiPosition(
@@ -35,50 +34,55 @@ class SkinToneOverlay {
       builder: (context) => Positioned(
         left: positionRect.left,
         top: positionRect.top,
-        child: Container(
-          height: positionRect.width + 10,
-          decoration: const BoxDecoration(
-            boxShadow: DEFAULT_BOX_SHADOWS,
-            borderRadius: tertiaryBorder,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  boxShadow: DEFAULT_BOX_SHADOWS,
-                  borderRadius: tertiaryBorder,
-                ),
-                child: Row(
-                  children: [
-                    ...List.generate(
-                      fitzpatrick.values.length,
-                      (i) => _buildSkinToneEmoji(
-                        i,
-                        emoji.toString(),
-                        positionRect.width,
-                        onEmojiSelected,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                top: positionRect.width,
-                left: (positionRect.width *
-                        (index % Emoji.getColumnsCount(context)) -
-                    positionRect.left +
-                    10),
-                child: ClipPath(
-                  clipper: TriangleClipper(),
-                  child: Container(
+        child: MouseRegion(
+          onHover: (val) {
+            onSkinToneOverlay!();
+          },
+          child: Container(
+            height: positionRect.width + 10,
+            decoration: const BoxDecoration(
+              boxShadow: DEFAULT_BOX_SHADOWS,
+              borderRadius: tertiaryBorder,
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
                     color: theme.cardColor,
-                    height: 10,
-                    width: 15,
+                    boxShadow: DEFAULT_BOX_SHADOWS,
+                    borderRadius: tertiaryBorder,
+                  ),
+                  child: Row(
+                    children: [
+                      ...List.generate(
+                        fitzpatrick.values.length,
+                        (i) => _buildSkinToneEmoji(
+                          i,
+                          emoji.toString(),
+                          positionRect.width,
+                          onEmojiSelected,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )
-            ],
+                Positioned(
+                  top: positionRect.width,
+                  left: (positionRect.width *
+                          (index % Emoji.getColumnsCount(context)) -
+                      positionRect.left +
+                      10),
+                  child: ClipPath(
+                    clipper: TriangleClipper(),
+                    child: Container(
+                      color: theme.cardColor,
+                      height: 10,
+                      width: 15,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -97,6 +101,7 @@ class SkinToneOverlay {
     final column = index % columns;
     final row =
         (Emoji.byGroup(EmojiGroup.smileysEmotion).length / columns).ceil() +
+            (Emoji.recent().length / columns).ceil() +
             (index / columns).ceil() +
             (column == 0 ? 1 : 0);
     // Calculate position for skin tone dialog
@@ -114,13 +119,14 @@ class SkinToneOverlay {
         (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) +
         column * emojiSpace +
         leftOffset;
-    final top = (hideHeaderAndFooter ? 1 : 2) * PersistentEmojiHeaderHeight +
+    final top = (hideHeaderAndFooter && hasVibrationCapability ? 1 : 2) *
+            PERSISTENT_EMOJI_HEADER_HEIGHT +
         15 +
         offset.dy +
-        (row + 1) * emojiSpace -
+        (row) * emojiSpace -
         scrollOffset -
         topOffset +
-        (isDesktop ? 20 : 0);
+        (isDesktop ? 30 : 0);
     return Rect.fromLTWH(left, top, emojiSpace, .0);
   }
 

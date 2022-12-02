@@ -16,7 +16,7 @@ class SearchBarFooter extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: theme.dividerColor,
-            blurRadius: 15.0,
+            blurRadius: 3.0,
             offset: const Offset(0.0, 0.75),
           ),
         ],

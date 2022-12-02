@@ -15,6 +15,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/emoji.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,13 +27,14 @@ import 'package:rxdart/rxdart.dart';
 class EmojiKeyboardWidget extends StatefulWidget {
   final void Function(String) onTap;
   final void Function(bool) onSearchEmoji;
+  final  VoidCallback? onSkinToneOverlay;
   final KeyboardStatus keyboardStatus;
 
   const EmojiKeyboardWidget({
     super.key,
     required this.onTap,
     required this.onSearchEmoji,
-    required this.keyboardStatus,
+    required this.keyboardStatus,  this.onSkinToneOverlay,
   });
 
   @override
@@ -127,7 +129,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   Widget build(BuildContext context) {
     if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD &&
         _searchFocusNode.hasFocus) {
-      _scrollController.jumpTo(50);
+      _scrollController.jumpTo(55);
       _searchFocusNode.unfocus();
     }
     final theme = Theme.of(context);
@@ -158,28 +160,19 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                       shrinkWrap: true,
                       slivers: <Widget>[
                         //selection header
-
-                        if (widget.keyboardStatus ==
-                            KeyboardStatus.EMOJI_KEYBOARD)
+                        if (hasVibrationCapability &&
+                            widget.keyboardStatus ==
+                                KeyboardStatus.EMOJI_KEYBOARD)
                           StreamBuilder<bool>(
                             stream: _hideHeaderAndFooter,
                             builder: (context, snapshot) {
-                              return EmojiSelectionHeader(
+                              return _buildSelectionHeaderWidget(
                                 hideHeader: snapshot.data ?? false,
-                                selectedEmojiGroup: _selectedEmojiGroup,
-                                onEmojiGroupHeaderTap: (index) {
-                                  _closeSkinToneOverlay();
-                                  _selectedEmojiGroup
-                                      .add(EmojiGroup.values[index]);
-                                  Scrollable.ensureVisible(
-                                    _headersKeyList[index].currentContext!,
-                                    duration: SUPER_SLOW_ANIMATION_DURATION,
-                                    curve: Curves.fastOutSlowIn,
-                                  );
-                                },
                               );
                             },
                           ),
+                        if (!hasVibrationCapability)
+                          _buildSelectionHeaderWidget(),
 
                         //search box
                         _buildEmojiSearchBox(theme),
@@ -219,34 +212,58 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
                   //footer
 
-                  if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD)
+                  if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD &&
+                      hasVibrationCapability)
                     StreamBuilder<bool>(
                       stream: _hideHeaderAndFooter,
                       builder: (context, snapshot) {
-                        return AnimatedContainer(
-                          duration: ANIMATION_DURATION,
-                          height: snapshot.data ?? false ? 0 : 30,
-                          child: SearchBarFooter(
-                            onSearchIconTap: () {
-                              widget.onSearchEmoji(true);
-                              _scrollController.jumpTo(
-                                0,
-                              );
-                              Future.delayed(
-                                const Duration(milliseconds: 500),
-                                () {},
-                              ).then((_) {
-                                _searchFocusNode.requestFocus();
-                              });
-                            },
-                          ),
+                        return _buildFooter(
+                          hideHeader: snapshot.data ?? false,
                         );
                       },
-                    )
+                    ),
+                  if (!hasVibrationCapability) _buildFooter(),
                 ],
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFooter({bool hideHeader = false}) {
+    return AnimatedContainer(
+      duration: ANIMATION_DURATION,
+      height: hideHeader ? 0 : 30,
+      child: SearchBarFooter(
+        onSearchIconTap: () {
+          widget.onSearchEmoji(true);
+          _scrollController.jumpTo(
+            0,
+          );
+          Future.delayed(
+            const Duration(milliseconds: 500),
+            () {},
+          ).then((_) {
+            _searchFocusNode.requestFocus();
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildSelectionHeaderWidget({bool hideHeader = false}) {
+    return EmojiSelectionHeader(
+      hideHeader: hideHeader,
+      selectedEmojiGroup: _selectedEmojiGroup,
+      onEmojiGroupHeaderTap: (index) {
+        _closeSkinToneOverlay();
+        _selectedEmojiGroup.add(EmojiGroup.values[index]);
+        Scrollable.ensureVisible(
+          _headersKeyList[index].currentContext!,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
+          curve: Curves.fastOutSlowIn,
         );
       },
     );
@@ -388,6 +405,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         context,
         _scrollController.offset,
         _onEmojiSelected,
+        widget.onSkinToneOverlay,
         hideHeaderAndFooter: _hideHeaderAndFooter.value,
       );
       if (_skinToneOverlay != null) {
