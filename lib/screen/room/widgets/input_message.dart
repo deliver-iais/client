@@ -117,6 +117,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
+  final _inputTextKey = GlobalKey();
 
   final botCommandRegexp = RegExp(r"(\w)*");
   final idRegexp = RegExp(r"^[a-zA-Z](\w){0,19}$");
@@ -454,6 +455,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   if (back.data == KeyboardStatus.EMOJI_KEYBOARD ||
                       back.data == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
                     child = EmojiKeyboardWidget(
+                      onEmojiDeleted: _onEmojiDeleted,
                       onSearchEmoji: (isSearchFocused) {
                         if (isSearchFocused) {
                           _keyboardStatus
@@ -609,7 +611,8 @@ class InputMessageWidgetState extends State<InputMessage> {
               child: Material(
                 color: Colors.white.withOpacity(0.0),
                 child: EmojiKeyboardWidget(
-                  onSkinToneOverlay: (){
+                  onEmojiDeleted: _onEmojiDeleted,
+                  onSkinToneOverlay: () {
                     _desktopEmojiKeyboardFocusNode.requestFocus();
                   },
                   onTap: (emoji) => _onEmojiSelected(emoji),
@@ -738,6 +741,7 @@ class InputMessageWidgetState extends State<InputMessage> {
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
             child: AutoDirectionTextField(
+              textFieldKey: _inputTextKey,
               selectionControls: selectionControls,
               focusNode: widget.focusNode,
               autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
@@ -979,6 +983,35 @@ class InputMessageWidgetState extends State<InputMessage> {
               botCommandSelectedIndex++,
           },
         );
+  }
+
+  void _updateTextEditingValue(TextEditingValue value) {
+    if (_inputTextKey.currentState != null) {
+      (_inputTextKey.currentState!
+              as TextSelectionGestureDetectorBuilderDelegate)
+          .editableTextKey
+          .currentState
+          ?.userUpdateTextEditingValue(value, SelectionChangedCause.keyboard);
+    }
+  }
+
+  void _onEmojiDeleted() {
+    if (widget.textController.selection.base.offset < 0) {
+      return;
+    }
+
+    final selection = widget.textController.value.selection;
+    final text = widget.textController.value.text;
+    final newTextBeforeCursor =
+        selection.textBefore(text).characters.skipLast(1).toString();
+    _updateTextEditingValue(
+      TextEditingValue(
+        text: newTextBeforeCursor + selection.textAfter(text),
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: newTextBeforeCursor.length),
+        ),
+      ),
+    );
   }
 
   void scrollUpInMentions() {

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class SearchBarFooter extends StatelessWidget {
   final VoidCallback onSearchIconTap;
+  final VoidCallback onEmojiDeleted;
 
-  const SearchBarFooter({Key? key, required this.onSearchIconTap})
+  const SearchBarFooter({Key? key, required this.onSearchIconTap, required this.onEmojiDeleted})
       : super(key: key);
 
   @override
@@ -33,7 +34,7 @@ class SearchBarFooter extends StatelessWidget {
           ),
           const Spacer(),
           IconButton(
-            onPressed: () {},
+            onPressed: () =>   onEmojiDeleted(),
             icon: const Icon(
               Icons.backspace_outlined,
             ),
