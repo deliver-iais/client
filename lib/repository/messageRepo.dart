@@ -174,9 +174,8 @@ class MessageRepo {
                 ..limit = FETCH_ROOM_METADATA_LIMIT,
             );
             if (getAllUserRoomMetaRes.finished ||
-                (!getAllUserRoomMetaRes.finished &&
-                    getAllUserRoomMetaRes.roomsMeta.length ==
-                        FETCH_ROOM_METADATA_LIMIT)) {
+                getAllUserRoomMetaRes.roomsMeta.length ==
+                    FETCH_ROOM_METADATA_LIMIT) {
               isFetchCorrectly = true;
             } else {
               reTryFailedFetch--;
