@@ -1,3 +1,4 @@
+
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
@@ -18,16 +19,19 @@ import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
+import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manager.dart';
+import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
@@ -40,6 +44,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -65,6 +70,7 @@ import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/backgroundService.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -98,7 +104,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -204,6 +209,7 @@ Future<void> setupDI() async {
   registerSingleton<PersistentEventHandlerService>(
     PersistentEventHandlerService(),
   );
+  registerSingleton<BackgroundService>(BackgroundService());
 }
 
 Future<void> dbSetupDI() async {
@@ -244,7 +250,9 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(AutoDownloadAdapter())
     ..registerAdapter(BoxInfoAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
-    ..registerAdapter(ShowCaseAdapter());
+    ..registerAdapter(ShowCaseAdapter())
+    ..registerAdapter(RecentEmojiAdapter())
+    ..registerAdapter(EmojiSkinToneAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -270,6 +278,8 @@ Future<void> dbSetupDI() async {
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+  registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
+  registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
 }
 
 Future initializeFirebase() async {

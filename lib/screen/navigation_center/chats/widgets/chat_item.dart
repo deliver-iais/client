@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
@@ -68,16 +70,14 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    if (widget.room.lastMessage == null || !widget.room.synced) {
+    if (!widget.room.synced) {
       _fetchRoomLastMessageAndLastSeen();
-    }
-    if (widget.room.lastMessage != null && !widget.room.seenSynced) {
+    } else if (!widget.room.seenSynced) {
       _messageRepo.fetchRoomLastSeen(widget.room.uid);
     }
     if (widget.room.uid.asUid().category == Categories.USER) {
       _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
     }
-
     super.initState();
   }
 
@@ -87,7 +87,7 @@ class ChatItemState extends State<ChatItem> {
       widget.room.lastMessageId,
       widget.room.firstMessageId,
     );
-    _messageRepo.fetchRoomLastSeen(widget.room.uid).ignore();
+    unawaited(_messageRepo.fetchRoomLastSeen(widget.room.uid));
   }
 
   @override

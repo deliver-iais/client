@@ -52,8 +52,9 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
               ..add(const Divider())
               ..add(
                 GestureDetector(
+                  behavior: HitTestBehavior.translucent,
                   onTap: () {
-                    _routingServices.openRoom(member!.memberUid);
+                    _routingServices.openProfile(member!.memberUid);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
