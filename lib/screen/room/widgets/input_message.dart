@@ -569,18 +569,20 @@ class InputMessageWidgetState extends State<InputMessage> {
             },
           );
         } else {
-          return TextButton(
-            focusNode: _desktopEmojiKeyboardFocusNode,
-            onPressed: () {},
+          return MouseRegion(
             onHover: (val) {
-              if (val) {
-                _desktopEmojiKeyboardFocusNode.requestFocus();
-              } else {
-                _desktopEmojiKeyboardFocusNode.unfocus();
-              }
+              _desktopEmojiKeyboardFocusNode.requestFocus();
             },
-            child: const Icon(
-              CupertinoIcons.smiley,
+            onExit: (val) {
+              _desktopEmojiKeyboardFocusNode.unfocus();
+            },
+            child: IconButton(
+              focusNode: _desktopEmojiKeyboardFocusNode,
+              onPressed: () {},
+              hoverColor: Colors.transparent,
+              icon: const Icon(
+                CupertinoIcons.smiley,
+              ),
             ),
           );
         }

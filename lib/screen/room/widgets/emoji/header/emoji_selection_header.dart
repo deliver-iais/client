@@ -1,6 +1,7 @@
 import 'package:deliver/screen/room/widgets/emoji/header/persistent_emoji_header.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -26,11 +27,19 @@ class EmojiSelectionHeader extends StatelessWidget {
         widget: Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.onInverseSurface,
-            border: Border(
-              bottom: BorderSide(
+            borderRadius: hasVibrationCapability
+                ? null
+                : const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    topLeft: Radius.circular(8),
+                  ),
+            boxShadow: [
+              BoxShadow(
                 color: theme.dividerColor,
+                blurRadius: 3.0,
+                offset: const Offset(0.0, 0.75),
               ),
-            ),
+            ],
           ),
           child: DefaultTextStyle(
             style: const TextStyle(fontSize: 20),

@@ -154,7 +154,11 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           child: GestureDetector(
             onTap: () => _closeSkinToneOverlay(),
             child: Container(
-              color: theme.colorScheme.onInverseSurface,
+              decoration: BoxDecoration(
+                boxShadow: hasVibrationCapability ? null : DEFAULT_BOX_SHADOWS,
+                color: theme.colorScheme.onInverseSurface,
+                borderRadius: hasVibrationCapability ? null : tertiaryBorder,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
