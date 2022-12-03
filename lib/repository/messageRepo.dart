@@ -193,8 +193,12 @@ class MessageRepo {
 
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           try {
-            await _updateRoom(roomMetadata,
-                appRunInForeground: appRunInForeground,);
+            await _updateRoom(
+              roomMetadata,
+              appRunInForeground: appRunInForeground,
+              indexOfRoom:
+                  getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
+            );
 
             if (allRoomFetched && _updateState) {
               updatingStatus.add(TitleStatusConditions.Updating);
@@ -224,10 +228,10 @@ class MessageRepo {
     return true;
   }
 
-
   Future<void> _updateRoom(
     RoomMetadata roomMetadata, {
     bool appRunInForeground = false,
+    int indexOfRoom = 0,
   }) async {
     try {
       final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
@@ -256,15 +260,12 @@ class MessageRepo {
                 lastUpdateTime: roomMetadata.lastUpdate.toInt(),
               )
               .ignore();
-          if (appRunInForeground) {
-            unawaited(
-              fetchRoomLastMessage(
-                roomMetadata.roomUid.asString(),
-                roomMetadata.lastMessageId.toInt(),
-                roomMetadata.firstMessageId.toInt(),
-                appRunInForeground: true,
-              ),
-            );
+          if (appRunInForeground &&
+              (room == null ||
+                  (indexOfRoom < 20 &&
+                      roomMetadata.lastMessageId.toInt() >
+                          room.lastMessageId))) {
+            unawaited(_updateRoomInBackground(roomMetadata));
           }
         }
       } else {
@@ -282,6 +283,21 @@ class MessageRepo {
       _logger
         ..e(e)
         ..e(t);
+    }
+  }
+
+  Future<void> _updateRoomInBackground(RoomMetadata roomMetadata) async {
+    final seen = await _roomRepo.getMySeen(roomMetadata.roomUid.asString());
+    if (roomMetadata.lastMessageId > seen.messageId) {
+      unawaited(
+        fetchRoomLastMessage(
+          roomMetadata.roomUid.asString(),
+          roomMetadata.lastMessageId.toInt(),
+          roomMetadata.firstMessageId.toInt(),
+          appRunInForeground: true,
+        ),
+      );
+      unawaited(fetchRoomLastSeen(roomMetadata.roomUid.asString()));
     }
   }
 
