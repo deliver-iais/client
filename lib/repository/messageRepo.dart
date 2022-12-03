@@ -260,7 +260,7 @@ class MessageRepo {
               .ignore();
           if (appRunInForeground &&
               (room == null ||
-                  (indexOfRoom < 20 &&
+                  (indexOfRoom < FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT &&
                       roomMetadata.lastMessageId.toInt() >
                           room.lastMessageId))) {
             unawaited(_updateRoomInBackground(roomMetadata));
