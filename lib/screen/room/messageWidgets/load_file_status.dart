@@ -151,7 +151,8 @@ class LoadFileStatusState extends State<LoadFileStatus>
       initialData: const {},
       stream: _fileService.filesProgressBarStatus,
       builder: (c, map) {
-        final progress = map.data![widget.uuid] ?? 0;
+        final double progress =
+            max(min(map.data![widget.uuid] ?? 0, 1), 0.0001);
         return Stack(
           children: [
             Center(
@@ -165,23 +166,15 @@ class LoadFileStatusState extends State<LoadFileStatus>
                       child: child,
                     );
                   },
-                  child: (progress >= 0.95 && widget.isUploading)
-                      ? SizedBox(
-                          height: LOADING_INDICATOR_RADIUS * 2,
-                          width: LOADING_INDICATOR_RADIUS * 2,
-                          child: CircularProgressIndicator(
-                            backgroundColor: widget.background,
-                            color: widget.foreground,
-                          ),
-                        )
-                      : CircularPercentIndicator(
-                          radius: LOADING_INDICATOR_RADIUS,
-                          lineWidth: 4.0,
-                          circularStrokeCap: CircularStrokeCap.round,
-                          percent: max(min(progress, 1), 0.0001),
-                          backgroundColor: widget.background,
-                          progressColor: widget.foreground,
-                        ),
+                  child: CircularPercentIndicator(
+                    radius: LOADING_INDICATOR_RADIUS,
+                    lineWidth: 4.0,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent:
+                        widget.isUploading ? min(progress, 0.96) : progress,
+                    backgroundColor: widget.background,
+                    progressColor: widget.foreground,
+                  ),
                 ),
               ),
             ),

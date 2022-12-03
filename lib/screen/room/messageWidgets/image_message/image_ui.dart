@@ -109,12 +109,26 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                               if (path.hasData && path.data != null) {
                                 return buildImageUi(context, path);
                               }
-
                               return buildDownloadImageWidget(defaultImageUI());
                             },
                           );
                         } else {
-                          child = buildDownloadImageWidget(child);
+                          child = buildDownloadImageWidget(
+                            FutureBuilder<String?>(
+                              future: _fileRepo.getFile(
+                                widget.image.uuid,
+                                widget.image.name,
+                                thumbnailSize: ThumbnailSize.small,
+                                intiProgressbar: false,
+                              ),
+                              builder: (c, path) {
+                                if (path.hasData && path.data != null) {
+                                  return buildThumbnail(path.data!);
+                                }
+                                return defaultImageUI();
+                              },
+                            ),
+                          );
                         }
 
                         return AnimatedSwitcher(
@@ -163,6 +177,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
 
   Stack buildDownloadImageWidget(Widget child) {
     return Stack(
+      fit: StackFit.expand,
+      alignment: Alignment.center,
       children: [
         MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -275,6 +291,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ],
     );
   }
+
+  Widget buildThumbnail(String path) => isWeb
+      ? Image.network(path, fit: BoxFit.fill)
+      : Image.file(File(path), fit: BoxFit.fill);
 
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {
