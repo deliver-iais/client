@@ -55,7 +55,6 @@ class SeenDaoImpl extends SeenDao {
 
     yield* box
         .watch(key: uid)
-        .distinct()
         .map((event) => box.get(uid) ?? _defaultSeenValue(uid));
   }
 
