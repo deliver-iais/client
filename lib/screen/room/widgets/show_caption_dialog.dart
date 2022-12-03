@@ -23,6 +23,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+void showCaptionDialog({
+  List<model.File>? files,
+  required Uid roomUid,
+  required BuildContext context,
+  void Function()? resetRoomPageDetails,
+  int replyMessageId = 0,
+  Message? editableMessage,
+  String? caption,
+  bool showSelectedImage = false,
+}) {
+  if (editableMessage == null && (files?.isEmpty ?? false)) return;
+  showDialog(
+    context: context,
+    builder: (context) {
+      return ShowCaptionDialog(
+        resetRoomPageDetails: resetRoomPageDetails,
+        replyMessageId: replyMessageId,
+        caption: caption,
+        showSelectedImage: showSelectedImage,
+        editableMessage: editableMessage,
+        currentRoom: roomUid,
+        files: files,
+      );
+    },
+  );
+}
+
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
 class ShowCaptionDialog extends StatefulWidget {
   final List<model.File>? files;
@@ -461,7 +488,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       allowMultiple: allowMultiple,
     );
 
-    final files = filePickerPlatformFileListToFileModelList(result?.files ?? []);
+    final files = (result?.files ?? []).map(filePickerPlatformFileToFileModel);
 
     final notAcceptableFile = getNotAcceptableFiles(files);
 

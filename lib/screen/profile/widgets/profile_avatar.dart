@@ -130,14 +130,13 @@ class ProfileAvatarState extends State<ProfileAvatar> {
           acceptedTypeGroups: [typeGroup],
         );
         if (file != null && file.path.isNotEmpty) {
-          cropAvatar(file.path);
+          openCropAvatar(file.path);
         }
       } else {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.image,
-        );
+        final result =
+            await FilePicker.platform.pickFiles(type: FileType.image);
         if (result!.files.isNotEmpty) {
-          cropAvatar(
+          openCropAvatar(
             isWeb
                 ? Uri.dataFromBytes(result.files.first.bytes!.toList())
                     .toString()
@@ -166,7 +165,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                       child: GalleryBox(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
-                        setAvatar: cropAvatar,
+                        setAvatar: openCropAvatar,
                         roomUid: widget.roomUid,
                       ),
                     ),
@@ -180,7 +179,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     }
   }
 
-  void cropAvatar(String imagePath) {
+  void openCropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(

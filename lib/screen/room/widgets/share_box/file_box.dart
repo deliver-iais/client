@@ -2,8 +2,8 @@ import 'dart:io' as io;
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_item.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

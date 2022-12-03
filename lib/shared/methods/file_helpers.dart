@@ -5,6 +5,7 @@ import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 
 class NotAcceptableFile {
@@ -44,11 +45,6 @@ String getFileName(String path) => p.basename(path);
 
 int getFileSizeSync(String path) => File(path).lengthSync();
 
-Iterable<file_model.File> filePickerPlatformFileListToFileModelList(
-  Iterable<PlatformFile> platformFiles,
-) =>
-    platformFiles.map(filePickerPlatformFileToFileModel);
-
 file_model.File filePickerPlatformFileToFileModel(PlatformFile f) =>
     file_model.File(
       isWeb
@@ -61,9 +57,6 @@ file_model.File filePickerPlatformFileToFileModel(PlatformFile f) =>
       size: f.size,
     );
 
-Iterable<file_model.File> pathListToFileModelList(Iterable<String> pathList) =>
-    pathList.map(pathToFileModel);
-
 file_model.File pathToFileModel(String path) => file_model.File(
       normalizePath(path),
       getFileName(path),
@@ -75,6 +68,13 @@ file_model.File fileToFileModel(File file) => file_model.File(
       normalizePath(file.path),
       getFileName(file.path),
       size: file.lengthSync(),
+      extension: getFileExtension(file.path),
+    );
+
+Future<file_model.File> xFileToFileModel(XFile file) async => file_model.File(
+      normalizePath(file.path),
+      getFileName(file.path),
+      size: await file.length(),
       extension: getFileExtension(file.path),
     );
 

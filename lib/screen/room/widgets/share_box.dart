@@ -3,9 +3,7 @@ import 'dart:math';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box/file_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/music_box.dart';
@@ -27,14 +25,14 @@ import 'package:rxdart/rxdart.dart';
 import 'share_box/share_box_input_caption.dart';
 
 class ShareBox extends StatefulWidget {
-  final Uid currentRoomId;
+  final Uid currentRoomUid;
   final int replyMessageId;
   final void Function() resetRoomPageDetails;
   final void Function() scrollToLastSentMessage;
 
   const ShareBox({
     super.key,
-    required this.currentRoomId,
+    required this.currentRoomUid,
     this.replyMessageId = 0,
     required this.resetRoomPageDetails,
     required this.scrollToLastSentMessage,
@@ -151,7 +149,7 @@ class ShareBoxState extends State<ShareBox> {
             );
           } else if (_currentPage == ShareBoxPage.files) {
             w = FilesBox(
-              roomUid: widget.currentRoomId,
+              roomUid: widget.currentRoomUid,
               scrollController: scrollController,
               onClick: (index, path) {
                 setState(() {
@@ -172,13 +170,13 @@ class ShareBoxState extends State<ShareBox> {
               pop: () {
                 Navigator.pop(context);
               },
-              roomUid: widget.currentRoomId,
+              roomUid: widget.currentRoomUid,
               resetRoomPageDetails: widget.resetRoomPageDetails,
             );
           } else if (_currentPage == ShareBoxPage.location) {
             w = AttachLocation(
               context,
-              widget.currentRoomId,
+              widget.currentRoomUid,
             ).showLocation();
           }
 
@@ -361,9 +359,16 @@ class ShareBoxState extends State<ShareBox> {
                             //   caption: _captionEditingController.text,
                             // );
                             final files =
-                                pathListToFileModelList(finalSelected.values);
+                                finalSelected.values.map(pathToFileModel);
 
-                            showCaptionDialog(files: files.toList());
+                            showCaptionDialog(
+                              files: files.toList(),
+                              roomUid: widget.currentRoomUid,
+                              context: context,
+                              resetRoomPageDetails: widget.resetRoomPageDetails,
+                              replyMessageId: _replyMessageId,
+                            );
+
                             setState(() {
                               finalSelected.clear();
                               selectedAudioMap.clear();
@@ -398,51 +403,4 @@ class ShareBoxState extends State<ShareBox> {
   bool get isAnyFileSelected => finalSelected.values.isNotEmpty;
 
   int get _replyMessageId => widget.replyMessageId;
-
-  void showCaptionDialog({
-    IconData? icons,
-    String? type,
-    required List<model.File> files,
-  }) {
-    if (files.isEmpty) return;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return ShowCaptionDialog(
-          resetRoomPageDetails: widget.resetRoomPageDetails,
-          replyMessageId: _replyMessageId,
-          files: files,
-          currentRoom: widget.currentRoomId,
-        );
-      },
-    );
-  }
-}
-
-void showCaptionDialog({
-  List<model.File>? files,
-  required Uid roomUid,
-  required BuildContext context,
-  void Function()? resetRoomPageDetails,
-  int replyMessageId = 0,
-  Message? editableMessage,
-  String? caption,
-  bool showSelectedImage = false,
-}) {
-  if (editableMessage == null && (files?.isEmpty ?? false)) return;
-  showDialog(
-    context: context,
-    builder: (context) {
-      return ShowCaptionDialog(
-        resetRoomPageDetails: resetRoomPageDetails,
-        replyMessageId: replyMessageId,
-        caption: caption,
-        showSelectedImage: showSelectedImage,
-        editableMessage: editableMessage,
-        currentRoom: roomUid,
-        files: files,
-      );
-    },
-  );
 }
