@@ -30,6 +30,7 @@ import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
+import 'package:deliver/screen/profile/widgets/profile_blur_avatar.dart';
 import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
@@ -188,62 +189,7 @@ class ProfilePageState extends State<ProfilePage>
                               StretchMode.blurBackground
                             ],
                             expandedTitleScale: 1.1,
-                            //TODO :  refactor this
-                            background: StreamBuilder<String?>(
-                              key: GlobalKey(),
-                              initialData: _avatarRepo
-                                  .fastForwardAvatarFilePath(widget.roomUid),
-                              stream: _avatarRepo.getLastAvatarFilePathStream(
-                                widget.roomUid,
-                                forceToUpdate: true,
-                              ),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData &&
-                                    snapshot.data!.isNotEmpty) {
-                                  final image = isWeb
-                                      ? Image.network(snapshot.data!,
-                                          fit: BoxFit.cover)
-                                      : Image.file(
-                                          File(snapshot.data!),
-                                          fit: BoxFit.cover,
-                                          // scale: 0.001,
-                                        );
-                                  return ShaderMask(
-                                    blendMode: BlendMode.srcOver,
-                                    shaderCallback: (bounds) => LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        stops: [0.5, 1],
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          theme.colorScheme.background
-                                              .withOpacity(0),
-                                          theme.colorScheme.background
-                                        ]).createShader(
-                                      Rect.fromLTWH(
-                                          0, 0, bounds.width, bounds.height),
-                                    ),
-                                    child: ColorFiltered(
-                                      colorFilter: ColorFilter.mode(
-                                          theme.colorScheme.background
-                                              .withOpacity(0.6),
-                                          BlendMode.srcOver),
-                                      child: ImageFiltered(
-                                          imageFilter: ImageFilter.blur(
-                                              sigmaX: 17.0, sigmaY: 17.0),
-                                          child: image),
-                                    ),
-                                  );
-
-                                  // if(image.height == image.width){
-                                  //   image.fit =
-                                  // }
-                                } else {
-                                  // TODO : fix this one
-                                  return FlutterLogo();
-                                  // return showDisplayName(textColor);
-                                }
-                              },
-                            ),
+                            background: ProfileBlurAvatar(widget.roomUid),
                             title: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -552,11 +498,6 @@ class ProfilePageState extends State<ProfilePage>
         BoxList(
           largePageBorderRadius: BorderRadius.zero,
           children: [
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [],
-            ),
             ProfileIdSettingsTile(widget.roomUid, theme),
             if (widget.roomUid.isUser())
               FutureBuilder<Contact?>(
@@ -565,7 +506,7 @@ class ProfilePageState extends State<ProfilePage>
                   if (snapshot.data != null &&
                       snapshot.data!.countryCode != 0) {
                     return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 12.0),
                       child: SettingsTile(
                         title: _i18n.get("phone"),
                         subtitle: buildPhoneNumber(
@@ -700,7 +641,6 @@ class ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-            const Divider(height: 4, thickness: 4)
           ],
         )
       ]),
