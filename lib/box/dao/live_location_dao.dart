@@ -1,4 +1,4 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:hive/hive.dart';
@@ -11,7 +11,7 @@ abstract class LiveLocationDao {
   Stream<LiveLocation?> watchLiveLocation(String uuid);
 }
 
-class LiveLocationDaoImpl implements LiveLocationDao {
+class LiveLocationDaoImpl extends LiveLocationDao {
   @override
   Future<void> saveLiveLocation(LiveLocation liveLocation) async {
     final box = await _open();
@@ -36,8 +36,8 @@ class LiveLocationDaoImpl implements LiveLocationDao {
 
   static String _key() => "live_location";
 
-  static Future<BoxPlus<LiveLocation>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<LiveLocation>> _open() {
+    DBManager.open(_key(), TableInfo.LIVE_LOCATION_TABLE_NAME);
     return gen(Hive.openBox<LiveLocation>(_key()));
   }
 }

@@ -7,12 +7,14 @@ import 'package:get_it/get_it.dart';
 class MusicPlayProgress extends StatelessWidget {
   final String audioUuid;
   final double duration;
+  final List<int> audioWaveData;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
   MusicPlayProgress({
     super.key,
     required this.audioUuid,
     required this.duration,
+    required this.audioWaveData,
   });
 
   @override
@@ -37,6 +39,7 @@ class MusicPlayProgress extends StatelessWidget {
                         audioDuration: track.duration,
                         audioPath: track.path,
                         maxWidth: 200,
+                        audioWaveData: audioWaveData,
                       );
                     } else {
                       return const SizedBox.shrink();

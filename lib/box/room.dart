@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -50,7 +49,7 @@ class Room {
   bool seenSynced;
 
   @HiveField(13)
-  ReplyKeyboardMarkup? replyKeyboardMarkup;
+  String? replyKeyboardMarkup;
 
   Room({
     required this.uid,
@@ -84,7 +83,7 @@ class Room {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
-    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
   }) =>
       Room(

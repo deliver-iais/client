@@ -20,6 +20,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -58,6 +59,7 @@ class DataStreamServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -182,6 +184,7 @@ class DataStreamServices {
       bool? hasMentioned;
       if (roomUid.category == Categories.GROUP) {
         if (message.text.text
+            .replaceAll("\n", " ")
             .split(" ")
             .contains("@${(await _accountRepo.getAccount())!.username}")) {
           hasMentioned = true;
@@ -239,9 +242,7 @@ class DataStreamServices {
     final roomUid = getRoomUid(_authRepo, message);
     if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
       await _roomRepo.updateReplyKeyboard(
-        _messageExtractorServices.extractReplyKeyboardMarkup(
-          message.messageMarkup.replyKeyboardMarkup,
-        ),
+        message.messageMarkup.replyKeyboardMarkup.writeToJson(),
         roomUid.asString(),
       );
     } else if (message.messageMarkup.removeReplyKeyboardMarkup) {
@@ -449,7 +450,7 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
       await _roomDao.updateRoom(
         uid: msg.roomUid,
-        lastMessage: msg,
+        lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
       );
       _notificationServices
@@ -560,6 +561,7 @@ class DataStreamServices {
     int lastMessageId,
     int firstMessageId, {
     bool retry = true,
+    bool appRunInForeground = false,
   }) async {
     var pointer = lastMessageId + 1;
     message_model.Message? lastNotHiddenMessage;
@@ -584,6 +586,7 @@ class DataStreamServices {
             roomUid,
             lastMessageId,
             firstMessageId,
+            appRunInForeground: appRunInForeground,
           );
           break;
         }
@@ -621,8 +624,9 @@ class DataStreamServices {
   Future<message_model.Message?> _getLastNotHiddenMessageFromServer(
     Uid roomUid,
     int pointer,
-    int firstMessageId,
-  ) async {
+    int firstMessageId, {
+    bool appRunInForeground = false,
+  }) async {
     final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
@@ -632,7 +636,8 @@ class DataStreamServices {
         ..limit = 1,
     );
 
-    final messages = await saveFetchMessages(fetchMessagesRes.messages);
+    final messages = await saveFetchMessages(fetchMessagesRes.messages,
+        appRunInForeground: appRunInForeground,);
 
     for (final msg in messages) {
       if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
@@ -710,18 +715,21 @@ class DataStreamServices {
   }
 
   Future<List<message_model.Message>> saveFetchMessages(
-    List<Message> messages,
-  ) async {
+    List<Message> messages, {
+    bool appRunInForeground = false,
+  }) async {
     final msgList = <message_model.Message>[];
     for (final message in messages) {
       if (messages.last.id - message.id < 100) {
         await _checkForReplyKeyBoard(message);
       }
       await _messageDao.deletePendingMessage(message.packetId);
+
+
       try {
         final m = await handleIncomingMessage(
           message,
-          isOnlineMessage: false,
+          isOnlineMessage: appRunInForeground,
         );
 
         if (m == null) continue;

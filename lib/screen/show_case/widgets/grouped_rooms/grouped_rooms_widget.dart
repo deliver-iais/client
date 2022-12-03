@@ -21,8 +21,9 @@ class GroupedRoomsWidget extends StatelessWidget {
       onArrowButtonPressed: () => _routingService.openAllGroupedRoomsGridPage(
         groupedRooms: showCase.groupedRooms,
       ),
-      itemListLength: showCase.groupedRooms.roomsList.length,
-      itemList: _buildGroupedRoomsItems,
+      listItemsLength: showCase.groupedRooms.roomsList.length,
+      listItems: _buildGroupedRoomsItems,
+      scrollController: ScrollController(),
     );
   }
 
@@ -31,8 +32,9 @@ class GroupedRoomsWidget extends StatelessWidget {
       width: 100,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child:
-            GroupedRoomsItem(uid: showCase.groupedRooms.roomsList[index].uid),
+        child: GroupedRoomsItem(
+          uid: showCase.groupedRooms.roomsList[index].uid,
+        ),
       ),
     );
   }

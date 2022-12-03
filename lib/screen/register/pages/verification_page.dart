@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -77,7 +79,7 @@ class VerificationPageState extends State<VerificationPage> {
     _contactRepo.getContacts().ignore();
 
     if (await _accountRepo.hasProfile(retry: true)) {
-      await _accountRepo.fetchCurrentUserId(retry: true);
+      unawaited(_accountRepo.fetchCurrentUserId(retry: true));
       navigatorState.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (c) {
@@ -90,7 +92,7 @@ class VerificationPageState extends State<VerificationPage> {
       navigatorState.push(
         MaterialPageRoute(
           builder: (c) {
-            return const AccountSettings(forceToSetUsernameAndName: true);
+            return const AccountSettings(forceToSetName: true);
           },
         ),
       ).ignore();
@@ -111,14 +113,19 @@ class VerificationPageState extends State<VerificationPage> {
     return FluidWidget(
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: theme.primaryColor,
-          foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
-          child: const Icon(Icons.arrow_forward),
-          onPressed: () {
-            _sendVerificationCode();
-          },
+        floatingActionButton: TextButton(
+          onPressed:  _sendVerificationCode,
+          child: Text(
+            _i18n.get("start"),
+            key: const Key('start'),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: theme.primaryColor,
+              fontSize: 14.5,
+            ),
+          ),
         ),
+
         appBar: AppBar(
           backgroundColor: theme.colorScheme.background,
           title: Text(

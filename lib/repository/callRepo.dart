@@ -23,6 +23,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -73,6 +74,7 @@ class CallRepo {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -107,6 +109,7 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isInitRenderer = false;
+  bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
 
   bool get isCaller => _isCaller;
@@ -134,6 +137,7 @@ class CallRepo {
   int? _startCallTime = 0;
   int? _callDuration = 0;
   int? _endCallTime = 0;
+  int _shareDelay = 1;
 
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
@@ -248,6 +252,7 @@ class CallRepo {
                       CallNotificationActionInBackground(
                         roomId: event.roomUid!.asString(),
                         isCallAccepted: true,
+                        isVideo: _isVideo,
                       ),
                     );
                   } else {
@@ -618,7 +623,22 @@ class CallRepo {
   void onRTCPeerConnectionDisconnected() {
     Timer(const Duration(seconds: 1), () {
       if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
-        callingStatus.add(CallStatus.DISCONNECTED);
+        if (_peerConnection!.connectionState ==
+            RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
+          _reconnectTry = true;
+          _reconnectingAfterFailedConnection();
+          callingStatus.add(CallStatus.DISCONNECTED);
+          timerDisconnected = Timer(const Duration(seconds: 12), () {
+            if (callingStatus.value != CallStatus.CONNECTED) {
+              _logger.i("Disconnected and Call End!");
+              if (_isCaller) {
+                endCall();
+              } else {
+                _dispose();
+              }
+            }
+          });
+        }
         try {} catch (e) {
           _logger.e(e);
         }
@@ -682,6 +702,7 @@ class CallRepo {
   Future<void> _reconnectingAfterFailedConnection() async {
     _callEvents[clock.now().millisecondsSinceEpoch] = "ReConnecting";
     if (!_isCaller) {
+      callingStatus.add(CallStatus.RECONNECTING);
       _logger.i("try Reconnecting ...!");
       _offerSdp = await _createOffer();
     }
@@ -704,18 +725,25 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
-    Timer(const Duration(seconds: 1), () async {
+    await _ShareCameraStatusFromDataChannel();
+    if (!isDesktop) {
+      _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
+    }
+  }
+
+  Future<void> _ShareCameraStatusFromDataChannel() async {
+    Timer(Duration(seconds: 1 * _shareDelay), () async {
       if (_isDCReceived) {
         if (sharing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
         } else if (videoing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
         }
+      } else {
+        _shareDelay = _shareDelay * 2;
+        await _ShareCameraStatusFromDataChannel();
       }
     });
-    if (!isDesktop) {
-      _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
-    }
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
@@ -1067,11 +1095,13 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
+    _audioToggleOnCall();
     if (_isNotificationSelected) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
           roomId: roomId.asString(),
           isCallAccepted: false,
+          isVideo: _isVideo,
         ),
       );
     } else if (!isDuplicated) {
@@ -1080,6 +1110,7 @@ class CallRepo {
           CallNotificationActionInBackground(
             roomId: roomId.asString(),
             isCallAccepted: false,
+            isVideo: _isVideo,
           ),
         );
       } else {
@@ -1192,6 +1223,9 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    if (isAndroid) {
+      cancelVibration().ignore();
+    }
     _isAccepted = true;
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
@@ -1212,6 +1246,7 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
+        unawaited(_increaseCandidateAndWaitingTime());
         try {} catch (e) {
           _logger.e(e);
         }
@@ -1344,6 +1379,7 @@ class CallRepo {
 
   Future<void> cancelCallNotification() async {
     if (isAndroid && !_isCaller) {
+      cancelVibration().ignore();
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     } else if (isWindows) {
@@ -1429,14 +1465,18 @@ class CallRepo {
   }
 
   Future<void> _waitUntilCandidateConditionDone() async {
-    final candidateNumber = int.parse(
-      (await _sharedDao.get("ICECandidateNumbers")) ??
-          ((_reconnectTry || _isVideo) ? "20" : "10"),
-    );
-    final candidateTimeLimit = int.parse(
-      (await _sharedDao.get("ICECandidateTimeLimit")) ??
-          ((_reconnectTry || _isVideo) ? "1000" : "500"),
-    ); // 0.5 sec for audio and 1.0 for video
+    final candidateNumber = _reconnectTry
+        ? 20
+        : int.parse(
+            (await _sharedDao.get("ICECandidateNumbers")) ??
+                ((_isVideo) ? "15" : "10"),
+          );
+    final candidateTimeLimit = _reconnectTry
+        ? 3000
+        : int.parse(
+            (await _sharedDao.get("ICECandidateTimeLimit")) ??
+                ((_isVideo) ? "1000" : "500"),
+          ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
       "candidateNumber:$candidateNumber",
       "candidateTimeLimit:$candidateTimeLimit",
@@ -1568,6 +1608,10 @@ class CallRepo {
         timer!.cancel();
       }
 
+      if (_isConnected) {
+        unawaited(_decreaseCandidateAndWaitingTime());
+      }
+
       if (_isCaller) {
         if (_isConnected) {
           await _dataChannel?.close();
@@ -1632,6 +1676,7 @@ class CallRepo {
         _audioService
           ..turnUpTheCallVolume()
           ..stopCallAudioPlayer();
+        _audioToggleOnCall();
       });
     }
   }
@@ -1698,6 +1743,16 @@ class CallRepo {
     }
   }
 
+  void _audioToggleOnCall() {
+    if (_audioService.playerState.value == AudioPlayerState.playing) {
+      _audioService.pauseAudio();
+      _isAudioToggleOnCall = true;
+    } else if (_isAudioToggleOnCall) {
+      _audioService.resumeAudio();
+      _isAudioToggleOnCall = false;
+    }
+  }
+
 // ignore: non_constant_identifier_names
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
@@ -1747,6 +1802,34 @@ class CallRepo {
       }
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  Future<void> _increaseCandidateAndWaitingTime() async {
+    final candidateNumber =
+        int.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
+    if (candidateNumber < 10) {
+      _featureFlags
+        ..setICECandidateTimeLimit(2000)
+        ..setICECandidateNumber(15);
+    } else if (candidateNumber < 15) {
+      _featureFlags
+        ..setICECandidateTimeLimit(3000)
+        ..setICECandidateNumber(20);
+    }
+  }
+
+  Future<void> _decreaseCandidateAndWaitingTime() async {
+    final candidateNumber =
+        int.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
+    if (candidateNumber > 15) {
+      _featureFlags
+        ..setICECandidateTimeLimit(2000)
+        ..setICECandidateNumber(15);
+    } else if (candidateNumber < 10) {
+      _featureFlags
+        ..setICECandidateTimeLimit(1000)
+        ..setICECandidateNumber(10);
     }
   }
 }

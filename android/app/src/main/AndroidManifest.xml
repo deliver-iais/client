@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -26,9 +27,13 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <!--  Proximity Sensor Needed Permissions  -->
+    <uses-permission android:name="android.hardware.sensor.proximity"/>
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND"/>
+
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
 
@@ -134,6 +139,7 @@
                         android:pathPrefix="/spda"
                 />
             </intent-filter>
+
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -198,6 +204,31 @@
                     android:resource="@xml/filepaths"
                     tools:replace="android:resource"/>
         </provider>
+
+
+        <receiver android:name="com.shounakmulay.telephony.sms.IncomingSmsReceiver"
+                  android:permission="android.permission.BROADCAST_SMS" android:exported="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.shounakmulay.telephony.sms.ConnectivityReceiver" android:enabled="true"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.shounakmulay.telephony.sms.PhoneStateReceiver"
+                  android:permission="android.permission.READ_PHONE_STATE" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 </manifest>

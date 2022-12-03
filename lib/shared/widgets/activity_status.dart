@@ -27,19 +27,49 @@ class ActivityStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (activity.typeOfActivity == ActivityType.TYPING) {
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _buildStatusWidget(_getStatus(activity.typeOfActivity), context),
+      ),
+    );
+  }
+
+  String _getStatus(ActivityType typeOfActivity) {
+    //todo add empty activities
+    switch (typeOfActivity) {
+      case ActivityType.CHOOSING_STICKER:
+        return _i18n.get("is_typing");
+      case ActivityType.NO_ACTIVITY:
+        return "";
+      case ActivityType.RECORDING_VIDEO:
+        return "";
+      case ActivityType.RECORDING_VOICE:
+        return _i18n.get("record_audio_activity");
+      case ActivityType.SENDING_FILE:
+        return _i18n.get("sending_file_activity");
+      case ActivityType.TYPING:
+        return _i18n.get("is_typing");
+    }
+    return "";
+  }
+
+  Widget _buildStatusWidget(String status, BuildContext context) {
+    if (status.isNotEmpty) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
           future: _roomRepo.getName(activity.from),
           builder: (c, s) => RoomName(
-            shouldShowDotAnimation: true,
             uid: activity.from,
-            name: "${s.data ?? ""} ${_i18n.get('is_typing')}",
+            name: s.data ?? "",
+            status: status,
             style: textStyle(context),
           ),
         );
       } else {
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               _i18n.get("is_typing"),
@@ -47,37 +77,6 @@ class ActivityStatus extends StatelessWidget {
             ),
             DotAnimation(dotsColor: Theme.of(context).primaryColor),
           ],
-        );
-      }
-    } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
-      if (roomUid.category == Categories.GROUP) {
-        return FutureBuilder<String>(
-          future: _roomRepo.getName(activity.from),
-          builder: (c, s) => RoomName(
-            uid: activity.from,
-            name: "${s.data ?? ""} ${_i18n.get("record_audio_activity")}",
-            style: textStyle(context),
-          ),
-        );
-      }
-      return Text(
-        _i18n.get("record_audio_activity"),
-        style: textStyle(context),
-      );
-    } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
-      if (roomUid.category == Categories.GROUP) {
-        return FutureBuilder<String>(
-          future: _roomRepo.getName(activity.from),
-          builder: (c, s) => RoomName(
-            uid: activity.from,
-            name: "${s.data ?? ""} ${_i18n.get('sending_file_activity')}",
-            style: textStyle(context),
-          ),
-        );
-      } else {
-        return Text(
-          _i18n.get("sending_file_activity"),
-          style: textStyle(context),
         );
       }
     } else {

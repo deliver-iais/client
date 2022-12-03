@@ -5,10 +5,9 @@ import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.d
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
-import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/screen/show_case/widgets/single_url/single_url_widget.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,15 +22,14 @@ class ShowcasePage extends StatefulWidget {
 
 class _ShowcasePageState extends State<ShowcasePage> {
   static final _i18n = GetIt.I.get<I18N>();
-  static final _routingService = GetIt.I.get<RoutingService>();
   final BehaviorSubject<List<ShowCase>> _showCaseCache =
       BehaviorSubject.seeded([]);
   final _showCaseRepo = GetIt.I.get<ShowCaseRepo>();
 
   @override
   void initState() {
-    getShowCase(0, foreToUpdateShowCases: true);
     super.initState();
+    getShowCase(0, foreToUpdateShowCases: true);
   }
 
   Future<ShowCase?> getShowCase(
@@ -52,15 +50,10 @@ class _ShowcasePageState extends State<ShowcasePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       extendBodyBehindAppBar: true,
-      appBar: BlurredPreferredSizedWidget(
-        child: AppBar(
-          titleSpacing: 8,
-          title: Text(_i18n.get("showcase")),
-          leading: _routingService.backButtonLeading(),
-        ),
-      ),
       body: FluidContainerWidget(
         child: Directionality(
           textDirection: _i18n.defaultTextDirection,
@@ -110,11 +103,14 @@ class _ShowcasePageState extends State<ShowcasePage> {
           isPrimary: showCase.primary,
         );
       case Showcase_Type.singleUrl:
-        // todo: Handle this case.
-        return const SizedBox.shrink();
+        return SingleUrlWidget(
+          urlCase: showCase.singleUrl,
+          isAdvertisement: showCase.isAdvertisement,
+          isPrimary: showCase.primary,
+        );
       case Showcase_Type.groupedUrl:
         return GroupedUrlWidget(
-          groupedUrls: showCase.groupedUrl,
+          showCase: showCase,
         );
       case Showcase_Type.notSet:
         return const SizedBox.shrink();

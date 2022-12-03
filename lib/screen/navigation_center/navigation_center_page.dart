@@ -8,6 +8,7 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -27,7 +28,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
@@ -38,10 +38,12 @@ BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
 class CallNotificationActionInBackground {
   final String roomId;
   final bool isCallAccepted;
+  final bool isVideo;
 
   CallNotificationActionInBackground({
     required this.roomId,
     required this.isCallAccepted,
+    required this.isVideo,
   });
 }
 
@@ -74,6 +76,8 @@ class NavigationCenterState extends State<NavigationCenter>
       BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
 
+  bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
+
   @override
   void initState() {
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
@@ -81,14 +85,28 @@ class NavigationCenterState extends State<NavigationCenter>
         _routingService.openRoom(event);
       }
     });
+
     modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
       if (event?.roomId.isNotEmpty ?? false) {
         _routingService.openCallScreen(
           event!.roomId.asUid(),
           isCallAccepted: event.isCallAccepted,
+          isVideoCall: event.isVideo,
         );
       }
     });
+
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_IS_SHOWCASE_ENABLE,
+          defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
+        )
+        .distinct()
+        .listen(
+          (event) => setState(
+            () => _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && event,
+          ),
+        );
 
     _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
@@ -98,6 +116,7 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
+
     super.initState();
   }
 
@@ -134,6 +153,20 @@ class NavigationCenterState extends State<NavigationCenter>
                     this.showMenu(
                       context: context,
                       items: [
+                        PopupMenuItem<String>(
+                          key: const Key("contacts"),
+                          value: "contacts",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.person_2_alt),
+                              const SizedBox(width: 8),
+                              Text(
+                                _i18n.get("contacts"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            ],
+                          ),
+                        ),
                         PopupMenuItem<String>(
                           key: const Key("newGroup"),
                           value: "newGroup",
@@ -174,7 +207,6 @@ class NavigationCenterState extends State<NavigationCenter>
             child: Column(
               children: <Widget>[
                 const HasCallRow(),
-                const ConnectionStatus(),
                 RepaintBoundary(
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,
@@ -195,8 +227,25 @@ class NavigationCenterState extends State<NavigationCenter>
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: ChatsPage(
-                          scrollController: _scrollController,
+                        child: AnimatedSwitcher(
+                          duration: SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (child, animation) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(1.2, 0),
+                                end: const Offset(0, 0),
+                              ).animate(animation),
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: !_isShowCaseEnable
+                              ? ChatsPage(
+                                  scrollController: _scrollController,
+                                )
+                              : const ShowcasePage(),
                         ),
                       );
                     }
@@ -370,6 +419,9 @@ class NavigationCenterState extends State<NavigationCenter>
 
   void selectChatMenu(String key) {
     switch (key) {
+      case "contacts":
+        _routingService.openContacts();
+        break;
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
         break;
@@ -553,70 +605,65 @@ class NavigationCenterState extends State<NavigationCenter>
         child: AppBar(
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: Row(
-            children: [
-              const SizedBox(
-                width: 10,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: DescribedFeatureOverlay(
+              featureId: FEATURE_3,
+              tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 30),
+              backgroundColor: theme.colorScheme.tertiaryContainer,
+              targetColor: theme.colorScheme.tertiary,
+              title: Text(
+                _i18n.get("setting_icon_feature_discovery_title"),
+                textDirection: _i18n.defaultTextDirection,
+                style: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
               ),
-              DescribedFeatureOverlay(
-                featureId: FEATURE_3,
-                tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("setting_icon_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
+              overflowMode: OverflowMode.extendBackground,
+              description: FeatureDiscoveryDescriptionWidget(
+                permissionWidget: (!isDesktop)
+                    ? TextButton(
+                        onPressed: () {
+                          FeatureDiscovery.dismissAll(context);
+                          _routingService.openContacts();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(_i18n.get("sync_contact")),
+                            const Icon(
+                              Icons.arrow_forward,
+                            )
+                          ],
+                        ),
+                      )
+                    : null,
+                description:
+                    _i18n.get("setting_icon_feature_discovery_description"),
+                descriptionStyle: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
                 ),
-                overflowMode: OverflowMode.extendBackground,
-                description: FeatureDiscoveryDescriptionWidget(
-                  permissionWidget: (!isDesktop)
-                      ? TextButton(
-                          onPressed: () {
-                            FeatureDiscovery.dismissAll(context);
-                            _routingService.openContacts();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_i18n.get("sync_contact")),
-                              const Icon(
-                                Icons.arrow_forward,
-                              )
-                            ],
-                          ),
-                        )
-                      : null,
-                  description:
-                      _i18n.get("setting_icon_feature_discovery_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: GestureDetector(
-                  child: Center(
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: CircleAvatarWidget(
-                        _authRepo.currentUserUid,
-                        20,
-                      ),
+              ),
+              child: GestureDetector(
+                child: Center(
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: CircleAvatarWidget(
+                      _authRepo.currentUserUid,
+                      20,
                     ),
                   ),
-                  onTap: () {
-                    _routingServices.openSettings(popAllBeforePush: true);
-                  },
                 ),
+                onTap: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _routingServices.openSettings(popAllBeforePush: true);
+                },
               ),
-            ],
+            ),
           ),
           titleSpacing: 8.0,
-          title: Text(
-            _i18n.get("chats"),
-            style: theme.textTheme.headline6,
-            key: ValueKey(randomString(10)),
+          title: ConnectionStatus(
+            isShowCase: _isShowCaseEnable,
           ),
           actions: [
             if (!isDesktop)
@@ -650,10 +697,8 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
               ),
-            const SizedBox(
-              width: 8,
-            ),
-            if (false)
+            const SizedBox(width: 8),
+            if (SHOWCASES_IS_AVAILABLE)
               DescribedFeatureOverlay(
                 featureId: FEATURE_2,
                 tapTarget: const Icon(Icons.storefront_outlined),
@@ -674,8 +719,11 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
                 child: IconButton(
-                  onPressed: () => _routingService.openShowcase(),
-                  icon: const Icon(Icons.storefront_outlined),
+                  onPressed: () =>
+                      _sharedDao.toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                  icon: !_isShowCaseEnable
+                      ? const Icon(Icons.storefront_outlined)
+                      : const Icon(CupertinoIcons.chat_bubble_text),
                 ),
               ),
             const SizedBox(

@@ -87,6 +87,8 @@ class CallService {
 
   String _callId = "";
 
+  bool _isHangedUp = false;
+
   Uid _roomUid = Uid.getDefault();
 
   UserCallState get getUserCallState => _callState;
@@ -94,6 +96,8 @@ class CallService {
   Uid get getRoomUid => _roomUid;
 
   String get getCallId => _callId;
+
+  bool get isHangedUp => _isHangedUp;
 
   RTCVideoRenderer get getLocalRenderer => _localRenderer;
 
@@ -104,6 +108,8 @@ class CallService {
   set setRoomUid(Uid ru) => _roomUid = ru;
 
   set setCallId(String callId) => _callId = callId;
+
+  set setCallHangedUp(bool isHangedUp) => _isHangedUp = isHangedUp;
 
   call_status.CallStatus findCallEventStatusProto(
     CallEvent_CallStatus eventCallStatus,
@@ -180,6 +186,7 @@ class CallService {
       _callId = "";
       _callState = UserCallState.NO_CALL;
       isInitRenderer = false;
+      _isHangedUp = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
       await _disposeRenderer();

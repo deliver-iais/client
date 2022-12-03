@@ -5,8 +5,9 @@ import 'dart:io' as io;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -16,15 +17,15 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:rxdart/rxdart.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
-  Map<String, BehaviorSubject<int?>> uploadFileStatusCode = {};
 
-  Future<void> cloneFileInLocalDirectory(
+  Map<String, String> localUploadedFilePath = {};
+
+  Future<void> saveInFileInfo(
     io.File file,
     String uploadKey,
     String name,
@@ -35,13 +36,11 @@ class FileRepo {
   Future<file_pb.File?> uploadClonedFile(
     String uploadKey,
     String name, {
+    required List<String> packetIds,
     void Function(int)? sendActivity,
   }) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    if (uploadFileStatusCode[uploadKey] == null) {
-      final d = BehaviorSubject<int>.seeded(0);
-      uploadFileStatusCode[uploadKey] = d;
-    }
+
     Response? value;
     try {
       value = await _fileService.uploadFile(
@@ -51,14 +50,23 @@ class FileRepo {
         sendActivity: sendActivity,
       );
     } on DioError catch (e) {
-      if (e.response != null) {
-        uploadFileStatusCode[uploadKey]!.add(e.response!.statusCode);
+      if (e.response!.statusCode == 400 && packetIds.isNotEmpty) {
+        ToastDisplay.showToast(
+          toastText: e.response!.data,
+          maxWidth: 500.0,
+          duration: const Duration(seconds: 1),
+        );
+        for (final packetId in packetIds) {
+          GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+        }
+        cancelUploadFile(uploadKey);
       }
       _logger.e(e);
     }
     if (value != null) {
       final json = jsonDecode(value.toString()) as Map;
-      uploadFileStatusCode[uploadKey]!.add(value.statusCode);
+      _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
+
       try {
         var uploadedFile = file_pb.File();
         uploadedFile = file_pb.File()
@@ -90,13 +98,19 @@ class FileRepo {
         }
         _logger.v(uploadedFile);
 
+        localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!.path;
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        _fileService.updateFileStatus(uploadedFile.uuid, FileStatus.COMPLETED);
         return uploadedFile;
       } catch (e) {
+        _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
         _logger.e(e);
         return null;
       }
     } else {
+      _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+      _fileService.filesProgressBarStatus
+          .add(_fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
       return null;
     }
   }
@@ -121,11 +135,22 @@ class FileRepo {
   void saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
+  bool fileExitInCache(String uuid) =>
+      localUploadedFilePath[uuid] != null &&
+      localUploadedFilePath[uuid]!.isNotEmpty &&
+      io.File(localUploadedFilePath[uuid]!).existsSync();
+
   Future<String?> getFileIfExist(
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
+    if (thumbnailSize == null &&
+        localUploadedFilePath[uuid] != null &&
+        localUploadedFilePath[uuid]!.isNotEmpty &&
+        io.File(localUploadedFilePath[uuid] ?? "").existsSync()) {
+      return localUploadedFilePath[uuid];
+    }
     final fileInfo = await _getFileInfoInDB(
       (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
       uuid,
@@ -147,15 +172,19 @@ class FileRepo {
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
-    bool intiProgressBar = true,
+    bool intiProgressbar = true,
   }) async {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
       return isWeb ? Uri.parse(path).toString() : path;
     }
-    final downloadedFileUri =
-        await _fileService.getFile(uuid, filename, size: thumbnailSize);
+    final downloadedFileUri = await _fileService.getFile(
+      uuid,
+      filename,
+      size: thumbnailSize,
+      initProgressbar: intiProgressbar,
+    );
     if (downloadedFileUri != null) {
       if (isWeb) {
         final res = await http.get(Uri.parse(downloadedFileUri));
@@ -166,12 +195,6 @@ class FileRepo {
           filename,
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
         );
-        if (intiProgressBar) {
-          if (_fileService.filesProgressBarStatus[uuid] != null) {
-            _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-          }
-        }
-
         return downloadedFileUri;
       }
 
@@ -181,10 +204,8 @@ class FileRepo {
         filename,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
       );
-      if (intiProgressBar) {
-        if (_fileService.filesProgressBarStatus[uuid] != null) {
-          _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-        }
+      if (intiProgressbar) {
+        _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
       }
 
       return downloadedFileUri;
@@ -221,7 +242,6 @@ class FileRepo {
     }
 
     await _fileDao.save(real.copyWith(uuid: uuid));
-
     if (medium != null) {
       await _fileDao.save(medium.copyWith(uuid: uuid));
     }
@@ -229,10 +249,6 @@ class FileRepo {
 
   Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
       _fileDao.get(uuid, enumToString(size));
-
-  void initUploadProgress(String uploadId) {
-    _fileService.initProgressBar(uploadId);
-  }
 
   void saveDownloadedFileInWeb(String uuid, String name, String type) {
     getFileIfExist(uuid, name).then((url) {
@@ -264,23 +280,22 @@ class FileRepo {
   }
 
   void cancelUploadFile(String uuid) {
-    try {
-      if (_fileService.cancelTokens[uuid] != null &&
-          _fileService.cancelTokens[uuid]!.value != null &&
-          !_fileService.cancelTokens[uuid]!.value!.isCancelled) {
-        _fileService.cancelTokens[uuid]!.value!.cancel('cancelled');
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
+    _fileService.cancelUploadOrDownloadFile(uuid);
   }
 
   void saveFileToSpecifiedAddress(
-    String path,
+    String uuid,
     String name,
-    String address,
-  ) {
-    _fileService.saveFileToSpecifiedAddress(path, name, address);
+    String address, {
+    bool convertToJpg = true,
+  }) {
+    getFileIfExist(uuid, name).then(
+      (path) => _fileService.saveFileToSpecifiedAddress(
+        path!,
+        address,
+        convertToJpg: convertToJpg,
+      ),
+    );
   }
 
   void copyFileToPasteboard(

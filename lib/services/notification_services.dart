@@ -26,6 +26,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
@@ -894,6 +895,7 @@ class AndroidNotifier implements Notifier {
         acceptActionText: _i18n.get("accept"),
       ),
     );
+    vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 

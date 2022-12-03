@@ -40,7 +40,7 @@ class CallMessageWidget extends StatelessWidget {
         ? _authRepo.isCurrentUser(message.to)
         : _authRepo.isCurrentUser(message.from);
     return Container(
-      width: 200,
+      width: 210,
       margin: const EdgeInsets.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

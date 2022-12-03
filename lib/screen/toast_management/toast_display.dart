@@ -10,15 +10,23 @@ class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
     bool animateDone = false,
-    required BuildContext toastContext,
+    BuildContext? toastContext,
+    double maxWidth = 1000.0,
+    Duration duration = SUPER_SLOW_ANIMATION_DURATION,
     required String toastText,
   }) {
-    final fToast = FToast()..init(toastContext);
     final i18n = GetIt.I.get<I18N>();
+    if (toastContext != null) {
+      maxWidth = toastContext.size!.width;
+      FToast().init(toastContext);
+    }
 
-    final theme = Theme.of(toastContext);
+    final theme = Theme.of(FToast().context!);
 
     final Widget toast = Container(
+      constraints: BoxConstraints(
+        maxWidth: maxWidth,
+      ),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -52,11 +60,11 @@ class ToastDisplay {
       ),
     );
 
-    fToast.showToast(
+    FToast().showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
       fadeDuration: SLOW_ANIMATION_DURATION,
-      toastDuration: SUPER_SLOW_ANIMATION_DURATION * 4,
+      toastDuration: duration * 4,
     );
   }
 }

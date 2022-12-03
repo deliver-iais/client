@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_text_selection/text_selections/custom_desktop_text_selection_controls.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -248,7 +250,8 @@ class AutoDirectionTextField extends StatelessWidget {
           scrollPadding: scrollPadding,
           dragStartBehavior: dragStartBehavior,
           enableInteractiveSelection: enableInteractiveSelection,
-          selectionControls: selectionControls,
+          selectionControls: selectionControls ??
+              ((isDesktop) ? CustomDesktopTextSelectionControls() : null),
           scrollPhysics: scrollPhysics,
           autofillHints: autofillHints,
           clipBehavior: clipBehavior,

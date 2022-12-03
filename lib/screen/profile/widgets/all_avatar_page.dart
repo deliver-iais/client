@@ -6,6 +6,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -37,6 +38,7 @@ class AllAvatarPage extends StatefulWidget {
 
 class AllAvatarPageState extends State<AllAvatarPage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _fileService = GetIt.I.get<FileService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _streamKey = GlobalKey();
@@ -148,6 +150,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   }
                                 },
                               ),
+                              childSize: const Size(300, 300),
                               initialScale: PhotoViewComputedScale.contained,
                               minScale: PhotoViewComputedScale.contained,
                               maxScale: PhotoViewComputedScale.covered * 4.1,
@@ -254,36 +257,41 @@ class AllAvatarPageState extends State<AllAvatarPage> {
       itemBuilder: (cc) => [
         if ((isDesktop || isAndroid) && _filePath != null)
           PopupMenuItem(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.save_alt_rounded),
-                const SizedBox(
-                  width: 8,
-                ),
-                Text(
-                  isDesktop
-                      ? _i18n.get("save_as")
-                      : _i18n.get("save_to_gallery"),
-                ),
-              ],
+            child: Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Row(
+                children: [
+                  const Icon(Icons.save_alt_rounded),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    isDesktop
+                        ? _i18n.get("save_as")
+                        : _i18n.get("save_to_gallery"),
+                  ),
+                ],
+              ),
             ),
-            onTap: () async {
+            onTap: () {
               if (isDesktop) {
-                final outputFile = await FilePicker.platform.saveFile(
-                  lockParentWindow: true,
-                  dialogTitle: 'Save image',
-                  fileName: _avatars[_swipePositionSubject.value]!.fileName,
-                  type: FileType.image,
-                );
-
-                if (outputFile != null) {
-                  _fileRepo.saveFileToSpecifiedAddress(
-                    _filePath!,
-                    _avatars[_swipePositionSubject.value]!.fileName!,
-                    outputFile,
-                  );
-                }
+                Future.delayed(const Duration(milliseconds: 350)).then((value) {
+                  FilePicker.platform
+                      .saveFile(
+                    lockParentWindow: true,
+                    dialogTitle: 'Save image',
+                    fileName: _avatars[_swipePositionSubject.value]!.fileName,
+                    type: FileType.image,
+                  )
+                      .then((outputFile) {
+                    if (outputFile != null) {
+                      _fileService.saveFileToSpecifiedAddress(
+                        _filePath!,
+                        outputFile,
+                      );
+                    }
+                  });
+                });
               } else if (isAndroid) {
                 _fileRepo.saveFileInDownloadDir(
                   _avatars[_swipePositionSubject.value]!.fileId!,
@@ -300,17 +308,19 @@ class AllAvatarPageState extends State<AllAvatarPage> {
           ),
         if (isDesktop && _filePath != null)
           PopupMenuItem(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.copy_all_rounded),
-                const SizedBox(
-                  width: 8,
-                ),
-                Text(
-                  _i18n.get("copy_image"),
-                ),
-              ],
+            child: Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Row(
+                children: [
+                  const Icon(Icons.copy_all_rounded),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    _i18n.get("copy_image"),
+                  ),
+                ],
+              ),
             ),
             onTap: () async {
               _fileRepo.copyFileToPasteboard(_filePath!);
@@ -322,14 +332,17 @@ class AllAvatarPageState extends State<AllAvatarPage> {
           ),
         if (widget.hasPermissionToDeletePic)
           PopupMenuItem(
-            child: Row(
-              children: [
-                const Icon(Icons.delete_outline_rounded),
-                const SizedBox(
-                  width: 8,
-                ),
-                Text(_i18n.get("delete")),
-              ],
+            child: Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Row(
+                children: [
+                  const Icon(Icons.delete_outline_rounded),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(_i18n.get("delete")),
+                ],
+              ),
             ),
             onTap: () async {
               await showDialog(

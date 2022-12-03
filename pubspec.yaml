@@ -47,7 +47,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.54
+      ref: tags/v1.12.13-rc.55
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -57,6 +57,7 @@ dependencies:
       url: https://github.com/deliveriais/desktop_window
   device_info: 2.0.3
   dio: 4.0.6
+  dismissible_page: 0.7.3
   expandable: 5.0.1
   fast_contacts: 1.1.1
   feature_discovery:
@@ -83,7 +84,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.0.0
-  flutter_webrtc: 0.9.11
+  flutter_webrtc: 0.9.16
   fluttertoast: 8.1.1
   font_awesome_flutter: 10.2.1
   fuzzy: 0.4.0-nullsafety.0
@@ -103,6 +104,7 @@ dependencies:
   hovering: 1.0.4
   http: 0.13.5
   http_parser: 4.0.2
+  image: 3.2.2
   image_compression_flutter: 1.0.2
   image_cropper: 3.0.0
   image_size_getter: 2.1.2
@@ -118,6 +120,7 @@ dependencies:
   latlong2: 0.8.1
   logger: 1.1.0
   lottie: 1.4.3
+  map_launcher: 2.4.0
   marquee: 2.2.3
   material_color_utilities: 0.1.5
   meta: 1.8.0
@@ -139,6 +142,7 @@ dependencies:
   photo_view: 0.14.0
   platform_detect: 2.0.7
   process_run: 0.12.3+2
+  proximity_sensor: 1.0.4
   qr_flutter: 4.0.0
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
@@ -149,7 +153,11 @@ dependencies:
       url: https://github.com/deliveriais/record
   rxdart: 0.27.5
   screenshot: 1.2.3
-  scrollable_positioned_list: 0.3.5
+  scrollable_positioned_list:
+    git:
+      path: packages/scrollable_positioned_list
+      ref: 775e1a365637f4e625cf042be383e0d601ab13be
+      url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
   sensors_plus: 2.0.1
   service_worker: 0.3.0
@@ -158,6 +166,10 @@ dependencies:
   simple_animations: 5.0.0+2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+3
+  telephony:
+    git:
+      ref: fdf93b3dc72ff7a911de0ce187949338486753e7
+      url: https://github.com/EsmaeilDansi/Telephony.git
   tuple: 2.0.1
   universal_html: 2.0.8
   url_launcher: 6.1.6
@@ -175,7 +187,7 @@ dependencies:
       path: plugins/window_size
       ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
-
+  workmanager: 0.5.1
 
 
 dev_dependencies:

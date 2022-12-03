@@ -289,7 +289,7 @@ MockAccountRepo getAndRegisterAccountRepo({bool hasProfile = false}) {
   ).thenAnswer((realInvocation) => Future.value(hasProfile));
 
   when(service.fetchCurrentUserId(retry: true))
-      .thenAnswer((realInvocation) => Future.value(true));
+      .thenAnswer((realInvocation) => Future.value());
 
   return service;
 }
@@ -465,12 +465,14 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
       "946672200000000",
       "test",
       sendActivity: anyNamed("sendActivity"),
+      packetIds: [],
     ),
   ).thenAnswer((realInvocation) => Future.value(fileInfo));
   when(
     service.uploadClonedFile(
       "946672200000",
       "test",
+      packetIds: [],
     ),
   ).thenAnswer((realInvocation) => Future.value(fileInfo));
 

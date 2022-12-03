@@ -26,6 +26,7 @@ import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:mockito/mockito.dart';
 
 import '../constants/constants.dart';
@@ -681,7 +682,10 @@ void main() {
           () async {
             final messageDao = getAndRegisterMessageDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             verify(messageDao.savePendingMessage(pm));
           },
         );
@@ -692,7 +696,10 @@ void main() {
           () async {
             final roomDao = getAndRegisterRoomDao();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -710,7 +717,10 @@ void main() {
           () async {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendLocationMessage(testPosition, testUid);
+            await MessageRepo().sendLocationMessage(
+              LatLng(testPosition.latitude, testPosition.longitude),
+              testUid,
+            );
             final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
@@ -724,26 +734,10 @@ void main() {
     group('sendMultipleFilesMessages -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
-        status: SendingStatus.UPLOAD_FILE_INPROGRSS,
+        status: SendingStatus.UPLOAD_FILE_IN_PROGRESS,
         failed: false,
       );
 
-      test('When called should initUploadProgress', () async {
-        withClock(
-          Clock.fixed(DateTime(2000)),
-          () async {
-            final fileRepo = getAndRegisterFileRepo();
-            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            final messageRepo = await getAndRegisterMessageRepo();
-            await messageRepo.sendMultipleFilesMessages(
-              testUid,
-              [model.File("test", "test")],
-              caption: "test",
-            );
-            verify(fileRepo.initUploadProgress("946672200000000"));
-          },
-        );
-      });
       test('When called should uploadClonedFile', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -760,6 +754,7 @@ void main() {
                 "946672200000000",
                 "test",
                 sendActivity: anyNamed("sendActivity"),
+                packetIds: [pm.packetId],
               ),
             );
           },
@@ -842,7 +837,7 @@ void main() {
           json:
               "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
         ),
-        status: SendingStatus.UPLIOD_FILE_FAIL,
+        status: SendingStatus.UPLOAD_FILE_FAIL,
       );
       test('When called should getAllPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -860,6 +855,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -882,7 +878,7 @@ void main() {
                 json:
                     "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
               ),
-              status: SendingStatus.UPLOAD_FILE_COMPELED,
+              status: SendingStatus.UPLOAD_FILE_COMPLETED,
             ),
           ),
         );
@@ -986,6 +982,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -1035,6 +1032,7 @@ void main() {
             "946672200000000",
             "test",
             sendActivity: anyNamed("sendActivity"),
+            packetIds: [pm.packetId],
           ),
         );
       });
@@ -1952,7 +1950,13 @@ void main() {
             testMessage.copyWith(id: 0),
             file: model.File("test", "test"),
           );
-          verify(fileRepo.uploadClonedFile("946672200000", "test"));
+          verify(
+            fileRepo.uploadClonedFile(
+              "946672200000",
+              "test",
+              packetIds: [],
+            ),
+          );
         });
       });
       test('When called should updateMessage', () async {

@@ -9,17 +9,18 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
@@ -52,6 +53,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   static final _fileService = GetIt.I.get<FileService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
+  final _dragAndDropService = GetIt.I.get<DragAndDropService>();
 
   final TextEditingController _editingController = TextEditingController();
 
@@ -59,6 +61,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final FocusNode _captionFocusNode = FocusNode();
   bool _isFileFormatAccept = false;
   bool _isFileSizeAccept = false;
+  bool _isFileSizeZero = false;
   model.File? _editedFile;
   String _invalidFormatFileName = "";
   String _invalidSizeFileName = "";
@@ -75,11 +78,12 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         );
         final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
+        _isFileSizeZero = size <= MIN_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
           break;
         }
-        if (!_isFileSizeAccept) {
+        if (!_isFileSizeAccept || _isFileSizeZero) {
           _invalidSizeFileName = element.name;
           break;
         }
@@ -96,9 +100,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return !_isFileFormatAccept || !_isFileSizeAccept
+    return !_isFileFormatAccept || !_isFileSizeAccept || _isFileSizeZero
         ? FileErrorDialog(
             isFileFormatAccept: _isFileFormatAccept,
+            isFileSizeZero: _isFileSizeZero,
             invalidFormatFileName: _invalidFormatFileName,
             invalidSizeFileName: _invalidSizeFileName,
           )
@@ -197,6 +202,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           const Spacer(),
           TextButton(
             onPressed: () {
+              _dragAndDropService.enableDrag();
               Navigator.pop(context);
             },
             child: Text(
@@ -209,6 +215,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           ),
           TextButton(
             onPressed: () {
+              _dragAndDropService.enableDrag();
               send();
             },
             child: Text(
@@ -308,7 +315,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     return RawKeyboardListener(
       focusNode: _captionFocusNode,
       onKey: (event) {
-        if (event.physicalKey == PhysicalKeyboardKey.enter) {
+        if (isEnterClicked(event) && !event.isShiftPressed) {
           send();
         }
       },
@@ -521,16 +528,17 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
       _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
+      _isFileSizeZero = element.size <= MIN_FILE_SIZE_BYTE;
       if (!_isFileFormatAccept) {
         _invalidFormatFileName = element.name;
         break;
       }
-      if (!_isFileSizeAccept) {
+      if (!_isFileSizeAccept || _isFileSizeZero) {
         _invalidSizeFileName = element.name;
         break;
       }
     }
-    if (_isFileFormatAccept && _isFileSizeAccept) {
+    if (_isFileFormatAccept && _isFileSizeAccept && !_isFileSizeZero) {
       return result;
     } else {
       if (isDesktop) {
@@ -550,15 +558,18 @@ class FileErrorDialog extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
   final bool _isFileFormatAccept;
+  final bool _isFileSizeZero;
   final String _invalidFormatFileName;
   final String _invalidSizeFileName;
 
   const FileErrorDialog({
     super.key,
     required bool isFileFormatAccept,
+    required bool isFileSizeZero,
     required String invalidFormatFileName,
     required String invalidSizeFileName,
   })  : _isFileFormatAccept = isFileFormatAccept,
+        _isFileSizeZero = isFileSizeZero,
         _invalidFormatFileName = invalidFormatFileName,
         _invalidSizeFileName = invalidSizeFileName;
 
@@ -594,6 +605,9 @@ class FileErrorDialog extends StatelessWidget {
               if (!_isFileFormatAccept) ...[
                 Text(_invalidFormatFileName),
                 Text(_i18n.get("cant_sent"))
+              ] else if (_isFileSizeZero) ...[
+                Text(_invalidSizeFileName),
+                Text(_i18n.get("file_size_zero")),
               ] else ...[
                 Text(_invalidSizeFileName),
                 Text(_i18n.get("file_size_error")),

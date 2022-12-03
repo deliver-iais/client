@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
@@ -15,6 +14,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -38,6 +38,7 @@ import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -61,7 +62,6 @@ import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -106,6 +106,8 @@ class RoomPageState extends State<RoomPage> {
   static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  static final _cachingRepo = GetIt.I.get<CachingRepo>();
+  static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -120,10 +122,6 @@ class RoomPageState extends State<RoomPage> {
   final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
-
-  final _messageWidgetCache =
-      LruCache<int, Widget?>(storage: InMemoryStorage(200));
-  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(1000));
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -178,28 +176,27 @@ class RoomPageState extends State<RoomPage> {
           return true;
         }
       },
-      child: SelectionArea(
-        child: DragDropWidget(
-          roomUid: widget.roomId,
-          height: MediaQuery.of(context).size.height,
-          replyMessageId: _repliedMessage.value?.id ?? 0,
-          resetRoomPageDetails: _resetRoomPageDetails,
-          child: Stack(
-            children: [
-              StreamBuilder<Room>(
-                stream: _room,
-                builder: (context, snapshot) => Background(
-                  id: snapshot.data?.lastMessageId ?? 0,
-                ),
+      child: DragDropWidget(
+        roomUid: widget.roomId,
+        height: MediaQuery.of(context).size.height,
+        replyMessageId: _repliedMessage.value?.id ?? 0,
+        resetRoomPageDetails: _resetRoomPageDetails,
+        child: Stack(
+          children: [
+            StreamBuilder<Room>(
+              stream: _room,
+              builder: (context, snapshot) => Background(
+                id: snapshot.data?.lastMessageId ?? 0,
               ),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-                extendBodyBehindAppBar: true,
-                appBar: buildAppbar(),
-                body: buildBody(),
-              ),
-            ],
-          ),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              extendBodyBehindAppBar: true,
+              appBar: buildAppbar(),
+              resizeToAvoidBottomInset: false,
+              body: buildBody(),
+            ),
+          ],
         ),
       ),
     );
@@ -401,9 +398,8 @@ class RoomPageState extends State<RoomPage> {
   void initState() {
     _roomRepo.updateUserInfo(widget.roomId.asUid());
     if (isDesktop) {
-      DesktopLifecycle.instance.isActive.addListener(() {
-        _appIsActive = DesktopLifecycle.instance.isActive.value;
-
+      _appLifecycleService.watchAppAppLifecycle().listen((event) {
+        _appIsActive = event == AppLifecycle.ACTIVE;
         if (_appIsActive) {
           _sendSeenMessage(_backgroundMessages);
           _backgroundMessages.clear();
@@ -538,10 +534,10 @@ class RoomPageState extends State<RoomPage> {
       }
       if (msg != null) {
         // Refresh message cache
-        _messageCache.set(value.id, msg);
+        _cachingRepo.setMessage(widget.roomId, value.id, msg);
       }
       // Refresh message widget cache
-      _messageWidgetCache.set(value.id - 1, null);
+      _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
     });
   }
 
@@ -571,6 +567,10 @@ class RoomPageState extends State<RoomPage> {
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
+      // if scroll fast out of position update seen with current last messageId
+      if (event > room.lastMessageId) {
+        event = room.lastMessageId;
+      }
       final msg = await _getMessage(event);
       if (msg == null) return;
       if (_appIsActive) {
@@ -627,7 +627,7 @@ class RoomPageState extends State<RoomPage> {
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {
     if (id <= 0) return null;
-    final msg = _messageCache.get(id);
+    final msg = _cachingRepo.getMessage(widget.roomId, id);
     if (msg != null && useCache) {
       return msg;
     }
@@ -639,9 +639,9 @@ class RoomPageState extends State<RoomPage> {
       room.lastMessageId,
     );
     for (var i = 0; i < messages.length; i = i + 1) {
-      _messageCache.set(messages[i]!.id!, messages[i]!);
+      _cachingRepo.setMessage(widget.roomId, messages[i]!.id!, messages[i]!);
     }
-    return _messageCache.get(id);
+    return _cachingRepo.getMessage(widget.roomId, id);
   }
 
   void _resetRoomPageDetails() {
@@ -1241,6 +1241,7 @@ class RoomPageState extends State<RoomPage> {
         child: ScrollablePositionedList.separated(
           itemCount: _itemCount + 1,
           initialScrollIndex: initialScrollIndex + 1,
+          extraScrollSpeed: isWindows ? 40 : null,
           key: _scrollablePositionedListKey,
           initialAlignment: initialAlignment,
           physics: const ClampingScrollPhysics(),
@@ -1304,8 +1305,8 @@ class RoomPageState extends State<RoomPage> {
     int index,
   ) {
     final id = index + 1;
-    final cachedPrevMsg = _messageCache.get(id - 1);
-    final cachedMsg = _messageCache.get(id);
+    final cachedPrevMsg = _cachingRepo.getMessage(widget.roomId, id - 1);
+    final cachedMsg = _cachingRepo.getMessage(widget.roomId, id);
 
     return cachedMsg?.id != null && cachedPrevMsg?.id != null
         ? Tuple2(cachedPrevMsg, cachedMsg)
@@ -1407,20 +1408,20 @@ class RoomPageState extends State<RoomPage> {
       return SizedBox(height: _defaultMessageHeight);
     }
 
-    Widget? widget;
+    Widget? w;
 
     if (!tuple.item2!.isHidden) {
-      widget = _messageWidgetCache.get(index);
+      w = _cachingRepo.getMessageWidget(widget.roomId, index);
     }
 
-    if (widget == null) {
-      widget = _buildMessageBox(index, tuple);
+    if (w == null) {
+      w = _buildMessageBox(index, tuple);
       if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
-        _messageWidgetCache.set(index, widget);
+        _cachingRepo.setMessageWidget(widget.roomId, index, w);
       }
     }
 
-    return widget;
+    return w;
   }
 
   Widget _buildMessageBox(int index, Tuple2<Message?, Message?> tuple) {

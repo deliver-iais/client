@@ -1,4 +1,5 @@
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -45,40 +46,48 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         child: StreamBuilder<AudioPlayerState>(
           stream: _audioPlayerService.playerState,
           builder: (context, snapshot) {
-            if (snapshot.data == AudioPlayerState.playing) {
-              return StreamBuilder<AudioTrack?>(
-                stream: _audioPlayerService.track,
-                builder: (context, trackSnapshot) {
-                  final track =
-                      trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
-
-                  if (track.uuid.contains(widget.uuid)) {
-                    return IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.pause_rounded,
-                        color: widget.foregroundColor,
-                        size: 40,
-                      ),
-                      onPressed: () {
-                        _audioPlayerService.pauseAudio();
-                      },
-                    );
-                  } else {
-                    return buildPlay(context, widget.filePath);
-                  }
-                },
-              );
-            } else {
-              return buildPlay(context, widget.filePath);
-            }
+            return AnimatedSwitcher(
+              duration: SLOW_ANIMATION_DURATION,
+              child: snapshot.data == AudioPlayerState.playing
+                  ? playingWidget()
+                  : playButton(),
+            );
           },
         ),
       ),
     );
   }
 
-  IconButton buildPlay(BuildContext context, String audioPath) {
+  StreamBuilder<AudioTrack?> playingWidget() {
+    return StreamBuilder<AudioTrack?>(
+      stream: _audioPlayerService.track,
+      builder: (context, trackSnapshot) {
+        final track = trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
+
+        return AnimatedSwitcher(
+          duration: SLOW_ANIMATION_DURATION,
+          child:
+              track.uuid.contains(widget.uuid) ? pauseButton() : playButton(),
+        );
+      },
+    );
+  }
+
+  IconButton pauseButton() {
+    return IconButton(
+      padding: EdgeInsets.zero,
+      icon: Icon(
+        Icons.pause_rounded,
+        color: widget.foregroundColor,
+        size: 40,
+      ),
+      onPressed: () {
+        _audioPlayerService.pauseAudio();
+      },
+    );
+  }
+
+  IconButton playButton() {
     return IconButton(
       padding: EdgeInsets.zero,
       icon: Icon(
@@ -89,14 +98,14 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
       onPressed: () async {
         if (isAndroid || isIOS || isMacOS || isWindows) {
           _audioPlayerService.playAudioMessage(
-            audioPath,
+            widget.filePath,
             widget.uuid,
             widget.name,
             widget.duration,
           );
           widget.onAudioPlay();
         } else {
-          await OpenFilex.open(audioPath);
+          await OpenFilex.open(widget.filePath);
         }
       },
     );

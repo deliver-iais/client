@@ -30,7 +30,7 @@ class CircularCheckMarkWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(80),
         border: Border.all(width: 2, color: Colors.white),
-        color: child != null ? Theme.of(context).primaryColor : null,
+        color: child != null ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceVariant,
       ),
       child: child,
     );

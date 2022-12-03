@@ -15,7 +15,6 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/language.dart';
-import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
@@ -36,7 +35,6 @@ import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -80,22 +78,6 @@ class LoginPageState extends State<LoginPage> {
           Timer.periodic(const Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid && !kDebugMode) {
-      try {
-        SmsAutoFill().hint.then((value) {
-          if (value != null) {
-            final p = getPhoneNumber(value);
-            if (p != null) {
-              phoneNumber = p;
-              controller.text = p.nationalNumber.toString();
-              _isLoading.add(true);
-              checkAndGoNext(doNotCheckValidator: true);
-            }
-          }
-        });
-      } catch (e) {
-        _logger.e(e);
-      }
     }
     super.initState();
   }

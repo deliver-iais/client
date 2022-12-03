@@ -32,10 +32,6 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-
     compileSdkVersion 33
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -58,6 +54,7 @@ android {
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
     signingConfigs {
         release {

@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -20,6 +20,7 @@ import 'package:deliver/screen/profile/widgets/all_image_page.dart';
 import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
@@ -40,9 +41,11 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -149,7 +152,6 @@ class RoutingService {
 
   void resetCurrentRoom() => _currentRoom = "";
 
-
   void openRoom(
     String roomId, {
     List<Message> forwardedMessages = const [],
@@ -195,6 +197,16 @@ class RoutingService {
       ),
     );
   }
+
+  void openLocation(final Location location, Uid from, Message message) =>
+      _push(
+        LocationPage(
+          key: const ValueKey("/location"),
+          location: location,
+          from: from,
+          message: message,
+        ),
+      );
 
   void openProfile(String roomId) => _push(
         ProfilePage(
@@ -243,6 +255,7 @@ class RoutingService {
           initIndex: initIndex,
           roomUid: uid,
         ),
+        useTransparentRoute: true,
       );
 
   void openCustomNotificationSoundSelection(String roomId) => _push(
@@ -252,10 +265,10 @@ class RoutingService {
         ),
       );
 
-  void openAccountSettings({bool forceToSetUsernameAndName = false}) => _push(
+  void openAccountSettings({bool forceToSetName = false}) => _push(
         AccountSettings(
           key: const ValueKey("/account-settings"),
-          forceToSetUsernameAndName: forceToSetUsernameAndName,
+          forceToSetName: forceToSetName,
         ),
       );
 
@@ -320,25 +333,34 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  void _push(Widget widget, {bool popAllBeforePush = false}) {
+  void _push(
+    Widget widget, {
+    bool popAllBeforePush = false,
+    bool useTransparentRoute = false,
+  }) {
     final path = (widget.key! as ValueKey).value;
 
     _analyticsRepo.incPVF(path);
-
+    final route = useTransparentRoute
+        ? TransparentRoute(
+            backgroundColor: Colors.transparent,
+            transitionDuration: SLOW_ANIMATION_DURATION,
+            reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+            builder: (c) => widget,
+            settings: RouteSettings(name: path),
+          )
+        : CupertinoPageRoute(
+            builder: (c) => widget,
+            settings: RouteSettings(name: path),
+          );
     if (popAllBeforePush) {
       _homeNavigatorState.currentState?.pushAndRemoveUntil(
-        CupertinoPageRoute(
-          builder: (c) => widget,
-          settings: RouteSettings(name: path),
-        ),
+        route,
         (r) => r.isFirst,
       );
     } else {
       _homeNavigatorState.currentState?.push(
-        CupertinoPageRoute(
-          builder: (c) => widget,
-          settings: RouteSettings(name: path),
-        ),
+        route,
       );
     }
   }
@@ -355,7 +377,9 @@ class RoutingService {
       _currentRoom = "";
     }
   }
-  bool  preMaybePopScopeValue ()=>_preMaybePopScope.maybePop();
+
+  bool preMaybePopScopeValue() => _preMaybePopScope.maybePop();
+
   void maybePop() {
     if (_preMaybePopScope.maybePop()) {
       if (canPop()) {

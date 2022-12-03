@@ -17,12 +17,10 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -50,29 +48,24 @@ class ImageUi extends StatefulWidget {
   ImageUiState createState() => ImageUiState();
 }
 
-class ImageUiState extends State<ImageUi> {
+class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _mediaDao = GetIt.I.get<MediaDao>();
+  static final _fileService = GetIt.I.get<FileService>();
 
   @override
   void initState() {
-    if (widget.message.id == null) {
-      _fileServices.initProgressBar(widget.message.json.toFile().uuid);
-    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final lowlight = widget.colorScheme.onPrimary;
-    final highlight = widget.colorScheme.primary;
     try {
       return Hero(
-        tag: "${widget.message.id}-${widget.image.uuid}",
+        tag: widget.image.uuid,
         child: Container(
           clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(borderRadius: messageBorder),
@@ -81,214 +74,65 @@ class ImageUiState extends State<ImageUi> {
             maxWidth: widget.maxWidth,
             maxHeight: widget.maxWidth,
           ),
-          child: FutureBuilder<String?>(
-            key: globalKey,
-            future: _fileRepo.getFileIfExist(
-              widget.image.uuid,
-              widget.image.name,
-            ),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return AspectRatio(
-                  aspectRatio:
-                      max(widget.image.width, 1) / max(widget.image.height, 1),
-                  child: Stack(
-                    fit: StackFit.passthrough,
-                    alignment: Alignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) {
-                                return FutureBuilder<int?>(
-                                  future: _mediaDao.getIndexOfMedia(
-                                    widget.message.roomUid,
-                                    widget.message.id!,
-                                    MediaType.IMAGE,
-                                  ),
-                                  builder: (context, snapshot) {
-                                    final hasIndex = snapshot.hasData &&
-                                        snapshot.data != null &&
-                                        snapshot.data! >= 0;
-                                    final isSingleImage =
-                                        snapshot.connectionState ==
-                                                ConnectionState.done &&
-                                            snapshot.data! <= 0;
-                                    if (hasIndex || isSingleImage) {
-                                      return AllImagePage(
-                                        key: const Key("/all_image_page"),
-                                        roomUid: widget.message.roomUid,
-                                        filePath: s.data,
-                                        message: widget.message,
-                                        initIndex:
-                                            hasIndex ? snapshot.data : null,
-                                        isSingleImage: isSingleImage,
-                                        messageId: widget.message.id!,
-                                        onEdit: widget.onEdit,
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                );
-                              },
+          child: AspectRatio(
+            aspectRatio:
+                max(widget.image.width, 1) / max(widget.image.height, 1),
+            child: SizedBox(
+              width: widget.image.width * 1.0,
+              height: widget.image.height * 1.0,
+              child: FutureBuilder<String?>(
+                key: globalKey,
+                initialData: _fileRepo.localUploadedFilePath[widget.image.uuid],
+                future: _fileRepo.getFileIfExist(
+                  widget.image.uuid,
+                  widget.image.name,
+                ),
+                builder: (c, pathSnapShot) {
+                  if (pathSnapShot.hasData && pathSnapShot.data != null) {
+                    return buildImageUi(context, pathSnapShot);
+                  } else {
+                    return StreamBuilder<Map<String, FileStatus>>(
+                      stream: _fileService.watchFileStatus(),
+                      builder: (c, status) {
+                        Widget child = defaultImageUI();
+                        if (_fileRepo.fileExitInCache(widget.image.uuid) ||
+                            status.hasData &&
+                                status.data != null &&
+                                status.data![widget.image.uuid] ==
+                                    FileStatus.COMPLETED) {
+                          child = FutureBuilder<String?>(
+                            future: _fileRepo.getFileIfExist(
+                              widget.image.uuid,
+                              widget.image.name,
                             ),
+                            builder: (c, path) {
+                              if (path.hasData && path.data != null) {
+                                return buildImageUi(context, path);
+                              }
+
+                              return buildDownloadImageWidget(defaultImageUI());
+                            },
                           );
-                        },
-                        child: isWeb
-                            ? Image.network(
-                                s.data!,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(s.data!),
-                                fit: BoxFit.fill,
-                              ),
-                      ),
-                      FutureBuilder<PendingMessage?>(
-                        future: _messageRepo.getPendingEditedMessage(
-                          widget.message.roomUid,
-                          widget.message.id,
-                        ),
-                        builder: (context, pendingEditedMessage) {
-                          if (widget.message.id == null ||
-                              pendingEditedMessage.data?.status !=
-                                      SendingStatus.PENDING &&
-                                  pendingEditedMessage.data != null) {
-                            return Center(
-                              widthFactor: 1,
-                              heightFactor: 1,
-                              child: StreamBuilder<double>(
-                                stream: _fileServices
-                                    .filesProgressBarStatus[widget.image.uuid],
-                                builder: (c, snap) {
-                                  if (snap.hasData &&
-                                      snap.data != null &&
-                                      snap.data! <= 1 &&
-                                      snap.data! > 0) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: lowlight,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: CircularPercentIndicator(
-                                        radius: 25.0,
-                                        lineWidth: 4.0,
-                                        backgroundColor: lowlight,
-                                        percent: snap.data!,
-                                        center: StreamBuilder<CancelToken?>(
-                                          stream: _fileServices
-                                              .cancelTokens[widget.image.uuid],
-                                          builder: (c, s) {
-                                            return GestureDetector(
-                                              child: Icon(
-                                                Icons.close,
-                                                color: highlight,
-                                                size: 35,
-                                              ),
-                                              onTap: () {
-                                                if (s.hasData &&
-                                                    s.data != null) {
-                                                  s.data!.cancel();
-                                                }
-                                                deletePendingMessage();
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        progressColor: highlight,
-                                      ),
-                                    );
-                                  } else {
-                                    return Stack(
-                                      children: [
-                                        const Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                        Center(
-                                          child: GestureDetector(
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 35,
-                                            ),
-                                            onTap: () {
-                                              deletePendingMessage();
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
+                        } else {
+                          child = buildDownloadImageWidget(child);
+                        }
+
+                        return AnimatedSwitcher(
+                          duration: VERY_SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
                             );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                      if (widget.image.caption.isEmpty)
-                        TimeAndSeenStatus(
-                          widget.message,
-                          isSender: widget.isSender,
-                          isSeen: widget.isSeen,
-                          needsPadding: true,
-                          showBackground: true,
-                        )
-                    ],
-                  ),
-                );
-              } else {
-                return AspectRatio(
-                  aspectRatio:
-                      max(widget.image.width, 1) / max(widget.image.height, 1),
-                  child: Stack(
-                    children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () async {
-                            await _fileRepo.getFile(
-                              widget.image.uuid,
-                              widget.image.name,
-                            );
-                            setState(() {});
                           },
-                          child: getBlurHashWidget(),
-                        ),
-                      ),
-                      Center(
-                        child: LoadFileStatus(
-                          fileId: widget.image.uuid,
-                          fileName: widget.image.name,
-                          isPendingMessage: widget.message.id == null,
-                          messagePacketId: widget.message.packetId,
-                          onPressed: () async {
-                            await _fileRepo.getFile(
-                              widget.image.uuid,
-                              widget.image.name,
-                            );
-                            setState(() {});
-                          },
-                          background: lowlight,
-                          foreground: highlight,
-                        ),
-                      ),
-                      if (widget.image.caption.isEmpty)
-                        TimeAndSeenStatus(
-                          widget.message,
-                          isSender: widget.isSender,
-                          isSeen: widget.isSeen,
-                          needsPadding: true,
-                          showBackground: true,
-                        )
-                    ],
-                  ),
-                );
-              }
-            },
+                          child: child,
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
           ),
         ),
       );
@@ -309,23 +153,190 @@ class ImageUiState extends State<ImageUi> {
     }
   }
 
+  SizedBox defaultImageUI() {
+    return SizedBox(
+      width: max(widget.image.width, 1) * 1.0,
+      height: max(widget.image.height, 1) * 1.0,
+      child: getBlurHashWidget(),
+    );
+  }
+
+  Stack buildDownloadImageWidget(Widget child) {
+    return Stack(
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => _downloadFile(),
+            child: child,
+          ),
+        ),
+        buildLoadFileStatus(
+          onDownload: () => _downloadFile(),
+        ),
+        if (widget.image.caption.isEmpty)
+          TimeAndSeenStatus(
+            widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
+            needsPadding: true,
+            showBackground: true,
+          )
+      ],
+    );
+  }
+
+  void _downloadFile() => _fileRepo.getFile(
+        widget.image.uuid,
+        widget.image.name,
+      );
+
+  Stack buildImageUi(BuildContext context, AsyncSnapshot<String?> path) {
+    return Stack(
+      fit: StackFit.passthrough,
+      alignment: Alignment.center,
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (widget.message.id != null) {
+              Navigator.push(
+                context,
+                TransparentRoute(
+                  backgroundColor: Colors.transparent,
+                  transitionDuration: SLOW_ANIMATION_DURATION,
+                  reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+                  builder: (context) {
+                    return FutureBuilder<int?>(
+                      future: _mediaDao.getIndexOfMedia(
+                        widget.message.roomUid,
+                        widget.message.id!,
+                        MediaType.IMAGE,
+                      ),
+                      builder: (context, snapshot) {
+                        final hasIndex = snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data! >= 0;
+                        final isSingleImage =
+                            snapshot.connectionState == ConnectionState.done &&
+                                snapshot.data! <= 0;
+                        if (hasIndex || isSingleImage) {
+                          return AllImagePage(
+                            key: const Key("/all_image_page"),
+                            roomUid: widget.message.roomUid,
+                            filePath: path.data,
+                            message: widget.message,
+                            initIndex: hasIndex ? snapshot.data : null,
+                            isSingleImage: isSingleImage,
+                            messageId: widget.message.id!,
+                            onEdit: widget.onEdit,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+                  },
+                ),
+              );
+            }
+          },
+          child: isWeb
+              ? Image.network(path.data!, fit: BoxFit.fill)
+              : Image.file(File(path.data!), fit: BoxFit.fill),
+        ),
+        if (widget.message.id == null &&
+            (widget.message.forwardedFrom == null ||
+                widget.message.forwardedFrom!.isEmpty))
+          FutureBuilder<PendingMessage?>(
+            future: _messageRepo.getPendingMessage(
+              widget.message.packetId,
+            ),
+            builder: (context, pendingMessage) =>
+                _buildPendingImageUi(pendingMessage),
+          )
+        else
+          FutureBuilder<PendingMessage?>(
+            future: _messageRepo.getPendingEditedMessage(
+              widget.message.roomUid,
+              widget.message.id,
+            ),
+            builder: (context, pendingEditedMessage) =>
+                _buildPendingImageUi(pendingEditedMessage),
+          ),
+        if (widget.image.caption.isEmpty)
+          TimeAndSeenStatus(
+            widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
+            needsPadding: true,
+            showBackground: true,
+          )
+      ],
+    );
+  }
+
+  Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
+    if (pendingMessage.hasData && pendingMessage.data != null) {
+      switch (pendingMessage.data!.status) {
+        case SendingStatus.UPLOAD_FILE_COMPLETED:
+          return const SizedBox.shrink();
+        case SendingStatus.UPLOAD_FILE_FAIL:
+          return buildLoadFileStatus(
+            sendingFileFailed: true,
+            onResendFileMessage: () => _messageRepo.resendFileMessage(
+              pendingMessage.data!,
+            ),
+            onCancel: () => _deletePendingMessage(),
+            isPendingMessage: true,
+          );
+        case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
+        case SendingStatus.PENDING:
+          return buildLoadFileStatus(
+            onCancel: () => _deletePendingMessage(),
+            isPendingMessage: true,
+          );
+      }
+    }
+
+    return const SizedBox();
+  }
+
+  Widget buildLoadFileStatus({
+    Function()? onDownload,
+    Function()? onCancel,
+    Function()? onResendFileMessage,
+    bool isPendingMessage = false,
+    bool sendingFileFailed = false,
+  }) {
+    return Center(
+      child: LoadFileStatus(
+        uuid: widget.image.uuid,
+        name: widget.image.name,
+        isUploading: isPendingMessage,
+        onDownload: () => onDownload?.call(),
+        onCancel: () => onCancel?.call(),
+        resendFileMessage: () => onResendFileMessage?.call(),
+        background: widget.colorScheme.onPrimary.withOpacity(0.8),
+        foreground: widget.colorScheme.primary,
+        sendingFileFailed: sendingFileFailed,
+      ),
+    );
+  }
+
   Widget getBlurHashWidget() {
     if (widget.image.blurHash != "") {
       return BlurHash(
         hash: widget.image.blurHash,
-        imageFit: BoxFit.cover,
       );
     } else {
-      // this is default gray hash : https://www.macmillandictionary.com/us/external/slideshow/thumb/Grey_thumb.png
       return const BlurHash(
-        hash:
-            ";0Hewg%MM{%MM{%MM{%MM{?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQ",
-        imageFit: BoxFit.cover,
+        hash: "L0Hewg%MM{%M?bfQfQfQM{fQfQfQ",
       );
     }
   }
 
-  void deletePendingMessage() {
+  void _deletePendingMessage() {
     if (widget.message.id == null) {
       _messageRepo.deletePendingMessage(
         widget.message.packetId,

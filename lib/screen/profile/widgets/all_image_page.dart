@@ -16,6 +16,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/profile/widgets/operation_on_image.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -24,6 +25,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,8 +61,7 @@ class AllImagePage extends StatefulWidget {
 class _AllImagePageState extends State<AllImagePage>
     with SingleTickerProviderStateMixin {
   late final _pageController = PageController(initialPage: initialIndex ?? 0);
-  final PhotoViewScaleStateController _scaleStateController =
-      PhotoViewScaleStateController();
+
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -111,7 +112,6 @@ class _AllImagePageState extends State<AllImagePage>
   @override
   void dispose() {
     _pageController.dispose();
-    _scaleStateController.dispose();
     super.dispose();
   }
 
@@ -191,17 +191,28 @@ class _AllImagePageState extends State<AllImagePage>
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: buildAppbar(),
-        body: Container(
-          color: Colors.black,
-          child: StreamBuilder<MediaMetaData?>(
+    return DismissiblePage(
+      onDragStart: () {},
+      onDragUpdate: (_) {
+        if (_isBarShowing.value) {
+          _isBarShowing.add(false);
+        }
+      },
+      onDismissed: () {
+        Navigator.of(context).pop();
+      },
+      direction: DismissiblePageDismissDirection.multi,
+      isFullScreen: false,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.black,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
+        child: Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: buildAppbar(),
+          backgroundColor: Colors.transparent,
+          body: StreamBuilder<MediaMetaData?>(
             stream: _mediaMetaDataDao.get(widget.roomUid),
             builder: (c, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
@@ -230,11 +241,10 @@ class _AllImagePageState extends State<AllImagePage>
         initialData: true,
         stream: _isBarShowing,
         builder: (context, snapshot) {
-          return AnimatedOpacity(
-            duration: ANIMATION_DURATION,
-            opacity: snapshot.data! ? 1 : 0,
-            child:
-                snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink(),
+          return AnimatedContainer(
+            height: snapshot.data! ? 64 : 0,
+            duration: SLOW_ANIMATION_DURATION,
+            child: buildAppBarWidget(),
           );
         },
       ),
@@ -263,18 +273,15 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   Widget buildImage(String filePath, int index) {
-    return GestureDetector(
-      onDoubleTapDown: (d) => _handleDoubleTap(d),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: AnimatedBuilder(
-            animation: animationList[animationIndex],
-            child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
-            builder: (context, child) => Transform.rotate(
-              angle: animationList[animationIndex].value,
-              child: child,
-            ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: AnimatedBuilder(
+          animation: animationList[animationIndex],
+          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+          builder: (context, child) => Transform.rotate(
+            angle: animationList[animationIndex].value,
+            child: child,
           ),
         ),
       ),
@@ -325,7 +332,7 @@ class _AllImagePageState extends State<AllImagePage>
                         scrollPhysics: const BouncingScrollPhysics(),
                         itemCount: all.data,
                         backgroundDecoration: const BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.transparent,
                         ),
                         pageController: _pageController,
                         onPageChanged: (index) => _currentIndex.add(index),
@@ -385,10 +392,10 @@ class _AllImagePageState extends State<AllImagePage>
                                 }
                               },
                             ),
+                            childSize: const Size(300, 300),
                             initialScale: PhotoViewComputedScale.contained,
                             minScale: PhotoViewComputedScale.contained,
                             maxScale: PhotoViewComputedScale.covered * 4.1,
-                            scaleStateController: _scaleStateController,
                           );
                         },
                       ),
@@ -447,7 +454,7 @@ class _AllImagePageState extends State<AllImagePage>
             stream: _isBarShowing,
             builder: (context, snapshot) {
               return AnimatedOpacity(
-                duration: ANIMATION_DURATION,
+                duration: SLOW_ANIMATION_DURATION,
                 opacity: snapshot.data! ? 1 : 0,
                 child: StreamBuilder<int>(
                   stream: _currentIndex,
@@ -480,10 +487,6 @@ class _AllImagePageState extends State<AllImagePage>
         )
       ],
     );
-  }
-
-  void _handleDoubleTap(TapDownDetails details) {
-    _scaleStateController.scaleState = PhotoViewScaleState.covering;
   }
 
   Widget buildCaptionSection({
@@ -626,25 +629,36 @@ class _AllImagePageState extends State<AllImagePage>
                 color: Colors.white,
               ),
             ),
-            IconButton(
-              tooltip:
-                  isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
-              onPressed: () async {
-                final message = await getMessage();
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  isDesktop
-                      ? OperationOnMessage.SHOW_IN_FOLDER
-                      : OperationOnMessage.SHARE,
-                );
-              },
-              icon: Icon(
-                isDesktop ? CupertinoIcons.folder_open : Icons.share_rounded,
-                color: Colors.white,
+            if (isAndroid)
+              IconButton(
+                tooltip: _i18n.get("share"),
+                onPressed: () async {
+                  final message = await getMessage();
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SHARE,
+                  );
+                },
+                icon: const Icon(
+                  Icons.share_rounded,
+                  color: Colors.white,
+                ),
               ),
-            ),
+            if (isDesktop)
+              PopupMenuButton(
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                itemBuilder: (cc) => <PopupMenuEntry>[
+                  OperationOnImage(
+                    getMessage: getMessage,
+                  )
+                ],
+              )
           ],
         ),
       ),

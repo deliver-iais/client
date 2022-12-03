@@ -62,6 +62,7 @@ class SingleBannerWidget extends StatelessWidget {
                     )
                   : null,
               child: InkWell(
+                hoverColor: Theme.of(context).colorScheme.background,
                 onTap: () =>
                     _routingService.openRoom(bannerCase.uid.asString()),
                 child: ClipRRect(
@@ -104,7 +105,3 @@ class SingleBannerWidget extends StatelessWidget {
     );
   }
 }
-// Row(
-// mainAxisAlignment:MainAxisAlignment.center ,
-//
-// children: [

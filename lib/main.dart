@@ -1,9 +1,11 @@
+
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_event.dart';
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
@@ -26,11 +28,8 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
-import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/file_info.dart';
-import 'package:deliver/box/inline_keyboard_button.dart';
-import 'package:deliver/box/inline_keyboard_markup.dart';
-import 'package:deliver/box/inline_keyboard_row.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -38,14 +37,10 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/reply_keyboard_button.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
-import 'package:deliver/box/reply_keyboard_row.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -69,12 +64,15 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/backgroundService.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/log.dart';
@@ -82,6 +80,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -101,7 +100,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -110,6 +108,7 @@ import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
+import 'repository/caching_repo.dart';
 import 'repository/mucRepo.dart';
 import 'repository/show_case_repo.dart';
 
@@ -120,6 +119,96 @@ void registerSingleton<T extends Object>(T instance) {
 }
 
 Future<void> setupDI() async {
+  await dbSetupDI();
+
+  // Setup Logger
+  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  registerSingleton<DeliverLogOutput>(DeliverLogOutput());
+  registerSingleton<Logger>(
+    Logger(
+      filter: GetIt.I.get<DeliverLogFilter>(),
+      level: kDebugMode ? Level.info : Level.nothing,
+      output: GetIt.I.get<DeliverLogOutput>(),
+    ),
+  );
+
+  registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+
+  registerSingleton<I18N>(I18N());
+
+  // Order is important, don't change it!
+  registerSingleton<RoutingService>(RoutingService());
+  registerSingleton<AuthRepo>(AuthRepo());
+  registerSingleton<FeatureFlags>(FeatureFlags());
+  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
+  registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+  await GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp();
+
+  //call Service should be here
+  registerSingleton<CallService>(CallService());
+  registerSingleton<AccountRepo>(AccountRepo());
+
+  registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  registerSingleton<UxService>(UxService());
+  registerSingleton<FileService>(FileService());
+  registerSingleton<MucServices>(MucServices());
+  registerSingleton<CreateMucService>(CreateMucService());
+  registerSingleton<NotificationForegroundService>(
+    NotificationForegroundService(),
+  );
+  registerSingleton<BotRepo>(BotRepo());
+  registerSingleton<StickerRepo>(StickerRepo());
+  registerSingleton<FileRepo>(FileRepo());
+  registerSingleton<ContactRepo>(ContactRepo());
+  registerSingleton<AvatarRepo>(AvatarRepo());
+  registerSingleton<MucRepo>(MucRepo());
+  registerSingleton<RoomRepo>(RoomRepo());
+  registerSingleton<MediaRepo>(MediaRepo());
+  registerSingleton<LastActivityRepo>(LastActivityRepo());
+  registerSingleton<LiveLocationRepo>(LiveLocationRepo());
+  registerSingleton<CachingRepo>(CachingRepo());
+
+  try {
+    registerSingleton<AudioService>(AudioService());
+  } catch (_) {}
+
+  if (isWeb) {
+    registerSingleton<Notifier>(WebNotifier());
+  } else if (isMacOS) {
+    registerSingleton<Notifier>(MacOSNotifier());
+  } else if (isAndroid) {
+    registerSingleton<Notifier>(AndroidNotifier());
+  } else if (isIOS) {
+    registerSingleton<Notifier>(IOSNotifier());
+  } else if (isLinux) {
+    registerSingleton<Notifier>(LinuxNotifier());
+  } else if (isWindows) {
+    registerSingleton<Notifier>(WindowsNotifier());
+  } else {
+    registerSingleton<Notifier>(FakeNotifier());
+  }
+
+  registerSingleton<MessageExtractorServices>(MessageExtractorServices());
+  registerSingleton<NotificationServices>(NotificationServices());
+  registerSingleton<AppLifecycleService>(AppLifecycleService());
+  registerSingleton<DataStreamServices>(DataStreamServices());
+  registerSingleton<CoreServices>(CoreServices());
+  registerSingleton<FireBaseServices>(FireBaseServices());
+
+  registerSingleton<MessageRepo>(MessageRepo());
+  registerSingleton<RawKeyboardService>(RawKeyboardService());
+
+  registerSingleton<CallRepo>(CallRepo());
+  registerSingleton<UrlHandlerService>(UrlHandlerService());
+  registerSingleton<ShowCaseRepo>(ShowCaseRepo());
+  registerSingleton<DragAndDropService>(DragAndDropService());
+  registerSingleton<PersistentEventHandlerService>(
+    PersistentEventHandlerService(),
+  );
+  registerSingleton<BackgroundService>(BackgroundService());
+}
+
+Future<void> dbSetupDI() async {
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
@@ -155,13 +244,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(MucTypeAdapter())
     ..registerAdapter(AutoDownloadAdapter())
-    ..registerAdapter(MessageMarkupAdapter())
-    ..registerAdapter(InlineKeyboardButtonAdapter())
-    ..registerAdapter(InlineKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardButtonAdapter())
-    ..registerAdapter(ReplyKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardRowAdapter())
-    ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(BoxInfoAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter());
 
@@ -189,84 +272,6 @@ Future<void> setupDI() async {
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
-
-  // Setup Logger
-  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
-  registerSingleton<DeliverLogOutput>(DeliverLogOutput());
-  registerSingleton<Logger>(
-    Logger(
-      filter: GetIt.I.get<DeliverLogFilter>(),
-      level: kDebugMode ? Level.info : Level.nothing,
-      output: GetIt.I.get<DeliverLogOutput>(),
-    ),
-  );
-
-  registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
-
-  registerSingleton<I18N>(I18N());
-
-  // Order is important, don't change it!
-  registerSingleton<RoutingService>(RoutingService());
-  registerSingleton<AuthRepo>(AuthRepo());
-  registerSingleton<FeatureFlags>(FeatureFlags());
-  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
-  registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-  await GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp();
-
-  //call Service should be here
-  registerSingleton<CallService>(CallService());
-  registerSingleton<AccountRepo>(AccountRepo());
-
-  registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  registerSingleton<UxService>(UxService());
-  registerSingleton<FileService>(FileService());
-  registerSingleton<MucServices>(MucServices());
-  registerSingleton<CreateMucService>(CreateMucService());
-  registerSingleton<NotificationForegroundService>(NotificationForegroundService());
-  registerSingleton<BotRepo>(BotRepo());
-  registerSingleton<StickerRepo>(StickerRepo());
-  registerSingleton<FileRepo>(FileRepo());
-  registerSingleton<ContactRepo>(ContactRepo());
-  registerSingleton<AvatarRepo>(AvatarRepo());
-  registerSingleton<MucRepo>(MucRepo());
-  registerSingleton<RoomRepo>(RoomRepo());
-  registerSingleton<MediaRepo>(MediaRepo());
-  registerSingleton<LastActivityRepo>(LastActivityRepo());
-  registerSingleton<LiveLocationRepo>(LiveLocationRepo());
-
-  try {
-    registerSingleton<AudioService>(AudioService());
-  } catch (_) {}
-
-  if (isWeb) {
-    registerSingleton<Notifier>(WebNotifier());
-  } else if (isMacOS) {
-    registerSingleton<Notifier>(MacOSNotifier());
-  } else if (isAndroid) {
-    registerSingleton<Notifier>(AndroidNotifier());
-  } else if (isIOS) {
-    registerSingleton<Notifier>(IOSNotifier());
-  } else if (isLinux) {
-    registerSingleton<Notifier>(LinuxNotifier());
-  } else if (isWindows) {
-    registerSingleton<Notifier>(WindowsNotifier());
-  } else {
-    registerSingleton<Notifier>(FakeNotifier());
-  }
-
-  registerSingleton<MessageExtractorServices>(MessageExtractorServices());
-  registerSingleton<NotificationServices>(NotificationServices());
-
-  registerSingleton<DataStreamServices>(DataStreamServices());
-  registerSingleton<CoreServices>(CoreServices());
-  registerSingleton<FireBaseServices>(FireBaseServices());
-
-  registerSingleton<MessageRepo>(MessageRepo());
-  registerSingleton<RawKeyboardService>(RawKeyboardService());
-
-  registerSingleton<CallRepo>(CallRepo());
-  registerSingleton<UrlHandlerService>(UrlHandlerService());
-  registerSingleton<ShowCaseRepo>(ShowCaseRepo());
 }
 
 Future initializeFirebase() async {

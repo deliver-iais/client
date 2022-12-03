@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/avatar.dart';
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
@@ -24,7 +24,7 @@ abstract class AvatarDao {
   Future<void> clearAllAvatars(String uid);
 }
 
-class AvatarDaoImpl implements AvatarDao {
+class AvatarDaoImpl extends AvatarDao {
   @override
   Stream<List<Avatar>> watchAvatars(String uid) async* {
     final box = await _open(uid);
@@ -146,8 +146,8 @@ class AvatarDaoImpl implements AvatarDao {
 
   static String _key2() => "last-avatar";
 
-  static Future<BoxPlus<Avatar>> _open(String uid) {
-    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+  Future<BoxPlus<Avatar>> _open(String uid) {
+    DBManager.open(_key(uid.replaceAll(":", "-")), TableInfo.AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
   }
 
@@ -155,8 +155,8 @@ class AvatarDaoImpl implements AvatarDao {
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 
-  static Future<BoxPlus<Avatar>> _open2() {
-    BoxInfo.addBox(_key2());
+  Future<BoxPlus<Avatar>> _open2() {
+    DBManager.open(_key2(), TableInfo.AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key2()));
   }
 
