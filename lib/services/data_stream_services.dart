@@ -20,7 +20,6 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -59,7 +58,6 @@ class DataStreamServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
-  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -200,9 +198,6 @@ class DataStreamServices {
         deleted: false,
       );
 
-      // Step 2 - Update User's Seen
-      await _fetchMySeen(roomUid.asString());
-
       // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {
         await _increaseHiddenMessageCount(roomUid.asString());
@@ -249,17 +244,6 @@ class DataStreamServices {
       await _roomRepo.updateReplyKeyboard(
         null,
         roomUid.asString(),
-      );
-    }
-  }
-
-  Future<void> _fetchMySeen(String roomUid) async {
-    final mySeen = await _seenDao.getMySeen(roomUid);
-    if (mySeen.messageId < 0) {
-      await _seenDao.updateMySeen(
-        uid: roomUid,
-        messageId: 0,
-        hiddenMessageCount: 0,
       );
     }
   }
@@ -636,8 +620,10 @@ class DataStreamServices {
         ..limit = 1,
     );
 
-    final messages = await saveFetchMessages(fetchMessagesRes.messages,
-        appRunInForeground: appRunInForeground,);
+    final messages = await saveFetchMessages(
+      fetchMessagesRes.messages,
+      appRunInForeground: appRunInForeground,
+    );
 
     for (final msg in messages) {
       if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
@@ -724,7 +710,6 @@ class DataStreamServices {
         await _checkForReplyKeyBoard(message);
       }
       await _messageDao.deletePendingMessage(message.packetId);
-
 
       try {
         final m = await handleIncomingMessage(
