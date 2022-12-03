@@ -45,14 +45,14 @@ class FileDetails extends StatelessWidget {
                     builder: (c, map) {
                       final progress = map.data![file.uuid] ?? 0;
                       return _buildText(
-                        "${sizeToString((progress * file.size.toInt()).toInt())} / ${sizeToString(file.size.toInt())}",
+                        "${byteFormat((progress * file.size.toInt()).toInt())} / ${byteFormat(file.size.toInt())}",
                         context,
                       );
                     },
                   );
                 } else {
                   return _buildText(
-                    "${sizeToString(file.size.toInt())}  ${getFileExtension(file.name)}",
+                    "${byteFormat(file.size.toInt())}  ${getFileExtension(file.name)}",
                     context,
                   );
                 }

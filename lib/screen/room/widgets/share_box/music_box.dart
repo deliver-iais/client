@@ -95,7 +95,7 @@ class MusicBoxState extends State<MusicBox> {
                               maxLines: 1,
                             ),
                             Text(
-                              sizeToString(fileModel.size ?? 0),
+                              byteFormat(fileModel.size ?? 0),
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,

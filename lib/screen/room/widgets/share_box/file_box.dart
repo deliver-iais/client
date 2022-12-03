@@ -2,7 +2,7 @@ import 'dart:io' as io;
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
-import 'package:deliver/screen/room/widgets/share_box/file_item.dart';
+import 'package:deliver/screen/room/widgets/share_box/file_box_item.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -156,7 +156,7 @@ class FilesBoxState extends State<FilesBox> {
                         selected ? theme.primaryColor.withOpacity(0.3) : null,
                     child: Column(
                       children: [
-                        FileItem(
+                        FileBoxItem(
                           file: fileItem,
                         ),
                         const Divider()

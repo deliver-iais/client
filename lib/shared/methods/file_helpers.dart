@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:deliver/models/file.dart' as file_model;
@@ -193,14 +194,11 @@ bool isAcceptableFileExtension(String extension) {
       extension == "webm";
 }
 
-String sizeToString(int bytes) {
-  if (bytes < 1000) {
-    return '$bytes B';
-  } else if (bytes < 1000000) {
-    return '${(bytes / 1000).round()} KB';
-  } else {
-    final megaBytes = (bytes / 1000000).floor();
-    final kiloBytes = ((bytes - (megaBytes * 1000000)) / 1000).round();
-    return '$megaBytes.$kiloBytes MB';
-  }
+String byteFormat(int bytes, {int decimals = 2}) {
+  if (bytes == 0) return '0.0 KB';
+  const k = 1024;
+  final dm = decimals <= 0 ? 0 : decimals;
+  final sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  final i = (log(bytes) / log(k)).floor();
+  return ('${(bytes / pow(k, i)).toStringAsFixed(dm)} ${sizes[i]}');
 }
