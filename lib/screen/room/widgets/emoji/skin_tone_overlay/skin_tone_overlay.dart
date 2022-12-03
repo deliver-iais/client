@@ -119,9 +119,9 @@ class SkinToneOverlay {
         (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) +
         column * emojiSpace +
         leftOffset;
-    final top = (hideHeaderAndFooter && hasVibrationCapability ? 1 : 2) *
+    final top = (hideHeaderAndFooter && hasVirtualKeyboardCapability ? 1 : 2) *
             PERSISTENT_EMOJI_HEADER_HEIGHT +
-        (hasVibrationCapability ? 15 : 0) +
+        (hasVirtualKeyboardCapability ? 15 : 0) +
         offset.dy +
         (row) * emojiSpace -
         scrollOffset -

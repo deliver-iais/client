@@ -27,7 +27,7 @@ class EmojiSelectionHeader extends StatelessWidget {
         widget: Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.onInverseSurface,
-            borderRadius: hasVibrationCapability
+            borderRadius: hasVirtualKeyboardCapability
                 ? null
                 : const BorderRadius.only(
                     topRight: Radius.circular(8),

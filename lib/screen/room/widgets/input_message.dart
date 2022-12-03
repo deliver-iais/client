@@ -157,7 +157,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           ? KeyboardStatus.REPLY_KEYBOARD
           : KeyboardStatus.OFF,
     );
-    if (!hasVibrationCapability) {
+    if (!hasVirtualKeyboardCapability) {
       _desktopEmojiKeyboardFocusNode.addListener(() {
         if (_desktopEmojiKeyboardFocusNode.hasFocus) {
           _showDesktopEmojiKeyboardOverlay();
@@ -440,7 +440,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
               ),
             ),
-            if (hasVibrationCapability)
+            if (hasVirtualKeyboardCapability)
               StreamBuilder<KeyboardStatus>(
                 stream: _keyboardStatus,
                 builder: (context, back) {
@@ -547,7 +547,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     return StreamBuilder<KeyboardStatus>(
       stream: _keyboardStatus,
       builder: (context, snapshot) {
-        if (hasVibrationCapability) {
+        if (hasVirtualKeyboardCapability) {
           final emojiKeyboardIsOn = !((snapshot.data ?? KeyboardStatus.OFF) !=
                   KeyboardStatus.EMOJI_KEYBOARD &&
               (snapshot.data ?? KeyboardStatus.OFF) !=

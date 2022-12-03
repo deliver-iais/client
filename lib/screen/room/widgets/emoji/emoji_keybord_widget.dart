@@ -52,7 +52,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
 
   final _scrollController =
-      ScrollController(initialScrollOffset: hasVibrationCapability ? 55 : 0);
+      ScrollController(initialScrollOffset: hasVirtualKeyboardCapability ? 55 : 0);
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final _selectedEmojiGroup = BehaviorSubject<EmojiGroup?>.seeded(null);
@@ -155,9 +155,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
             onTap: () => _closeSkinToneOverlay(),
             child: Container(
               decoration: BoxDecoration(
-                boxShadow: hasVibrationCapability ? null : DEFAULT_BOX_SHADOWS,
+                boxShadow: hasVirtualKeyboardCapability ? null : DEFAULT_BOX_SHADOWS,
                 color: theme.colorScheme.onInverseSurface,
-                borderRadius: hasVibrationCapability ? null : tertiaryBorder,
+                borderRadius: hasVirtualKeyboardCapability ? null : tertiaryBorder,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -168,7 +168,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                       shrinkWrap: true,
                       slivers: <Widget>[
                         //selection header
-                        if (hasVibrationCapability &&
+                        if (hasVirtualKeyboardCapability &&
                             widget.keyboardStatus ==
                                 KeyboardStatus.EMOJI_KEYBOARD)
                           StreamBuilder<bool>(
@@ -179,12 +179,12 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                               );
                             },
                           ),
-                        if (!hasVibrationCapability)
+                        if (!hasVirtualKeyboardCapability)
                           _buildSelectionHeaderWidget(),
 
                         //todo(chitsaz) fix overlay problem with text field and add search box
                         //search box
-                        if (hasVibrationCapability) _buildEmojiSearchBox(theme),
+                        if (hasVirtualKeyboardCapability) _buildEmojiSearchBox(theme),
 
                         //emoji grid
                         if (_isSearchModeEnable)
@@ -222,7 +222,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                   //footer
 
                   if (widget.keyboardStatus == KeyboardStatus.EMOJI_KEYBOARD &&
-                      hasVibrationCapability)
+                      hasVirtualKeyboardCapability)
                     StreamBuilder<bool>(
                       stream: _hideHeaderAndFooter,
                       builder: (context, snapshot) {
@@ -356,7 +356,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           (45) * (((Emoji.byGroup(group).length / columns).ceil())) +
           (group.index >= 1 ? 40 : 0);
       if (_scrollController.offset >=
-          offset + (hasVibrationCapability ? 60 : 0)) {
+          offset + (hasVirtualKeyboardCapability ? 60 : 0)) {
         selectedGroup = EmojiGroup.values[min(group.index + 1, 9)];
       }
     }

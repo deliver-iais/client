@@ -11557,7 +11557,7 @@ class Emoji {
 
   static int getColumnsCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return (hasVibrationCapability
+    return (hasVirtualKeyboardCapability
             ? width - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)
             : DESKTOP_EMOJI_OVERLAY_WIDTH) ~/
         45;
