@@ -6,6 +6,7 @@ import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -127,7 +128,35 @@ class ImageTabUiState extends State<ImageTabUi> {
                     ),
                   );
                 } else {
-                  return SizedBox(child: BlurHash(hash: json["blurHash"]));
+                  return FutureBuilder<String?>(
+                    future: _fileRepo.getFile(
+                      json["uuid"],
+                      json["name"],
+                      thumbnailSize: ThumbnailSize.small,
+                      intiProgressbar: false,
+                    ),
+                    builder: (s, path) {
+                      if (path.hasData && path.data != null) {
+                        return Hero(
+                          tag: json["uuid"],
+                          transitionOnUserGestures: true,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: isWeb
+                                    ? Image.network(path.data!).image
+                                    : Image.file(
+                                        File(path.data!),
+                                      ).image,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      return SizedBox(child: BlurHash(hash: json["blurHash"]));
+                    },
+                  );
                 }
               },
             ),
