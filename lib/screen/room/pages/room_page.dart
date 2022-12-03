@@ -437,6 +437,7 @@ class RoomPageState extends State<RoomPage> {
         }
         _updateTimeHeader(position.toList());
 
+        // TODO(bitbeter): WTF ?!?!?!?!?
         final firstVisibleItem = position
             .where(
               (position) => position.itemLeadingEdge > 0,
