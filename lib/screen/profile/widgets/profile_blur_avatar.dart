@@ -2,13 +2,17 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ProfileBlurAvatar extends StatelessWidget {
   final AvatarRepo _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final RoomRepo _roomRepo = GetIt.I.get<RoomRepo>();
   late final Uid roomUid;
   bool hasShaderMaskOver = true;
   final List<double> shaderMaskStops;
@@ -71,10 +75,68 @@ class ProfileBlurAvatar extends StatelessWidget {
           // }
         } else {
           // TODO : fix this one
-          return FlutterLogo();
+          return ShaderMask(
+            blendMode: BlendMode.srcOver,
+            shaderCallback: (bounds) => LinearGradient(
+                begin: Alignment.topCenter,
+                stops: shaderMaskStops,
+                end: Alignment.bottomCenter,
+                colors: [
+                  theme.colorScheme.background
+                      .withOpacity(0),
+                  if(hasShaderMaskOver) theme.colorScheme.background
+                ]).createShader(
+              Rect.fromLTWH(
+                  0, 0, bounds.width, bounds.height),
+            ),
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                  theme.colorScheme.background
+                      .withOpacity(coverOpacity+0.1),
+                  BlendMode.srcOver),
+              child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(
+                      sigmaX: blurSigma, sigmaY: blurSigma),
+                  child:Container(
+                    color: ExtraTheme.of(context).messageColorScheme(roomUid.asString()).onPrimaryContainer,
+                    // color: Colors.orange,
+                  )),
+            ),
+          );
           // return showDisplayName(textColor);
         }
       },
+    );
+  }
+
+  Widget showDisplayName(Color textColor) {
+    return DefaultTextStyle(
+      style: TextStyle(color: textColor, fontSize: 16, height: 1),
+      child: FutureBuilder<String>(
+        initialData: _roomRepo.fastForwardName(roomUid),
+        future: _roomRepo.getName(roomUid),
+        key: GlobalKey(),
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            final name = snapshot.data!.trim();
+            return avatarAlt(name.trim(), textColor);
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget avatarAlt(String name, Color textColor) {
+    return Center(
+      child: Text(
+        name.length > 1
+            ? name.substring(0, 1).toUpperCase()
+            : name.toUpperCase(),
+        maxLines: 1,
+        style: TextStyle(color: textColor, fontSize: 16, height: 1),
+      ),
     );
   }
 
