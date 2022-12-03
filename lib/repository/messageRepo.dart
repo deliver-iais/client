@@ -286,7 +286,17 @@ class MessageRepo {
 
   Future<void> _updateRoomInBackground(RoomMetadata roomMetadata) async {
     final seen = await _roomRepo.getMySeen(roomMetadata.roomUid.asString());
-    if (roomMetadata.lastMessageId > seen.messageId) {
+
+    if (roomMetadata.lastMessageId <= seen.messageId) {
+      return;
+    }
+
+    await fetchRoomLastSeen(roomMetadata.roomUid.asString());
+
+    final updatedSeen =
+        await _roomRepo.getMySeen(roomMetadata.roomUid.asString());
+
+    if (roomMetadata.lastMessageId > updatedSeen.messageId) {
       unawaited(
         fetchRoomLastMessage(
           roomMetadata.roomUid.asString(),
@@ -295,7 +305,6 @@ class MessageRepo {
           appRunInForeground: true,
         ),
       );
-      unawaited(fetchRoomLastSeen(roomMetadata.roomUid.asString()));
     }
   }
 
