@@ -506,11 +506,11 @@ class RoomPageState extends State<RoomPage> {
     } else {
       firstVisibleItemIndex = positions
           .where(
-            (position) => position.itemTrailingEdge < 1,
+            (position) => position.itemTrailingEdge > 0,
           )
           .reduce(
             (first, position) =>
-                position.itemTrailingEdge > first.itemTrailingEdge
+                position.itemTrailingEdge < first.itemTrailingEdge
                     ? position
                     : first,
           )
