@@ -185,12 +185,21 @@ class ShareBoxState extends State<ShareBox> {
             builder: (context, snapshot) {
               final remainingPixels = snapshot.data ?? (2 * APPBAR_HEIGHT);
 
-              final borderRadius = remainingPixels >= MAIN_BORDER_RADIUS_SIZE
-                  ? MAIN_BORDER_RADIUS_SIZE
-                  : remainingPixels;
-              final topPadding = (remainingPixels >= (2 * APPBAR_HEIGHT))
-                  ? 0.0
-                  : (APPBAR_HEIGHT - (remainingPixels / 2));
+              final borderRadius = max(
+                remainingPixels >= MAIN_BORDER_RADIUS_SIZE
+                    ? MAIN_BORDER_RADIUS_SIZE
+                    : remainingPixels,
+                0.0,
+              );
+
+              final topPadding = max(
+                (remainingPixels >= (1.8 * APPBAR_HEIGHT))
+                    ? 0.0
+                    : (APPBAR_HEIGHT - (remainingPixels / 1.8)),
+                0.2,
+              ).abs();
+
+              final draggableOpacity = minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
 
               return Container(
                 padding: EdgeInsets.only(
@@ -210,8 +219,10 @@ class ShareBoxState extends State<ShareBox> {
                     Align(
                       alignment: Alignment.topCenter,
                       child: Opacity(
-                        opacity: (MAIN_BORDER_RADIUS_SIZE - borderRadius) /
-                            MAIN_BORDER_RADIUS_SIZE,
+                        opacity: minMax(
+                          (MAIN_BORDER_RADIUS_SIZE - borderRadius) /
+                              MAIN_BORDER_RADIUS_SIZE,
+                        ),
                         child: Container(
                           color: theme.appBarTheme.backgroundColor,
                           height: topPadding,
@@ -380,6 +391,22 @@ class ShareBoxState extends State<ShareBox> {
                         ),
                       ),
                     ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Opacity(
+                        opacity: draggableOpacity,
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          width: 42,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.5),
+                            borderRadius: mainBorder,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -403,4 +430,6 @@ class ShareBoxState extends State<ShareBox> {
   bool get isAnyFileSelected => finalSelected.values.isNotEmpty;
 
   int get _replyMessageId => widget.replyMessageId;
+
+  double minMax(double value) => min(1.0, max(0.0, value));
 }
