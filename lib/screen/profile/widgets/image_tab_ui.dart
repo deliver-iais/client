@@ -110,8 +110,9 @@ class ImageTabUiState extends State<ImageTabUi> {
             child: FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
               builder: (c, filePath) {
+                Widget c = const SizedBox.shrink();
                 if (filePath.hasData && filePath.data != null) {
-                  return Hero(
+                  c = Hero(
                     tag: json["uuid"],
                     transitionOnUserGestures: true,
                     child: Container(
@@ -128,7 +129,7 @@ class ImageTabUiState extends State<ImageTabUi> {
                     ),
                   );
                 } else {
-                  return FutureBuilder<String?>(
+                  c = FutureBuilder<String?>(
                     future: _fileRepo.getFile(
                       json["uuid"],
                       json["name"],
@@ -136,8 +137,9 @@ class ImageTabUiState extends State<ImageTabUi> {
                       intiProgressbar: false,
                     ),
                     builder: (s, path) {
+                      Widget child = const SizedBox.shrink();
                       if (path.hasData && path.data != null) {
-                        return Hero(
+                        child = Hero(
                           tag: json["uuid"],
                           transitionOnUserGestures: true,
                           child: Container(
@@ -153,11 +155,37 @@ class ImageTabUiState extends State<ImageTabUi> {
                             ),
                           ),
                         );
+                      } else {
+                        child = SizedBox(
+                          child: BlurHash(
+                            hash: json["blurHash"],
+                          ),
+                        );
                       }
-                      return SizedBox(child: BlurHash(hash: json["blurHash"]));
+
+                      return AnimatedSwitcher(
+                        duration: VERY_SLOW_ANIMATION_DURATION,
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        child: child,
+                      );
                     },
                   );
                 }
+                return AnimatedSwitcher(
+                  duration: VERY_SLOW_ANIMATION_DURATION,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: c,
+                );
               },
             ),
           ),

@@ -171,7 +171,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
                     lineWidth: 4.0,
                     circularStrokeCap: CircularStrokeCap.round,
                     percent:
-                        widget.isUploading ? min(progress, 0.94) : progress,
+                        widget.isUploading ? min(progress, 0.96) : progress,
                     backgroundColor: widget.background,
                     progressColor: widget.foreground,
                   ),
