@@ -147,7 +147,6 @@ class MessageRepo {
 
     sendPendingMessages().ignore();
     sendPendingEditedMessages().ignore();
-    // unawaited(_fetchNotSyncedRoom());
     _logger.i('updating done -----------------');
   }
 
