@@ -578,7 +578,6 @@ void main() {
             lastMessage: returnedMessage,
             lastMessageId: 0,
             lastUpdateTime: 0,
-            mentioned: true,
             deleted: false,
           ),
         );

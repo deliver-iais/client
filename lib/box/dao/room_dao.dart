@@ -17,7 +17,6 @@ abstract class RoomDao {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    bool? mentioned,
     bool? pinned,
     int? pinId,
     int? hiddenMessageCount,
@@ -26,6 +25,7 @@ abstract class RoomDao {
     bool? seenSynced,
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
+    List<int>? mentionsId,
   });
 
   Future<List<Room>> getAllRooms();
@@ -113,7 +113,6 @@ class RoomDaoImpl extends RoomDao {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
     int? pinId,
@@ -122,6 +121,7 @@ class RoomDaoImpl extends RoomDao {
     bool? seenSynced,
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
+    List<int>? mentionsId,
   }) async {
     final box = await _openRoom();
 
@@ -134,7 +134,6 @@ class RoomDaoImpl extends RoomDao {
       draft: draft,
       lastUpdateTime: max(lastUpdateTime ?? 0, r.lastUpdateTime),
       firstMessageId: firstMessageId,
-      mentioned: mentioned,
       pinned: pinned,
       hiddenMessageCount: hiddenMessageCount,
       pinId: pinId,
@@ -143,6 +142,7 @@ class RoomDaoImpl extends RoomDao {
       seenSynced: seenSynced,
       replyKeyboardMarkup: replyKeyboardMarkup,
       forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
+      mentionsId: mentionsId,
     );
 
     if (clone != r) return box.put(uid, clone);

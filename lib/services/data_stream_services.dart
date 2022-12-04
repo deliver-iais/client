@@ -179,27 +179,22 @@ class DataStreamServices {
       // Step 1 - Update Room Info
 
       // Check if Mentioned.
-      bool? hasMentioned;
-      if (roomUid.category == Categories.GROUP) {
-        if (message.text.text
-            .replaceAll("\n", " ")
-            .split(" ")
-            .contains("@${(await _accountRepo.getAccount())!.username}")) {
-          hasMentioned = true;
-        }
-      }
 
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
         lastUpdateTime: msg.time,
-        mentioned: hasMentioned,
         deleted: false,
       );
-
-      // Step 2 - Update User's Seen
-      await _fetchMySeen(roomUid.asString());
+      if (roomUid.category == Categories.GROUP) {
+        if (message.text.text
+            .replaceAll("\n", " ")
+            .split(" ")
+            .contains("@${(await _accountRepo.getAccount())!.username}")) {
+          unawaited(_roomRepo.processMentionIds(roomUid.asString(), [msg.id!]));
+        }
+      }
 
       // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {
@@ -247,17 +242,6 @@ class DataStreamServices {
       await _roomRepo.updateReplyKeyboard(
         null,
         roomUid.asString(),
-      );
-    }
-  }
-
-  Future<void> _fetchMySeen(String roomUid) async {
-    final mySeen = await _seenDao.getMySeen(roomUid);
-    if (mySeen.messageId < 0) {
-      await _seenDao.updateMySeen(
-        uid: roomUid,
-        messageId: 0,
-        hiddenMessageCount: 0,
       );
     }
   }
@@ -634,8 +618,10 @@ class DataStreamServices {
         ..limit = 1,
     );
 
-    final messages = await saveFetchMessages(fetchMessagesRes.messages,
-        appRunInForeground: appRunInForeground,);
+    final messages = await saveFetchMessages(
+      fetchMessagesRes.messages,
+      appRunInForeground: appRunInForeground,
+    );
 
     for (final msg in messages) {
       if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
@@ -722,7 +708,6 @@ class DataStreamServices {
         await _checkForReplyKeyBoard(message);
       }
       await _messageDao.deletePendingMessage(message.packetId);
-
 
       try {
         final m = await handleIncomingMessage(

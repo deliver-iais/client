@@ -1,13 +1,17 @@
 import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
 
-  const ChatTime({super.key, required this.currentMessageTime});
+  const ChatTime({
+    super.key,
+    required this.currentMessageTime,
+  });
 
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -25,17 +29,12 @@ class ChatTime extends StatelessWidget {
     } else {
       outT = dateTimeFromNowFormat(currentMessageTime, weekFormat: 'l');
     }
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Chip(
-        label: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(
-            outT,
-            textDirection: _i18n.defaultTextDirection,
-          ),
-        ),
-        elevation: 2,
+    return BlurContainer(
+      skew: 4,
+      padding: const EdgeInsets.only(top: 6, bottom: 3, left: 12, right: 12),
+      child: Text(
+        outT,
+        textDirection: _i18n.defaultTextDirection,
       ),
     );
   }

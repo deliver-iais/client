@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
@@ -55,7 +56,6 @@ import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
-import 'package:deliver/shared/widgets/scroll_message_list.dart';
 import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
@@ -128,11 +128,14 @@ class RoomPageState extends State<RoomPage> {
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
   final _pendingEditedMessage = BehaviorSubject<List<PendingMessage>>();
-  final _isScrolling = BehaviorSubject.seeded(false);
+  final _isScrolling = BehaviorSubject.seeded(
+    ScrollingState(0, ScrollingDirection.UP, isScrolling: false),
+  );
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
+  final _timeHeader = BehaviorSubject<String>.seeded("");
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
@@ -145,11 +148,11 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
+
   StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
   bool _isArrowIconFocused = false;
-  bool _isLastMessages = false;
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -265,62 +268,7 @@ class RoomPageState extends State<RoomPage> {
                       ],
                     ),
                     builder: (context, snapshot) {
-                      return SizedBox(
-                        width: double.infinity,
-                        child: DebugC(
-                          isOpen: true,
-                          children: [
-                            Debug(
-                              seen.data?.messageId,
-                              label: "mySeen.messageId",
-                            ),
-                            Debug(
-                              seen.data?.hiddenMessageCount,
-                              label: "mySeen.hiddenMessageCount",
-                            ),
-                            Debug(widget.roomId, label: "uid"),
-                            Debug(
-                              room.firstMessageId,
-                              label: "room.firstMessageId",
-                            ),
-                            Debug(
-                              room.lastMessageId,
-                              label: "room.lastMessageId",
-                            ),
-                            Debug(
-                              _lastSeenMessageId,
-                              label: "_lastSeenMessageId",
-                            ),
-                            Debug(
-                              _lastShowedMessageId,
-                              label: "_lastShowedMessageId",
-                            ),
-                            Debug(_itemCount, label: "_itemCount"),
-                            Debug(
-                              _lastReceivedMessageId,
-                              label: "_lastReceivedMessageId",
-                            ),
-                            Debug(_pinMessages, label: "_pinMessages"),
-                            Debug(
-                              _selectedMessages,
-                              label: "_selectedMessages",
-                            ),
-                            Debug(
-                              _currentScrollIndex,
-                              label: "_currentScrollIndex",
-                            ),
-                            Debug(_appIsActive, label: "_appIsActive"),
-                            Debug(
-                              _backgroundMessages,
-                              label: "_backgroundMessages",
-                            ),
-                            Debug(
-                              _defaultMessageHeight,
-                              label: "_defaultMessageHeight",
-                            ),
-                          ],
-                        ),
-                      );
+                      return buildLogBox(seen);
                     },
                   );
                 },
@@ -329,6 +277,39 @@ class RoomPageState extends State<RoomPage> {
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
+        ),
+        StreamBuilder<ScrollingState>(
+          stream: _isScrolling,
+          builder: (context, isScrollingSnapshot) {
+            final showTime = isScrollingSnapshot.data?.isScrolling ?? false;
+
+            return AnimatedOpacity(
+              opacity: showTime ? 1 : 0,
+              duration: SLOW_ANIMATION_DURATION,
+              curve: Curves.easeInOut,
+              child: Padding(
+                padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
+                child: StreamBuilder<String>(
+                  stream: _timeHeader.stream,
+                  builder: (context, dateSnapshot) {
+                    if (dateSnapshot.hasData &&
+                        dateSnapshot.data != null &&
+                        dateSnapshot.data!.isNotEmpty) {
+                      return Align(
+                        key: Key(dateSnapshot.data!),
+                        alignment: Alignment.topCenter,
+                        child: ChatTime(
+                          currentMessageTime:
+                              date(int.parse(dateSnapshot.data!)),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -353,20 +334,29 @@ class RoomPageState extends State<RoomPage> {
               return buildMessagesListView();
             },
           ),
-          StreamBuilder<bool>(
+          StreamBuilder<ScrollingState>(
             stream: _isScrolling,
             builder: (context, snapshot) {
+              final showArrow =
+                  (isDesktop && _messageReplyHistory.isNotEmpty) ||
+                      ((snapshot.data?.isScrolling ?? false) &&
+                          (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
+                          (snapshot.data?.scrollingDirection ==
+                              ScrollingDirection.DOWN));
+
               return Positioned(
                 right: 16,
                 bottom: 16,
-                child: AnimatedScale(
-                  scale: isDesktop && _messageReplyHistory.isNotEmpty
-                      ? 1
-                      : snapshot.data == true
-                          ? 1
-                          : 0,
+                child: AnimatedOpacity(
+                  opacity: showArrow ? 1 : 0,
+                  curve: Curves.easeInOut,
                   duration: SLOW_ANIMATION_DURATION,
-                  child: scrollDownButtonWidget(),
+                  child: AnimatedScale(
+                    duration: SLOW_ANIMATION_DURATION,
+                    curve: Curves.fastOutSlowIn,
+                    scale: showArrow ? 1 : 0,
+                    child: scrollDownButtonWidget(),
+                  ),
                 ),
               );
             },
@@ -417,7 +407,6 @@ class RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-    _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
@@ -430,21 +419,27 @@ class RoomPageState extends State<RoomPage> {
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
+
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
-        if ((_itemCount - position.first.index).abs() > 5) {
-          _isLastMessages = false;
-        } else {
-          _isLastMessages = true;
-        }
-        final firstVisibleItem =
-            position.where((position) => position.itemLeadingEdge > 0).reduce(
-                  (first, position) =>
-                      position.itemLeadingEdge > first.itemLeadingEdge
-                          ? position
-                          : first,
-                );
 
+        if (widget.roomId.isGroup()) {
+          _updateRoomMentionIds(position.toList());
+        }
+
+        _updateTimeHeader(position.toList());
+
+        // TODO(bitbeter): WTF ?!?!?!?!?
+        final firstVisibleItem = position
+            .where(
+              (position) => position.itemLeadingEdge > 0,
+            )
+            .reduce(
+              (first, position) =>
+                  position.itemLeadingEdge < first.itemLeadingEdge
+                      ? position
+                      : first,
+            );
         // Save scroll position of first complete visible item
         _sharedDao.put(
           '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
@@ -486,6 +481,88 @@ class RoomPageState extends State<RoomPage> {
     super.initState();
   }
 
+  Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
+    final proportionOfTop =
+        ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+
+    final firstVisibleItemIndex = positions
+        .where(
+          (position) => position.itemLeadingEdge > proportionOfTop,
+        )
+        .reduce(
+          (first, position) =>
+              position.itemTrailingEdge < first.itemTrailingEdge
+                  ? position
+                  : first,
+        )
+        .index;
+
+    final message =
+        await _getMessage(firstVisibleItemIndex + room.firstMessageId);
+    if (message != null) {
+      _timeHeader.add(message.time.toString());
+    }
+  }
+
+  SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
+    return SizedBox(
+      width: double.infinity,
+      child: DebugC(
+        isOpen: true,
+        children: [
+          Debug(
+            seen.data?.messageId,
+            label: "mySeen.messageId",
+          ),
+          Debug(
+            seen.data?.hiddenMessageCount,
+            label: "mySeen.hiddenMessageCount",
+          ),
+          Debug(widget.roomId, label: "uid"),
+          Debug(
+            room.firstMessageId,
+            label: "room.firstMessageId",
+          ),
+          Debug(
+            room.lastMessageId,
+            label: "room.lastMessageId",
+          ),
+          Debug(
+            _lastSeenMessageId,
+            label: "_lastSeenMessageId",
+          ),
+          Debug(
+            _lastShowedMessageId,
+            label: "_lastShowedMessageId",
+          ),
+          Debug(_itemCount, label: "_itemCount"),
+          Debug(
+            _lastReceivedMessageId,
+            label: "_lastReceivedMessageId",
+          ),
+          Debug(_pinMessages, label: "_pinMessages"),
+          Debug(
+            _selectedMessages,
+            label: "_selectedMessages",
+          ),
+          Debug(
+            _currentScrollIndex,
+            label: "_currentScrollIndex",
+          ),
+          Debug(_appIsActive, label: "_appIsActive"),
+          Debug(
+            _backgroundMessages,
+            label: "_backgroundMessages",
+          ),
+          Debug(
+            _defaultMessageHeight,
+            label: "_defaultMessageHeight",
+          ),
+        ],
+      ),
+    );
+  }
+
   void _syncLastPinMessageWithItemPosition() {
     final position = _itemPositionsListener.itemPositions.value;
     final p = position.map((e) => e.index).reduce(max) + room.firstMessageId;
@@ -511,9 +588,10 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> initRoomStream() async {
     _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
-      if (event.lastMessageId != room.lastMessageId) {
-        _fireScrollEvent();
-        _calmScrollEvent();
+      if (event.lastMessageId != room.lastMessageId &&
+          _isScrolling.valueOrNull != null) {
+        _fireScrollEvent(_isScrolling.valueOrNull!.pixel);
+        _calmScrollEvent(_isScrolling.valueOrNull!.pixel);
       }
       _room.add(event);
     });
@@ -552,6 +630,23 @@ class RoomPageState extends State<RoomPage> {
     _messageRepo.watchPendingEditedMessages(widget.roomId).listen((event) {
       _pendingEditedMessage.add(event);
     });
+  }
+
+  void _updateRoomMentionIds(List<ItemPosition> items) {
+    if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+      unawaited(
+        _roomRepo.updateMentionIds(
+          room.uid,
+          room.mentionsId!
+              .where(
+                (element) => !items
+                    .map((e) => e.index + room.firstMessageId + 1)
+                    .contains(element),
+              )
+              .toList(),
+        ),
+      );
+    }
   }
 
   void subscribeOnPositionToSendSeen() {
@@ -813,12 +908,12 @@ class RoomPageState extends State<RoomPage> {
         _isArrowIconFocused = false;
         scrollEndNotificationTimer = Timer(
             const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-          _isScrolling.add(false);
+          _isScrolling.add(_isScrolling.value.copyWith(isScrolling: false));
         });
       },
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => _scrollToLastMessage(),
+        onTap: _scrollToLastMessage,
         child: Stack(
           children: [
             FloatingActionButton(
@@ -1221,84 +1316,118 @@ class RoomPageState extends State<RoomPage> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
+        final currentPixel = scrollNotification.metrics.pixels;
+        final maxPixel = scrollNotification.metrics.maxScrollExtent;
+
+        final isInNearToEndOfPage = (maxPixel - currentPixel).abs() < 200;
+
         if (scrollNotification is ScrollStartNotification) {
-          _fireScrollEvent();
+          _fireScrollEvent(
+            currentPixel,
+            isInNearToEndOfPage: isInNearToEndOfPage,
+          );
+        } else if (scrollNotification is ScrollUpdateNotification) {
+          _fireScrollEvent(
+            currentPixel,
+            isInNearToEndOfPage: isInNearToEndOfPage,
+          );
         } else if (scrollNotification is ScrollEndNotification) {
-          _calmScrollEvent();
-        }
-        if ((scrollNotification.metrics.pixels -
-                    scrollNotification.metrics.maxScrollExtent)
-                .abs() <
-            100) {
-          _isScrolling.add(false);
+          _calmScrollEvent(
+            currentPixel,
+            isInNearToEndOfPage: isInNearToEndOfPage,
+          );
         }
         return true;
       },
-      child: ScrollMessageList(
+      child: ScrollablePositionedList.separated(
         itemCount: _itemCount + 1,
+        initialScrollIndex: initialScrollIndex + 1,
+        extraScrollSpeed: isWindows ? 40 : null,
+        key: _scrollablePositionedListKey,
+        initialAlignment: initialAlignment,
+        physics: const ClampingScrollPhysics(),
+        addSemanticIndexes: false,
+        minCacheExtent: 0,
         itemPositionsListener: _itemPositionsListener,
-        controller: _itemScrollController,
-        child: ScrollablePositionedList.separated(
-          itemCount: _itemCount + 1,
-          initialScrollIndex: initialScrollIndex + 1,
-          extraScrollSpeed: isWindows ? 40 : null,
-          key: _scrollablePositionedListKey,
-          initialAlignment: initialAlignment,
-          physics: const ClampingScrollPhysics(),
-          addSemanticIndexes: false,
-          minCacheExtent: 0,
-          itemPositionsListener: _itemPositionsListener,
-          itemScrollController: _itemScrollController,
-          itemBuilder: (context, index) =>
-              _buildMessage(index + room.firstMessageId),
-          separatorBuilder: (context, index) {
-            final firstIndex = index + room.firstMessageId;
+        itemScrollController: _itemScrollController,
+        itemBuilder: (context, index) =>
+            _buildMessage(index + room.firstMessageId),
+        separatorBuilder: (context, index) {
+          final firstIndex = index + room.firstMessageId;
 
-            index = index + (room.firstMessageId);
+          index = index + (room.firstMessageId);
 
-            if (index < room.firstMessageId) {
-              return const SizedBox.shrink();
-            }
-            return Column(
-              children: [
-                if (_lastShowedMessageId == firstIndex + 1)
-                  FutureBuilder<Message?>(
-                    future: _messageAtIndex(index + 1),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData ||
-                          snapshot.data == null ||
-                          _authRepo.isCurrentUser(snapshot.data!.from) ||
-                          snapshot.data!.isHidden) {
-                        return const SizedBox.shrink();
-                      }
-                      return const UnreadMessageBar();
-                    },
-                  ),
-                FutureBuilder<int?>(
-                  future: _timeAt(index),
-                  builder: (context, snapshot) =>
-                      snapshot.hasData && snapshot.data != null
-                          ? ChatTime(currentMessageTime: date(snapshot.data!))
-                          : const SizedBox.shrink(),
+          if (index < room.firstMessageId) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            children: [
+              if (_lastShowedMessageId == firstIndex + 1)
+                FutureBuilder<Message?>(
+                  future: _messageAtIndex(index + 1),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData ||
+                        snapshot.data == null ||
+                        _authRepo.isCurrentUser(snapshot.data!.from) ||
+                        snapshot.data!.isHidden) {
+                      return const SizedBox.shrink();
+                    }
+                    return const UnreadMessageBar();
+                  },
                 ),
-              ],
-            );
-          },
-        ),
+              FutureBuilder<int?>(
+                future: _timeAt(index),
+                builder: (context, snapshot) {
+                  return snapshot.hasData && snapshot.data != null
+                      ? ChatTime(currentMessageTime: date(snapshot.data!))
+                      : const SizedBox.shrink();
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  void _fireScrollEvent() {
+  void _fireScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer?.cancel();
-    if (!_isLastMessages) _isScrolling.add(true);
+    final direction = getScrollingDirection(pixel);
+    // TODO(bitbeter): add distinct functionality
+    _isScrolling.add(
+      ScrollingState(
+        pixel,
+        direction,
+        isScrolling: true,
+        isInNearToEndOfPage: isInNearToEndOfPage,
+      ),
+    );
   }
 
-  void _calmScrollEvent() {
+  void _calmScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+      if (!_isArrowIconFocused || !isDesktop) {
+        final direction = getScrollingDirection(pixel);
+
+        _isScrolling.add(
+          ScrollingState(
+            pixel,
+            direction,
+            isScrolling: false,
+            isInNearToEndOfPage: isInNearToEndOfPage,
+          ),
+        );
+      }
     });
+  }
+
+  ScrollingDirection getScrollingDirection(double pixel) {
+    final oldPixel = _isScrolling.valueOrNull?.pixel ?? 0;
+
+    return (pixel >= oldPixel)
+        ? ScrollingDirection.DOWN
+        : ScrollingDirection.UP;
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
@@ -1631,5 +1760,61 @@ class RoomPageState extends State<RoomPage> {
         );
       }
     }
+  }
+}
+
+enum ScrollingDirection { DOWN, UP }
+
+class ScrollingState {
+  final double pixel;
+  final ScrollingDirection scrollingDirection;
+  final bool isScrolling;
+  final bool isInNearToEndOfPage;
+
+  ScrollingState(
+    this.pixel,
+    this.scrollingDirection, {
+    required this.isScrolling,
+    this.isInNearToEndOfPage = false,
+  });
+
+  ScrollingState copyWith({
+    double? pixel,
+    ScrollingDirection? scrollingDirection,
+    bool? isScrolling,
+    bool? isInNearToEndOfPage,
+  }) =>
+      ScrollingState(
+        pixel ?? this.pixel,
+        scrollingDirection ?? this.scrollingDirection,
+        isScrolling: isScrolling ?? this.isScrolling,
+        isInNearToEndOfPage: isInNearToEndOfPage ?? this.isInNearToEndOfPage,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is ScrollingState &&
+          const DeepCollectionEquality().equals(other.pixel, pixel) &&
+          const DeepCollectionEquality()
+              .equals(other.scrollingDirection, scrollingDirection) &&
+          const DeepCollectionEquality()
+              .equals(other.isScrolling, isScrolling) &&
+          const DeepCollectionEquality()
+              .equals(other.isInNearToEndOfPage, isInNearToEndOfPage));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(pixel),
+        const DeepCollectionEquality().hash(scrollingDirection),
+        const DeepCollectionEquality().hash(isScrolling),
+        const DeepCollectionEquality().hash(isInNearToEndOfPage),
+      );
+
+  @override
+  String toString() {
+    return "ScrollingState([pixel:$pixel] [scrollingDirection:$scrollingDirection] [isScrolling:$isScrolling] [isInNearToEndOfPage:$isInNearToEndOfPage])";
   }
 }

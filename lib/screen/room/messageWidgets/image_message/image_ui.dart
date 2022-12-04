@@ -109,12 +109,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                               if (path.hasData && path.data != null) {
                                 return buildImageUi(context, path);
                               }
-
-                              return buildDownloadImageWidget(defaultImageUI());
+                              return buildDownloadImageWidget();
                             },
                           );
                         } else {
-                          child = buildDownloadImageWidget(child);
+                          child = buildDownloadImageWidget();
                         }
 
                         return AnimatedSwitcher(
@@ -153,6 +152,23 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
+  FutureBuilder<String?> buildGetThumbnail() {
+    return FutureBuilder<String?>(
+      future: _fileRepo.getFile(
+        widget.image.uuid,
+        widget.image.name,
+        thumbnailSize: ThumbnailSize.small,
+        intiProgressbar: false,
+      ),
+      builder: (c, path) {
+        if (path.hasData && path.data != null) {
+          return buildThumbnail(path.data!);
+        }
+        return defaultImageUI();
+      },
+    );
+  }
+
   SizedBox defaultImageUI() {
     return SizedBox(
       width: max(widget.image.width, 1) * 1.0,
@@ -161,15 +177,17 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     );
   }
 
-  Stack buildDownloadImageWidget(Widget child) {
+  Stack buildDownloadImageWidget() {
     return Stack(
+      fit: StackFit.expand,
+      alignment: Alignment.center,
       children: [
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => _downloadFile(),
-            child: child,
+            child: buildGetThumbnail(),
           ),
         ),
         buildLoadFileStatus(
@@ -275,6 +293,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ],
     );
   }
+
+  Widget buildThumbnail(String path) => isWeb
+      ? Image.network(path, fit: BoxFit.fill)
+      : Image.file(File(path), fit: BoxFit.fill);
 
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {
