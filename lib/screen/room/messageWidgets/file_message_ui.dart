@@ -190,5 +190,5 @@ class FileMessageUiState extends State<FileMessageUi> {
 
   bool isImageFile() => isImageFileExtension(widget.file.type);
 
-  bool isVideoFile() => widget.file.type.contains('video');
+  bool isVideoFile() => isVideoFileExtension(widget.file.type);
 }
