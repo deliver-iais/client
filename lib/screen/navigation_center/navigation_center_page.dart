@@ -434,23 +434,16 @@ class NavigationCenterState extends State<NavigationCenter>
 
   Widget searchResult(String query) {
     return Expanded(
-      child: FutureBuilder<List<List<Uid>>>(
+      child:
+      FutureBuilder<List<List<Uid>>>(
         future: searchUidList(query),
         builder: (c, snaps) {
           if (!snaps.hasData || snaps.data!.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
           final contacts = snaps.data![0];
-          final global = snaps.data![1];
-          final bots = snaps.data![2];
-          final roomAndContacts = snaps.data![3];
-
-          if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-            return const Tgs.asset(
-              'assets/duck_animation/not_found.tgs',
-            );
-          }
-
+          final bots = snaps.data![1];
+          final roomAndContacts = snaps.data![2];
           return ListView(
             children: [
               if (contacts.isNotEmpty) ...[
@@ -465,10 +458,28 @@ class NavigationCenterState extends State<NavigationCenter>
                 buildTitle(_i18n.get("bots")),
                 ...searchResultWidget(bots)
               ],
-              if (global.isNotEmpty) ...[
-                buildTitle(_i18n.get("global_search")),
-                ...searchResultWidget(global)
-              ],
+              FutureBuilder<List<List<Uid>>>(
+                future: globalSearchUser(query),
+                builder: (c, snaps) {
+                  if (!snaps.hasData || snaps.data!.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final global = snaps.data![0];
+                  if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty && contacts.isEmpty) {
+                    return const Tgs.asset(
+                      'assets/duck_animation/not_found.tgs',
+                    );
+                  }
+                  return ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (global.isNotEmpty) ...[
+                        buildTitle(_i18n.get("global_search")),
+                        ...searchResultWidget(global)
+                      ]
+                    ],
+                  );
+                },)
             ],
           );
         },
@@ -495,13 +506,16 @@ class NavigationCenterState extends State<NavigationCenter>
     return [
       //in contacts
       await _contactRepo.searchInContacts(query),
-      //global search
-      await _contactRepo.searchUser(query),
       //bot
       await _botRepo.searchBotByName(query),
       //in rooms
-      await _roomRepo.searchInRooms(query)
+      await _roomRepo.searchInRooms(query),
     ];
+  }
+
+  Future<List<List<Uid>>> globalSearchUser(String query) async  {
+    //global search
+    return  [await _contactRepo.searchUser(query)];
   }
 
   List<Widget> searchResultWidget(List<Uid> uidList) {
