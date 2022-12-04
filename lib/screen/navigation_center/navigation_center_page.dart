@@ -432,6 +432,7 @@ class NavigationCenterState extends State<NavigationCenter>
     }
   }
 
+
   Widget searchResult(String query) {
     return Expanded(
       child:
