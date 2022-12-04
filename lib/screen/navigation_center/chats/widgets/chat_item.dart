@@ -325,7 +325,7 @@ class ChatItemState extends State<ChatItem> {
                             padding: const EdgeInsets.only(left: 4.0),
                             child: UnreadMessageCounterWidget(
                               widget.room.lastMessage!.roomUid,
-                              widget.room.lastMessage!.id!,
+                              widget.room.lastMessageId,
                             ),
                           ),
                         if (widget.room.pinned)
