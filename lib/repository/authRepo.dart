@@ -58,14 +58,13 @@ class AuthRepo {
   }
 
   Future<void> setCurrentUserUid() async {
-    try{
-      init().ignore();
+    try {
+      await init();
       final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
       if (res != null) currentUserUid = (res).asUid();
-    }catch(e){
+    } catch (e) {
       _logger.e(e.toString());
     }
-
   }
 
   Future<void> getVerificationCode(PhoneNumber p) async {
