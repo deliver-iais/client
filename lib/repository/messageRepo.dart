@@ -351,6 +351,12 @@ class MessageRepo {
       await fetchCurrentUserLastSeen(room);
     } else {
       await _roomDao.updateRoom(uid: room.uid, seenSynced: true);
+      unawaited(
+        _roomRepo.updateMySeen(
+          uid: room.uid,
+          messageId: room.lastMessageId,
+        ),
+      );
       final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
         fetchOtherSeen(room.uid.asUid()).toString();
