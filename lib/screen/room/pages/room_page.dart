@@ -585,10 +585,11 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> initRoomStream() async {
     _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
-      // if (event.lastMessageId != room.lastMessageId) {
-      //   _fireScrollEvent();
-      //   _calmScrollEvent();
-      // }
+      if (event.lastMessageId != room.lastMessageId &&
+          _isScrolling.valueOrNull != null) {
+        _fireScrollEvent(_isScrolling.valueOrNull!.pixel);
+        _calmScrollEvent(_isScrolling.valueOrNull!.pixel);
+      }
       _room.add(event);
     });
 
