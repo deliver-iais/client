@@ -4,14 +4,14 @@ import 'dart:math';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as file_model;
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/music_box.dart';
-import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -47,7 +47,7 @@ enum ShareBoxPage { gallery, files, location, music }
 const BOTTOM_BUTTONS_HEIGHT = 80.0;
 
 class ShareBoxState extends State<ShareBox> {
-  // final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioPlayer = AudioPlayer();
   final _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
@@ -63,7 +63,7 @@ class ShareBoxState extends State<ShareBox> {
 
   final isAudioPlayingMap = <int, bool>{};
 
-  final finalSelected = <int, String>{};
+  final finalSelected = <int, file_model.File>{};
 
   var _currentPage = ShareBoxPage.gallery;
   late var _title = _i18n.get("gallery");
@@ -199,7 +199,8 @@ class ShareBoxState extends State<ShareBox> {
                 0.2,
               ).abs();
 
-              final draggableOpacity = minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
+              final draggableOpacity =
+                  minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
 
               return Container(
                 padding: EdgeInsets.only(
@@ -355,29 +356,12 @@ class ShareBoxState extends State<ShareBox> {
                           send: () {
                             _audioPlayer.stop();
                             Navigator.pop(co);
-                            // messageRepo.sendMultipleFilesMessages(
-                            //   widget.currentRoomId,
-                            //   finalSelected.values
-                            //       .toList()
-                            //       .map(
-                            //         (path) => model.File(
-                            //           path,
-                            //           path.split("/").last,
-                            //         ),
-                            //       )
-                            //       .toList(),
-                            //   replyToId: widget.replyMessageId,
-                            //   caption: _captionEditingController.text,
-                            // );
-                            final files =
-                                finalSelected.values.map(pathToFileModel);
 
-                            showCaptionDialog(
-                              files: files.toList(),
-                              roomUid: widget.currentRoomUid,
-                              context: context,
-                              resetRoomPageDetails: widget.resetRoomPageDetails,
-                              replyMessageId: _replyMessageId,
+                            _messageRepo.sendMultipleFilesMessages(
+                              widget.currentRoomUid,
+                              finalSelected.values.toList(),
+                              replyToId: widget.replyMessageId,
+                              caption: _captionEditingController.text,
                             );
 
                             setState(() {
@@ -428,8 +412,6 @@ class ShareBoxState extends State<ShareBox> {
   }
 
   bool get isAnyFileSelected => finalSelected.values.isNotEmpty;
-
-  int get _replyMessageId => widget.replyMessageId;
 
   double minMax(double value) => min(1.0, max(0.0, value));
 }
