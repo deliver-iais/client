@@ -1778,11 +1778,12 @@ class ScrollingState {
     this.isInNearToEndOfPage = false,
   });
 
-  ScrollingState copyWith(
-          {double? pixel,
-          ScrollingDirection? scrollingDirection,
-          bool? isScrolling,
-          bool? isInNearToEndOfPage}) =>
+  ScrollingState copyWith({
+    double? pixel,
+    ScrollingDirection? scrollingDirection,
+    bool? isScrolling,
+    bool? isInNearToEndOfPage,
+  }) =>
       ScrollingState(
         pixel ?? this.pixel,
         scrollingDirection ?? this.scrollingDirection,

@@ -99,6 +99,7 @@ class NavigationCenterState extends State<NavigationCenter>
     _sharedDao
         .getBooleanStream(
           SHARED_DAO_IS_SHOWCASE_ENABLE,
+          // ignore: avoid_redundant_argument_values
           defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
         )
         .distinct()
