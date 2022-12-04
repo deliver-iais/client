@@ -71,7 +71,12 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
-enum ScrollDirection { ScrollUp, ScrollDown }
+class ScrollingState {
+  final bool isScrolling;
+  final bool isInNearToEndOfPage;
+
+  ScrollingState({required this.isScrolling, this.isInNearToEndOfPage = false});
+}
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -110,8 +115,6 @@ class RoomPageState extends State<RoomPage> {
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
-  var _lastPosition = 0.0;
-  var _scrollDirection = ScrollDirection.ScrollUp;
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
@@ -131,7 +134,8 @@ class RoomPageState extends State<RoomPage> {
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
   final _pendingEditedMessage = BehaviorSubject<List<PendingMessage>>();
-  final _isScrolling = BehaviorSubject.seeded(false);
+  final _isScrolling =
+      BehaviorSubject.seeded(ScrollingState(isScrolling: false));
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
@@ -149,8 +153,6 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
-  final _scrollingState = BehaviorSubject.seeded(false);
-  Timer? _changeScrollStateTimer;
 
   StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
   Timer? scrollEndNotificationTimer;
@@ -282,10 +284,11 @@ class RoomPageState extends State<RoomPage> {
             pinMessageWidget(),
           ],
         ),
-        StreamBuilder<bool>(
+        StreamBuilder<ScrollingState>(
           stream: _isScrolling,
           builder: (context, isScrollingSnapshot) {
-            if (isScrollingSnapshot.hasData && isScrollingSnapshot.data!) {
+            if (isScrollingSnapshot.hasData &&
+                isScrollingSnapshot.data!.isScrolling) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: APPBAR_HEIGHT),
                 child: Padding(
@@ -337,20 +340,25 @@ class RoomPageState extends State<RoomPage> {
               return buildMessagesListView();
             },
           ),
-          StreamBuilder<bool>(
+          StreamBuilder<ScrollingState>(
             stream: _isScrolling,
             builder: (context, snapshot) {
+              final showArrow =
+                  (isDesktop && _messageReplyHistory.isNotEmpty) ||
+                      ((snapshot.data?.isScrolling ?? false) &&
+                          (!(snapshot.data?.isInNearToEndOfPage ?? false)));
+
               return Positioned(
                 right: 16,
                 bottom: 16,
                 child: AnimatedScale(
-                  scale: isDesktop && _messageReplyHistory.isNotEmpty
-                      ? 1
-                      : snapshot.data == true
-                          ? 1
-                          : 0,
+                  scale: showArrow ? 1 : 0,
                   duration: SLOW_ANIMATION_DURATION,
-                  child: scrollDownButtonWidget(),
+                  child: AnimatedOpacity(
+                    duration: SLOW_ANIMATION_DURATION,
+                    opacity: showArrow ? 1 : 0,
+                    child: scrollDownButtonWidget(),
+                  ),
                 ),
               );
             },
@@ -380,15 +388,6 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _scrollingState.listen((value) {
-      if (value) {
-        _changeScrollStateTimer?.cancel();
-        _changeScrollStateTimer = Timer(const Duration(seconds: 1), () {
-          _scrollingState.add(false);
-        });
-      }
-    });
-
     _roomRepo.updateUserInfo(widget.roomId.asUid());
     if (isDesktop) {
       _appLifecycleService.watchAppAppLifecycle().listen((event) {
@@ -422,7 +421,6 @@ class RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      _scrollingState.add(true);
       final position = _itemPositionsListener.itemPositions.value;
 
       if (position.isNotEmpty) {
@@ -432,6 +430,7 @@ class RoomPageState extends State<RoomPage> {
         } else {
           _isLastMessages = true;
         }
+
         _updateTimeHeader(position.toList());
 
         // TODO(bitbeter): WTF ?!?!?!?!?
@@ -487,32 +486,21 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
-    int? firstVisibleItemIndex;
-    if (_scrollDirection == ScrollDirection.ScrollUp) {
-      firstVisibleItemIndex = positions
-          .where(
-            (position) => position.itemLeadingEdge > 0,
-          )
-          .reduce(
-            (first, position) =>
-                position.itemLeadingEdge < first.itemLeadingEdge
-                    ? position
-                    : first,
-          )
-          .index;
-    } else {
-      firstVisibleItemIndex = positions
-          .where(
-            (position) => position.itemTrailingEdge > 0,
-          )
-          .reduce(
-            (first, position) =>
-                position.itemTrailingEdge < first.itemTrailingEdge
-                    ? position
-                    : first,
-          )
-          .index;
-    }
+    final proportionOfTop =
+        ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+
+    final firstVisibleItemIndex = positions
+        .where(
+          (position) => position.itemLeadingEdge > proportionOfTop,
+        )
+        .reduce(
+          (first, position) =>
+              position.itemTrailingEdge < first.itemTrailingEdge
+                  ? position
+                  : first,
+        )
+        .index;
+
     final message =
         await _getMessage(firstVisibleItemIndex + room.firstMessageId);
     if (message != null) {
@@ -906,7 +894,7 @@ class RoomPageState extends State<RoomPage> {
         _isArrowIconFocused = false;
         scrollEndNotificationTimer = Timer(
             const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-          _isScrolling.add(false);
+          _isScrolling.add(ScrollingState(isScrolling: false));
         });
       },
       child: GestureDetector(
@@ -1314,18 +1302,15 @@ class RoomPageState extends State<RoomPage> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
-        _scrollingState.add(true);
         if (scrollNotification is ScrollStartNotification) {
-          _fireScrollEvent();
-          _updateScrollDirection(scrollNotification.metrics.pixels);
+          _fireScrollEvent(
+            isInNearToEndOfPage: (scrollNotification.metrics.pixels -
+                        scrollNotification.metrics.maxScrollExtent)
+                    .abs() <
+                200,
+          );
         } else if (scrollNotification is ScrollEndNotification) {
           _calmScrollEvent();
-        }
-        if ((scrollNotification.metrics.pixels -
-                    scrollNotification.metrics.maxScrollExtent)
-                .abs() <
-            100) {
-          _isScrolling.add(false);
         }
         return true;
       },
@@ -1380,24 +1365,22 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  void _updateScrollDirection(double position) {
-    _scrollDirection = position > _lastPosition
-        ? ScrollDirection.ScrollDown
-        : position < _lastPosition
-            ? ScrollDirection.ScrollUp
-            : _scrollDirection;
-    _lastPosition = position;
-  }
-
-  void _fireScrollEvent() {
+  void _fireScrollEvent({bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer?.cancel();
-    if (!_isLastMessages) _isScrolling.add(true);
+    if (!_isLastMessages) {
+      _isScrolling.add(
+        ScrollingState(
+            isScrolling: true, isInNearToEndOfPage: isInNearToEndOfPage),
+      );
+    }
   }
 
   void _calmScrollEvent() {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+      if (!_isArrowIconFocused || !isDesktop) {
+        _isScrolling.add(ScrollingState(isScrolling: false));
+      }
     });
   }
 
