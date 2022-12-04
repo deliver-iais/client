@@ -50,6 +50,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -171,95 +172,7 @@ class ProfilePageState extends State<ProfilePage>
                     return <Widget>[
                       Directionality(
                         textDirection: TextDirection.ltr,
-                        child: SliverAppBar.medium(
-                          actions: <Widget>[
-                            _buildMenu(context),
-                          ],
-                          leading: _routingService.backButtonLeading(),
-                          pinned: true,
-                          primary: true,
-                          stretch: true,
-                          backgroundColor: theme.colorScheme.background,
-                          expandedHeight: 170,
-                          flexibleSpace: FlexibleSpaceBar(
-                            titlePadding: EdgeInsets.only(
-                                left: 35.0, right: 35.0, top: 2.0, bottom: 2.0),
-                            stretchModes: [
-                              StretchMode.zoomBackground,
-                              StretchMode.blurBackground
-                            ],
-                            expandedTitleScale: 1.1,
-                            background: ProfileBlurAvatar(widget.roomUid),
-                            title: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ProfileAvatar(
-                                  roomUid: widget.roomUid,
-                                  canSetAvatar:
-                                      _isMucAdminOrOwner || _isBotOwner,
-                                ),
-                                // Expanded(child: RoomName(uid: widget.roomUid)),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Flexible(
-                                          child: RoomName(
-                                        uid: widget.roomUid,
-                                        maxLines: 2,
-                                      )),
-                                      Divider(
-                                          color: Colors.transparent, height: 5),
-                                      StreamBuilder<LastActivity?>(
-                                        stream: _lastActivityRepo
-                                            .watch(widget.roomUid.asString()),
-                                        builder: (c, userInfo) {
-                                          if (userInfo.hasData &&
-                                              userInfo.data != null) {
-                                            if (isOnline(userInfo.data!.time)) {
-                                              return Text(
-                                                _i18n.get("online"),
-                                                maxLines: 1,
-                                                key: ValueKey(randomString(10)),
-                                                overflow: TextOverflow.fade,
-                                                softWrap: false,
-                                                style: theme.textTheme.caption!
-                                                    .copyWith(
-                                                        color:
-                                                            theme.primaryColor),
-                                              );
-                                            } else {
-                                              final lastActivityTime =
-                                                  dateTimeFromNowFormat(date(
-                                                      userInfo.data!.time));
-                                              return Text(
-                                                "${_i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? _i18n.get("just_now") : lastActivityTime} ",
-                                                maxLines: 1,
-                                                key: ValueKey(randomString(10)),
-                                                overflow: TextOverflow.fade,
-                                                softWrap: false,
-                                                style: theme.textTheme.caption!
-                                                    .copyWith(
-                                                        color:
-                                                            theme.primaryColor),
-                                              );
-                                            }
-                                          }
-                                          return const SizedBox.shrink();
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        child: _buildSliverAppbar()
                       ),
                       _buildInfo(context),
                       SliverPersistentHeader(
@@ -491,6 +404,65 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
+  Widget _buildSliverAppbar(){
+    final theme = Theme.of(context);
+    return SliverAppBar.medium(
+      actions: <Widget>[
+        _buildMenu(context),
+      ],
+      leading: _routingService.backButtonLeading(),
+      pinned: true,
+      shadowColor: theme.colorScheme.background,
+      // stretch: true,
+      backgroundColor: theme.colorScheme.background,
+      expandedHeight: 170,
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: EdgeInsets.only(
+            left: 35.0, right: 35.0, top: 2.0),
+        // stretchModes: [
+        //   StretchMode.zoomBackground,
+        //   StretchMode.blurBackground
+        // ],
+        expandedTitleScale: 1.1,
+        background: ProfileBlurAvatar(widget.roomUid),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ProfileAvatar(
+              roomUid: widget.roomUid,
+              canSetAvatar:
+              _isMucAdminOrOwner || _isBotOwner,
+            ),
+            // Expanded(child: RoomName(uid: widget.roomUid)),
+            Flexible(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                      child: RoomName(
+                        uid: widget.roomUid,
+                        maxLines: 2,
+                      )),
+                  Divider(
+                      color: Colors.transparent, height: 5),
+                  TitleStatus(
+                    currentRoomUid: widget.roomUid,
+                    style: theme.textTheme.caption!,
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfo(BuildContext context) {
     final theme = Theme.of(context);
     return SliverList(
@@ -513,9 +485,10 @@ class ProfilePageState extends State<ProfilePage>
                           snapshot.data!.countryCode,
                           snapshot.data!.nationalNumber,
                         ),
+                        subtitleDirection: TextDirection.ltr,
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
-                        trailing: const Icon(Icons.call),
+                        trailing: Divider(thickness: 8),
                         onPressed: (_) => launchUrl(
                           Uri.parse(
                             "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
@@ -650,20 +623,24 @@ class ProfilePageState extends State<ProfilePage>
   Padding description(String info, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
-      child: SettingsTile(
-        title: _i18n.get("description"),
-        leading: const Icon(Icons.info),
-        trailing: SizedBox(
-          width: 200,
-          child: Text(
-            info,
-            maxLines: 8,
-            textDirection:
-                info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
-            style:
-                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
-          ),
-        ),
+      child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Icon(Icons.info),
+            ),
+            Text(
+              info,
+              maxLines: 8,
+              textDirection:
+              info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+              style:
+              TextStyle(
+                fontSize: 12.0,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ]
       ),
     );
   }
