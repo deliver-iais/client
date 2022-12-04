@@ -153,7 +153,6 @@ class RoomPageState extends State<RoomPage> {
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
   bool _isArrowIconFocused = false;
-  bool _isLastMessages = false;
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -424,11 +423,6 @@ class RoomPageState extends State<RoomPage> {
 
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
-        if ((_itemCount - position.first.index).abs() > 5) {
-          _isLastMessages = false;
-        } else {
-          _isLastMessages = true;
-        }
 
         _updateTimeHeader(position.toList());
 
@@ -1312,8 +1306,10 @@ class RoomPageState extends State<RoomPage> {
             isInNearToEndOfPage: isInNearToEndOfPage,
           );
         } else if (scrollNotification is ScrollUpdateNotification) {
-          _fireScrollEvent(currentPixel,
-              isInNearToEndOfPage: isInNearToEndOfPage);
+          _fireScrollEvent(
+            currentPixel,
+            isInNearToEndOfPage: isInNearToEndOfPage,
+          );
         } else if (scrollNotification is ScrollEndNotification) {
           _calmScrollEvent(
             currentPixel,
@@ -1375,18 +1371,16 @@ class RoomPageState extends State<RoomPage> {
 
   void _fireScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer?.cancel();
-    if (!_isLastMessages) {
-      final direction = getScrollingDirection(pixel);
-      // TODO(bitbeter): add distinct functionality
-      _isScrolling.add(
-        ScrollingState(
-          pixel,
-          direction,
-          isScrolling: true,
-          isInNearToEndOfPage: isInNearToEndOfPage,
-        ),
-      );
-    }
+    final direction = getScrollingDirection(pixel);
+    // TODO(bitbeter): add distinct functionality
+    _isScrolling.add(
+      ScrollingState(
+        pixel,
+        direction,
+        isScrolling: true,
+        isInNearToEndOfPage: isInNearToEndOfPage,
+      ),
+    );
   }
 
   void _calmScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
@@ -1410,7 +1404,9 @@ class RoomPageState extends State<RoomPage> {
   ScrollingDirection getScrollingDirection(double pixel) {
     final oldPixel = _isScrolling.valueOrNull?.pixel ?? 0;
 
-    return (pixel >= oldPixel) ? ScrollingDirection.DOWN : ScrollingDirection.UP;
+    return (pixel >= oldPixel)
+        ? ScrollingDirection.DOWN
+        : ScrollingDirection.UP;
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
