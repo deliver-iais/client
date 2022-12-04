@@ -1410,7 +1410,7 @@ class RoomPageState extends State<RoomPage> {
   ScrollingDirection getScrollingDirection(double pixel) {
     final oldPixel = _isScrolling.valueOrNull?.pixel ?? 0;
 
-    return (pixel > oldPixel) ? ScrollingDirection.DOWN : ScrollingDirection.UP;
+    return (pixel >= oldPixel) ? ScrollingDirection.DOWN : ScrollingDirection.UP;
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
