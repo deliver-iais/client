@@ -263,7 +263,9 @@ class CoreServices {
     );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
     FlutterForegroundTask.saveData(
-        key: "Language", value: GetIt.I.get<I18N>().isPersian);
+      key: "Language",
+      value: GetIt.I.get<I18N>().isPersian,
+    );
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {

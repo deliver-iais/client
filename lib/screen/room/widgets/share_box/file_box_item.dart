@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 
 class FileBoxItem extends StatelessWidget {
-  final FileSystemEntity file;
+  final File file;
 
   const FileBoxItem({
     Key? key,

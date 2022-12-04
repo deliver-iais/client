@@ -1,10 +1,13 @@
 import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart';
+import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/screen/room/widgets/share_box/file_box_item.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,7 +18,7 @@ import 'package:path_provider/path_provider.dart';
 
 class FilesBox extends StatefulWidget {
   final ScrollController scrollController;
-  final void Function(int, String) onClick;
+  final void Function(int, file_model.File) onClick;
   final Map<int, bool> selectedFiles;
   final Uid roomUid;
   final void Function() resetRoomPageDetails;
@@ -105,6 +108,10 @@ class FilesBoxState extends State<FilesBox> {
                         onTap: () async {
                           final result = await FilePicker.platform
                               .pickFiles(allowMultiple: true);
+
+                          final files = (result?.files ?? []).map(
+                            filePickerPlatformFileToFileModel,
+                          );
                           if (result != null && result.files.isNotEmpty) {
                             if (mounted) {
                               Navigator.pop(context);
@@ -114,16 +121,7 @@ class FilesBoxState extends State<FilesBox> {
                               replyMessageId: widget.replyMessageId,
                               roomUid: widget.roomUid,
                               context: context,
-                              files: result.files
-                                  .map(
-                                    (e) => File(
-                                      e.path!,
-                                      e.name,
-                                      size: e.size,
-                                      extension: e.extension,
-                                    ),
-                                  )
-                                  .toList(),
+                              files: files.toList(),
                             );
                           }
                         },
@@ -146,7 +144,7 @@ class FilesBoxState extends State<FilesBox> {
                   ],
                 );
               } else {
-                final fileItem = files.data![index - 1];
+                final fileItem = File(files.data![index - 1].path);
                 final selected = widget.selectedFiles[index - 1] ?? false;
 
                 return GestureDetector(
@@ -163,7 +161,28 @@ class FilesBoxState extends State<FilesBox> {
                       ],
                     ),
                   ),
-                  onTap: () => widget.onClick(index - 1, fileItem.path),
+                  onTap: () {
+                    final file = fileToFileModel(fileItem);
+
+                    final notAcceptableFile = getNotAcceptableFiles([file]);
+
+                    if (notAcceptableFile.isNotEmpty) {
+                      final naf = notAcceptableFile.first;
+
+                      final errorText = naf.hasNotAcceptableExtension
+                          ? _i18n.get("cant_sent")
+                          : naf.isEmpty
+                              ? _i18n.get("file_size_zero")
+                              : _i18n.get("file_size_error");
+
+                      ToastDisplay.showToast(
+                        toastText: errorText,
+                        toastContext: context,
+                      );
+                    } else {
+                      widget.onClick(index - 1, file);
+                    }
+                  },
                 );
               }
             },
