@@ -175,46 +175,53 @@ class ProfilePageState extends State<ProfilePage>
                         textDirection: TextDirection.ltr,
                         child: _buildSliverAppbar()
                       ),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          color: theme.colorScheme.background.withOpacity(1),
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      // padding: EdgeInsets.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        // minimumSize: Size(0, 0),
-                                        textStyle: const TextStyle(fontSize: 12),
-                                        // backgroundColor: theme.colorScheme,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.vertical(
-                                              bottom: Radius.circular(25.0),
-                                            ))),
-                                    onPressed: () => _profileAvatar.selectAvatar(context),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(left : 8.0),
-                                          child: Text(_i18n.get("select_an_image")),
-                                        ),
-                                        Icon(Icons.add_a_photo_outlined),
-                                      ],
+                      if (_profileAvatar.canSetAvatar)
+                        SliverToBoxAdapter(
+                          child: Container(
+                            color: theme.colorScheme.background.withOpacity(1),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          // padding: EdgeInsets.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          // minimumSize: Size(0, 0),
+                                          textStyle:
+                                              const TextStyle(fontSize: 12),
+                                          // backgroundColor: theme.colorScheme,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                            bottom: Radius.circular(25.0),
+                                          ))),
+                                      onPressed: () =>
+                                          _profileAvatar.selectAvatar(context),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8.0),
+                                            child: Text(
+                                                _i18n.get("select_an_image")),
+                                          ),
+                                          Icon(Icons.add_a_photo_outlined),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
