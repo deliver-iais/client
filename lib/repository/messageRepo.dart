@@ -465,7 +465,7 @@ class MessageRepo {
           .fetchMentionList(
         FetchMentionListReq()
           ..group = roomUid.asUid()
-          ..afterId = Int64.parseInt(seen.messageId.toString()),
+          ..afterId = Int64(seen.messageId + 1),
       )
           .then((mentionResult) async {
         if (mentionResult.idList.isNotEmpty) {
