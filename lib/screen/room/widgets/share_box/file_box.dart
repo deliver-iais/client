@@ -81,31 +81,11 @@ class FilesBoxState extends State<FilesBox> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      color: theme.colorScheme.primaryContainer,
-                      padding: const EdgeInsets.all(16.0),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              CupertinoIcons.square_stack_3d_up_fill,
-                              color: theme.colorScheme.onPrimaryContainer,
-                              size: 28,
-                            ),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              _i18n.get("choose_other_files"),
-                              style: TextStyle(
-                                fontSize: 17,
-                                color: theme.colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () async {
+                      margin:
+                          const EdgeInsets.only(top: 16.0, right: 8, left: 8),
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
                           final result = await FilePicker.platform
                               .pickFiles(allowMultiple: true);
 
@@ -125,10 +105,19 @@ class FilesBoxState extends State<FilesBox> {
                             );
                           }
                         },
+                        icon: Icon(
+                          CupertinoIcons.square_stack_3d_up_fill,
+                          color: theme.colorScheme.onPrimaryContainer,
+                          size: 28,
+                        ),
+                        label: Text(
+                          _i18n.get("storage"),
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
                       ),
-                    ),
-                    const Divider(
-                      thickness: 2,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
