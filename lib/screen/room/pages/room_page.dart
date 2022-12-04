@@ -407,7 +407,6 @@ class RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-    _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
@@ -423,6 +422,10 @@ class RoomPageState extends State<RoomPage> {
 
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
+
+        if (widget.roomId.isGroup()) {
+          _updateRoomMentionIds(position.toList());
+        }
 
         _updateTimeHeader(position.toList());
 
@@ -627,6 +630,23 @@ class RoomPageState extends State<RoomPage> {
     _messageRepo.watchPendingEditedMessages(widget.roomId).listen((event) {
       _pendingEditedMessage.add(event);
     });
+  }
+
+  void _updateRoomMentionIds(List<ItemPosition> items) {
+    if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+      unawaited(
+        _roomRepo.updateMentionIds(
+          room.uid,
+          room.mentionsId!
+              .where(
+                (element) => !items
+                    .map((e) => e.index + room.firstMessageId + 1)
+                    .contains(element),
+              )
+              .toList(),
+        ),
+      );
+    }
   }
 
   void subscribeOnPositionToSendSeen() {
@@ -1758,11 +1778,12 @@ class ScrollingState {
     this.isInNearToEndOfPage = false,
   });
 
-  ScrollingState copyWith(
-          {double? pixel,
-          ScrollingDirection? scrollingDirection,
-          bool? isScrolling,
-          bool? isInNearToEndOfPage}) =>
+  ScrollingState copyWith({
+    double? pixel,
+    ScrollingDirection? scrollingDirection,
+    bool? isScrolling,
+    bool? isInNearToEndOfPage,
+  }) =>
       ScrollingState(
         pixel ?? this.pixel,
         scrollingDirection ?? this.scrollingDirection,

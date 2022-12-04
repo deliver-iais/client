@@ -304,7 +304,8 @@ class ChatItemState extends State<ChatItem> {
                                   ),
                           ),
                         ),
-                        if (widget.room.mentioned)
+                        if (widget.room.mentionsId != null &&
+                            widget.room.mentionsId!.isNotEmpty)
                           Container(
                             width: 20,
                             height: 20,
