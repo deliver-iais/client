@@ -1,6 +1,7 @@
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -37,12 +38,14 @@ class _AttachContactState extends State<AttachContact> {
   final _allContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final TextEditingController editingController = TextEditingController();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   List<Contact> contacts = [];
 
   @override
   void initState() {
     super.initState();
+    _contactRepo.syncContacts();
     _contactDao.watchAllMessengerContacts().listen((event) {
       contacts = event;
       _allContactsBehavior.add(contacts);
