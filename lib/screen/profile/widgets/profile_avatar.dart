@@ -18,27 +18,26 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ProfileAvatar extends StatefulWidget {
+class ProfileAvatar extends StatelessWidget {
   @required
   final Uid roomUid;
   final bool canSetAvatar;
+  final bool showSetAvatar;
 
-  const ProfileAvatar({
-    super.key,
-    required this.roomUid,
-    this.canSetAvatar = false,
-  });
-
-  @override
-  ProfileAvatarState createState() => ProfileAvatarState();
-}
-
-class ProfileAvatarState extends State<ProfileAvatar> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
   final _fileService = GetIt.I.get<FileService>();
+
+
+  ProfileAvatar({
+    super.key,
+    required this.roomUid,
+    this.canSetAvatar = false,
+    this.showSetAvatar = true,
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,31 +69,31 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
                     child: CircleAvatarWidget(
-                      widget.roomUid,
+                      roomUid,
                       40,
                       showSavedMessageLogoIfNeeded: true,
                       forceToUpdateAvatar: true,
                     ),
                     onTap: () async {
                       final lastAvatar =
-                          await _avatarRepo.getLastAvatar(widget.roomUid);
+                      await _avatarRepo.getLastAvatar(roomUid);
                       if (lastAvatar?.createdOn != null &&
                           lastAvatar!.createdOn > 0) {
                         _routingService.openShowAllAvatars(
-                          uid: widget.roomUid,
-                          hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                          heroTag: widget.roomUid.asString(),
+                          uid: roomUid,
+                          hasPermissionToDeleteAvatar: canSetAvatar,
+                          heroTag: roomUid.asString(),
                         );
                       }
                     },
                   ),
                 ),
-                if (widget.canSetAvatar) const SizedBox(width: 8),
-                if (widget.canSetAvatar)
+                if (canSetAvatar && showSetAvatar) const SizedBox(width: 8),
+                if (canSetAvatar && showSetAvatar)
                   Align(
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
-                      onPressed: () => selectAvatar(),
+                      onPressed: () => selectAvatar(context),
                       child: Text(_i18n.get("select_an_image")),
                     ),
                   )
@@ -106,10 +105,10 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     );
   }
 
-  Future<void> _setAvatar(String avatarPath) async {
+  Future<void> _setAvatar(String avatarPath,BuildContext context) async {
     _newAvatarPath.add(avatarPath);
-    await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
-    if (_fileService.getFileStatus(widget.roomUid.node) !=
+    await _avatarRepo.setMucAvatar(roomUid, avatarPath);
+    if (_fileService.getFileStatus(roomUid.node) !=
         FileStatus.COMPLETED) {
       ToastDisplay.showToast(
         toastContext: context,
@@ -119,11 +118,29 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     _newAvatarPath.add("");
   }
 
-  Future<void> selectAvatar() async {
+  Future<void> selectAvatar(BuildContext context) async {
+    void cropAvatar(String imagePath) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return OpenImagePage(
+              onEditEnd: (path) {
+                imagePath = path;
+                Navigator.pop(context);
+                _setAvatar(imagePath,context);
+              },
+              imagePath: imagePath,
+            );
+          },
+        ),
+      );
+    }
+
     if (isWeb || isDesktop) {
       if (isLinux) {
         const typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -138,9 +155,8 @@ class ProfileAvatarState extends State<ProfileAvatar> {
           cropAvatar(
             isWeb
                 ? Uri.dataFromBytes(result.files.first.bytes!.toList())
-                    .toString()
-                : result.files.first.path!,
-          );
+                .toString()
+                : result.files.first.path!);
         }
       }
     } else {
@@ -165,7 +181,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
                         setAvatar: cropAvatar,
-                        roomUid: widget.roomUid,
+                        roomUid: roomUid,
                       ),
                     ),
                   ],
@@ -178,21 +194,6 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     }
   }
 
-  void cropAvatar(String imagePath) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (c) {
-          return OpenImagePage(
-            onEditEnd: (path) {
-              imagePath = path;
-              Navigator.pop(context);
-              _setAvatar(imagePath);
-            },
-            imagePath: imagePath,
-          );
-        },
-      ),
-    );
-  }
+
 }
+
