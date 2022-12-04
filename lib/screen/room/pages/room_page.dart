@@ -283,14 +283,13 @@ class RoomPageState extends State<RoomPage> {
           ],
         ),
         StreamBuilder<bool>(
-          stream: _scrollingState.stream
-              .debounceTime(const Duration(milliseconds: 200)),
+          stream: _isScrolling,
           builder: (context, isScrollingSnapshot) {
             if (isScrollingSnapshot.hasData && isScrollingSnapshot.data!) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: APPBAR_HEIGHT),
                 child: Padding(
-                  padding: const EdgeInsets.all(1.0),
+                  padding: const EdgeInsets.only(top: 8.0),
                   child: StreamBuilder<String>(
                     stream: _timeHeader.stream,
                     builder: (context, dateSnapshot) {
@@ -303,8 +302,6 @@ class RoomPageState extends State<RoomPage> {
                           child: ChatTime(
                             currentMessageTime:
                                 date(int.parse(dateSnapshot.data!)),
-                            backgroundColor:
-                                Theme.of(context).hintColor.withOpacity(0.3),
                           ),
                         );
                       }
