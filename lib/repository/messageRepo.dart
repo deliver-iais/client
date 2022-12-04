@@ -597,16 +597,12 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     for (final file in files) {
-      if (files.last.path == file.path) {
-        await sendFileMessage(
-          room,
-          file,
-          caption: caption,
-          replyToId: replyToId,
-        );
-      } else {
-        await sendFileMessage(room, file, replyToId: replyToId);
-      }
+      await sendFileMessage(
+        room,
+        file,
+        caption: files.last.path == file.path ? caption : "",
+        replyToId: replyToId,
+      );
     }
   }
 
@@ -1221,13 +1217,13 @@ class MessageRepo {
   }
 
   Future<void> sendShareUidMessage(
-    Uid room,
+    Uid uid,
     message_pb.ShareUid shareUid,
   ) async {
     final json = shareUid.writeToJson();
 
     final msg =
-        _createMessage(room).copyWith(type: MessageType.SHARE_UID, json: json);
+        _createMessage(uid).copyWith(type: MessageType.SHARE_UID, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);

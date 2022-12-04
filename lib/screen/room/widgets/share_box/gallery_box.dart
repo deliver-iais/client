@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery_folder.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -11,12 +11,11 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ShareBoxGallery extends StatefulWidget {
+class GalleryBox extends StatefulWidget {
   final ScrollController scrollController;
   final Uid roomUid;
   final int replyMessageId;
@@ -24,7 +23,7 @@ class ShareBoxGallery extends StatefulWidget {
   final void Function(String)? setAvatar;
   final void Function()? resetRoomPageDetails;
 
-  const ShareBoxGallery({
+  const GalleryBox({
     super.key,
     required this.scrollController,
     required this.pop,
@@ -35,10 +34,10 @@ class ShareBoxGallery extends StatefulWidget {
   });
 
   @override
-  ShareBoxGalleryState createState() => ShareBoxGalleryState();
+  GalleryBoxState createState() => GalleryBoxState();
 }
 
-class ShareBoxGalleryState extends State<ShareBoxGallery> {
+class GalleryBoxState extends State<GalleryBox> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _checkPermissionServices =
       GetIt.I.get<CheckPermissionsService>();
@@ -46,20 +45,15 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _captionEditingController =
       TextEditingController();
-  final _keyboardVisibilityController = KeyboardVisibilityController();
   CameraController? _controller;
   late List<CameraDescription> _cameras;
   late BehaviorSubject<CameraController> _cameraController;
-  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final BehaviorSubject<List<AssetPathEntity>> _folders =
       BehaviorSubject.seeded([]);
 
   @override
   void initState() {
     _initFolders();
-    _keyboardVisibilityController.onChange.listen((event) {
-      _insertCaption.add(event);
-    });
 
     super.initState();
   }
@@ -172,7 +166,7 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                         co,
                         MaterialPageRoute(
                           builder: (c) {
-                            return ImageFolderWidget(
+                            return GalleryFolder(
                               folder!,
                               widget.roomUid,
                               () {
@@ -410,7 +404,6 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                 caption: _captionEditingController.text,
               );
             },
-            insertCaption: _insertCaption,
             textEditingController: _captionEditingController,
             onEditEnd: (path) {
               imagePath = path;

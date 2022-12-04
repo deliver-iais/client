@@ -5,7 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/services/backgroundService.dart';
+import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';

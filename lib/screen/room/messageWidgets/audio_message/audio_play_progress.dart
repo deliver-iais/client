@@ -1,9 +1,8 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
-import 'package:deliver/screen/room/messageWidgets/size_formatter.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +70,7 @@ class AudioPlayProgress extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          "${sizeFormatter(audio.size.toInt())} ${findFileType(audio.name)}",
+          "${byteFormat(audio.size.toInt())} ${getFileExtension(audio.name)}",
           style: const TextStyle(fontSize: 11),
         ),
       ),

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
+import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_page.dart';
 import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:rxdart/rxdart.dart';
 
 class OpenImagePage extends StatefulWidget {
   final String imagePath;
@@ -24,7 +23,6 @@ class OpenImagePage extends StatefulWidget {
   final bool forceToShowCaptionTextField;
   final Function()? pop;
   final TextEditingController? textEditingController;
-  final BehaviorSubject<bool>? insertCaption;
   final bool sendSingleImage;
 
   const OpenImagePage({
@@ -33,7 +31,6 @@ class OpenImagePage extends StatefulWidget {
     this.onTap,
     this.send,
     this.textEditingController,
-    this.insertCaption,
     required this.imagePath,
     this.pop,
     this.sendSingleImage = false,
@@ -246,26 +243,27 @@ class _OpenImagePageState extends State<OpenImagePage> {
                   (widget.selectedImage != null &&
                       widget.selectedImage!.isNotEmpty &&
                       widget.selectedImage!.contains(imagePath)))
-                BuildInputCaption(
-                  insertCaption: widget.insertCaption!,
-                  captionEditingController: widget.textEditingController!,
-                  count: widget.selectedImage != null
-                      ? widget.selectedImage!.length
-                      : 0,
-                  needDarkBackground: true,
-                  send: () {
-                    widget.pop!();
-                    Navigator.pop(context);
-                    setState(() {
-                      widget.onEditEnd(imagePath);
-                    });
-                    if (widget.sendSingleImage &&
-                        (widget.selectedImage == null ||
-                            widget.selectedImage!.isEmpty)) {
-                      widget.selectedImage!.add(imagePath);
-                    }
-                    widget.send!();
-                  },
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ShareBoxInputCaption(
+                    captionEditingController: widget.textEditingController!,
+                    count: widget.selectedImage != null
+                        ? widget.selectedImage!.length
+                        : 0,
+                    send: () {
+                      widget.pop!();
+                      Navigator.pop(context);
+                      setState(() {
+                        widget.onEditEnd(imagePath);
+                      });
+                      if (widget.sendSingleImage &&
+                          (widget.selectedImage == null ||
+                              widget.selectedImage!.isEmpty)) {
+                        widget.selectedImage!.add(imagePath);
+                      }
+                      widget.send!();
+                    },
+                  ),
                 )
             ],
           ),
