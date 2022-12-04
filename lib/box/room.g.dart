@@ -23,7 +23,6 @@ class RoomAdapter extends TypeAdapter<Room> {
       lastUpdateTime: fields[6] as int,
       lastMessageId: fields[4] as int,
       firstMessageId: fields[7] as int,
-      mentioned: fields[3] as bool,
       deleted: fields[2] as bool,
       pinned: fields[8] as bool,
       pinId: fields[9] as int,
@@ -31,6 +30,7 @@ class RoomAdapter extends TypeAdapter<Room> {
       lastCurrentUserSentMessageId: fields[11] as int,
       seenSynced: fields[12] as bool,
       replyKeyboardMarkup: fields[13] as String?,
+      mentionsId: (fields[14] as List?)?.cast<int>(),
     );
   }
 
@@ -44,8 +44,6 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..write(obj.lastMessage)
       ..writeByte(2)
       ..write(obj.deleted)
-      ..writeByte(3)
-      ..write(obj.mentioned)
       ..writeByte(4)
       ..write(obj.lastMessageId)
       ..writeByte(5)
@@ -65,7 +63,9 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..writeByte(12)
       ..write(obj.seenSynced)
       ..writeByte(13)
-      ..write(obj.replyKeyboardMarkup);
+      ..write(obj.replyKeyboardMarkup)
+      ..writeByte(14)
+      ..write(obj.mentionsId);
   }
 
   @override

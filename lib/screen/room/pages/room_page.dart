@@ -417,7 +417,6 @@ class RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-    _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
@@ -432,6 +431,9 @@ class RoomPageState extends State<RoomPage> {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
+        if (widget.roomId.isGroup()) {
+          _updateRoomMentionIds(position.toList());
+        }
         if ((_itemCount - position.first.index).abs() > 5) {
           _isLastMessages = false;
         } else {
@@ -552,6 +554,23 @@ class RoomPageState extends State<RoomPage> {
     _messageRepo.watchPendingEditedMessages(widget.roomId).listen((event) {
       _pendingEditedMessage.add(event);
     });
+  }
+
+  void _updateRoomMentionIds(List<ItemPosition> items) {
+    if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+      unawaited(
+        _roomRepo.updateMentionIds(
+          room.uid,
+          room.mentionsId!
+              .where(
+                (element) => !items
+                    .map((e) => e.index + room.firstMessageId + 1)
+                    .contains(element),
+              )
+              .toList(),
+        ),
+      );
+    }
   }
 
   void subscribeOnPositionToSendSeen() {

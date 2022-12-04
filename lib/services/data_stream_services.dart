@@ -179,24 +179,22 @@ class DataStreamServices {
       // Step 1 - Update Room Info
 
       // Check if Mentioned.
-      bool? hasMentioned;
-      if (roomUid.category == Categories.GROUP) {
-        if (message.text.text
-            .replaceAll("\n", " ")
-            .split(" ")
-            .contains("@${(await _accountRepo.getAccount())!.username}")) {
-          hasMentioned = true;
-        }
-      }
 
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
         lastUpdateTime: msg.time,
-        mentioned: hasMentioned,
         deleted: false,
       );
+      if (roomUid.category == Categories.GROUP) {
+        if (message.text.text
+            .replaceAll("\n", " ")
+            .split(" ")
+            .contains("@${(await _accountRepo.getAccount())!.username}")) {
+          unawaited(_roomRepo.processMentionIds(roomUid.asString(), [msg.id!]));
+        }
+      }
 
       // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {

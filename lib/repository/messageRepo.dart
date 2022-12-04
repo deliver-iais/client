@@ -325,10 +325,6 @@ class MessageRepo {
       roomUid.asUid(),
       lastMessageId,
     );
-
-    if (roomUid.asUid().category == Categories.GROUP) {
-      _fetchMentions(roomUid, lastMessageId).ignore();
-    }
   }
 
   Future<void> updatingLastSeen() async {
@@ -342,6 +338,9 @@ class MessageRepo {
     final room = await _roomDao.getRoom(roomUid);
     if (room != null) {
       await _updateLastSeen(room);
+      if (roomUid.asUid().category == Categories.GROUP) {
+        unawaited(_fetchMentions(roomUid));
+      }
     }
   }
 
@@ -459,21 +458,26 @@ class MessageRepo {
 
   Future<void> _fetchMentions(
     String roomUid,
-    int lastMessageId,
-  ) {
-    return _sdr.queryServiceClient
-        .fetchMentionList(
-      FetchMentionListReq()
-        ..group = roomUid.asUid()
-        ..afterId = Int64.parseInt(lastMessageId.toString()),
-    )
-        .then((mentionResult) {
-      if (mentionResult.idList.isNotEmpty) {
-        _roomDao.updateRoom(uid: roomUid, mentioned: true);
-      }
-    }).catchError((e) {
-      _logger.e(e);
-    });
+  ) async {
+    final seen = await _roomRepo.getMySeen(roomUid);
+    if (seen.messageId > 0) {
+      await _sdr.queryServiceClient
+          .fetchMentionList(
+        FetchMentionListReq()
+          ..group = roomUid.asUid()
+          ..afterId = Int64.parseInt(seen.messageId.toString()),
+      )
+          .then((mentionResult) async {
+        if (mentionResult.idList.isNotEmpty) {
+          await _roomRepo.processMentionIds(
+            roomUid,
+            mentionResult.idList.map((e) => e.toInt()).toList(),
+          );
+        }
+      }).catchError((e) {
+        _logger.e(e);
+      });
+    }
   }
 
   Future<void> sendTextMessage(
