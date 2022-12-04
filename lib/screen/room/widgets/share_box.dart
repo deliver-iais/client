@@ -14,6 +14,7 @@ import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
+import 'package:deliver/shared/widgets/attach_contact.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,7 +43,7 @@ class ShareBox extends StatefulWidget {
   ShareBoxState createState() => ShareBoxState();
 }
 
-enum ShareBoxPage { gallery, files, location, music }
+enum ShareBoxPage { gallery, files, location, music, contact }
 
 const BOTTOM_BUTTONS_HEIGHT = 80.0;
 
@@ -178,6 +179,14 @@ class ShareBoxState extends State<ShareBox> {
               context,
               widget.currentRoomUid,
             ).showLocation();
+          } else if (_currentPage == ShareBoxPage.contact) {
+            w = AttachContact(
+              roomUid: widget.currentRoomUid,
+              scrollController: scrollController,
+              pop: () {
+                Navigator.pop(context);
+              },
+            );
           }
 
           return StreamBuilder<double>(
@@ -199,7 +208,8 @@ class ShareBoxState extends State<ShareBox> {
                 0.2,
               ).abs();
 
-              final draggableOpacity = minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
+              final draggableOpacity =
+                  minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
 
               return Container(
                 padding: EdgeInsets.only(
@@ -319,6 +329,10 @@ class ShareBoxState extends State<ShareBox> {
                             _currentPage = ShareBoxPage.music;
                             _title = _i18n.get("music");
                             break;
+                          case 4:
+                            _currentPage = ShareBoxPage.contact;
+                            _title = _i18n.get("contact");
+                            break;
                         }
                         setState(() {});
                       },
@@ -339,6 +353,10 @@ class ShareBoxState extends State<ShareBox> {
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.music_note),
                           label: _i18n.get("music"),
+                        ),
+                        NavigationDestination(
+                          icon: const Icon(CupertinoIcons.person),
+                          label: _i18n.get("contact"),
                         ),
                       ],
                     ),
@@ -424,7 +442,9 @@ class ShareBoxState extends State<ShareBox> {
             ? 1
             : _currentPage == ShareBoxPage.location
                 ? 2
-                : 3;
+                : _currentPage == ShareBoxPage.music
+                    ? 3
+                    : 4;
   }
 
   bool get isAnyFileSelected => finalSelected.values.isNotEmpty;
