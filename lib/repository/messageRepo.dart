@@ -456,7 +456,6 @@ class MessageRepo {
     }
   }
 
-
   Future<void> _fetchMentions(
     String roomUid,
   ) async {
