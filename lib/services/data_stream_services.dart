@@ -388,6 +388,22 @@ class DataStreamServices {
         hiddenMessageCount: hiddenMessageCount,
       );
       _notificationServices.cancelRoomNotifications(roomId.asString());
+
+      if (room != null && room.uid.isGroup()) {
+        if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+          unawaited(
+            _roomRepo.updateMentionIds(
+              room.uid,
+              room.mentionsId!
+                  .where((element) => element > seen.id.toInt())
+                  .toList(),
+            ),
+          );
+        }
+      }
+      try {} catch (e) {
+        _logger.e(e);
+      }
     } else {
       await _seenDao.saveOthersSeen(
         Seen(

@@ -91,8 +91,7 @@ class RoomDaoImpl extends RoomDao {
         } else if (a.pinned && b.pinned) {
           return b.pinId - a.pinId;
         } else {
-          return (b.lastMessage?.time ?? b.lastUpdateTime) -
-              (a.lastMessage?.time ?? a.lastUpdateTime);
+          return (b.lastUpdateTime) - (a.lastUpdateTime);
         }
       },
     );

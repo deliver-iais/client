@@ -418,6 +418,9 @@ class MessageRepo {
             uid: room.uid,
             messageId: newSeenMessageId,
           );
+          if (room.uid.isGroup()) {
+            unawaited(_updateRoomMention(newSeenMessageId, room));
+          }
 
           return fetchHiddenMessageCount(
             room.uid.asUid(),
@@ -445,6 +448,21 @@ class MessageRepo {
           _logger.e(e);
         }
       }
+    }
+  }
+
+  Future<void> _updateRoomMention(int messageId, Room room) async {
+    try {
+      if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+        unawaited(
+          _roomRepo.updateMentionIds(
+            room.uid,
+            room.mentionsId!.where((element) => element > messageId).toList(),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
