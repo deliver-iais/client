@@ -454,7 +454,7 @@ class NavigationCenterState extends State<NavigationCenter>
                 FutureBuilder<List<Uid>>(
                   future: globalSearchUser(query),
                   builder: (c, snaps) {
-                    if (!snaps.hasData || snaps.data!.isEmpty) {
+                    if (!snaps.hasData) {
                       return const Center(
                           child: Padding(
                         padding: EdgeInsets.all(24.0),
