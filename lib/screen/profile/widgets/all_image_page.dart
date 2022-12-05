@@ -278,7 +278,12 @@ class _AllImagePageState extends State<AllImagePage>
         padding: const EdgeInsets.all(10),
         child: AnimatedBuilder(
           animation: animationList[animationIndex],
-          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+          child: isWeb
+              ? Image.network(filePath)
+              : PhotoView(
+                  imageProvider: AssetImage(filePath),
+                  disableGestures: true,
+                ),
           builder: (context, child) => Transform.rotate(
             angle: animationList[animationIndex].value,
             child: child,
@@ -340,57 +345,61 @@ class _AllImagePageState extends State<AllImagePage>
                           return PhotoViewGalleryPageOptions.customChild(
                             onTapDown: (c, t, p) =>
                                 _isBarShowing.add(!_isBarShowing.value),
-                            child: FutureBuilder<Media?>(
-                              future: _getMedia(index),
-                              builder: (c, mediaSnapShot) {
-                                if (mediaSnapShot.hasData) {
-                                  final json =
-                                      jsonDecode(mediaSnapShot.data!.json)
-                                          as Map;
-                                  return Hero(
-                                    tag: json['uuid'],
-                                    child: FutureBuilder<String?>(
-                                      initialData: _fileCache.get(index),
-                                      future: _fileRepo.getFile(
-                                        json['uuid'],
-                                        json['name'],
-                                      ),
-                                      builder: (c, filePath) {
-                                        if (filePath.hasData &&
-                                            filePath.data != null) {
-                                          _fileCache.set(
-                                            index,
-                                            filePath.data,
-                                          );
-                                          return isDesktop
-                                              ? InteractiveViewer(
-                                                  child: buildImage(
+                            child: SizedBox(
+                              width: 300,
+                              height: 300,
+                              child: FutureBuilder<Media?>(
+                                future: _getMedia(index),
+                                builder: (c, mediaSnapShot) {
+                                  if (mediaSnapShot.hasData) {
+                                    final json =
+                                        jsonDecode(mediaSnapShot.data!.json)
+                                            as Map;
+                                    return Hero(
+                                      tag: json['uuid'],
+                                      child: FutureBuilder<String?>(
+                                        initialData: _fileCache.get(index),
+                                        future: _fileRepo.getFile(
+                                          json['uuid'],
+                                          json['name'],
+                                        ),
+                                        builder: (c, filePath) {
+                                          if (filePath.hasData &&
+                                              filePath.data != null) {
+                                            _fileCache.set(
+                                              index,
+                                              filePath.data,
+                                            );
+                                            return isDesktop
+                                                ? InteractiveViewer(
+                                                    child: buildImage(
+                                                      filePath.data!,
+                                                      index,
+                                                    ),
+                                                  )
+                                                : buildImage(
                                                     filePath.data!,
                                                     index,
-                                                  ),
-                                                )
-                                              : buildImage(
-                                                  filePath.data!,
-                                                  index,
-                                                );
-                                        } else {
-                                          return const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.blue,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.blue,
-                                    ),
-                                  );
-                                }
-                              },
+                                                  );
+                                          } else {
+                                            return const Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.blue,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  } else {
+                                    return const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.blue,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
                             ),
                             childSize: const Size(300, 300),
                             initialScale: PhotoViewComputedScale.contained,
