@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class EmojiSelectionHeader extends StatelessWidget {
-  final bool hideHeader;
+  final bool pinHeader;
   final void Function(int) onEmojiGroupHeaderTap;
   final BehaviorSubject<EmojiGroup?> selectedEmojiGroup;
 
   const EmojiSelectionHeader({
     Key? key,
-    this.hideHeader = false,
+    this.pinHeader = true,
     required this.onEmojiGroupHeaderTap,
     required this.selectedEmojiGroup,
   }) : super(key: key);
@@ -21,9 +21,9 @@ class EmojiSelectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SliverPersistentHeader(
-      pinned: true,
+      pinned: _pinHeader(),
+      floating: true,
       delegate: PersistentEmojiHeader(
-        height: (hideHeader) ? 0 : PERSISTENT_EMOJI_HEADER_HEIGHT,
         widget: Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.onInverseSurface,
@@ -94,6 +94,14 @@ class EmojiSelectionHeader extends StatelessWidget {
       return theme.colorScheme.primary;
     } else {
       return theme.colorScheme.onSurfaceVariant.withOpacity(0.7);
+    }
+  }
+
+  bool _pinHeader() {
+    if (pinHeader) {
+      return true;
+    } else {
+      return false;
     }
   }
 
