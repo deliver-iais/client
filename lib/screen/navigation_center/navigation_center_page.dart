@@ -451,18 +451,25 @@ class NavigationCenterState extends State<NavigationCenter>
                   buildTitle(_i18n.get("local_search")),
                   ...searchResultWidget(roomAndContacts)
                 ],
-                FutureBuilder<List<List<Uid>>>(
+                FutureBuilder<List<Uid>>(
                   future: globalSearchUser(query),
                   builder: (c, snaps) {
                     if (!snaps.hasData || snaps.data!.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(),
+                      ));
                     }
-                    final global = snaps.data![0];
+                    final global = snaps.data!;
                     if (global.isEmpty &&
                         roomAndContacts.isEmpty &&
                         contacts.isEmpty) {
-                      return const Tgs.asset(
-                        'assets/duck_animation/not_found.tgs',
+                      return const Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Tgs.asset(
+                          'assets/duck_animation/not_found.tgs',
+                        ),
                       );
                     }
                     return Column(
@@ -507,9 +514,8 @@ class NavigationCenterState extends State<NavigationCenter>
     ];
   }
 
-  Future<List<List<Uid>>> globalSearchUser(String query) async {
-    //global search
-    return [await _contactRepo.searchUser(query)];
+  Future<List<Uid>> globalSearchUser(String query) {
+    return _contactRepo.searchUser(query);
   }
 
   List<Widget> searchResultWidget(List<Uid> uidList) {
