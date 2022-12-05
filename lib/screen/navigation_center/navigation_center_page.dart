@@ -432,11 +432,9 @@ class NavigationCenterState extends State<NavigationCenter>
     }
   }
 
-
   Widget searchResult(String query) {
     return Expanded(
-      child:
-      FutureBuilder<List<List<Uid>>>(
+      child: FutureBuilder<List<List<Uid>>>(
         future: searchUidList(query),
         builder: (c, snaps) {
           if (!snaps.hasData || snaps.data!.isEmpty) {
@@ -466,7 +464,10 @@ class NavigationCenterState extends State<NavigationCenter>
                     return const Center(child: CircularProgressIndicator());
                   }
                   final global = snaps.data![0];
-                  if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty && contacts.isEmpty) {
+                  if (global.isEmpty &&
+                      bots.isEmpty &&
+                      roomAndContacts.isEmpty &&
+                      contacts.isEmpty) {
                     return const Tgs.asset(
                       'assets/duck_animation/not_found.tgs',
                     );
@@ -480,7 +481,8 @@ class NavigationCenterState extends State<NavigationCenter>
                       ]
                     ],
                   );
-                },)
+                },
+              )
             ],
           );
         },
@@ -514,9 +516,9 @@ class NavigationCenterState extends State<NavigationCenter>
     ];
   }
 
-  Future<List<List<Uid>>> globalSearchUser(String query) async  {
+  Future<List<List<Uid>>> globalSearchUser(String query) async {
     //global search
-    return  [await _contactRepo.searchUser(query)];
+    return [await _contactRepo.searchUser(query)];
   }
 
   List<Widget> searchResultWidget(List<Uid> uidList) {
