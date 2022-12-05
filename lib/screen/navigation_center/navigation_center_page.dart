@@ -440,42 +440,43 @@ class NavigationCenterState extends State<NavigationCenter>
           }
           final contacts = snaps.data![0];
           final roomAndContacts = snaps.data![1];
-          return ListView(
-            children: [
-              if (contacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("contacts")),
-                ...searchResultWidget(contacts),
-              ],
-              if (roomAndContacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("local_search")),
-                ...searchResultWidget(roomAndContacts)
-              ],
-              FutureBuilder<List<List<Uid>>>(
-                future: globalSearchUser(query),
-                builder: (c, snaps) {
-                  if (!snaps.hasData || snaps.data!.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final global = snaps.data![0];
-                  if (global.isEmpty &&
-                      roomAndContacts.isEmpty &&
-                      contacts.isEmpty) {
-                    return const Tgs.asset(
-                      'assets/duck_animation/not_found.tgs',
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                if (contacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("contacts")),
+                  ...searchResultWidget(contacts),
+                ],
+                if (roomAndContacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("local_search")),
+                  ...searchResultWidget(roomAndContacts)
+                ],
+                FutureBuilder<List<List<Uid>>>(
+                  future: globalSearchUser(query),
+                  builder: (c, snaps) {
+                    if (!snaps.hasData || snaps.data!.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final global = snaps.data![0];
+                    if (global.isEmpty &&
+                        roomAndContacts.isEmpty &&
+                        contacts.isEmpty) {
+                      return const Tgs.asset(
+                        'assets/duck_animation/not_found.tgs',
+                      );
+                    }
+                    return Column(
+                      children: [
+                        if (global.isNotEmpty) ...[
+                          buildTitle(_i18n.get("global_search")),
+                          ...searchResultWidget(global)
+                        ]
+                      ],
                     );
-                  }
-                  return ListView(
-                    shrinkWrap: true,
-                    children: [
-                      if (global.isNotEmpty) ...[
-                        buildTitle(_i18n.get("global_search")),
-                        ...searchResultWidget(global)
-                      ]
-                    ],
-                  );
-                },
-              )
-            ],
+                  },
+                )
+              ],
+            ),
           );
         },
       ),
