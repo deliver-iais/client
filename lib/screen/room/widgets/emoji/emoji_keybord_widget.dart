@@ -59,6 +59,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   final BehaviorSubject<bool> _searchBoxHasText = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _hideHeaderAndFooter =
       BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _pinHeader =
+  BehaviorSubject.seeded(true);
   final BehaviorSubject<List<Emoji>?> _searchEmojiResult =
       BehaviorSubject.seeded(null);
 
@@ -108,6 +110,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
       _closeSkinToneOverlay();
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
+        _pinHeader.add(false);
         if (!_hideHeaderAndFooter.value) {
           _hideHeaderAndFooter.add(true);
         }
@@ -115,6 +118,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.forward) {
+        _pinHeader.add(false);
         if (_hideHeaderAndFooter.value) {
           _hideHeaderAndFooter.add(false);
         }
@@ -172,10 +176,10 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                             widget.keyboardStatus ==
                                 KeyboardStatus.EMOJI_KEYBOARD)
                           StreamBuilder<bool>(
-                            stream: _hideHeaderAndFooter,
+                            stream: _pinHeader,
                             builder: (context, snapshot) {
                               return _buildSelectionHeaderWidget(
-                                hideHeader: snapshot.data ?? false,
+                                pinHeader: snapshot.data ?? true,
                               );
                             },
                           ),
@@ -242,7 +246,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
   Widget _buildFooter({bool hideHeader = false}) {
     return AnimatedContainer(
-      duration: ANIMATION_DURATION,
+      duration: VERY_SLOW_ANIMATION_DURATION,
       height: hideHeader ? 0 : 30,
       child: SearchBarFooter(
         onEmojiDeleted: widget.onEmojiDeleted,
@@ -262,13 +266,14 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     );
   }
 
-  Widget _buildSelectionHeaderWidget({bool hideHeader = false}) {
+  Widget _buildSelectionHeaderWidget({bool pinHeader = true}) {
     return EmojiSelectionHeader(
-      hideHeader: hideHeader,
+      pinHeader: pinHeader,
       selectedEmojiGroup: _selectedEmojiGroup,
       onEmojiGroupHeaderTap: (index) {
         _closeSkinToneOverlay();
         _selectedEmojiGroup.add(EmojiGroup.values[index]);
+        _pinHeader.add(true);
         Scrollable.ensureVisible(
           _headersKeyList[index].currentContext!,
           duration: SUPER_SLOW_ANIMATION_DURATION,

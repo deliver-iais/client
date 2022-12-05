@@ -30,6 +30,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -136,7 +137,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return ShareBox(
-            currentRoomId: currentRoom.uid.asUid(),
+            currentRoomUid: currentRoom.uid.asUid(),
             replyMessageId: _replyMessageId,
             resetRoomPageDetails: widget.resetRoomPageDetails!,
             scrollToLastSentMessage: widget.scrollToLastSentMessage,
@@ -1083,27 +1084,14 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (isLinux) {
         final result = await openFiles();
         for (final file in result) {
-          res.add(
-            File(
-              file.path,
-              file.name,
-              extension: file.mimeType,
-              size: await file.length(),
-            ),
-          );
+          res.add(await xFileToFileModel(file));
         }
       } else {
         final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-        for (final file in result!.files) {
-          res.add(
-            File(
-              isWeb ? Uri.dataFromBytes(file.bytes!).toString() : file.path!,
-              file.name,
-              size: file.size,
-              extension: file.extension,
-            ),
-          );
-        }
+
+        res.addAll(
+          (result?.files ?? []).map(filePickerPlatformFileToFileModel),
+        );
       }
 
       showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);

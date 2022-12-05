@@ -346,16 +346,8 @@ class MessageRepo {
 
   Future<void> _updateLastSeen(Room room) async {
     if (room.lastMessage == null || room.lastMessage!.id == null) return;
-    if (!_authRepo.isCurrentUser(room.lastMessage!.from)) {
-      await fetchCurrentUserLastSeen(room);
-    } else {
-      await _roomDao.updateRoom(uid: room.uid, seenSynced: true);
-      unawaited(
-        _roomRepo.updateMySeen(
-          uid: room.uid,
-          messageId: room.lastMessageId,
-        ),
-      );
+    await fetchCurrentUserLastSeen(room);
+    if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
       final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
         fetchOtherSeen(room.uid.asUid()).toString();
@@ -426,6 +418,9 @@ class MessageRepo {
             uid: room.uid,
             messageId: newSeenMessageId,
           );
+          if (room.uid.isGroup()) {
+            unawaited(_updateRoomMention(newSeenMessageId, room));
+          }
 
           return fetchHiddenMessageCount(
             room.uid.asUid(),
@@ -453,6 +448,21 @@ class MessageRepo {
           _logger.e(e);
         }
       }
+    }
+  }
+
+  Future<void> _updateRoomMention(int messageId, Room room) async {
+    try {
+      if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+        unawaited(
+          _roomRepo.updateMentionIds(
+            room.uid,
+            room.mentionsId!.where((element) => element > messageId).toList(),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -597,16 +607,12 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     for (final file in files) {
-      if (files.last.path == file.path) {
-        await sendFileMessage(
-          room,
-          file,
-          caption: caption,
-          replyToId: replyToId,
-        );
-      } else {
-        await sendFileMessage(room, file, replyToId: replyToId);
-      }
+      await sendFileMessage(
+        room,
+        file,
+        caption: files.last.path == file.path ? caption : "",
+        replyToId: replyToId,
+      );
     }
   }
 
@@ -1221,13 +1227,13 @@ class MessageRepo {
   }
 
   Future<void> sendShareUidMessage(
-    Uid room,
+    Uid uid,
     message_pb.ShareUid shareUid,
   ) async {
     final json = shareUid.writeToJson();
 
     final msg =
-        _createMessage(room).copyWith(type: MessageType.SHARE_UID, json: json);
+        _createMessage(uid).copyWith(type: MessageType.SHARE_UID, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);

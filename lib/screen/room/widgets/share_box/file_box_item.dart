@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:deliver/screen/room/widgets/share_box/file_icon.dart';
-import 'package:deliver/screen/room/widgets/share_box/file_utils.dart';
+import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 
-class FileItem extends StatelessWidget {
-  final FileSystemEntity file;
+class FileBoxItem extends StatelessWidget {
+  final File file;
 
-  const FileItem({
+  const FileBoxItem({
     Key? key,
     required this.file,
   }) : super(key: key);
@@ -25,7 +25,7 @@ class FileItem extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        FileUtils.formatBytes(File(file.path).lengthSync(), 2),
+        byteFormat(File(file.path).lengthSync()),
         style: TextStyle(
           color: Theme.of(context).colorScheme.outline,
           fontSize: 13,

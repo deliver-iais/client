@@ -54,10 +54,11 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.surfaceVariant,
       body: ListView(
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height / 3,
+            height: MediaQuery.of(context).size.height / 4,
             child: FlutterMap(
               mapController: mapController,
               options: MapOptions(
@@ -205,7 +206,6 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                   },
                 ),
               ),
-              const Divider(),
             ],
           ),
         ],

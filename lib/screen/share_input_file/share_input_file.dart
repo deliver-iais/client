@@ -1,17 +1,14 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
-
+import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ShareInputFile extends StatefulWidget {
   final List<String> inputSharedFilePath;
@@ -32,18 +29,8 @@ class _ShareInputFileState extends State<ShareInputFile> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  final _keyboardVisibilityController = KeyboardVisibilityController();
-  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final _selectedRooms = <Uid>[];
   final TextEditingController _textEditingController = TextEditingController();
-
-  @override
-  void initState() {
-    _keyboardVisibilityController.onChange.listen((event) {
-      _insertCaption.add(event);
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +55,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
             if (widget.inputShareText.isNotEmpty)
               buildSend()
             else
-              BuildInputCaption(
-                insertCaption: _insertCaption,
+              ShareBoxInputCaption(
                 captionEditingController: _textEditingController,
                 count: _selectedRooms.length,
                 send: () {

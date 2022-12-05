@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -130,14 +130,13 @@ class ProfileAvatarState extends State<ProfileAvatar> {
           acceptedTypeGroups: [typeGroup],
         );
         if (file != null && file.path.isNotEmpty) {
-          cropAvatar(file.path);
+          openCropAvatar(file.path);
         }
       } else {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.image,
-        );
+        final result =
+            await FilePicker.platform.pickFiles(type: FileType.image);
         if (result!.files.isNotEmpty) {
-          cropAvatar(
+          openCropAvatar(
             isWeb
                 ? Uri.dataFromBytes(result.files.first.bytes!.toList())
                     .toString()
@@ -163,10 +162,10 @@ class ProfileAvatarState extends State<ProfileAvatar> {
                   children: <Widget>[
                     Container(
                       padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
+                      child: GalleryBox(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
-                        setAvatar: cropAvatar,
+                        setAvatar: openCropAvatar,
                         roomUid: widget.roomUid,
                       ),
                     ),
@@ -180,7 +179,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     }
   }
 
-  void cropAvatar(String imagePath) {
+  void openCropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(
