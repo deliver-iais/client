@@ -1,7 +1,6 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
@@ -66,7 +65,6 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _botRepo = GetIt.I.get<BotRepo>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
 
   final ScrollController _scrollController = ScrollController();
@@ -441,8 +439,7 @@ class NavigationCenterState extends State<NavigationCenter>
             return const Center(child: CircularProgressIndicator());
           }
           final contacts = snaps.data![0];
-          final bots = snaps.data![1];
-          final roomAndContacts = snaps.data![2];
+          final roomAndContacts = snaps.data![1];
           return ListView(
             children: [
               if (contacts.isNotEmpty) ...[
@@ -453,10 +450,6 @@ class NavigationCenterState extends State<NavigationCenter>
                 buildTitle(_i18n.get("local_search")),
                 ...searchResultWidget(roomAndContacts)
               ],
-              if (bots.isNotEmpty) ...[
-                buildTitle(_i18n.get("bots")),
-                ...searchResultWidget(bots)
-              ],
               FutureBuilder<List<List<Uid>>>(
                 future: globalSearchUser(query),
                 builder: (c, snaps) {
@@ -465,7 +458,6 @@ class NavigationCenterState extends State<NavigationCenter>
                   }
                   final global = snaps.data![0];
                   if (global.isEmpty &&
-                      bots.isEmpty &&
                       roomAndContacts.isEmpty &&
                       contacts.isEmpty) {
                     return const Tgs.asset(
@@ -509,8 +501,6 @@ class NavigationCenterState extends State<NavigationCenter>
     return [
       //in contacts
       await _contactRepo.searchInContacts(query),
-      //bot
-      await _botRepo.searchBotByName(query),
       //in rooms
       await _roomRepo.searchInRooms(query),
     ];
