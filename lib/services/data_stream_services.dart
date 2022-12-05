@@ -588,15 +588,13 @@ class DataStreamServices {
     }
 
     if (lastNotHiddenMessage != null) {
-      _roomDao
-          .updateRoom(
-            uid: roomUid.asString(),
-            firstMessageId: firstMessageId,
-            lastMessageId: lastMessageId,
-            synced: true,
-            lastMessage: lastNotHiddenMessage,
-          )
-          .ignore();
+      await _roomDao.updateRoom(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId,
+        lastMessageId: lastMessageId,
+        synced: true,
+        lastMessage: lastNotHiddenMessage,
+      );
       return lastNotHiddenMessage;
     } else {
       return null;

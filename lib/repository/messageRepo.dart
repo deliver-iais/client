@@ -346,16 +346,8 @@ class MessageRepo {
 
   Future<void> _updateLastSeen(Room room) async {
     if (room.lastMessage == null || room.lastMessage!.id == null) return;
-    if (!_authRepo.isCurrentUser(room.lastMessage!.from)) {
-      await fetchCurrentUserLastSeen(room);
-    } else {
-      await _roomDao.updateRoom(uid: room.uid, seenSynced: true);
-      unawaited(
-        _roomRepo.updateMySeen(
-          uid: room.uid,
-          messageId: room.lastMessageId,
-        ),
-      );
+    await fetchCurrentUserLastSeen(room);
+    if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
       final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
         fetchOtherSeen(room.uid.asUid()).toString();
