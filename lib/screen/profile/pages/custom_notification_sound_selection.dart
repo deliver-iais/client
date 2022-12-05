@@ -21,17 +21,17 @@ class CustomNotificationSoundSelectionState
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioService = GetIt.I.get<AudioService>();
-  final List<String> _customNotificationSounds = [
-    "deduction",
-    "done_for_you",
-    "goes_without_saying",
-    "open_up",
-    "piece_of_cake",
-    "point_blank",
-    "pristine",
-    "samsung",
-    "swiftly",
-    "that_was_quick"
+  final List _customNotificationSounds = [
+    ["deduction","deduction"],
+    ["done for you","done_for_you"],
+    ["goes without saying","goes_without_saying"],
+    ["open up","open_up"],
+    ["piece of cake","piece_of_cake"],
+    ["point blank","point_blank"],
+    ["pristine","pristine"],
+    ["samsung","samsung"],
+    ["swiftly","swiftly"],
+    ["that was quick","that_was_quick"]
   ];
   int _selectedSongIndex = -1;
 
@@ -75,46 +75,22 @@ class CustomNotificationSoundSelectionState
           ),
         ),
         leading: InkWell(
-          child: const Icon(Icons.clear),
+          child: const Icon(Icons.check),
           onTap: () {
+            if (_selectedSongIndex != -1) {
+              _roomRepo.setRoomCustomNotification(
+                widget.roomUid,
+                _customNotificationSounds[_selectedSongIndex][1],
+              );
+            } else {
+              _roomRepo.setRoomCustomNotification(
+                widget.roomUid,
+                "-",
+              );
+            }
             Navigator.pop(context);
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all(Theme.of(context).primaryColor),
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-              ),
-              onPressed: () {
-                if (_selectedSongIndex != -1) {
-                  _roomRepo.setRoomCustomNotification(
-                    widget.roomUid,
-                    _customNotificationSounds[_selectedSongIndex],
-                  );
-                } else {
-                  _roomRepo.setRoomCustomNotification(
-                    widget.roomUid,
-                    "-",
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: Text(
-                _i18n.get("ok"),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.background),
-              ),
-            ),
-          )
-        ],
       ),
       body: FutureBuilder(
         future: _roomRepo.getRoomCustomNotification(widget.roomUid),
@@ -122,7 +98,7 @@ class CustomNotificationSoundSelectionState
           if (snapshot.hasData) {
             return ListView.builder(
               itemBuilder: (builder, index) {
-                final data = _customNotificationSounds[index];
+                final data = _customNotificationSounds[index][0];
                 return ListTile(
                   onLongPress: () => onTap(
                     index,
@@ -150,7 +126,7 @@ class CustomNotificationSoundSelectionState
       _selectedSongIndex = index;
       _audioService.playTemporaryAudio(
         AudioSourcePath.asset(
-          "app/src/main/res/raw/${_customNotificationSounds[index]}.mp3",
+          "app/src/main/res/raw/${_customNotificationSounds[index][1]}.mp3",
         ),
         prefix: "android/",
       );
