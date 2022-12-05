@@ -33,10 +33,11 @@ class GroupedBannerItem extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _routingService.openRoom(uid.asString()),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             CircleAvatarWidget(
               uid,
-              30,
+              25,
             ),
             const SizedBox(width: 8),
             if (uid.category == Categories.GROUP)
@@ -75,7 +76,7 @@ class GroupedBannerItem extends StatelessWidget {
               builder: (context, snapshot) {
                 _roomName = snapshot.data ?? _i18n.get("loading");
                 return SizedBox(
-                  width: 134,
+                  width: 100,
                   child: RoomName(
                     uid: uid,
                     name: _roomName,

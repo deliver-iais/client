@@ -261,6 +261,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 
   return theme.copyWith(
     useMaterial3: true,
+    scaffoldBackgroundColor: colorScheme.background,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: colorScheme.inverseSurface,
       actionTextColor: colorScheme.inversePrimary,

@@ -115,6 +115,7 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         retryConnection(forced: true);
+        _onConnectionError();
       }
       startCheckerTimer();
     });
@@ -261,7 +262,10 @@ class CoreServices {
           .toString(),
     );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
-    FlutterForegroundTask.saveData(key: "Language", value: GetIt.I.get<I18N>().isPersian);
+    FlutterForegroundTask.saveData(
+      key: "Language",
+      value: GetIt.I.get<I18N>().isPersian,
+    );
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {

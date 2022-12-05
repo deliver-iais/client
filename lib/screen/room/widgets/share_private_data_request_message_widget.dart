@@ -3,10 +3,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -160,15 +161,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
       }
 
       final result = await openFiles(acceptedTypeGroups: typeGroup);
+
       for (final file in result) {
-        res.add(
-          File(
-            file.path,
-            file.name,
-            extension: file.mimeType,
-            size: await file.length(),
-          ),
-        );
+        res.add(await xFileToFileModel(file));
       }
     } else {
       final type = types.isEmpty ? FileType.any : FileType.custom;
@@ -182,21 +177,9 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         allowedExtensions: allowedExtensions,
       );
 
-      if (result != null) {
-        for (final file in result.files) {
-          res.add(
-            File(
-              isWeb
-                  ? Uri.dataFromBytes(file.bytes!.toList()).toString()
-                  : file.path!,
-              file.name,
-              size: file.size,
-              extension: file.extension,
-            ),
-          );
-        }
-      }
+      res.addAll((result?.files ?? []).map(filePickerPlatformFileToFileModel));
     }
+
     showCaptionDialog(
       roomUid: message.roomUid.asUid(),
       context: context,

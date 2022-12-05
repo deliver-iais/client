@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
@@ -61,7 +61,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
             children: [
               Stack(
                 children: [
-                  if (isVoiceFile(widget.audioPath))
+                  if (isVoiceFilePath(widget.audioPath))
                     RectangleWaveform(
                       isRoundedRectangle: true,
                       isCentered: true,
@@ -95,7 +95,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                           widget.audioDuration.inMilliseconds) <=
                       1)
                     Opacity(
-                      opacity: isVoiceFile(widget.audioPath) ? 0 : 1,
+                      opacity: isVoiceFilePath(widget.audioPath) ? 0 : 1,
                       child: SliderTheme(
                         data: SliderThemeData(
                           overlayShape: SliderComponentShape.noOverlay,

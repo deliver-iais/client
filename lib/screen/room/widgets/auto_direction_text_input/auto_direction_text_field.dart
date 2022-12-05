@@ -121,9 +121,11 @@ class AutoDirectionTextField extends StatelessWidget {
   final bool scribbleEnabled;
 
   final bool enableIMEPersonalizedLearning;
+  final Key? textFieldKey;
 
   const AutoDirectionTextField({
     Key? key,
+    this.textFieldKey,
     this.controller,
     this.focusNode,
     this.decoration = const InputDecoration(),
@@ -186,6 +188,7 @@ class AutoDirectionTextField extends StatelessWidget {
       builder: (c, sn) {
         final textDir = sn.data ?? TextDirection.ltr;
         return TextField(
+          key: textFieldKey,
           controller: controller ?? _controller,
           focusNode: focusNode,
           decoration: decoration,

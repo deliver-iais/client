@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -42,7 +42,7 @@ class ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8, left: 8, right: 8,bottom: 8),
+      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: StreamBuilder<String>(
         stream: _newAvatarPath,
         builder: (c, s) {
@@ -111,6 +111,7 @@ class ProfileAvatar extends StatelessWidget {
     if (_fileService.getFileStatus(roomUid.node) !=
         FileStatus.COMPLETED) {
       ToastDisplay.showToast(
+
         toastContext: context,
         toastText: _i18n.get("error_in_uploading"),
       );
@@ -119,7 +120,7 @@ class ProfileAvatar extends StatelessWidget {
   }
 
   Future<void> selectAvatar(BuildContext context) async {
-    void cropAvatar(String imagePath) {
+    void openCropAvatar(String imagePath) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -128,7 +129,7 @@ class ProfileAvatar extends StatelessWidget {
               onEditEnd: (path) {
                 imagePath = path;
                 Navigator.pop(context);
-                _setAvatar(imagePath,context);
+                _setAvatar(imagePath);
               },
               imagePath: imagePath,
             );
@@ -136,6 +137,7 @@ class ProfileAvatar extends StatelessWidget {
         ),
       );
     }
+  }
 
     if (isWeb || isDesktop) {
       if (isLinux) {
@@ -145,14 +147,13 @@ class ProfileAvatar extends StatelessWidget {
           acceptedTypeGroups: [typeGroup],
         );
         if (file != null && file.path.isNotEmpty) {
-          cropAvatar(file.path);
+          openCropAvatar(file.path);
         }
       } else {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.image,
-        );
+        final result =
+            await FilePicker.platform.pickFiles(type: FileType.image);
         if (result!.files.isNotEmpty) {
-          cropAvatar(
+          openCropAvatar(
             isWeb
                 ? Uri.dataFromBytes(result.files.first.bytes!.toList())
                 .toString()
@@ -177,10 +178,10 @@ class ProfileAvatar extends StatelessWidget {
                   children: <Widget>[
                     Container(
                       padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
+                      child: GalleryBox(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
-                        setAvatar: cropAvatar,
+                        setAvatar: openCropAvatar,
                         roomUid: roomUid,
                       ),
                     ),
@@ -196,4 +197,3 @@ class ProfileAvatar extends StatelessWidget {
 
 
 }
-

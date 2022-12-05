@@ -3,9 +3,10 @@ import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/models/file.dart' as model;
-import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -34,35 +35,39 @@ class RawKeyboardService {
   ) async {
     final files = await Pasteboard.files();
     final image = await Pasteboard.image;
-    final fileList = <model.File>[];
-    var name = "";
-    if (files.isNotEmpty) {
-      for (final file in files) {
-        name = file.replaceAll("\\", "/").split("/").last;
-        fileList.add(
-          model.File(
-            file,
-            name,
-            extension: name.split(".").last,
-            size: file.length,
-          ),
-        );
+
+    if (files.isNotEmpty || image != null) {
+      final fileList = <model.File>[];
+
+      if (files.isNotEmpty) {
+        fileList.addAll(files.map(pathToFileModel));
       }
-    } else if (image != null) {
-      final tempDir = await getTemporaryDirectory();
-      final file = await File(
-        '${tempDir.path}/screenshot-${clock.now().hashCode}.png',
-      ).create();
-      file.writeAsBytesSync(image);
-      name = file.path.replaceAll("\\", "/").split("/").last;
-      fileList.add(
-        model.File(
-          file.path,
-          name,
-          extension: name.split(".").last,
-          size: await file.length(),
-        ),
+
+      if (image != null) {
+        final tempDir = await getTemporaryDirectory();
+        final file = await File(
+          '${tempDir.path}/screenshot-${clock.now().hashCode}.png',
+        ).create();
+        file.writeAsBytesSync(image);
+
+        fileList.add(fileToFileModel(file));
+      }
+
+      showCaptionDialog(
+        context: context,
+        files: fileList,
+        caption: controller.text.isNotEmpty
+            ? !isLinux
+                ? controller.text
+                : null
+            : null,
+        roomUid: roomUid,
       );
+
+      // TODO(bitbeter): why duration, and why not copying controller data in caption text for better experience
+      Timer(Duration.zero, () {
+        controller.clear();
+      });
     } else {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       final start = controller.selection.start;
@@ -74,21 +79,6 @@ class RawKeyboardService {
         ..selection = TextSelection.fromPosition(
           TextPosition(offset: start + data.text!.replaceAll("\r", "").length),
         );
-    }
-    if (fileList.isNotEmpty) {
-      showCaptionDialog(
-        context: context,
-        files: fileList,
-        caption: controller.text.isNotEmpty
-            ? !isLinux
-                ? controller.text
-                : null
-            : null,
-        roomUid: roomUid,
-      );
-      Timer(Duration.zero, () {
-        controller.clear();
-      });
     }
   }
 

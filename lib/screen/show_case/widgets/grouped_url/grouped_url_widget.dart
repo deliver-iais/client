@@ -18,6 +18,7 @@ class GroupedUrlWidget extends StatelessWidget {
       listItemsLength: showCase.groupedUrl.urlsList.length,
       listItems: (index) => _buildGroupedUrlsItem(index),
       needArrowIcon: false,
+      scrollController: ScrollController(),
     );
   }
 
