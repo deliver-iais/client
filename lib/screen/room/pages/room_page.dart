@@ -429,21 +429,20 @@ class RoomPageState extends State<RoomPage> {
 
         _updateTimeHeader(position.toList());
 
-        // TODO(bitbeter): WTF ?!?!?!?!?
-        final firstVisibleItem = position
+        final lastVisibleItem = position
             .where(
               (position) => position.itemLeadingEdge > 0,
             )
             .reduce(
               (first, position) =>
-                  position.itemLeadingEdge < first.itemLeadingEdge
+                  position.itemLeadingEdge > first.itemLeadingEdge
                       ? position
                       : first,
             );
         // Save scroll position of first complete visible item
         _sharedDao.put(
           '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
-          "${firstVisibleItem.index}-${firstVisibleItem.itemLeadingEdge}",
+          "${lastVisibleItem.index}-${lastVisibleItem.itemLeadingEdge}",
         );
 
         _positionSubject.add(
@@ -483,7 +482,7 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
     final proportionOfTop =
-        ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+        startPointOfPage();
 
     final firstVisibleItemIndex = positions
         .where(
@@ -503,6 +502,8 @@ class RoomPageState extends State<RoomPage> {
       _timeHeader.add(message.time.toString());
     }
   }
+
+  double startPointOfPage() => ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
   SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
     return SizedBox(
