@@ -281,33 +281,36 @@ class RoomPageState extends State<RoomPage> {
         StreamBuilder<ScrollingState>(
           stream: _isScrolling,
           builder: (context, isScrollingSnapshot) {
-            final showTime = isScrollingSnapshot.data?.isScrolling ?? false;
+            final showTime = ((isScrollingSnapshot.data?.pixel ?? 200) > 100) &&
+                (isScrollingSnapshot.data?.isScrolling ?? false);
 
-            return AnimatedOpacity(
-              opacity: showTime ? 1 : 0,
+            return AnimatedSwitcher(
               duration: SLOW_ANIMATION_DURATION,
-              curve: Curves.easeInOut,
-              child: Padding(
-                padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
-                child: StreamBuilder<String>(
-                  stream: _timeHeader.stream,
-                  builder: (context, dateSnapshot) {
-                    if (dateSnapshot.hasData &&
-                        dateSnapshot.data != null &&
-                        dateSnapshot.data!.isNotEmpty) {
-                      return Align(
-                        key: Key(dateSnapshot.data!),
-                        alignment: Alignment.topCenter,
-                        child: ChatTime(
-                          currentMessageTime:
-                              date(int.parse(dateSnapshot.data!)),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              child: !showTime
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
+                      child: StreamBuilder<String>(
+                        stream: _timeHeader.stream,
+                        builder: (context, dateSnapshot) {
+                          if (dateSnapshot.hasData &&
+                              dateSnapshot.data != null &&
+                              dateSnapshot.data!.isNotEmpty) {
+                            return Align(
+                              key: Key(dateSnapshot.data!),
+                              alignment: Alignment.topCenter,
+                              child: ChatTime(
+                                currentMessageTime:
+                                    date(int.parse(dateSnapshot.data!)),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ),
             );
           },
         ),
@@ -347,16 +350,13 @@ class RoomPageState extends State<RoomPage> {
               return Positioned(
                 right: 16,
                 bottom: 16,
-                child: AnimatedOpacity(
-                  opacity: showArrow ? 1 : 0,
-                  curve: Curves.easeInOut,
+                child: AnimatedSwitcher(
                   duration: SLOW_ANIMATION_DURATION,
-                  child: AnimatedScale(
-                    duration: SLOW_ANIMATION_DURATION,
-                    curve: Curves.fastOutSlowIn,
-                    scale: showArrow ? 1 : 0,
-                    child: scrollDownButtonWidget(),
-                  ),
+                  switchInCurve: Curves.easeInOut,
+                  switchOutCurve: Curves.easeInOut,
+                  child: !showArrow
+                      ? const SizedBox.shrink()
+                      : scrollDownButtonWidget(),
                 ),
               );
             },
@@ -481,8 +481,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
-    final proportionOfTop =
-        startPointOfPage();
+    final proportionOfTop = startPointOfPage();
 
     final firstVisibleItemIndex = positions
         .where(
@@ -503,7 +502,8 @@ class RoomPageState extends State<RoomPage> {
     }
   }
 
-  double startPointOfPage() => ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+  double startPointOfPage() =>
+      ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
   SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
     return SizedBox(
