@@ -22,6 +22,7 @@ class CustomNotificationSoundSelectionState
   final _i18n = GetIt.I.get<I18N>();
   final _audioService = GetIt.I.get<AudioService>();
   final List _customNotificationSounds = [
+    ["no sound","no_sound"],
     ["deduction","deduction"],
     ["done for you","done_for_you"],
     ["goes without saying","goes_without_saying"],
