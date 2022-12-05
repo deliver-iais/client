@@ -42,7 +42,7 @@ class ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8,bottom: 8),
       child: StreamBuilder<String>(
         stream: _newAvatarPath,
         builder: (c, s) {
@@ -129,7 +129,7 @@ class ProfileAvatar extends StatelessWidget {
               onEditEnd: (path) {
                 imagePath = path;
                 Navigator.pop(context);
-                _setAvatar(imagePath);
+                _setAvatar(imagePath,context);
               },
               imagePath: imagePath,
             );
@@ -137,7 +137,7 @@ class ProfileAvatar extends StatelessWidget {
         ),
       );
     }
-  }
+
 
     if (isWeb || isDesktop) {
       if (isLinux) {
