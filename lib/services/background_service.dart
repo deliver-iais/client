@@ -59,11 +59,7 @@ Future<void> backgroundMessageHandler(SmsMessage message) => update();
 
 @pragma('vm:entry-point')
 void backgroundHandler() {
-  Workmanager().executeTask((task, inputData) {
-    print("worker manager");
-    print(DateTime.now().millisecondsSinceEpoch);
-    return update();
-  });
+  Workmanager().executeTask((task, inputData) => update());
 }
 
 Future<bool> update() async {
