@@ -25,6 +25,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
+import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_delete_widget.dart';
@@ -635,6 +636,12 @@ class OperationOnMessageSelection {
     if (message.type == MessageType.TEXT) {
       saveToClipboard(
         synthesizeToOriginalWord(message.json.toText().text),
+        context: context,
+      );
+    } else if (message.type == MessageType.SHARE_UID) {
+      final shareUid = message.json.toShareUid();
+      saveToClipboard(
+        buildMucInviteLink(shareUid.uid, shareUid.joinToken),
         context: context,
       );
     } else {
