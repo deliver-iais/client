@@ -13,7 +13,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
@@ -102,7 +101,7 @@ class BotRepo {
   Future<void> handleInlineMarkUpMessageCallBack(
     Message message,
     BuildContext context,
-      InlineKeyboardButton button,
+    InlineKeyboardButton button,
   ) async {
     final urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
@@ -137,27 +136,5 @@ class BotRepo {
     } catch (_) {
       return null;
     }
-  }
-
-  Future<List<Uid>> searchBotByName(String name) async {
-    if (name.isEmpty) {
-      return [];
-    }
-
-    //Todo complete search in bot
-    // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
-    final searchInBots = <Uid>[];
-    if (name.contains("father")) {
-      final uid = Uid()
-        ..category = Categories.BOT
-        ..node = "father_bot";
-      searchInBots.add(uid);
-    }
-
-    _logger.d(searchInBots.toString());
-    // for(var bot in result.bot){
-    //  searchInBots.add(bot.bot);
-    // }
-    return searchInBots;
   }
 }
