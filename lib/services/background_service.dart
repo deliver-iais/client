@@ -26,7 +26,7 @@ class BackgroundService {
       initialDelay: const Duration(
         minutes: 5,
       ),
-      frequency: const Duration(minutes: 15),
+      frequency: const Duration(hours: 1),
     );
     _setBackgroundService();
   }
