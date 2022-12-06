@@ -100,14 +100,26 @@ class CustomNotificationSoundSelectionState
             return ListView.builder(
               itemBuilder: (builder, index) {
                 final data = _customNotificationSounds[index][0];
-                return ListTile(
-                  onLongPress: () => onTap(
-                    index,
-                  ),
-                  onTap: () => onTap(index),
-                  title: Text(data),
-                  trailing: _buildSelectIcon(index),
-                );
+                if (index == 0){
+                  return ListTile(
+                      onLongPress: () => onTap(
+                        index,
+                      ),
+                      onTap: () => onTap(index),
+                      title: Text(data),
+                      trailing: _buildSelectIcon(index),
+                      tileColor: Theme.of(context).colorScheme.error.withOpacity(0.3)
+                  );
+                }else{
+                  return ListTile(
+                      onLongPress: () => onTap(
+                        index,
+                      ),
+                      onTap: () => onTap(index),
+                      title: Text(data),
+                      trailing: _buildSelectIcon(index),
+                  );
+                }
               },
               itemCount: _customNotificationSounds.length,
             );
