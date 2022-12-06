@@ -640,6 +640,7 @@ class DataStreamServices {
           }
         }
       } on GrpcError catch (e) {
+        _logger.e(e);
         if (e.code == StatusCode.notFound) {
           unawaited(
             _roomDao.updateRoom(
