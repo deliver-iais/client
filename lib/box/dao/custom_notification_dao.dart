@@ -43,14 +43,14 @@ class CustomNotificationDaoImpl extends CustomNotificationDao {
     if (box.get(uid) != null) {
       return box.get(uid);
     } else {
-      return "-";
+      return "that_was_quick";
     }
   }
 
   @override
   Stream<String?> watchCustomNotificationSound(String uid) async* {
     final box = await _open();
-    yield box.get(uid) ?? "-";
-    yield* box.watch(key: uid).map((event) => box.get(uid) ?? "-");
+    yield box.get(uid) ?? "that_was_quick";
+    yield* box.watch(key: uid).map((event) => box.get(uid) ?? "default");
   }
 }

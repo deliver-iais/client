@@ -563,32 +563,7 @@ class ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-            if (isAndroid)
-              StreamBuilder<String?>(
-                stream: _roomRepo
-                    .watchRoomCustomNotification(widget.roomUid.asString()),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SettingsTile(
-                        title: _i18n.get("custom_notifications"),
-                        leading: const Icon(Icons.music_note_sharp),
-                        subtitle: snapshot.data,
-                        subtitleTextStyle:
-                            TextStyle(color: theme.primaryColor, fontSize: 16),
-                        onPressed: (_) async {
-                          _routingService.openCustomNotificationSoundSelection(
-                            widget.roomUid.asString(),
-                          );
-                        },
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
+
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (context, snapshot) {
@@ -599,6 +574,11 @@ class ProfilePageState extends State<ProfilePage>
                       title: _i18n.get("notification"),
                       leading: const Icon(Icons.notifications_active),
                       switchValue: !snapshot.data!,
+                      onPressed: (_) async {
+                        _routingService.openCustomNotificationSoundSelection(
+                          widget.roomUid.asString(),
+                        );
+                      },
                       onToggle: (state) {
                         if (state) {
                           _roomRepo.unMute(widget.roomUid.asString());

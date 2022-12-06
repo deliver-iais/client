@@ -261,10 +261,12 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
           if (widget.type == SettingsItemType.toggle && widget.enabled) {
             if (mounted) {
-              setState(() {
-                _checked = !_checked!;
-                widget.onToggle!(_checked!);
-              });
+              if(widget.onPress == null) {
+                setState(() {
+                  _checked = !_checked!;
+                  widget.onToggle!(_checked!);
+                });
+              }
             }
           }
         },

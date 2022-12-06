@@ -831,7 +831,7 @@ class AndroidNotifier implements Notifier {
       }
     }
     if (selectedSound != null && !shouldBeQuiet) {
-      if (selectedSound != "-") {
+      if (selectedSound != "default") {
         selectedNotificationSound = selectedSound;
       }
     }

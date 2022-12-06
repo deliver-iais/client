@@ -21,19 +21,7 @@ class CustomNotificationSoundSelectionState
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioService = GetIt.I.get<AudioService>();
-  final List _customNotificationSounds = [
-    ["no sound","no_sound"],
-    ["deduction","deduction"],
-    ["done for you","done_for_you"],
-    ["goes without saying","goes_without_saying"],
-    ["open up","open_up"],
-    ["piece of cake","piece_of_cake"],
-    ["point blank","point_blank"],
-    ["pristine","pristine"],
-    ["samsung","samsung"],
-    ["swiftly","swiftly"],
-    ["that was quick","that_was_quick"]
-  ];
+  late final List _customNotificationSounds;
   int _selectedSongIndex = -1;
 
   void _addLifeCycleListener() {
@@ -53,6 +41,19 @@ class CustomNotificationSoundSelectionState
 
   @override
   void initState() {
+    _customNotificationSounds = [
+      [_roomRepo.getCustomNotificationShowingName("no_sound"),"no_sound"],
+      [_roomRepo.getCustomNotificationShowingName("that_was_quick"),"that_was_quick"],
+      [_roomRepo.getCustomNotificationShowingName("deduction"),"deduction"],
+      [_roomRepo.getCustomNotificationShowingName("done_for_you"),"done_for_you"],
+      [_roomRepo.getCustomNotificationShowingName("goes_without_saying"),"goes_without_saying"],
+      [_roomRepo.getCustomNotificationShowingName("open_up"),"open_up"],
+      [_roomRepo.getCustomNotificationShowingName("piece_of_cake"),"piece_of_cake"],
+      [_roomRepo.getCustomNotificationShowingName("point_blank"),"point_blank"],
+      [_roomRepo.getCustomNotificationShowingName("pristine"),"pristine"],
+      [_roomRepo.getCustomNotificationShowingName("samsung"),"samsung"],
+      [_roomRepo.getCustomNotificationShowingName("swiftly"),"swiftly"],
+    ];
     _addLifeCycleListener();
     initialSelectedIndex();
 
@@ -62,7 +63,10 @@ class CustomNotificationSoundSelectionState
   Future<void> initialSelectedIndex() async {
     final selectedSong =
         await _roomRepo.getRoomCustomNotification(widget.roomUid);
-    _selectedSongIndex = _customNotificationSounds.indexOf(selectedSong ?? "-");
+    var checkingSong = (selectedSong ?? "that_was_quick");
+    _selectedSongIndex = _customNotificationSounds.indexWhere((element) {
+      return (element[1] == checkingSong);
+    });
   }
 
   @override
@@ -86,7 +90,7 @@ class CustomNotificationSoundSelectionState
             } else {
               _roomRepo.setRoomCustomNotification(
                 widget.roomUid,
-                "-",
+                "that_was_quick",
               );
             }
             Navigator.pop(context);

@@ -475,4 +475,25 @@ class RoomRepo {
     final room = await _roomDao.getRoom(roomUid);
     return room?.deleted ?? false;
   }
+
+  String getCustomNotificationShowingName(String? customNotificationSound){
+    if(customNotificationSound == null){
+      return "";
+    }
+    Map mapper = {
+      "no_sound":"no sound",
+      "that_was_quick":"default",
+      "-":"default",
+      "deduction":"deduction",
+      "done_for_you":"done for you",
+      "goes_without_saying":"goes without saying",
+      "open_up":"open up",
+      "piece_of_cake":"piece of cake",
+      "point_blank":"point blank",
+      "pristine":"pristine",
+      "samsung":"samsung",
+      "swiftly":"swiftly"
+    };
+    return mapper[customNotificationSound];
+  }
 }
