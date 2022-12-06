@@ -246,18 +246,17 @@ class MessageRepo {
         if (room == null ||
             (roomMetadata.lastUpdate.toInt() != room.lastUpdateTime ||
                 room.deleted)) {
-          _roomDao
-              .updateRoom(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: false,
-                synced: false,
-                lastCurrentUserSentMessageId:
-                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              )
-              .ignore();
+          await _roomDao.updateRoom(
+            uid: roomMetadata.roomUid.asString(),
+            deleted: false,
+            synced: false,
+            lastCurrentUserSentMessageId:
+                roomMetadata.lastCurrentUserSentMessageId.toInt(),
+            lastMessageId: roomMetadata.lastMessageId.toInt(),
+            firstMessageId: roomMetadata.firstMessageId.toInt(),
+            lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+          );
+
           if (appRunInForeground &&
               (room == null ||
                   (indexOfRoom < FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT &&
