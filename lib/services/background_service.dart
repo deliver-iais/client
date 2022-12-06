@@ -26,7 +26,7 @@ class BackgroundService {
       initialDelay: const Duration(
         minutes: 5,
       ),
-      frequency: const Duration(hours: 1),
+      frequency: const Duration(minutes: 15),
     );
     _setBackgroundService();
   }
@@ -59,7 +59,11 @@ Future<void> backgroundMessageHandler(SmsMessage message) => update();
 
 @pragma('vm:entry-point')
 void backgroundHandler() {
-  Workmanager().executeTask((task, inputData) => update());
+  Workmanager().executeTask((task, inputData) {
+    print("worker manager");
+    print(DateTime.now().millisecondsSinceEpoch);
+    return update();
+  });
 }
 
 Future<bool> update() async {
@@ -75,5 +79,5 @@ Future<bool> update() async {
     await GetIt.I.get<MessageRepo>().updatingMessages();
     unawaited(GetIt.I.get<FireBaseServices>().updateFirebaseToken());
   } catch (_) {}
-  return Future.value(true);
+  return Future.value(false);
 }
