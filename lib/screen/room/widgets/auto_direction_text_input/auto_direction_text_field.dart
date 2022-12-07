@@ -215,6 +215,7 @@ class AutoDirectionTextField extends StatelessWidget {
           maxLength: maxLength,
           onTap: () {
             // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
+
             final localController = controller ?? _controller;
             if (localController.selection ==
                 TextSelection.fromPosition(
@@ -228,6 +229,12 @@ class AutoDirectionTextField extends StatelessWidget {
                 ),
               );
             }
+            if (localController.text.isNotEmpty&&localController.text[localController.text.length - 1] != ' ') {
+              final selection=localController.selection;
+              localController..text = ('${localController.text} ')
+              ..selection=selection;
+            }
+
 
             onTap?.call();
           },
