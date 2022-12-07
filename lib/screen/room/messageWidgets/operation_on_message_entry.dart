@@ -131,6 +131,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         ),
                       ),
                 if (widget.message.type == MessageType.TEXT ||
+                    (widget.message.type == MessageType.SHARE_UID &&
+                        widget.message.json.toShareUid().uid.isMuc()) ||
                     (widget.message.type == MessageType.FILE &&
                         widget.message.json.toFile().caption.isNotEmpty))
                   PopupMenuItem(
