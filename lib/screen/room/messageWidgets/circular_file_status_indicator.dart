@@ -178,7 +178,8 @@ class _CircularFileStatusIndicatorState
           widget.message.forwardedFrom!.isEmpty),
       resendFileMessage: () => onResendFileMessage?.call(),
       onDownload: () async {
-        final audioPath = await _fileRepo.getFile(file.uuid, file.name);
+        final audioPath = await _fileRepo.getFile(file.uuid, file.name,
+            showAlertOnError: true,);
         if (audioPath != null &&
             (file.type == "audio/mp4" || file.type == "audio/ogg")) {
           _audioPlayerService.playAudioMessage(

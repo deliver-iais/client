@@ -151,6 +151,7 @@ class VideoMessageState extends State<VideoMessage> {
                       await _fileRepo.getFile(
                         video.uuid,
                         video.name,
+                        showAlertOnError: true,
                       );
                       setState(() {});
                     },

@@ -208,6 +208,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   void _downloadFile() => _fileRepo.getFile(
         widget.image.uuid,
         widget.image.name,
+        showAlertOnError: true,
       );
 
   Stack buildImageUi(BuildContext context, AsyncSnapshot<String?> path) {
