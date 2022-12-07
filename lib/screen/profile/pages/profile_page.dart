@@ -176,48 +176,54 @@ class ProfilePageState extends State<ProfilePage>
                         child: _buildSliverAppbar()
                       ),
                       if (_profileAvatar.canSetAvatar)
-                        SliverToBoxAdapter(
-                          child: Container(
-                            color: theme.colorScheme.background.withOpacity(1),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          // padding: EdgeInsets.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          // minimumSize: Size(0, 0),
-                                          textStyle:
-                                              const TextStyle(fontSize: 12),
-                                          // backgroundColor: theme.colorScheme,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                            bottom: Radius.circular(25.0),
-                                          ))),
-                                      onPressed: () =>
-                                          _profileAvatar.selectAvatar(context),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 8.0),
-                                            child: Text(
-                                                _i18n.get("select_an_image")),
+                        Directionality(
+                          textDirection: _i18n.defaultTextDirection,
+                          child: SliverToBoxAdapter(
+                            child: Container(
+                              color: theme.colorScheme.background.withOpacity(1),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsetsDirectional.only(end: 8.0),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              // padding: EdgeInsets.zero,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize.shrinkWrap,
+                                              // minimumSize: Size(0, 0),
+                                              textStyle:
+                                                  const TextStyle(fontSize: 12),
+                                              // backgroundColor: theme.colorScheme,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.vertical(
+                                                bottom: Radius.circular(25.0),
+                                              ))),
+                                          onPressed: () =>
+                                              _profileAvatar.selectAvatar(context),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsetsDirectional.only(
+                                                    end: 8.0),
+                                                child: Text(
+                                                    _i18n.get("select_an_image")),
+                                              ),
+                                              Icon(Icons.add_a_photo_outlined),
+                                            ],
                                           ),
-                                          Icon(Icons.add_a_photo_outlined),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -470,44 +476,47 @@ class ProfilePageState extends State<ProfilePage>
       // stretch: true,
       backgroundColor: theme.colorScheme.background,
       expandedHeight: 170,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: EdgeInsets.only(
-            left: 35.0, right: 35.0, top: 2.0),
-        // stretchModes: [
-        //   StretchMode.zoomBackground,
-        //   StretchMode.blurBackground
-        // ],
-        expandedTitleScale: 1.1,
-        background: ProfileBlurAvatar(widget.roomUid),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _profileAvatar,
-            // Expanded(child: RoomName(uid: widget.roomUid)),
-            Flexible(
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                      child: RoomName(
-                        uid: widget.roomUid,
-                        maxLines: 2,
-                      )),
-                  Divider(
-                      color: Colors.transparent, height: 5),
-                  TitleStatus(
-                    currentRoomUid: widget.roomUid,
-                    style: theme.textTheme.caption!,
-                  )
-                ],
+      flexibleSpace: Directionality(
+        textDirection: _i18n.defaultTextDirection,
+        child: FlexibleSpaceBar(
+          titlePadding: EdgeInsets.only(
+              left: 35.0, right: 35.0, top: 2.0),
+          // stretchModes: [
+          //   StretchMode.zoomBackground,
+          //   StretchMode.blurBackground
+          // ],
+          expandedTitleScale: 1.1,
+          background: ProfileBlurAvatar(widget.roomUid),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Expanded(child: RoomName(uid: widget.roomUid)),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                        child: RoomName(
+                          uid: widget.roomUid,
+                          maxLines: 2,
+                        )),
+                    Divider(
+                        color: Colors.transparent, height: 5),
+                    TitleStatus(
+                      currentRoomUid: widget.roomUid,
+                      style: theme.textTheme.caption!,
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
+              _profileAvatar,
+            ],
+          ),
         ),
       ),
     );
@@ -650,7 +659,7 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Padding description(String info, BuildContext context) {
+  Widget description(String info, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: Row(
@@ -663,7 +672,7 @@ class ProfilePageState extends State<ProfilePage>
               info,
               maxLines: 8,
               textDirection:
-              info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+              _i18n.defaultTextDirection,
               style:
               TextStyle(
                 fontSize: 12.0,
