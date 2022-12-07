@@ -303,7 +303,7 @@
   "name_not_empty": "Name Not Empty",
   "need_to_set_email": "Your email not set,to active two-step-verification go to account setting and set email",
   "network": "Network",
-  "network_unavailable": "Network unavailable, please check and try again",
+  "network_unavailable": "Network is unavailable, please check and try again",
   "newChannel": "New Channel",
   "newGroup": "New Group",
   "new_contact_add": "joined to we",
