@@ -1,7 +1,6 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
@@ -66,7 +65,6 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _botRepo = GetIt.I.get<BotRepo>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
 
   final ScrollController _scrollController = ScrollController();
@@ -441,35 +439,51 @@ class NavigationCenterState extends State<NavigationCenter>
             return const Center(child: CircularProgressIndicator());
           }
           final contacts = snaps.data![0];
-          final global = snaps.data![1];
-          final bots = snaps.data![2];
-          final roomAndContacts = snaps.data![3];
-
-          if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-            return const Tgs.asset(
-              'assets/duck_animation/not_found.tgs',
-            );
-          }
-
-          return ListView(
-            children: [
-              if (contacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("contacts")),
-                ...searchResultWidget(contacts),
+          final roomAndContacts = snaps.data![1];
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                if (contacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("contacts")),
+                  ...searchResultWidget(contacts),
+                ],
+                if (roomAndContacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("local_search")),
+                  ...searchResultWidget(roomAndContacts)
+                ],
+                FutureBuilder<List<Uid>>(
+                  future: globalSearchUser(query),
+                  builder: (c, snaps) {
+                    if (!snaps.hasData) {
+                      return const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(),
+                      ));
+                    }
+                    final global = snaps.data!;
+                    if (global.isEmpty &&
+                        roomAndContacts.isEmpty &&
+                        contacts.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Tgs.asset(
+                          'assets/duck_animation/not_found.tgs',
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        if (global.isNotEmpty) ...[
+                          buildTitle(_i18n.get("global_search")),
+                          ...searchResultWidget(global)
+                        ]
+                      ],
+                    );
+                  },
+                )
               ],
-              if (roomAndContacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("local_search")),
-                ...searchResultWidget(roomAndContacts)
-              ],
-              if (bots.isNotEmpty) ...[
-                buildTitle(_i18n.get("bots")),
-                ...searchResultWidget(bots)
-              ],
-              if (global.isNotEmpty) ...[
-                buildTitle(_i18n.get("global_search")),
-                ...searchResultWidget(global)
-              ],
-            ],
+            ),
           );
         },
       ),
@@ -495,13 +509,13 @@ class NavigationCenterState extends State<NavigationCenter>
     return [
       //in contacts
       await _contactRepo.searchInContacts(query),
-      //global search
-      await _contactRepo.searchUser(query),
-      //bot
-      await _botRepo.searchBotByName(query),
       //in rooms
-      await _roomRepo.searchInRooms(query)
+      await _roomRepo.searchInRooms(query),
     ];
+  }
+
+  Future<List<Uid>> globalSearchUser(String query) {
+    return _contactRepo.searchUser(query);
   }
 
   List<Widget> searchResultWidget(List<Uid> uidList) {

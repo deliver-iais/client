@@ -388,6 +388,22 @@ class DataStreamServices {
         hiddenMessageCount: hiddenMessageCount,
       );
       _notificationServices.cancelRoomNotifications(roomId.asString());
+
+      if (room != null && room.uid.isGroup()) {
+        if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+          unawaited(
+            _roomRepo.updateMentionIds(
+              room.uid,
+              room.mentionsId!
+                  .where((element) => element > seen.id.toInt())
+                  .toList(),
+            ),
+          );
+        }
+      }
+      try {} catch (e) {
+        _logger.e(e);
+      }
     } else {
       await _seenDao.saveOthersSeen(
         Seen(
@@ -572,31 +588,19 @@ class DataStreamServices {
           );
           break;
         }
-      } on GrpcError catch (e) {
-        if (e.code == StatusCode.notFound) {
-          _roomDao
-              .updateRoom(
-                uid: roomUid.asString(),
-                deleted: true,
-              )
-              .ignore();
-          break;
-        }
       } catch (_) {
         return null;
       }
     }
 
     if (lastNotHiddenMessage != null) {
-      _roomDao
-          .updateRoom(
-            uid: roomUid.asString(),
-            firstMessageId: firstMessageId,
-            lastMessageId: lastMessageId,
-            synced: true,
-            lastMessage: lastNotHiddenMessage,
-          )
-          .ignore();
+      await _roomDao.updateRoom(
+        uid: roomUid.asString(),
+        firstMessageId: firstMessageId,
+        lastMessageId: lastMessageId,
+        synced: true,
+        lastMessage: lastNotHiddenMessage,
+      );
       return lastNotHiddenMessage;
     } else {
       return null;
@@ -609,29 +613,49 @@ class DataStreamServices {
     int firstMessageId, {
     bool appRunInForeground = false,
   }) async {
-    final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
-      FetchMessagesReq()
-        ..roomUid = roomUid
-        ..pointer = Int64(pointer)
-        ..justNotHiddenMessages = true
-        ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-        ..limit = 1,
-    );
+    var retry = 3;
+    while (retry > 0) {
+      try {
+        final fetchMessagesRes =
+            await _services.queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomUid
+            ..pointer = Int64(pointer)
+            ..justNotHiddenMessages = true
+            ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+            ..limit = 1,
+        );
 
-    final messages = await saveFetchMessages(
-      fetchMessagesRes.messages,
-      appRunInForeground: appRunInForeground,
-    );
+        final messages = await saveFetchMessages(
+          fetchMessagesRes.messages,
+          appRunInForeground: appRunInForeground,
+        );
 
-    for (final msg in messages) {
-      if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
-        await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
-        return null;
-      } else if (!msg.isHidden) {
-        return msg;
+        for (final msg in messages) {
+          if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
+            await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+            return null;
+          } else if (!msg.isHidden) {
+            return msg;
+          }
+        }
+      } on GrpcError catch (e) {
+        _logger.e(e);
+        if (e.code == StatusCode.notFound) {
+          unawaited(
+            _roomDao.updateRoom(
+              uid: roomUid.asString(),
+              deleted: true,
+            ),
+          );
+          return null;
+        }
+        retry--;
+      } catch (e) {
+        retry--;
+        _logger.e(e);
       }
     }
-
     return null;
   }
 

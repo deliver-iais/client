@@ -246,18 +246,17 @@ class MessageRepo {
         if (room == null ||
             (roomMetadata.lastUpdate.toInt() != room.lastUpdateTime ||
                 room.deleted)) {
-          _roomDao
-              .updateRoom(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: false,
-                synced: false,
-                lastCurrentUserSentMessageId:
-                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              )
-              .ignore();
+          await _roomDao.updateRoom(
+            uid: roomMetadata.roomUid.asString(),
+            deleted: false,
+            synced: false,
+            lastCurrentUserSentMessageId:
+                roomMetadata.lastCurrentUserSentMessageId.toInt(),
+            lastMessageId: roomMetadata.lastMessageId.toInt(),
+            firstMessageId: roomMetadata.firstMessageId.toInt(),
+            lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+          );
+
           if (appRunInForeground &&
               (room == null ||
                   (indexOfRoom < FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT &&
@@ -346,16 +345,8 @@ class MessageRepo {
 
   Future<void> _updateLastSeen(Room room) async {
     if (room.lastMessage == null || room.lastMessage!.id == null) return;
-    if (!_authRepo.isCurrentUser(room.lastMessage!.from)) {
-      await fetchCurrentUserLastSeen(room);
-    } else {
-      await _roomDao.updateRoom(uid: room.uid, seenSynced: true);
-      unawaited(
-        _roomRepo.updateMySeen(
-          uid: room.uid,
-          messageId: room.lastMessageId,
-        ),
-      );
+    await fetchCurrentUserLastSeen(room);
+    if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
       final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
         fetchOtherSeen(room.uid.asUid()).toString();
@@ -426,6 +417,9 @@ class MessageRepo {
             uid: room.uid,
             messageId: newSeenMessageId,
           );
+          if (room.uid.isGroup()) {
+            unawaited(_updateRoomMention(newSeenMessageId, room));
+          }
 
           return fetchHiddenMessageCount(
             room.uid.asUid(),
@@ -453,6 +447,21 @@ class MessageRepo {
           _logger.e(e);
         }
       }
+    }
+  }
+
+  Future<void> _updateRoomMention(int messageId, Room room) async {
+    try {
+      if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+        unawaited(
+          _roomRepo.updateMentionIds(
+            room.uid,
+            room.mentionsId!.where((element) => element > messageId).toList(),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

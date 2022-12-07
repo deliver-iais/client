@@ -281,33 +281,37 @@ class RoomPageState extends State<RoomPage> {
         StreamBuilder<ScrollingState>(
           stream: _isScrolling,
           builder: (context, isScrollingSnapshot) {
-            final showTime = isScrollingSnapshot.data?.isScrolling ?? false;
+            final showTime =
+                !(isScrollingSnapshot.data?.isInNearToStartOfPage ?? false) &&
+                    (isScrollingSnapshot.data?.isScrolling ?? false);
 
-            return AnimatedOpacity(
-              opacity: showTime ? 1 : 0,
+            return AnimatedSwitcher(
               duration: SLOW_ANIMATION_DURATION,
-              curve: Curves.easeInOut,
-              child: Padding(
-                padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
-                child: StreamBuilder<String>(
-                  stream: _timeHeader.stream,
-                  builder: (context, dateSnapshot) {
-                    if (dateSnapshot.hasData &&
-                        dateSnapshot.data != null &&
-                        dateSnapshot.data!.isNotEmpty) {
-                      return Align(
-                        key: Key(dateSnapshot.data!),
-                        alignment: Alignment.topCenter,
-                        child: ChatTime(
-                          currentMessageTime:
-                              date(int.parse(dateSnapshot.data!)),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              child: !showTime
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
+                      child: StreamBuilder<String>(
+                        stream: _timeHeader.stream,
+                        builder: (context, dateSnapshot) {
+                          if (dateSnapshot.hasData &&
+                              dateSnapshot.data != null &&
+                              dateSnapshot.data!.isNotEmpty) {
+                            return Align(
+                              key: Key(dateSnapshot.data!),
+                              alignment: Alignment.topCenter,
+                              child: ChatTime(
+                                currentMessageTime:
+                                    date(int.parse(dateSnapshot.data!)),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ),
             );
           },
         ),
@@ -347,16 +351,13 @@ class RoomPageState extends State<RoomPage> {
               return Positioned(
                 right: 16,
                 bottom: 16,
-                child: AnimatedOpacity(
-                  opacity: showArrow ? 1 : 0,
-                  curve: Curves.easeInOut,
+                child: AnimatedSwitcher(
                   duration: SLOW_ANIMATION_DURATION,
-                  child: AnimatedScale(
-                    duration: SLOW_ANIMATION_DURATION,
-                    curve: Curves.fastOutSlowIn,
-                    scale: showArrow ? 1 : 0,
-                    child: scrollDownButtonWidget(),
-                  ),
+                  switchInCurve: Curves.easeInOut,
+                  switchOutCurve: Curves.easeInOut,
+                  child: !showArrow
+                      ? const SizedBox.shrink()
+                      : scrollDownButtonWidget(),
                 ),
               );
             },
@@ -429,22 +430,22 @@ class RoomPageState extends State<RoomPage> {
 
         _updateTimeHeader(position.toList());
 
-        // TODO(bitbeter): WTF ?!?!?!?!?
-        final firstVisibleItem = position
-            .where(
-              (position) => position.itemLeadingEdge > 0,
-            )
-            .reduce(
-              (first, position) =>
-                  position.itemLeadingEdge < first.itemLeadingEdge
-                      ? position
-                      : first,
-            );
-        // Save scroll position of first complete visible item
-        _sharedDao.put(
-          '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
-          "${firstVisibleItem.index}-${firstVisibleItem.itemLeadingEdge}",
+        final positivePositions = position.where(
+          (position) => position.itemLeadingEdge > 0,
         );
+        if (positivePositions.isNotEmpty) {
+          final lastVisibleItem = positivePositions.reduce(
+            (first, position) =>
+                position.itemLeadingEdge > first.itemLeadingEdge
+                    ? position
+                    : first,
+          );
+          // Save scroll position of first complete visible item
+          _sharedDao.put(
+            '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
+            "${lastVisibleItem.index}-${lastVisibleItem.itemLeadingEdge}",
+          );
+        }
 
         _positionSubject.add(
           _itemPositionsListener.itemPositions.value
@@ -482,8 +483,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
-    final proportionOfTop =
-        ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+    final proportionOfTop = startPointOfPage();
 
     final firstVisibleItemIndex = positions
         .where(
@@ -503,6 +503,9 @@ class RoomPageState extends State<RoomPage> {
       _timeHeader.add(message.time.toString());
     }
   }
+
+  double startPointOfPage() =>
+      ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
   SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
     return SizedBox(
@@ -1317,23 +1320,28 @@ class RoomPageState extends State<RoomPage> {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         final currentPixel = scrollNotification.metrics.pixels;
+        final minPixel = scrollNotification.metrics.minScrollExtent;
         final maxPixel = scrollNotification.metrics.maxScrollExtent;
 
+        final isInNearToStartOfPage = (minPixel - currentPixel).abs() < 200;
         final isInNearToEndOfPage = (maxPixel - currentPixel).abs() < 200;
 
         if (scrollNotification is ScrollStartNotification) {
           _fireScrollEvent(
             currentPixel,
+            isInNearToStartOfPage: isInNearToStartOfPage,
             isInNearToEndOfPage: isInNearToEndOfPage,
           );
         } else if (scrollNotification is ScrollUpdateNotification) {
           _fireScrollEvent(
             currentPixel,
+            isInNearToStartOfPage: isInNearToStartOfPage,
             isInNearToEndOfPage: isInNearToEndOfPage,
           );
         } else if (scrollNotification is ScrollEndNotification) {
           _calmScrollEvent(
             currentPixel,
+            isInNearToStartOfPage: isInNearToStartOfPage,
             isInNearToEndOfPage: isInNearToEndOfPage,
           );
         }
@@ -1390,7 +1398,8 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  void _fireScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
+  void _fireScrollEvent(double pixel,
+      {bool isInNearToStartOfPage = false, bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer?.cancel();
     final direction = getScrollingDirection(pixel);
     // TODO(bitbeter): add distinct functionality
@@ -1399,12 +1408,14 @@ class RoomPageState extends State<RoomPage> {
         pixel,
         direction,
         isScrolling: true,
+        isInNearToStartOfPage: isInNearToStartOfPage,
         isInNearToEndOfPage: isInNearToEndOfPage,
       ),
     );
   }
 
-  void _calmScrollEvent(double pixel, {bool isInNearToEndOfPage = false}) {
+  void _calmScrollEvent(double pixel,
+      {bool isInNearToStartOfPage = false, bool isInNearToEndOfPage = false}) {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
       if (!_isArrowIconFocused || !isDesktop) {
@@ -1415,6 +1426,7 @@ class RoomPageState extends State<RoomPage> {
             pixel,
             direction,
             isScrolling: false,
+            isInNearToStartOfPage: isInNearToStartOfPage,
             isInNearToEndOfPage: isInNearToEndOfPage,
           ),
         );
@@ -1769,12 +1781,14 @@ class ScrollingState {
   final double pixel;
   final ScrollingDirection scrollingDirection;
   final bool isScrolling;
+  final bool isInNearToStartOfPage;
   final bool isInNearToEndOfPage;
 
   ScrollingState(
     this.pixel,
     this.scrollingDirection, {
     required this.isScrolling,
+    this.isInNearToStartOfPage = false,
     this.isInNearToEndOfPage = false,
   });
 
@@ -1782,12 +1796,15 @@ class ScrollingState {
     double? pixel,
     ScrollingDirection? scrollingDirection,
     bool? isScrolling,
+    bool? isInNearToStartOfPage,
     bool? isInNearToEndOfPage,
   }) =>
       ScrollingState(
         pixel ?? this.pixel,
         scrollingDirection ?? this.scrollingDirection,
         isScrolling: isScrolling ?? this.isScrolling,
+        isInNearToStartOfPage:
+            isInNearToStartOfPage ?? this.isInNearToStartOfPage,
         isInNearToEndOfPage: isInNearToEndOfPage ?? this.isInNearToEndOfPage,
       );
 
@@ -1802,6 +1819,8 @@ class ScrollingState {
           const DeepCollectionEquality()
               .equals(other.isScrolling, isScrolling) &&
           const DeepCollectionEquality()
+              .equals(other.isInNearToStartOfPage, isInNearToStartOfPage) &&
+          const DeepCollectionEquality()
               .equals(other.isInNearToEndOfPage, isInNearToEndOfPage));
 
   @override
@@ -1810,11 +1829,12 @@ class ScrollingState {
         const DeepCollectionEquality().hash(pixel),
         const DeepCollectionEquality().hash(scrollingDirection),
         const DeepCollectionEquality().hash(isScrolling),
+        const DeepCollectionEquality().hash(isInNearToStartOfPage),
         const DeepCollectionEquality().hash(isInNearToEndOfPage),
       );
 
   @override
   String toString() {
-    return "ScrollingState([pixel:$pixel] [scrollingDirection:$scrollingDirection] [isScrolling:$isScrolling] [isInNearToEndOfPage:$isInNearToEndOfPage])";
+    return "ScrollingState([pixel:$pixel] [scrollingDirection:$scrollingDirection] [isScrolling:$isScrolling] [isInNearToStartOfPage: $isInNearToStartOfPage] [isInNearToEndOfPage:$isInNearToEndOfPage])";
   }
 }

@@ -43,7 +43,18 @@ class ShareBox extends StatefulWidget {
   ShareBoxState createState() => ShareBoxState();
 }
 
-enum ShareBoxPage { gallery, files, location, music, contact }
+enum ShareBoxPage {
+  GALLERY(0, "gallery"),
+  FILES(1, "file"),
+  LOCATION(2, "location"),
+  MUSIC(3, "music"),
+  CONTACT(4, "contact");
+
+  final int number;
+  final String i18nKey;
+
+  const ShareBoxPage(this.number, this.i18nKey);
+}
 
 const BOTTOM_BUTTONS_HEIGHT = 80.0;
 
@@ -66,14 +77,16 @@ class ShareBoxState extends State<ShareBox> {
 
   final finalSelected = <int, file_model.File>{};
 
-  var _currentPage = ShareBoxPage.gallery;
-  late var _title = _i18n.get("gallery");
+  var _currentPage = ShareBoxPage.GALLERY;
 
   int _playAudioIndex = -1;
 
   @override
   void initState() {
     _draggableScrollableController.addListener(() {
+      if (!_draggableScrollableController.isAttached) {
+        return;
+      }
       final remainingPixels = (_draggableScrollableController.pixels /
               _draggableScrollableController.size) -
           _draggableScrollableController.pixels;
@@ -120,7 +133,7 @@ class ShareBoxState extends State<ShareBox> {
         controller: _draggableScrollableController,
         builder: (co, scrollController) {
           Widget w = const SizedBox.shrink();
-          if (_currentPage == ShareBoxPage.music) {
+          if (_currentPage == ShareBoxPage.MUSIC) {
             w = MusicBox(
               scrollController: scrollController,
               onClick: (index, path) {
@@ -148,7 +161,7 @@ class ShareBoxState extends State<ShareBox> {
               selectedAudio: selectedAudioMap,
               isPlaying: isAudioPlayingMap,
             );
-          } else if (_currentPage == ShareBoxPage.files) {
+          } else if (_currentPage == ShareBoxPage.FILES) {
             w = FilesBox(
               roomUid: widget.currentRoomUid,
               scrollController: scrollController,
@@ -164,7 +177,7 @@ class ShareBoxState extends State<ShareBox> {
               resetRoomPageDetails: widget.resetRoomPageDetails,
               replyMessageId: widget.replyMessageId,
             );
-          } else if (_currentPage == ShareBoxPage.gallery) {
+          } else if (_currentPage == ShareBoxPage.GALLERY) {
             w = GalleryBox(
               replyMessageId: widget.replyMessageId,
               scrollController: scrollController,
@@ -174,12 +187,12 @@ class ShareBoxState extends State<ShareBox> {
               roomUid: widget.currentRoomUid,
               resetRoomPageDetails: widget.resetRoomPageDetails,
             );
-          } else if (_currentPage == ShareBoxPage.location) {
+          } else if (_currentPage == ShareBoxPage.LOCATION) {
             w = AttachLocation(
               context,
               widget.currentRoomUid,
             ).showLocation();
-          } else if (_currentPage == ShareBoxPage.contact) {
+          } else if (_currentPage == ShareBoxPage.CONTACT) {
             w = AttachContact(
               roomUid: widget.currentRoomUid,
               scrollController: scrollController,
@@ -262,7 +275,7 @@ class ShareBoxState extends State<ShareBox> {
                                   ],
                                 ),
                                 Text(
-                                  _title.capitalCase,
+                                  _i18n.get(_currentPage.i18nKey).capitalCase,
                                   style: theme.textTheme.titleLarge,
                                 ),
                               ],
@@ -283,32 +296,18 @@ class ShareBoxState extends State<ShareBox> {
                     ),
                     NavigationBar(
                       onDestinationSelected: (index) async {
+                        if (_currentPage.index == index) {
+                          return;
+                        }
                         unawaited(_audioPlayer.stop());
                         switch (index) {
                           case 0:
-                            _currentPage = ShareBoxPage.gallery;
-                            _title = _i18n.get("gallery");
+                            _currentPage = ShareBoxPage.GALLERY;
                             break;
                           case 1:
-                            _currentPage = ShareBoxPage.files;
-                            _title = _i18n.get("file");
+                            _currentPage = ShareBoxPage.FILES;
                             break;
                           case 2:
-                            unawaited(
-                              _draggableScrollableController.animateTo(
-                                max(
-                                  0.26,
-                                  min(
-                                    ((80 + BOTTOM_BUTTONS_HEIGHT) /
-                                            mq.size.height) +
-                                        0.25,
-                                    1,
-                                  ),
-                                ),
-                                duration: SLOW_ANIMATION_DURATION,
-                                curve: Curves.easeInOut,
-                              ),
-                            );
                             if (await _checkPermissionsService
                                     .checkLocationPermission() ||
                                 isIOS) {
@@ -320,43 +319,57 @@ class ShareBoxState extends State<ShareBox> {
                                 );
                                 await intent.launch();
                               } else {
-                                _currentPage = ShareBoxPage.location;
-                                _title = _i18n.get("location");
+                                _currentPage = ShareBoxPage.LOCATION;
+                                if (_draggableScrollableController.isAttached) {
+                                  unawaited(
+                                    _draggableScrollableController.animateTo(
+                                      max(
+                                        0.26,
+                                        min(
+                                          ((80 + BOTTOM_BUTTONS_HEIGHT) /
+                                              mq.size.height) +
+                                              0.25,
+                                          1,
+                                        ),
+                                      ),
+                                      duration: SLOW_ANIMATION_DURATION,
+                                      curve: Curves.easeInOut,
+                                    ),
+                                  );
+                                }
                               }
                             }
                             break;
                           case 3:
-                            _currentPage = ShareBoxPage.music;
-                            _title = _i18n.get("music");
+                            _currentPage = ShareBoxPage.MUSIC;
                             break;
                           case 4:
-                            _currentPage = ShareBoxPage.contact;
-                            _title = _i18n.get("contact");
+                            _currentPage = ShareBoxPage.CONTACT;
                             break;
                         }
                         setState(() {});
                       },
-                      selectedIndex: selectedIndex(),
+                      selectedIndex: _currentPage.index,
                       destinations: <Widget>[
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.photo),
-                          label: _i18n.get("gallery"),
+                          label: _i18n.get(ShareBoxPage.GALLERY.i18nKey),
                         ),
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.folder),
-                          label: _i18n.get("file"),
+                          label: _i18n.get(ShareBoxPage.FILES.i18nKey),
                         ),
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.location_solid),
-                          label: _i18n.get("location"),
+                          label: _i18n.get(ShareBoxPage.LOCATION.i18nKey),
                         ),
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.music_note),
-                          label: _i18n.get("music"),
+                          label: _i18n.get(ShareBoxPage.MUSIC.i18nKey),
                         ),
                         NavigationDestination(
                           icon: const Icon(CupertinoIcons.person),
-                          label: _i18n.get("contact"),
+                          label: _i18n.get(ShareBoxPage.CONTACT.i18nKey),
                         ),
                       ],
                     ),
@@ -416,18 +429,6 @@ class ShareBoxState extends State<ShareBox> {
         },
       ),
     );
-  }
-
-  int selectedIndex() {
-    return _currentPage == ShareBoxPage.gallery
-        ? 0
-        : _currentPage == ShareBoxPage.files
-            ? 1
-            : _currentPage == ShareBoxPage.location
-                ? 2
-                : _currentPage == ShareBoxPage.music
-                    ? 3
-                    : 4;
   }
 
   bool get isAnyFileSelected => finalSelected.values.isNotEmpty;

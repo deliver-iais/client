@@ -1085,7 +1085,23 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #resetMention,
+          #updateMentionIds,
+          [
+            roomUid,
+            mentionsId,
+          ],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> processMentionIds(
+    String? roomUid,
+    List<int>? mentionsId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #processMentionIds,
           [
             roomUid,
             mentionsId,
@@ -5111,15 +5127,6 @@ class MockBotRepo extends _i1.Mock implements _i68.BotRepo {
         ),
         returnValue: _i22.Future<_i13.BotInfo?>.value(),
       ) as _i22.Future<_i13.BotInfo?>);
-  @override
-  _i22.Future<List<_i3.Uid>> searchBotByName(String? name) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #searchBotByName,
-          [name],
-        ),
-        returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
-      ) as _i22.Future<List<_i3.Uid>>);
 }
 
 /// A class which mocks [CustomNotificationDao].
