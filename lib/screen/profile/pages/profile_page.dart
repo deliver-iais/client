@@ -189,7 +189,7 @@ class ProfilePageState extends State<ProfilePage>
                                   children: [
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsetsDirectional.only(end: 8.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                               // padding: EdgeInsets.zero,
