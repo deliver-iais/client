@@ -192,8 +192,12 @@ class FileService {
         initProgressbar: initProgressbar,
       );
     }
-    return _getFile(uuid, filename,
-        initProgressbar: initProgressbar, showAlertOnError: showAlertOnError);
+    return _getFile(
+      uuid,
+      filename,
+      initProgressbar: initProgressbar,
+      showAlertOnError: showAlertOnError,
+    );
   }
 
   Future<String?> _getFile(
