@@ -107,16 +107,19 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
+        if (backoffTime >= BACKOFF_TIME_INCREASE_RATIO * MIN_BACKOFF_TIME) {
+          _onConnectionError();
+        }
         _disconnected = true;
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
+
         retryConnection(forced: true);
       }
       startCheckerTimer();
@@ -198,12 +201,12 @@ class CoreServices {
         },
         onError: (e) {
           _logger.e(e);
-          _onConnectionError();
+          // _onConnectionError();
           connectionError.add(e.toString());
         },
       );
     } catch (e) {
-      _onConnectionError();
+      // _onConnectionError();
       connectionError.add(e.toString());
       _logger.e(e);
     }
@@ -234,11 +237,17 @@ class CoreServices {
           () => _checkPendingStatus(message.packetId),
         );
       }
-      if (_disconnected) {
-        _changeStateToDisconnected();
-      }
+      _changeAppToDisconnectedAfterSendMessage();
     } catch (e) {
+      _changeAppToDisconnectedAfterSendMessage();
       _logger.e(e);
+    }
+  }
+
+  void _changeAppToDisconnectedAfterSendMessage() {
+    if (_disconnected ||
+        (_disconnectedTimer != null && _disconnectedTimer!.isActive)) {
+      _changeStateToDisconnected();
     }
   }
 
