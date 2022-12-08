@@ -60,16 +60,22 @@ Transformer<InlineSpan> inlineSpanTransformer({
 
     if (url != null) {
       textStyle = textStyle.copyWith(color: linkColor);
-      gestureRecognizer = TapGestureRecognizer()
-        ..onTap = () => onUrlClick?.call(url.url);
+      if (onUrlClick != null) {
+        gestureRecognizer = TapGestureRecognizer()
+          ..onTap = () => onUrlClick.call(url.url);
+      }
     } else if (id != null) {
       textStyle = textStyle.copyWith(color: linkColor);
-      gestureRecognizer = TapGestureRecognizer()
-        ..onTap = () => onIdClick?.call(text);
+      if (onIdClick != null) {
+        gestureRecognizer = TapGestureRecognizer()
+          ..onTap = () => onIdClick.call(text);
+      }
     } else if (botCommand != null) {
       textStyle = textStyle.copyWith(color: linkColor);
-      gestureRecognizer = TapGestureRecognizer()
-        ..onTap = () => onBotCommandClick?.call(text);
+      if (onBotCommandClick != null) {
+        gestureRecognizer = TapGestureRecognizer()
+          ..onTap = () => onBotCommandClick.call(text);
+      }
     }
 
     if (emoji != null) {
@@ -146,7 +152,7 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
     }
 
     if (emoji != null) {
-      textStyle =  EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
+      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
     }
 
     if (searchTerm != null) {
@@ -191,7 +197,7 @@ Transformer<TextSpan> emojiTransformer() {
     var textStyle = const TextStyle();
 
     if (emoji != null) {
-      textStyle =  EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
+      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
     }
 
     return TextSpan(
