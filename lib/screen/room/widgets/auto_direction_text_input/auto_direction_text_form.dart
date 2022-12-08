@@ -248,10 +248,12 @@ class AutoDirectionTextForm extends StatelessWidget {
                 ),
               );
             }
-            if (localController.text.isNotEmpty&&localController.text[localController.text.length - 1] != ' ') {
-              final selection=localController.selection;
-              localController..text = ('${localController.text} ')
-                ..selection=selection;
+            if (localController.text.isNotEmpty &&
+                localController.text[localController.text.length - 1] != ' ') {
+              final selection = localController.selection;
+              localController
+                ..text = ('${localController.text} ')
+                ..selection = selection;
             }
 
             onTap?.call();
