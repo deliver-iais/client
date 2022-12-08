@@ -202,10 +202,7 @@ class MessageRepo {
             if (allRoomFetched &&
                 _updateState &&
                 updatingStatus.value != TitleStatusConditions.Connected) {
-              Timer(
-                const Duration(milliseconds: 800),
-                () => updatingStatus.add(TitleStatusConditions.Connected),
-              );
+              updatingStatus.add(TitleStatusConditions.Connected);
             }
           }
         }
@@ -230,8 +227,7 @@ class MessageRepo {
     return true;
   }
 
-
-/// return true if have new room or new message
+  /// return true if have new room or new message
   Future<bool> _updateRoom(
     RoomMetadata roomMetadata, {
     bool appRunInForeground = false,
