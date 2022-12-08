@@ -43,6 +43,8 @@ class CoreServices {
   @visibleForTesting
   bool responseChecked = false;
 
+  bool _disconnected = false;
+
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
@@ -86,7 +88,7 @@ class CoreServices {
 
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
-        retryConnection();
+        retryConnection(forced: true);
       } else {
         _onConnectionError();
       }
@@ -109,13 +111,13 @@ class CoreServices {
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
+        _disconnected = true;
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
         retryConnection(forced: true);
-        _onConnectionError();
       }
       startCheckerTimer();
     });
@@ -128,6 +130,7 @@ class CoreServices {
   }
 
   void gotResponse() {
+    _disconnected = false;
     _disconnectedTimer?.cancel();
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
@@ -231,7 +234,7 @@ class CoreServices {
           () => _checkPendingStatus(message.packetId),
         );
       }
-      if (_disconnectedTimer != null && _disconnectedTimer!.isActive) {
+      if (_disconnected) {
         _changeStateToDisconnected();
       }
     } catch (e) {

@@ -190,19 +190,23 @@ class MessageRepo {
         }
 
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-          try {
-            await _updateRoom(
-              roomMetadata,
-              appRunInForeground: appRunInForeground,
-              indexOfRoom:
-                  getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
-            );
-
+          if (await _updateRoom(
+            roomMetadata,
+            appRunInForeground: appRunInForeground,
+            indexOfRoom: getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
+          )) {
             if (allRoomFetched && _updateState) {
               updatingStatus.add(TitleStatusConditions.Updating);
             }
-          } catch (e) {
-            _logger.e(e);
+          } else {
+            if (allRoomFetched &&
+                _updateState &&
+                updatingStatus.value != TitleStatusConditions.Connected) {
+              Timer(
+                const Duration(milliseconds: 800),
+                () => updatingStatus.add(TitleStatusConditions.Connected),
+              );
+            }
           }
         }
 
@@ -226,7 +230,9 @@ class MessageRepo {
     return true;
   }
 
-  Future<void> _updateRoom(
+
+/// return true if have new room or new message
+  Future<bool> _updateRoom(
     RoomMetadata roomMetadata, {
     bool appRunInForeground = false,
     int indexOfRoom = 0,
@@ -264,6 +270,7 @@ class MessageRepo {
                           room.lastMessageId))) {
             unawaited(_updateRoomInBackground(roomMetadata));
           }
+          return true;
         }
       } else {
         _roomDao
@@ -275,12 +282,14 @@ class MessageRepo {
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             )
             .ignore();
+        return false;
       }
     } catch (e, t) {
       _logger
         ..e(e)
         ..e(t);
     }
+    return false;
   }
 
   Future<void> _updateRoomInBackground(RoomMetadata roomMetadata) async {
