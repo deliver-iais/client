@@ -456,10 +456,11 @@ class NavigationCenterState extends State<NavigationCenter>
                   builder: (c, snaps) {
                     if (!snaps.hasData) {
                       return const Center(
-                          child: Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                     }
                     final global = snaps.data!;
                     if (global.isEmpty &&
