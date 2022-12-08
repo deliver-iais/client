@@ -213,10 +213,10 @@ class CoreServices {
   }
 
   void _onConnectionError() {
+    _disconnected = true;
     if (_disconnectedTimer == null || !_disconnectedTimer!.isActive) {
       _disconnectedTimer = Timer(Duration(seconds: 2 * backoffTime), () {
         _changeStateToDisconnected();
-        _disconnected = true;
       });
     }
   }
