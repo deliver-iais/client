@@ -201,12 +201,12 @@ class CoreServices {
         },
         onError: (e) {
           _logger.e(e);
-          // _onConnectionError();
+          _onConnectionError();
           connectionError.add(e.toString());
         },
       );
     } catch (e) {
-      // _onConnectionError();
+      _onConnectionError();
       connectionError.add(e.toString());
       _logger.e(e);
     }
