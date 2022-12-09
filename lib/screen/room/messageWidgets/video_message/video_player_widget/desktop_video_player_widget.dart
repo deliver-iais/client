@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dart_vlc/dart_vlc.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 
 class DesktopVideoPlayer extends StatefulWidget {
@@ -21,7 +20,6 @@ class DesktopVideoPlayer extends StatefulWidget {
 class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
   final Player _videoPlayer = Player(
     id: 0,
-    registerTexture: !isWindows,
   );
 
   @override
@@ -52,21 +50,13 @@ class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
       appBar: widget.showAppBar ? AppBar() : null,
       body: Center(
         child: LayoutBuilder(
-          builder: (context, constraints) => (isWindows)
-              ? NativeVideo(
-                  player: _videoPlayer,
-                  width: constraints.maxWidth,
-                  height: mq.size.height,
-                  volumeThumbColor: theme.colorScheme.primary,
-                  volumeActiveColor: theme.colorScheme.primary,
-                )
-              : Video(
-                  player: _videoPlayer,
-                  width: constraints.maxWidth,
-                  height: mq.size.height,
-                  volumeThumbColor: theme.colorScheme.primary,
-                  volumeActiveColor: theme.colorScheme.primary,
-                ),
+          builder: (context, constraints) => Video(
+            player: _videoPlayer,
+            width: constraints.maxWidth,
+            height: mq.size.height,
+            volumeThumbColor: theme.colorScheme.primary,
+            volumeActiveColor: theme.colorScheme.primary,
+          ),
         ),
       ),
     );

@@ -291,7 +291,7 @@ Future initializeFirebase() async {
 
 // ignore: avoid_void_async
 void main() async {
-  await DartVLC.initialize(useFlutterNativeView: true);
+   DartVLC.initialize();
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();

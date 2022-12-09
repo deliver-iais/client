@@ -132,7 +132,9 @@ abstract class TemporaryAudioPlayerModule {
 AudioPlayerModule getAudioPlayerModule() {
   if (isAndroid || isIOS) {
     return AudioPlayersAudioPlayer();
-  } else if (isWindows || isMacOS) {
+  } else if (isMacOS) {
+    return JustAudioAudioPlayer();
+  } else if (isWindows || isLinux) {
     return VlcAudioAudioPlayer();
   } else {
     return FakeAudioPlayer();
@@ -704,7 +706,6 @@ class VlcAudioAudioPlayer implements AudioPlayerModule {
 
   final vlc.Player _audioPlayer = vlc.Player(
     id: 0,
-    registerTexture: !isWindows,
   );
 
   double playbackRate = 1.0;
