@@ -194,7 +194,6 @@ class _AllImagePageState extends State<AllImagePage>
         onSlidingPage: (state) {
           ///you can change other widgets' state on page as you want
           ///base on offset/isSliding etc
-          print(state.offset);
           if (state.isSliding) {
             if (_isBarShowing.value) {
               _isBarShowing.add(false);
@@ -205,7 +204,10 @@ class _AllImagePageState extends State<AllImagePage>
         },
         slidePageBackgroundHandler: (offset, pageSize) {
           return defaultSlidePageBackgroundHandler(
-              offset: offset, pageSize: pageSize, color: Colors.black);
+            offset: offset,
+            pageSize: pageSize,
+            color: Colors.black,
+          );
         },
         child: StreamBuilder<Widget>(
           stream: _widget,
@@ -312,17 +314,15 @@ class _AllImagePageState extends State<AllImagePage>
                     initGestureConfigHandler: (state) {
                       return GestureConfig(
                         inPageView: true,
-                        initialScale: 1.0,
                         minScale: 1.0,
                         maxScale: 4.0,
                         //you can cache gesture state even though page view page change.
                         //remember call clearGestureDetailsCache() method at the right time.(for example,this page dispose)
-                        cacheGesture: false,
                       );
                     },
                     enableSlideOutPage: true,
                     isAntiAlias: true,
-                    onDoubleTap: (ExtendedImageGestureState state) {
+                    onDoubleTap: (state) {
                       ///you can use define pointerDownPosition as you can,
                       ///default value is double tap pointer down postion.
                       final pointerDownPosition = state.pointerDownPosition;
@@ -333,10 +333,10 @@ class _AllImagePageState extends State<AllImagePage>
                       _animation?.removeListener(_animationListener);
 
                       //stop pre
-                      _animationController.stop();
-
                       //reset to use
-                      _animationController.reset();
+                      _animationController
+                        ..stop()
+                        ..reset();
 
                       if (begin == doubleTapScales[0]) {
                         end = doubleTapScales[1];
@@ -347,8 +347,9 @@ class _AllImagePageState extends State<AllImagePage>
                       _animationListener = () {
                         //print(_animation.value);
                         state.handleDoubleTap(
-                            scale: _animation?.value,
-                            doubleTapPosition: pointerDownPosition);
+                          scale: _animation?.value,
+                          doubleTapPosition: pointerDownPosition,
+                        );
                       };
                       _animation = _animationController
                           .drive(Tween<double>(begin: begin, end: end));
@@ -463,7 +464,7 @@ class _AllImagePageState extends State<AllImagePage>
                           );
                         },
                         itemCount: all.data,
-                        onPageChanged: (int index) {
+                        onPageChanged: (index) {
                           _currentIndex.add(index);
                         },
                         controller: _pageController,
