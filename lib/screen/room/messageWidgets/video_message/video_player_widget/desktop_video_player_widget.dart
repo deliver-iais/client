@@ -5,12 +5,10 @@ import 'package:flutter/material.dart';
 
 class DesktopVideoPlayer extends StatefulWidget {
   final String videoFilePath;
-  final bool showAppBar;
 
   const DesktopVideoPlayer({
     Key? key,
     required this.videoFilePath,
-    this.showAppBar = true,
   }) : super(key: key);
 
   @override
@@ -45,18 +43,15 @@ class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mq = MediaQuery.of(context);
-    return Scaffold(
-      appBar: widget.showAppBar ? AppBar() : null,
-      body: Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) => Video(
-            player: _videoPlayer,
-            width: constraints.maxWidth,
-            height: mq.size.height,
-            volumeThumbColor: theme.colorScheme.primary,
-            volumeActiveColor: theme.colorScheme.primary,
-          ),
+
+    return Center(
+      child: LayoutBuilder(
+        builder: (context, constraints) => Video(
+          player: _videoPlayer,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight - 100,
+          volumeThumbColor: theme.colorScheme.primary,
+          volumeActiveColor: theme.colorScheme.primary,
         ),
       ),
     );
