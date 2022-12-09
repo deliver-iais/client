@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -15,7 +17,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image/image.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
@@ -36,6 +37,7 @@ class FileService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final _dio = Dio();
 
@@ -163,7 +165,7 @@ class FileService {
               GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
           options.headers["service"] = "ms-file";
-
+          options.headers["Accept-Language"] = _i18n.locale.languageCode;
           return handler.next(options); //continue
         },
       ),
@@ -176,6 +178,7 @@ class FileService {
     String filename, {
     ThumbnailSize? size,
     bool initProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     if (initProgressbar) {
       updateFileStatus(uuid, FileStatus.STARTED);
@@ -189,13 +192,19 @@ class FileService {
         initProgressbar: initProgressbar,
       );
     }
-    return _getFile(uuid, filename, initProgressbar: initProgressbar);
+    return _getFile(
+      uuid,
+      filename,
+      initProgressbar: initProgressbar,
+      showAlertOnError: showAlertOnError,
+    );
   }
 
   Future<String?> _getFile(
     String uuid,
     String filename, {
     bool initProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     final cancelToken = CancelToken();
     _addCancelToken(cancelToken, uuid);
@@ -232,7 +241,17 @@ class FileService {
         return file.path;
       }
     } catch (e) {
-      if (initProgressbar) {
+      if ((e as DioError).type != DioErrorType.cancel && showAlertOnError) {
+        Timer(
+          const Duration(milliseconds: 500),
+          () {
+            ToastDisplay.showToast(
+              toastText: _i18n.get("network_unavailable"),
+            );
+            updateFileStatus(uuid, FileStatus.CANCELED);
+          },
+        );
+      } else {
         updateFileStatus(uuid, FileStatus.CANCELED);
       }
 
@@ -501,14 +520,19 @@ class FileService {
       }
       FormData? formData;
       if (isWeb) {
-        final r = await http.get(
-          Uri.parse(filePath),
-        );
+        final file = Uint8List.fromList(filePath.codeUnits);
+
         formData = FormData.fromMap({
           "file": MultipartFile.fromBytes(
-            r.bodyBytes,
+            file.toList(),
+            filename: filename,
             contentType:
                 MediaType.parse(mime(filename) ?? "application/octet-stream"),
+            headers: {
+              Headers.contentLengthHeader: [
+                file.length.toString()
+              ], // set content-length
+            },
           )
         });
       } else {
@@ -551,39 +575,5 @@ class FileService {
       _logger.e(e);
       return null;
     }
-  }
-
-  bool isFileFormatAccepted(String format) {
-    format = format.toLowerCase();
-    return format == "doc" ||
-        format == "pdf" ||
-        format == "svg" ||
-        format == "csv" ||
-        format == "xls" ||
-        format == "txt" ||
-        format == "jpg" ||
-        format == "jpeg" ||
-        format == "png" ||
-        format == "gif" ||
-        format == "txt" ||
-        format == "rar" ||
-        format == "zip" ||
-        format == "mp3" ||
-        format == "mp4" ||
-        format == "m4a" ||
-        format == "ogg" ||
-        format == "xml" ||
-        format == "pptx" ||
-        format == "docx" ||
-        format == "xlsm" ||
-        format == "xlsx" ||
-        format == "crt" ||
-        format == "tgs" ||
-        format == "apk" ||
-        format == "mkv" ||
-        format == "jfif" ||
-        format == "webm" ||
-        format == "log" ||
-        format == "webp";
   }
 }

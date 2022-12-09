@@ -7,7 +7,7 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "49.0.0"
+    version: "50.0.0"
   _flutterfire_internals:
     dependency: transitive
     description:
@@ -21,7 +21,7 @@ packages:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   android_intent_plus:
     dependency: "direct main"
     description:
@@ -56,14 +56,7 @@ packages:
       name: audio_session
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.10"
-  audio_video_progress_bar:
-    dependency: transitive
-    description:
-      name: audio_video_progress_bar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.11.0"
+    version: "0.1.11"
   audioplayers:
     dependency: "direct main"
     description:
@@ -158,7 +151,7 @@ packages:
       name: build_resolvers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.10"
+    version: "2.1.0"
   build_runner:
     dependency: "direct dev"
     description:
@@ -172,7 +165,7 @@ packages:
       name: build_runner_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.2.6"
+    version: "7.2.7"
   built_collection:
     dependency: transitive
     description:
@@ -186,7 +179,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.4.1"
+    version: "8.4.2"
   camera:
     dependency: "direct main"
     description:
@@ -200,7 +193,7 @@ packages:
       name: camera_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.0+3"
+    version: "0.10.0+4"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -214,7 +207,7 @@ packages:
       name: camera_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.2"
+    version: "2.3.1"
   camera_web:
     dependency: transitive
     description:
@@ -371,31 +364,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.4"
-  dart_vlc:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
-      resolved-ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
-      url: "https://github.com/androidwoman/dart_vlc"
-    source: git
-    version: "0.3.1"
-  dart_vlc_ffi:
-    dependency: "direct dev"
-    description:
-      path: ffi
-      ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
-      resolved-ref: c8d99c723ca14e58fefc50b479b2f9f9246572d4
-      url: "https://github.com/androidwoman/dart_vlc"
-    source: git
-    version: "0.1.8"
   dart_webrtc:
     dependency: transitive
     description:
       name: dart_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.9"
+    version: "1.0.11"
   date_time_format:
     dependency: "direct main"
     description:
@@ -590,7 +565,7 @@ packages:
       name: file_selector_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.0"
+    version: "2.4.0"
   file_selector_web:
     dependency: transitive
     description:
@@ -803,7 +778,7 @@ packages:
       name: flutter_local_notifications_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "2.0.0"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
@@ -823,13 +798,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
-  flutter_native_view:
-    dependency: transitive
-    description:
-      name: flutter_native_view
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -853,7 +821,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.11"
+    version: "0.9.16"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -881,7 +849,7 @@ packages:
       name: frontend_server_client
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.1.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
@@ -914,7 +882,7 @@ packages:
       name: geolocator_apple
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.2"
+    version: "2.2.3"
   geolocator_platform_interface:
     dependency: transitive
     description:
@@ -977,7 +945,7 @@ packages:
       name: graphs
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.2.0"
   great_list_view:
     dependency: "direct main"
     description:
@@ -1100,14 +1068,14 @@ packages:
       name: image_cropper_for_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   image_cropper_platform_interface:
     dependency: transitive
     description:
       name: image_cropper_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   image_size_getter:
     dependency: "direct main"
     description:
@@ -1205,7 +1173,7 @@ packages:
       name: lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   lists:
     dependency: transitive
     description:
@@ -1471,7 +1439,7 @@ packages:
       name: petitparser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "5.1.0"
   phone_state:
     dependency: "direct main"
     description:
@@ -1590,7 +1558,7 @@ packages:
       name: pub_semver
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   pubspec_parse:
     dependency: transitive
     description:
@@ -1686,13 +1654,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.5"
-  screen_retriever:
-    dependency: transitive
-    description:
-      name: screen_retriever
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.4"
   screenshot:
     dependency: "direct main"
     description:
@@ -1813,7 +1774,7 @@ packages:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   shimmer:
     dependency: "direct main"
     description:
@@ -1881,7 +1842,7 @@ packages:
       name: stream_transform
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   string_scanner:
     dependency: transitive
     description:
@@ -1910,6 +1871,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0+3"
+  telephony:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: fdf93b3dc72ff7a911de0ce187949338486753e7
+      resolved-ref: fdf93b3dc72ff7a911de0ce187949338486753e7
+      url: "https://github.com/EsmaeilDansi/Telephony.git"
+    source: git
+    version: "0.2.0"
   term_glyph:
     dependency: transitive
     description:
@@ -1986,7 +1956,7 @@ packages:
       name: url_launcher_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.19"
+    version: "6.0.22"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -2154,7 +2124,7 @@ packages:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.8"
+    version: "1.0.10"
   win32:
     dependency: transitive
     description:
@@ -2171,13 +2141,6 @@ packages:
       url: "https://github.com/deliveriais/flutter-plugins"
     source: git
     version: "0.0.2"
-  window_manager:
-    dependency: transitive
-    description:
-      name: window_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.7"
   window_size:
     dependency: "direct main"
     description:
@@ -2201,6 +2164,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.3.5"
+  workmanager:
+    dependency: "direct main"
+    description:
+      name: workmanager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.1"
   xdg_directories:
     dependency: transitive
     description:

@@ -22,7 +22,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.7";
+const VERSION = "1.9.8";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -42,11 +42,12 @@ const INVITE_MESSAGE =
 
 //FetchRooms Constants
 const MAX_ROOM_METADATA_SIZE = 10000;
-const FETCH_ROOM_METADATA_LIMIT = 10;
-const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
+const FETCH_ROOM_METADATA_LIMIT = 100;
+const FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT = 20;
 
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
+const MIN_FILE_SIZE_BYTE = 0.0; //0MB
 const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 
@@ -60,6 +61,7 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
 const bool SHOWCASES_IS_AVAILABLE = false;
+const bool SHOWCASES_SHOWING_FIRST = false;
 
 // Fake User Constants
 final FAKE_USER_UID = Uid()
@@ -120,8 +122,10 @@ const SHARED_DAO_LOG_IN_FILE_ENABLE = "SHARED_DAO_LOG_IN_FILE_ENABLE";
 const SHARED_DAO_NOTIFICATION_FOREGROUND = "SHARED_DAO_NOTIFICATION_FOREGROUND";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
+const SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED="SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED";
 const SHARED_DAO_VERSION = "SHARED_DAO_VERSION";
 const SHARED_DAO_DB_VERSION = "SHARED_DAO_DB_VERSION";
+const SHARED_DAO_IS_SHOWCASE_ENABLE = "SHARED_DAO_IS_SHOWCASE_ENABLE";
 
 const SHARED_DAO_SCROLL_POSITION = "SHARED_DAO_SCROLL_POSITION";
 const SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE =
@@ -133,6 +137,12 @@ const SHARED_DAO_BAD_CERTIFICATE_CONNECTION =
     "SHARED_DAO_USE_CERTIFICATE_CONNECTION";
 const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
 const SHARED_DAO_FIREBASE_TOKEN = "SHARED_DAO_FIREBASE_TOKEN";
+
+//KEYBOARD SIZE
+const SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT = "SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT";
+
+const SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE =
+    "SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE";
 
 // FEATURE FLAGS
 const SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS =
@@ -227,6 +237,13 @@ const MUC_Type_TRACK_ID = 29;
 const SHOW_CASE_TRACK_ID = 30;
 const ACTIVE_NOTIFICATION_TRACK_ID = 31;
 const BOX_INFO_TRACK_ID = 32;
+const RECENT_EMOJI_TRACK_ID = 33;
+const EMOJI_SKIN_TONE_TRACK_ID = 34;
+
+// Emoji
+const MAX_RECENT_EMOJI_LENGTH=48;
+const double PERSISTENT_EMOJI_HEADER_HEIGHT = 42.0;
+const double DESKTOP_EMOJI_OVERLAY_WIDTH = 360.0;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
@@ -253,9 +270,10 @@ const double LARGE_BREAKDOWN_SIZE_HEIGHT = 550.0;
 const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
-const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2500;
+const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2000;
 const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
-const mainBorder = BorderRadius.all(Radius.circular(28));
+const MAIN_BORDER_RADIUS_SIZE = 28.0;
+const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
 const messageBorder = BorderRadius.all(Radius.circular(14));
@@ -267,6 +285,7 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
+
 
 bool isLarge(BuildContext context) {
   if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {

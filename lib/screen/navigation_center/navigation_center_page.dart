@@ -1,13 +1,13 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -65,7 +65,6 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _botRepo = GetIt.I.get<BotRepo>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
 
   final ScrollController _scrollController = ScrollController();
@@ -75,6 +74,8 @@ class NavigationCenterState extends State<NavigationCenter>
       BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
 
+  bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
+
   @override
   void initState() {
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
@@ -82,6 +83,7 @@ class NavigationCenterState extends State<NavigationCenter>
         _routingService.openRoom(event);
       }
     });
+
     modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
       if (event?.roomId.isNotEmpty ?? false) {
         _routingService.openCallScreen(
@@ -92,6 +94,19 @@ class NavigationCenterState extends State<NavigationCenter>
       }
     });
 
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_IS_SHOWCASE_ENABLE,
+          // ignore: avoid_redundant_argument_values
+          defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
+        )
+        .distinct()
+        .listen(
+          (event) => setState(
+            () => _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && event,
+          ),
+        );
+
     _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
@@ -100,6 +115,7 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
+
     super.initState();
   }
 
@@ -136,6 +152,20 @@ class NavigationCenterState extends State<NavigationCenter>
                     this.showMenu(
                       context: context,
                       items: [
+                        PopupMenuItem<String>(
+                          key: const Key("contacts"),
+                          value: "contacts",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.person_2_alt),
+                              const SizedBox(width: 8),
+                              Text(
+                                _i18n.get("contacts"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            ],
+                          ),
+                        ),
                         PopupMenuItem<String>(
                           key: const Key("newGroup"),
                           value: "newGroup",
@@ -196,8 +226,25 @@ class NavigationCenterState extends State<NavigationCenter>
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: ChatsPage(
-                          scrollController: _scrollController,
+                        child: AnimatedSwitcher(
+                          duration: SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (child, animation) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(1.2, 0),
+                                end: const Offset(0, 0),
+                              ).animate(animation),
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: !_isShowCaseEnable
+                              ? ChatsPage(
+                                  scrollController: _scrollController,
+                                )
+                              : const ShowcasePage(),
                         ),
                       );
                     }
@@ -371,6 +418,9 @@ class NavigationCenterState extends State<NavigationCenter>
 
   void selectChatMenu(String key) {
     switch (key) {
+      case "contacts":
+        _routingService.openContacts();
+        break;
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
         break;
@@ -389,35 +439,52 @@ class NavigationCenterState extends State<NavigationCenter>
             return const Center(child: CircularProgressIndicator());
           }
           final contacts = snaps.data![0];
-          final global = snaps.data![1];
-          final bots = snaps.data![2];
-          final roomAndContacts = snaps.data![3];
-
-          if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-            return const Tgs.asset(
-              'assets/duck_animation/not_found.tgs',
-            );
-          }
-
-          return ListView(
-            children: [
-              if (contacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("contacts")),
-                ...searchResultWidget(contacts),
+          final roomAndContacts = snaps.data![1];
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                if (contacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("contacts")),
+                  ...searchResultWidget(contacts),
+                ],
+                if (roomAndContacts.isNotEmpty) ...[
+                  buildTitle(_i18n.get("local_search")),
+                  ...searchResultWidget(roomAndContacts)
+                ],
+                FutureBuilder<List<Uid>>(
+                  future: globalSearchUser(query),
+                  builder: (c, snaps) {
+                    if (!snaps.hasData) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    final global = snaps.data!;
+                    if (global.isEmpty &&
+                        roomAndContacts.isEmpty &&
+                        contacts.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Tgs.asset(
+                          'assets/duck_animation/not_found.tgs',
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        if (global.isNotEmpty) ...[
+                          buildTitle(_i18n.get("global_search")),
+                          ...searchResultWidget(global)
+                        ]
+                      ],
+                    );
+                  },
+                )
               ],
-              if (roomAndContacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("local_search")),
-                ...searchResultWidget(roomAndContacts)
-              ],
-              if (bots.isNotEmpty) ...[
-                buildTitle(_i18n.get("bots")),
-                ...searchResultWidget(bots)
-              ],
-              if (global.isNotEmpty) ...[
-                buildTitle(_i18n.get("global_search")),
-                ...searchResultWidget(global)
-              ],
-            ],
+            ),
           );
         },
       ),
@@ -443,13 +510,13 @@ class NavigationCenterState extends State<NavigationCenter>
     return [
       //in contacts
       await _contactRepo.searchInContacts(query),
-      //global search
-      await _contactRepo.searchUser(query),
-      //bot
-      await _botRepo.searchBotByName(query),
       //in rooms
-      await _roomRepo.searchInRooms(query)
+      await _roomRepo.searchInRooms(query),
     ];
+  }
+
+  Future<List<Uid>> globalSearchUser(String query) {
+    return _contactRepo.searchUser(query);
   }
 
   List<Widget> searchResultWidget(List<Uid> uidList) {
@@ -611,7 +678,9 @@ class NavigationCenterState extends State<NavigationCenter>
             ),
           ),
           titleSpacing: 8.0,
-          title: const ConnectionStatus(),
+          title: ConnectionStatus(
+            isShowCase: _isShowCaseEnable,
+          ),
           actions: [
             if (!isDesktop)
               DescribedFeatureOverlay(
@@ -666,8 +735,11 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
                 child: IconButton(
-                  onPressed: () => _routingService.openShowcase(),
-                  icon: const Icon(Icons.storefront_outlined),
+                  onPressed: () =>
+                      _sharedDao.toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                  icon: !_isShowCaseEnable
+                      ? const Icon(Icons.storefront_outlined)
+                      : const Icon(CupertinoIcons.chat_bubble_text),
                 ),
               ),
             const SizedBox(

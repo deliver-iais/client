@@ -10,18 +10,45 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+void showCaptionDialog({
+  List<model.File>? files,
+  required Uid roomUid,
+  required BuildContext context,
+  void Function()? resetRoomPageDetails,
+  int replyMessageId = 0,
+  Message? editableMessage,
+  String? caption,
+  bool showSelectedImage = false,
+}) {
+  if (editableMessage == null && (files?.isEmpty ?? false)) return;
+  showDialog(
+    context: context,
+    builder: (context) {
+      return ShowCaptionDialog(
+        resetRoomPageDetails: resetRoomPageDetails,
+        replyMessageId: replyMessageId,
+        caption: caption,
+        showSelectedImage: showSelectedImage,
+        editableMessage: editableMessage,
+        currentRoom: roomUid,
+        files: files,
+      );
+    },
+  );
+}
 
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
 class ShowCaptionDialog extends StatefulWidget {
@@ -50,7 +77,6 @@ class ShowCaptionDialog extends StatefulWidget {
 
 class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
-  static final _fileService = GetIt.I.get<FileService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   final _dragAndDropService = GetIt.I.get<DragAndDropService>();
@@ -59,33 +85,14 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   late file_pb.File _editableFile;
   final FocusNode _captionFocusNode = FocusNode();
-  bool _isFileFormatAccept = false;
-  bool _isFileSizeAccept = false;
   model.File? _editedFile;
-  String _invalidFormatFileName = "";
-  String _invalidSizeFileName = "";
+  late Iterable<NotAcceptableFile> _notAcceptableFiles;
 
   @override
   void initState() {
-    _isFileFormatAccept = widget.editableMessage != null;
-    _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
-      for (final element in widget.files!) {
-        element.path = element.path.replaceAll("\\", "/");
-        _isFileFormatAccept = _fileService.isFileFormatAccepted(
-          element.extension ?? element.name.split(".").last,
-        );
-        final size = element.size ?? 0;
-        _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
-        if (!_isFileFormatAccept) {
-          _invalidFormatFileName = element.name;
-          break;
-        }
-        if (!_isFileSizeAccept) {
-          _invalidSizeFileName = element.name;
-          break;
-        }
-      }
+      _notAcceptableFiles = getNotAcceptableFiles(widget.files!);
+
       if (widget.caption != null && widget.caption!.isNotEmpty) {
         _editingController.text = synthesizeToOriginalWord(widget.caption!);
       }
@@ -98,12 +105,8 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return !_isFileFormatAccept || !_isFileSizeAccept
-        ? FileErrorDialog(
-            isFileFormatAccept: _isFileFormatAccept,
-            invalidFormatFileName: _invalidFormatFileName,
-            invalidSizeFileName: _invalidSizeFileName,
-          )
+    return _notAcceptableFiles.isNotEmpty
+        ? NotAcceptableFilesErrorDialog(notAcceptableFiles: _notAcceptableFiles)
         : ((widget.files?.isNotEmpty ?? false) ||
                 widget.editableMessage != null)
             ? Directionality(
@@ -143,13 +146,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         : widget.editableMessage != null
             ? _editableFile.type
             : widget.files?[index].extension;
-    return (extension != null &&
-        (extension.contains("image") ||
-            extension.contains("jpg") ||
-            extension.contains("png") ||
-            extension.contains("jfif") ||
-            extension.contains("webp") ||
-            extension.contains("jpeg")));
+    return (extension != null && isImageFileExtension(extension));
   }
 
   Widget _buildSelectedFileTitle() {
@@ -164,24 +161,11 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           ),
           IconButton(
             onPressed: () async {
-              final res = await getFile(allowMultiple: true);
-              if (res != null) {
-                for (final element in res.files) {
-                  widget.files!.add(
-                    model.File(
-                      isWeb
-                          ? Uri.dataFromBytes(
-                              element.bytes!.toList(),
-                            ).toString()
-                          : element.path!,
-                      element.name,
-                      extension: element.extension,
-                      size: element.size,
-                    ),
-                  );
-                }
-                setState(() {});
+              final files = await getFile(allowMultiple: true);
+              for (final f in files) {
+                widget.files!.add(f);
               }
+              setState(() {});
             },
             icon: const Icon(Icons.add),
           ),
@@ -376,7 +360,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     ).ignore();
   }
 
-  Widget buildImage(String path, {double? width, double? height}) => kIsWeb
+  Widget buildImage(String path, {double? width, double? height}) => isWeb
       ? Image.network(path)
       : Image.file(
           File(path),
@@ -451,38 +435,20 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         IconButton(
           onPressed: () async {
-            final result = await getFile(allowMultiple: false);
+            final files = await getFile(allowMultiple: false);
 
-            if (result != null && result.files.isNotEmpty) {
+            if (files.isNotEmpty) {
+              final file = files.first;
               if (widget.editableMessage != null) {
-                _editedFile = model.File(
-                  isWeb
-                      ? Uri.dataFromBytes(
-                          result.files.first.bytes!.toList(),
-                        ).toString()
-                      : result.files.first.path!,
-                  result.files.first.name,
-                  extension: result.files.first.extension,
-                  size: result.files.first.size,
-                );
+                _editedFile = file;
               } else {
-                widget.files![index] = model.File(
-                  isWeb
-                      ? Uri.dataFromBytes(
-                          result.files.first.bytes!.toList(),
-                        ).toString()
-                      : result.files.first.path!,
-                  result.files.first.name,
-                  extension: result.files.first.extension,
-                  size: result.files.first.size,
-                );
+                widget.files![index] = file;
               }
-
               setState(() {});
             }
           },
           icon: Icon(
-            Icons.wifi_protected_setup,
+            CupertinoIcons.refresh,
             color: theme.primaryColor,
             size: 16,
           ),
@@ -517,54 +483,45 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     );
   }
 
-  Future<FilePickerResult?> getFile({required bool allowMultiple}) async {
+  Future<Iterable<model.File>> getFile({required bool allowMultiple}) async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: allowMultiple,
     );
-    for (final element in result!.files) {
-      _isFileFormatAccept =
-          _fileService.isFileFormatAccepted(element.extension ?? element.name);
-      _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;
-      if (!_isFileFormatAccept) {
-        _invalidFormatFileName = element.name;
-        break;
-      }
-      if (!_isFileSizeAccept) {
-        _invalidSizeFileName = element.name;
-        break;
-      }
-    }
-    if (_isFileFormatAccept && _isFileSizeAccept) {
-      return result;
+
+    final files = (result?.files ?? []).map(filePickerPlatformFileToFileModel);
+
+    final notAcceptableFile = getNotAcceptableFiles(files);
+
+    if (notAcceptableFile.isNotEmpty) {
+      final naf = notAcceptableFile.first;
+
+      final errorText = naf.hasNotAcceptableExtension
+          ? _i18n.get("cant_sent")
+          : naf.isEmpty
+              ? _i18n.get("file_size_zero")
+              : _i18n.get("file_size_error");
+
+      ToastDisplay.showToast(
+        toastText: errorText,
+        toastContext: context,
+      );
+
+      return [];
     } else {
-      if (isDesktop) {
-        ToastDisplay.showToast(
-          toastText: !_isFileFormatAccept
-              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
-              : _i18n.get("file_size_error"),
-          toastContext: context,
-        );
-      }
-      return null;
+      return files;
     }
   }
 }
 
-class FileErrorDialog extends StatelessWidget {
+class NotAcceptableFilesErrorDialog extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
-  final bool _isFileFormatAccept;
-  final String _invalidFormatFileName;
-  final String _invalidSizeFileName;
+  final Iterable<NotAcceptableFile> notAcceptableFiles;
 
-  const FileErrorDialog({
+  const NotAcceptableFilesErrorDialog({
     super.key,
-    required bool isFileFormatAccept,
-    required String invalidFormatFileName,
-    required String invalidSizeFileName,
-  })  : _isFileFormatAccept = isFileFormatAccept,
-        _invalidFormatFileName = invalidFormatFileName,
-        _invalidSizeFileName = invalidSizeFileName;
+    required this.notAcceptableFiles,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -592,16 +549,31 @@ class FileErrorDialog extends StatelessWidget {
           ),
         ],
         content: SizedBox(
-          width: 150,
-          child: Wrap(
+          width: 350,
+          child: Column(
             children: [
-              if (!_isFileFormatAccept) ...[
-                Text(_invalidFormatFileName),
-                Text(_i18n.get("cant_sent"))
-              ] else ...[
-                Text(_invalidSizeFileName),
-                Text(_i18n.get("file_size_error")),
-              ]
+              for (final file in notAcceptableFiles)
+                if (file.hasNotAcceptableExtension)
+                  Wrap(
+                    children: [
+                      Text(file.file.name),
+                      Text(_i18n.get("cant_sent")),
+                    ],
+                  )
+                else if (file.isEmpty)
+                  Wrap(
+                    children: [
+                      Text(file.file.name),
+                      Text(_i18n.get("file_size_zero"))
+                    ],
+                  )
+                else if (file.hasExtraSize)
+                  Wrap(
+                    children: [
+                      Text(file.file.name),
+                      Text(_i18n.get("file_size_error")),
+                    ],
+                  )
             ],
           ),
         ),

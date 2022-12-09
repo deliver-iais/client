@@ -5,6 +5,8 @@ import 'dart:io' as io;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -34,6 +36,7 @@ class FileRepo {
   Future<file_pb.File?> uploadClonedFile(
     String uploadKey,
     String name, {
+    required List<String> packetIds,
     void Function(int)? sendActivity,
   }) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
@@ -47,6 +50,17 @@ class FileRepo {
         sendActivity: sendActivity,
       );
     } on DioError catch (e) {
+      if (e.response!.statusCode == 400 && packetIds.isNotEmpty) {
+        ToastDisplay.showToast(
+          toastText: e.response!.data,
+          maxWidth: 500.0,
+          duration: const Duration(seconds: 1),
+        );
+        for (final packetId in packetIds) {
+          GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+        }
+        cancelUploadFile(uploadKey);
+      }
       _logger.e(e);
     }
     if (value != null) {
@@ -159,6 +173,7 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
     bool intiProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
@@ -170,6 +185,7 @@ class FileRepo {
       filename,
       size: thumbnailSize,
       initProgressbar: intiProgressbar,
+      showAlertOnError: showAlertOnError,
     );
     if (downloadedFileUri != null) {
       if (isWeb) {

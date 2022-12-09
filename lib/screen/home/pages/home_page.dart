@@ -4,6 +4,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
+import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -13,10 +14,12 @@ import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,6 +39,7 @@ class HomePageState extends State<HomePage> {
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+  final _backgroundService = GetIt.I.get<BackgroundService>();
 
   @override
   void initState() {
@@ -66,6 +70,7 @@ class HomePageState extends State<HomePage> {
       });
 
     _contactRepo.sendNotSyncedContactInStartTime();
+    if (isAndroid) _backgroundService.startBackgroundService();
 
     super.initState();
   }
@@ -147,6 +152,7 @@ class HomePageState extends State<HomePage> {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
       showDialog(builder: (context) => NewFeatureDialog(), context: context)
           .ignore();
+      unawaited(_accountRepo.updatePlatformVersion());
     }
   }
 }

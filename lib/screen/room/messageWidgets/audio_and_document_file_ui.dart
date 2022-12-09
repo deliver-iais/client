@@ -3,7 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/circular_file_status_indicato
 import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -33,7 +33,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, top: 3),
+      padding: const EdgeInsets.only(left: 6.0, top: 4, bottom: 4),
       child: Stack(
         children: [
           Padding(
@@ -58,7 +58,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        if (!isVoiceFile(file.name))
+                        if (!isVoiceFilePath(file.name))
                           SizedBox(
                             width: widget.maxWidth * 0.5,
                             child: Text(

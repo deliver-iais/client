@@ -1,7 +1,7 @@
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
+import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -62,7 +62,7 @@ class DragDropWidget extends StatelessWidget {
                                   model.File(
                                     url,
                                     file.name,
-                                    extension: file.type,
+                                    extension: file.name.split(".").last,
                                     size: file.size,
                                   ),
                                 );

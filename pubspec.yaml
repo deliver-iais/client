@@ -88,7 +88,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.0.0
-  flutter_webrtc: 0.9.11
+  flutter_webrtc: 0.9.16
   fluttertoast: 8.1.1
   font_awesome_flutter: 10.2.1
   fuzzy: 0.4.0-nullsafety.0
@@ -170,6 +170,10 @@ dependencies:
   simple_animations: 5.0.0+2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+3
+  telephony:
+    git:
+      ref: fdf93b3dc72ff7a911de0ce187949338486753e7
+      url: https://github.com/EsmaeilDansi/Telephony.git
   tuple: 2.0.1
   universal_html: 2.0.8
   url_launcher: 6.1.6
@@ -187,7 +191,7 @@ dependencies:
       path: plugins/window_size
       ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
-
+  workmanager: 0.5.1
 
 
 dev_dependencies:
