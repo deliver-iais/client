@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:deliver/box/dao/media_dao.dart';
-import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
@@ -53,7 +51,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
-  static final _mediaDao = GetIt.I.get<MediaDao>();
   static final _fileService = GetIt.I.get<FileService>();
 
   @override
@@ -226,34 +223,13 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                   transitionDuration: SLOW_ANIMATION_DURATION,
                   reverseTransitionDuration: SLOW_ANIMATION_DURATION,
                   builder: (context) {
-                    return FutureBuilder<int?>(
-                      future: _mediaDao.getIndexOfMedia(
-                        widget.message.roomUid,
-                        widget.message.id!,
-                        MediaType.IMAGE,
-                      ),
-                      builder: (context, snapshot) {
-                        final hasIndex = snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data! >= 0;
-                        final isSingleImage =
-                            snapshot.connectionState == ConnectionState.done &&
-                                snapshot.data! <= 0;
-                        if (hasIndex || isSingleImage) {
-                          return AllImagePage(
-                            key: const Key("/all_image_page"),
-                            roomUid: widget.message.roomUid,
-                            filePath: path.data,
-                            message: widget.message,
-                            initIndex: hasIndex ? snapshot.data : null,
-                            isSingleImage: isSingleImage,
-                            messageId: widget.message.id!,
-                            onEdit: widget.onEdit,
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
+                    return AllImagePage(
+                      key: const Key("/all_image_page"),
+                      roomUid: widget.message.roomUid,
+                      filePath: path.data,
+                      message: widget.message,
+                      messageId: widget.message.id!,
+                      onEdit: widget.onEdit,
                     );
                   },
                 ),
