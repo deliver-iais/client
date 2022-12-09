@@ -1,26 +1,25 @@
 import 'dart:io';
 
+import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
   final String videoFilePath;
-  final pb.File videoMessage;
-  final double duration;
+  final Message message;
   final Color background;
   final Color foreground;
 
   const VideoUi({
     super.key,
     required this.videoFilePath,
-    required this.duration,
-    required this.videoMessage,
+    required this.message,
     required this.background,
     required this.foreground,
   });
@@ -48,13 +47,15 @@ class VideoUiState extends State<VideoUi> {
   }
 
   Future<void> _init() async {
-    try {
-      _videoPlayerController = isWeb
-          ? VideoPlayerController.network(widget.videoFilePath)
-          : VideoPlayerController.file(File(widget.videoFilePath));
-      await _videoPlayerController.initialize();
-      setState(() {});
-    } catch (_) {}
+    if (!isDesktop) {
+      try {
+        _videoPlayerController = isWeb
+            ? VideoPlayerController.network(widget.videoFilePath)
+            : VideoPlayerController.file(File(widget.videoFilePath));
+        await _videoPlayerController.initialize();
+        setState(() {});
+      } catch (_) {}
+    }
   }
 
   @override
@@ -62,9 +63,11 @@ class VideoUiState extends State<VideoUi> {
     return Stack(
       children: [
         InkWell(
-          onTap: () => _routingService.openVideoPlayerPage(
-            videoFilePath: widget.videoFilePath,
-            heroTag: widget.videoMessage.uuid,
+          onTap: () => _routingService.openShowAllVideos(
+            roomUid: widget.message.roomUid,
+            filePath: widget.videoFilePath,
+            messageId: widget.message.id ?? 0,
+            message: widget.message,
           ),
           child: LimitedBox(
             maxWidth: MediaQuery.of(context).size.width,
@@ -73,8 +76,8 @@ class VideoUiState extends State<VideoUi> {
               child: isDesktop
                   ? FutureBuilder<String?>(
                       future: _fileRepo.getFile(
-                        widget.videoMessage.uuid,
-                        "${widget.videoMessage.name}.png",
+                        widget.message.json.toFile().uuid,
+                        "${widget.message.json.toFile().name}.png",
                         thumbnailSize: ThumbnailSize.small,
                         intiProgressbar: false,
                       ),
@@ -97,7 +100,7 @@ class VideoUiState extends State<VideoUi> {
                       },
                     )
                   : Hero(
-                      tag: widget.videoMessage.uuid,
+                tag: widget.message.json.toFile().uuid,
                       child: VideoPlayer(
                         _videoPlayerController,
                       ),
@@ -117,9 +120,11 @@ class VideoUiState extends State<VideoUi> {
               padding: EdgeInsets.zero,
               icon: Icon(Icons.play_arrow, color: widget.foreground),
               iconSize: 42,
-              onPressed: () => _routingService.openVideoPlayerPage(
-                videoFilePath: widget.videoFilePath,
-                heroTag: widget.videoMessage.uuid,
+              onPressed: () => _routingService.openShowAllVideos(
+                roomUid: widget.message.roomUid,
+                filePath: widget.videoFilePath,
+                messageId: widget.message.id ?? 0,
+                message: widget.message,
               ),
             ),
           ),

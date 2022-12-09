@@ -120,9 +120,9 @@ class VideoTabUiState extends State<VideoTabUi> {
                 return InkWell(
                   onTap: () {
                     _routingService.openShowAllVideos(
-                      uid: widget.roomUid,
+                      roomUid: widget.roomUid.asString(),
                       initIndex: index,
-                      videosLength: widget.videoCount,
+                      messageId: media.messageId,
                     );
                   },
                   child: Stack(
