@@ -3,19 +3,18 @@ import 'dart:io';
 
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:rxdart/rxdart.dart';
 
-class ImageFolderWidget extends StatefulWidget {
+class GalleryFolder extends StatefulWidget {
   final AssetPathEntity folder;
   final Uid roomUid;
   final void Function() pop;
@@ -23,7 +22,7 @@ class ImageFolderWidget extends StatefulWidget {
   final int replyMessageId;
   final void Function()? resetRoomPageDetails;
 
-  const ImageFolderWidget(
+  const GalleryFolder(
     this.folder,
     this.roomUid,
     this.pop, {
@@ -34,26 +33,21 @@ class ImageFolderWidget extends StatefulWidget {
   });
 
   @override
-  State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
+  State<GalleryFolder> createState() => _GalleryFolderState();
 }
 
 const int FETCH_IMAGE_PAGE_SIZE = 40;
 
-class _ImageFolderWidgetState extends State<ImageFolderWidget> {
+class _GalleryFolderState extends State<GalleryFolder> {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final List<String> _selectedImage = [];
   final TextEditingController _textEditingController = TextEditingController();
-  final _keyboardVisibilityController = KeyboardVisibilityController();
-  final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final Map<String, AssetEntity> _imageFiles = {};
 
   @override
   void initState() {
-    _keyboardVisibilityController.onChange.listen((event) {
-      _insertCaption.add(event);
-    });
     super.initState();
   }
 
@@ -107,6 +101,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
       },
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           actions: [
             if (widget.setAvatar == null && _selectedImage.isNotEmpty)
               IconButton(
@@ -118,11 +113,14 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
               )
           ],
           title: widget.setAvatar == null
-              ? Text(
-                  _selectedImage.isNotEmpty
-                      ? "selected: ${_selectedImage.length}"
-                      : widget.folder.name,
-                  style: const TextStyle(fontSize: 19),
+              ? AnimatedSwitchWidget(
+                  child: Text(
+                    key: ValueKey(_selectedImage.length),
+                    _selectedImage.isNotEmpty
+                        ? "${_selectedImage.length}"
+                        : widget.folder.name,
+                    style: const TextStyle(fontSize: 19),
+                  ),
                 )
               : const SizedBox.shrink(),
         ),
@@ -164,7 +162,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                             imagePath = path;
                                           },
                                           sendSingleImage: true,
-                                          insertCaption: _insertCaption,
                                           onTap: onTap,
                                           selectedImage: _selectedImage,
                                           send: _send,
@@ -215,11 +212,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                               onPressed: () {
                                                 onTap(imagePath);
                                               },
-                                              icon: isSelected
-                                                  ? const CircularCheckMarkWidget(
-                                                      shouldShowCheckMark: true,
-                                                    )
-                                                  : const CircularCheckMarkWidget(),
+                                              icon: CircularCheckMarkWidget(
+                                                shouldShowCheckMark: isSelected,
+                                              ),
                                               iconSize: 30,
                                             ),
                                           ),
@@ -237,16 +232,27 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 );
               },
             ),
-            if (_selectedImage.isNotEmpty)
-              BuildInputCaption(
-                insertCaption: _insertCaption,
-                captionEditingController: _textEditingController,
-                count: _selectedImage.length,
-                send: () {
-                  widget.pop();
-                  _send();
-                },
-              )
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: AnimatedScale(
+                duration: VERY_SLOW_ANIMATION_DURATION,
+                curve: Curves.easeInOut,
+                scale: _selectedImage.isNotEmpty ? 1 : 0,
+                child: AnimatedOpacity(
+                  duration: SLOW_ANIMATION_DURATION,
+                  curve: Curves.easeInOut,
+                  opacity: _selectedImage.isNotEmpty ? 1 : 0,
+                  child: ShareBoxInputCaption(
+                    captionEditingController: _textEditingController,
+                    count: _selectedImage.length,
+                    send: () {
+                      widget.pop();
+                      _send();
+                    },
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),

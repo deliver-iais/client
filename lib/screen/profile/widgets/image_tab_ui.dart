@@ -6,6 +6,7 @@ import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -109,8 +110,9 @@ class ImageTabUiState extends State<ImageTabUi> {
             child: FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
               builder: (c, filePath) {
+                Widget c = const SizedBox.shrink();
                 if (filePath.hasData && filePath.data != null) {
-                  return Hero(
+                  c = Hero(
                     tag: json["uuid"],
                     transitionOnUserGestures: true,
                     child: Container(
@@ -127,8 +129,63 @@ class ImageTabUiState extends State<ImageTabUi> {
                     ),
                   );
                 } else {
-                  return SizedBox(child: BlurHash(hash: json["blurHash"]));
+                  c = FutureBuilder<String?>(
+                    future: _fileRepo.getFile(
+                      json["uuid"],
+                      json["name"],
+                      thumbnailSize: ThumbnailSize.small,
+                      intiProgressbar: false,
+                    ),
+                    builder: (s, path) {
+                      Widget child = const SizedBox.shrink();
+                      if (path.hasData && path.data != null) {
+                        child = Hero(
+                          tag: json["uuid"],
+                          transitionOnUserGestures: true,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: isWeb
+                                    ? Image.network(path.data!).image
+                                    : Image.file(
+                                        File(path.data!),
+                                      ).image,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = SizedBox(
+                          child: BlurHash(
+                            hash: json["blurHash"],
+                          ),
+                        );
+                      }
+
+                      return AnimatedSwitcher(
+                        duration: VERY_SLOW_ANIMATION_DURATION,
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        child: child,
+                      );
+                    },
+                  );
                 }
+                return AnimatedSwitcher(
+                  duration: VERY_SLOW_ANIMATION_DURATION,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: c,
+                );
               },
             ),
           ),

@@ -7,7 +7,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -97,7 +97,7 @@ class AccountSettingsState extends State<AccountSettings> {
                     children: <Widget>[
                       Container(
                         padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
+                        child: GalleryBox(
                           pop: () => Navigator.pop(context),
                           scrollController: scrollController,
                           setAvatar: cropAvatar,

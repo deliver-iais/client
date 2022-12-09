@@ -316,8 +316,30 @@ class RoomRepo {
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
-  Future<void> resetMention(String roomUid) =>
-      _roomDao.updateRoom(uid: roomUid, mentioned: false);
+  Future<void> updateMentionIds(String roomUid, List<int> mentionsId) =>
+      _roomDao.updateRoom(
+        uid: roomUid,
+        mentionsId: mentionsId,
+      );
+
+  Future<void> processMentionIds(String roomUid, List<int> mentionsId) async {
+    try {
+      final ids = <int>[];
+      final room = await _roomDao.getRoom(roomUid);
+      if (room != null && room.mentionsId != null) {
+        ids.addAll(room.mentionsId!);
+      }
+      ids.addAll(mentionsId);
+      unawaited(
+        updateMentionIds(
+          roomUid,
+          ids.toSet().toList(),
+        ),
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 
   Future<void> createRoomIfNotExist(String roomUid) =>
       _roomDao.updateRoom(uid: roomUid);

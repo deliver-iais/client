@@ -772,7 +772,6 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    bool? mentioned,
     bool? pinned,
     int? pinId,
     int? hiddenMessageCount,
@@ -781,6 +780,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
     bool? seenSynced,
     String? replyKeyboardMarkup,
     bool? forceToUpdateReplyKeyboardMarkup = false,
+    List<int>? mentionsId,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -794,7 +794,6 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
             #draft: draft,
             #lastUpdateTime: lastUpdateTime,
             #firstMessageId: firstMessageId,
-            #mentioned: mentioned,
             #pinned: pinned,
             #pinId: pinId,
             #hiddenMessageCount: hiddenMessageCount,
@@ -803,6 +802,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
             #seenSynced: seenSynced,
             #replyKeyboardMarkup: replyKeyboardMarkup,
             #forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
+            #mentionsId: mentionsId,
           },
         ),
         returnValue: _i22.Future<void>.value(),
@@ -1141,10 +1141,34 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
       ) as _i22.Future<_i28.Room?>);
 
   @override
-  _i22.Future<void> resetMention(String? roomUid) => (super.noSuchMethod(
+  _i22.Future<void> updateMentionIds(
+    String? roomUid,
+    List<int>? mentionsId,
+  ) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #resetMention,
-          [roomUid],
+          #updateMentionIds,
+          [
+            roomUid,
+            mentionsId,
+          ],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+
+  @override
+  _i22.Future<void> processMentionIds(
+    String? roomUid,
+    List<int>? mentionsId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #processMentionIds,
+          [
+            roomUid,
+            mentionsId,
+          ],
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
@@ -1625,6 +1649,16 @@ class MockFireBaseServices extends _i1.Mock implements _i35.FireBaseServices {
       ) as _i22.Future<void>);
 
   @override
+  _i22.Future<void> updateFirebaseToken() => (super.noSuchMethod(
+        Invocation.method(
+          #updateFirebaseToken,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+
+  @override
   void deleteToken() => super.noSuchMethod(
         Invocation.method(
           #deleteToken,
@@ -1692,7 +1726,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
   _i22.Future<_i38.File?> uploadClonedFile(
     String? uploadKey,
     String? name, {
-    required List<String> packetIds,
+    required List<String>? packetIds,
     void Function(int)? sendActivity,
   }) =>
       (super.noSuchMethod(
@@ -1702,7 +1736,10 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
             uploadKey,
             name,
           ],
-          {#sendActivity: sendActivity},
+          {
+            #packetIds: packetIds,
+            #sendActivity: sendActivity,
+          },
         ),
         returnValue: _i22.Future<_i38.File?>.value(),
       ) as _i22.Future<_i38.File?>);
@@ -1774,6 +1811,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
     String? filename, {
     _i39.ThumbnailSize? thumbnailSize,
     bool? intiProgressbar = true,
+    bool? showAlertOnError = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2582,7 +2620,10 @@ class MockDataStreamServices extends _i1.Mock
             lastMessageId,
             firstMessageId,
           ],
-          {#retry: retry},
+          {
+            #retry: retry,
+            #appRunInForeground: appRunInForeground,
+          },
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
@@ -2630,7 +2671,7 @@ class MockDataStreamServices extends _i1.Mock
         Invocation.method(
           #saveFetchMessages,
           [messages],
-          {#isLastMessage: appRunInForeground},
+          {#appRunInForeground: appRunInForeground},
         ),
         returnValue: _i22.Future<List<_i25.Message>>.value(<_i25.Message>[]),
       ) as _i22.Future<List<_i25.Message>>);
@@ -4760,6 +4801,16 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
       ) as _i22.Future<void>);
 
   @override
+  _i22.Future<void> updatePlatformVersion() => (super.noSuchMethod(
+        Invocation.method(
+          #updatePlatformVersion,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+
+  @override
   bool shouldUpdateSessionPlatformInformation(String? previousVersion) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -5422,16 +5473,6 @@ class MockBotRepo extends _i1.Mock implements _i68.BotRepo {
         ),
         returnValue: _i22.Future<_i13.BotInfo?>.value(),
       ) as _i22.Future<_i13.BotInfo?>);
-
-  @override
-  _i22.Future<List<_i3.Uid>> searchBotByName(String? name) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #searchBotByName,
-          [name],
-        ),
-        returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
-      ) as _i22.Future<List<_i3.Uid>>);
 }
 
 /// A class which mocks [CustomNotificationDao].
@@ -6006,6 +6047,12 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
       ) as String);
 
   @override
+  bool get isHangedUp => (super.noSuchMethod(
+        Invocation.getter(#isHangedUp),
+        returnValue: false,
+      ) as bool);
+
+  @override
   _i15.RTCVideoRenderer get getLocalRenderer => (super.noSuchMethod(
         Invocation.getter(#getLocalRenderer),
         returnValue: _FakeRTCVideoRenderer_14(
@@ -6046,6 +6093,15 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         Invocation.setter(
           #setCallId,
           callId,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set setCallHangedUp(bool? isHangedUp) => super.noSuchMethod(
+        Invocation.setter(
+          #setCallHangedUp,
+          isHangedUp,
         ),
         returnValueForMissingStub: null,
       );
@@ -6467,6 +6523,38 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
   }
 
   @override
+  double get maxKeyboardSizePortrait => (super.noSuchMethod(
+        Invocation.getter(#maxKeyboardSizePortrait),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  set maxKeyboardSizePortrait(double? _maxKeyboardSizePortrait) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #maxKeyboardSizePortrait,
+          _maxKeyboardSizePortrait,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  double get maxKeyboardSizeLandscape => (super.noSuchMethod(
+        Invocation.getter(#maxKeyboardSizeLandscape),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  set maxKeyboardSizeLandscape(double? _maxKeyboardSizeLandscape) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #maxKeyboardSizeLandscape,
+          _maxKeyboardSizeLandscape,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i22.Stream<int> get themeIndexStream => (super.noSuchMethod(
         Invocation.getter(#themeIndexStream),
         returnValue: _i22.Stream<int>.empty(),
@@ -6541,6 +6629,12 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
   @override
   bool get isAllNotificationDisabled => (super.noSuchMethod(
         Invocation.getter(#isAllNotificationDisabled),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  bool get isNotificationAdvanceModeDisabled => (super.noSuchMethod(
+        Invocation.getter(#isNotificationAdvanceModeDisabled),
         returnValue: false,
       ) as bool);
 
@@ -6623,6 +6717,24 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
       );
 
   @override
+  void setKeyBoardSizePortrait(double? size) => super.noSuchMethod(
+        Invocation.method(
+          #setKeyBoardSizePortrait,
+          [size],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setKeyBoardSizeLandScape(double? size) => super.noSuchMethod(
+        Invocation.method(
+          #setKeyBoardSizeLandScape,
+          [size],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void toggleThemeToDarkMode({bool? forceToDisableAutoNightMode = false}) =>
       super.noSuchMethod(
         Invocation.method(
@@ -6673,6 +6785,15 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
   void toggleIsAllNotificationDisabled() => super.noSuchMethod(
         Invocation.method(
           #toggleIsAllNotificationDisabled,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void toggleIsAdvanceNotificationModeDisabled() => super.noSuchMethod(
+        Invocation.method(
+          #toggleIsAdvanceNotificationModeDisabled,
           [],
         ),
         returnValueForMissingStub: null,

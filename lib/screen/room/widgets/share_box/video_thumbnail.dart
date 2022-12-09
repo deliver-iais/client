@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:deliver/screen/room/widgets/share_box/file_icon.dart';
+import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 

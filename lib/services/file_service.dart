@@ -7,6 +7,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -177,6 +178,7 @@ class FileService {
     String filename, {
     ThumbnailSize? size,
     bool initProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     if (initProgressbar) {
       updateFileStatus(uuid, FileStatus.STARTED);
@@ -190,13 +192,19 @@ class FileService {
         initProgressbar: initProgressbar,
       );
     }
-    return _getFile(uuid, filename, initProgressbar: initProgressbar);
+    return _getFile(
+      uuid,
+      filename,
+      initProgressbar: initProgressbar,
+      showAlertOnError: showAlertOnError,
+    );
   }
 
   Future<String?> _getFile(
     String uuid,
     String filename, {
     bool initProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     final cancelToken = CancelToken();
     _addCancelToken(cancelToken, uuid);
@@ -233,7 +241,17 @@ class FileService {
         return file.path;
       }
     } catch (e) {
-      if (initProgressbar) {
+      if ((e as DioError).type != DioErrorType.cancel && showAlertOnError) {
+        Timer(
+          const Duration(milliseconds: 500),
+          () {
+            ToastDisplay.showToast(
+              toastText: _i18n.get("network_unavailable"),
+            );
+            updateFileStatus(uuid, FileStatus.CANCELED);
+          },
+        );
+      } else {
         updateFileStatus(uuid, FileStatus.CANCELED);
       }
 
@@ -557,70 +575,5 @@ class FileService {
       _logger.e(e);
       return null;
     }
-  }
-
-  bool isFileFormatAccepted(String format) {
-    format = format.toLowerCase();
-    return format == "mp3" ||
-        format == "mp4" ||
-        format == "pdf" ||
-        format == "jpeg" ||
-        format == "jpg" ||
-        format == "apk" ||
-        format == "txt" ||
-        format == "doc" ||
-        format == "docx" ||
-        format == "zip" ||
-        format == "rar" ||
-        format == "webp" ||
-        format == "ogg" ||
-        format == "svg" ||
-        format == "csv" ||
-        format == "xls" ||
-        format == "gif" ||
-        format == "png" ||
-        format == "m4a" ||
-        format == "xml" ||
-        format == "pptx" ||
-        format == "xlsm" ||
-        format == "xlsx" ||
-        format == "crt" ||
-        format == "tgs" ||
-        format == "mkv" ||
-        format == "jfif" ||
-        format == "ico" ||
-        format == "wav" ||
-        format == "opus" ||
-        format == "pem" ||
-        format == "ipa" ||
-        format == "tar" ||
-        format == "gzip" ||
-        format == "psd" ||
-        format == "env" ||
-        format == "exe" ||
-        format == "json" ||
-        format == "html" ||
-        format == "css" ||
-        format == "scss" ||
-        format == "js" ||
-        format == "ts" ||
-        format == "java" ||
-        format == "kt" ||
-        format == "yaml" ||
-        format == "yml" ||
-        format == "properties" ||
-        format == "srt" ||
-        format == "py" ||
-        format == "conf" ||
-        format == "config" ||
-        format == "icns" ||
-        format == "dart" ||
-        format == "c" ||
-        format == "md" ||
-        format == "bmp" ||
-        format == "pom" ||
-        format == "jar" ||
-        format == "msi" ||
-        format == "webm";
   }
 }

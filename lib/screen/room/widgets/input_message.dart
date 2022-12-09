@@ -14,7 +14,7 @@ import 'package:deliver/screen/room/messageWidgets/input_message_text_controller
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
-import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
+import 'package:deliver/screen/room/widgets/emoji/emoji_keybord_widget.dart';
 import 'package:deliver/screen/room/widgets/markup/input_suggestions_widget.dart';
 import 'package:deliver/screen/room/widgets/markup/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -30,6 +30,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -45,7 +46,13 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum KeyboardStatus { OFF, DEFAULT_KEYBOARD, EMOJI_KEYBOARD, REPLY_KEYBOARD }
+enum KeyboardStatus {
+  OFF,
+  DEFAULT_KEYBOARD,
+  EMOJI_KEYBOARD,
+  EMOJI_KEYBOARD_SEARCH,
+  REPLY_KEYBOARD
+}
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -111,9 +118,12 @@ class InputMessageWidgetState extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
+  final _inputTextKey = GlobalKey();
 
   final botCommandRegexp = RegExp(r"(\w)*");
   final idRegexp = RegExp(r"^[a-zA-Z](\w){0,19}$");
+  OverlayEntry? _desktopEmojiKeyboardOverlayEntry;
+  final _desktopEmojiKeyboardFocusNode = FocusNode();
 
   void _attachFile() {
     if (isWeb || isDesktop) {
@@ -127,7 +137,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return ShareBox(
-            currentRoomId: currentRoom.uid.asUid(),
+            currentRoomUid: currentRoom.uid.asUid(),
             replyMessageId: _replyMessageId,
             resetRoomPageDetails: widget.resetRoomPageDetails!,
             scrollToLastSentMessage: widget.scrollToLastSentMessage,
@@ -148,11 +158,21 @@ class InputMessageWidgetState extends State<InputMessage> {
           ? KeyboardStatus.REPLY_KEYBOARD
           : KeyboardStatus.OFF,
     );
-
+    if (!hasVirtualKeyboardCapability) {
+      _desktopEmojiKeyboardFocusNode.addListener(() {
+        if (_desktopEmojiKeyboardFocusNode.hasFocus) {
+          _showDesktopEmojiKeyboardOverlay();
+        } else {
+          _hideDesktopEmojiKeyboardOverlay();
+        }
+      });
+    }
     if (!isDesktop) {
       keyboardVisibilityController.onChange.listen((visible) {
         if (visible) {
-          _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+          if (_keyboardStatus.value != KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+            _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+          }
         } else if (_keyboardStatus.valueOrNull ==
             KeyboardStatus.DEFAULT_KEYBOARD) {
           _keyboardStatus.add(KeyboardStatus.OFF);
@@ -282,7 +302,11 @@ class InputMessageWidgetState extends State<InputMessage> {
     return WillPopScope(
       onWillPop: () async {
         if (_keyboardStatus.valueOrNull != KeyboardStatus.OFF) {
-          _keyboardStatus.add(KeyboardStatus.OFF);
+          if (_keyboardStatus.value == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+            _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD);
+          } else {
+            _keyboardStatus.add(KeyboardStatus.OFF);
+          }
           return false;
         } else {
           return true;
@@ -417,75 +441,88 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
               ),
             ),
-            StreamBuilder<KeyboardStatus>(
-              stream: _keyboardStatus,
-              builder: (context, back) {
-                final riseKeyboard =
-                    (back.data ?? KeyboardStatus.OFF) != KeyboardStatus.OFF;
-
-                Widget child = Container(
-                  color: theme.colorScheme.surfaceVariant,
-                );
-
-                if (back.data == KeyboardStatus.EMOJI_KEYBOARD) {
-                  child = EmojiKeyboard(
-                    onTap: (emoji) {
-                      if (widget.textController.text.isNotEmpty) {
-                        final start =
-                            widget.textController.selection.baseOffset;
-                        var block_1 =
-                            widget.textController.text.substring(0, start);
-                        block_1 = block_1.substring(0, start);
-                        final block_2 = widget.textController.text.substring(
-                          start,
-                          widget.textController.text.length,
-                        );
-                        widget.textController.text = block_1 + emoji + block_2;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length -
-                                block_2.length,
-                          ),
-                        );
-                      } else {
-                        widget.textController.text =
-                            widget.textController.text + emoji;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length,
-                          ),
-                        );
-                      }
-                      if (isDesktop) {
-                        widget.focusNode.requestFocus();
-                      }
-                    },
+            if (hasVirtualKeyboardCapability)
+              StreamBuilder<KeyboardStatus>(
+                stream: _keyboardStatus,
+                builder: (context, back) {
+                  final riseKeyboard =
+                      (back.data ?? KeyboardStatus.OFF) != KeyboardStatus.OFF;
+                  final searchKeyboard = (back.data ?? KeyboardStatus.OFF) ==
+                      KeyboardStatus.EMOJI_KEYBOARD_SEARCH;
+                  Widget child = Container(
+                    color: theme.colorScheme.onInverseSurface,
                   );
-                } else if (back.data == KeyboardStatus.REPLY_KEYBOARD) {
-                  ReplyKeyboardMarkupWidget(
-                    replyKeyboardMarkup: widget.currentRoom.replyKeyboardMarkup!
-                        .toReplyKeyboardMarkup(),
-                    closeReplyKeyboard: () =>
-                        _keyboardStatus.add(KeyboardStatus.OFF),
-                    roomUid: widget.currentRoom.uid,
-                    textController: widget.textController,
-                  );
-                }
 
-                return AnimatedContainer(
-                  duration: ANIMATION_DURATION,
-                  curve: Curves.easeInOut,
-                  height: riseKeyboard ? getKeyboardSize() : 0,
-                  child: child,
-                );
-              },
-            ),
+                  if (back.data == KeyboardStatus.EMOJI_KEYBOARD ||
+                      back.data == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
+                    child = EmojiKeyboardWidget(
+                      onEmojiDeleted: _onEmojiDeleted,
+                      onSearchEmoji: (isSearchFocused) {
+                        if (isSearchFocused) {
+                          _keyboardStatus
+                              .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
+                        } else if (widget.focusNode.hasFocus) {
+                          _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                        }
+                      },
+                      keyboardStatus: back.data!,
+                      onTap: (emoji) {
+                        _onEmojiSelected(emoji);
+                      },
+                    );
+                  } else if (back.data == KeyboardStatus.REPLY_KEYBOARD) {
+                    ReplyKeyboardMarkupWidget(
+                      replyKeyboardMarkup: widget
+                          .currentRoom.replyKeyboardMarkup!
+                          .toReplyKeyboardMarkup(),
+                      closeReplyKeyboard: () =>
+                          _keyboardStatus.add(KeyboardStatus.OFF),
+                      roomUid: widget.currentRoom.uid,
+                      textController: widget.textController,
+                    );
+                  }
+
+                  return AnimatedContainer(
+                    duration: ANIMATION_DURATION,
+                    curve: Curves.easeInOut,
+                    height: riseKeyboard
+                        ? searchKeyboard
+                            ? getKeyboardSize() + 100
+                            : getKeyboardSize()
+                        : 0,
+                    child: child,
+                  );
+                },
+              ),
           ],
         ),
       ),
     );
+  }
+
+  void _onEmojiSelected(String emoji) {
+    if (widget.textController.text.isNotEmpty) {
+      final start = widget.textController.selection.baseOffset;
+      var block_1 = widget.textController.text.substring(0, start);
+      block_1 = block_1.substring(0, start);
+      final block_2 = widget.textController.text.substring(
+        start,
+        widget.textController.text.length,
+      );
+      widget.textController.text = block_1 + emoji + block_2;
+      widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(
+          offset: widget.textController.text.length - block_2.length,
+        ),
+      );
+    } else {
+      widget.textController.text = widget.textController.text + emoji;
+      widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(
+          offset: widget.textController.text.length,
+        ),
+      );
+    }
   }
 
   double getKeyboardSize() {
@@ -511,32 +548,92 @@ class InputMessageWidgetState extends State<InputMessage> {
     return StreamBuilder<KeyboardStatus>(
       stream: _keyboardStatus,
       builder: (context, snapshot) {
-        final emojiKeyboardIsOn = !((snapshot.data ?? KeyboardStatus.OFF) !=
-            KeyboardStatus.EMOJI_KEYBOARD);
-        return IconButton(
-          icon: Icon(
-            emojiKeyboardIsOn
-                ? CupertinoIcons.keyboard_chevron_compact_down
-                : CupertinoIcons.smiley,
-          ),
-          onPressed: () {
-            if (emojiKeyboardIsOn) {
-              widget.focusNode.requestFocus();
-              if (hasVirtualKeyboardCapability) {
+        if (hasVirtualKeyboardCapability) {
+          final emojiKeyboardIsOn = !((snapshot.data ?? KeyboardStatus.OFF) !=
+                  KeyboardStatus.EMOJI_KEYBOARD &&
+              (snapshot.data ?? KeyboardStatus.OFF) !=
+                  KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
+          return IconButton(
+            icon: Icon(
+              emojiKeyboardIsOn
+                  ? CupertinoIcons.keyboard_chevron_compact_down
+                  : CupertinoIcons.smiley,
+            ),
+            onPressed: () {
+              if (emojiKeyboardIsOn) {
+                widget.focusNode.requestFocus();
                 _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
               } else {
-                _keyboardStatus.add(KeyboardStatus.OFF);
-              }
-            } else {
-              if (hasVirtualKeyboardCapability) {
                 FocusScope.of(context).unfocus();
+                _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD);
               }
-              _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD);
-            }
-          },
+            },
+          );
+        } else {
+          return MouseRegion(
+            onHover: (val) {
+              _desktopEmojiKeyboardFocusNode.requestFocus();
+            },
+            onExit: (val) {
+              _desktopEmojiKeyboardFocusNode.unfocus();
+            },
+            child: IconButton(
+              focusNode: _desktopEmojiKeyboardFocusNode,
+              onPressed: () {},
+              hoverColor: Colors.transparent,
+              icon: const Icon(
+                CupertinoIcons.smiley,
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  void _hideDesktopEmojiKeyboardOverlay() {
+    _desktopEmojiKeyboardOverlayEntry?.remove();
+  }
+
+  void _showDesktopEmojiKeyboardOverlay() {
+    _desktopEmojiKeyboardOverlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          left: 20,
+          bottom: 40,
+          child: MouseRegion(
+            onHover: (val) {
+              _desktopEmojiKeyboardFocusNode.requestFocus();
+            },
+            onExit: (val) {
+              _desktopEmojiKeyboardFocusNode.unfocus();
+            },
+            child: SizedBox(
+              width: DESKTOP_EMOJI_OVERLAY_WIDTH,
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Material(
+                color: Colors.white.withOpacity(0.0),
+                child: EmojiKeyboardWidget(
+                  onEmojiDeleted: _onEmojiDeleted,
+                  onSkinToneOverlay: () {
+                    _desktopEmojiKeyboardFocusNode.requestFocus();
+                  },
+                  onTap: (emoji) => _onEmojiSelected(emoji),
+                  onSearchEmoji: (isSearchFocused) {
+                    if (isSearchFocused) {
+                      _desktopEmojiKeyboardFocusNode.requestFocus();
+                      _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
+                    }
+                  },
+                  keyboardStatus: KeyboardStatus.EMOJI_KEYBOARD_SEARCH,
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
+    Overlay.of(context)!.insert(_desktopEmojiKeyboardOverlayEntry!);
   }
 
   StreamBuilder<bool> buildDefaultActions() {
@@ -647,6 +744,7 @@ class InputMessageWidgetState extends State<InputMessage> {
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
             child: AutoDirectionTextField(
+              textFieldKey: _inputTextKey,
               selectionControls: selectionControls,
               focusNode: widget.focusNode,
               autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
@@ -890,6 +988,35 @@ class InputMessageWidgetState extends State<InputMessage> {
         );
   }
 
+  void _updateTextEditingValue(TextEditingValue value) {
+    if (_inputTextKey.currentState != null) {
+      (_inputTextKey.currentState!
+              as TextSelectionGestureDetectorBuilderDelegate)
+          .editableTextKey
+          .currentState
+          ?.userUpdateTextEditingValue(value, SelectionChangedCause.keyboard);
+    }
+  }
+
+  void _onEmojiDeleted() {
+    if (widget.textController.selection.base.offset < 0) {
+      return;
+    }
+
+    final selection = widget.textController.value.selection;
+    final text = widget.textController.value.text;
+    final newTextBeforeCursor =
+        selection.textBefore(text).characters.skipLast(1).toString();
+    _updateTextEditingValue(
+      TextEditingValue(
+        text: newTextBeforeCursor + selection.textAfter(text),
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: newTextBeforeCursor.length),
+        ),
+      ),
+    );
+  }
+
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
@@ -957,27 +1084,14 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (isLinux) {
         final result = await openFiles();
         for (final file in result) {
-          res.add(
-            File(
-              file.path,
-              file.name,
-              extension: file.mimeType,
-              size: await file.length(),
-            ),
-          );
+          res.add(await xFileToFileModel(file));
         }
       } else {
         final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-        for (final file in result!.files) {
-          res.add(
-            File(
-              isWeb ? Uri.dataFromBytes(file.bytes!).toString() : file.path!,
-              file.name,
-              size: file.size,
-              extension: file.extension,
-            ),
-          );
-        }
+
+        res.addAll(
+          (result?.files ?? []).map(filePickerPlatformFileToFileModel),
+        );
       }
 
       showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);

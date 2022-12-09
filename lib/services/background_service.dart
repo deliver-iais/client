@@ -75,5 +75,5 @@ Future<bool> update() async {
     await GetIt.I.get<MessageRepo>().updatingMessages();
     unawaited(GetIt.I.get<FireBaseServices>().updateFirebaseToken());
   } catch (_) {}
-  return Future.value(true);
+  return Future.value(false);
 }
