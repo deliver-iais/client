@@ -6,10 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class OperationOnImage extends PopupMenuEntry<OperationOnMessage> {
+class OperationOnMedia extends PopupMenuEntry<OperationOnMessage> {
   final Future<Message?> Function() getMessage;
 
-  const OperationOnImage({
+  const OperationOnMedia({
     super.key,
     required this.getMessage,
   });
@@ -25,7 +25,7 @@ class OperationOnImage extends PopupMenuEntry<OperationOnMessage> {
       value == OperationOnMessage.REPLY;
 }
 
-class OperationOnImageState extends State<OperationOnImage> {
+class OperationOnImageState extends State<OperationOnMedia> {
   final _i18n = GetIt.I.get<I18N>();
 
   @override

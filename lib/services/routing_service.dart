@@ -21,8 +21,6 @@ import 'package:deliver/screen/profile/widgets/all_video_page.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/messageWidgets/location_message.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/desktop_video_player_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/mobile_video_player_widget.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
@@ -232,16 +230,20 @@ class RoutingService {
       );
 
   void openShowAllVideos({
-    required Uid uid,
-    required int initIndex,
-    required int videosLength,
+    required String roomUid,
+    required int messageId,
+    int? initIndex,
+    Message? message,
+    String? filePath,
   }) =>
       _push(
         AllVideoPage(
           key: const ValueKey("/media-details"),
-          roomUid: uid.asString(),
+          roomUid: roomUid,
+          messageId: messageId,
+          filePath: filePath,
           initIndex: initIndex,
-          videoCount: videosLength,
+          message: message,
         ),
       );
 
@@ -258,25 +260,6 @@ class RoutingService {
           roomUid: uid,
         ),
         useTransparentRoute: true,
-      );
-
-  void openVideoPlayerPage({
-    required String videoFilePath,
-    required String heroTag,
-  }) =>
-      _push(
-        Hero(
-          key: const ValueKey("/video-player-page"),
-          tag: heroTag,
-          child: isDesktop
-              ? DesktopVideoPlayer(
-                  videoFilePath: videoFilePath,
-                )
-              : MobileVideoPlayerWidget(
-                  videoFilePath: videoFilePath,
-                  showAppBar: true,
-                ),
-        ),
       );
 
   void openCustomNotificationSoundSelection(String roomId) => _push(
