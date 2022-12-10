@@ -69,42 +69,42 @@ class VideoUiState extends State<VideoUi> {
             messageId: widget.message.id ?? 0,
             message: widget.message,
           ),
-          child: LimitedBox(
-            maxWidth: MediaQuery.of(context).size.width,
-            maxHeight: MediaQuery.of(context).size.height / 2,
-            child: Center(
-              child: isDesktop
-                  ? FutureBuilder<String?>(
-                      future: _fileRepo.getFile(
-                        widget.message.json.toFile().uuid,
-                        "${widget.message.json.toFile().name}.png",
-                        thumbnailSize: ThumbnailSize.small,
-                        intiProgressbar: false,
-                      ),
-                      builder: (c, path) {
-                        if (path.hasData && path.data != null) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4.0),
-                              image: DecorationImage(
-                                image: Image.file(File(path.data!)).image,
-                                fit: BoxFit.cover,
+          child: Hero(
+            tag: widget.message.json.toFile().uuid,
+            child: LimitedBox(
+              maxWidth: MediaQuery.of(context).size.width,
+              maxHeight: MediaQuery.of(context).size.height / 2,
+              child: Center(
+                child: isDesktop
+                    ? FutureBuilder<String?>(
+                        future: _fileRepo.getFile(
+                          widget.message.json.toFile().uuid,
+                          "${widget.message.json.toFile().name}.png",
+                          thumbnailSize: ThumbnailSize.small,
+                          intiProgressbar: false,
+                        ),
+                        builder: (c, path) {
+                          if (path.hasData && path.data != null) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4.0),
+                                image: DecorationImage(
+                                  image: Image.file(File(path.data!)).image,
+                                  fit: BoxFit.cover,
+                                ),
+                                color: Colors.black.withOpacity(0.5),
                               ),
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                            // child: Image.file(File(path.data!),width: 400,),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    )
-                  : Hero(
-                tag: widget.message.json.toFile().uuid,
-                      child: VideoPlayer(
-                        _videoPlayerController,
-                      ),
+                              // child: Image.file(File(path.data!),width: 400,),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      )
+                    : VideoPlayer(
+                      _videoPlayerController,
                     ),
+              ),
             ),
           ),
         ),

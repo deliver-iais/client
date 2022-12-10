@@ -125,56 +125,61 @@ class VideoTabUiState extends State<VideoTabUi> {
                       messageId: media.messageId,
                     );
                   },
-                  child: Stack(
-                    children: [
-                      FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                          json["uuid"],
-                          "${json["name"]}.png",
-                          thumbnailSize: ThumbnailSize.small,
-                          intiProgressbar: false,
-                        ),
-                        builder: (c, path) {
-                          if (path.hasData && path.data != null) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.0),
-                                image: DecorationImage(
-                                  image: Image.file(io.File(path.data!)).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                              // child: Image.file(File(path.data!),width: 400,),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      Center(
-                        child: Icon(
-                          Icons.play_circle_fill,
-                          color: theme.colorScheme.primary,
-                          size: 55,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          formatDuration(
-                            Duration(
-                              seconds: double.parse(json["duration"].toString())
-                                  .round(),
-                            ),
+                  child: Hero(
+                    tag: json["uuid"],
+                    child: Stack(
+                      children: [
+                        FutureBuilder<String?>(
+                          future: _fileRepo.getFile(
+                            json["uuid"],
+                            "${json["name"]}.png",
+                            thumbnailSize: ThumbnailSize.small,
+                            intiProgressbar: false,
                           ),
-                          style:
-                              Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontSize: 10,
+                          builder: (c, path) {
+                            if (path.hasData && path.data != null) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  image: DecorationImage(
+                                    image:
+                                        Image.file(io.File(path.data!)).image,
+                                    fit: BoxFit.cover,
                                   ),
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                // child: Image.file(File(path.data!),width: 400,),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
                         ),
-                      ),
-                    ],
+                        Center(
+                          child: Icon(
+                            Icons.play_circle_fill,
+                            color: theme.colorScheme.primary,
+                            size: 55,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            formatDuration(
+                              Duration(
+                                seconds:
+                                    double.parse(json["duration"].toString())
+                                        .round(),
+                              ),
+                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      fontSize: 10,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               } else {
