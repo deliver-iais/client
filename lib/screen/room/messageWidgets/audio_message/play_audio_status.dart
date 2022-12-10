@@ -1,9 +1,8 @@
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_filex/open_filex.dart';
 
 class PlayAudioStatus extends StatefulWidget {
   final String uuid;
@@ -96,17 +95,13 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         size: 42,
       ),
       onPressed: () async {
-        if (isAndroid || isIOS || isMacOS || isWindows) {
-          _audioPlayerService.playAudioMessage(
-            widget.filePath,
-            widget.uuid,
-            widget.name,
-            widget.duration,
-          );
-          widget.onAudioPlay();
-        } else {
-          await OpenFilex.open(widget.filePath);
-        }
+        _audioPlayerService.playAudioMessage(
+          widget.filePath,
+          widget.uuid,
+          widget.name,
+          widget.duration,
+        );
+        widget.onAudioPlay();
       },
     );
   }
