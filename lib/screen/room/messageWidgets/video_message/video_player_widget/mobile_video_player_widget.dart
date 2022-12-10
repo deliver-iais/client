@@ -41,7 +41,6 @@ class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
       videoPlayerController: _controller,
       autoPlay: true,
       showOptions: false,
-      aspectRatio: _controller.value.aspectRatio,
       looping: true,
       materialProgressColors: ChewieProgressColors(
         bufferedColor: _uxService.theme.shadowColor.withOpacity(0.4),
@@ -64,25 +63,12 @@ class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
       value: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.black,
       ),
-      child: Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Stack(
-            children: [
-              Center(
-                child: _controller.value.isInitialized
-                    ? AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: Chewie(
-                          controller: _chewieController,
-                        ),
-                      )
-                    : Container(),
-              ),
-            ],
-          ),
-        ),
+      child: Center(
+        child: _controller.value.isInitialized
+            ? Chewie(
+              controller: _chewieController,
+            )
+            : Container(),
       ),
     );
   }
