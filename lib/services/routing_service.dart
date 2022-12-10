@@ -245,12 +245,16 @@ class RoutingService {
           initIndex: initIndex,
           message: message,
         ),
+        useTransparentRoute: true,
       );
 
   void openShowAllImage({
     required String uid,
-    required int initIndex,
     required int messageId,
+    int? initIndex,
+    Message? message,
+    String? filePath,
+    Function()? onEdit
   }) =>
       _push(
         AllImagePage(
@@ -258,6 +262,9 @@ class RoutingService {
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
+          filePath: filePath,
+          message: message,
+          onEdit: onEdit,
         ),
         useTransparentRoute: true,
       );
