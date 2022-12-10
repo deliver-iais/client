@@ -6,16 +6,15 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/profile/widgets/all_image_page.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
@@ -52,6 +51,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _fileService = GetIt.I.get<FileService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -216,23 +216,12 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
         GestureDetector(
           onTap: () {
             if (widget.message.id != null) {
-              Navigator.push(
-                context,
-                TransparentRoute(
-                  backgroundColor: Colors.transparent,
-                  transitionDuration: SLOW_ANIMATION_DURATION,
-                  reverseTransitionDuration: SLOW_ANIMATION_DURATION,
-                  builder: (context) {
-                    return AllImagePage(
-                      key: const Key("/all_image_page"),
-                      roomUid: widget.message.roomUid,
-                      filePath: path.data,
-                      message: widget.message,
-                      messageId: widget.message.id!,
-                      onEdit: widget.onEdit,
-                    );
-                  },
-                ),
+              _routingService.openShowAllImage(
+                uid: widget.message.roomUid,
+                filePath: path.data,
+                message: widget.message,
+                messageId: widget.message.id!,
+                onEdit: widget.onEdit,
               );
             }
           },
