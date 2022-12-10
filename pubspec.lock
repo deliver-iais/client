@@ -15,6 +15,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  all_sensors:
+    dependency: "direct main"
+    description:
+      name: all_sensors
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.2"
   analyzer:
     dependency: transitive
     description:
@@ -835,7 +842,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.16"
+    version: "0.9.17"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1566,13 +1573,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.0.4"
-  proximity_sensor:
-    dependency: "direct main"
-    description:
-      name: proximity_sensor
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
   pub_semver:
     dependency: transitive
     description:

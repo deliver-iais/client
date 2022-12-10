@@ -81,6 +81,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
               _callRepo.videoing,
               _callRepo.incomingVideo,
               _callRepo.desktopDualVideo,
+              _callRepo.incomingVideoSwitch,
             ]),
             builder: (c, s) {
               return isWindows && _callRepo.desktopDualVideo.value
@@ -118,7 +119,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         maxScale: 4,
                                         child: RTCVideoView(
                                           widget.remoteRenderer,
-                                          mirror: true,
+                                          mirror: _callRepo.incomingVideoSwitch.value ? false : true,
                                         ),
                                       ),
                                     ),
@@ -143,7 +144,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         maxScale: 4,
                                         child: RTCVideoView(
                                           widget.remoteRenderer,
-                                          mirror: true,
+                                          mirror: _callRepo.incomingVideoSwitch.value ? false : true,
                                         ),
                                       ),
                                     ),
@@ -255,7 +256,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         snapshot.data!
                                             ? widget.localRenderer
                                             : widget.remoteRenderer,
-                                        mirror: true,
+                                        mirror: (snapshot.data! && _callRepo.switching.value) ? false : true,
                                       ),
                                     ),
                                   )
