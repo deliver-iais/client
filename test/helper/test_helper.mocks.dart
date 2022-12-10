@@ -1698,6 +1698,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
     String? filename, {
     _i39.ThumbnailSize? thumbnailSize,
     bool? intiProgressbar = true,
+    bool? showAlertOnError = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1709,6 +1710,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
           {
             #thumbnailSize: thumbnailSize,
             #intiProgressbar: intiProgressbar,
+            #showAlertOnError: showAlertOnError,
           },
         ),
         returnValue: _i22.Future<String?>.value(),

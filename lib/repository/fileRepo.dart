@@ -173,6 +173,7 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
     bool intiProgressbar = true,
+    bool showAlertOnError = false,
   }) async {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
@@ -184,6 +185,7 @@ class FileRepo {
       filename,
       size: thumbnailSize,
       initProgressbar: intiProgressbar,
+      showAlertOnError: showAlertOnError,
     );
     if (downloadedFileUri != null) {
       if (isWeb) {

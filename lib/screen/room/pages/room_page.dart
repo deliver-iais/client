@@ -1398,8 +1398,11 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  void _fireScrollEvent(double pixel,
-      {bool isInNearToStartOfPage = false, bool isInNearToEndOfPage = false}) {
+  void _fireScrollEvent(
+    double pixel, {
+    bool isInNearToStartOfPage = false,
+    bool isInNearToEndOfPage = false,
+  }) {
     scrollEndNotificationTimer?.cancel();
     final direction = getScrollingDirection(pixel);
     // TODO(bitbeter): add distinct functionality
@@ -1414,8 +1417,11 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  void _calmScrollEvent(double pixel,
-      {bool isInNearToStartOfPage = false, bool isInNearToEndOfPage = false}) {
+  void _calmScrollEvent(
+    double pixel, {
+    bool isInNearToStartOfPage = false,
+    bool isInNearToEndOfPage = false,
+  }) {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
       if (!_isArrowIconFocused || !isDesktop) {
