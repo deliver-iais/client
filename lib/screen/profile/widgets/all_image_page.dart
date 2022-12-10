@@ -377,24 +377,35 @@ class _AllImagePageState extends State<AllImagePage>
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isDesktop)
-              StreamBuilder<int>(
-                stream: _currentIndex,
-                builder: (context, indexSnapShot) {
-                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
-                    return IconButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: SLOW_ANIMATION_DURATION,
-                          curve: Curves.easeInOut,
-                        );
+              StreamBuilder<int?>(
+                stream: _allImageCount,
+                builder: (c, allImageCount) {
+                  if (allImageCount.hasData && allImageCount.data != null) {
+                    return StreamBuilder<int>(
+                      stream: _currentIndex,
+                      builder: (context, indexSnapShot) {
+                        if (indexSnapShot.hasData &&
+                            indexSnapShot.data != -1 &&
+                            indexSnapShot.data != allImageCount.data! - 1) {
+                          return IconButton(
+                            onPressed: () {
+                              _pageController.nextPage(
+                                duration: SLOW_ANIMATION_DURATION,
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            icon: const Icon(Icons.arrow_back_ios_new_outlined),
+                            color: theme.primaryColorLight,
+                          );
+                        } else {
+                          return const SizedBox(
+                            width: 40,
+                          );
+                        }
                       },
-                      icon: const Icon(Icons.arrow_back_ios_new_outlined),
-                      color: theme.primaryColorLight,
                     );
                   } else {
-                    return const SizedBox(
-                      width: 40,
-                    );
+                    return const SizedBox.shrink();
                   }
                 },
               )
@@ -478,37 +489,26 @@ class _AllImagePageState extends State<AllImagePage>
               },
             ),
             if (isDesktop)
-              StreamBuilder<int?>(
-                stream: _allImageCount,
-                builder: (c, allImageCount) {
-                  if (allImageCount.hasData && allImageCount.data != null) {
-                    return StreamBuilder<int>(
-                      stream: _currentIndex,
-                      builder: (context, indexSnapShot) {
-                        if (indexSnapShot.hasData &&
-                            indexSnapShot.data != -1 &&
-                            indexSnapShot.data != allImageCount.data! - 1) {
-                          return IconButton(
-                            onPressed: () {
-                              _pageController.nextPage(
-                                duration: SLOW_ANIMATION_DURATION,
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            icon: Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              color: theme.primaryColorLight,
-                            ),
-                          );
-                        } else {
-                          return const SizedBox(
-                            width: 40,
-                          );
-                        }
+              StreamBuilder<int>(
+                stream: _currentIndex,
+                builder: (context, indexSnapShot) {
+                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
+                    return IconButton(
+                      onPressed: () {
+                        _pageController.previousPage(
+                          duration: SLOW_ANIMATION_DURATION,
+                          curve: Curves.easeInOut,
+                        );
                       },
+                      icon: Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        color: theme.primaryColorLight,
+                      ),
                     );
                   } else {
-                    return const SizedBox.shrink();
+                    return const SizedBox(
+                      width: 40,
+                    );
                   }
                 },
               )
