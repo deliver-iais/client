@@ -38,6 +38,7 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -74,7 +75,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin,CustomPopupMenu {
   final _logger = GetIt.I.get<Logger>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -102,7 +103,7 @@ class ProfilePageState extends State<ProfilePage>
   late ProfileAvatar _profileAvatar;
 
   final BehaviorSubject<bool> _selectMediasForForward =
-      BehaviorSubject.seeded(false);
+  BehaviorSubject.seeded(false);
   final List<Media> _selectedMedia = [];
 
   @override
@@ -155,7 +156,7 @@ class ProfilePageState extends State<ProfilePage>
 
             _tabController = TabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                  (widget.roomUid.isChannel() && _isMucAdminOrOwner))
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
@@ -163,7 +164,7 @@ class ProfilePageState extends State<ProfilePage>
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                  (widget.roomUid.isChannel() && _isMucAdminOrOwner))
                   ? _tabsCount + 1
                   : _tabsCount,
               child: Directionality(
@@ -172,8 +173,8 @@ class ProfilePageState extends State<ProfilePage>
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
                       Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: _buildSliverAppbar()
+                          textDirection: TextDirection.ltr,
+                          child: _buildSliverAppbar()
                       ),
                       if (_profileAvatar.canSetAvatar)
                         Directionality(
@@ -190,23 +191,23 @@ class ProfilePageState extends State<ProfilePage>
                                     Expanded(
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                            // padding: EdgeInsets.zero,
+                                          // padding: EdgeInsets.zero,
                                             tapTargetSize:
-                                                MaterialTapTargetSize.shrinkWrap,
+                                            MaterialTapTargetSize.shrinkWrap,
                                             // minimumSize: Size(0, 0),
                                             textStyle:
-                                                const TextStyle(fontSize: 12),
+                                            const TextStyle(fontSize: 12),
                                             // backgroundColor: theme.colorScheme,
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.vertical(
-                                              bottom: Radius.circular(25.0),
-                                            ))),
+                                                BorderRadius.vertical(
+                                                  bottom: Radius.circular(25.0),
+                                                ))),
                                         onPressed: () =>
                                             _profileAvatar.selectAvatar(context),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                          MainAxisAlignment.end,
                                           children: [
                                             Padding(
                                               padding: const EdgeInsetsDirectional.only(
@@ -246,7 +247,7 @@ class ProfilePageState extends State<ProfilePage>
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
                                         Badge(
                                           badgeColor: theme.primaryColor,
@@ -255,7 +256,7 @@ class ProfilePageState extends State<ProfilePage>
                                             style: TextStyle(
                                               fontSize: 14,
                                               color:
-                                                  theme.colorScheme.onPrimary,
+                                              theme.colorScheme.onPrimary,
                                             ),
                                           ),
                                           child: IconButton(
@@ -283,7 +284,7 @@ class ProfilePageState extends State<ProfilePage>
                                               ),
                                               onPressed: () async {
                                                 final paths =
-                                                    await _getPathOfMedia(
+                                                await _getPathOfMedia(
                                                   _selectedMedia,
                                                 );
                                                 if (paths.isNotEmpty) {
@@ -545,11 +546,13 @@ class ProfilePageState extends State<ProfilePage>
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
                         trailing: Divider(thickness: 8),
-                        onPressed: (_) => launchUrl(
-                          Uri.parse(
-                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
-                          ),
-                        ),
+                        onPressed: (_) =>
+                            launchUrl(
+                              Uri.parse(
+                                "tel:${snapshot.data!.countryCode}${snapshot
+                                    .data!.nationalNumber}",
+                              ),
+                            ),
                       ),
                     );
                   } else {
@@ -563,10 +566,11 @@ class ProfilePageState extends State<ProfilePage>
                 child: SettingsTile(
                   title: _i18n.get("send_message"),
                   leading: const Icon(Icons.message),
-                  onPressed: (_) => _routingService.openRoom(
-                    widget.roomUid.asString(),
-                    forceToOpenRoom: true,
-                  ),
+                  onPressed: (_) =>
+                      _routingService.openRoom(
+                        widget.roomUid.asString(),
+                        forceToOpenRoom: true,
+                      ),
                 ),
               ),
 
@@ -644,10 +648,11 @@ class ProfilePageState extends State<ProfilePage>
                 child: SettingsTile(
                   title: _i18n.get("add_member"),
                   leading: const Icon(Icons.person_add),
-                  onPressed: (_) => _routingService.openMemberSelection(
-                    isChannel: true,
-                    mucUid: widget.roomUid,
-                  ),
+                  onPressed: (_) =>
+                      _routingService.openMemberSelection(
+                        isChannel: true,
+                        mucUid: widget.roomUid,
+                      ),
                 ),
               ),
           ],
@@ -688,22 +693,21 @@ class ProfilePageState extends State<ProfilePage>
       child: AppBar(
         titleSpacing: 8,
         actions: <Widget>[
-          _buildMenu(context),
+                    _buildMenu(context),
         ],
         leading: _routingService.backButtonLeading(),
       ),
     );
   }
 
-  PopupMenuButton<String> _buildMenu(BuildContext context) {
+  Widget _buildMenu(BuildContext context) {
     final theme = Theme.of(context);
-
-    return PopupMenuButton(
-      icon: const Icon(Icons.more_vert),
-      itemBuilder: (_) => <PopupMenuItem<String>>[
-        if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
-          PopupMenuItem<String>(
-            value: "invite_link",
+    List<PopupMenuItem<String>> popups = [
+      if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
+        PopupMenuItem<String>(
+          value: "invite_link",
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               children: [
                 const Icon(Icons.add_link_outlined),
@@ -715,9 +719,12 @@ class ProfilePageState extends State<ProfilePage>
               ],
             ),
           ),
-        if (widget.roomUid.isMuc() && _isMucOwner)
-          PopupMenuItem<String>(
-            value: "manage",
+        ),
+      if (widget.roomUid.isMuc() && _isMucOwner)
+        PopupMenuItem<String>(
+          value: "manage",
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               children: [
                 const Icon(Icons.settings),
@@ -731,9 +738,12 @@ class ProfilePageState extends State<ProfilePage>
               ],
             ),
           ),
-        if (!_isMucOwner)
-          PopupMenuItem<String>(
-            value: "delete_room",
+        ),
+      if (!_isMucOwner)
+        PopupMenuItem<String>(
+          value: "delete_room",
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               children: [
                 Icon(
@@ -746,16 +756,19 @@ class ProfilePageState extends State<ProfilePage>
                   !widget.roomUid.isMuc()
                       ? _i18n.get("delete_chat")
                       : widget.roomUid.isGroup()
-                          ? _i18n.get("left_group")
-                          : _i18n.get("left_channel"),
+                      ? _i18n.get("left_group")
+                      : _i18n.get("left_channel"),
                   style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
           ),
-        if (widget.roomUid.isMuc() && _isMucOwner)
-          PopupMenuItem<String>(
-            value: "deleteMuc",
+        ),
+      if (widget.roomUid.isMuc() && _isMucOwner)
+        PopupMenuItem<String>(
+          value: "deleteMuc",
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               children: [
                 const Icon(Icons.delete),
@@ -769,9 +782,12 @@ class ProfilePageState extends State<ProfilePage>
               ],
             ),
           ),
-        if (widget.roomUid.category == Categories.BOT)
-          PopupMenuItem<String>(
-            value: "addBotToGroup",
+        ),
+      if (widget.roomUid.category == Categories.BOT)
+        PopupMenuItem<String>(
+          value: "addBotToGroup",
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               children: [
                 const Icon(Icons.person_add),
@@ -783,8 +799,11 @@ class ProfilePageState extends State<ProfilePage>
               ],
             ),
           ),
-        PopupMenuItem<String>(
-          value: "report",
+        ),
+      PopupMenuItem<String>(
+        value: "report",
+        child: Directionality(
+          textDirection: _i18n.defaultTextDirection,
           child: Row(
             children: [
               const Icon(Icons.report),
@@ -796,15 +815,18 @@ class ProfilePageState extends State<ProfilePage>
             ],
           ),
         ),
-        if (!widget.roomUid.isMuc())
-          PopupMenuItem<String>(
-            value: "blockRoom",
-            child: StreamBuilder<bool?>(
-              stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
-              builder: (c, s) {
-                if (s.hasData) {
-                  _roomIsBlocked = s.data ?? false;
-                  return Row(
+      ),
+      if (!widget.roomUid.isMuc())
+        PopupMenuItem<String>(
+          value: "blockRoom",
+          child: StreamBuilder<bool?>(
+            stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
+            builder: (c, s) {
+              if (s.hasData) {
+                _roomIsBlocked = s.data ?? false;
+                return Directionality(
+                  textDirection: _i18n.defaultTextDirection,
+                  child: Row(
                     children: [
                       const Icon(Icons.block),
                       const SizedBox(width: 8),
@@ -815,15 +837,32 @@ class ProfilePageState extends State<ProfilePage>
                         style: theme.primaryTextTheme.bodyText2,
                       ),
                     ],
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
-          )
-      ],
-      onSelected: onSelected,
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+        )
+    ];
+
+
+    return IconButton(
+      icon: const Icon(
+          Icons.more_vert,
+      ),
+      onPressed: () {
+        this.showMenu(
+            start: 0,
+            top:0,
+            textDirection: TextDirection.rtl,
+            context: context,
+            items: popups,
+        ).then((selectedString) {
+          onSelected(selectedString ?? "");
+        });
+      },
     );
   }
 
@@ -877,7 +916,7 @@ class ProfilePageState extends State<ProfilePage>
             token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
           } else {
             token =
-                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+            await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
           }
         }
         if (token.isNotEmpty) {
@@ -903,7 +942,10 @@ class ProfilePageState extends State<ProfilePage>
           autofocus: true,
           child: AlertDialog(
             content: SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 3,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -991,7 +1033,7 @@ class ProfilePageState extends State<ProfilePage>
                           textDirection: _i18n.defaultTextDirection,
                           child: AutoDirectionTextForm(
                             autofocus: true,
-                            initialValue: name.data,
+                            controller: TextEditingController(text: name.data),
                             validator: (s) {
                               if (s!.isEmpty) {
                                 return _i18n.get("name_not_empty");
@@ -1033,7 +1075,7 @@ class ProfilePageState extends State<ProfilePage>
                               child: Form(
                                 key: channelIdFormKey,
                                 child: AutoDirectionTextForm(
-                                  initialValue: muc.data!.id,
+                                  controller: TextEditingController(text: muc.data!.id),
                                   minLines: 1,
                                   validator: validateChannelId,
                                   onChanged: (str) {
@@ -1082,12 +1124,18 @@ class ProfilePageState extends State<ProfilePage>
                       return Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: AutoDirectionTextForm(
-                          initialValue: muc.data!.info,
+                          controller: TextEditingController(text: muc.data!.info),
                           minLines: muc.data!.info.isNotEmpty
-                              ? muc.data!.info.split("\n").length
+                              ? muc.data!
+                              .info
+                              .split("\n")
+                              .length
                               : 1,
                           maxLines: muc.data!.info.isNotEmpty
-                              ? muc.data!.info.split("\n").length + 4
+                              ? muc.data!
+                              .info
+                              .split("\n")
+                              .length + 4
                               : 4,
                           onChanged: (str) {
                             mucInfo = str;
@@ -1119,7 +1167,9 @@ class ProfilePageState extends State<ProfilePage>
                             _mucType = muc.data!.mucType;
                             return SelectMucType(
                               backgroundColor:
-                                  Theme.of(context).dialogBackgroundColor,
+                              Theme
+                                  .of(context)
+                                  .dialogBackgroundColor,
                               onMucTypeChange: (value) {
                                 _mucType =
                                     _mucRepo.pbMucTypeToHiveMucType(value);
@@ -1129,7 +1179,7 @@ class ProfilePageState extends State<ProfilePage>
                                 }
                               },
                               mucType:
-                                  _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                              _mucRepo.hiveMucTypeToPbMucType(_mucType),
                             );
                           }
                           return const SizedBox.shrink();
@@ -1148,61 +1198,61 @@ class ProfilePageState extends State<ProfilePage>
                   return TextButton(
                     onPressed: change.data!
                         ? () async {
-                            final navigatorState = Navigator.of(context);
-                            if (nameFormKey.currentState != null &&
-                                nameFormKey.currentState!.validate()) {
-                              if (widget.roomUid.category == Categories.GROUP) {
-                                await _mucRepo.modifyGroup(
-                                  widget.roomUid.asString(),
-                                  mucName ?? currentName,
-                                  mucInfo,
-                                );
-                                _roomRepo.updateRoomName(
-                                  widget.roomUid,
-                                  mucName ?? currentName,
-                                );
-                                setState(() {});
-                                navigatorState.pop();
-                              } else {
-                                if (channelId.isEmpty) {
-                                  await _mucRepo.modifyChannel(
-                                    widget.roomUid.asString(),
-                                    mucName ?? currentName,
-                                    currentId,
-                                    mucInfo,
-                                    _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                                  );
-                                  _roomRepo.updateRoomName(
-                                    widget.roomUid,
-                                    mucName ?? currentName,
-                                  );
-                                  navigatorState.pop();
-                                } else if (channelIdFormKey.currentState !=
-                                        null &&
-                                    channelIdFormKey.currentState!.validate()) {
-                                  if (await checkChannelD(channelId)) {
-                                    await _mucRepo.modifyChannel(
-                                      widget.roomUid.asString(),
-                                      mucName ?? currentName,
-                                      channelId,
-                                      mucInfo,
-                                      _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                                    );
-                                    _roomRepo.updateRoomName(
-                                      widget.roomUid,
-                                      mucName ?? currentName,
-                                    );
+                      final navigatorState = Navigator.of(context);
+                      if (nameFormKey.currentState != null &&
+                          nameFormKey.currentState!.validate()) {
+                        if (widget.roomUid.category == Categories.GROUP) {
+                          await _mucRepo.modifyGroup(
+                            widget.roomUid.asString(),
+                            mucName ?? currentName,
+                            mucInfo,
+                          );
+                          _roomRepo.updateRoomName(
+                            widget.roomUid,
+                            mucName ?? currentName,
+                          );
+                          setState(() {});
+                          navigatorState.pop();
+                        } else {
+                          if (channelId.isEmpty) {
+                            await _mucRepo.modifyChannel(
+                              widget.roomUid.asString(),
+                              mucName ?? currentName,
+                              currentId,
+                              mucInfo,
+                              _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                            );
+                            _roomRepo.updateRoomName(
+                              widget.roomUid,
+                              mucName ?? currentName,
+                            );
+                            navigatorState.pop();
+                          } else if (channelIdFormKey.currentState !=
+                              null &&
+                              channelIdFormKey.currentState!.validate()) {
+                            if (await checkChannelD(channelId)) {
+                              await _mucRepo.modifyChannel(
+                                widget.roomUid.asString(),
+                                mucName ?? currentName,
+                                channelId,
+                                mucInfo,
+                                _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                              );
+                              _roomRepo.updateRoomName(
+                                widget.roomUid,
+                                mucName ?? currentName,
+                              );
 
-                                    navigatorState.pop();
-                                  }
-                                }
-                                setState(() {});
-                              }
+                              navigatorState.pop();
                             }
                           }
+                          setState(() {});
+                        }
+                      }
+                    }
                         : () {
-                            Navigator.of(context).pop();
-                          },
+                      Navigator.of(context).pop();
+                    },
                     child: Text(
                       _i18n.get("set"),
                     ),
@@ -1319,7 +1369,10 @@ class ProfilePageState extends State<ProfilePage>
               ),
               content: SizedBox(
                 width: 350,
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height / 2,
                 child: Column(
                   children: [
                     AutoDirectionTextField(
@@ -1372,8 +1425,8 @@ class ProfilePageState extends State<ProfilePage>
                                               if (name.hasData &&
                                                   name.data != null) {
                                                 nameOfGroup[
-                                                        filteredGroupList[i]] =
-                                                    name.data!;
+                                                filteredGroupList[i]] =
+                                                name.data!;
                                                 return SizedBox(
                                                   height: 50,
                                                   child: Row(
@@ -1401,11 +1454,11 @@ class ProfilePageState extends State<ProfilePage>
                                           ),
                                           onTap: () =>
                                               _addBotToGroupButtonOnTab(
-                                            context,
-                                            c1,
-                                            filteredGroupList[i],
-                                            nameOfGroup[filteredGroupList[i]],
-                                          ),
+                                                context,
+                                                c1,
+                                                filteredGroupList[i],
+                                                nameOfGroup[filteredGroupList[i]],
+                                              ),
                                         );
                                       },
                                       itemCount: snapshot.data!.length,
@@ -1436,12 +1489,10 @@ class ProfilePageState extends State<ProfilePage>
     return Expanded(child: Center(child: Text(_i18n.get("no_results"))));
   }
 
-  void _addBotToGroupButtonOnTab(
-    BuildContext context,
-    BuildContext c1,
-    String uid,
-    String? mucName,
-  ) {
+  void _addBotToGroupButtonOnTab(BuildContext context,
+      BuildContext c1,
+      String uid,
+      String? mucName,) {
     showDialog(
       context: context,
       builder: (context) {
@@ -1456,7 +1507,8 @@ class ProfilePageState extends State<ProfilePage>
                     name.data != null &&
                     name.data!.isNotEmpty) {
                   return Text(
-                    "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
+                    "${_i18n.get("add")} ${name.data} ${_i18n.get(
+                        "to")} $mucName",
                   );
                 } else {
                   return const SizedBox.shrink();
@@ -1477,7 +1529,7 @@ class ProfilePageState extends State<ProfilePage>
                 final c1NavigatorState = Navigator.of(c1);
 
                 final usersAddCode =
-                    await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
+                await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
                 if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();
@@ -1526,11 +1578,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight > minHeight ? maxHeight : minHeight;
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,) {
     return SizedBox.expand(child: child);
   }
 

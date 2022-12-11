@@ -22,6 +22,9 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
   Future<T?> showMenu<T>({
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
+    TextDirection? textDirection,
+    double? start,
+    double? top
   }) {
     final screenSize = MediaQuery.of(context).size;
 
@@ -30,13 +33,23 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
 
     final dx = screenSize.width - overlaySize.width;
     final dy = screenSize.height - overlaySize.height;
-
-    final position = RelativeRect.fromLTRB(
-      _tapPosition.dx - dx,
-      _tapPosition.dy - 5 - dy,
-      overlaySize.width,
-      overlaySize.height,
-    );
+    final position;
+    if(textDirection != null) {
+      position = RelativeRect.fromDirectional(
+        start: start ?? (_tapPosition.dx - dx),
+        top: top ?? (_tapPosition.dy - dy),
+        end: overlaySize.width,
+        bottom: overlaySize.height,
+        textDirection: textDirection!,
+      );
+    }else{
+      position = RelativeRect.fromLTRB(
+        _tapPosition.dx - dx,
+        _tapPosition.dy - dy,
+        overlaySize.width,
+        overlaySize.height,
+      );
+    }
 
     return material.showMenu<T>(
       context: context,
