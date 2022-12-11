@@ -40,7 +40,7 @@ class ActivityStatus extends StatelessWidget {
     //todo add empty activities
     switch (typeOfActivity) {
       case ActivityType.CHOOSING_STICKER:
-        return _i18n.get("is_typing");
+        return "";
       case ActivityType.NO_ACTIVITY:
         return "";
       case ActivityType.RECORDING_VIDEO:
@@ -72,7 +72,7 @@ class ActivityStatus extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _i18n.get("is_typing"),
+              status,
               style: textStyle(context),
             ),
             DotAnimation(dotsColor: Theme.of(context).primaryColor),
