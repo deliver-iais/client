@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_type.dart';
@@ -15,6 +16,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dismissible_page/dismissible_page.dart';
@@ -162,7 +164,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ),
       builder: (c, path) {
         if (path.hasData && path.data != null) {
-          return buildThumbnail(path.data!);
+          return ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+            child: buildThumbnail(path.data!),
+          );
         }
         return defaultImageUI();
       },
