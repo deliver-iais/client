@@ -1,8 +1,9 @@
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/screen/profile/widgets/all_media_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_view/media_view_widget.dart';
+
 import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/desktop_video_player_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/mobile_video_player_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/mobile_video_player_widget/mobile_video_player_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 
@@ -24,14 +25,14 @@ class AllVideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AllMediaPage(
+    return MediaViewWidget(
       roomUid: roomUid,
       messageId: messageId,
       filePath: filePath,
       initIndex: initIndex,
       message: message,
       mediaType: MediaType.VIDEO,
-      mediaUiWidget: (filePath) {
+      mediaUiWidget: (filePath, caption) {
         if (isDesktop) {
           return DesktopVideoPlayer(
             videoFilePath: filePath,
@@ -39,6 +40,7 @@ class AllVideoPage extends StatelessWidget {
         } else {
           return MobileVideoPlayerWidget(
             videoFilePath: filePath,
+            caption: caption,
           );
         }
       },
