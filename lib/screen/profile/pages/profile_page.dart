@@ -466,6 +466,18 @@ class ProfilePageState extends State<ProfilePage>
     final theme = Theme.of(context);
     return SliverAppBar.medium(
       actions: <Widget>[
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: Row(
+              children: [
+                IconButton(icon: const Icon(Icons.edit), onPressed: () {
+                  showManageDialog();
+                },),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
         _buildMenu(context),
       ],
       leading: _routingService.backButtonLeading(),
@@ -716,25 +728,6 @@ class ProfilePageState extends State<ProfilePage>
                   _i18n.get("create_invite_link"),
                   style: theme.primaryTextTheme.bodyText2,
                 )
-              ],
-            ),
-          ),
-        ),
-      if (widget.roomUid.isMuc() && _isMucOwner)
-        PopupMenuItem<String>(
-          value: "manage",
-          child: Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Row(
-              children: [
-                const Icon(Icons.settings),
-                const SizedBox(width: 8),
-                Text(
-                  widget.roomUid.category == Categories.GROUP
-                      ? _i18n.get("manage_group")
-                      : _i18n.get("manage_channel"),
-                  style: theme.primaryTextTheme.bodyText2,
-                ),
               ],
             ),
           ),
@@ -1327,9 +1320,6 @@ class ProfilePageState extends State<ProfilePage>
           toastText: _i18n.get("report_result"),
           toastContext: context,
         );
-        break;
-      case "manage":
-        showManageDialog();
         break;
       case "invite_link":
         createInviteLink();
