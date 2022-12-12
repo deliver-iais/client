@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/screen/profile/widgets/all_media_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_view/media_view_widget.dart';
+
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class AllImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AllMediaPage(
+    return MediaViewWidget(
       roomUid: roomUid,
       messageId: messageId,
       mediaType: MediaType.IMAGE,
@@ -35,7 +36,7 @@ class AllImagePage extends StatelessWidget {
       initIndex: initIndex,
       message: message,
       onEdit: onEdit,
-      mediaUiWidget: (filePath) =>
+      mediaUiWidget: (filePath,caption) =>
           isWeb ? Image.network(filePath) : Image.file(File(filePath)),
     );
   }
