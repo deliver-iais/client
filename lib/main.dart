@@ -89,6 +89,7 @@ import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/firebase_options.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -104,6 +105,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -280,6 +282,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
   registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
+  registerSingleton<VideoPlayerService>(VideoPlayerService());
 }
 
 Future initializeFirebase() async {

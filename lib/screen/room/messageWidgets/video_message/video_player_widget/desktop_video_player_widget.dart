@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:dart_vlc/dart_vlc.dart';
+import 'package:deliver/services/video_player_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class DesktopVideoPlayer extends StatefulWidget {
   final String videoFilePath;
@@ -16,28 +16,20 @@ class DesktopVideoPlayer extends StatefulWidget {
 }
 
 class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
-  final Player _videoPlayer = Player(
-    id: 0,
-  );
+  final _videoPlayerService = GetIt.I.get<VideoPlayerService>();
 
   @override
   void dispose() {
-    _videoPlayer.dispose();
+    _videoPlayerService.desktopPlayers.forEach((key, player) {
+      player.dispose();
+    });
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _videoPlayer.open(
-      Playlist(
-        medias: [
-          Media.file(
-            File(widget.videoFilePath),
-          ),
-        ],
-      ),
-    );
+    _videoPlayerService.createDesktopPlayer(widget.videoFilePath);
   }
 
   @override
@@ -47,7 +39,7 @@ class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
     return Center(
       child: LayoutBuilder(
         builder: (context, constraints) => Video(
-          player: _videoPlayer,
+          player: _videoPlayerService.currentDesktopPlayer,
           width: constraints.maxWidth,
           height: constraints.maxHeight - 100,
           volumeThumbColor: theme.colorScheme.primary,

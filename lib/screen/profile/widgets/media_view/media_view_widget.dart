@@ -21,6 +21,7 @@ import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -70,13 +71,14 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _videoPlayerService = GetIt.I.get<VideoPlayerService>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allMediaCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
-  final LruCache _fileCache =
+  final LruCache<int, String> _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
   final BehaviorSubject<Widget> _widget =
       BehaviorSubject.seeded(const SizedBox.shrink());
@@ -340,7 +342,16 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
                           color: Colors.transparent,
                         ),
                         pageController: _pageController,
-                        onPageChanged: (index) => _currentIndex.add(index),
+                        onPageChanged: (index) {
+                          _videoPlayerService.desktopPlayers[
+                                  _fileCache.get(_currentIndex.value).hashCode]
+                              ?.stop();
+
+                          _currentIndex.add(index);
+                          _videoPlayerService
+                              .desktopPlayers[_fileCache.get(index).hashCode]
+                              ?.play();
+                        },
                         builder: (c, index) {
                           return PhotoViewGalleryPageOptions.customChild(
                             onTapDown: (c, t, p) =>
@@ -365,7 +376,7 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
                                             filePath.data != null) {
                                           _fileCache.set(
                                             index,
-                                            filePath.data,
+                                            filePath.data!,
                                           );
                                           return isDesktop
                                               ? InteractiveViewer(
