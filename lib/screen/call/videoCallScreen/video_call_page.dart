@@ -119,7 +119,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         maxScale: 4,
                                         child: RTCVideoView(
                                           widget.remoteRenderer,
-                                          mirror: _callRepo.incomingVideoSwitch.value ? false : true,
+                                          mirror: !_callRepo
+                                              .incomingVideoSwitch.value,
                                         ),
                                       ),
                                     ),
@@ -144,7 +145,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         maxScale: 4,
                                         child: RTCVideoView(
                                           widget.remoteRenderer,
-                                          mirror: _callRepo.incomingVideoSwitch.value ? false : true,
+                                          mirror: !_callRepo
+                                              .incomingVideoSwitch.value,
                                         ),
                                       ),
                                     ),
@@ -256,7 +258,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         snapshot.data!
                                             ? widget.localRenderer
                                             : widget.remoteRenderer,
-                                        mirror: (snapshot.data! && _callRepo.switching.value) ? false : true,
+                                        mirror: !(snapshot.data! &&
+                                            _callRepo.switching.value),
                                       ),
                                     ),
                                   )
@@ -374,7 +377,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                               widget.localRenderer,
                               objectFit: RTCVideoViewObjectFit
                                   .RTCVideoViewObjectFitCover,
-                              mirror: snapshot.data! ? false : true,
+                              mirror: !(snapshot.data ?? false),
                             ),
                           )
                         : inComingVideo

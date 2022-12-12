@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
-import 'package:all_sensors/all_sensors.dart' as AllSensor;
+import 'package:all_sensors/all_sensors.dart' as all_sensor;
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
@@ -195,7 +195,7 @@ class CallScreenState extends State<CallScreen> {
         }
       }),
     );
-    _streamSubscription = AllSensor.proximityEvents!.listen(
+    _streamSubscription = all_sensor.proximityEvents!.listen(
       (event) => setState(() => _isNear = event.getValue()),
     );
   }

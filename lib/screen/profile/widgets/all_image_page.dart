@@ -27,7 +27,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:extended_image_library/extended_image_library.dart';
+// import 'package:extended_image_library/extended_image_library.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -479,7 +479,6 @@ class _AllImagePageState extends State<AllImagePage>
                           _currentIndex.add(index);
                         },
                         controller: _pageController,
-                        scrollDirection: Axis.horizontal,
                       ),
                     ),
                   );
