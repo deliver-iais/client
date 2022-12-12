@@ -14,7 +14,9 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/profile/widgets/media_view/widget/media_app_bar_counter_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_view/widget/media_caption_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_view/widget/time_and_name_status.dart';
 import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
@@ -33,17 +35,17 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AllMediaPage extends StatefulWidget {
+class MediaViewWidget extends StatefulWidget {
   final String roomUid;
   final int messageId;
   final int? initIndex;
   final Message? message;
   final String? filePath;
-  final Widget Function(String) mediaUiWidget;
+  final Widget Function(String, String) mediaUiWidget;
   final MediaType mediaType;
   final void Function()? onEdit;
 
-  const AllMediaPage({
+  const MediaViewWidget({
     super.key,
     required this.roomUid,
     required this.messageId,
@@ -56,15 +58,14 @@ class AllMediaPage extends StatefulWidget {
   });
 
   @override
-  State<AllMediaPage> createState() => _AllMediaPageState();
+  State<MediaViewWidget> createState() => _MediaViewWidgetState();
 }
 
-class _AllMediaPageState extends State<AllMediaPage>
+class _MediaViewWidgetState extends State<MediaViewWidget>
     with SingleTickerProviderStateMixin {
   late final _pageController = PageController(initialPage: initialIndex ?? 0);
 
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -255,9 +256,10 @@ class _AllMediaPageState extends State<AllMediaPage>
   }
 
   Widget _buildSingleMedia() {
+    final caption = widget.message!.json.toFile().caption;
     return Stack(
       children: [
-        buildMediaUi(widget.filePath!),
+        buildMediaUi(widget.filePath!, caption),
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
@@ -267,7 +269,7 @@ class _AllMediaPageState extends State<AllMediaPage>
               createdOn: widget.message!.time,
               createdBy: widget.roomUid,
               messageId: widget.messageId,
-              caption: widget.message!.json.toFile().caption,
+              caption: caption,
             ),
           ),
         )
@@ -275,13 +277,13 @@ class _AllMediaPageState extends State<AllMediaPage>
     );
   }
 
-  Widget buildMediaUi(String filePath) {
+  Widget buildMediaUi(String filePath, String caption) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedBuilder(
           animation: animationList[animationIndex],
-          child: widget.mediaUiWidget(filePath),
+          child: widget.mediaUiWidget(filePath, caption),
           builder: (context, child) => Transform.rotate(
             angle: animationList[animationIndex].value,
             child: child,
@@ -369,10 +371,12 @@ class _AllMediaPageState extends State<AllMediaPage>
                                               ? InteractiveViewer(
                                                   child: buildMediaUi(
                                                     filePath.data!,
+                                                    json["caption"].toString(),
                                                   ),
                                                 )
                                               : buildMediaUi(
                                                   filePath.data!,
+                                                  json["caption"].toString(),
                                                 );
                                         } else {
                                           return Center(
@@ -495,18 +499,25 @@ class _AllMediaPageState extends State<AllMediaPage>
     required String createdBy,
     required int createdOn,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Spacer(),
-        if (caption.isNotEmpty) buildCaption(caption),
-        buildFooter(
-          createdBy: createdBy,
-          createdOn: createdOn,
-          messageId: messageId,
-        )
-      ],
-    );
+    if (widget.mediaType == MediaType.IMAGE) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          if (caption.isNotEmpty)
+            MediaCaptionWidget(
+              caption: caption,
+            ),
+          buildFooter(
+            createdBy: createdBy,
+            createdOn: createdOn,
+            messageId: messageId,
+          )
+        ],
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Future<Message?> getMessage() async {
@@ -516,60 +527,6 @@ class _AllMediaPageState extends State<AllMediaPage>
       media!.messageId,
     );
     return message;
-  }
-
-  Widget buildBottomAppBar(String createdBy, int createdOn) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FutureBuilder<String>(
-          future: _roomRepo.getName(createdBy.asUid()),
-          builder: (c, name) {
-            if (name.hasData && name.data != null) {
-              return Text(
-                name.data!,
-                overflow: TextOverflow.fade,
-                style: theme.textTheme.bodyText2!.copyWith(color: Colors.white),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Text(
-          DateTime.fromMillisecondsSinceEpoch(
-            createdOn,
-          ).toString().substring(0, 19),
-          style: theme.textTheme.bodyText2!
-              .copyWith(height: 1, color: Colors.white),
-        )
-      ],
-    );
-  }
-
-  Widget buildCaption(String caption) {
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height / 3,
-      ),
-      color: Colors.black.withAlpha(120),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            caption,
-            textDirection: TextDirection.rtl,
-            style: theme.textTheme.bodyText2!.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget buildFooter({
@@ -583,7 +540,12 @@ class _AllMediaPageState extends State<AllMediaPage>
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
         child: Row(
           children: [
-            Expanded(child: buildBottomAppBar(createdBy, createdOn)),
+            Expanded(
+              child: TimeAndNameStatus(
+                createdBy: createdBy,
+                createdOn: createdOn,
+              ),
+            ),
             // const Spacer(),
             if (widget.onEdit != null)
               FutureBuilder<Message?>(
@@ -646,19 +608,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                   color: Colors.white,
                 ),
               ),
-            if (isDesktop)
-              PopupMenuButton(
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                itemBuilder: (cc) => <PopupMenuEntry>[
-                  OperationOnMedia(
-                    getMessage: getMessage,
-                  )
-                ],
-              )
+            if (isDesktop) _buildPopupMenuButton(),
           ],
         ),
       ),
@@ -689,7 +639,9 @@ class _AllMediaPageState extends State<AllMediaPage>
         const SizedBox(
           width: 10,
         ),
-        if (!isDesktop)
+        if (widget.mediaType == MediaType.VIDEO)
+          _buildPopupMenuButton()
+        else if (!isDesktop)
           IconButton(
             icon: const Icon(
               CupertinoIcons.down_arrow,
@@ -705,38 +657,32 @@ class _AllMediaPageState extends State<AllMediaPage>
             tooltip: _i18n.get("save_to_gallery"),
           ),
       ],
-      title: StreamBuilder<int?>(
-        stream: _allMediaCount,
-        builder: (context, snapshot) {
-          if (snapshot.hasData &&
-              snapshot.data != null &&
-              snapshot.data! != 0) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: StreamBuilder<int>(
-                stream: _currentIndex,
-                builder: (c, position) {
-                  if (position.hasData &&
-                      position.data != null &&
-                      position.data! != -1) {
-                    return Text(
-                      "${snapshot.data! - position.data!} of ${snapshot.data}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            );
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
+      title: MediaAppBarCounterWidget(
+        currentIndex: _currentIndex,
+        mediaCount: _allMediaCount,
       ),
+    );
+  }
+
+  PopupMenuButton<dynamic> _buildPopupMenuButton() {
+    return PopupMenuButton(
+      icon: const Icon(
+        Icons.more_vert,
+        size: 20,
+        color: Colors.white,
+      ),
+      shape: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
+      color: Color.alphaBlend(Colors.grey.withAlpha(80), Colors.black)
+          .withOpacity(0.95),
+      itemBuilder: (cc) => <PopupMenuEntry>[
+        OperationOnMedia(
+          getMessage: getMessage,
+        ),
+      ],
     );
   }
 }
