@@ -41,7 +41,7 @@ class _DesktopVideoPlayerState extends State<DesktopVideoPlayer> {
         builder: (context, constraints) => Video(
           player: _videoPlayerService.currentDesktopPlayer,
           width: constraints.maxWidth,
-          height: constraints.maxHeight - 100,
+          height: constraints.maxHeight,
           volumeThumbColor: theme.colorScheme.primary,
           volumeActiveColor: theme.colorScheme.primary,
         ),
