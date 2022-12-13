@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -25,13 +26,12 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:dismissible_page/dismissible_page.dart';
+import 'package:extended_image/extended_image.dart';
+// import 'package:extended_image_library/extended_image_library.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AllImagePage extends StatefulWidget {
@@ -58,9 +58,12 @@ class AllImagePage extends StatefulWidget {
   State<AllImagePage> createState() => _AllImagePageState();
 }
 
+typedef DoubleClickAnimationListener = void Function();
+
 class _AllImagePageState extends State<AllImagePage>
-    with SingleTickerProviderStateMixin {
-  late final _pageController = PageController(initialPage: initialIndex ?? 0);
+    with TickerProviderStateMixin {
+  late final _pageController =
+      ExtendedPageController(initialPage: initialIndex ?? 0);
 
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -83,8 +86,12 @@ class _AllImagePageState extends State<AllImagePage>
   bool isSingleImage = false;
 
   late List<Animation<double>> animationList;
-
+  late AnimationController _animationController;
   late AnimationController controller;
+  Animation<double>? _animation;
+  late DoubleClickAnimationListener _animationListener;
+  final List<double> doubleTapScales = <double>[1.0, 2.0];
+
   int animationIndex = 0;
   bool disableRotate = false;
 
@@ -112,6 +119,8 @@ class _AllImagePageState extends State<AllImagePage>
   @override
   void dispose() {
     _pageController.dispose();
+    _animationController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -135,6 +144,10 @@ class _AllImagePageState extends State<AllImagePage>
           disableRotate = false;
         }
       });
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
 
     animationList = [
       Tween<double>(begin: 0, end: pi / 2).animate(controller),
@@ -176,12 +189,33 @@ class _AllImagePageState extends State<AllImagePage>
       transitionBuilder: (child, animation) {
         return ScaleTransition(scale: animation, child: child);
       },
-      child: StreamBuilder<Widget>(
-        stream: _widget,
-        initialData: const SizedBox.shrink(),
-        builder: (c, w) {
-          return w.data!;
+      child: ExtendedImageSlidePage(
+        slideType: SlideType.wholePage,
+        onSlidingPage: (state) {
+          ///you can change other widgets' state on page as you want
+          ///base on offset/isSliding etc
+          if (state.isSliding) {
+            if (_isBarShowing.value) {
+              _isBarShowing.add(false);
+            }
+          } else {
+            _isBarShowing.add(true);
+          }
         },
+        slidePageBackgroundHandler: (offset, pageSize) {
+          return defaultSlidePageBackgroundHandler(
+            offset: offset,
+            pageSize: pageSize,
+            color: Colors.black,
+          );
+        },
+        child: StreamBuilder<Widget>(
+          stream: _widget,
+          initialData: const SizedBox.shrink(),
+          builder: (c, w) {
+            return w.data!;
+          },
+        ),
       ),
     );
   }
@@ -191,45 +225,31 @@ class _AllImagePageState extends State<AllImagePage>
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return DismissiblePage(
-      onDragStart: () {},
-      onDragUpdate: (_) {
-        if (_isBarShowing.value) {
-          _isBarShowing.add(false);
-        }
-      },
-      onDismissed: () {
-        Navigator.of(context).pop();
-      },
-      direction: DismissiblePageDismissDirection.multi,
-      isFullScreen: false,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.black,
-          systemNavigationBarIconBrightness: Brightness.light,
-        ),
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: buildAppbar(),
-          backgroundColor: Colors.transparent,
-          body: StreamBuilder<MediaMetaData?>(
-            stream: _mediaMetaDataDao.get(widget.roomUid),
-            builder: (c, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                if (initialIndex == null || initialIndex! >= 0) {
-                  _initImage();
-                }
-                _allImageCount.add(snapshot.data!.imagesCount);
-                if (initialIndex != null && initialIndex! >= 0) {
-                  _widget.add(buildImageByIndex(initialIndex!));
-                } else {
-                  _widget.add(singleImage());
-                }
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: buildAppbar(),
+        backgroundColor: Colors.transparent,
+        body: StreamBuilder<MediaMetaData?>(
+          stream: _mediaMetaDataDao.get(widget.roomUid),
+          builder: (c, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              if (initialIndex == null || initialIndex! >= 0) {
+                _initImage();
               }
-
-              return buildAnimation();
-            },
-          ),
+              _allImageCount.add(snapshot.data!.imagesCount);
+              if (initialIndex != null && initialIndex! >= 0) {
+                _widget.add(buildImageByIndex(initialIndex!));
+              } else {
+                _widget.add(singleImage());
+              }
+            }
+            return buildAnimation();
+          },
         ),
       ),
     );
@@ -273,15 +293,76 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   Widget buildImage(String filePath, int index) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: AnimatedBuilder(
-          animation: animationList[animationIndex],
-          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
-          builder: (context, child) => Transform.rotate(
-            angle: animationList[animationIndex].value,
-            child: child,
+    return GestureDetector(
+      onTapUp: (_) {
+        if (_isBarShowing.value) {
+          _isBarShowing.add(false);
+        } else {
+          _isBarShowing.add(true);
+        }
+      },
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: AnimatedBuilder(
+            animation: animationList[animationIndex],
+            child: isWeb
+                ? Image.network(filePath)
+                : ExtendedImage.file(
+                    File(filePath),
+                    mode: ExtendedImageMode.gesture,
+                    initGestureConfigHandler: (state) {
+                      return GestureConfig(
+                        inPageView: true,
+                        minScale: 1.0,
+                        maxScale: 4.0,
+                        //you can cache gesture state even though page view page change.
+                        //remember call clearGestureDetailsCache() method at the right time.(for example,this page dispose)
+                      );
+                    },
+                    enableSlideOutPage: true,
+                    isAntiAlias: true,
+                    onDoubleTap: (state) {
+                      ///you can use define pointerDownPosition as you can,
+                      ///default value is double tap pointer down postion.
+                      final pointerDownPosition = state.pointerDownPosition;
+                      final begin = state.gestureDetails?.totalScale ?? 1.0;
+                      double end;
+
+                      //remove old
+                      _animation?.removeListener(_animationListener);
+
+                      //stop pre
+                      //reset to use
+                      _animationController
+                        ..stop()
+                        ..reset();
+
+                      if (begin == doubleTapScales[0]) {
+                        end = doubleTapScales[1];
+                      } else {
+                        end = doubleTapScales[0];
+                      }
+
+                      _animationListener = () {
+                        //print(_animation.value);
+                        state.handleDoubleTap(
+                          scale: _animation?.value,
+                          doubleTapPosition: pointerDownPosition,
+                        );
+                      };
+                      _animation = _animationController
+                          .drive(Tween<double>(begin: begin, end: end));
+
+                      _animation?.addListener(_animationListener);
+
+                      _animationController.forward();
+                    },
+                  ),
+            builder: (context, child) => Transform.rotate(
+              angle: animationList[animationIndex].value,
+              child: child,
+            ),
           ),
         ),
       ),
@@ -295,117 +376,6 @@ class _AllImagePageState extends State<AllImagePage>
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isDesktop)
-              StreamBuilder<int>(
-                stream: _currentIndex,
-                builder: (context, indexSnapShot) {
-                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
-                    return IconButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: SLOW_ANIMATION_DURATION,
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_outlined),
-                      color: theme.primaryColorLight,
-                    );
-                  } else {
-                    return const SizedBox(
-                      width: 40,
-                    );
-                  }
-                },
-              )
-            else
-              const SizedBox(
-                width: 5,
-              ),
-            StreamBuilder<int>(
-              stream: _allImageCount,
-              builder: (context, all) {
-                if (all.hasData && all.data != null && all.data != 0) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10, top: 10),
-                      child: PhotoViewGallery.builder(
-                        scrollPhysics: const BouncingScrollPhysics(),
-                        itemCount: all.data,
-                        backgroundDecoration: const BoxDecoration(
-                          color: Colors.transparent,
-                        ),
-                        pageController: _pageController,
-                        onPageChanged: (index) => _currentIndex.add(index),
-                        builder: (c, index) {
-                          return PhotoViewGalleryPageOptions.customChild(
-                            onTapDown: (c, t, p) =>
-                                _isBarShowing.add(!_isBarShowing.value),
-                            child: FutureBuilder<Media?>(
-                              future: _getMedia(index),
-                              builder: (c, mediaSnapShot) {
-                                if (mediaSnapShot.hasData) {
-                                  final json =
-                                      jsonDecode(mediaSnapShot.data!.json)
-                                          as Map;
-                                  return Hero(
-                                    tag: json['uuid'],
-                                    child: FutureBuilder<String?>(
-                                      initialData: _fileCache.get(index),
-                                      future: _fileRepo.getFile(
-                                        json['uuid'],
-                                        json['name'],
-                                      ),
-                                      builder: (c, filePath) {
-                                        if (filePath.hasData &&
-                                            filePath.data != null) {
-                                          _fileCache.set(
-                                            index,
-                                            filePath.data,
-                                          );
-                                          return isDesktop
-                                              ? InteractiveViewer(
-                                                  child: buildImage(
-                                                    filePath.data!,
-                                                    index,
-                                                  ),
-                                                )
-                                              : buildImage(
-                                                  filePath.data!,
-                                                  index,
-                                                );
-                                        } else {
-                                          return const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.blue,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.blue,
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                            childSize: const Size(300, 300),
-                            initialScale: PhotoViewComputedScale.contained,
-                            minScale: PhotoViewComputedScale.contained,
-                            maxScale: PhotoViewComputedScale.covered * 4.1,
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
             if (isDesktop)
               StreamBuilder<int?>(
                 stream: _allImageCount,
@@ -424,10 +394,8 @@ class _AllImagePageState extends State<AllImagePage>
                                 curve: Curves.easeInOut,
                               );
                             },
-                            icon: Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              color: theme.primaryColorLight,
-                            ),
+                            icon: const Icon(Icons.arrow_back_ios_new_outlined),
+                            color: theme.primaryColorLight,
                           );
                         } else {
                           return const SizedBox(
@@ -438,6 +406,108 @@ class _AllImagePageState extends State<AllImagePage>
                     );
                   } else {
                     return const SizedBox.shrink();
+                  }
+                },
+              )
+            else
+              const SizedBox(
+                width: 5,
+              ),
+            StreamBuilder<int>(
+              stream: _allImageCount,
+              builder: (context, all) {
+                if (all.hasData && all.data != null && all.data != 0) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10, top: 10),
+                      child: ExtendedImageGesturePageView.builder(
+                        itemBuilder: (context, index) {
+                          return FutureBuilder<Media?>(
+                            future: _getMedia(index),
+                            builder: (c, mediaSnapShot) {
+                              if (mediaSnapShot.hasData) {
+                                final json =
+                                    jsonDecode(mediaSnapShot.data!.json) as Map;
+                                return Hero(
+                                  tag: json['uuid'],
+                                  child: FutureBuilder<String?>(
+                                    initialData: _fileCache.get(index),
+                                    future: _fileRepo.getFile(
+                                      json['uuid'],
+                                      json['name'],
+                                    ),
+                                    builder: (c, filePath) {
+                                      if (filePath.hasData &&
+                                          filePath.data != null) {
+                                        _fileCache.set(
+                                          index,
+                                          filePath.data,
+                                        );
+                                        return isDesktop
+                                            ? InteractiveViewer(
+                                                child: buildImage(
+                                                  filePath.data!,
+                                                  index,
+                                                ),
+                                              )
+                                            : buildImage(
+                                                filePath.data!,
+                                                index,
+                                              );
+                                      } else {
+                                        return const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.blue,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              } else {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.blue,
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                        itemCount: all.data,
+                        onPageChanged: (index) {
+                          _currentIndex.add(index);
+                        },
+                        controller: _pageController,
+                      ),
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            if (isDesktop)
+              StreamBuilder<int>(
+                stream: _currentIndex,
+                builder: (context, indexSnapShot) {
+                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
+                    return IconButton(
+                      onPressed: () {
+                        _pageController.previousPage(
+                          duration: SLOW_ANIMATION_DURATION,
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        color: theme.primaryColorLight,
+                      ),
+                    );
+                  } else {
+                    return const SizedBox(
+                      width: 40,
+                    );
                   }
                 },
               )
