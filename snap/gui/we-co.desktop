@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=We
-Comment=we
+Comment=We
 Exec=we-co
 Icon=${SNAP}/meta/gui/icon.png
 Terminal=false
