@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_type.dart';
@@ -109,12 +110,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                               if (path.hasData && path.data != null) {
                                 return buildImageUi(context, path);
                               }
-
-                              return buildDownloadImageWidget(defaultImageUI());
+                              return buildDownloadImageWidget();
                             },
                           );
                         } else {
-                          child = buildDownloadImageWidget(child);
+                          child = buildDownloadImageWidget();
                         }
 
                         return AnimatedSwitcher(
@@ -153,6 +153,26 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
+  FutureBuilder<String?> buildGetThumbnail() {
+    return FutureBuilder<String?>(
+      future: _fileRepo.getFile(
+        widget.image.uuid,
+        widget.image.name,
+        thumbnailSize: ThumbnailSize.small,
+        intiProgressbar: false,
+      ),
+      builder: (c, path) {
+        if (path.hasData && path.data != null) {
+          return ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+            child: buildThumbnail(path.data!),
+          );
+        }
+        return defaultImageUI();
+      },
+    );
+  }
+
   SizedBox defaultImageUI() {
     return SizedBox(
       width: max(widget.image.width, 1) * 1.0,
@@ -161,15 +181,17 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     );
   }
 
-  Stack buildDownloadImageWidget(Widget child) {
+  Stack buildDownloadImageWidget() {
     return Stack(
+      fit: StackFit.expand,
+      alignment: Alignment.center,
       children: [
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => _downloadFile(),
-            child: child,
+            child: buildGetThumbnail(),
           ),
         ),
         buildLoadFileStatus(
@@ -190,6 +212,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   void _downloadFile() => _fileRepo.getFile(
         widget.image.uuid,
         widget.image.name,
+        showAlertOnError: true,
       );
 
   Stack buildImageUi(BuildContext context, AsyncSnapshot<String?> path) {
@@ -275,6 +298,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ],
     );
   }
+
+  Widget buildThumbnail(String path) => isWeb
+      ? Image.network(path, fit: BoxFit.fill)
+      : Image.file(File(path), fit: BoxFit.fill);
 
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {

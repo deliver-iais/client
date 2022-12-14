@@ -398,13 +398,6 @@ void main() {
         verify(roomDao.getRoom(testUid.asString()));
       });
     });
-    group('resetMention -', () {
-      test('When called should update room', () async {
-        final roomDao = getAndRegisterRoomDao();
-        await RoomRepo().resetMention(testUid.asString());
-        verify(roomDao.updateRoom(uid: testUid.asString(), mentioned: false));
-      });
-    });
     group('createRoomIfNotExist -', () {
       test('When called should update room', () async {
         final roomDao = getAndRegisterRoomDao();

@@ -31,10 +31,10 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -808,7 +808,10 @@ class ProfilePageState extends State<ProfilePage>
           }
         }
         if (token.isNotEmpty) {
-          _showInviteLinkDialog(generateInviteLink(token), token: token);
+          _showInviteLinkDialog(
+            buildMucInviteLink(widget.roomUid, token),
+            token: token,
+          );
         } else {
           ToastDisplay.showToast(
             toastText: _i18n.get("error_occurred"),
@@ -880,10 +883,6 @@ class ProfilePageState extends State<ProfilePage>
         );
       },
     ).ignore();
-  }
-
-  String generateInviteLink(String token) {
-    return "https://$APPLICATION_DOMAIN/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 
   InputDecoration buildInputDecoration(String label) {

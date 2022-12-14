@@ -121,9 +121,11 @@ class AutoDirectionTextField extends StatelessWidget {
   final bool scribbleEnabled;
 
   final bool enableIMEPersonalizedLearning;
+  final Key? textFieldKey;
 
   const AutoDirectionTextField({
     Key? key,
+    this.textFieldKey,
     this.controller,
     this.focusNode,
     this.decoration = const InputDecoration(),
@@ -186,6 +188,7 @@ class AutoDirectionTextField extends StatelessWidget {
       builder: (c, sn) {
         final textDir = sn.data ?? TextDirection.ltr;
         return TextField(
+          key: textFieldKey,
           controller: controller ?? _controller,
           focusNode: focusNode,
           decoration: decoration,
@@ -212,6 +215,7 @@ class AutoDirectionTextField extends StatelessWidget {
           maxLength: maxLength,
           onTap: () {
             // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
+
             final localController = controller ?? _controller;
             if (localController.selection ==
                 TextSelection.fromPosition(
@@ -224,6 +228,13 @@ class AutoDirectionTextField extends StatelessWidget {
                   offset: localController.text.length,
                 ),
               );
+            }
+            if (localController.text.isNotEmpty &&
+                localController.text[localController.text.length - 1] != ' ') {
+              final selection = localController.selection;
+              localController
+                ..text = ('${localController.text} ')
+                ..selection = selection;
             }
 
             onTap?.call();
