@@ -14,6 +14,7 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
+import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/widgets/all_image_page.dart';
@@ -212,6 +213,13 @@ class RoutingService {
         ProfilePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/profile"),
+        ),
+      );
+
+  void openManageMuc(String roomId) => _push(
+        MucManagePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/manage"),
         ),
       );
 

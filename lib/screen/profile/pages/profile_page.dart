@@ -88,6 +88,14 @@ class ProfilePageState extends State<ProfilePage>
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
+  final channelIdFormKey = GlobalKey<FormState>();
+  final nameFormKey = GlobalKey<FormState>();
+  var currentName = "";
+  var currentId = "";
+  String? mucName;
+  var mucInfo = "";
+  var channelId = "";
+
 
   late TabController _tabController;
   late int _tabsCount;
@@ -176,56 +184,6 @@ class ProfilePageState extends State<ProfilePage>
                           textDirection: TextDirection.ltr,
                           child: _buildSliverAppbar()
                       ),
-                      if (_profileAvatar.canSetAvatar)
-                        Directionality(
-                          textDirection: _i18n.defaultTextDirection,
-                          child: SliverToBoxAdapter(
-                            child: Container(
-                              color: theme.colorScheme.background.withOpacity(1),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          // padding: EdgeInsets.zero,
-                                            tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                            // minimumSize: Size(0, 0),
-                                            textStyle:
-                                            const TextStyle(fontSize: 12),
-                                            // backgroundColor: theme.colorScheme,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.vertical(
-                                                  bottom: Radius.circular(25.0),
-                                                ))),
-                                        onPressed: () =>
-                                            _profileAvatar.selectAvatar(context),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.end,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsetsDirectional.only(
-                                                  end: 8.0),
-                                              child: Text(
-                                                  _i18n.get("select_an_image")),
-                                            ),
-                                            Icon(Icons.add_a_photo_outlined),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
@@ -472,7 +430,8 @@ class ProfilePageState extends State<ProfilePage>
             child: Row(
               children: [
                 IconButton(icon: const Icon(Icons.edit), onPressed: () {
-                  showManageDialog();
+                  _routingService.openManageMuc(widget.roomUid.asString());
+                  // showManageDialog();
                 },),
                 const SizedBox(width: 8),
               ],
@@ -698,19 +657,6 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    final theme = Theme.of(context);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
-      child: AppBar(
-        titleSpacing: 8,
-        actions: <Widget>[
-                    _buildMenu(context),
-        ],
-        leading: _routingService.backButtonLeading(),
-      ),
-    );
-  }
 
   Widget _buildMenu(BuildContext context) {
     final theme = Theme.of(context);
@@ -1000,13 +946,6 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   void showManageDialog() {
-    final channelIdFormKey = GlobalKey<FormState>();
-    final nameFormKey = GlobalKey<FormState>();
-    var currentName = "";
-    var currentId = "";
-    String? mucName;
-    var mucInfo = "";
-    var channelId = "";
     final newChange = BehaviorSubject<bool>.seeded(false);
     showDialog(
       context: context,
