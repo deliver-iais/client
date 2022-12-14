@@ -65,7 +65,7 @@ class GalleryBoxState extends State<GalleryBox> {
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
     try {
-      if (await _checkPermissionServices.checkCameraRecorderPermission()) {
+       if (await _checkPermissionServices.checkCameraRecorderPermission()) {
         _cameras = await availableCameras();
         if (_cameras.isNotEmpty) {
           _controller = CameraController(_cameras[0], ResolutionPreset.max);
