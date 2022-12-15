@@ -39,17 +39,22 @@ public class StoragePathPlugin {
 
 
     public void getAudioPath(Result result) {
-        Permissions.check(activity, Manifest.permission.READ_MEDIA_AUDIO, null, new PermissionHandler() {
-            @Override
-            public void onGranted() {
-                getAllAudio(result);
-            }
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+            getAllAudio(result);
+        } else {
+            Permissions.check(activity, Manifest.permission.READ_MEDIA_AUDIO, null, new PermissionHandler() {
+                @Override
+                public void onGranted() {
+                    getAllAudio(result);
+                }
 
-            @Override
-            public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                result.error("1", "Permission denied", null);
-            }
-        });
+                @Override
+                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+                    result.error("1", "Permission denied", null);
+                }
+            });
+        }
+
 
     }
 
