@@ -14,9 +14,10 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/screen/profile/widgets/media_view/widget/media_app_bar_counter_widget.dart';
-import 'package:deliver/screen/profile/widgets/media_view/widget/media_caption_widget.dart';
-import 'package:deliver/screen/profile/widgets/media_view/widget/time_and_name_status.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_app_bar_counter_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_caption_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_time_and_name_status_widget.dart';
+
 import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
@@ -27,26 +28,26 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:dismissible_page/dismissible_page.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:rxdart/rxdart.dart';
 
-class MediaViewWidget extends StatefulWidget {
+import 'widget/image/image_media_widget.dart';
+import 'widget/video/video_media_widget.dart';
+
+class AllMediaPage extends StatefulWidget {
   final String roomUid;
   final int messageId;
   final int? initIndex;
   final Message? message;
   final String? filePath;
-  final Widget Function(String, String) mediaUiWidget;
   final MediaType mediaType;
   final void Function()? onEdit;
 
-  const MediaViewWidget({
+  const AllMediaPage({
     super.key,
     required this.roomUid,
     required this.messageId,
@@ -55,16 +56,18 @@ class MediaViewWidget extends StatefulWidget {
     this.message,
     this.onEdit,
     required this.mediaType,
-    required this.mediaUiWidget,
   });
 
   @override
-  State<MediaViewWidget> createState() => _MediaViewWidgetState();
+  State<AllMediaPage> createState() => _AllMediaPageState();
 }
 
-class _MediaViewWidgetState extends State<MediaViewWidget>
-    with SingleTickerProviderStateMixin {
-  late final _pageController = PageController(initialPage: initialIndex ?? 0);
+typedef DoubleClickAnimationListener = void Function();
+
+class _AllMediaPageState extends State<AllMediaPage>
+    with TickerProviderStateMixin {
+  late final _pageController =
+      ExtendedPageController(initialPage: initialIndex ?? 0);
 
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -86,8 +89,12 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
   int? initialIndex;
 
   late List<Animation<double>> animationList;
-
+  late AnimationController _animationController;
   late AnimationController controller;
+  Animation<double>? _animation;
+  late DoubleClickAnimationListener _animationListener;
+  final List<double> doubleTapScales = <double>[1.0, 2.0];
+
   int animationIndex = 0;
   bool disableRotate = false;
 
@@ -115,6 +122,8 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
   @override
   void dispose() {
     _pageController.dispose();
+    _animationController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -137,6 +146,10 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
           disableRotate = false;
         }
       });
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
 
     animationList = [
       Tween<double>(begin: 0, end: pi / 2).animate(controller),
@@ -178,12 +191,33 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
       transitionBuilder: (child, animation) {
         return ScaleTransition(scale: animation, child: child);
       },
-      child: StreamBuilder<Widget>(
-        stream: _widget,
-        initialData: const SizedBox.shrink(),
-        builder: (c, w) {
-          return w.data!;
+      child: ExtendedImageSlidePage(
+        slideType: SlideType.wholePage,
+        onSlidingPage: (state) {
+          ///you can change other widgets' state on page as you want
+          ///base on offset/isSliding etc
+          if (state.isSliding) {
+            if (_isBarShowing.value) {
+              _isBarShowing.add(false);
+            }
+          } else {
+            _isBarShowing.add(true);
+          }
         },
+        slidePageBackgroundHandler: (offset, pageSize) {
+          return defaultSlidePageBackgroundHandler(
+            offset: offset,
+            pageSize: pageSize,
+            color: Colors.black,
+          );
+        },
+        child: StreamBuilder<Widget>(
+          stream: _widget,
+          initialData: const SizedBox.shrink(),
+          builder: (c, w) {
+            return w.data!;
+          },
+        ),
       ),
     );
   }
@@ -193,49 +227,36 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return DismissiblePage(
-      onDragStart: () {},
-      onDragUpdate: (_) {
-        if (_isBarShowing.value) {
-          _isBarShowing.add(false);
-        }
-      },
-      onDismissed: () {
-        Navigator.of(context).pop();
-      },
-      direction: DismissiblePageDismissDirection.multi,
-      isFullScreen: false,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.black,
-          systemNavigationBarIconBrightness: Brightness.light,
-        ),
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: _buildAppbar(),
-          backgroundColor: Colors.transparent,
-          body: StreamBuilder<MediaMetaData?>(
-            stream: _mediaMetaDataDao.get(widget.roomUid),
-            builder: (c, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                if (initialIndex == null || initialIndex! >= 0) {
-                  _initMedia();
-                }
-                _allMediaCount.add(
-                  widget.mediaType == MediaType.IMAGE
-                      ? snapshot.data!.imagesCount
-                      : snapshot.data!.videosCount,
-                );
-                if (initialIndex != null && initialIndex! >= 0) {
-                  _widget.add(buildMediaByIndex(initialIndex!));
-                } else {
-                  _widget.add(_buildSingleMedia());
-                }
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: _buildAppbar(),
+        backgroundColor: Colors.transparent,
+        body: StreamBuilder<MediaMetaData?>(
+          stream: _mediaMetaDataDao.get(widget.roomUid),
+          builder: (c, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              if (initialIndex == null || initialIndex! >= 0) {
+                _initMedia();
               }
+              _allMediaCount.add(
+                widget.mediaType == MediaType.IMAGE
+                    ? snapshot.data!.imagesCount
+                    : snapshot.data!.videosCount,
+              );
+              if (initialIndex != null && initialIndex! >= 0) {
+                _widget.add(buildMediaByIndex(initialIndex!));
+              } else {
+                _widget.add(_buildSingleMedia());
+              }
+            }
 
-              return buildAnimation();
-            },
-          ),
+            return buildAnimation();
+          },
         ),
       ),
     );
@@ -267,7 +288,7 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
           child: AnimatedOpacity(
             duration: ANIMATION_DURATION,
             opacity: _isBarShowing.value ? 1 : 0,
-            child: buildCaptionSection(
+            child: buildBottomSection(
               createdOn: widget.message!.time,
               createdBy: widget.roomUid,
               messageId: widget.messageId,
@@ -280,15 +301,64 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
   }
 
   Widget buildMediaUi(String filePath, String caption) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: AnimatedBuilder(
-          animation: animationList[animationIndex],
-          child: widget.mediaUiWidget(filePath, caption),
-          builder: (context, child) => Transform.rotate(
-            angle: animationList[animationIndex].value,
-            child: child,
+    return GestureDetector(
+      onTapUp: (_) {
+        if (_isBarShowing.value) {
+          _isBarShowing.add(false);
+        } else {
+          _isBarShowing.add(true);
+        }
+      },
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: AnimatedBuilder(
+            animation: animationList[animationIndex],
+            child: (widget.mediaType == MediaType.IMAGE)
+                ? ImageMediaWidget(
+                    onDoubleTap: (state) {
+                      ///you can use define pointerDownPosition as you can,
+                      ///default value is double tap pointer down postion.
+                      final pointerDownPosition = state.pointerDownPosition;
+                      final begin = state.gestureDetails?.totalScale ?? 1.0;
+                      double end;
+
+                      //remove old
+                      _animation?.removeListener(_animationListener);
+
+                      //stop pre
+                      //reset to use
+                      _animationController
+                        ..stop()
+                        ..reset();
+
+                      if (begin == doubleTapScales[0]) {
+                        end = doubleTapScales[1];
+                      } else {
+                        end = doubleTapScales[0];
+                      }
+
+                      _animationListener = () {
+                        //print(_animation.value);
+                        state.handleDoubleTap(
+                          scale: _animation?.value,
+                          doubleTapPosition: pointerDownPosition,
+                        );
+                      };
+                      _animation = _animationController
+                          .drive(Tween<double>(begin: begin, end: end));
+
+                      _animation?.addListener(_animationListener);
+
+                      _animationController.forward();
+                    },
+                    filePath: filePath,
+                  )
+                : VideoMediaWidget(caption: caption, videoFilePath: filePath),
+            builder: (context, child) => Transform.rotate(
+              angle: animationList[animationIndex].value,
+              child: child,
+            ),
           ),
         ),
       ),
@@ -303,135 +373,16 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isDesktop)
-              StreamBuilder<int>(
-                stream: _currentIndex,
-                builder: (context, indexSnapShot) {
-                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
-                    return IconButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: SLOW_ANIMATION_DURATION,
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_outlined),
-                      color: theme.primaryColorLight,
-                    );
-                  } else {
-                    return const SizedBox(
-                      width: 40,
-                    );
-                  }
-                },
-              )
-            else
-              const SizedBox(
-                width: 5,
-              ),
-            StreamBuilder<int>(
-              stream: _allMediaCount,
-              builder: (context, all) {
-                if (all.hasData && all.data != null && all.data != 0) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10, top: 10),
-                      child: PhotoViewGallery.builder(
-                        scrollPhysics: const BouncingScrollPhysics(),
-                        itemCount: all.data,
-                        backgroundDecoration: const BoxDecoration(
-                          color: Colors.transparent,
-                        ),
-                        pageController: _pageController,
-                        onPageChanged: (index) {
-                          _videoPlayerService.desktopPlayers[
-                                  _fileCache.get(_currentIndex.value).hashCode]
-                              ?.stop();
-
-                          _currentIndex.add(index);
-                          _videoPlayerService
-                              .desktopPlayers[_fileCache.get(index).hashCode]
-                              ?.play();
-                        },
-                        builder: (c, index) {
-                          return PhotoViewGalleryPageOptions.customChild(
-                            onTapDown: (c, t, p) =>
-                                _isBarShowing.add(!_isBarShowing.value),
-                            child: FutureBuilder<Media?>(
-                              future: _getMedia(index),
-                              builder: (c, mediaSnapShot) {
-                                if (mediaSnapShot.hasData) {
-                                  final json =
-                                      jsonDecode(mediaSnapShot.data!.json)
-                                          as Map;
-                                  return Hero(
-                                    tag: json['uuid'],
-                                    child: FutureBuilder<String?>(
-                                      initialData: _fileCache.get(index),
-                                      future: _fileRepo.getFile(
-                                        json['uuid'],
-                                        json['name'],
-                                      ),
-                                      builder: (c, filePath) {
-                                        if (filePath.hasData &&
-                                            filePath.data != null) {
-                                          _fileCache.set(
-                                            index,
-                                            filePath.data!,
-                                          );
-                                          return isDesktop
-                                              ? InteractiveViewer(
-                                                  child: buildMediaUi(
-                                                    filePath.data!,
-                                                    json["caption"].toString(),
-                                                  ),
-                                                )
-                                              : buildMediaUi(
-                                                  filePath.data!,
-                                                  json["caption"].toString(),
-                                                );
-                                        } else {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              color: theme.colorScheme.primary,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                            initialScale: PhotoViewComputedScale.contained,
-                            minScale: PhotoViewComputedScale.contained,
-                            maxScale: PhotoViewComputedScale.covered * 4.1,
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
-            if (isDesktop)
               StreamBuilder<int?>(
                 stream: _allMediaCount,
-                builder: (c, allMediaCount) {
-                  if (allMediaCount.hasData && allMediaCount.data != null) {
+                builder: (c, allImageCount) {
+                  if (allImageCount.hasData && allImageCount.data != null) {
                     return StreamBuilder<int>(
                       stream: _currentIndex,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData &&
                             indexSnapShot.data != -1 &&
-                            indexSnapShot.data != allMediaCount.data! - 1) {
+                            indexSnapShot.data != allImageCount.data! - 1) {
                           return IconButton(
                             onPressed: () {
                               _pageController.nextPage(
@@ -439,10 +390,8 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
                                 curve: Curves.easeInOut,
                               );
                             },
-                            icon: Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              color: theme.primaryColorLight,
-                            ),
+                            icon: const Icon(Icons.arrow_back_ios_new_outlined),
+                            color: theme.primaryColorLight,
                           );
                         } else {
                           return const SizedBox(
@@ -455,10 +404,111 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
                     return const SizedBox.shrink();
                   }
                 },
-              )
-            else
-              const SizedBox(
-                width: 5,
+              ),
+            StreamBuilder<int>(
+              stream: _allMediaCount,
+              builder: (context, all) {
+                if (all.hasData && all.data != null && all.data != 0) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10, top: 10),
+                      child: ExtendedImageGesturePageView.builder(
+                        itemBuilder: (context, index) {
+                          return FutureBuilder<Media?>(
+                            future: _getMedia(index),
+                            builder: (c, mediaSnapShot) {
+                              if (mediaSnapShot.hasData) {
+                                final json =
+                                    jsonDecode(mediaSnapShot.data!.json) as Map;
+                                return Hero(
+                                  tag: json['uuid'],
+                                  child: FutureBuilder<String?>(
+                                    initialData: _fileCache.get(index),
+                                    future: _fileRepo.getFile(
+                                      json['uuid'],
+                                      json['name'],
+                                    ),
+                                    builder: (c, filePath) {
+                                      if (filePath.hasData &&
+                                          filePath.data != null) {
+                                        _fileCache.set(
+                                          index,
+                                          filePath.data!,
+                                        );
+                                        return isDesktop
+                                            ? InteractiveViewer(
+                                                child: buildMediaUi(
+                                                  filePath.data!,
+                                                  json["caption"].toString(),
+                                                ),
+                                              )
+                                            : buildMediaUi(
+                                                filePath.data!,
+                                                json["caption"].toString(),
+                                              );
+                                      } else {
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                        itemCount: all.data,
+                        onPageChanged: (index) {
+                          _videoPlayerService.desktopPlayers[
+                                  _fileCache.get(_currentIndex.value).hashCode]
+                              ?.stop();
+
+                          _currentIndex.add(index);
+                          _videoPlayerService
+                              .desktopPlayers[_fileCache.get(index).hashCode]
+                              ?.play();
+                        },
+                        controller: _pageController,
+                      ),
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            if (isDesktop)
+              StreamBuilder<int>(
+                stream: _currentIndex,
+                builder: (context, indexSnapShot) {
+                  if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
+                    return IconButton(
+                      onPressed: () {
+                        _pageController.previousPage(
+                          duration: SLOW_ANIMATION_DURATION,
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        color: theme.primaryColorLight,
+                      ),
+                    );
+                  } else {
+                    return const SizedBox(
+                      width: 40,
+                    );
+                  }
+                },
               )
           ],
         ),
@@ -482,7 +532,7 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
                               mediaSnapshot.data != null) {
                             final json =
                                 jsonDecode(mediaSnapshot.data!.json) as Map;
-                            return buildCaptionSection(
+                            return buildBottomSection(
                               createdOn: mediaSnapshot.data!.createdOn,
                               createdBy: mediaSnapshot.data!.createdBy,
                               messageId: mediaSnapshot.data!.messageId,
@@ -504,7 +554,7 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
     );
   }
 
-  Widget buildCaptionSection({
+  Widget buildBottomSection({
     required String caption,
     required int messageId,
     required String createdBy,
@@ -552,7 +602,7 @@ class _MediaViewWidgetState extends State<MediaViewWidget>
         child: Row(
           children: [
             Expanded(
-              child: TimeAndNameStatus(
+              child: MediaTimeAndNameStatusWidget(
                 createdBy: createdBy,
                 createdOn: createdOn,
               ),
