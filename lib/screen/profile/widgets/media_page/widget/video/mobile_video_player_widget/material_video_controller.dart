@@ -108,6 +108,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
                       child:
                           _buildSubtitles(context, chewieController.subtitle!),
                     ),
+                  if(widget.caption.isNotEmpty)
                   AnimatedOpacity(
                     opacity: notifier.hideStuff ? 0.0 : 1.0,
                     duration: const Duration(milliseconds: 300),
