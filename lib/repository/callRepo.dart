@@ -563,6 +563,12 @@ class CallRepo {
             case STATUS_CAMERA_CLOSE:
               incomingVideo.add(false);
               break;
+            case STATUS_CAMERA_SWITCH_ON:
+              incomingVideoSwitch.add(true);
+              break;
+            case STATUS_CAMERA_SWITCH_OFF:
+              incomingVideoSwitch.add(false);
+              break;
             case STATUS_MIC_OPEN:
               break;
             case STATUS_MIC_CLOSE:
@@ -762,6 +768,12 @@ class CallRepo {
           break;
         case STATUS_CAMERA_CLOSE:
           incomingVideo.add(false);
+          break;
+        case STATUS_CAMERA_SWITCH_ON:
+          incomingVideoSwitch.add(true);
+          break;
+        case STATUS_CAMERA_SWITCH_OFF:
+          incomingVideoSwitch.add(false);
           break;
         case STATUS_MIC_OPEN:
           break;
@@ -1054,6 +1066,13 @@ class CallRepo {
       final isCameraSwitched =
           await Helper.switchCamera(_localStream!.getVideoTracks()[0]);
       switching.add(!isCameraSwitched);
+      if (_isConnected) {
+        if (!isCameraSwitched) {
+          await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_ON));
+        } else {
+          await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_OFF));
+        }
+      }
       return isCameraSwitched;
     }
     return false;
@@ -1654,6 +1673,7 @@ class CallRepo {
       incomingSharing.add(false);
       videoing.add(false);
       incomingVideo.add(false);
+      incomingVideoSwitch.add(false);
       desktopDualVideo.add(true);
       incomingCallOnHold.add(false);
       await _phoneStateStream?.cancel();
@@ -1762,6 +1782,7 @@ class CallRepo {
   BehaviorSubject<bool> incomingSharing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> incomingVideoSwitch = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
   BehaviorSubject<bool> isSpeaker = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingCallOnHold = BehaviorSubject.seeded(false);
