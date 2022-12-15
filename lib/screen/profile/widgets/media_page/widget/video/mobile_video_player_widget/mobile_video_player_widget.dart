@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:chewie/chewie.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget/mobile_video_player_widget/material_video_controller.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/video/mobile_video_player_widget/material_video_controller.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';

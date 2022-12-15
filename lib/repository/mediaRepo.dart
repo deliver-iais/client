@@ -262,21 +262,25 @@ class MediaRepo {
     int limit,
   ) async {
     try {
-      final getMediasReq = await _sdr.queryServiceClient.fetchMedias(
-        FetchMediasReq()
+      print(DateTime(time).month);
+      print(DateTime(time).hour);
+      print(year);
+      print(limit);
+      final getMediasReq = await _sdr.queryServiceClient.fetchMetaList(
+        FetchMetaReq()
           ..roomUid = roomUid
           ..pointer = Int64(time)
-          ..mediaType = mediaType
+          ..group = FetchMetaReq_Group.MEDIA
           ..year = year
           ..limit = limit
-          ..fetchingDirectionType =
-              FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH,
+          ..fetchingDirectionType = FetchMetaReq_Direction.BACKWARD_FETCH,
       );
-      if (getMediasReq.medias.isEmpty) {
+      print(getMediasReq); //==>empty
+      if (getMediasReq.metaList.isEmpty) {
         time = DateTime(year - 1, 12, 30).millisecondsSinceEpoch;
         return _fetchLastMedia(roomUid, mediaType, time, year - 1, limit);
       } else {
-        await _saveFetchedMedias(getMediasReq.medias, roomUid, mediaType);
+        // await _saveFetchedMedias(getMediasReq.metaList, roomUid, mediaType);
       }
     } catch (e) {
       _logger.e(e);
