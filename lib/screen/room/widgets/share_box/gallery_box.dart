@@ -114,7 +114,7 @@ class GalleryBoxState extends State<GalleryBox> {
               folders.data!.isNotEmpty) {
             return GridView.builder(
               controller: widget.scrollController,
-              itemCount: _getItemCount(folders.data!),
+              itemCount: _getItemCount(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
@@ -297,12 +297,14 @@ class GalleryBoxState extends State<GalleryBox> {
     ].reversed.toList();
   }
 
-  int _getItemCount(List<AssetPathEntity> folders) => _hasCameraCapacity()
-      ? _getFoldersCount(folders) + 1
-      : _getFoldersCount(folders);
+  bool _hasCameraCapacity() =>
+      _controller != null && _controller!.value.isInitialized;
 
-  int _getFoldersCount(List<AssetPathEntity> folders) =>
-      folders.where((element) => element.assetCount > 0).length;
+  int _getItemCount() =>
+      _hasCameraCapacity() ? _getFoldersCount() + 1 : _getFoldersCount();
+
+  int _getFoldersCount() =>
+      _folders.value.where((element) => element.assetCount > 0).length;
 
   AssetPathEntity _getFolder(int index) =>
       _folders.value.where((element) => element.assetCount > 0).toList()[index];
@@ -398,9 +400,6 @@ class GalleryBoxState extends State<GalleryBox> {
       ),
     );
   }
-
-  bool _hasCameraCapacity() =>
-      _controller != null && _controller!.value.isInitialized;
 
   void openImage(XFile file, void Function() pop) {
     var imagePath = file.path;
