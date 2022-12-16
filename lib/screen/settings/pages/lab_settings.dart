@@ -1,8 +1,10 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
@@ -91,13 +93,10 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
           textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
-              Card(
-                color: theme.colorScheme.errorContainer,
-                elevation: 10,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Text(_i18n.get("these_feature_arent_stable_yet")),
-                ),
+              BrandImage(
+                text: _i18n.get("these_feature_arent_stable_yet"),
+                imagePath: "assets/images/experiment.webp",
+                alignment: Alignment.topCenter,
               ),
               if (isAndroid)
                 Section(
