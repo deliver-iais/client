@@ -32,7 +32,11 @@ dependencies:
       url: https://github.com/deliveriais/audioplayers
       path: packages/audioplayers
   badges: 2.0.3
-  camera: 0.10.0+3
+  camera:
+    git:
+      url: https://github.com/bottlepay/plugins.git
+      path: packages/camera/camera
+      ref: e1a4dba770da9bc3cf9f858bac6837083f8b9059
   card_swiper: 2.0.4
   chewie: 1.3.6
   circular_countdown_timer: 0.2.2
@@ -238,6 +242,10 @@ flutter:
     - assets/images/logo.png
     - assets/images/no-profile-pic.png
     - assets/images/wave.png
+    - assets/images/security.webp
+    - assets/images/experiment.webp
+    - assets/images/language.webp
+    - assets/images/connection.webp
     - lib/lang/en.json
     - lib/lang/fa.json
     - assets/animations/end_of_call.json

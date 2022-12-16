@@ -59,8 +59,7 @@ class GalleryBoxState extends State<GalleryBox> {
   }
 
   Future<void> _initFolders() async {
-    if ((await PhotoManager.requestPermissionExtend()).isAuth &&
-        await _checkPermissionServices.checkAccessMediaLocationPermission()) {
+    if (await _checkPermissionServices.checkAccessMediaLocationPermission()) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
@@ -68,7 +67,11 @@ class GalleryBoxState extends State<GalleryBox> {
       if (await _checkPermissionServices.checkCameraRecorderPermission()) {
         _cameras = await availableCameras();
         if (_cameras.isNotEmpty) {
-          _controller = CameraController(_cameras[0], ResolutionPreset.max);
+          _controller = CameraController(
+            _cameras[0],
+            ResolutionPreset.max,
+            enableAudio: false,
+          );
           return _controller!.initialize().then((_) {
             if (!mounted) {
               return;
@@ -111,20 +114,13 @@ class GalleryBoxState extends State<GalleryBox> {
               folders.data!.isNotEmpty) {
             return GridView.builder(
               controller: widget.scrollController,
-              itemCount: folders.data!
-                      .where((element) => element.assetCount > 0)
-                      .length +
-                  1,
+              itemCount: _getItemCount(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
               itemBuilder: (co, index) {
-                final folder = index > 0
-                    ? folders.data!
-                        .where((element) => element.assetCount > 0)
-                        .toList()[index - 1]
-                    : null;
-                if (index <= 0) {
+                final folder = _getFolderAtIndex(index);
+                if (_hasCameraCapacity() && index <= 0) {
                   return Container(
                     clipBehavior: Clip.hardEdge,
                     margin: const EdgeInsets.all(20.0),
@@ -140,24 +136,23 @@ class GalleryBoxState extends State<GalleryBox> {
                         ),
                       ],
                     ),
-                    child:
-                        _controller != null && _controller!.value.isInitialized
-                            ? GestureDetector(
-                                onTap: () {
-                                  openCamera(() {
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: CameraPreview(
-                                  _controller!,
-                                  child: const Icon(
-                                    Icons.photo_camera,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
+                    child: _hasCameraCapacity()
+                        ? GestureDetector(
+                            onTap: () {
+                              openCamera(() {
+                                Navigator.pop(context);
+                              });
+                            },
+                            child: CameraPreview(
+                              _controller!,
+                              child: const Icon(
+                                Icons.photo_camera,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   );
                 } else {
                   return GestureDetector(
@@ -301,6 +296,24 @@ class GalleryBoxState extends State<GalleryBox> {
         ),
     ].reversed.toList();
   }
+
+  bool _hasCameraCapacity() =>
+      _controller != null && _controller!.value.isInitialized;
+
+  int _getItemCount() =>
+      _hasCameraCapacity() ? _getFoldersCount() + 1 : _getFoldersCount();
+
+  int _getFoldersCount() =>
+      _folders.value.where((element) => element.assetCount > 0).length;
+
+  AssetPathEntity _getFolder(int index) =>
+      _folders.value.where((element) => element.assetCount > 0).toList()[index];
+
+  AssetPathEntity? _getFolderAtIndex(int index) => _hasCameraCapacity()
+      ? index > 0
+          ? _getFolder(index - 1)
+          : null
+      : _getFolder(index);
 
   void openCamera(void Function() pop) {
     Navigator.push(

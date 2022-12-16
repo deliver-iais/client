@@ -5,6 +5,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,6 +56,11 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
           textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
+              const BrandImage(
+                text: "",
+                imagePath: "assets/images/connection.webp",
+                topFreeHeight: 330,
+              ),
               Section(
                 children: [
                   Column(
