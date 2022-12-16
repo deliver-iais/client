@@ -154,7 +154,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         rowChildren.add(
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 11.0),
-            child: Switch(
+            child: CupertinoSwitch(
               value: widget.switchValue!,
               activeColor: theme.primaryColor,
               onChanged:
