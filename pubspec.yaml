@@ -240,6 +240,10 @@ flutter:
     - assets/images/logo.png
     - assets/images/no-profile-pic.png
     - assets/images/wave.png
+    - assets/images/security.webp
+    - assets/images/experiment.webp
+    - assets/images/language.webp
+    - assets/images/connection.webp
     - lib/lang/en.json
     - lib/lang/fa.json
     - assets/animations/end_of_call.json

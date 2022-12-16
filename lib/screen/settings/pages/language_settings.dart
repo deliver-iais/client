@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,12 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
             textDirection: _i18n.defaultTextDirection,
             child: ListView(
               children: [
+                const BrandImage(
+                  text: "",
+                  imagePath: "assets/images/language.webp",
+                  alignment: Alignment(0, -0.3),
+                  topFreeHeight: 360,
+                ),
                 Section(
                   title: _i18n.get("languages"),
                   children: [
