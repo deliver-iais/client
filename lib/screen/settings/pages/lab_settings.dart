@@ -1,6 +1,5 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
