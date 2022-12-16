@@ -228,7 +228,6 @@ class NavigationCenterState extends State<NavigationCenter>
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
                         child: PageTransitionSwitcher(
-                          // duration: SLOW_ANIMATION_DURATION,
                           transitionBuilder: (
                             child,
                             animation,
