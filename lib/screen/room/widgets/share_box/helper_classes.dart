@@ -5,26 +5,6 @@ import 'package:deliver/services/storage_path.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-class StorageFile {
-  final List files;
-  final String folderName;
-
-  const StorageFile({required this.files, required this.folderName});
-
-  factory StorageFile.fromJson(Map<String, dynamic> json) {
-    return StorageFile(
-      files: json['files'] as List,
-      folderName: json['folderName'].toString(),
-    );
-  }
-}
-
-List<StorageFile> _storageFiles(String json) {
-  return (jsonDecode(json) as List)
-      .map<StorageFile>((json) => StorageFile.fromJson(json))
-      .toList();
-}
-
 class FileBasic {
   final String path;
 
@@ -49,14 +29,6 @@ class AudioItem extends FileBasic {
       }
     }
     return files;
-  }
-}
-
-class ImageItem extends FileBasic {
-  ImageItem({required super.path});
-
-  static Future<List<StorageFile>> getImages() async {
-    return _storageFiles(await StoragePath.imagesPath);
   }
 }
 
