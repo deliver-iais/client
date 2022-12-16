@@ -294,7 +294,9 @@ Future initializeFirebase() async {
 
 // ignore: avoid_void_async
 void main() async {
-   DartVLC.initialize();
+  if (isWindows || isLinux) {
+    DartVLC.initialize();
+  }
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();

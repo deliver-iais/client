@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -226,18 +227,19 @@ class NavigationCenterState extends State<NavigationCenter>
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: AnimatedSwitcher(
-                          duration: SLOW_ANIMATION_DURATION,
-                          transitionBuilder: (child, animation) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(1.2, 0),
-                                end: const Offset(0, 0),
-                              ).animate(animation),
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
+                        child: PageTransitionSwitcher(
+                          // duration: SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (
+                            child,
+                            animation,
+                            secondaryAnimation,
+                          ) {
+                            return SharedAxisTransition(
+                              fillColor: Colors.transparent,
+                              animation: animation,
+                              secondaryAnimation: secondaryAnimation,
+                              transitionType: SharedAxisTransitionType.scaled,
+                              child: child,
                             );
                           },
                           child: !_isShowCaseEnable
