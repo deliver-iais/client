@@ -6,6 +6,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/brand_image.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -50,6 +51,12 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
           textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
+              const BrandImage(
+                text: "",
+                imagePath: "assets/images/security.webp",
+                alignment: Alignment(0.0, -0.4),
+                topFreeHeight: 380,
+              ),
               Section(
                 title: _i18n.get("lock_app"),
                 children: [

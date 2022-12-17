@@ -12,14 +12,12 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_filex/open_filex.dart';
 
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
@@ -119,68 +117,69 @@ class VideoTabUiState extends State<VideoTabUi> {
             future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
-                return GestureDetector(
+                return InkWell(
                   onTap: () {
-                    if (isDesktop) {
-                      OpenFilex.open(snapshot.data ?? "");
-                    } else {
-                      _routingService.openShowAllVideos(
-                        uid: widget.roomUid,
-                        initIndex: index,
-                        videosLength: widget.videoCount,
-                      );
-                    }
+                    _routingService.openShowAllVideos(
+                      roomUid: widget.roomUid.asString(),
+                      initIndex: index,
+                      messageId: media.messageId,
+                    );
                   },
-                  child: Stack(
-                    children: [
-                      FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                          json["uuid"],
-                          "${json["name"]}.png",
-                          thumbnailSize: ThumbnailSize.small,
-                          intiProgressbar: false,
-                        ),
-                        builder: (c, path) {
-                          if (path.hasData && path.data != null) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.0),
-                                image: DecorationImage(
-                                  image: Image.file(io.File(path.data!)).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                              // child: Image.file(File(path.data!),width: 400,),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      Center(
-                        child: Icon(
-                          Icons.play_circle_fill,
-                          color: theme.colorScheme.primary,
-                          size: 55,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          formatDuration(
-                            Duration(
-                              seconds: double.parse(json["duration"].toString())
-                                  .round(),
-                            ),
+                  child: Hero(
+                    tag: json["uuid"],
+                    child: Stack(
+                      children: [
+                        FutureBuilder<String?>(
+                          future: _fileRepo.getFile(
+                            json["uuid"],
+                            "${json["name"]}.png",
+                            thumbnailSize: ThumbnailSize.small,
+                            intiProgressbar: false,
                           ),
-                          style:
-                              Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontSize: 10,
+                          builder: (c, path) {
+                            if (path.hasData && path.data != null) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  image: DecorationImage(
+                                    image:
+                                        Image.file(io.File(path.data!)).image,
+                                    fit: BoxFit.cover,
                                   ),
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                // child: Image.file(File(path.data!),width: 400,),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
                         ),
-                      ),
-                    ],
+                        Center(
+                          child: Icon(
+                            Icons.play_circle_fill,
+                            color: theme.colorScheme.primary,
+                            size: 55,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            formatDuration(
+                              Duration(
+                                seconds:
+                                    double.parse(json["duration"].toString())
+                                        .round(),
+                              ),
+                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      fontSize: 10,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               } else {

@@ -96,6 +96,8 @@ const STATUS_CONNECTION_CONNECTED = "connection-connected";
 const STATUS_CONNECTION_FAILED = "connection-failed";
 const STATUS_CONNECTION_DISCONNECTED = "connection-disconnected";
 const STATUS_CONNECTION_ENDED = "connection-ended";
+const STATUS_CAMERA_SWITCH_ON = "camera-switch-on";
+const STATUS_CAMERA_SWITCH_OFF = "camera-switch-off";
 const WEBRTC_MAX_BITRATE =
     256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
 const WEBRTC_MIN_BITRATE =
@@ -257,6 +259,7 @@ const FEATURE_6 = 'feature6';
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
+const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
