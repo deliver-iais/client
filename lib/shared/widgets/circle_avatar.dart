@@ -128,17 +128,14 @@ class CircleAvatarWidget extends StatelessWidget {
         return FutureBuilder<ImageInfo>(
           future: completer.future,
           builder: (context, snapshot2) {
-            if (snapshot2.hasData && snapshot2.data != null) {
-              if ((snapshot2.data!.image.height - snapshot2.data!.image.width)
-                      .abs() <=
-                  3) {
-                return image = Image.file(
-                  File(snapshot.data!),
-                  fit: BoxFit.scaleDown,
-                );
-              } else {
-                return image;
-              }
+            if (snapshot2.hasData &&
+                ((snapshot2.data!.image.height - snapshot2.data!.image.width)
+                        .abs() <=
+                    3)) {
+              return image = Image.file(
+                File(snapshot.data!),
+                fit: BoxFit.scaleDown,
+              );
             } else {
               return image;
             }
