@@ -957,7 +957,7 @@ class ProfilePageState extends State<ProfilePage>
                           textDirection: _i18n.defaultTextDirection,
                           child: AutoDirectionTextForm(
                             autofocus: true,
-                            initialValue: name.data,
+                            controller: TextEditingController(text: name.data),
                             validator: (s) {
                               if (s!.isEmpty) {
                                 return _i18n.get("name_not_empty");
@@ -999,7 +999,8 @@ class ProfilePageState extends State<ProfilePage>
                               child: Form(
                                 key: channelIdFormKey,
                                 child: AutoDirectionTextForm(
-                                  initialValue: muc.data!.id,
+                                  controller:
+                                      TextEditingController(text: muc.data!.id),
                                   minLines: 1,
                                   validator: validateChannelId,
                                   onChanged: (str) {
@@ -1048,7 +1049,8 @@ class ProfilePageState extends State<ProfilePage>
                       return Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: AutoDirectionTextForm(
-                          initialValue: muc.data!.info,
+                          controller:
+                              TextEditingController(text: muc.data!.info),
                           minLines: muc.data!.info.isNotEmpty
                               ? muc.data!.info.split("\n").length
                               : 1,
