@@ -50,6 +50,7 @@ import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages
@@ -237,18 +238,20 @@ class RoutingService {
     Message? message,
     String? filePath,
   }) =>
-      _push(
-        AllMediaPage(
-          key: const ValueKey("/media-details"),
-          roomUid: roomUid,
-          messageId: messageId,
-          filePath: filePath,
-          initIndex: initIndex,
-          message: message,
-          mediaType: MediaType.VIDEO,
-        ),
-        useTransparentRoute: true,
-      );
+      !isMacOS
+          ? _push(
+              AllMediaPage(
+                key: const ValueKey("/media-details"),
+                roomUid: roomUid,
+                messageId: messageId,
+                filePath: filePath,
+                initIndex: initIndex,
+                message: message,
+                mediaType: MediaType.VIDEO,
+              ),
+              useTransparentRoute: true,
+            )
+          : OpenFilex.open(filePath);
 
   void openShowAllImage({
     required String uid,

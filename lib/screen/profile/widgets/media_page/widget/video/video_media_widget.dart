@@ -8,9 +8,11 @@ class VideoMediaWidget extends StatelessWidget {
   final String videoFilePath;
   final String caption;
 
-  const VideoMediaWidget(
-      {Key? key, required this.videoFilePath, required this.caption})
-      : super(key: key);
+  const VideoMediaWidget({
+    Key? key,
+    required this.videoFilePath,
+    required this.caption,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

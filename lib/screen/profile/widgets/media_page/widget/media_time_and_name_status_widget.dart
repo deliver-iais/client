@@ -2,20 +2,23 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
 class MediaTimeAndNameStatusWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final String createdBy;
   final int createdOn;
 
-  const MediaTimeAndNameStatusWidget(
-      {Key? key, required this.createdBy, required this.createdOn})
-      : super(key: key);
+  const MediaTimeAndNameStatusWidget({
+    Key? key,
+    required this.createdBy,
+    required this.createdOn,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme=Theme.of(context);
-    return  Column(
+    final theme = Theme.of(context);
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -46,5 +49,4 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
       ],
     );
   }
-
 }
