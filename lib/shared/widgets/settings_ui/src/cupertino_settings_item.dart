@@ -23,6 +23,7 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.iosChevron = defaultCupertinoForwardIcon,
     this.iosChevronPadding = defaultCupertinoForwardPadding,
     this.value,
+    this.valueDirection,
     this.hasDetails = false,
     this.enabled = true,
     this.onPress,
@@ -30,6 +31,7 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.onToggle,
     this.labelTextStyle,
     this.subtitleTextStyle,
+    this.subtitleDirection,
     this.valueTextStyle,
     this.switchActiveColor,
   })  : assert(labelMaxLines == null || labelMaxLines > 0),
@@ -45,6 +47,7 @@ class CupertinoSettingsItem extends StatefulWidget {
   final EdgeInsetsGeometry? iosChevronPadding;
   final SettingsItemType type;
   final String? value;
+  final TextDirection? valueDirection;
   final bool hasDetails;
   final bool enabled;
   final PressOperationCallback? onPress;
@@ -52,6 +55,7 @@ class CupertinoSettingsItem extends StatefulWidget {
   final Function(bool value)? onToggle;
   final TextStyle? labelTextStyle;
   final TextStyle? subtitleTextStyle;
+  final TextDirection? subtitleDirection;
   final TextStyle? valueTextStyle;
   final Color? switchActiveColor;
 
@@ -83,7 +87,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     if (widget.leading != null) {
       leadingIcon = IconTheme.merge(
         data: iconThemeData,
-        child: widget.leading!,
+        child:
+        widget.leading!,
       );
     }
 
@@ -123,15 +128,19 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             style: widget.labelTextStyle,
           ),
           const SizedBox(height: 2.5),
-          Text(
-            widget.subtitle!,
-            maxLines: widget.subtitleMaxLines,
-            overflow: TextOverflow.ellipsis,
-            style: widget.subtitleTextStyle ??
-                const TextStyle(
-                  fontSize: 12.0,
-                  letterSpacing: -0.2,
-                ),
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text(
+              widget.subtitle!,
+              maxLines: widget.subtitleMaxLines,
+              overflow: TextOverflow.ellipsis,
+              textDirection: widget.subtitleDirection,
+              style: widget.subtitleTextStyle ??
+                  const TextStyle(
+                    fontSize: 12.0,
+                    letterSpacing: -0.2,
+                  ),
+            ),
           ),
         ],
       );
@@ -178,6 +187,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
                 widget.value!,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
+                textDirection: widget.valueDirection,
                 style: widget.valueTextStyle ??
                     const TextStyle(
                       color: CupertinoColors.inactiveGray,
@@ -251,10 +261,12 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
           if (widget.type == SettingsItemType.toggle && widget.enabled) {
             if (mounted) {
-              setState(() {
-                _checked = !_checked!;
-                widget.onToggle!(_checked!);
-              });
+              if(widget.onPress == null) {
+                setState(() {
+                  _checked = !_checked!;
+                  widget.onToggle!(_checked!);
+                });
+              }
             }
           }
         },

@@ -292,10 +292,10 @@ class RoomRepo {
   Future<void> setRoomCustomNotification(String uid, String path) =>
       _customNotificationDao.setCustomNotificationSound(uid, path);
 
-  Future<String?> getRoomCustomNotification(String uid) =>
+  Future<String> getRoomCustomNotification(String uid) =>
       _customNotificationDao.getCustomNotificationSound(uid);
 
-  Stream<String?> watchRoomCustomNotification(String uid) =>
+  Stream<String> watchRoomCustomNotification(String uid) =>
       _customNotificationDao.watchCustomNotificationSound(uid);
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
@@ -474,5 +474,26 @@ class RoomRepo {
   Future<bool> isDeletedRoom(String roomUid) async {
     final room = await _roomDao.getRoom(roomUid);
     return room?.deleted ?? false;
+  }
+
+  String getCustomNotificationShowingName(String? customNotificationSound) {
+    if (customNotificationSound == null) {
+      return "";
+    }
+    final mapper = <String, String>{
+      "no_sound": "no sound",
+      "that_was_quick": "Default",
+      "-": "Default",
+      "deduction": "Deduction",
+      "done_for_you": "Done for You",
+      "goes_without_saying": "Goes without Saying",
+      "open_up": "Open up",
+      "piece_of_cake": "Piece of Cake",
+      "point_blank": "Point Blank",
+      "pristine": "Pristine",
+      "samsung": "Samsung",
+      "swiftly": "Swiftly"
+    };
+    return mapper[customNotificationSound] ?? "";
   }
 }
