@@ -21,18 +21,32 @@ class CustomNotificationSoundSelectionState
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioService = GetIt.I.get<AudioService>();
-  final List<String> _customNotificationSounds = [
-    "deduction",
-    "done_for_you",
-    "goes_without_saying",
-    "open_up",
-    "piece_of_cake",
-    "point_blank",
-    "pristine",
-    "samsung",
-    "swiftly",
-    "that_was_quick"
+  late final _customNotificationSounds = <List<String>>[
+    [_roomRepo.getCustomNotificationShowingName("no_sound"), "no_sound"],
+    [
+      _roomRepo.getCustomNotificationShowingName("that_was_quick"),
+      "that_was_quick"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("deduction"), "deduction"],
+    [
+      _roomRepo.getCustomNotificationShowingName("done_for_you"),
+      "done_for_you"
+    ],
+    [
+      _roomRepo.getCustomNotificationShowingName("goes_without_saying"),
+      "goes_without_saying"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("open_up"), "open_up"],
+    [
+      _roomRepo.getCustomNotificationShowingName("piece_of_cake"),
+      "piece_of_cake"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("point_blank"), "point_blank"],
+    [_roomRepo.getCustomNotificationShowingName("pristine"), "pristine"],
+    [_roomRepo.getCustomNotificationShowingName("samsung"), "samsung"],
+    [_roomRepo.getCustomNotificationShowingName("swiftly"), "swiftly"],
   ];
+
   int _selectedSongIndex = -1;
 
   void _addLifeCycleListener() {
@@ -61,7 +75,9 @@ class CustomNotificationSoundSelectionState
   Future<void> initialSelectedIndex() async {
     final selectedSong =
         await _roomRepo.getRoomCustomNotification(widget.roomUid);
-    _selectedSongIndex = _customNotificationSounds.indexOf(selectedSong ?? "-");
+    _selectedSongIndex = _customNotificationSounds.indexWhere((element) {
+      return (element[1] == selectedSong);
+    });
   }
 
   @override
@@ -75,46 +91,22 @@ class CustomNotificationSoundSelectionState
           ),
         ),
         leading: InkWell(
-          child: const Icon(Icons.clear),
+          child: const Icon(Icons.check),
           onTap: () {
+            if (_selectedSongIndex != -1) {
+              _roomRepo.setRoomCustomNotification(
+                widget.roomUid,
+                _customNotificationSounds[_selectedSongIndex][1],
+              );
+            } else {
+              _roomRepo.setRoomCustomNotification(
+                widget.roomUid,
+                "that_was_quick",
+              );
+            }
             Navigator.pop(context);
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all(Theme.of(context).primaryColor),
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-              ),
-              onPressed: () {
-                if (_selectedSongIndex != -1) {
-                  _roomRepo.setRoomCustomNotification(
-                    widget.roomUid,
-                    _customNotificationSounds[_selectedSongIndex],
-                  );
-                } else {
-                  _roomRepo.setRoomCustomNotification(
-                    widget.roomUid,
-                    "-",
-                  );
-                }
-                Navigator.pop(context);
-              },
-              child: Text(
-                _i18n.get("ok"),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.background),
-              ),
-            ),
-          )
-        ],
       ),
       body: FutureBuilder(
         future: _roomRepo.getRoomCustomNotification(widget.roomUid),
@@ -122,15 +114,28 @@ class CustomNotificationSoundSelectionState
           if (snapshot.hasData) {
             return ListView.builder(
               itemBuilder: (builder, index) {
-                final data = _customNotificationSounds[index];
-                return ListTile(
-                  onLongPress: () => onTap(
-                    index,
-                  ),
-                  onTap: () => onTap(index),
-                  title: Text(data),
-                  trailing: _buildSelectIcon(index),
-                );
+                final data = _customNotificationSounds[index][0];
+                if (index == 0) {
+                  return ListTile(
+                    onLongPress: () => onTap(
+                      index,
+                    ),
+                    onTap: () => onTap(index),
+                    title: Text(data),
+                    trailing: _buildSelectIcon(index),
+                    tileColor:
+                        Theme.of(context).colorScheme.error.withOpacity(0.3),
+                  );
+                } else {
+                  return ListTile(
+                    onLongPress: () => onTap(
+                      index,
+                    ),
+                    onTap: () => onTap(index),
+                    title: Text(data),
+                    trailing: _buildSelectIcon(index),
+                  );
+                }
               },
               itemCount: _customNotificationSounds.length,
             );
@@ -150,7 +155,7 @@ class CustomNotificationSoundSelectionState
       _selectedSongIndex = index;
       _audioService.playTemporaryAudio(
         AudioSourcePath.asset(
-          "app/src/main/res/raw/${_customNotificationSounds[index]}.mp3",
+          "app/src/main/res/raw/${_customNotificationSounds[index][1]}.mp3",
         ),
         prefix: "android/",
       );
