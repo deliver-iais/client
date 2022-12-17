@@ -469,17 +469,12 @@ class ProfilePageState extends State<ProfilePage>
         child: FlexibleSpaceBar(
           titlePadding:
               const EdgeInsets.only(left: 35.0, right: 35.0, top: 2.0),
-          // stretchModes: [
-          //   StretchMode.zoomBackground,
-          //   StretchMode.blurBackground
-          // ],
           expandedTitleScale: 1.1,
           background: ProfileBlurAvatar(widget.roomUid),
           title: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Expanded(child: RoomName(uid: widget.roomUid)),
               Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
