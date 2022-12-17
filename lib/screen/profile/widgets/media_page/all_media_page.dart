@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
@@ -16,74 +14,79 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/profile/widgets/operation_on_image.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_app_bar_counter_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_caption_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/media_time_and_name_status_widget.dart';
+
+import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:extended_image/extended_image.dart';
-// import 'package:extended_image_library/extended_image_library.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AllImagePage extends StatefulWidget {
+import 'widget/image/image_media_widget.dart';
+import 'widget/video/video_media_widget.dart';
+
+class AllMediaPage extends StatefulWidget {
   final String roomUid;
   final int messageId;
   final int? initIndex;
   final Message? message;
   final String? filePath;
-  final bool isSingleImage;
+  final MediaType mediaType;
   final void Function()? onEdit;
 
-  const AllImagePage({
+  const AllMediaPage({
     super.key,
     required this.roomUid,
     required this.messageId,
     this.initIndex,
     this.filePath,
     this.message,
-    this.isSingleImage = false,
     this.onEdit,
+    required this.mediaType,
   });
 
   @override
-  State<AllImagePage> createState() => _AllImagePageState();
+  State<AllMediaPage> createState() => _AllMediaPageState();
 }
 
 typedef DoubleClickAnimationListener = void Function();
 
-class _AllImagePageState extends State<AllImagePage>
+class _AllMediaPageState extends State<AllMediaPage>
     with TickerProviderStateMixin {
   late final _pageController =
       ExtendedPageController(initialPage: initialIndex ?? 0);
 
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _videoPlayerService = GetIt.I.get<VideoPlayerService>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
-  final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _allMediaCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
-  final LruCache _fileCache =
+  final LruCache<int, String> _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
   final BehaviorSubject<Widget> _widget =
       BehaviorSubject.seeded(const SizedBox.shrink());
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   int? initialIndex;
-  bool isSingleImage = false;
 
   late List<Animation<double>> animationList;
   late AnimationController _animationController;
@@ -103,7 +106,7 @@ class _AllImagePageState extends State<AllImagePage>
       final page = (index / MEDIA_PAGE_SIZE).floor();
       final res = await _mediaQueryRepo.getMediaPage(
         widget.roomUid,
-        MediaType.IMAGE,
+        widget.mediaType,
         page,
         index,
       );
@@ -128,7 +131,6 @@ class _AllImagePageState extends State<AllImagePage>
   void initState() {
     super.initState();
 
-    isSingleImage = widget.isSingleImage;
     if (widget.initIndex == null) {
       _fetchMedia();
     } else {
@@ -166,19 +168,19 @@ class _AllImagePageState extends State<AllImagePage>
         .ignore();
   }
 
-  Future<void> _initImage() async {
+  Future<void> _initMedia() async {
     _mediaDao
         .getIndexOfMediaAsStream(
           widget.roomUid,
           widget.messageId,
-          MediaType.IMAGE,
+          widget.mediaType,
         )
         .distinct()
         .listen((event) {
       if (event >= 0) {
         initialIndex = event;
         _currentIndex.add(event);
-        _widget.add(buildImageByIndex(event));
+        _widget.add(buildMediaByIndex(event));
       }
     });
   }
@@ -232,22 +234,27 @@ class _AllImagePageState extends State<AllImagePage>
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: buildAppbar(),
+        appBar: _buildAppbar(),
         backgroundColor: Colors.transparent,
         body: StreamBuilder<MediaMetaData?>(
           stream: _mediaMetaDataDao.get(widget.roomUid),
           builder: (c, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               if (initialIndex == null || initialIndex! >= 0) {
-                _initImage();
+                _initMedia();
               }
-              _allImageCount.add(snapshot.data!.imagesCount);
+              _allMediaCount.add(
+                widget.mediaType == MediaType.IMAGE
+                    ? snapshot.data!.imagesCount
+                    : snapshot.data!.videosCount,
+              );
               if (initialIndex != null && initialIndex! >= 0) {
-                _widget.add(buildImageByIndex(initialIndex!));
+                _widget.add(buildMediaByIndex(initialIndex!));
               } else {
-                _widget.add(singleImage());
+                _widget.add(_buildSingleMedia());
               }
             }
+
             return buildAnimation();
           },
         ),
@@ -255,7 +262,7 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  PreferredSizeWidget buildAppbar() {
+  PreferredSizeWidget _buildAppbar() {
     return BlurredPreferredSizedWidget(
       child: StreamBuilder<bool>(
         initialData: true,
@@ -271,20 +278,21 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  Widget singleImage() {
+  Widget _buildSingleMedia() {
+    final caption = widget.message!.json.toFile().caption;
     return Stack(
       children: [
-        buildImage(widget.filePath!, -1),
+        buildMediaUi(widget.filePath!, caption),
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
             duration: ANIMATION_DURATION,
             opacity: _isBarShowing.value ? 1 : 0,
-            child: buildCaptionSection(
+            child: buildBottomSection(
               createdOn: widget.message!.time,
               createdBy: widget.roomUid,
               messageId: widget.messageId,
-              caption: widget.message!.json.toFile().caption,
+              caption: caption,
             ),
           ),
         )
@@ -292,7 +300,7 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  Widget buildImage(String filePath, int index) {
+  Widget buildMediaUi(String filePath, String caption) {
     return GestureDetector(
       onTapUp: (_) {
         if (_isBarShowing.value) {
@@ -306,22 +314,8 @@ class _AllImagePageState extends State<AllImagePage>
           padding: const EdgeInsets.all(10),
           child: AnimatedBuilder(
             animation: animationList[animationIndex],
-            child: isWeb
-                ? Image.network(filePath)
-                : ExtendedImage.file(
-                    File(filePath),
-                    mode: ExtendedImageMode.gesture,
-                    initGestureConfigHandler: (state) {
-                      return GestureConfig(
-                        inPageView: true,
-                        minScale: 1.0,
-                        maxScale: 4.0,
-                        //you can cache gesture state even though page view page change.
-                        //remember call clearGestureDetailsCache() method at the right time.(for example,this page dispose)
-                      );
-                    },
-                    enableSlideOutPage: true,
-                    isAntiAlias: true,
+            child: (widget.mediaType == MediaType.IMAGE)
+                ? ImageMediaWidget(
                     onDoubleTap: (state) {
                       ///you can use define pointerDownPosition as you can,
                       ///default value is double tap pointer down postion.
@@ -358,7 +352,9 @@ class _AllImagePageState extends State<AllImagePage>
 
                       _animationController.forward();
                     },
-                  ),
+                    filePath: filePath,
+                  )
+                : VideoMediaWidget(caption: caption, videoFilePath: filePath),
             builder: (context, child) => Transform.rotate(
               angle: animationList[animationIndex].value,
               child: child,
@@ -369,7 +365,7 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  Stack buildImageByIndex(int initIndex) {
+  Stack buildMediaByIndex(int initIndex) {
     _currentIndex.add(initIndex);
     return Stack(
       children: [
@@ -378,7 +374,7 @@ class _AllImagePageState extends State<AllImagePage>
           children: [
             if (isDesktop)
               StreamBuilder<int?>(
-                stream: _allImageCount,
+                stream: _allMediaCount,
                 builder: (c, allImageCount) {
                   if (allImageCount.hasData && allImageCount.data != null) {
                     return StreamBuilder<int>(
@@ -408,13 +404,9 @@ class _AllImagePageState extends State<AllImagePage>
                     return const SizedBox.shrink();
                   }
                 },
-              )
-            else
-              const SizedBox(
-                width: 5,
               ),
             StreamBuilder<int>(
-              stream: _allImageCount,
+              stream: _allMediaCount,
               builder: (context, all) {
                 if (all.hasData && all.data != null && all.data != 0) {
                   return Expanded(
@@ -441,23 +433,23 @@ class _AllImagePageState extends State<AllImagePage>
                                           filePath.data != null) {
                                         _fileCache.set(
                                           index,
-                                          filePath.data,
+                                          filePath.data!,
                                         );
                                         return isDesktop
                                             ? InteractiveViewer(
-                                                child: buildImage(
+                                                child: buildMediaUi(
                                                   filePath.data!,
-                                                  index,
+                                                  json["caption"].toString(),
                                                 ),
                                               )
-                                            : buildImage(
+                                            : buildMediaUi(
                                                 filePath.data!,
-                                                index,
+                                                json["caption"].toString(),
                                               );
                                       } else {
-                                        return const Center(
+                                        return Center(
                                           child: CircularProgressIndicator(
-                                            color: Colors.blue,
+                                            color: theme.colorScheme.primary,
                                           ),
                                         );
                                       }
@@ -465,9 +457,9 @@ class _AllImagePageState extends State<AllImagePage>
                                   ),
                                 );
                               } else {
-                                return const Center(
+                                return Center(
                                   child: CircularProgressIndicator(
-                                    color: Colors.blue,
+                                    color: theme.colorScheme.primary,
                                   ),
                                 );
                               }
@@ -476,7 +468,14 @@ class _AllImagePageState extends State<AllImagePage>
                         },
                         itemCount: all.data,
                         onPageChanged: (index) {
+                          _videoPlayerService.desktopPlayers[
+                                  _fileCache.get(_currentIndex.value).hashCode]
+                              ?.stop();
+
                           _currentIndex.add(index);
+                          _videoPlayerService
+                              .desktopPlayers[_fileCache.get(index).hashCode]
+                              ?.play();
                         },
                         controller: _pageController,
                       ),
@@ -511,10 +510,6 @@ class _AllImagePageState extends State<AllImagePage>
                   }
                 },
               )
-            else
-              const SizedBox(
-                width: 5,
-              )
           ],
         ),
         Align(
@@ -537,7 +532,7 @@ class _AllImagePageState extends State<AllImagePage>
                               mediaSnapshot.data != null) {
                             final json =
                                 jsonDecode(mediaSnapshot.data!.json) as Map;
-                            return buildCaptionSection(
+                            return buildBottomSection(
                               createdOn: mediaSnapshot.data!.createdOn,
                               createdBy: mediaSnapshot.data!.createdBy,
                               messageId: mediaSnapshot.data!.messageId,
@@ -559,24 +554,31 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  Widget buildCaptionSection({
+  Widget buildBottomSection({
     required String caption,
     required int messageId,
     required String createdBy,
     required int createdOn,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Spacer(),
-        if (caption.isNotEmpty) buildCaption(caption),
-        buildFooter(
-          createdBy: createdBy,
-          createdOn: createdOn,
-          messageId: messageId,
-        )
-      ],
-    );
+    if (widget.mediaType == MediaType.IMAGE) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          if (caption.isNotEmpty)
+            MediaCaptionWidget(
+              caption: caption,
+            ),
+          buildFooter(
+            createdBy: createdBy,
+            createdOn: createdOn,
+            messageId: messageId,
+          )
+        ],
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Future<Message?> getMessage() async {
@@ -586,60 +588,6 @@ class _AllImagePageState extends State<AllImagePage>
       media!.messageId,
     );
     return message;
-  }
-
-  Widget buildBottomAppBar(String createdBy, int createdOn) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FutureBuilder<String>(
-          future: _roomRepo.getName(createdBy.asUid()),
-          builder: (c, name) {
-            if (name.hasData && name.data != null) {
-              return Text(
-                name.data!,
-                overflow: TextOverflow.fade,
-                style: theme.textTheme.bodyText2!.copyWith(color: Colors.white),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Text(
-          DateTime.fromMillisecondsSinceEpoch(
-            createdOn,
-          ).toString().substring(0, 19),
-          style: theme.textTheme.bodyText2!
-              .copyWith(height: 1, color: Colors.white),
-        )
-      ],
-    );
-  }
-
-  Widget buildCaption(String caption) {
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height / 3,
-      ),
-      color: Colors.black.withAlpha(120),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            caption,
-            textDirection: TextDirection.rtl,
-            style: theme.textTheme.bodyText2!.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget buildFooter({
@@ -653,7 +601,12 @@ class _AllImagePageState extends State<AllImagePage>
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
         child: Row(
           children: [
-            Expanded(child: buildBottomAppBar(createdBy, createdOn)),
+            Expanded(
+              child: MediaTimeAndNameStatusWidget(
+                createdBy: createdBy,
+                createdOn: createdOn,
+              ),
+            ),
             // const Spacer(),
             if (widget.onEdit != null)
               FutureBuilder<Message?>(
@@ -716,19 +669,7 @@ class _AllImagePageState extends State<AllImagePage>
                   color: Colors.white,
                 ),
               ),
-            if (isDesktop)
-              PopupMenuButton(
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                itemBuilder: (cc) => <PopupMenuEntry>[
-                  OperationOnImage(
-                    getMessage: getMessage,
-                  )
-                ],
-              )
+            if (isDesktop) _buildPopupMenuButton(),
           ],
         ),
       ),
@@ -759,7 +700,9 @@ class _AllImagePageState extends State<AllImagePage>
         const SizedBox(
           width: 10,
         ),
-        if (!isDesktop)
+        if (widget.mediaType == MediaType.VIDEO)
+          _buildPopupMenuButton()
+        else if (!isDesktop)
           IconButton(
             icon: const Icon(
               CupertinoIcons.down_arrow,
@@ -775,38 +718,32 @@ class _AllImagePageState extends State<AllImagePage>
             tooltip: _i18n.get("save_to_gallery"),
           ),
       ],
-      title: StreamBuilder<int?>(
-        stream: _allImageCount,
-        builder: (context, snapshot) {
-          if (snapshot.hasData &&
-              snapshot.data != null &&
-              snapshot.data! != 0) {
-            return Align(
-              alignment: Alignment.topLeft,
-              child: StreamBuilder<int>(
-                stream: _currentIndex,
-                builder: (c, position) {
-                  if (position.hasData &&
-                      position.data != null &&
-                      position.data! != -1) {
-                    return Text(
-                      "${snapshot.data! - position.data!} of ${snapshot.data}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            );
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
+      title: MediaAppBarCounterWidget(
+        currentIndex: _currentIndex,
+        mediaCount: _allMediaCount,
       ),
+    );
+  }
+
+  PopupMenuButton<dynamic> _buildPopupMenuButton() {
+    return PopupMenuButton(
+      icon: const Icon(
+        Icons.more_vert,
+        size: 20,
+        color: Colors.white,
+      ),
+      shape: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
+      color: Color.alphaBlend(Colors.grey.withAlpha(80), Colors.black)
+          .withOpacity(0.95),
+      itemBuilder: (cc) => <PopupMenuEntry>[
+        OperationOnMedia(
+          getMessage: getMessage,
+        ),
+      ],
     );
   }
 }

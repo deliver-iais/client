@@ -102,8 +102,7 @@ class VideoMessageState extends State<VideoMessage> {
                           children: [
                             VideoUi(
                               videoFilePath: path.data!,
-                              videoMessage: widget.message.json.toFile(),
-                              duration: video.duration,
+                              message: widget.message,
                               background: background,
                               foreground: foreground,
                             ),

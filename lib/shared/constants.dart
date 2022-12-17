@@ -259,6 +259,7 @@ const FEATURE_6 = 'feature6';
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
+const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 

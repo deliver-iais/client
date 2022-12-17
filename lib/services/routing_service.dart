@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -16,8 +17,8 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
-import 'package:deliver/screen/profile/widgets/all_image_page.dart';
-import 'package:deliver/screen/profile/widgets/all_video_page.dart';
+import 'package:deliver/screen/profile/widgets/media_page/all_media_page.dart';
+
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/messageWidgets/location_message.dart';
@@ -49,6 +50,7 @@ import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages
@@ -230,30 +232,45 @@ class RoutingService {
       );
 
   void openShowAllVideos({
-    required Uid uid,
-    required int initIndex,
-    required int videosLength,
+    required String roomUid,
+    required int messageId,
+    int? initIndex,
+    Message? message,
+    String? filePath,
   }) =>
-      _push(
-        AllVideoPage(
-          key: const ValueKey("/media-details"),
-          roomUid: uid.asString(),
-          initIndex: initIndex,
-          videoCount: videosLength,
-        ),
-      );
+      !isMacOS
+          ? _push(
+              AllMediaPage(
+                key: const ValueKey("/media-details"),
+                roomUid: roomUid,
+                messageId: messageId,
+                filePath: filePath,
+                initIndex: initIndex,
+                message: message,
+                mediaType: MediaType.VIDEO,
+              ),
+              useTransparentRoute: true,
+            )
+          : OpenFilex.open(filePath);
 
   void openShowAllImage({
     required String uid,
-    required int initIndex,
     required int messageId,
+    int? initIndex,
+    Message? message,
+    String? filePath,
+    Function()? onEdit,
   }) =>
       _push(
-        AllImagePage(
+        AllMediaPage(
           key: const ValueKey("/media-details"),
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
+          filePath: filePath,
+          message: message,
+          onEdit: onEdit,
+          mediaType: MediaType.IMAGE,
         ),
         useTransparentRoute: true,
       );
