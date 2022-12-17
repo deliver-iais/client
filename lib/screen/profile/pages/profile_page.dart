@@ -112,7 +112,6 @@ class ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      // appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
           stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
