@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.FlutterEngine;
+
 public class Application extends FlutterActivity implements PluginRegistrantCallback {
     private static final String GET_MEDIA_CHANNEL = "read_external";
     private static final String GET_PATH_CHANNEL = "get_path";
@@ -47,31 +48,14 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
 
         new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), GET_MEDIA_CHANNEL).setMethodCallHandler(
                 (call, result) -> {
-                    if (call.method.equals("get_all_image")) {
-                        storagePathPlugin.getImagePaths(result);
-                    } else if (call.method.equals("get_all_music")) {
+                    if (call.method.equals("get_all_music")) {
                         storagePathPlugin.getAudioPath(result);
-                    } else if (call.method.equals("get_all_file")) {
-                        storagePathPlugin.getFilesPath(result);
                     }
                 });
 
         new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), GET_PATH_CHANNEL).setMethodCallHandler(
                 (call, result) -> {
-                    String type = call.argument("type");
-                    Permissions.check(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, null, new PermissionHandler() {
-
-                        @Override
-                        public void onGranted() {
-                            result.success(Environment.getExternalStoragePublicDirectory(type).getPath());
-                        }
-
-                        @Override
-                        public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                            result.error("1", "Permission denied", null);
-                        }
-                    });
-
+                    result.success(Environment.getExternalStoragePublicDirectory(call.argument("type")).getPath());
                 });
 
         try {
@@ -87,14 +71,14 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                     @Override
                     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
                         if (call.method.equals("turnOff")) {
-                            if(!wakeLock.isHeld()) {
+                            if (!wakeLock.isHeld()) {
                                 wakeLock.acquire();
                                 System.out.println("turn Off");
                             }
                         }
 
                         if (call.method.equals("turnOn")) {
-                            if(wakeLock.isHeld()) {
+                            if (wakeLock.isHeld()) {
                                 wakeLock.release();
                                 System.out.println("turn On");
                             }
@@ -108,6 +92,7 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
         FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));
         PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
     }
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);

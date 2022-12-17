@@ -7,9 +7,9 @@ abstract class CustomNotificationDao {
 
   Future<void> setCustomNotificationSound(String uid, String fileName);
 
-  Stream<String?> watchCustomNotificationSound(String uid);
+  Stream<String> watchCustomNotificationSound(String uid);
 
-  Future<String?> getCustomNotificationSound(String uid);
+  Future<String> getCustomNotificationSound(String uid);
 }
 
 class CustomNotificationDaoImpl extends CustomNotificationDao {
@@ -38,19 +38,15 @@ class CustomNotificationDaoImpl extends CustomNotificationDao {
   }
 
   @override
-  Future<String?> getCustomNotificationSound(String uid) async {
+  Future<String> getCustomNotificationSound(String uid) async {
     final box = await _open();
-    if (box.get(uid) != null) {
-      return box.get(uid);
-    } else {
-      return "-";
-    }
+    return box.get(uid) ?? "default";
   }
 
   @override
-  Stream<String?> watchCustomNotificationSound(String uid) async* {
+  Stream<String> watchCustomNotificationSound(String uid) async* {
     final box = await _open();
-    yield box.get(uid) ?? "-";
-    yield* box.watch(key: uid).map((event) => box.get(uid) ?? "-");
+    yield box.get(uid) ?? "default";
+    yield* box.watch(key: uid).map((event) => box.get(uid) ?? "default");
   }
 }

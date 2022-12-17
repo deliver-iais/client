@@ -20,6 +20,7 @@ class SettingsTile extends StatelessWidget {
   final bool enabled;
   final TextStyle? titleTextStyle;
   final TextStyle? subtitleTextStyle;
+  final TextDirection? subtitleDirection;
   final Color? switchActiveColor;
   final _SettingsTileType _tileType;
 
@@ -35,6 +36,7 @@ class SettingsTile extends StatelessWidget {
     this.iosChevronPadding = defaultCupertinoForwardPadding,
     this.titleTextStyle,
     this.subtitleTextStyle,
+    this.subtitleDirection,
     this.enabled = true,
     this.onPressed,
     this.switchActiveColor,
@@ -59,8 +61,9 @@ class SettingsTile extends StatelessWidget {
     this.titleTextStyle,
     this.subtitleTextStyle,
     this.switchActiveColor,
+    this.subtitleDirection,
+    this.onPressed,
   })  : _tileType = _SettingsTileType.switchTile,
-        onPressed = null,
         iosChevron = null,
         iosChevronPadding = null,
         assert(titleMaxLines == null || titleMaxLines > 0),
@@ -79,9 +82,11 @@ class SettingsTile extends StatelessWidget {
         subtitleMaxLines: subtitleMaxLines,
         switchValue: switchValue,
         onToggle: onToggle,
+        onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,
         switchActiveColor: switchActiveColor,
         subtitleTextStyle: subtitleTextStyle,
+        subtitleDirection: subtitleDirection,
         valueTextStyle: subtitleTextStyle,
         trailing: trailing,
       );
@@ -92,6 +97,7 @@ class SettingsTile extends StatelessWidget {
         label: title,
         labelMaxLines: titleMaxLines,
         value: subtitle,
+        valueDirection: subtitleDirection,
         trailing: trailing,
         iosChevron: iosChevron,
         iosChevronPadding: iosChevronPadding,
@@ -99,6 +105,7 @@ class SettingsTile extends StatelessWidget {
         onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,
         subtitleTextStyle: subtitleTextStyle,
+        subtitleDirection: subtitleDirection,
         valueTextStyle: subtitleTextStyle,
       );
     }
