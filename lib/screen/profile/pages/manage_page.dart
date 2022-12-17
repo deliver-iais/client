@@ -38,6 +38,7 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
@@ -414,46 +415,45 @@ class MucManagePageState extends State<MucManagePage>
                 children: [
                   if (widget.roomUid.isMuc() && _isMucOwner)
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return OnDeletePopupDialog(
-                                  roomUid: widget.roomUid,
-                                  selected: "deleteMuc",
-                                  roomName: _roomName,
-                                );
-                              },
-                            );
-                          },
-                          child: Directionality(
-                            textDirection: _i18n.defaultTextDirection,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete),
-                                const SizedBox(width: 8),
-                                Text(
-                                  widget.roomUid.isGroup()
-                                      ? _i18n.get("delete_group")
-                                      : _i18n.get("delete_channel"),
-                                  style: theme.primaryTextTheme.bodyText2,
-                                )
-                              ],
-                            ),
+                      child: ElevatedButton(
+
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return OnDeletePopupDialog(
+                                roomUid: widget.roomUid,
+                                selected: "deleteMuc",
+                                roomName: _roomName,
+                              );
+                            },
+                          );
+                        },
+                        child: Directionality(
+                          textDirection: _i18n.defaultTextDirection,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delete),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.roomUid.isGroup()
+                                    ? _i18n.get("delete_group")
+                                    : _i18n.get("delete_channel"),
+                                // style: theme.primaryTextTheme.bodyText2,
+                              )
+                            ],
                           ),
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  theme.errorColor.withOpacity(0.1)),
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(9.0),
-                                // side: BorderSide(color: Colors.red)
-                              ))),
                         ),
+                        style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.errorContainer, foregroundColor: theme.colorScheme.onErrorContainer,shape: RoundedRectangleBorder(borderRadius: tertiaryBorder)),
+                        // style: ButtonStyle(
+                        //     backgroundColor: MaterialStateProperty.all(
+                        //         theme.errorColor.withOpacity(1)),
+                        //     shape: MaterialStateProperty.all<
+                        //             RoundedRectangleBorder>(
+                        //         RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(9.0),
+                        //       // side: BorderSide(color: Colors.red)
+                        //     ))),
                       ),
                     )
                 ],
