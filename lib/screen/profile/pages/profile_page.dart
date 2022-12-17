@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -14,11 +11,9 @@ import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -40,11 +35,9 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -55,11 +48,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -84,8 +75,6 @@ class ProfilePageState extends State<ProfilePage>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
@@ -173,48 +162,53 @@ class ProfilePageState extends State<ProfilePage>
                     return <Widget>[
                       Directionality(
                         textDirection: TextDirection.ltr,
-                        child: _buildSliverAppbar()
+                        child: _buildSliverAppbar(),
                       ),
                       if (_profileAvatar.canSetAvatar)
                         Directionality(
                           textDirection: _i18n.defaultTextDirection,
                           child: SliverToBoxAdapter(
                             child: Container(
-                              color: theme.colorScheme.background.withOpacity(1),
+                              color:
+                                  theme.colorScheme.background.withOpacity(1),
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Expanded(
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                            // padding: EdgeInsets.zero,
-                                            tapTargetSize:
-                                                MaterialTapTargetSize.shrinkWrap,
-                                            // minimumSize: Size(0, 0),
-                                            textStyle:
-                                                const TextStyle(fontSize: 12),
-                                            // backgroundColor: theme.colorScheme,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.vertical(
+                                          // padding: EdgeInsets.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          // minimumSize: Size(0, 0),
+                                          textStyle:
+                                              const TextStyle(fontSize: 12),
+                                          // backgroundColor: theme.colorScheme,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
                                               bottom: Radius.circular(25.0),
-                                            ))),
-                                        onPressed: () =>
-                                            _profileAvatar.selectAvatar(context),
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () => _profileAvatar
+                                            .selectAvatar(context),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.end,
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsetsDirectional.only(
-                                                  end: 8.0),
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .only(end: 8.0),
                                               child: Text(
-                                                  _i18n.get("select_an_image")),
+                                                _i18n.get("select_an_image"),
+                                              ),
                                             ),
-                                            Icon(Icons.add_a_photo_outlined),
+                                            const Icon(
+                                              Icons.add_a_photo_outlined,
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -455,12 +449,11 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  Widget _buildSliverAppbar(){
+  Widget _buildSliverAppbar() {
     _profileAvatar = ProfileAvatar(
       roomUid: widget.roomUid,
       showSetAvatar: false,
-      canSetAvatar:
-      _isMucAdminOrOwner || _isBotOwner,
+      canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
     );
     final theme = Theme.of(context);
     return SliverAppBar.medium(
@@ -468,7 +461,6 @@ class ProfilePageState extends State<ProfilePage>
         _buildMenu(context),
       ],
       leading: _routingService.backButtonLeading(),
-      pinned: true,
       shadowColor: theme.colorScheme.background,
       // stretch: true,
       backgroundColor: theme.colorScheme.background,
@@ -476,8 +468,8 @@ class ProfilePageState extends State<ProfilePage>
       flexibleSpace: Directionality(
         textDirection: _i18n.defaultTextDirection,
         child: FlexibleSpaceBar(
-          titlePadding: EdgeInsets.only(
-              left: 35.0, right: 35.0, top: 2.0),
+          titlePadding:
+              const EdgeInsets.only(left: 35.0, right: 35.0, top: 2.0),
           // stretchModes: [
           //   StretchMode.zoomBackground,
           //   StretchMode.blurBackground
@@ -487,23 +479,21 @@ class ProfilePageState extends State<ProfilePage>
           title: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Expanded(child: RoomName(uid: widget.roomUid)),
               Flexible(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Flexible(
-                        child: RoomName(
-                          uid: widget.roomUid,
-                          maxLines: 2,
-                        )),
-                    Divider(
-                        color: Colors.transparent, height: 5),
+                      child: RoomName(
+                        uid: widget.roomUid,
+                        maxLines: 2,
+                      ),
+                    ),
+                    const Divider(color: Colors.transparent, height: 5),
                     TitleStatus(
                       currentRoomUid: widget.roomUid,
                       style: theme.textTheme.caption!,
@@ -544,7 +534,7 @@ class ProfilePageState extends State<ProfilePage>
                         subtitleDirection: TextDirection.ltr,
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
-                        trailing: Divider(thickness: 8),
+                        trailing: const Divider(thickness: 8),
                         onPressed: (_) => launchUrl(
                           Uri.parse(
                             "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
@@ -569,7 +559,6 @@ class ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (context, snapshot) {
@@ -660,37 +649,21 @@ class ProfilePageState extends State<ProfilePage>
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Icon(Icons.info),
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: Icon(Icons.info),
+          ),
+          Text(
+            info,
+            maxLines: 8,
+            textDirection: _i18n.defaultTextDirection,
+            style: const TextStyle(
+              fontSize: 12.0,
+              letterSpacing: -0.2,
             ),
-            Text(
-              info,
-              maxLines: 8,
-              textDirection:
-              _i18n.defaultTextDirection,
-              style:
-              TextStyle(
-                fontSize: 12.0,
-                letterSpacing: -0.2,
-              ),
-            ),
-          ]
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    final theme = Theme.of(context);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
-      child: AppBar(
-        titleSpacing: 8,
-        actions: <Widget>[
-          _buildMenu(context),
+          ),
         ],
-        leading: _routingService.backButtonLeading(),
       ),
     );
   }
@@ -830,7 +803,6 @@ class ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
-        final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),

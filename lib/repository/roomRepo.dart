@@ -292,10 +292,10 @@ class RoomRepo {
   Future<void> setRoomCustomNotification(String uid, String path) =>
       _customNotificationDao.setCustomNotificationSound(uid, path);
 
-  Future<String?> getRoomCustomNotification(String uid) =>
+  Future<String> getRoomCustomNotification(String uid) =>
       _customNotificationDao.getCustomNotificationSound(uid);
 
-  Stream<String?> watchRoomCustomNotification(String uid) =>
+  Stream<String> watchRoomCustomNotification(String uid) =>
       _customNotificationDao.watchCustomNotificationSound(uid);
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
@@ -476,24 +476,24 @@ class RoomRepo {
     return room?.deleted ?? false;
   }
 
-  String getCustomNotificationShowingName(String? customNotificationSound){
-    if(customNotificationSound == null){
+  String getCustomNotificationShowingName(String? customNotificationSound) {
+    if (customNotificationSound == null) {
       return "";
     }
-    Map mapper = {
-      "no_sound":"no sound",
-      "that_was_quick":"default",
-      "-":"default",
-      "deduction":"deduction",
-      "done_for_you":"done for you",
-      "goes_without_saying":"goes without saying",
-      "open_up":"open up",
-      "piece_of_cake":"piece of cake",
-      "point_blank":"point blank",
-      "pristine":"pristine",
-      "samsung":"samsung",
-      "swiftly":"swiftly"
+    final mapper = <String, String>{
+      "no_sound": "no sound",
+      "that_was_quick": "Default",
+      "-": "Default",
+      "deduction": "Deduction",
+      "done_for_you": "Done for You",
+      "goes_without_saying": "Goes without Saying",
+      "open_up": "Open up",
+      "piece_of_cake": "Piece of Cake",
+      "point_blank": "Point Blank",
+      "pristine": "Pristine",
+      "samsung": "Samsung",
+      "swiftly": "Swiftly"
     };
-    return mapper[customNotificationSound];
+    return mapper[customNotificationSound] ?? "";
   }
 }

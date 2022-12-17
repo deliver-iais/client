@@ -112,36 +112,38 @@ class CircleAvatarWidget extends StatelessWidget {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
       Image image;
       if (isWeb) {
-        image = Image.network(snapshot.data!, fit: BoxFit.fill);
-        return image;
+        return Image.network(snapshot.data!, fit: BoxFit.fill);
       } else {
         image = Image.file(
           File(snapshot.data!),
           fit: BoxFit.cover,
         );
-        Completer<ImageInfo> completer = new Completer<ImageInfo>();
-        image.image
-            .resolve(new ImageConfiguration())
-        .addListener(ImageStreamListener((info, synchronousCall) {
-          completer.complete(info);
-        }));
+        final completer = Completer<ImageInfo>();
+        image.image.resolve(const ImageConfiguration()).addListener(
+          ImageStreamListener((info, synchronousCall) {
+            completer.complete(info);
+          }),
+        );
 
         return FutureBuilder<ImageInfo>(
-            future: completer.future,
-            builder: (context, snapshot2) {
-              if (snapshot2.hasData && snapshot2.data != null) {
-                if ((snapshot2.data!.image.height - snapshot2.data!.image.width).abs() <= 3) {
-                  return image = Image.file(
-                    File(snapshot.data!),
-                    fit: BoxFit.scaleDown,
-                  );
-                } else {
-                  return image;
-                }
+          future: completer.future,
+          builder: (context, snapshot2) {
+            if (snapshot2.hasData && snapshot2.data != null) {
+              if ((snapshot2.data!.image.height - snapshot2.data!.image.width)
+                      .abs() <=
+                  3) {
+                return image = Image.file(
+                  File(snapshot.data!),
+                  fit: BoxFit.scaleDown,
+                );
               } else {
                 return image;
               }
-            });
+            } else {
+              return image;
+            }
+          },
+        );
       }
     } else {
       return showDisplayName(textColor);

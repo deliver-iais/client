@@ -830,7 +830,7 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(path);
       }
     }
-    if (selectedSound != null && !shouldBeQuiet) {
+    if (!shouldBeQuiet) {
       if (selectedSound != "default") {
         selectedNotificationSound = selectedSound;
       }

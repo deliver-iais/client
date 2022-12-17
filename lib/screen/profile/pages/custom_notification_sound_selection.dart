@@ -21,7 +21,32 @@ class CustomNotificationSoundSelectionState
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioService = GetIt.I.get<AudioService>();
-  late final List _customNotificationSounds;
+  late final _customNotificationSounds = <List<String>>[
+    [_roomRepo.getCustomNotificationShowingName("no_sound"), "no_sound"],
+    [
+      _roomRepo.getCustomNotificationShowingName("that_was_quick"),
+      "that_was_quick"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("deduction"), "deduction"],
+    [
+      _roomRepo.getCustomNotificationShowingName("done_for_you"),
+      "done_for_you"
+    ],
+    [
+      _roomRepo.getCustomNotificationShowingName("goes_without_saying"),
+      "goes_without_saying"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("open_up"), "open_up"],
+    [
+      _roomRepo.getCustomNotificationShowingName("piece_of_cake"),
+      "piece_of_cake"
+    ],
+    [_roomRepo.getCustomNotificationShowingName("point_blank"), "point_blank"],
+    [_roomRepo.getCustomNotificationShowingName("pristine"), "pristine"],
+    [_roomRepo.getCustomNotificationShowingName("samsung"), "samsung"],
+    [_roomRepo.getCustomNotificationShowingName("swiftly"), "swiftly"],
+  ];
+
   int _selectedSongIndex = -1;
 
   void _addLifeCycleListener() {
@@ -41,19 +66,6 @@ class CustomNotificationSoundSelectionState
 
   @override
   void initState() {
-    _customNotificationSounds = [
-      [_roomRepo.getCustomNotificationShowingName("no_sound"),"no_sound"],
-      [_roomRepo.getCustomNotificationShowingName("that_was_quick"),"that_was_quick"],
-      [_roomRepo.getCustomNotificationShowingName("deduction"),"deduction"],
-      [_roomRepo.getCustomNotificationShowingName("done_for_you"),"done_for_you"],
-      [_roomRepo.getCustomNotificationShowingName("goes_without_saying"),"goes_without_saying"],
-      [_roomRepo.getCustomNotificationShowingName("open_up"),"open_up"],
-      [_roomRepo.getCustomNotificationShowingName("piece_of_cake"),"piece_of_cake"],
-      [_roomRepo.getCustomNotificationShowingName("point_blank"),"point_blank"],
-      [_roomRepo.getCustomNotificationShowingName("pristine"),"pristine"],
-      [_roomRepo.getCustomNotificationShowingName("samsung"),"samsung"],
-      [_roomRepo.getCustomNotificationShowingName("swiftly"),"swiftly"],
-    ];
     _addLifeCycleListener();
     initialSelectedIndex();
 
@@ -63,9 +75,8 @@ class CustomNotificationSoundSelectionState
   Future<void> initialSelectedIndex() async {
     final selectedSong =
         await _roomRepo.getRoomCustomNotification(widget.roomUid);
-    var checkingSong = (selectedSong ?? "that_was_quick");
     _selectedSongIndex = _customNotificationSounds.indexWhere((element) {
-      return (element[1] == checkingSong);
+      return (element[1] == selectedSong);
     });
   }
 
@@ -104,24 +115,25 @@ class CustomNotificationSoundSelectionState
             return ListView.builder(
               itemBuilder: (builder, index) {
                 final data = _customNotificationSounds[index][0];
-                if (index == 0){
+                if (index == 0) {
                   return ListTile(
-                      onLongPress: () => onTap(
-                        index,
-                      ),
-                      onTap: () => onTap(index),
-                      title: Text(data),
-                      trailing: _buildSelectIcon(index),
-                      tileColor: Theme.of(context).colorScheme.error.withOpacity(0.3)
+                    onLongPress: () => onTap(
+                      index,
+                    ),
+                    onTap: () => onTap(index),
+                    title: Text(data),
+                    trailing: _buildSelectIcon(index),
+                    tileColor:
+                        Theme.of(context).colorScheme.error.withOpacity(0.3),
                   );
-                }else{
+                } else {
                   return ListTile(
-                      onLongPress: () => onTap(
-                        index,
-                      ),
-                      onTap: () => onTap(index),
-                      title: Text(data),
-                      trailing: _buildSelectIcon(index),
+                    onLongPress: () => onTap(
+                      index,
+                    ),
+                    onTap: () => onTap(index),
+                    title: Text(data),
+                    trailing: _buildSelectIcon(index),
                   );
                 }
               },
