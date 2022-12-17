@@ -528,7 +528,7 @@ class ProfilePageState extends State<ProfilePage>
                         subtitleDirection: TextDirection.ltr,
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
-                        trailing: const Divider(thickness: 8),
+                        trailing: const SizedBox.shrink(),
                         onPressed: (_) => launchUrl(
                           Uri.parse(
                             "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
