@@ -179,6 +179,7 @@ class FileService {
     ThumbnailSize? size,
     bool initProgressbar = true,
     bool showAlertOnError = false,
+    bool isVideoFrame = false,
   }) async {
     if (initProgressbar) {
       updateFileStatus(uuid, FileStatus.STARTED);
@@ -190,6 +191,7 @@ class FileService {
         filename,
         size,
         initProgressbar: initProgressbar,
+        isVideoFrame: isVideoFrame,
       );
     }
     return _getFile(
@@ -350,16 +352,26 @@ class FileService {
     String filename,
     ThumbnailSize size, {
     bool initProgressbar = true,
+    bool isVideoFrame = false,
   }) async {
     try {
       final cancelToken = CancelToken();
       _addCancelToken(cancelToken, uuid);
+      final res;
+      if (isVideoFrame) {
+        res = await _dio.get(
+          "/frame/$uuid/.${filename.split('.').last}",
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: cancelToken,
+        );
+      } else {
+        res = await _dio.get(
+          "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: cancelToken,
+        );
+      }
 
-      final res = await _dio.get(
-        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-        options: Options(responseType: ResponseType.bytes),
-        cancelToken: cancelToken,
-      );
       if (isWeb) {
         final blob = html.Blob(
           <Object>[res.data],
@@ -377,7 +389,6 @@ class FileService {
       if (initProgressbar) {
         updateFileStatus(uuid, FileStatus.CANCELED);
       }
-
       _logger.e(e);
       return null;
     }

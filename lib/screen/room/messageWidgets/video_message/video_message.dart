@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -58,7 +59,6 @@ class VideoMessageState extends State<VideoMessage> {
         maxWidth: widget.maxWidth,
         maxHeight: widget.maxWidth,
       ),
-      padding: const EdgeInsets.all(4),
       child: AspectRatio(
         aspectRatio: video.width > 0 ? video.width / video.height : 1,
         child: Stack(
@@ -117,8 +117,8 @@ class VideoMessageState extends State<VideoMessage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context)
-                                      .backgroundColor
-                                      .withOpacity(0.2),
+                                      .colorScheme.surface
+                                      .withOpacity(0.7),
                                   borderRadius: BorderRadius.circular(15.0),
                                 ),
                                 child: Text(

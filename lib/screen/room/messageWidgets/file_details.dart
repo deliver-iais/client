@@ -51,9 +51,13 @@ class FileDetails extends StatelessWidget {
                     },
                   );
                 } else {
-                  return _buildText(
-                    "${byteFormat(file.size.toInt())}  ${getFileExtension(file.name)}",
-                    context,
+                  return Row(
+                    children: [
+                      _buildText(
+                        "${byteFormat(file.size.toInt())}  ${getFileExtension(file.name)}",
+                        context,
+                      ),
+                    ],
                   );
                 }
               },

@@ -182,7 +182,7 @@ dependencies:
   url_launcher: 6.1.6
   uuid: 3.0.6
   vibration: 1.7.6
-  video_player: 2.4.9
+  video_player: 2.4.10
   wakelock: 0.6.2
   win_toast:
     git:

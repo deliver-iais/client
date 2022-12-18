@@ -62,11 +62,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     try {
-      return Hero(
-        tag: widget.image.uuid,
-        child: Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: const BoxDecoration(borderRadius: messageBorder),
+        return Hero(
+          tag: widget.image.uuid,
+          child: Container(
+          // clipBehavior: Clip.hardEdge,
+          // decoration: const BoxDecoration(borderRadius: messageBorder),
           constraints: BoxConstraints(
             minWidth: widget.minWidth,
             maxWidth: widget.maxWidth,

@@ -60,6 +60,7 @@ class VideoUiState extends State<VideoUi> {
 
   @override
   Widget build(BuildContext context) {
+    final file = widget.message.json.toFile();
     return Stack(
       children: [
         InkWell(
@@ -70,7 +71,7 @@ class VideoUiState extends State<VideoUi> {
             message: widget.message,
           ),
           child: Hero(
-            tag: widget.message.json.toFile().uuid,
+            tag: file.uuid,
             child: LimitedBox(
               maxWidth: MediaQuery.of(context).size.width,
               maxHeight: MediaQuery.of(context).size.height / 2,
@@ -78,14 +79,17 @@ class VideoUiState extends State<VideoUi> {
                 child: isDesktop
                     ? FutureBuilder<String?>(
                         future: _fileRepo.getFile(
-                          widget.message.json.toFile().uuid,
-                          "${widget.message.json.toFile().name}.png",
+                          file.uuid,
+                          "${file.name}.webp",
                           thumbnailSize: ThumbnailSize.small,
                           intiProgressbar: false,
+                          isVideoFrame: true,
                         ),
                         builder: (c, path) {
                           if (path.hasData && path.data != null) {
                             return Container(
+                              width: file.width.toDouble(),
+                              height: file.height.toDouble(),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(4.0),
                                 image: DecorationImage(
@@ -101,9 +105,13 @@ class VideoUiState extends State<VideoUi> {
                           }
                         },
                       )
-                    : VideoPlayer(
-                      _videoPlayerController,
-                    ),
+                    : SizedBox(
+                        width: file.width.toDouble(),
+                        height: file.height.toDouble(),
+                        child: VideoPlayer(
+                          _videoPlayerController,
+                        ),
+                      ),
               ),
             ),
           ),

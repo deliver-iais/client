@@ -45,25 +45,47 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           key: _futureKey,
           future: _fileRepo.getFile(
             widget.file.uuid,
-            "${widget.file.name}.png",
+            "${widget.file.name}.webp",
             thumbnailSize: ThumbnailSize.small,
             intiProgressbar: false,
+            isVideoFrame: true,
           ),
           builder: (c, thumbnail) {
             if (thumbnail.hasData && thumbnail.data != null) {
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                  image: DecorationImage(
-                    image: isWeb
-                        ? Image.network(thumbnail.data!, fit: BoxFit.fill).image
-                        : Image.file(File(thumbnail.data!)).image,
-                    fit: BoxFit.cover,
+              if (widget.file.width.toDouble() == 0.0 ||
+                  widget.file.height.toDouble() == 0.0) {
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4.0),
+                    image: DecorationImage(
+                      image: isWeb
+                          ? Image.network(thumbnail.data!, fit: BoxFit.fill)
+                              .image
+                          : Image.file(File(thumbnail.data!)).image,
+                      fit: BoxFit.cover,
+                    ),
+                    color: Colors.black.withOpacity(0.5),
                   ),
-                  color: Colors.black.withOpacity(0.5),
-                ),
-                child: buildLoadFileStatus(() => widget.download()),
-              );
+                  child: buildLoadFileStatus(() => widget.download()),
+                );
+              } else {
+                return Container(
+                  width: widget.file.width.toDouble(),
+                  height: widget.file.height.toDouble(),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4.0),
+                    image: DecorationImage(
+                      image: isWeb
+                          ? Image.network(thumbnail.data!, fit: BoxFit.fill)
+                              .image
+                          : Image.file(File(thumbnail.data!)).image,
+                      fit: BoxFit.cover,
+                    ),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: buildLoadFileStatus(() => widget.download()),
+                );
+              }
             } else {
               return buildLoadFileStatus(() => widget.download());
             }

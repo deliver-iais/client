@@ -174,6 +174,7 @@ class FileRepo {
     ThumbnailSize? thumbnailSize,
     bool intiProgressbar = true,
     bool showAlertOnError = false,
+    bool isVideoFrame = false,
   }) async {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
@@ -186,6 +187,7 @@ class FileRepo {
       size: thumbnailSize,
       initProgressbar: intiProgressbar,
       showAlertOnError: showAlertOnError,
+      isVideoFrame: isVideoFrame,
     );
     if (downloadedFileUri != null) {
       if (isWeb) {
