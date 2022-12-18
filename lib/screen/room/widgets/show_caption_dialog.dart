@@ -86,7 +86,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   late file_pb.File _editableFile;
   final FocusNode _captionFocusNode = FocusNode();
   model.File? _editedFile;
-  late Iterable<NotAcceptableFile> _notAcceptableFiles;
+  Iterable<NotAcceptableFile>? _notAcceptableFiles;
 
   @override
   void initState() {
@@ -105,8 +105,8 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return _notAcceptableFiles.isNotEmpty
-        ? NotAcceptableFilesErrorDialog(notAcceptableFiles: _notAcceptableFiles)
+    return  _notAcceptableFiles!=null && _notAcceptableFiles!.isNotEmpty
+        ? NotAcceptableFilesErrorDialog(notAcceptableFiles: _notAcceptableFiles!)
         : ((widget.files?.isNotEmpty ?? false) ||
                 widget.editableMessage != null)
             ? Directionality(

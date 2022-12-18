@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -14,11 +11,9 @@ import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -41,11 +36,9 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -56,11 +49,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -85,8 +76,6 @@ class ProfilePageState extends State<ProfilePage>
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
   final channelIdFormKey = GlobalKey<FormState>();
   final nameFormKey = GlobalKey<FormState>();
@@ -132,7 +121,6 @@ class ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      // appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
           stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
@@ -181,9 +169,64 @@ class ProfilePageState extends State<ProfilePage>
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
                       Directionality(
-                          textDirection: TextDirection.ltr,
-                          child: _buildSliverAppbar()
+                        textDirection: TextDirection.ltr,
+                        child: _buildSliverAppbar(),
                       ),
+                      if (_profileAvatar.canSetAvatar)
+                        Directionality(
+                          textDirection: _i18n.defaultTextDirection,
+                          child: SliverToBoxAdapter(
+                            child: Container(
+                              color:
+                                  theme.colorScheme.background.withOpacity(1),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          // padding: EdgeInsets.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          // minimumSize: Size(0, 0),
+                                          textStyle:
+                                              const TextStyle(fontSize: 12),
+                                          // backgroundColor: theme.colorScheme,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                              bottom: Radius.circular(25.0),
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () => _profileAvatar
+                                            .selectAvatar(context),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .only(end: 8.0),
+                                              child: Text(
+                                                _i18n.get("select_an_image"),
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.add_a_photo_outlined,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
@@ -205,7 +248,7 @@ class ProfilePageState extends State<ProfilePage>
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Badge(
                                           badgeColor: theme.primaryColor,
@@ -214,7 +257,7 @@ class ProfilePageState extends State<ProfilePage>
                                             style: TextStyle(
                                               fontSize: 14,
                                               color:
-                                              theme.colorScheme.onPrimary,
+                                                  theme.colorScheme.onPrimary,
                                             ),
                                           ),
                                           child: IconButton(
@@ -242,7 +285,7 @@ class ProfilePageState extends State<ProfilePage>
                                               ),
                                               onPressed: () async {
                                                 final paths =
-                                                await _getPathOfMedia(
+                                                    await _getPathOfMedia(
                                                   _selectedMedia,
                                                 );
                                                 if (paths.isNotEmpty) {
@@ -414,12 +457,11 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  Widget _buildSliverAppbar(){
+  Widget _buildSliverAppbar() {
     _profileAvatar = ProfileAvatar(
       roomUid: widget.roomUid,
       showSetAvatar: false,
-      canSetAvatar:
-      _isMucAdminOrOwner || _isBotOwner,
+      canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
     );
     final theme = Theme.of(context);
     return SliverAppBar.medium(
@@ -440,7 +482,6 @@ class ProfilePageState extends State<ProfilePage>
         _buildMenu(context),
       ],
       leading: _routingService.backButtonLeading(),
-      pinned: true,
       shadowColor: theme.colorScheme.background,
       // stretch: true,
       backgroundColor: theme.colorScheme.background,
@@ -448,34 +489,27 @@ class ProfilePageState extends State<ProfilePage>
       flexibleSpace: Directionality(
         textDirection: _i18n.defaultTextDirection,
         child: FlexibleSpaceBar(
-          titlePadding: EdgeInsets.only(
-              left: 35.0, right: 35.0, top: 2.0),
-          // stretchModes: [
-          //   StretchMode.zoomBackground,
-          //   StretchMode.blurBackground
-          // ],
+          titlePadding:
+              const EdgeInsets.only(left: 35.0, right: 35.0, top: 2.0),
           expandedTitleScale: 1.1,
           background: ProfileBlurAvatar(widget.roomUid),
           title: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Expanded(child: RoomName(uid: widget.roomUid)),
               Flexible(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Flexible(
-                        child: RoomName(
-                          uid: widget.roomUid,
-                          maxLines: 2,
-                        )),
-                    Divider(
-                        color: Colors.transparent, height: 5),
+                      child: RoomName(
+                        uid: widget.roomUid,
+                        maxLines: 2,
+                      ),
+                    ),
+                    const Divider(color: Colors.transparent, height: 5),
                     TitleStatus(
                       currentRoomUid: widget.roomUid,
                       style: theme.textTheme.caption!,
@@ -516,14 +550,12 @@ class ProfilePageState extends State<ProfilePage>
                         subtitleDirection: TextDirection.ltr,
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
-                        trailing: Divider(thickness: 8),
-                        onPressed: (_) =>
-                            launchUrl(
-                              Uri.parse(
-                                "tel:${snapshot.data!.countryCode}${snapshot
-                                    .data!.nationalNumber}",
-                              ),
-                            ),
+                        trailing: const SizedBox.shrink(),
+                        onPressed: (_) => launchUrl(
+                          Uri.parse(
+                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                          ),
+                        ),
                       ),
                     );
                   } else {
@@ -544,7 +576,6 @@ class ProfilePageState extends State<ProfilePage>
                       ),
                 ),
               ),
-
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (context, snapshot) {
@@ -636,27 +667,24 @@ class ProfilePageState extends State<ProfilePage>
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Icon(Icons.info),
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: Icon(Icons.info),
+          ),
+          Text(
+            info,
+            maxLines: 8,
+            textDirection: _i18n.defaultTextDirection,
+            style: const TextStyle(
+              fontSize: 12.0,
+              letterSpacing: -0.2,
             ),
-            Text(
-              info,
-              maxLines: 8,
-              textDirection:
-              _i18n.defaultTextDirection,
-              style:
-              TextStyle(
-                fontSize: 12.0,
-                letterSpacing: -0.2,
-              ),
-            ),
-          ]
+          ),
+        ],
       ),
     );
   }
-
 
   Widget _buildMenu(BuildContext context) {
     final theme = Theme.of(context);
@@ -789,15 +817,15 @@ class ProfilePageState extends State<ProfilePage>
 
     return IconButton(
       icon: const Icon(
-          Icons.more_vert,
+        Icons.more_vert,
       ),
       onPressed: () {
         this.showMenu(
-            start: 0,
-            top:0,
-            textDirection: TextDirection.rtl,
-            context: context,
-            items: popups,
+          start: 0,
+          top:0,
+          textDirection: TextDirection.rtl,
+          context: context,
+          items: popups,
         ).then((selectedString) {
           onSelected(selectedString ?? "");
         });
@@ -808,7 +836,6 @@ class ProfilePageState extends State<ProfilePage>
   Future<void> _setupRoomSettings() async {
     if (widget.roomUid.isMuc()) {
       try {
-        final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),
@@ -855,7 +882,7 @@ class ProfilePageState extends State<ProfilePage>
             token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
           } else {
             token =
-            await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
           }
         }
         if (token.isNotEmpty) {
@@ -881,10 +908,7 @@ class ProfilePageState extends State<ProfilePage>
           autofocus: true,
           child: AlertDialog(
             content: SizedBox(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 3,
+              width: MediaQuery.of(context).size.width / 3,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1058,16 +1082,10 @@ class ProfilePageState extends State<ProfilePage>
                         child: AutoDirectionTextForm(
                           controller: TextEditingController(text: muc.data!.info),
                           minLines: muc.data!.info.isNotEmpty
-                              ? muc.data!
-                              .info
-                              .split("\n")
-                              .length
+                              ? muc.data!.info.split("\n").length
                               : 1,
                           maxLines: muc.data!.info.isNotEmpty
-                              ? muc.data!
-                              .info
-                              .split("\n")
-                              .length + 4
+                              ? muc.data!.info.split("\n").length + 4
                               : 4,
                           onChanged: (str) {
                             mucInfo = str;
@@ -1099,9 +1117,7 @@ class ProfilePageState extends State<ProfilePage>
                             _mucType = muc.data!.mucType;
                             return SelectMucType(
                               backgroundColor:
-                              Theme
-                                  .of(context)
-                                  .dialogBackgroundColor,
+                                  Theme.of(context).dialogBackgroundColor,
                               onMucTypeChange: (value) {
                                 _mucType =
                                     _mucRepo.pbMucTypeToHiveMucType(value);
@@ -1111,7 +1127,7 @@ class ProfilePageState extends State<ProfilePage>
                                 }
                               },
                               mucType:
-                              _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                                  _mucRepo.hiveMucTypeToPbMucType(_mucType),
                             );
                           }
                           return const SizedBox.shrink();
@@ -1130,61 +1146,61 @@ class ProfilePageState extends State<ProfilePage>
                   return TextButton(
                     onPressed: change.data!
                         ? () async {
-                      final navigatorState = Navigator.of(context);
-                      if (nameFormKey.currentState != null &&
-                          nameFormKey.currentState!.validate()) {
-                        if (widget.roomUid.category == Categories.GROUP) {
-                          await _mucRepo.modifyGroup(
-                            widget.roomUid.asString(),
-                            mucName ?? currentName,
-                            mucInfo,
-                          );
-                          _roomRepo.updateRoomName(
-                            widget.roomUid,
-                            mucName ?? currentName,
-                          );
-                          setState(() {});
-                          navigatorState.pop();
-                        } else {
-                          if (channelId.isEmpty) {
-                            await _mucRepo.modifyChannel(
-                              widget.roomUid.asString(),
-                              mucName ?? currentName,
-                              currentId,
-                              mucInfo,
-                              _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                            );
-                            _roomRepo.updateRoomName(
-                              widget.roomUid,
-                              mucName ?? currentName,
-                            );
-                            navigatorState.pop();
-                          } else if (channelIdFormKey.currentState !=
-                              null &&
-                              channelIdFormKey.currentState!.validate()) {
-                            if (await checkChannelD(channelId)) {
-                              await _mucRepo.modifyChannel(
-                                widget.roomUid.asString(),
-                                mucName ?? currentName,
-                                channelId,
-                                mucInfo,
-                                _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                              );
-                              _roomRepo.updateRoomName(
-                                widget.roomUid,
-                                mucName ?? currentName,
-                              );
+                            final navigatorState = Navigator.of(context);
+                            if (nameFormKey.currentState != null &&
+                                nameFormKey.currentState!.validate()) {
+                              if (widget.roomUid.category == Categories.GROUP) {
+                                await _mucRepo.modifyGroup(
+                                  widget.roomUid.asString(),
+                                  mucName ?? currentName,
+                                  mucInfo,
+                                );
+                                _roomRepo.updateRoomName(
+                                  widget.roomUid,
+                                  mucName ?? currentName,
+                                );
+                                setState(() {});
+                                navigatorState.pop();
+                              } else {
+                                if (channelId.isEmpty) {
+                                  await _mucRepo.modifyChannel(
+                                    widget.roomUid.asString(),
+                                    mucName ?? currentName,
+                                    currentId,
+                                    mucInfo,
+                                    _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                                  );
+                                  _roomRepo.updateRoomName(
+                                    widget.roomUid,
+                                    mucName ?? currentName,
+                                  );
+                                  navigatorState.pop();
+                                } else if (channelIdFormKey.currentState !=
+                                        null &&
+                                    channelIdFormKey.currentState!.validate()) {
+                                  if (await checkChannelD(channelId)) {
+                                    await _mucRepo.modifyChannel(
+                                      widget.roomUid.asString(),
+                                      mucName ?? currentName,
+                                      channelId,
+                                      mucInfo,
+                                      _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                                    );
+                                    _roomRepo.updateRoomName(
+                                      widget.roomUid,
+                                      mucName ?? currentName,
+                                    );
 
-                              navigatorState.pop();
+                                    navigatorState.pop();
+                                  }
+                                }
+                                setState(() {});
+                              }
                             }
                           }
-                          setState(() {});
-                        }
-                      }
-                    }
                         : () {
-                      Navigator.of(context).pop();
-                    },
+                            Navigator.of(context).pop();
+                          },
                     child: Text(
                       _i18n.get("set"),
                     ),
@@ -1298,10 +1314,7 @@ class ProfilePageState extends State<ProfilePage>
               ),
               content: SizedBox(
                 width: 350,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height / 2,
+                height: MediaQuery.of(context).size.height / 2,
                 child: Column(
                   children: [
                     AutoDirectionTextField(
@@ -1354,8 +1367,8 @@ class ProfilePageState extends State<ProfilePage>
                                               if (name.hasData &&
                                                   name.data != null) {
                                                 nameOfGroup[
-                                                filteredGroupList[i]] =
-                                                name.data!;
+                                                        filteredGroupList[i]] =
+                                                    name.data!;
                                                 return SizedBox(
                                                   height: 50,
                                                   child: Row(
@@ -1383,11 +1396,11 @@ class ProfilePageState extends State<ProfilePage>
                                           ),
                                           onTap: () =>
                                               _addBotToGroupButtonOnTab(
-                                                context,
-                                                c1,
-                                                filteredGroupList[i],
-                                                nameOfGroup[filteredGroupList[i]],
-                                              ),
+                                            context,
+                                            c1,
+                                            filteredGroupList[i],
+                                            nameOfGroup[filteredGroupList[i]],
+                                          ),
                                         );
                                       },
                                       itemCount: snapshot.data!.length,
@@ -1418,10 +1431,12 @@ class ProfilePageState extends State<ProfilePage>
     return Expanded(child: Center(child: Text(_i18n.get("no_results"))));
   }
 
-  void _addBotToGroupButtonOnTab(BuildContext context,
-      BuildContext c1,
-      String uid,
-      String? mucName,) {
+  void _addBotToGroupButtonOnTab(
+    BuildContext context,
+    BuildContext c1,
+    String uid,
+    String? mucName,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
@@ -1436,8 +1451,7 @@ class ProfilePageState extends State<ProfilePage>
                     name.data != null &&
                     name.data!.isNotEmpty) {
                   return Text(
-                    "${_i18n.get("add")} ${name.data} ${_i18n.get(
-                        "to")} $mucName",
+                    "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
                   );
                 } else {
                   return const SizedBox.shrink();
@@ -1458,7 +1472,7 @@ class ProfilePageState extends State<ProfilePage>
                 final c1NavigatorState = Navigator.of(c1);
 
                 final usersAddCode =
-                await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
+                    await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
                 if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();
@@ -1507,9 +1521,11 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight > minHeight ? maxHeight : minHeight;
 
   @override
-  Widget build(BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox.expand(child: child);
   }
 

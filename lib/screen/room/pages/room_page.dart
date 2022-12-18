@@ -485,22 +485,25 @@ class RoomPageState extends State<RoomPage> {
   Future<void> _updateTimeHeader(List<ItemPosition> positions) async {
     final proportionOfTop = startPointOfPage();
 
-    final firstVisibleItemIndex = positions
-        .where(
-          (position) => position.itemLeadingEdge > proportionOfTop,
-        )
-        .reduce(
-          (first, position) =>
-              position.itemTrailingEdge < first.itemTrailingEdge
-                  ? position
-                  : first,
-        )
-        .index;
+    final visibleItems = positions.where(
+      (position) => position.itemLeadingEdge > proportionOfTop,
+    );
 
-    final message =
-        await _getMessage(firstVisibleItemIndex + room.firstMessageId);
-    if (message != null) {
-      _timeHeader.add(message.time.toString());
+    if (visibleItems.isNotEmpty) {
+      final firstVisibleItemIndex = visibleItems
+          .reduce(
+            (first, position) =>
+                position.itemTrailingEdge < first.itemTrailingEdge
+                    ? position
+                    : first,
+          )
+          .index;
+
+      final message =
+          await _getMessage(firstVisibleItemIndex + room.firstMessageId);
+      if (message != null) {
+        _timeHeader.add(message.time.toString());
+      }
     }
   }
 

@@ -816,7 +816,7 @@ class AndroidNotifier implements Notifier {
   }) async {
     AndroidBitmap<Object>? largeIcon;
     var selectedNotificationSound =
-        shouldBeQuiet ? "silence" : "that_was_quick";
+        shouldBeQuiet ? "no_sound" : "that_was_quick";
     final selectedSound = await _roomRepo.getRoomCustomNotification(roomUid);
     final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     if (la != null && la.fileId != null && la.fileName != null) {
@@ -830,7 +830,7 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(path);
       }
     }
-    if (selectedSound != null && !shouldBeQuiet) {
+    if (!shouldBeQuiet) {
       if (selectedSound != "default") {
         selectedNotificationSound = selectedSound;
       }

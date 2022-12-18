@@ -30,7 +30,6 @@ class ProfileAvatar extends StatelessWidget {
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
   final _fileService = GetIt.I.get<FileService>();
 
-
   ProfileAvatar({
     super.key,
     required this.roomUid,
@@ -38,11 +37,10 @@ class ProfileAvatar extends StatelessWidget {
     this.showSetAvatar = true,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8, left: 8, right: 8,bottom: 8),
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 8),
       child: StreamBuilder<String>(
         stream: _newAvatarPath,
         builder: (c, s) {
@@ -76,7 +74,7 @@ class ProfileAvatar extends StatelessWidget {
                     ),
                     onTap: () async {
                       final lastAvatar =
-                      await _avatarRepo.getLastAvatar(roomUid);
+                          await _avatarRepo.getLastAvatar(roomUid);
                       if (lastAvatar?.createdOn != null &&
                           lastAvatar!.createdOn > 0) {
                         _routingService.openShowAllAvatars(
@@ -105,13 +103,11 @@ class ProfileAvatar extends StatelessWidget {
     );
   }
 
-  Future<void> _setAvatar(String avatarPath,BuildContext context) async {
+  Future<void> _setAvatar(String avatarPath, BuildContext context) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(roomUid, avatarPath);
-    if (_fileService.getFileStatus(roomUid.node) !=
-        FileStatus.COMPLETED) {
+    if (_fileService.getFileStatus(roomUid.node) != FileStatus.COMPLETED) {
       ToastDisplay.showToast(
-
         toastContext: context,
         toastText: _i18n.get("error_in_uploading"),
       );
@@ -129,7 +125,7 @@ class ProfileAvatar extends StatelessWidget {
               onEditEnd: (path) {
                 imagePath = path;
                 Navigator.pop(context);
-                _setAvatar(imagePath,context);
+                _setAvatar(imagePath, context);
               },
               imagePath: imagePath,
             );
@@ -138,11 +134,10 @@ class ProfileAvatar extends StatelessWidget {
       );
     }
 
-
     if (isWeb || isDesktop) {
       if (isLinux) {
         const typeGroup =
-        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -156,8 +151,9 @@ class ProfileAvatar extends StatelessWidget {
           openCropAvatar(
             isWeb
                 ? Uri.dataFromBytes(result.files.first.bytes!.toList())
-                .toString()
-                : result.files.first.path!);
+                    .toString()
+                : result.files.first.path!,
+          );
         }
       }
     } else {
@@ -194,6 +190,4 @@ class ProfileAvatar extends StatelessWidget {
       ).ignore();
     }
   }
-
-
 }
