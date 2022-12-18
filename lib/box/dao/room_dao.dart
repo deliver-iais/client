@@ -22,7 +22,6 @@ abstract class RoomDao {
     int? hiddenMessageCount,
     bool? synced,
     int? lastCurrentUserSentMessageId,
-    bool? seenSynced,
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
@@ -35,8 +34,6 @@ abstract class RoomDao {
   Future<Room?> getRoom(String roomUid);
 
   Stream<Room> watchRoom(String roomUid);
-
-  Future<List<Room>> getNotSyncedRoom();
 
   Future<List<Room>> getAllGroups();
 }
@@ -122,7 +119,6 @@ class RoomDaoImpl extends RoomDao {
     int? pinId,
     bool? synced,
     int? lastCurrentUserSentMessageId,
-    bool? seenSynced,
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
@@ -143,7 +139,6 @@ class RoomDaoImpl extends RoomDao {
       pinId: pinId,
       synced: synced,
       lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
-      seenSynced: seenSynced,
       replyKeyboardMarkup: replyKeyboardMarkup,
       forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
       mentionsId: mentionsId,
@@ -187,18 +182,4 @@ class RoomDaoImpl extends RoomDao {
     }
   }
 
-  @override
-  Future<List<Room>> getNotSyncedRoom() async {
-    try {
-      final box = await _openRoom();
-      return box.values
-          .where(
-            (element) =>
-                !element.deleted && (!element.synced || !element.seenSynced),
-          )
-          .toList();
-    } catch (e) {
-      return [];
-    }
-  }
 }

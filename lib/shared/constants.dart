@@ -32,7 +32,7 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 
 // Paging Constants
 const MEDIA_PAGE_SIZE = 30;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 30;
 
 //Contacts Constants
 const MAX_CONTACT_SIZE_TO_SEND = 50;

@@ -15,7 +15,6 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -138,11 +137,9 @@ class MessageRepo {
   Future<void> update() async {
     _logger.i('updating -----------------');
     updatingStatus.add(TitleStatusConditions.Connected);
+    await updatingRooms();
+    _roomRepo.fetchBlockedRoom().ignore();
 
-    if (await updatingMessages()) {
-      await updatingLastSeen();
-      _roomRepo.fetchBlockedRoom().ignore();
-    }
     updatingStatus.add(TitleStatusConditions.Connected);
 
     sendPendingMessages().ignore();
@@ -151,7 +148,7 @@ class MessageRepo {
   }
 
   // @visibleForTesting
-  Future<bool> updatingMessages() async {
+  Future<bool> updatingRooms() async {
     var finished = false;
     var pointer = 0;
     final allRoomFetched =
@@ -227,6 +224,67 @@ class MessageRepo {
     return true;
   }
 
+  Future<void> _processSeen(RoomMetadata roomMetadata) async {
+    try {
+      final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
+      final int lastSeenId =
+          max(seen.messageId, roomMetadata.lastSeenId.toInt());
+      if (lastSeenId > 0) {
+        unawaited(
+          _updateSeen(
+            max(
+              lastSeenId,
+              roomMetadata.lastCurrentUserSentMessageId.toInt(),
+            ),
+            roomMetadata.roomUid.asString(),
+            roomMetadata.lastMessageId.toInt(),
+          ),
+        );
+      } else {
+        unawaited(
+          _fetchCurrentUserLastSeen(
+            roomMetadata.roomUid.asString(),
+            roomMetadata.lastCurrentUserSentMessageId.toInt(),
+            roomMetadata.lastMessageId.toInt(),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> _updateSeen(
+    int messageId,
+    String roomUid,
+    int lastMessageId,
+  ) async {
+    await (_seenDao.updateMySeen(
+      uid: roomUid,
+      messageId: messageId,
+    ));
+
+    if (roomUid.isGroup()) {
+      unawaited(
+        _updateRoomMention(messageId, roomUid),
+      );
+      if(lastMessageId> messageId){
+        unawaited(_fetchMentions(roomUid, messageId));
+      }
+    }
+
+    unawaited(fetchHiddenMessageCount(roomUid.asUid(), messageId));
+
+    if (roomUid.isGroup() || roomUid.isUser()) {
+      unawaited(
+        _updateLastOtherSeen(
+          roomUid,
+          lastMessageId,
+        ),
+      );
+    }
+  }
+
   /// return true if have new room or new message
   Future<bool> _updateRoom(
     RoomMetadata roomMetadata, {
@@ -245,18 +303,21 @@ class MessageRepo {
               )
               .ignore();
         }
+        unawaited(_processSeen(roomMetadata));
         if (room == null ||
             (roomMetadata.lastUpdate.toInt() != room.lastUpdateTime ||
                 room.deleted)) {
-          await _roomDao.updateRoom(
-            uid: roomMetadata.roomUid.asString(),
-            deleted: false,
-            synced: false,
-            lastCurrentUserSentMessageId:
-                roomMetadata.lastCurrentUserSentMessageId.toInt(),
-            lastMessageId: roomMetadata.lastMessageId.toInt(),
-            firstMessageId: roomMetadata.firstMessageId.toInt(),
-            lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+          unawaited(
+            _roomDao.updateRoom(
+              uid: roomMetadata.roomUid.asString(),
+              deleted: false,
+              synced: false,
+              lastCurrentUserSentMessageId:
+                  roomMetadata.lastCurrentUserSentMessageId.toInt(),
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+            ),
           );
 
           if (appRunInForeground &&
@@ -289,18 +350,7 @@ class MessageRepo {
   }
 
   Future<void> _updateRoomInBackground(RoomMetadata roomMetadata) async {
-    final seen = await _roomRepo.getMySeen(roomMetadata.roomUid.asString());
-
-    if (roomMetadata.lastMessageId <= seen.messageId) {
-      return;
-    }
-
-    await fetchRoomLastSeen(roomMetadata.roomUid.asString());
-
-    final updatedSeen =
-        await _roomRepo.getMySeen(roomMetadata.roomUid.asString());
-
-    if (roomMetadata.lastMessageId > updatedSeen.messageId) {
+    if (roomMetadata.lastMessageId > roomMetadata.lastSeenId) {
       unawaited(
         fetchRoomLastMessage(
           roomMetadata.roomUid.asString(),
@@ -325,37 +375,21 @@ class MessageRepo {
       appRunInForeground: appRunInForeground,
     );
 
-    await _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
-      roomUid.asUid(),
-      lastMessageId,
+    unawaited(
+      _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
+        roomUid.asUid(),
+        lastMessageId,
+      ),
     );
   }
 
-  Future<void> updatingLastSeen() async {
-    final rooms = await _roomDao.getAllRooms();
-    for (final r in rooms) {
-      await _updateLastSeen(r);
-    }
-  }
-
-  Future<void> fetchRoomLastSeen(String roomUid) async {
-    final room = await _roomDao.getRoom(roomUid);
-    if (room != null) {
-      await _updateLastSeen(room);
-      if (roomUid.asUid().category == Categories.GROUP) {
-        unawaited(_fetchMentions(roomUid));
-      }
-    }
-  }
-
-  Future<void> _updateLastSeen(Room room) async {
-    if (room.lastMessage == null || room.lastMessage!.id == null) return;
-    await fetchCurrentUserLastSeen(room);
-    if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
-      final othersSeen = await _seenDao.getOthersSeen(room.lastMessage!.to);
-      if (othersSeen == null || othersSeen.messageId < room.lastMessage!.id!) {
-        fetchOtherSeen(room.uid.asUid()).toString();
-      }
+  Future<void> _updateLastOtherSeen(
+    String roomUid,
+    int lastMessageId,
+  ) async {
+    final othersSeen = await _seenDao.getOthersSeen(roomUid);
+    if (othersSeen == null || othersSeen.messageId < lastMessageId) {
+      _fetchOtherSeen(roomUid.asUid()).toString();
     }
   }
 
@@ -374,10 +408,7 @@ class MessageRepo {
           )
           .catchError((e) => _logger.e(e));
 
-  Future<void> fetchOtherSeen(Uid roomUid) {
-    if (roomUid.category == Categories.USER ||
-        roomUid.category == Categories.GROUP) {
-      return _sdr.queryServiceClient
+  Future<void> _fetchOtherSeen(Uid roomUid) => _sdr.queryServiceClient
           .fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = roomUid,
           )
@@ -395,69 +426,56 @@ class MessageRepo {
           ..wtf("roomUid: $roomUid")
           ..e(e);
       });
-    } else {
-      return Future.value();
-    }
-  }
 
-  Future<void> fetchCurrentUserLastSeen(Room room) async {
-    final seen = await _seenDao.getMySeen(room.uid);
-    if (seen.messageId < room.lastMessage!.id!) {
-      var reTryFailedFetch = 3;
-      while (reTryFailedFetch > 0) {
-        try {
-          reTryFailedFetch--;
+  Future<void> _fetchCurrentUserLastSeen(
+    String roomUid,
+    int lastCurrentUserSentMessageId,
+    int lastMessageId,
+  ) async {
+    var reTryFailedFetch = 3;
+    while (reTryFailedFetch > 0) {
+      try {
+        reTryFailedFetch--;
 
-          final fetchCurrentUserSeenData =
-              await _sdr.queryServiceClient.fetchCurrentUserSeenData(
-            FetchCurrentUserSeenDataReq()..roomUid = room.uid.asUid(),
-          );
+        final fetchCurrentUserSeenData =
+            await _sdr.queryServiceClient.fetchCurrentUserSeenData(
+          FetchCurrentUserSeenDataReq()..roomUid = roomUid.asUid(),
+        );
 
-          final newSeenMessageId = max(
-            fetchCurrentUserSeenData.seen.id.toInt(),
-            room.lastCurrentUserSentMessageId,
-          );
-
-          await _seenDao.updateMySeen(
-            uid: room.uid,
-            messageId: newSeenMessageId,
-          );
-          if (room.uid.isGroup()) {
-            unawaited(_updateRoomMention(newSeenMessageId, room));
-          }
-
-          return fetchHiddenMessageCount(
-            room.uid.asUid(),
+        final newSeenMessageId = max(
+          fetchCurrentUserSeenData.seen.id.toInt(),
+          lastCurrentUserSentMessageId,
+        );
+        unawaited(sendSeen(newSeenMessageId, roomUid.asUid()));
+        unawaited(
+          _updateSeen(
             newSeenMessageId,
+            roomUid,
+            lastMessageId,
+          ),
+        );
+      } on GrpcError catch (e) {
+        _logger
+          ..wtf(roomUid)
+          ..e(e);
+        if (e.code == StatusCode.notFound) {
+          return _seenDao.updateMySeen(
+            uid: roomUid,
+            messageId: 0,
           );
-        } on GrpcError catch (e) {
-          _logger
-            ..wtf(room.uid)
-            ..e(e);
-          if (reTryFailedFetch == 0) {
-            if (e.code == StatusCode.notFound) {
-              unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: true));
-              return _seenDao.updateMySeen(
-                uid: room.uid,
-                messageId: 0,
-              );
-            } else {
-              unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
-            }
-          }
-        } catch (e) {
-          if (reTryFailedFetch == 0) {
-            unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: false));
-          }
-          _logger.e(e);
         }
+      } catch (e) {
+        _logger.e(e);
       }
     }
   }
 
-  Future<void> _updateRoomMention(int messageId, Room room) async {
+  Future<void> _updateRoomMention(int messageId, String roomUid) async {
     try {
-      if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+      final room = await _roomRepo.getRoom(roomUid);
+      if (room != null &&
+          room.mentionsId != null &&
+          room.mentionsId!.isNotEmpty) {
         unawaited(
           _roomRepo.updateMentionIds(
             room.uid,
@@ -472,26 +490,24 @@ class MessageRepo {
 
   Future<void> _fetchMentions(
     String roomUid,
+    int messageId,
   ) async {
-    final seen = await _roomRepo.getMySeen(roomUid);
-    if (seen.messageId > 0) {
-      await _sdr.queryServiceClient
-          .fetchMentionList(
-        FetchMentionListReq()
-          ..group = roomUid.asUid()
-          ..afterId = Int64(seen.messageId + 1),
-      )
-          .then((mentionResult) async {
-        if (mentionResult.idList.isNotEmpty) {
-          await _roomRepo.processMentionIds(
-            roomUid,
-            mentionResult.idList.map((e) => e.toInt()).toList(),
-          );
-        }
-      }).catchError((e) {
-        _logger.e(e);
-      });
-    }
+    await _sdr.queryServiceClient
+        .fetchMentionList(
+      FetchMentionListReq()
+        ..group = roomUid.asUid()
+        ..afterId = Int64(messageId + 1),
+    )
+        .then((mentionResult) async {
+      if (mentionResult.idList.isNotEmpty) {
+        await _roomRepo.processMentionIds(
+          roomUid,
+          mentionResult.idList.map((e) => e.toInt()).toList(),
+        );
+      }
+    }).catchError((e) {
+      _logger.e(e);
+    });
   }
 
   Future<void> sendTextMessage(

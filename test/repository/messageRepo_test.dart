@@ -111,13 +111,13 @@ void main() {
     group('updatingMessages -', () {
       test('When called should fetch all room from sharedDao', () async {
         final sharedDao = getAndRegisterSharedDao();
-        MessageRepo().updatingMessages();
+        MessageRepo().updatingRooms();
         verify(sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED));
       });
 
       test('When called should get All UserRoomMeta', () async {
         final msdr = getAndRegisterServicesDiscoveryRepo();
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         verify(
           msdr.queryServiceClient.getAllUserRoomMeta(
             GetAllUserRoomMetaReq()
@@ -130,7 +130,7 @@ void main() {
           'When called should get All UserRoomMeta and if finished be true should put on sharedDao',
           () async {
         final sharedDao = getAndRegisterSharedDao();
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         final queryServiceClient = getMockQueryServicesClient();
         final getAllUserRoomMetaRes =
             await queryServiceClient.getAllUserRoomMeta(
@@ -146,7 +146,7 @@ void main() {
           () async {
         final queryServiceClient = getMockQueryServicesClient(finished: false);
         final sharedDao = getAndRegisterSharedDao();
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         final getAllUserRoomMetaRes =
             await queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
@@ -160,7 +160,7 @@ void main() {
       test('When called should get room from roomDao', () async {
         getMockQueryServicesClient();
         final roomDao = getAndRegisterRoomDao();
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         getAndRegisterServicesDiscoveryRepo();
         verify(roomDao.getRoom(testUid.asString()));
       });
@@ -177,7 +177,7 @@ void main() {
             )
           ],
         );
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         verify(roomDao.getRoom(testUid.asString())).called(1);
       });
 
@@ -193,7 +193,7 @@ void main() {
             )
           ],
         );
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),
@@ -213,7 +213,7 @@ void main() {
         getAndRegisterServicesDiscoveryRepo().queryServiceClient =
             getMockQueryServicesClient(presenceType: PresenceType.DELETED);
         final roomDao = getAndRegisterRoomDao();
-        await MessageRepo().updatingMessages();
+        await MessageRepo().updatingRooms();
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),

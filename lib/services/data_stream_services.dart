@@ -558,7 +558,6 @@ class DataStreamServices {
     Uid roomUid,
     int lastMessageId,
     int firstMessageId, {
-    bool retry = true,
     bool appRunInForeground = false,
   }) async {
     var pointer = lastMessageId + 1;

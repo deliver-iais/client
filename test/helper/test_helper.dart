@@ -394,8 +394,6 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
   when(service.getAllGroups())
       .thenAnswer((realInvocation) => Future.value([testRoom]));
 
-  when(service.getNotSyncedRoom())
-      .thenAnswer((realInvocation) => Future.value([testRoom]));
   return service;
 }
 

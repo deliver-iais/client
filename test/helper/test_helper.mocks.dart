@@ -566,7 +566,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
   _i22.Future<List<_i25.Message>> getMessagePage(
     String? roomUid,
     int? page, {
-    int? pageSize = 50,
+    int? pageSize = 30,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -810,14 +810,6 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Stream<_i28.Room>.empty(),
       ) as _i22.Stream<_i28.Room>);
-  @override
-  _i22.Future<List<_i28.Room>> getNotSyncedRoom() => (super.noSuchMethod(
-        Invocation.method(
-          #getNotSyncedRoom,
-          [],
-        ),
-        returnValue: _i22.Future<List<_i28.Room>>.value(<_i28.Room>[]),
-      ) as _i22.Future<List<_i28.Room>>);
   @override
   _i22.Future<List<_i28.Room>> getAllGroups() => (super.noSuchMethod(
         Invocation.method(
