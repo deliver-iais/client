@@ -1,14 +1,15 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb_file;
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
   final String videoFilePath;
@@ -29,33 +30,17 @@ class VideoUi extends StatefulWidget {
 }
 
 class VideoUiState extends State<VideoUi> {
-  late final VideoPlayerController _videoPlayerController;
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
-    _init();
-
     super.initState();
   }
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
     super.dispose();
-  }
-
-  Future<void> _init() async {
-    if (!isDesktop) {
-      try {
-        _videoPlayerController = isWeb
-            ? VideoPlayerController.network(widget.videoFilePath)
-            : VideoPlayerController.file(File(widget.videoFilePath));
-        await _videoPlayerController.initialize();
-        setState(() {});
-      } catch (_) {}
-    }
   }
 
   @override
@@ -76,43 +61,34 @@ class VideoUiState extends State<VideoUi> {
               maxWidth: MediaQuery.of(context).size.width,
               maxHeight: MediaQuery.of(context).size.height / 2,
               child: Center(
-                child: isDesktop
-                    ? FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                          file.uuid,
-                          "${file.name}.webp",
-                          thumbnailSize: ThumbnailSize.small,
-                          intiProgressbar: false,
-                          isVideoFrame: true,
+                  child: FutureBuilder<String?>(
+                future: _fileRepo.getFile(
+                  file.uuid,
+                  "${file.name}.webp",
+                  thumbnailSize: ThumbnailSize.small,
+                  intiProgressbar: false,
+                  isVideoFrame: true,
+                ),
+                builder: (c, path) {
+                  if (path.hasData && path.data != null) {
+                    return Container(
+                      width: file.width.toDouble(),
+                      height: file.height.toDouble(),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        image: DecorationImage(
+                          image: Image.file(File(path.data!)).image,
+                          fit: BoxFit.cover,
                         ),
-                        builder: (c, path) {
-                          if (path.hasData && path.data != null) {
-                            return Container(
-                              width: file.width.toDouble(),
-                              height: file.height.toDouble(),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.0),
-                                image: DecorationImage(
-                                  image: Image.file(File(path.data!)).image,
-                                  fit: BoxFit.cover,
-                                ),
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                              // child: Image.file(File(path.data!),width: 400,),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      )
-                    : SizedBox(
-                        width: file.width.toDouble(),
-                        height: file.height.toDouble(),
-                        child: VideoPlayer(
-                          _videoPlayerController,
-                        ),
+                        color: Colors.black.withOpacity(0.5),
                       ),
-              ),
+                      // child: Image.file(File(path.data!),width: 400,),
+                    );
+                  } else {
+                    return defaultImageUI(file);
+                  }
+                },
+              )),
             ),
           ),
         ),
@@ -139,5 +115,25 @@ class VideoUiState extends State<VideoUi> {
         )
       ],
     );
+  }
+
+  SizedBox defaultImageUI(pb_file.File file) {
+    return SizedBox(
+      width: max(file.width, 200) * 1.0,
+      height: max(file.height, 200) * 1.0,
+      child: getBlurHashWidget(file.blurHash),
+    );
+  }
+
+  Widget getBlurHashWidget(String blurHash) {
+    if (blurHash != "") {
+      return BlurHash(
+        hash: blurHash,
+      );
+    } else {
+      return const BlurHash(
+        hash: "L0Hewg%MM{%M?bfQfQfQM{fQfQfQ",
+      );
+    }
   }
 }
