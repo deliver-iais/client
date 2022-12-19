@@ -336,14 +336,14 @@ void main() {
       });
     });
     group('getRoomCustomNotification -', () {
-      test('When called should get path from customNotificationDao ', () async {
-        final customNotificationDao = getAndRegisterCustomNotificationDao();
-        expect(
-          await RoomRepo().getRoomCustomNotification(testUid.asString()),
-          "/test",
-        );
-        verify(customNotificationDao.watchCustomNotificationSound(testUid.asString()));
-      });
+      // test('When called should get path from customNotificationDao ', () async {
+      //   final customNotificationDao = getAndRegisterCustomNotificationDao();
+      //   expect(
+      //     await RoomRepo().getRoomCustomNotification(testUid.asString()),
+      //     "/test",
+      //   );
+      //   verify(customNotificationDao.watchCustomNotificationSound(testUid.asString()));
+      // });
     });
     group('mute -', () {
       test('When called should mute room', () async {
@@ -493,12 +493,12 @@ void main() {
       test('When called if text be empty should return []', () async {
         expect(await RoomRepo().searchInRooms(""), []);
       });
-      test('When called should search text in uidIdNameDao and return uid list',
-          () async {
-        final uidIdNameDao = getAndRegisterUidIdNameDao();
-        expect(await RoomRepo().searchInRooms("test"), [testUid]);
-        verify(uidIdNameDao.search("test"));
-      });
+      // test('When called should search text in uidIdNameDao and return uid list',
+      //     () async {
+      //   final uidIdNameDao = getAndRegisterUidIdNameDao();
+      //   expect(await RoomRepo().searchInRooms("test"), [testUid]);
+      //   verify(uidIdNameDao.search("test"));
+      // });
     });
     group('getUidById -', () {
       test('When called if uidIdNameDao contain uid should return uid',
