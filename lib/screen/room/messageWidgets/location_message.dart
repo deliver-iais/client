@@ -533,7 +533,7 @@ Future<double> _distance(Message message) async {
     location.latitude,
     location.longitude,
   );
-  return distance / 1609.344;
+  return distance;
 }
 
 Future<Position> _determinePosition() async {

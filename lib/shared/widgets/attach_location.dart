@@ -182,15 +182,9 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                                 ),
                                 style: const TextStyle(fontSize: 18),
                               ),
-                            if (widget.position.latitude !=
-                                    pointerLocation.latitude ||
-                                widget.position.longitude !=
-                                    pointerLocation.longitude)
-                              Text(
-                                "${pointerLocation.latitude},${pointerLocation.longitude}",
-                              )
-                            else
-                              Text("${widget.position.accuracy}")
+                            Text(
+                              "${_i18n.get("location")} (${pointerLocation.latitude.toStringAsFixed(5)},${pointerLocation.longitude.toStringAsFixed(5)})",
+                            )
                           ],
                         ),
                       ],
