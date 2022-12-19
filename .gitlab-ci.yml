@@ -17,8 +17,8 @@ test:
   needs: [ ]
   extends: [ .test-definition ]
   script:
-    - echo "Flutter Test not passing for Now - Use `flutter test` instead"
-
+#    - echo "Flutter Test not passing for Now - Use `flutter test` instead"
+    - flutter test
 publish-we-android:
   needs: [ test ]
   extends: [ .publish-android-definition ]
