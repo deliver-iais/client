@@ -870,98 +870,8 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  Future<void> createInviteLink() async {
-    if (widget.roomUid.isBot()) {
-      _showInviteLinkDialog(buildInviteLinkForBot(widget.roomUid.node));
-    } else {
-      final muc = await _mucRepo.getMuc(widget.roomUid.asString());
-      if (muc != null) {
-        var token = muc.token;
-        if (token.isEmpty) {
-          if (widget.roomUid.category == Categories.GROUP) {
-            token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
-          } else {
-            token =
-                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
-          }
-        }
-        if (token.isNotEmpty) {
-          _showInviteLinkDialog(
-            buildMucInviteLink(widget.roomUid, token),
-            token: token,
-          );
-        } else {
-          ToastDisplay.showToast(
-            toastText: _i18n.get("error_occurred"),
-            toastContext: context,
-          );
-        }
-      }
-    }
-  }
 
-  void _showInviteLinkDialog(String inviteLink, {String token = ""}) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Focus(
-          autofocus: true,
-          child: AlertDialog(
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatarWidget(widget.roomUid, 25),
-                      const SizedBox(width: 5),
-                      Text(_roomName)
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    inviteLink,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      saveToClipboard(inviteLink, context: context);
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      _i18n.get("copy"),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _routingService.openSelectForwardMessage(
-                        sharedUid: proto.ShareUid()
-                          ..name = _roomName
-                          ..joinToken = token
-                          ..uid = widget.roomUid,
-                      );
-                    },
-                    child: Text(
-                      _i18n.get("share"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    ).ignore();
-  }
+
 
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
@@ -1277,7 +1187,7 @@ class ProfilePageState extends State<ProfilePage>
         );
         break;
       case "invite_link":
-        createInviteLink();
+        ;
         break;
       case "addBotToGroup":
         _showAddBotToGroupDialog();

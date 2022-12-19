@@ -244,165 +244,222 @@ class MucManagePageState extends State<MucManagePage>
                 elevation: 1.0,
                 margin: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(10.0),
                   // side: BorderSide(color: Colors.red)
                 ), // color: theme.bottomAppBarColor,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (widget.roomUid.category == Categories.CHANNEL)
-                                StreamBuilder<Muc?>(
-                                  stream: _mucRepo
-                                      .watchMuc(widget.roomUid.asString()),
-                                  builder: (c, muc) {
-                                    if (muc.hasData && muc.data != null) {
-                                      currentId = muc.data!.id;
-                                      return Column(
-                                        children: [
-                                          Directionality(
-                                            textDirection:
-                                                _i18n.defaultTextDirection,
-                                            child: Form(
-                                              key: channelIdFormKey,
-                                              child: AutoDirectionTextForm(
-                                                controller: TextEditingController(
-                                                    text: muc.data!.id),
-                                                textDirection:
-                                                    _i18n.defaultTextDirection,
-                                                minLines: 1,
-                                                validator: validateChannelId,
-                                                onChanged: (str) {
-                                                  if (str.isNotEmpty &&
-                                                      str != muc.data!.id) {
-                                                    channelId = str;
-                                                    if (!newChange.value) {
-                                                      newChange.add(true);
-                                                    }
-                                                  }
-                                                },
-                                                keyboardType: TextInputType.text,
-                                                decoration: buildInputDecoration(
-                                                  _i18n.get("enter_channel_id"),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          StreamBuilder<bool?>(
-                                            stream: _showChannelIdError,
-                                            builder: (c, e) {
-                                              if (e.hasData &&
-                                                  e.data != null &&
-                                                  e.data!) {
-                                                return Text(
-                                                  _i18n
-                                                      .get("channel_id_is_exist"),
-                                                  style: const TextStyle(
-                                                      color: Colors.red),
-                                                );
-                                              } else {
-                                                return const SizedBox.shrink();
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              StreamBuilder<Muc?>(
-                                stream:
-                                    _mucRepo.watchMuc(widget.roomUid.asString()),
-                                builder: (c, muc) {
-                                  if (muc.hasData && muc.data != null) {
-                                    mucInfo = muc.data!.info;
-                                    return Directionality(
-                                      textDirection: _i18n.defaultTextDirection,
-                                      child: AutoDirectionTextForm(
-                                        controller: TextEditingController(
-                                            text: muc.data!.info),
-                                        textDirection: _i18n.defaultTextDirection,
-                                        minLines: muc.data!.info.isNotEmpty
-                                            ? muc.data!.info.split("\n").length
-                                            : 1,
-                                        maxLines: muc.data!.info.isNotEmpty
-                                            ? muc.data!.info.split("\n").length +
-                                                4
-                                            : 4,
-                                        onChanged: (str) {
-                                          mucInfo = str;
-                                          newChange.add(true);
-                                        },
-                                        keyboardType: TextInputType.multiline,
-                                        decoration: buildInputDecoration(
-                                          widget.roomUid.category ==
-                                                  Categories.GROUP
-                                              ? _i18n.get("enter_group_desc")
-                                              : _i18n.get("enter_channel_desc"),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                },
-                              ),
-                              if (widget.roomUid.category == Categories.CHANNEL)
-                                Column(
-                                  children: [
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (widget.roomUid.category ==
+                                      Categories.CHANNEL)
                                     StreamBuilder<Muc?>(
                                       stream: _mucRepo
                                           .watchMuc(widget.roomUid.asString()),
                                       builder: (c, muc) {
                                         if (muc.hasData && muc.data != null) {
-                                          _mucType = muc.data!.mucType;
-                                          return SelectMucType(
-                                            backgroundColor: Theme.of(context)
-                                                .dialogBackgroundColor,
-                                            onMucTypeChange: (value) {
-                                              _mucType = _mucRepo
-                                                  .pbMucTypeToHiveMucType(value);
-                                              if (_mucRepo.pbMucTypeToHiveMucType(
-                                                      value) !=
-                                                  muc.data!.mucType) {
-                                                newChange.add(true);
-                                              }
-                                            },
-                                            mucType: _mucRepo
-                                                .hiveMucTypeToPbMucType(_mucType),
+                                          currentId = muc.data!.id;
+                                          return Column(
+                                            children: [
+                                              Directionality(
+                                                textDirection:
+                                                    _i18n.defaultTextDirection,
+                                                child: Form(
+                                                  key: channelIdFormKey,
+                                                  child: AutoDirectionTextForm(
+                                                    controller:
+                                                        TextEditingController(
+                                                            text: muc.data!.id),
+                                                    textDirection: _i18n
+                                                        .defaultTextDirection,
+                                                    minLines: 1,
+                                                    validator:
+                                                        validateChannelId,
+                                                    onChanged: (str) {
+                                                      if (str.isNotEmpty &&
+                                                          str != muc.data!.id) {
+                                                        channelId = str;
+                                                        if (!newChange.value) {
+                                                          newChange.add(true);
+                                                        }
+                                                      }
+                                                    },
+                                                    keyboardType:
+                                                        TextInputType.text,
+                                                    decoration:
+                                                        buildInputDecoration(
+                                                      _i18n.get(
+                                                          "enter_channel_id"),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              StreamBuilder<bool?>(
+                                                stream: _showChannelIdError,
+                                                builder: (c, e) {
+                                                  if (e.hasData &&
+                                                      e.data != null &&
+                                                      e.data!) {
+                                                    return Text(
+                                                      _i18n.get(
+                                                          "channel_id_is_exist"),
+                                                      style: const TextStyle(
+                                                          color: Colors.red),
+                                                    );
+                                                  } else {
+                                                    return const SizedBox
+                                                        .shrink();
+                                                  }
+                                                },
+                                              ),
+                                            ],
                                           );
+                                        } else {
+                                          return const SizedBox.shrink();
                                         }
-                                        return const SizedBox.shrink();
                                       },
                                     ),
-                                  ],
-                                ),
-                            ],
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  StreamBuilder<Muc?>(
+                                    stream: _mucRepo
+                                        .watchMuc(widget.roomUid.asString()),
+                                    builder: (c, muc) {
+                                      if (muc.hasData && muc.data != null) {
+                                        mucInfo = muc.data!.info;
+                                        return Directionality(
+                                          textDirection:
+                                              _i18n.defaultTextDirection,
+                                          child: AutoDirectionTextForm(
+                                            controller: TextEditingController(
+                                                text: muc.data!.info),
+                                            textDirection:
+                                                _i18n.defaultTextDirection,
+                                            minLines: muc.data!.info.isNotEmpty
+                                                ? muc.data!.info
+                                                    .split("\n")
+                                                    .length
+                                                : 1,
+                                            maxLines: muc.data!.info.isNotEmpty
+                                                ? muc.data!.info
+                                                        .split("\n")
+                                                        .length +
+                                                    4
+                                                : 4,
+                                            onChanged: (str) {
+                                              mucInfo = str;
+                                              newChange.add(true);
+                                            },
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            decoration: buildInputDecoration(
+                                              widget.roomUid.category ==
+                                                      Categories.GROUP
+                                                  ? _i18n
+                                                      .get("enter_group_desc")
+                                                  : _i18n.get(
+                                                      "enter_channel_desc"),
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    },
+                                  ),
+                                  if (widget.roomUid.category ==
+                                      Categories.CHANNEL)
+                                    Column(
+                                      children: [
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        StreamBuilder<Muc?>(
+                                          stream: _mucRepo.watchMuc(
+                                              widget.roomUid.asString()),
+                                          builder: (c, muc) {
+                                            if (muc.hasData &&
+                                                muc.data != null) {
+                                              _mucType = muc.data!.mucType;
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15.0),
+                                                child: SelectMucType(
+                                                  backgroundColor: Theme.of(
+                                                          context)
+                                                      .dialogBackgroundColor,
+                                                  onMucTypeChange: (value) {
+                                                    _mucType = _mucRepo
+                                                        .pbMucTypeToHiveMucType(
+                                                            value);
+                                                    if (_mucRepo
+                                                            .pbMucTypeToHiveMucType(
+                                                                value) !=
+                                                        muc.data!.mucType) {
+                                                      newChange.add(true);
+                                                    }
+                                                  },
+                                                  mucType: _mucRepo
+                                                      .hiveMucTypeToPbMucType(
+                                                          _mucType),
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox.shrink();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              createInviteLink();
+                            },
+                            child: Directionality(
+                              textDirection: _i18n.defaultTextDirection,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.add_link_outlined),
+                                  const SizedBox(width: 8),
+                                  Text(_i18n.get("create_invite_link"))
+                                ],
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: tertiaryBorder)),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
+                        )
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -416,7 +473,6 @@ class MucManagePageState extends State<MucManagePage>
                   if (widget.roomUid.isMuc() && _isMucOwner)
                     Expanded(
                       child: ElevatedButton(
-
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -444,16 +500,11 @@ class MucManagePageState extends State<MucManagePage>
                             ],
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.errorContainer, foregroundColor: theme.colorScheme.onErrorContainer,shape: RoundedRectangleBorder(borderRadius: tertiaryBorder)),
-                        // style: ButtonStyle(
-                        //     backgroundColor: MaterialStateProperty.all(
-                        //         theme.errorColor.withOpacity(1)),
-                        //     shape: MaterialStateProperty.all<
-                        //             RoundedRectangleBorder>(
-                        //         RoundedRectangleBorder(
-                        //       borderRadius: BorderRadius.circular(9.0),
-                        //       // side: BorderSide(color: Colors.red)
-                        //     ))),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.errorContainer,
+                            foregroundColor: theme.colorScheme.onErrorContainer,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: tertiaryBorder)),
                       ),
                     )
                 ],
@@ -571,6 +622,7 @@ class MucManagePageState extends State<MucManagePage>
     if (widget.roomUid.isMuc()) {
       try {
         final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
+        _roomName = fetchMucInfo?.name ?? "";
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),
@@ -590,6 +642,7 @@ class MucManagePageState extends State<MucManagePage>
     } else if (widget.roomUid.isBot()) {
       try {
         final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
+        _roomName = botAvatarPermission.name ?? "";
         setState(() {
           _isBotOwner = botAvatarPermission.isOwner;
           initProfileAvatar();
@@ -613,6 +666,152 @@ class MucManagePageState extends State<MucManagePage>
       showSetAvatar: false,
       canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
     );
+  }
+
+  Future<void> createInviteLink() async {
+    if (widget.roomUid.isBot()) {
+      _showInviteLinkDialog(buildInviteLinkForBot(widget.roomUid.node));
+    } else {
+      final muc = await _mucRepo.getMuc(widget.roomUid.asString());
+      if (muc != null) {
+        var token = muc.token;
+        if (token.isEmpty) {
+          if (widget.roomUid.category == Categories.GROUP) {
+            token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+          } else {
+            token =
+                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+          }
+        }
+        if (token.isNotEmpty) {
+          _showInviteLinkDialog(
+            buildMucInviteLink(widget.roomUid, token),
+            token: token,
+          );
+        } else {
+          ToastDisplay.showToast(
+            toastText: _i18n.get("error_occurred"),
+            toastContext: context,
+          );
+        }
+      }
+    }
+  }
+
+  void _showInviteLinkDialog(String inviteLink, {String token = ""}) {
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        String chaningToken = token;
+        String changingInviteLink = inviteLink;
+        return Focus(
+          autofocus: true,
+          child: StatefulBuilder(
+            builder: (BuildContext context,
+                void Function(void Function()) alertSetState) {
+              // String changingInviteLink = inviteLink;
+              return AlertDialog(
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width / 3,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatarWidget(widget.roomUid, 25),
+                          const SizedBox(width: 5),
+                          Text(_roomName)
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                              // boxShadow: ,
+                              color: theme.colorScheme.primaryContainer
+                                  .withOpacity(0.0)),
+                          child: Text(
+                            changingInviteLink,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (!widget.roomUid.isBot())
+                        IconButton(
+                          onPressed: () async {
+                            String tmp = "";
+                            if (widget.roomUid.isGroup()) {
+                              await _mucRepo.deleteGroupJointToken(
+                                  groupUid: widget.roomUid);
+                              tmp = await _mucRepo.getGroupJointToken(
+                                  groupUid: widget.roomUid);
+                            } else if (widget.roomUid.isChannel()) {
+                              await _mucRepo.deleteChannelJointToken(
+                                  channelUid: widget.roomUid);
+                              tmp = await _mucRepo.getChannelJointToken(
+                                  channelUid: widget.roomUid);
+                            }
+                            alertSetState(
+                              () {
+                                changingInviteLink =
+                                    buildMucInviteLink(widget.roomUid, tmp);
+                                chaningToken = tmp;
+                              },
+                            );
+                          },
+                          icon: Icon(Icons.refresh),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Theme.of(context).colorScheme.primaryContainer,
+                            ),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          saveToClipboard(changingInviteLink, context: context);
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          _i18n.get("copy"),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _routingService.openSelectForwardMessage(
+                            sharedUid: proto.ShareUid()
+                              ..name = _roomName
+                              ..joinToken = chaningToken
+                              ..uid = widget.roomUid,
+                          );
+                        },
+                        child: Text(
+                          _i18n.get("share"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    ).ignore();
   }
 
   Future<bool> checkChannelD(String id) async {
