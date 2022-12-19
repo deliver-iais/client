@@ -17,18 +17,18 @@ test:
   needs: [ ]
   extends: [ .test-definition ]
   script:
-#    - echo "Flutter Test not passing for Now - Use `flutter test` instead"
+    - echo "Flutter Test not passing for Now - Use `flutter test test/repository/roomRepo_test.dart` instead"
 #    - flutter test
-    - flutter pub get
-    - flutter test test/repository/roomRepo_test.dart
-#publish-we-android:
-#  needs: [ test ]
-#  extends: [ .publish-android-definition ]
-#
-#publish-we-web:
-#  needs: [ test ]
-#  extends: [ .publish-web-definition ]
-#
-#deploy-we-web:
-#  needs: [ publish-we-web ]
-#  extends: [ .deploy-web-definition ]
+#    - flutter pub get
+#    - flutter test test/repository/roomRepo_test.dart
+publish-we-android:
+  needs: [ test ]
+  extends: [ .publish-android-definition ]
+
+publish-we-web:
+  needs: [ test ]
+  extends: [ .publish-web-definition ]
+
+deploy-we-web:
+  needs: [ publish-we-web ]
+  extends: [ .deploy-web-definition ]
