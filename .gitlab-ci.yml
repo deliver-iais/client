@@ -19,6 +19,7 @@ test:
   script:
 #    - echo "Flutter Test not passing for Now - Use `flutter test` instead"
 #    - flutter test
+    - flutter pub get
     - flutter test test/repository/roomRepo_test.dart
 publish-we-android:
   needs: [ test ]
