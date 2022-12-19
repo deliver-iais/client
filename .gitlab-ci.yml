@@ -17,6 +17,7 @@ test:
   needs: [ ]
   extends: [ .test-definition ]
   script:
+
     - flutter clean
     - echo "Flutter Test not passing for Now - Use `flutter test test/repository/roomRepo_test.dart` instead"
 #    - flutter test
