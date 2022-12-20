@@ -15,12 +15,16 @@ class RoomName extends StatelessWidget {
   final String? name;
   final TextStyle? style;
   final String? status;
+  final int maxLines;
+  final TextOverflow overflow;
 
   const RoomName({
     super.key,
     required this.uid,
     this.name,
     this.style,
+    this.maxLines = 1,
+    this.overflow = TextOverflow.ellipsis,
     this.status,
   });
 
@@ -42,9 +46,9 @@ class RoomName extends StatelessWidget {
                   name.replaceAll('', '\u200B'),
                   style:
                       (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
-                  maxLines: 1,
+                  maxLines: maxLines,
                   softWrap: false,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: overflow,
                 ),
                 width: 170,
                 borderRadius: mainBorder,

@@ -5,16 +5,15 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../../shared/methods/format_duration.dart';
-import '../time_and_seen_status.dart';
 
 class VideoMessage extends StatefulWidget {
   final Message message;
@@ -58,7 +57,6 @@ class VideoMessageState extends State<VideoMessage> {
         maxWidth: widget.maxWidth,
         maxHeight: widget.maxWidth,
       ),
-      padding: const EdgeInsets.all(4),
       child: AspectRatio(
         aspectRatio: video.width > 0 ? video.width / video.height : 1,
         child: Stack(
@@ -110,15 +108,20 @@ class VideoMessageState extends State<VideoMessage> {
                               alignment: Alignment.topLeft,
                               child: Container(
                                 padding: const EdgeInsets.only(
-                                  left: 3,
-                                  right: 3,
-                                  top: 1,
-                                  bottom: 1,
+                                  left: 7,
+                                  right: 8,
+                                  top: 5,
+                                  bottom: 3,
+                                ),
+                                margin: const EdgeInsets.only(
+                                  left: 5,
+                                  top: 5,
                                 ),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context)
-                                      .backgroundColor
-                                      .withOpacity(0.2),
+                                      .colorScheme
+                                      .surface
+                                      .withOpacity(0.7),
                                   borderRadius: BorderRadius.circular(15.0),
                                 ),
                                 child: Text(

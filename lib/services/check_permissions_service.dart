@@ -58,9 +58,9 @@ extension PermissionsExtension on CheckPermissionsService {
 
   Future<bool> checkMediaLibraryPermission() async {
     try {
-      return await Permission.accessMediaLocation .isGranted &&
+      return await Permission.mediaLibrary.isGranted &&
           await requestLock.synchronized(() async {
-            return Permission.accessMediaLocation.request().isGranted;
+            return Permission.mediaLibrary.request().isGranted;
           });
     } catch (e) {
       return false;

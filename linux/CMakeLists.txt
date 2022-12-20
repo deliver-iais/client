@@ -4,6 +4,8 @@ project(runner LANGUAGES CXX)
 set(BINARY_NAME "deliver")
 set(APPLICATION_ID "ir.we.deliver")
 
+
+
 cmake_policy(SET CMP0063 NEW)
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")

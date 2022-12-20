@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver/repository/authRepo.dart';
@@ -109,12 +110,40 @@ class CircleAvatarWidget extends StatelessWidget {
     Color textColor,
   ) {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-      return isWeb
-          ? Image.network(snapshot.data!, fit: BoxFit.fill)
-          : Image.file(
-              File(snapshot.data!),
-              fit: BoxFit.cover,
-            );
+      Image image;
+      if (isWeb) {
+        return Image.network(snapshot.data!, fit: BoxFit.fill);
+      } else {
+        image = Image.file(
+          File(snapshot.data!),
+          fit: BoxFit.cover,
+        );
+        final completer = Completer<ImageInfo>();
+        image.image.resolve(const ImageConfiguration()).addListener(
+          ImageStreamListener((info, synchronousCall) {
+            if (completer.isCompleted == false) {
+              completer.complete(info);
+            }
+          }),
+        );
+
+        return FutureBuilder<ImageInfo>(
+          future: completer.future,
+          builder: (context, snapshot2) {
+            if (snapshot2.hasData &&
+                ((snapshot2.data!.image.height - snapshot2.data!.image.width)
+                        .abs() <=
+                    3)) {
+              return image = Image.file(
+                File(snapshot.data!),
+                fit: BoxFit.scaleDown,
+              );
+            } else {
+              return image;
+            }
+          },
+        );
+      }
     } else {
       return showDisplayName(textColor);
     }

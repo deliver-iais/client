@@ -25,6 +25,8 @@ import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
+import 'package:deliver/screen/profile/widgets/profile_blur_avatar.dart';
+import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
@@ -33,7 +35,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -42,6 +43,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -86,6 +88,7 @@ class ProfilePageState extends State<ProfilePage>
   String _roomName = "";
   bool _roomIsBlocked = false;
   MucType _mucType = MucType.Public;
+  late ProfileAvatar _profileAvatar;
 
   final BehaviorSubject<bool> _selectMediasForForward =
       BehaviorSubject.seeded(false);
@@ -109,7 +112,6 @@ class ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
           stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
@@ -157,6 +159,65 @@ class ProfilePageState extends State<ProfilePage>
                 child: NestedScrollView(
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: _buildSliverAppbar(),
+                      ),
+                      if (_profileAvatar.canSetAvatar)
+                        Directionality(
+                          textDirection: _i18n.defaultTextDirection,
+                          child: SliverToBoxAdapter(
+                            child: Container(
+                              color:
+                                  theme.colorScheme.background.withOpacity(1),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          // padding: EdgeInsets.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          // minimumSize: Size(0, 0),
+                                          textStyle:
+                                              const TextStyle(fontSize: 12),
+                                          // backgroundColor: theme.colorScheme,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                              bottom: Radius.circular(25.0),
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () => _profileAvatar
+                                            .selectAvatar(context),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .only(end: 8.0),
+                                              child: Text(
+                                                _i18n.get("select_an_image"),
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.add_a_photo_outlined,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
@@ -387,6 +448,61 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
+  Widget _buildSliverAppbar() {
+    _profileAvatar = ProfileAvatar(
+      roomUid: widget.roomUid,
+      showSetAvatar: false,
+      canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+    );
+    final theme = Theme.of(context);
+    return SliverAppBar.medium(
+      actions: <Widget>[
+        _buildMenu(context),
+      ],
+      leading: _routingService.backButtonLeading(),
+      shadowColor: theme.colorScheme.background,
+      // stretch: true,
+      backgroundColor: theme.colorScheme.background,
+      expandedHeight: 170,
+      flexibleSpace: Directionality(
+        textDirection: _i18n.defaultTextDirection,
+        child: FlexibleSpaceBar(
+          titlePadding:
+              const EdgeInsets.only(left: 35.0, right: 35.0, top: 2.0),
+          expandedTitleScale: 1.1,
+          background: ProfileBlurAvatar(widget.roomUid),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: RoomName(
+                        uid: widget.roomUid,
+                        maxLines: 2,
+                      ),
+                    ),
+                    const Divider(color: Colors.transparent, height: 5),
+                    TitleStatus(
+                      currentRoomUid: widget.roomUid,
+                      style: theme.textTheme.caption!,
+                    )
+                  ],
+                ),
+              ),
+              _profileAvatar,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfo(BuildContext context) {
     final theme = Theme.of(context);
     return SliverList(
@@ -394,41 +510,7 @@ class ProfilePageState extends State<ProfilePage>
         BoxList(
           largePageBorderRadius: BorderRadius.zero,
           children: [
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ProfileAvatar(
-                  roomUid: widget.roomUid,
-                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-                ),
-                // _buildMenu(context)
-              ],
-            ),
-            if (!widget.roomUid.isGroup())
-              StreamBuilder<String?>(
-                stream: _roomRepo.watchId(widget.roomUid),
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SettingsTile(
-                        title: _i18n.get("username"),
-                        subtitle: "${snapshot.data}",
-                        leading: const Icon(Icons.alternate_email),
-                        trailing: const Icon(Icons.copy),
-                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                        onPressed: (_) => saveToClipboard(
-                          "@${snapshot.data}",
-                          context: context,
-                        ),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
+            ProfileIdSettingsTile(widget.roomUid, theme),
             if (widget.roomUid.isUser())
               FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
@@ -436,16 +518,17 @@ class ProfilePageState extends State<ProfilePage>
                   if (snapshot.data != null &&
                       snapshot.data!.countryCode != 0) {
                     return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 12.0),
                       child: SettingsTile(
                         title: _i18n.get("phone"),
                         subtitle: buildPhoneNumber(
                           snapshot.data!.countryCode,
                           snapshot.data!.nationalNumber,
                         ),
+                        subtitleDirection: TextDirection.ltr,
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
-                        trailing: const Icon(Icons.call),
+                        trailing: const SizedBox.shrink(),
                         onPressed: (_) => launchUrl(
                           Uri.parse(
                             "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
@@ -470,32 +553,6 @@ class ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-            if (isAndroid)
-              StreamBuilder<String?>(
-                stream: _roomRepo
-                    .watchRoomCustomNotification(widget.roomUid.asString()),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: SettingsTile(
-                        title: _i18n.get("custom_notifications"),
-                        leading: const Icon(Icons.music_note_sharp),
-                        subtitle: snapshot.data,
-                        subtitleTextStyle:
-                            TextStyle(color: theme.primaryColor, fontSize: 16),
-                        onPressed: (_) async {
-                          _routingService.openCustomNotificationSoundSelection(
-                            widget.roomUid.asString(),
-                          );
-                        },
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
             StreamBuilder<bool>(
               stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
               builder: (context, snapshot) {
@@ -506,6 +563,11 @@ class ProfilePageState extends State<ProfilePage>
                       title: _i18n.get("notification"),
                       leading: const Icon(Icons.notifications_active),
                       switchValue: !snapshot.data!,
+                      onPressed: (_) async {
+                        _routingService.openCustomNotificationSoundSelection(
+                          widget.roomUid.asString(),
+                        );
+                      },
                       onToggle: (state) {
                         if (state) {
                           _roomRepo.unMute(widget.roomUid.asString());
@@ -571,54 +633,31 @@ class ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-            const Divider(height: 4, thickness: 4)
           ],
         )
       ]),
     );
   }
 
-  Padding description(String info, BuildContext context) {
+  Widget description(String info, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
-      child: SettingsTile(
-        title: _i18n.get("description"),
-        leading: const Icon(Icons.info),
-        trailing: SizedBox(
-          width: 200,
-          child: Text(
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: Icon(Icons.info),
+          ),
+          Text(
             info,
             maxLines: 8,
-            textDirection:
-                info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
-            style:
-                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+            textDirection: _i18n.defaultTextDirection,
+            style: const TextStyle(
+              fontSize: 12.0,
+              letterSpacing: -0.2,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60.0),
-      child: AppBar(
-        titleSpacing: 8,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: FutureBuilder<String>(
-            initialData: _roomRepo.fastForwardName(widget.roomUid),
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (context, snapshot) {
-              _roomName = snapshot.data ?? _i18n.get("loading");
-              return RoomName(uid: widget.roomUid, name: _roomName);
-            },
-          ),
-        ),
-        actions: <Widget>[
-          _buildMenu(context),
         ],
-        leading: _routingService.backButtonLeading(),
       ),
     );
   }
@@ -918,7 +957,7 @@ class ProfilePageState extends State<ProfilePage>
                           textDirection: _i18n.defaultTextDirection,
                           child: AutoDirectionTextForm(
                             autofocus: true,
-                            initialValue: name.data,
+                            controller: TextEditingController(text: name.data),
                             validator: (s) {
                               if (s!.isEmpty) {
                                 return _i18n.get("name_not_empty");
@@ -960,7 +999,8 @@ class ProfilePageState extends State<ProfilePage>
                               child: Form(
                                 key: channelIdFormKey,
                                 child: AutoDirectionTextForm(
-                                  initialValue: muc.data!.id,
+                                  controller:
+                                      TextEditingController(text: muc.data!.id),
                                   minLines: 1,
                                   validator: validateChannelId,
                                   onChanged: (str) {
@@ -1009,7 +1049,8 @@ class ProfilePageState extends State<ProfilePage>
                       return Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: AutoDirectionTextForm(
-                          initialValue: muc.data!.info,
+                          controller:
+                              TextEditingController(text: muc.data!.info),
                           minLines: muc.data!.info.isNotEmpty
                               ? muc.data!.info.split("\n").length
                               : 1,
