@@ -121,7 +121,9 @@ class CircleAvatarWidget extends StatelessWidget {
         final completer = Completer<ImageInfo>();
         image.image.resolve(const ImageConfiguration()).addListener(
           ImageStreamListener((info, synchronousCall) {
-            completer.complete(info);
+            if (completer.isCompleted == false) {
+              completer.complete(info);
+            }
           }),
         );
 
