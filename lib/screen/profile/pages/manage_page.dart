@@ -582,7 +582,7 @@ class MucManagePageState extends State<MucManagePage>
                                   navigatorState.pop();
                                 }
                               }
-                              setState(() {});
+                              // setState(() {});
                             }
                           }
                         }
@@ -610,6 +610,8 @@ class MucManagePageState extends State<MucManagePage>
     final regex = RegExp(pattern.toString());
     if (value.isEmpty) {
       return _i18n.get("channel_id_not_empty");
+    }else if(value.split(" ").length > 1){
+      return _i18n.get("channel_id_no_whitespace");
     } else if (!regex.hasMatch(value)) {
       return _i18n.get("channel_id_length");
     } else {
