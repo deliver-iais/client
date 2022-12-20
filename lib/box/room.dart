@@ -42,6 +42,9 @@ class Room {
   @HiveField(11)
   int lastCurrentUserSentMessageId;
 
+  @HiveField(12)
+  bool seenSynced;
+
   @HiveField(13)
   String? replyKeyboardMarkup;
 
@@ -60,6 +63,7 @@ class Room {
     this.pinId = 0,
     this.synced = false,
     this.lastCurrentUserSentMessageId = 0,
+    this.seenSynced = false,
     this.replyKeyboardMarkup,
     this.mentionsId,
   });
@@ -96,6 +100,7 @@ class Room {
         synced: synced ?? this.synced,
         lastCurrentUserSentMessageId:
             lastCurrentUserSentMessageId ?? this.lastCurrentUserSentMessageId,
+        seenSynced: seenSynced ?? this.seenSynced,
         replyKeyboardMarkup: replyKeyboardMarkup ??
             (forceToUpdateReplyKeyboardMarkup
                 ? null
@@ -126,6 +131,7 @@ class Room {
             lastCurrentUserSentMessageId,
           ) &&
           const DeepCollectionEquality().equals(other.synced, synced) &&
+          const DeepCollectionEquality().equals(other.seenSynced, seenSynced) &&
           const DeepCollectionEquality()
               .equals(other.replyKeyboardMarkup, replyKeyboardMarkup) &&
           const DeepCollectionEquality().equals(other.mentionsId, mentionsId));
@@ -144,12 +150,13 @@ class Room {
         const DeepCollectionEquality().hash(pinId),
         const DeepCollectionEquality().hash(synced),
         const DeepCollectionEquality().hash(lastCurrentUserSentMessageId),
+        const DeepCollectionEquality().hash(seenSynced),
         const DeepCollectionEquality().hash(replyKeyboardMarkup),
         const DeepCollectionEquality().hash(mentionsId),
       );
 
   @override
   String toString() {
-    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [mentionsId:$mentionsId]";
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced] [mentionsId:$mentionsId]";
   }
 }

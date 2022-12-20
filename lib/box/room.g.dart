@@ -28,6 +28,7 @@ class RoomAdapter extends TypeAdapter<Room> {
       pinId: fields[9] as int,
       synced: fields[10] as bool,
       lastCurrentUserSentMessageId: fields[11] as int,
+      seenSynced: fields[12] as bool,
       replyKeyboardMarkup: fields[13] as String?,
       mentionsId: (fields[14] as List?)?.cast<int>(),
     );
@@ -36,7 +37,7 @@ class RoomAdapter extends TypeAdapter<Room> {
   @override
   void write(BinaryWriter writer, Room obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -59,6 +60,8 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..write(obj.synced)
       ..writeByte(11)
       ..write(obj.lastCurrentUserSentMessageId)
+      ..writeByte(12)
+      ..write(obj.seenSynced)
       ..writeByte(13)
       ..write(obj.replyKeyboardMarkup)
       ..writeByte(14)

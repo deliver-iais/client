@@ -53,6 +53,7 @@ import 'package:deliver/repository/liveLocationRepo.dart' as _i40;
 import 'package:deliver/repository/mediaRepo.dart' as _i74;
 import 'package:deliver/repository/mucRepo.dart' as _i64;
 import 'package:deliver/repository/roomRepo.dart' as _i29;
+import 'package:deliver/services/app_lifecycle_service.dart' as _i90;
 import 'package:deliver/services/call_service.dart' as _i78;
 import 'package:deliver/services/core_services.dart' as _i49;
 import 'package:deliver/services/data_stream_services.dart' as _i45;
@@ -2438,7 +2439,6 @@ class MockDataStreamServices extends _i1.Mock
     _i3.Uid? roomUid,
     int? lastMessageId,
     int? firstMessageId, {
-    bool? retry = true,
     bool? appRunInForeground = false,
   }) =>
       (super.noSuchMethod(
@@ -2449,10 +2449,7 @@ class MockDataStreamServices extends _i1.Mock
             lastMessageId,
             firstMessageId,
           ],
-          {
-            #retry: retry,
-            #appRunInForeground: appRunInForeground,
-          },
+          {#appRunInForeground: appRunInForeground},
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
@@ -6534,6 +6531,57 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
             uri,
             context,
           ],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [AppLifecycleService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAppLifecycleService extends _i1.Mock
+    implements _i90.AppLifecycleService {
+  MockAppLifecycleService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i90.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
+        Invocation.method(
+          #getAppLiveCycle,
+          [],
+        ),
+        returnValue: _i90.AppLifecycle.ACTIVE,
+      ) as _i90.AppLifecycle);
+  @override
+  void updateAppStateToPause() => super.noSuchMethod(
+        Invocation.method(
+          #updateAppStateToPause,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  bool appIsActive() => (super.noSuchMethod(
+        Invocation.method(
+          #appIsActive,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  _i22.Stream<_i90.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
+        Invocation.method(
+          #watchAppAppLifecycle,
+          [],
+        ),
+        returnValue: _i22.Stream<_i90.AppLifecycle>.empty(),
+      ) as _i22.Stream<_i90.AppLifecycle>);
+  @override
+  void startLifeCycListener() => super.noSuchMethod(
+        Invocation.method(
+          #startLifeCycListener,
+          [],
         ),
         returnValueForMissingStub: null,
       );
