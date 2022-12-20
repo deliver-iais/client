@@ -690,22 +690,6 @@ class ProfilePageState extends State<ProfilePage>
     final theme = Theme.of(context);
     List<PopupMenuItem<String>> popups = [
       if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
-        PopupMenuItem<String>(
-          value: "invite_link",
-          child: Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Row(
-              children: [
-                const Icon(Icons.add_link_outlined),
-                const SizedBox(width: 8),
-                Text(
-                  _i18n.get("create_invite_link"),
-                  style: theme.primaryTextTheme.bodyText2,
-                )
-              ],
-            ),
-          ),
-        ),
       if (!_isMucOwner)
         PopupMenuItem<String>(
           value: "delete_room",
@@ -1185,9 +1169,6 @@ class ProfilePageState extends State<ProfilePage>
           toastText: _i18n.get("report_result"),
           toastContext: context,
         );
-        break;
-      case "invite_link":
-        ;
         break;
       case "addBotToGroup":
         _showAddBotToGroupDialog();

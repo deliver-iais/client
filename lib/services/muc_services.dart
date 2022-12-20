@@ -396,7 +396,7 @@ class MucServices {
       return "";
     }
   }
-  // TODO : add test, fix exception
+
   Future<void> deleteGroupJointToken({required Uid groupUid}) async {
     try {
       await _serVices.groupServiceClient.deleteToken(
@@ -422,7 +422,6 @@ class MucServices {
     }
   }
 
-  // TODO : add test, fix exception
   Future<void> deleteChannelJointToken({required Uid channelUid}) async {
     try {
       await _serVices.channelServiceClient.deleteToken(
