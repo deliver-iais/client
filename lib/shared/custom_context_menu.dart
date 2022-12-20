@@ -40,7 +40,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
         top: top ?? (_tapPosition.dy - dy),
         end: overlaySize.width,
         bottom: overlaySize.height,
-        textDirection: textDirection!,
+        textDirection: textDirection,
       );
     }else{
       position = RelativeRect.fromLTRB(
