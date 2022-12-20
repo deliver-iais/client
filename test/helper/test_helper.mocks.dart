@@ -982,23 +982,23 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<String?> getRoomCustomNotification(String? uid) =>
+  _i22.Future<String> getRoomCustomNotification(String? uid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getRoomCustomNotification,
           [uid],
         ),
-        returnValue: _i22.Future<String?>.value(),
-      ) as _i22.Future<String?>);
+        returnValue: _i22.Future<String>.value(''),
+      ) as _i22.Future<String>);
   @override
-  _i22.Stream<String?> watchRoomCustomNotification(String? uid) =>
+  _i22.Stream<String> watchRoomCustomNotification(String? uid) =>
       (super.noSuchMethod(
         Invocation.method(
           #watchRoomCustomNotification,
           [uid],
         ),
-        returnValue: _i22.Stream<String?>.empty(),
-      ) as _i22.Stream<String?>);
+        returnValue: _i22.Stream<String>.empty(),
+      ) as _i22.Stream<String>);
   @override
   _i22.Future<bool> isRoomMuted(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1279,6 +1279,15 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+  @override
+  String getCustomNotificationShowingName(String? customNotificationSound) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getCustomNotificationShowingName,
+          [customNotificationSound],
+        ),
+        returnValue: '',
+      ) as String);
 }
 
 /// A class which mocks [AuthRepo].
@@ -5155,23 +5164,23 @@ class MockCustomNotificationDao extends _i1.Mock
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Stream<String?> watchCustomNotificationSound(String? uid) =>
+  _i22.Stream<String> watchCustomNotificationSound(String? uid) =>
       (super.noSuchMethod(
         Invocation.method(
           #watchCustomNotificationSound,
           [uid],
         ),
-        returnValue: _i22.Stream<String?>.empty(),
-      ) as _i22.Stream<String?>);
+        returnValue: _i22.Stream<String>.empty(),
+      ) as _i22.Stream<String>);
   @override
-  _i22.Future<String?> getCustomNotificationSound(String? uid) =>
+  _i22.Future<String> getCustomNotificationSound(String? uid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getCustomNotificationSound,
           [uid],
         ),
-        returnValue: _i22.Future<String?>.value(),
-      ) as _i22.Future<String?>);
+        returnValue: _i22.Future<String>.value(''),
+      ) as _i22.Future<String>);
 }
 
 /// A class which mocks [MediaDao].
