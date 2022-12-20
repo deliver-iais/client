@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -161,12 +162,11 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     switch (widget.type) {
       case SettingsItemType.toggle:
         if(widget.onPress != null) {
-          rowChildren.add(const VerticalDivider(
-            width: 10,
-            indent: 10,
-            endIndent: 10,
-            thickness: 1,
-          ),);
+          rowChildren.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Container(decoration: BoxDecoration(borderRadius: mainBorder, color: theme.disabledColor.withAlpha(60)), height: 26, width: 3,),
+            ),);
         }
         rowChildren.add(
           Padding(
