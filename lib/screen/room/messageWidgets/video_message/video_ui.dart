@@ -61,34 +61,34 @@ class VideoUiState extends State<VideoUi> {
               maxWidth: MediaQuery.of(context).size.width,
               maxHeight: MediaQuery.of(context).size.height / 2,
               child: Center(
-                  child: FutureBuilder<String?>(
-                future: _fileRepo.getFile(
-                  file.uuid,
-                  "${file.name}.webp",
-                  thumbnailSize: ThumbnailSize.small,
-                  intiProgressbar: false,
-                  isVideoFrame: true,
-                ),
-                builder: (c, path) {
-                  if (path.hasData && path.data != null) {
-                    return Container(
-                      width: file.width.toDouble(),
-                      height: file.height.toDouble(),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        image: DecorationImage(
-                          image: Image.file(File(path.data!)).image,
-                          fit: BoxFit.cover,
+                child: FutureBuilder<String?>(
+                  future: _fileRepo.getFile(
+                    file.uuid,
+                    "${file.name}.webp",
+                    thumbnailSize: ThumbnailSize.frame,
+                    intiProgressbar: false,
+                  ),
+                  builder: (c, path) {
+                    if (path.hasData && path.data != null) {
+                      return Container(
+                        width: file.width.toDouble(),
+                        height: file.height.toDouble(),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          image: DecorationImage(
+                            image: Image.file(File(path.data!)).image,
+                            fit: BoxFit.cover,
+                          ),
+                          color: Colors.black.withOpacity(0.5),
                         ),
-                        color: Colors.black.withOpacity(0.5),
-                      ),
-                      // child: Image.file(File(path.data!),width: 400,),
-                    );
-                  } else {
-                    return defaultImageUI(file);
-                  }
-                },
-              )),
+                        // child: Image.file(File(path.data!),width: 400,),
+                      );
+                    } else {
+                      return defaultImageUI(file);
+                    }
+                  },
+                ),
+              ),
             ),
           ),
         ),

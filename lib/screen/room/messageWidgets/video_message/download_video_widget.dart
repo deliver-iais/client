@@ -46,9 +46,8 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           future: _fileRepo.getFile(
             widget.file.uuid,
             "${widget.file.name}.webp",
-            thumbnailSize: ThumbnailSize.small,
+            thumbnailSize: ThumbnailSize.frame,
             intiProgressbar: false,
-            isVideoFrame: true,
           ),
           builder: (c, thumbnail) {
             if (thumbnail.hasData && thumbnail.data != null) {
