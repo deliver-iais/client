@@ -51,40 +51,24 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           ),
           builder: (c, thumbnail) {
             if (thumbnail.hasData && thumbnail.data != null) {
-              if (widget.file.width.toDouble() == 0.0 ||
-                  widget.file.height.toDouble() == 0.0) {
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    image: DecorationImage(
-                      image: isWeb
-                          ? Image.network(thumbnail.data!, fit: BoxFit.fill)
-                              .image
-                          : Image.file(File(thumbnail.data!)).image,
-                      fit: BoxFit.cover,
-                    ),
-                    color: Colors.black.withOpacity(0.5),
+              final hasValidDimension = (widget.file.width.toDouble() > 0.0 ||
+                  widget.file.height.toDouble() > 0.0);
+              return Container(
+                width: hasValidDimension ? widget.file.width.toDouble() : null,
+                height:
+                    hasValidDimension ? widget.file.height.toDouble() : null,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4.0),
+                  image: DecorationImage(
+                    image: isWeb
+                        ? Image.network(thumbnail.data!, fit: BoxFit.fill).image
+                        : Image.file(File(thumbnail.data!)).image,
+                    fit: BoxFit.cover,
                   ),
-                  child: buildLoadFileStatus(() => widget.download()),
-                );
-              } else {
-                return Container(
-                  width: widget.file.width.toDouble(),
-                  height: widget.file.height.toDouble(),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    image: DecorationImage(
-                      image: isWeb
-                          ? Image.network(thumbnail.data!, fit: BoxFit.fill)
-                              .image
-                          : Image.file(File(thumbnail.data!)).image,
-                      fit: BoxFit.cover,
-                    ),
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                  child: buildLoadFileStatus(() => widget.download()),
-                );
-              }
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: buildLoadFileStatus(() => widget.download()),
+              );
             } else {
               return buildLoadFileStatus(() => widget.download());
             }
