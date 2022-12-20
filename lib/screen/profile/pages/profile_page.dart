@@ -93,7 +93,6 @@ class ProfilePageState extends State<ProfilePage>
   String _roomName = "";
   bool _roomIsBlocked = false;
   MucType _mucType = MucType.Public;
-  late ProfileAvatar _profileAvatar;
 
   final BehaviorSubject<bool> _selectMediasForForward =
   BehaviorSubject.seeded(false);
@@ -168,61 +167,6 @@ class ProfilePageState extends State<ProfilePage>
                         textDirection: TextDirection.ltr,
                         child: _buildSliverAppbar(),
                       ),
-                      if (_profileAvatar.canSetAvatar)
-                        Directionality(
-                          textDirection: _i18n.defaultTextDirection,
-                          child: SliverToBoxAdapter(
-                            child: Container(
-                              color:
-                                  theme.colorScheme.background.withOpacity(1),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          // padding: EdgeInsets.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          // minimumSize: Size(0, 0),
-                                          textStyle:
-                                              const TextStyle(fontSize: 12),
-                                          // backgroundColor: theme.colorScheme,
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.vertical(
-                                              bottom: Radius.circular(25.0),
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: () => _profileAvatar
-                                            .selectAvatar(context),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(end: 8.0),
-                                              child: Text(
-                                                _i18n.get("select_an_image"),
-                                              ),
-                                            ),
-                                            const Icon(
-                                              Icons.add_a_photo_outlined,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       _buildInfo(context),
                       SliverPersistentHeader(
                         pinned: true,
@@ -454,11 +398,6 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildSliverAppbar() {
-    _profileAvatar = ProfileAvatar(
-      roomUid: widget.roomUid,
-      showSetAvatar: false,
-      canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-    );
     final theme = Theme.of(context);
     return SliverAppBar.medium(
       actions: <Widget>[
@@ -513,7 +452,11 @@ class ProfilePageState extends State<ProfilePage>
                   ],
                 ),
               ),
-              _profileAvatar,
+              ProfileAvatar(
+                roomUid: widget.roomUid,
+                showSetAvatar: false,
+                canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+              ),
             ],
           ),
         ),

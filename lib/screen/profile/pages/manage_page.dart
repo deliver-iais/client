@@ -97,7 +97,6 @@ class MucManagePageState extends State<MucManagePage>
                     shape: const RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(10.0)),
-                      // side: BorderSide(color: Colors.red)
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,11 +170,7 @@ class MucManagePageState extends State<MucManagePage>
                   if (_profileAvatar.canSetAvatar)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        // padding: EdgeInsets.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        // minimumSize: Size(0, 0),
-                        // textStyle: const TextStyle(fontSize: 12),
-                        // backgroundColor: theme.colorScheme,
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(
                             bottom: Radius.circular(10.0),
@@ -203,8 +198,7 @@ class MucManagePageState extends State<MucManagePage>
                       margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
-                        // side: BorderSide(color: Colors.red)
-                      ), // color: theme.bottomAppBarColor,
+                      ),
                       child: Column(
                         children: [
                           Padding(
@@ -487,7 +481,6 @@ class MucManagePageState extends State<MucManagePage>
                                       widget.roomUid.isGroup()
                                           ? _i18n.get("delete_group")
                                           : _i18n.get("delete_channel"),
-                                      // style: theme.primaryTextTheme.bodyText2,
                                     )
                                   ],
                                 ),

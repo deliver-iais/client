@@ -161,13 +161,12 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     switch (widget.type) {
       case SettingsItemType.toggle:
         if(widget.onPress != null) {
-          rowChildren.add(VerticalDivider(
+          rowChildren.add(const VerticalDivider(
             width: 10,
             indent: 10,
             endIndent: 10,
             thickness: 1,
-            // color:theme.colorScheme.outline
-          ));
+          ),);
         }
         rowChildren.add(
           Padding(

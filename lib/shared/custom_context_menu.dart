@@ -24,7 +24,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     required List<PopupMenuEntry<T>> items,
     TextDirection? textDirection,
     double? start,
-    double? top
+    double? top,
   }) {
     final screenSize = MediaQuery.of(context).size;
 
@@ -33,7 +33,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
 
     final dx = screenSize.width - overlaySize.width;
     final dy = screenSize.height - overlaySize.height;
-    final position;
+    final RelativeRect position;
     if(textDirection != null) {
       position = RelativeRect.fromDirectional(
         start: start ?? (_tapPosition.dx - dx),
