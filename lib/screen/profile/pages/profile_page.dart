@@ -32,11 +32,8 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/clipboard.dart';
-import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -46,7 +43,6 @@ import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -79,11 +75,11 @@ class ProfilePageState extends State<ProfilePage>
   final _showChannelIdError = BehaviorSubject.seeded(false);
   final channelIdFormKey = GlobalKey<FormState>();
   final nameFormKey = GlobalKey<FormState>();
-  var currentName = "";
-  var currentId = "";
+  String currentName = "";
+  String currentId = "";
   String? mucName;
-  var mucInfo = "";
-  var channelId = "";
+  String mucInfo = "";
+  String channelId = "";
 
 
   late TabController _tabController;
@@ -688,7 +684,7 @@ class ProfilePageState extends State<ProfilePage>
 
   Widget _buildMenu(BuildContext context) {
     final theme = Theme.of(context);
-    List<PopupMenuItem<String>> popups = [
+    final popups = <PopupMenuItem<String>>[
       if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
       if (!_isMucOwner)
         PopupMenuItem<String>(
@@ -818,6 +814,7 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _setupRoomSettings() async {
+    _roomName = await _roomRepo.getName(widget.roomUid);
     if (widget.roomUid.isMuc()) {
       try {
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(

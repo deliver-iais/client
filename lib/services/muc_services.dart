@@ -401,7 +401,7 @@ class MucServices {
     try {
       await _serVices.groupServiceClient.deleteToken(
           group_pb.DeleteTokenReq()
-            ..uid = groupUid
+            ..uid = groupUid,
       );
       return;
     }catch(e){
@@ -426,7 +426,7 @@ class MucServices {
     try {
       await _serVices.channelServiceClient.deleteToken(
           channel_pb.DeleteTokenReq()
-            ..uid = channelUid
+            ..uid = channelUid,
       );
       return;
     }catch(e){
