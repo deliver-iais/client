@@ -45,13 +45,18 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
           key: _futureKey,
           future: _fileRepo.getFile(
             widget.file.uuid,
-            "${widget.file.name}.png",
-            thumbnailSize: ThumbnailSize.small,
+            "${widget.file.name}.webp",
+            thumbnailSize: ThumbnailSize.frame,
             intiProgressbar: false,
           ),
           builder: (c, thumbnail) {
             if (thumbnail.hasData && thumbnail.data != null) {
+              final hasValidDimension = (widget.file.width.toDouble() > 0.0 ||
+                  widget.file.height.toDouble() > 0.0);
               return Container(
+                width: hasValidDimension ? widget.file.width.toDouble() : null,
+                height:
+                    hasValidDimension ? widget.file.height.toDouble() : null,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4.0),
                   image: DecorationImage(
