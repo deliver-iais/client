@@ -1,4 +1,6 @@
-import 'package:dart_vlc/dart_vlc.dart';
+
+import 'package:dart_vlc/dart_vlc.dart'
+if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
 import 'package:deliver/services/video_player_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

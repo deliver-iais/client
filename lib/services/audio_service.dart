@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:dart_vlc/dart_vlc.dart' as vlc;
+import 'package:dart_vlc/dart_vlc.dart'
+if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
