@@ -267,7 +267,7 @@ class MessageRepo {
                   (indexOfRoom < FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT &&
                       roomMetadata.lastMessageId.toInt() >
                           room.lastMessageId))) {
-            unawaited(_updateRoomInBackground(roomMetadata));
+            unawaited(_notifyOfflineMessagesWhenAppInBackground(roomMetadata));
           }
           return true;
         }
@@ -347,7 +347,7 @@ class MessageRepo {
     }
   }
 
-  Future<void> _updateRoomInBackground(RoomMetadata roomMetadata) async {
+  Future<void> _notifyOfflineMessagesWhenAppInBackground(RoomMetadata roomMetadata) async {
     if (roomMetadata.lastMessageId > roomMetadata.lastSeenId) {
       unawaited(
         fetchRoomLastMessage(
