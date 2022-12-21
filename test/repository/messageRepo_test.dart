@@ -736,15 +736,17 @@ void main() {
                 caption: "test",
               );
               verify(
-                messageDao.savePendingMessage(pm.copyWith(
-                  packetId: "94667220000013418",
-                  status: SendingStatus.UPLOAD_FILE_FAIL,
-                  msg: testPendingMessage.msg.copyWith(
+                messageDao.savePendingMessage(
+                  pm.copyWith(
                     packetId: "94667220000013418",
-                    type: MessageType.FILE,
-                    json: sendingFakeFile.writeToJson(),
+                    status: SendingStatus.UPLOAD_FILE_FAIL,
+                    msg: testPendingMessage.msg.copyWith(
+                      packetId: "94667220000013418",
+                      type: MessageType.FILE,
+                      json: sendingFakeFile.writeToJson(),
+                    ),
                   ),
-                )),
+                ),
               );
             });
           },
