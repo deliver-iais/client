@@ -42,11 +42,13 @@ import 'package:deliver/box/seen.dart' as _i2;
 import 'package:deliver/box/uid_id_name.dart' as _i57;
 import 'package:deliver/localization/i18n.dart' as _i53;
 import 'package:deliver/models/call_event_type.dart' as _i79;
+import 'package:deliver/models/call_timer.dart' as _i93;
 import 'package:deliver/repository/accountRepo.dart' as _i62;
 import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i31;
 import 'package:deliver/repository/avatarRepo.dart' as _i51;
 import 'package:deliver/repository/botRepo.dart' as _i68;
+import 'package:deliver/repository/callRepo.dart' as _i92;
 import 'package:deliver/repository/contactRepo.dart' as _i58;
 import 'package:deliver/repository/fileRepo.dart' as _i36;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i40;
@@ -349,6 +351,16 @@ class _FakeWidget_21 extends _i1.SmartFake implements _i17.Widget {
   String toString(
           {_i18.DiagnosticLevel? minLevel = _i18.DiagnosticLevel.info}) =>
       super.toString();
+}
+
+class _FakeStatsReport_22 extends _i1.SmartFake implements _i15.StatsReport {
+  _FakeStatsReport_22(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 /// A class which mocks [AnalyticsRepo].
@@ -7129,4 +7141,570 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
           ),
         ),
       ) as _i17.Widget);
+}
+
+/// A class which mocks [CallRepo].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
+  MockCallRepo() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  set onLocalStream(dynamic Function(_i15.MediaStream)? _onLocalStream) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #onLocalStream,
+          _onLocalStream,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set onAddRemoteStream(
+          dynamic Function(_i15.MediaStream)? _onAddRemoteStream) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #onAddRemoteStream,
+          _onAddRemoteStream,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set onRemoveRemoteStream(
+          dynamic Function(_i15.MediaStream)? _onRemoveRemoteStream) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #onRemoveRemoteStream,
+          _onRemoveRemoteStream,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerDeclined(_i22.Timer? _timerDeclined) => super.noSuchMethod(
+        Invocation.setter(
+          #timerDeclined,
+          _timerDeclined,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerResendOffer(_i22.Timer? _timerResendOffer) => super.noSuchMethod(
+        Invocation.setter(
+          #timerResendOffer,
+          _timerResendOffer,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerResendAnswer(_i22.Timer? _timerResendAnswer) => super.noSuchMethod(
+        Invocation.setter(
+          #timerResendAnswer,
+          _timerResendAnswer,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerConnectionFailed(_i22.Timer? _timerConnectionFailed) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #timerConnectionFailed,
+          _timerConnectionFailed,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerDisconnected(_i22.Timer? _timerDisconnected) => super.noSuchMethod(
+        Invocation.setter(
+          #timerDisconnected,
+          _timerDisconnected,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timerEndCallDispose(_i22.Timer? _timerEndCallDispose) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #timerEndCallDispose,
+          _timerEndCallDispose,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<_i93.CallTimer> get callTimer => (super.noSuchMethod(
+        Invocation.getter(#callTimer),
+        returnValue: _FakeBehaviorSubject_2<_i93.CallTimer>(
+          this,
+          Invocation.getter(#callTimer),
+        ),
+      ) as _i4.BehaviorSubject<_i93.CallTimer>);
+  @override
+  set callTimer(_i4.BehaviorSubject<_i93.CallTimer>? _callTimer) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #callTimer,
+          _callTimer,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set timer(_i22.Timer? _timer) => super.noSuchMethod(
+        Invocation.setter(
+          #timer,
+          _timer,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get mute_camera => (super.noSuchMethod(
+        Invocation.getter(#mute_camera),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#mute_camera),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set mute_camera(_i4.BehaviorSubject<bool>? _mute_camera) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #mute_camera,
+          _mute_camera,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<_i92.CallStatus> get callingStatus => (super.noSuchMethod(
+        Invocation.getter(#callingStatus),
+        returnValue: _FakeBehaviorSubject_2<_i92.CallStatus>(
+          this,
+          Invocation.getter(#callingStatus),
+        ),
+      ) as _i4.BehaviorSubject<_i92.CallStatus>);
+  @override
+  set callingStatus(_i4.BehaviorSubject<_i92.CallStatus>? _callingStatus) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #callingStatus,
+          _callingStatus,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get switching => (super.noSuchMethod(
+        Invocation.getter(#switching),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#switching),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set switching(_i4.BehaviorSubject<bool>? _switching) => super.noSuchMethod(
+        Invocation.setter(
+          #switching,
+          _switching,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get sharing => (super.noSuchMethod(
+        Invocation.getter(#sharing),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#sharing),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set sharing(_i4.BehaviorSubject<bool>? _sharing) => super.noSuchMethod(
+        Invocation.setter(
+          #sharing,
+          _sharing,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get incomingSharing => (super.noSuchMethod(
+        Invocation.getter(#incomingSharing),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#incomingSharing),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set incomingSharing(_i4.BehaviorSubject<bool>? _incomingSharing) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #incomingSharing,
+          _incomingSharing,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get videoing => (super.noSuchMethod(
+        Invocation.getter(#videoing),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#videoing),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set videoing(_i4.BehaviorSubject<bool>? _videoing) => super.noSuchMethod(
+        Invocation.setter(
+          #videoing,
+          _videoing,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get incomingVideo => (super.noSuchMethod(
+        Invocation.getter(#incomingVideo),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#incomingVideo),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set incomingVideo(_i4.BehaviorSubject<bool>? _incomingVideo) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #incomingVideo,
+          _incomingVideo,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get incomingVideoSwitch => (super.noSuchMethod(
+        Invocation.getter(#incomingVideoSwitch),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#incomingVideoSwitch),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set incomingVideoSwitch(_i4.BehaviorSubject<bool>? _incomingVideoSwitch) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #incomingVideoSwitch,
+          _incomingVideoSwitch,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get desktopDualVideo => (super.noSuchMethod(
+        Invocation.getter(#desktopDualVideo),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#desktopDualVideo),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set desktopDualVideo(_i4.BehaviorSubject<bool>? _desktopDualVideo) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #desktopDualVideo,
+          _desktopDualVideo,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get isSpeaker => (super.noSuchMethod(
+        Invocation.getter(#isSpeaker),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#isSpeaker),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set isSpeaker(_i4.BehaviorSubject<bool>? _isSpeaker) => super.noSuchMethod(
+        Invocation.setter(
+          #isSpeaker,
+          _isSpeaker,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get incomingCallOnHold => (super.noSuchMethod(
+        Invocation.getter(#incomingCallOnHold),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#incomingCallOnHold),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set incomingCallOnHold(_i4.BehaviorSubject<bool>? _incomingCallOnHold) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #incomingCallOnHold,
+          _incomingCallOnHold,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  bool get isMicMuted => (super.noSuchMethod(
+        Invocation.getter(#isMicMuted),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool get isCaller => (super.noSuchMethod(
+        Invocation.getter(#isCaller),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool get isConnected => (super.noSuchMethod(
+        Invocation.getter(#isConnected),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool get isSharing => (super.noSuchMethod(
+        Invocation.getter(#isSharing),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool get isVideo => (super.noSuchMethod(
+        Invocation.getter(#isVideo),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool get isInitRenderer => (super.noSuchMethod(
+        Invocation.getter(#isInitRenderer),
+        returnValue: false,
+      ) as bool);
+  @override
+  set setRenderer(bool? isInit) => super.noSuchMethod(
+        Invocation.setter(
+          #setRenderer,
+          isInit,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i15.StatsReport get selectedCandidate => (super.noSuchMethod(
+        Invocation.getter(#selectedCandidate),
+        returnValue: _FakeStatsReport_22(
+          this,
+          Invocation.getter(#selectedCandidate),
+        ),
+      ) as _i15.StatsReport);
+  @override
+  Map<int, String> get callEvents => (super.noSuchMethod(
+        Invocation.getter(#callEvents),
+        returnValue: <int, String>{},
+      ) as Map<int, String>);
+  @override
+  _i22.Future<void> initCall({bool? isOffer = false}) => (super.noSuchMethod(
+        Invocation.method(
+          #initCall,
+          [],
+          {#isOffer: isOffer},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<bool> requestPhoneStatePermission() => (super.noSuchMethod(
+        Invocation.method(
+          #requestPhoneStatePermission,
+          [],
+        ),
+        returnValue: _i22.Future<bool>.value(false),
+      ) as _i22.Future<bool>);
+  @override
+  void startListenToPhoneCallState() => super.noSuchMethod(
+        Invocation.method(
+          #startListenToPhoneCallState,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void onRTCPeerConnectionDisconnected() => super.noSuchMethod(
+        Invocation.method(
+          #onRTCPeerConnectionDisconnected,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> onRTCPeerConnectionConnected() => (super.noSuchMethod(
+        Invocation.method(
+          #onRTCPeerConnectionConnected,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  void onRTCPeerConnectionStateFailed() => super.noSuchMethod(
+        Invocation.method(
+          #onRTCPeerConnectionStateFailed,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> shareScreen({
+    bool? isWindows = false,
+    _i15.DesktopCapturerSource? source,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #shareScreen,
+          [],
+          {
+            #isWindows: isWindows,
+            #source: source,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  bool muteMicrophone() => (super.noSuchMethod(
+        Invocation.method(
+          #muteMicrophone,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool enableSpeakerVoice() => (super.noSuchMethod(
+        Invocation.method(
+          #enableSpeakerVoice,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  _i22.Future<bool> switchCamera() => (super.noSuchMethod(
+        Invocation.method(
+          #switchCamera,
+          [],
+        ),
+        returnValue: _i22.Future<bool>.value(false),
+      ) as _i22.Future<bool>);
+  @override
+  bool toggleDesktopDualVideo() => (super.noSuchMethod(
+        Invocation.method(
+          #toggleDesktopDualVideo,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool muteCamera() => (super.noSuchMethod(
+        Invocation.method(
+          #muteCamera,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  _i22.Future<void> startCall(
+    _i3.Uid? roomId, {
+    bool? isVideo = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startCall,
+          [roomId],
+          {#isVideo: isVideo},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> acceptCall(_i3.Uid? roomId) => (super.noSuchMethod(
+        Invocation.method(
+          #acceptCall,
+          [roomId],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> declineCall() => (super.noSuchMethod(
+        Invocation.method(
+          #declineCall,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> receivedBusyCall() => (super.noSuchMethod(
+        Invocation.method(
+          #receivedBusyCall,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> receivedDeclinedCall() => (super.noSuchMethod(
+        Invocation.method(
+          #receivedDeclinedCall,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> receivedEndCall(int? callDuration) => (super.noSuchMethod(
+        Invocation.method(
+          #receivedEndCall,
+          [callDuration],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> cancelCallNotification() => (super.noSuchMethod(
+        Invocation.method(
+          #cancelCallNotification,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  void endCall() => super.noSuchMethod(
+        Invocation.method(
+          #endCall,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  int calculateCallEndTime() => (super.noSuchMethod(
+        Invocation.method(
+          #calculateCallEndTime,
+          [],
+        ),
+        returnValue: 0,
+      ) as int);
+  @override
+  _i22.Future<void> reset() => (super.noSuchMethod(
+        Invocation.method(
+          #reset,
+          [],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  void startCallTimer() => super.noSuchMethod(
+        Invocation.method(
+          #startCallTimer,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i22.Future<void> fetchUserCallList(_i3.Uid? roomUid) => (super.noSuchMethod(
+        Invocation.method(
+          #fetchUserCallList,
+          [roomUid],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
 }

@@ -1,4 +1,5 @@
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,7 +32,8 @@ void main() {
     tearDown(() => unregisterServices());
     group("show new version information", () {
       testWidgets('navigation  center page ', (tester) async {
-        tester.pumpWidget(createWidgetForTesting(const NavigationCenter()));
+        tester.pumpWidget(FeatureDiscovery(
+            child: createWidgetForTesting(const NavigationCenter())));
         // Test code goes here.
       });
     });

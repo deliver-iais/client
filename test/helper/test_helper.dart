@@ -28,6 +28,7 @@ import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
@@ -120,7 +121,8 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MucDao>(),
     MockSpec<UxService>(),
     MockSpec<UrlHandlerService>(),
-    MockSpec<RoutingService>()
+    MockSpec<RoutingService>(),
+    MockSpec<CallRepo>()
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -445,6 +447,13 @@ MockRoomRepo getAndRegisterRoomRepo({
   return service;
 }
 
+MockCallRepo getAndRegisterCallRepo() {
+  _removeRegistrationIfExists<CallRepo>();
+  final service = MockCallRepo();
+  GetIt.I.registerSingleton<CallRepo>(service);
+  return service;
+}
+
 RoomRepo getAndRegisterRealRoomRepo() {
   _removeRegistrationIfExists<RoomRepo>();
   final service = RoomRepo();
@@ -463,10 +472,8 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
       .thenAnswer((d) => Future.value(AccessTokenRes()));
   when(service.checkQrCodeToken(any))
       .thenAnswer((f) => Future.value(AccessTokenRes()));
-  when(service.newVersionInformation)
-      .thenReturn(BehaviorSubject.seeded(NewerVersionInformation()));
-  when(service.outOfDateObject)
-      .thenReturn(BehaviorSubject.seeded(false));
+  service.newVersionInformation =
+      BehaviorSubject.seeded(NewerVersionInformation());
   return service;
 }
 
@@ -903,6 +910,7 @@ void registerServices() {
   getAndRegisterBlockDao();
   getAndRegisterFireBaseServices();
   getAndRegisterI18N();
+  getAndRegisterCallRepo();
   getAndRegisterMuteDao();
   getAndRegisterUidIdNameDao();
   getAndRegisterContactRepo();
