@@ -25,7 +25,7 @@ const CHANNEL_URL = "channel";
 const VERSION = "1.9.8";
 
 //messageRepo
-const RANDOM_BASE = 42;
+const RANDOM_BASE = 100;
 const RANDOM_SIZE = 100000;
 
 // Time Constants
