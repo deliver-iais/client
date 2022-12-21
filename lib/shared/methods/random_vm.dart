@@ -10,8 +10,7 @@ T withRandomVM<T>(RandomVM randomVM, T Function() callback) {
   return runZoned(callback, zoneValues: {_randomVmKey: randomVM});
 }
 
-int getRandomSeed(int randomSize) =>
-    Random(DateTime.now().millisecondsSinceEpoch).nextInt(randomSize);
+int getRandomSeed(int randomSize) => Random.secure().nextInt(randomSize);
 
 class RandomVM {
   final int Function(int) _random;
