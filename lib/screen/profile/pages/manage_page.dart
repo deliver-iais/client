@@ -301,9 +301,7 @@ class MucManagePageState extends State<MucManagePage>
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -374,13 +372,10 @@ class MucManagePageState extends State<MucManagePage>
                                 }
                               },
                             ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10),
                           StreamBuilder<Muc?>(
-                            stream: _mucRepo.watchMuc(
-                              widget.roomUid.asString(),
-                            ),
+                            stream:
+                                _mucRepo.watchMuc(widget.roomUid.asString()),
                             builder: (c, muc) {
                               if (muc.hasData && muc.data != null) {
                                 _mucInfo = muc.data!.info;
@@ -422,9 +417,7 @@ class MucManagePageState extends State<MucManagePage>
                           if (widget.roomUid.category == Categories.CHANNEL)
                             Column(
                               children: [
-                                const SizedBox(
-                                  height: 20,
-                                ),
+                                const SizedBox(height: 20),
                                 StreamBuilder<Muc?>(
                                   stream: _mucRepo.watchMuc(
                                     widget.roomUid.asString(),
