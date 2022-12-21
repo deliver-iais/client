@@ -301,91 +301,105 @@ class NavigationCenterState extends State<NavigationCenter>
     return StreamBuilder<NewerVersionInformation?>(
       stream: _authRepo.newVersionInformation,
       builder: (context, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.data != null &&
-            snapshot.data!.version.isNotEmpty) {
-          Future.delayed(Duration.zero, () {
-            showFloatingModalBottomSheet(
-              context: context,
-              enableDrag: false,
-              isDismissible: false,
-              builder: (c) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.only(bottom: 8, left: 24, right: 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Lottie.asset(
-                        "assets/animations/new_version.zip",
-                        height: 200,
-                      ),
-                      Text(
-                        _i18n.get("update_we"),
-                        style: const TextStyle(fontSize: 25),
-                      ),
-                      Text(
-                        "${_i18n.get(
-                          "version",
-                        )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        snapshot.data!.description,
-                        maxLines: 5,
-                        style: const TextStyle(fontSize: 19),
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: [
-                          for (var downloadLink in snapshot.data!.downloadLinks)
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                              ),
-                              onPressed: () {
-                                launchUrl(Uri.parse(downloadLink.url));
-                              },
-                              child: Text(
-                                downloadLink.label,
-                                style: const TextStyle(fontSize: 16),
-                              ),
+        if (snapshot.hasData && snapshot.data != null) {
+          return FutureBuilder<bool>(
+            future: _sharedDao.getTimeCounter(
+              SHOW_NEW_VERSION_INFORMATION_KEY,
+              SHOW_NEW_VERSION_INFORMATION_PERIOD,
+              SHOW_NEW_VERSION_INFORMATION_COUNT,
+            ),
+            builder: (c, timeCounterSnapshot) {
+              if (timeCounterSnapshot.hasData &&
+                  timeCounterSnapshot.data != null &&
+                  timeCounterSnapshot.data!) {
+                Future.delayed(Duration.zero, () {
+                  showFloatingModalBottomSheet(
+                    context: context,
+                    enableDrag: false,
+                    isDismissible: false,
+                    builder: (c) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 8,
+                          left: 24,
+                          right: 24,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Lottie.asset(
+                              "assets/animations/new_version.zip",
+                              height: 200,
                             ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
+                            Text(
+                              _i18n.get("update_we"),
+                              style: const TextStyle(fontSize: 25),
                             ),
-                            child: Text(
-                              _i18n.get("remind_me_later"),
-                              style: const TextStyle(fontSize: 16),
+                            Text(
+                              "${_i18n.get(
+                                "version",
+                              )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
                             ),
-                            onPressed: () {
-                              Navigator.pop(c);
-                            },
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              },
-            ).ignore();
-          });
-
-          return const SizedBox.shrink();
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              snapshot.data!.description,
+                              maxLines: 5,
+                              style: const TextStyle(fontSize: 19),
+                            ),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                for (var downloadLink
+                                    in snapshot.data!.downloadLinks)
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      launchUrl(Uri.parse(downloadLink.url));
+                                    },
+                                    child: Text(
+                                      downloadLink.label,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _i18n.get("remind_me_later"),
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(c);
+                                  },
+                                )
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ).ignore();
+                });
+              }
+              return const SizedBox.shrink();
+            },
+          );
         } else {
           return const SizedBox.shrink();
         }

@@ -43,6 +43,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -119,6 +120,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MucDao>(),
     MockSpec<UxService>(),
     MockSpec<UrlHandlerService>(),
+    MockSpec<RoutingService>()
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -131,6 +133,13 @@ MockCoreServices getAndRegisterCoreServices({
       BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting)
         ..add(connectionStatus);
   when(service.connectionStatus).thenAnswer((realInvocation) => cs);
+  return service;
+}
+
+MockRoutingService getAndRegisterRoutingServices() {
+  _removeRegistrationIfExists<RoutingService>();
+  final service = MockRoutingService();
+  GetIt.I.registerSingleton<RoutingService>(service);
   return service;
 }
 
@@ -202,6 +211,7 @@ MockI18N getAndRegisterI18N() {
   when(service.get(any)).thenReturn("d");
   when(service.get("you")).thenReturn("you");
   when(service.get("saved_message")).thenReturn("Saved Message");
+  when(service.defaultTextDirection).thenReturn(TextDirection.ltr);
   return service;
 }
 
@@ -453,6 +463,8 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
       .thenAnswer((d) => Future.value(AccessTokenRes()));
   when(service.checkQrCodeToken(any))
       .thenAnswer((f) => Future.value(AccessTokenRes()));
+  // when(service.newVersionInformation)
+  //     .thenReturn(new BehaviorSubject<NewerVersionInformation>());
   return service;
 }
 
@@ -817,12 +829,15 @@ MockQueryServiceClient getMockQueryServicesClient({
   return queryServiceClient;
 }
 
-MockSharedDao getAndRegisterSharedDao({bool allRoomFetched = false}) {
+MockSharedDao getAndRegisterSharedDao(
+    {bool allRoomFetched = false, bool showCaseEnable = false}) {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
   when(service.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED))
       .thenAnswer((realInvocation) => Future.value(allRoomFetched));
+  when(service.getBooleanStream(SHARED_DAO_IS_SHOWCASE_ENABLE))
+      .thenAnswer((realInvocation) => Stream.value(showCaseEnable));
   return service;
 }
 
@@ -875,6 +890,7 @@ void registerServices() {
   getAndRegisterMessageDao();
   getAndRegisterRoomDao();
   getAndRegisterRoomRepo();
+  getAndRegisterRoutingServices();
   getAndRegisterAuthRepo();
   getAndRegisterFileRepo();
   getAndRegisterLiveLocationRepo();
