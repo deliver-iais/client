@@ -360,6 +360,30 @@ class MessageRepo {
     }
   }
 
+  Future<void> fetchRoomLastMessage(
+    String roomUid,
+    int lastMessageId,
+    int firstMessageId, {
+    bool appRunInForeground = false,
+  }) async {
+    await _dataStreamServices.fetchLastNotHiddenMessage(
+      roomUid.asUid(),
+      lastMessageId,
+      firstMessageId,
+      appRunInForeground: appRunInForeground,
+    );
+    if (roomUid.isGroup() || roomUid.isUser()) {
+      unawaited(_updateOtherSeen(roomUid));
+    }
+
+    unawaited(
+      _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
+        roomUid.asUid(),
+        lastMessageId,
+      ),
+    );
+  }
+
   Future<void> _updateOtherSeen(String roomUid) async {
     try {
       final room = await _roomDao.getRoom(roomUid);
@@ -383,30 +407,6 @@ class MessageRepo {
     } catch (e) {
       _logger.e(e);
     }
-  }
-
-  Future<void> fetchRoomLastMessage(
-    String roomUid,
-    int lastMessageId,
-    int firstMessageId, {
-    bool appRunInForeground = false,
-  }) async {
-    await _dataStreamServices.fetchLastNotHiddenMessage(
-      roomUid.asUid(),
-      lastMessageId,
-      firstMessageId,
-      appRunInForeground: appRunInForeground,
-    );
-    if (roomUid.isGroup() || roomUid.isUser()) {
-      unawaited(_updateOtherSeen(roomUid));
-    }
-
-    unawaited(
-      _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
-        roomUid.asUid(),
-        lastMessageId,
-      ),
-    );
   }
 
   void _fetchOtherLastSeen(String roomUid) {
