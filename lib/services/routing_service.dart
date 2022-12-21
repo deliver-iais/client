@@ -15,6 +15,7 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
+import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/widgets/media_page/all_media_page.dart';
@@ -217,6 +218,13 @@ class RoutingService {
         ),
       );
 
+  Future<dynamic>? openManageMuc(String roomId) => _push(
+        MucManagePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/manage"),
+        ),
+      );
+
   void openShowAllAvatars({
     required Uid uid,
     required bool hasPermissionToDeleteAvatar,
@@ -350,7 +358,7 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  void _push(
+  Future<dynamic>? _push(
     Widget widget, {
     bool popAllBeforePush = false,
     bool useTransparentRoute = false,
@@ -371,12 +379,12 @@ class RoutingService {
             settings: RouteSettings(name: path),
           );
     if (popAllBeforePush) {
-      _homeNavigatorState.currentState?.pushAndRemoveUntil(
+      return _homeNavigatorState.currentState?.pushAndRemoveUntil(
         route,
         (r) => r.isFirst,
       );
     } else {
-      _homeNavigatorState.currentState?.push(
+      return _homeNavigatorState.currentState?.push(
         route,
       );
     }

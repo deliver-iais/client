@@ -397,6 +397,18 @@ class MucServices {
     }
   }
 
+  Future<void> deleteGroupJointToken({required Uid groupUid}) async {
+    try {
+      await _serVices.groupServiceClient.deleteToken(
+          group_pb.DeleteTokenReq()
+            ..uid = groupUid,
+      );
+      return;
+    }catch(e){
+      return;
+    }
+  }
+
   Future<String> getChannelJointToken({required Uid channelUid}) async {
     try {
       final res = await _serVices.channelServiceClient.createToken(
@@ -407,6 +419,18 @@ class MucServices {
       return res.joinToken;
     } catch (e) {
       return "";
+    }
+  }
+
+  Future<void> deleteChannelJointToken({required Uid channelUid}) async {
+    try {
+      await _serVices.channelServiceClient.deleteToken(
+          channel_pb.DeleteTokenReq()
+            ..uid = channelUid,
+      );
+      return;
+    }catch(e){
+      return;
     }
   }
 

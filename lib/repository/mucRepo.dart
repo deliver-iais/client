@@ -149,8 +149,14 @@ class MucRepo {
   Future<String> getGroupJointToken({required Uid groupUid}) async =>
       _mucServices.getGroupJointToken(groupUid: groupUid);
 
+  Future<void> deleteGroupJointToken({required Uid groupUid}) async =>
+      _mucServices.deleteGroupJointToken(groupUid: groupUid);
+
   Future<String> getChannelJointToken({required Uid channelUid}) async =>
       _mucServices.getChannelJointToken(channelUid: channelUid);
+
+  Future<void> deleteChannelJointToken({required Uid channelUid}) async =>
+      _mucServices.deleteChannelJointToken(channelUid: channelUid);
 
   Future<void> fetchChannelMembers(Uid channelUid, int len) async {
     try {
