@@ -86,6 +86,7 @@
   "channel_id_is_exist": "آیدی کانال تکراری می باشد",
   "channel_id_length": " طول کم تر از 5",
   "channel_id_not_empty": "آیدی کانال نباید خالی باشد",
+  "channel_id_no_whitespace": "آیدی کانال نباید دارای کاراکتر فاصله باشد",
   "channel_type": "نوع کانال",
   "chats": "گفتگوها",
   "choose_a_song": "یک آهنگ انتخاب کنید",
