@@ -1,6 +1,4 @@
 // ignore_for_file: file_names, unawaited_futures
-
-import 'dart:io' as dart_file;
 import 'dart:math';
 
 import 'package:clock/clock.dart';
@@ -327,8 +325,11 @@ void main() {
           lastMessageId: Int64(10),
         );
         await messageRepo.processSeen(roomMetadata);
-        verify(service.queryServiceClient.fetchMentionList(
-            FetchMentionListReq(group: testGroupUid, afterId: Int64(10)),),);
+        verify(
+          service.queryServiceClient.fetchMentionList(
+            FetchMentionListReq(group: testGroupUid, afterId: Int64(10)),
+          ),
+        );
       });
     });
 
