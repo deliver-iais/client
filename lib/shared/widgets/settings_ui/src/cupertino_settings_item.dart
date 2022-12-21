@@ -88,8 +88,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     if (widget.leading != null) {
       leadingIcon = IconTheme.merge(
         data: iconThemeData,
-        child:
-        widget.leading!,
+        child: widget.leading!,
       );
     }
 
@@ -161,12 +160,20 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
     switch (widget.type) {
       case SettingsItemType.toggle:
-        if(widget.onPress != null) {
+        if (widget.onPress != null) {
           rowChildren.add(
             Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Container(decoration: BoxDecoration(borderRadius: mainBorder, color: theme.disabledColor.withAlpha(60)), height: 26, width: 3,),
-            ),);
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: mainBorder,
+                  color: theme.dividerColor,
+                ),
+                height: 26,
+                width: 3,
+              ),
+            ),
+          );
         }
         rowChildren.add(
           Padding(
@@ -269,7 +276,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
           if (widget.type == SettingsItemType.toggle && widget.enabled) {
             if (mounted) {
-              if(widget.onPress == null) {
+              if (widget.onPress == null) {
                 setState(() {
                   _checked = !_checked!;
                   widget.onToggle!(_checked!);
@@ -301,10 +308,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         },
         child: Container(
           constraints: const BoxConstraints(minHeight: 44.0),
-          child: IntrinsicHeight(
-            child: Row(
-              children: rowChildren,
-            ),
+          child: Row(
+            children: rowChildren,
           ),
         ),
       ),
