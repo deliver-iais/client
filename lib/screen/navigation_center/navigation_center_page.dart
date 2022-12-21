@@ -298,6 +298,7 @@ class NavigationCenterState extends State<NavigationCenter>
   }
 
   Widget _newVersionInfo() {
+    return SizedBox();
     return StreamBuilder<NewerVersionInformation?>(
       stream: _authRepo.newVersionInformation,
       builder: (context, snapshot) {

@@ -463,8 +463,10 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
       .thenAnswer((d) => Future.value(AccessTokenRes()));
   when(service.checkQrCodeToken(any))
       .thenAnswer((f) => Future.value(AccessTokenRes()));
-  // when(service.newVersionInformation)
-  //     .thenReturn(new BehaviorSubject<NewerVersionInformation>());
+  when(service.newVersionInformation)
+      .thenReturn(BehaviorSubject.seeded(NewerVersionInformation()));
+  when(service.outOfDateObject)
+      .thenReturn(BehaviorSubject.seeded(false));
   return service;
 }
 
