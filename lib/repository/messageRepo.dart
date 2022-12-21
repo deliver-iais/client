@@ -105,7 +105,7 @@ class MessageRepo {
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  final random = Random(RandomBase);
+  final random = Random(RANDOM_BASE);
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
@@ -1151,7 +1151,7 @@ class MessageRepo {
 
   String _getPacketId() =>
       clock.now().millisecondsSinceEpoch.toString() +
-      random.nextInt(RandomSize).toString();
+      random.nextInt(RANDOM_SIZE).toString();
 
   Future<List<Message?>> getPage(
     int page,
