@@ -2321,6 +2321,17 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
   @override
+  _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteGroupJointToken,
+          [],
+          {#groupUid: groupUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2330,6 +2341,17 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+  @override
+  _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteChannelJointToken,
+          [],
+          {#channelUid: channelUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
   _i22.Future<void> unpinMessage(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -4686,6 +4708,17 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
   @override
+  _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteGroupJointToken,
+          [],
+          {#groupUid: groupUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4695,6 +4728,17 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+  @override
+  _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteChannelJointToken,
+          [],
+          {#channelUid: channelUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
   _i22.Future<void> fetchChannelMembers(
     _i3.Uid? channelUid,

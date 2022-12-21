@@ -390,7 +390,7 @@ class MessageRepo {
       if (room != null && room.lastMessage != null) {
         final othersSeen = await _seenDao.getOthersSeen(roomUid);
         if (othersSeen == null ||
-            othersSeen.messageId < room.lastMessage!.id!) {
+            othersSeen.messageId < (room.lastMessage?.id ?? 0)) {
           if (_authRepo.isCurrentUserSender(room.lastMessage!)) {
             _fetchOtherLastSeen(roomUid);
           } else {
