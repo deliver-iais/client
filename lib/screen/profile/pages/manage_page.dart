@@ -46,24 +46,23 @@ class MucManagePageState extends State<MucManagePage>
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
-  final channelIdFormKey = GlobalKey<FormState>();
-  final nameFormKey = GlobalKey<FormState>();
-  String currentName = "";
-  String currentId = "";
-  String? mucName;
-  String mucInfo = "";
-  String channelId = "";
-
-  final I18N _i18n = GetIt.I.get<I18N>();
+  final newChange = BehaviorSubject<bool>.seeded(false);
+  final _channelIdFormKey = GlobalKey<FormState>();
+  final _nameFormKey = GlobalKey<FormState>();
 
   bool _isMucAdminOrOwner = false;
   bool _isBotOwner = false;
   bool _isMucOwner = false;
   String _roomName = "";
   MucType _mucType = MucType.Public;
+  String _currentName = "";
+  String _currentId = "";
+  String? _mucName;
+  String _mucInfo = "";
+  String _channelId = "";
   late ProfileAvatar _profileAvatar;
-  final newChange = BehaviorSubject<bool>.seeded(false);
 
   @override
   void initState() {
@@ -141,48 +140,48 @@ class MucManagePageState extends State<MucManagePage>
                   onPressed: change.data!
                       ? () async {
                           final navigatorState = Navigator.of(context);
-                          if (nameFormKey.currentState != null &&
-                              nameFormKey.currentState!.validate()) {
+                          if (_nameFormKey.currentState != null &&
+                              _nameFormKey.currentState!.validate()) {
                             if (widget.roomUid.category == Categories.GROUP) {
                               await _mucRepo.modifyGroup(
                                 widget.roomUid.asString(),
-                                mucName ?? currentName,
-                                mucInfo,
+                                _mucName ?? _currentName,
+                                _mucInfo,
                               );
                               _roomRepo.updateRoomName(
                                 widget.roomUid,
-                                mucName ?? currentName,
+                                _mucName ?? _currentName,
                               );
                               setState(() {});
                               navigatorState.pop();
                             } else {
-                              if (channelId.isEmpty) {
+                              if (_channelId.isEmpty) {
                                 await _mucRepo.modifyChannel(
                                   widget.roomUid.asString(),
-                                  mucName ?? currentName,
-                                  currentId,
-                                  mucInfo,
+                                  _mucName ?? _currentName,
+                                  _currentId,
+                                  _mucInfo,
                                   _mucRepo.hiveMucTypeToPbMucType(_mucType),
                                 );
                                 _roomRepo.updateRoomName(
                                   widget.roomUid,
-                                  mucName ?? currentName,
+                                  _mucName ?? _currentName,
                                 );
                                 navigatorState.pop();
-                              } else if (channelIdFormKey.currentState !=
+                              } else if (_channelIdFormKey.currentState !=
                                       null &&
-                                  channelIdFormKey.currentState!.validate()) {
-                                if (await checkChannelD(channelId)) {
+                                  _channelIdFormKey.currentState!.validate()) {
+                                if (await checkChannelD(_channelId)) {
                                   await _mucRepo.modifyChannel(
                                     widget.roomUid.asString(),
-                                    mucName ?? currentName,
-                                    channelId,
-                                    mucInfo,
+                                    _mucName ?? _currentName,
+                                    _channelId,
+                                    _mucInfo,
                                     _mucRepo.hiveMucTypeToPbMucType(_mucType),
                                   );
                                   _roomRepo.updateRoomName(
                                     widget.roomUid,
-                                    mucName ?? currentName,
+                                    _mucName ?? _currentName,
                                   );
 
                                   navigatorState.pop();
@@ -209,13 +208,13 @@ class MucManagePageState extends State<MucManagePage>
       ),
     );
   }
-  Widget buildHeaderMucCard(ThemeData theme){
+
+  Widget buildHeaderMucCard(ThemeData theme) {
     return Card(
       elevation: 1.0,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.vertical(top: Radius.circular(10.0)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,42 +232,38 @@ class MucManagePageState extends State<MucManagePage>
                     future: _roomRepo.getName(widget.roomUid),
                     builder: (c, name) {
                       if (name.hasData && name.data != null) {
-                        currentName = name.data!;
+                        _currentName = name.data!;
                         return Form(
-                          key: nameFormKey,
+                          key: _nameFormKey,
                           child: Directionality(
-                            textDirection:
-                            _i18n.defaultTextDirection,
+                            textDirection: _i18n.defaultTextDirection,
                             child: AutoDirectionTextForm(
                               autofocus: true,
-                              textDirection:
-                              _i18n.defaultTextDirection,
+                              textDirection: _i18n.defaultTextDirection,
                               controller: TextEditingController(
                                 text: name.data,
                               ),
                               validator: (s) {
                                 if (s!.isEmpty) {
-                                  return _i18n
-                                      .get("name_not_empty");
+                                  return _i18n.get("name_not_empty");
                                 } else {
                                   return null;
                                 }
                               },
                               minLines: 1,
                               onChanged: (str) {
-                                if (str.isNotEmpty &&
-                                    str != name.data) {
-                                  mucName = str;
+                                if (str.isNotEmpty && str != name.data) {
+                                  _mucName = str;
                                   newChange.add(true);
                                 }
                               },
                               keyboardType: TextInputType.text,
                               decoration: buildInputDecoration(
                                 widget.roomUid.isGroup()
-                                    ? _i18n
-                                    .get("enter_group_name")
+                                    ? _i18n.get("enter_group_name")
                                     : _i18n.get(
-                                  "enter_channel_name",),
+                                        "enter_channel_name",
+                                      ),
                               ),
                             ),
                           ),
@@ -287,7 +282,8 @@ class MucManagePageState extends State<MucManagePage>
       ),
     );
   }
-  Widget buildOtherMucSettingsCard(ThemeData theme){
+
+  Widget buildOtherMucSettingsCard(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Card(
@@ -306,55 +302,45 @@ class MucManagePageState extends State<MucManagePage>
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0,),
+                        horizontal: 20.0,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (widget.roomUid.category ==
-                              Categories.CHANNEL)
+                          if (widget.roomUid.category == Categories.CHANNEL)
                             StreamBuilder<Muc?>(
                               stream: _mucRepo.watchMuc(
-                                widget.roomUid.asString(),),
+                                widget.roomUid.asString(),
+                              ),
                               builder: (c, muc) {
-                                if (muc.hasData &&
-                                    muc.data != null) {
-                                  currentId = muc.data!.id;
+                                if (muc.hasData && muc.data != null) {
+                                  _currentId = muc.data!.id;
                                   return Column(
                                     children: [
                                       Directionality(
-                                        textDirection: _i18n
-                                            .defaultTextDirection,
+                                        textDirection:
+                                            _i18n.defaultTextDirection,
                                         child: Form(
-                                          key: channelIdFormKey,
-                                          child:
-                                          AutoDirectionTextForm(
-                                            controller:
-                                            TextEditingController(
+                                          key: _channelIdFormKey,
+                                          child: AutoDirectionTextForm(
+                                            controller: TextEditingController(
                                               text: muc.data!.id,
                                             ),
-                                            textDirection: _i18n
-                                                .defaultTextDirection,
+                                            textDirection:
+                                                _i18n.defaultTextDirection,
                                             minLines: 1,
-                                            validator:
-                                            validateChannelId,
+                                            validator: validateChannelId,
                                             onChanged: (str) {
                                               if (str.isNotEmpty &&
-                                                  str !=
-                                                      muc.data!
-                                                          .id) {
-                                                channelId = str;
-                                                if (!newChange
-                                                    .value) {
-                                                  newChange
-                                                      .add(true);
+                                                  str != muc.data!.id) {
+                                                _channelId = str;
+                                                if (!newChange.value) {
+                                                  newChange.add(true);
                                                 }
                                               }
                                             },
-                                            keyboardType:
-                                            TextInputType
-                                                .text,
-                                            decoration:
-                                            buildInputDecoration(
+                                            keyboardType: TextInputType.text,
+                                            decoration: buildInputDecoration(
                                               _i18n.get(
                                                 "enter_channel_id",
                                               ),
@@ -363,8 +349,7 @@ class MucManagePageState extends State<MucManagePage>
                                         ),
                                       ),
                                       StreamBuilder<bool?>(
-                                        stream:
-                                        _showChannelIdError,
+                                        stream: _showChannelIdError,
                                         builder: (c, e) {
                                           if (e.hasData &&
                                               e.data != null &&
@@ -373,14 +358,12 @@ class MucManagePageState extends State<MucManagePage>
                                               _i18n.get(
                                                 "channel_id_is_exist",
                                               ),
-                                              style:
-                                              const TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.red,
                                               ),
                                             );
                                           } else {
-                                            return const SizedBox
-                                                .shrink();
+                                            return const SizedBox.shrink();
                                           }
                                         },
                                       ),
@@ -396,49 +379,38 @@ class MucManagePageState extends State<MucManagePage>
                           ),
                           StreamBuilder<Muc?>(
                             stream: _mucRepo.watchMuc(
-                              widget.roomUid.asString(),),
+                              widget.roomUid.asString(),
+                            ),
                             builder: (c, muc) {
-                              if (muc.hasData &&
-                                  muc.data != null) {
-                                mucInfo = muc.data!.info;
+                              if (muc.hasData && muc.data != null) {
+                                _mucInfo = muc.data!.info;
                                 return Directionality(
-                                  textDirection:
-                                  _i18n.defaultTextDirection,
+                                  textDirection: _i18n.defaultTextDirection,
                                   child: AutoDirectionTextForm(
-                                    controller:
-                                    TextEditingController(
+                                    controller: TextEditingController(
                                       text: muc.data!.info,
                                     ),
-                                    textDirection: _i18n
-                                        .defaultTextDirection,
-                                    minLines:
-                                    muc.data!.info.isNotEmpty
-                                        ? muc.data!.info
-                                        .split("\n")
-                                        .length
+                                    textDirection: _i18n.defaultTextDirection,
+                                    minLines: muc.data!.info.isNotEmpty
+                                        ? muc.data!.info.split("\n").length
                                         : 1,
-                                    maxLines:
-                                    muc.data!.info.isNotEmpty
-                                        ? muc.data!.info
-                                        .split("\n")
-                                        .length +
-                                        4
+                                    maxLines: muc.data!.info.isNotEmpty
+                                        ? muc.data!.info.split("\n").length + 4
                                         : 4,
                                     onChanged: (str) {
-                                      mucInfo = str;
+                                      _mucInfo = str;
                                       newChange.add(true);
                                     },
-                                    keyboardType:
-                                    TextInputType.multiline,
-                                    decoration:
-                                    buildInputDecoration(
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: buildInputDecoration(
                                       widget.roomUid.category ==
-                                          Categories.GROUP
+                                              Categories.GROUP
                                           ? _i18n.get(
-                                        "enter_group_desc",)
+                                              "enter_group_desc",
+                                            )
                                           : _i18n.get(
-                                        "enter_channel_desc",
-                                      ),
+                                              "enter_channel_desc",
+                                            ),
                                     ),
                                   ),
                                 );
@@ -447,8 +419,7 @@ class MucManagePageState extends State<MucManagePage>
                               }
                             },
                           ),
-                          if (widget.roomUid.category ==
-                              Categories.CHANNEL)
+                          if (widget.roomUid.category == Categories.CHANNEL)
                             Column(
                               children: [
                                 const SizedBox(
@@ -459,44 +430,36 @@ class MucManagePageState extends State<MucManagePage>
                                     widget.roomUid.asString(),
                                   ),
                                   builder: (c, muc) {
-                                    if (muc.hasData &&
-                                        muc.data != null) {
-                                      _mucType =
-                                          muc.data!.mucType;
+                                    if (muc.hasData && muc.data != null) {
+                                      _mucType = muc.data!.mucType;
                                       return Padding(
-                                        padding:
-                                        const EdgeInsets.only(
+                                        padding: const EdgeInsets.only(
                                           top: 15.0,
                                         ),
                                         child: SelectMucType(
-                                          backgroundColor:
-                                          Theme.of(
+                                          backgroundColor: Theme.of(
                                             context,
                                           ).dialogBackgroundColor,
-                                          onMucTypeChange:
-                                              (value) {
-                                            _mucType = _mucRepo
-                                                .pbMucTypeToHiveMucType(
+                                          onMucTypeChange: (value) {
+                                            _mucType =
+                                                _mucRepo.pbMucTypeToHiveMucType(
                                               value,
                                             );
-                                            if (_mucRepo
-                                                .pbMucTypeToHiveMucType(
-                                              value,
-                                            ) !=
-                                                muc.data!
-                                                    .mucType) {
+                                            if (_mucRepo.pbMucTypeToHiveMucType(
+                                                  value,
+                                                ) !=
+                                                muc.data!.mucType) {
                                               newChange.add(true);
                                             }
                                           },
-                                          mucType: _mucRepo
-                                              .hiveMucTypeToPbMucType(
+                                          mucType:
+                                              _mucRepo.hiveMucTypeToPbMucType(
                                             _mucType,
                                           ),
                                         ),
                                       );
                                     }
-                                    return const SizedBox
-                                        .shrink();
+                                    return const SizedBox.shrink();
                                   },
                                 ),
                               ],
@@ -540,7 +503,8 @@ class MucManagePageState extends State<MucManagePage>
       ),
     );
   }
-  Widget buildDeleteMucBtn(ThemeData theme){
+
+  Widget buildDeleteMucBtn(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Row(
@@ -562,10 +526,8 @@ class MucManagePageState extends State<MucManagePage>
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  theme.colorScheme.errorContainer,
-                  foregroundColor:
-                  theme.colorScheme.onErrorContainer,
+                  backgroundColor: theme.colorScheme.errorContainer,
+                  foregroundColor: theme.colorScheme.onErrorContainer,
                   shape: const RoundedRectangleBorder(
                     borderRadius: tertiaryBorder,
                   ),
@@ -589,9 +551,8 @@ class MucManagePageState extends State<MucManagePage>
         ],
       ),
     );
-
   }
-  
+
   String? validateChannelId(String? value) {
     if (value == null) return null;
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
@@ -609,9 +570,10 @@ class MucManagePageState extends State<MucManagePage>
 
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
-        labelText: label,
-        border: const UnderlineInputBorder(),
-        contentPadding: const EdgeInsets.only(top: 10),);
+      labelText: label,
+      border: const UnderlineInputBorder(),
+      contentPadding: const EdgeInsets.only(top: 10),
+    );
   }
 
   Future<void> _setupRoomSettings() async {
@@ -707,8 +669,10 @@ class MucManagePageState extends State<MucManagePage>
         return Focus(
           autofocus: true,
           child: StatefulBuilder(
-            builder: (context,
-                void Function(void Function()) alertSetState,) {
+            builder: (
+              context,
+              void Function(void Function()) alertSetState,
+            ) {
               // String changingInviteLink = inviteLink;
               return AlertDialog(
                 content: SizedBox(
@@ -729,9 +693,10 @@ class MucManagePageState extends State<MucManagePage>
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                              // boxShadow: ,
-                              color: theme.colorScheme.primaryContainer
-                                  .withOpacity(0.0),),
+                            // boxShadow: ,
+                            color: theme.colorScheme.primaryContainer
+                                .withOpacity(0.0),
+                          ),
                           child: Text(
                             changingInviteLink,
                             textAlign: TextAlign.center,
@@ -745,14 +710,18 @@ class MucManagePageState extends State<MucManagePage>
                             var tmp = "";
                             if (widget.roomUid.isGroup()) {
                               await _mucRepo.deleteGroupJointToken(
-                                  groupUid: widget.roomUid,);
+                                groupUid: widget.roomUid,
+                              );
                               tmp = await _mucRepo.getGroupJointToken(
-                                  groupUid: widget.roomUid,);
+                                groupUid: widget.roomUid,
+                              );
                             } else if (widget.roomUid.isChannel()) {
                               await _mucRepo.deleteChannelJointToken(
-                                  channelUid: widget.roomUid,);
+                                channelUid: widget.roomUid,
+                              );
                               tmp = await _mucRepo.getChannelJointToken(
-                                  channelUid: widget.roomUid,);
+                                channelUid: widget.roomUid,
+                              );
                             }
                             alertSetState(
                               () {
