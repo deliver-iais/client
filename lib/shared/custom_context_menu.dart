@@ -30,9 +30,10 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
 
     final dx = screenSize.width - overlaySize.width;
     final dy = screenSize.height - overlaySize.height;
+
     final position = RelativeRect.fromLTRB(
       _tapPosition.dx - dx,
-      _tapPosition.dy - dy,
+      _tapPosition.dy - 5 - dy,
       overlaySize.width,
       overlaySize.height,
     );
