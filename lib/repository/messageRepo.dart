@@ -269,6 +269,8 @@ class MessageRepo {
       )),
     );
 
+    unawaited(fetchHiddenMessageCount(roomUid.asUid(), lastSeenMessageId));
+
     if (roomUid.isGroup()) {
       unawaited(
         _updateRoomMention(lastSeenMessageId, roomUid),
@@ -277,8 +279,6 @@ class MessageRepo {
         await _fetchMentions(roomUid, lastSeenMessageId);
       }
     }
-
-    unawaited(fetchHiddenMessageCount(roomUid.asUid(), lastSeenMessageId));
   }
 
   /// return true if have new room or new message
