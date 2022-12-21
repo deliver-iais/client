@@ -86,6 +86,7 @@
   "channel_id_is_exist": "channel Id isExist",
   "channel_id_length": " length less 5",
   "channel_id_not_empty": "channel Id should not be empty",
+  "channel_id_no_whitespace": "channel Id should not contain whitespace",
   "channel_type": "Channel Type",
   "chats": "Chats",
   "choose_a_song": "Choose a song",
