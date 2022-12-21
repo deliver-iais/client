@@ -244,7 +244,7 @@ class MessageRepo {
         final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
         if (room == null || !room.seenSynced) {
           unawaited(
-            fetchSeen(
+            _fetchSeen(
               roomMetadata.roomUid.asString(),
               roomMetadata.lastCurrentUserSentMessageId.toInt(),
               roomMetadata.lastMessageId.toInt(),
@@ -432,7 +432,7 @@ class MessageRepo {
           )
           .catchError((e) => _logger.e(e));
 
-  Future<void> fetchSeen(
+  Future<void> _fetchSeen(
     String roomUid,
     int lastCurrentUserSentMessageId,
     int lastMessageId,
