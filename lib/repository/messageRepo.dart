@@ -1153,8 +1153,7 @@ class MessageRepo {
       );
 
   String _getPacketId() =>
-      clock.now().millisecondsSinceEpoch.toString() +
-      randomVM.nextInt(RANDOM_SIZE).toString();
+      "${clock.now().millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
 
   Future<List<Message?>> getPage(
     int page,

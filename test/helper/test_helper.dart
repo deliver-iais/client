@@ -368,8 +368,6 @@ MockMessageDao getAndRegisterMessageDao({
       .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
   when(service.getPendingMessages(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
-  when(service.getPendingMessage("94667220000053429"))
-      .thenAnswer((realInvocation) => Future.value(filePendingMessage));
   when(
     service.getPendingMessage("94667220000013418"),
   ).thenAnswer((realInvocation) => Future.value(filePendingMessage));
@@ -481,7 +479,7 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
       "94667220000013418",
       "test",
       sendActivity: anyNamed("sendActivity"),
-      packetIds: ["94667220000053429"],
+      packetIds: ["94667220000013418"],
     ),
   ).thenAnswer((realInvocation) => Future.value(fileInfo));
   when(
