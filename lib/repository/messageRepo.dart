@@ -291,6 +291,7 @@ class MessageRepo {
     return false;
   }
 
+
   Future<void> processSeen(RoomMetadata roomMetadata) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
