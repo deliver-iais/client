@@ -24,6 +24,9 @@ const CHANNEL_URL = "channel";
 // Version Constants
 const VERSION = "1.9.8";
 
+//messageRepo
+const RANDOM_SIZE = 100000;
+
 // Time Constants
 const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
@@ -32,7 +35,7 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 
 // Paging Constants
 const MEDIA_PAGE_SIZE = 30;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 30;
 
 //Contacts Constants
 const MAX_CONTACT_SIZE_TO_SEND = 50;
@@ -124,7 +127,8 @@ const SHARED_DAO_LOG_IN_FILE_ENABLE = "SHARED_DAO_LOG_IN_FILE_ENABLE";
 const SHARED_DAO_NOTIFICATION_FOREGROUND = "SHARED_DAO_NOTIFICATION_FOREGROUND";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
-const SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED="SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED";
+const SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED =
+    "SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED";
 const SHARED_DAO_VERSION = "SHARED_DAO_VERSION";
 const SHARED_DAO_DB_VERSION = "SHARED_DAO_DB_VERSION";
 const SHARED_DAO_IS_SHOWCASE_ENABLE = "SHARED_DAO_IS_SHOWCASE_ENABLE";
@@ -243,7 +247,7 @@ const RECENT_EMOJI_TRACK_ID = 33;
 const EMOJI_SKIN_TONE_TRACK_ID = 34;
 
 // Emoji
-const MAX_RECENT_EMOJI_LENGTH=48;
+const MAX_RECENT_EMOJI_LENGTH = 48;
 const double PERSISTENT_EMOJI_HEADER_HEIGHT = 42.0;
 const double DESKTOP_EMOJI_OVERLAY_WIDTH = 360.0;
 
@@ -288,7 +292,6 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
-
 
 bool isLarge(BuildContext context) {
   if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {

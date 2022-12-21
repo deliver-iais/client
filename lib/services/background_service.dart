@@ -72,7 +72,7 @@ Future<bool> update() async {
       GetIt.I.get<UxService>().reInitialize();
     }
     GetIt.I.get<AppLifecycleService>().updateAppStateToPause();
-    await GetIt.I.get<MessageRepo>().updatingMessages();
+    await GetIt.I.get<MessageRepo>().updatingRooms();
     unawaited(GetIt.I.get<FireBaseServices>().updateFirebaseToken());
   } catch (_) {}
   return Future.value(false);
