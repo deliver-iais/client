@@ -218,7 +218,7 @@ class RoutingService {
         ),
       );
 
-  void openManageMuc(String roomId) => _push(
+  Future<dynamic>? openManageMuc(String roomId) => _push(
         MucManagePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/manage"),
@@ -358,7 +358,7 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  void _push(
+  Future<dynamic>? _push(
     Widget widget, {
     bool popAllBeforePush = false,
     bool useTransparentRoute = false,
@@ -379,12 +379,12 @@ class RoutingService {
             settings: RouteSettings(name: path),
           );
     if (popAllBeforePush) {
-      _homeNavigatorState.currentState?.pushAndRemoveUntil(
+      return _homeNavigatorState.currentState?.pushAndRemoveUntil(
         route,
         (r) => r.isFirst,
       );
     } else {
-      _homeNavigatorState.currentState?.push(
+      return _homeNavigatorState.currentState?.push(
         route,
       );
     }

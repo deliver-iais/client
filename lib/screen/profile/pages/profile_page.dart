@@ -389,7 +389,7 @@ class ProfilePageState extends State<ProfilePage>
     final theme = Theme.of(context);
     return SliverAppBar.medium(
       actions: <Widget>[
-        if (widget.roomUid.isMuc() && _isMucOwner)
+        if ((widget.roomUid.isMuc() && _isMucOwner) || _isBotOwner)
           Directionality(
             textDirection: _i18n.defaultTextDirection,
             child: Row(
@@ -397,7 +397,9 @@ class ProfilePageState extends State<ProfilePage>
                 IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () {
-                    _routingService.openManageMuc(widget.roomUid.asString());
+                    _routingService
+                        .openManageMuc(widget.roomUid.asString())
+                        ?.then((value) => setState(() => {}));
                     // showManageDialog();
                   },
                 ),

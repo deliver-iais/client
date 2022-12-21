@@ -187,7 +187,6 @@ class MucManagePageState extends State<MucManagePage>
                                   navigatorState.pop();
                                 }
                               }
-                              // setState(() {});
                             }
                           }
                         }
@@ -238,6 +237,7 @@ class MucManagePageState extends State<MucManagePage>
                           child: Directionality(
                             textDirection: _i18n.defaultTextDirection,
                             child: AutoDirectionTextForm(
+                              enabled: !widget.roomUid.isBot(),
                               autofocus: true,
                               textDirection: _i18n.defaultTextDirection,
                               controller: TextEditingController(
@@ -259,11 +259,13 @@ class MucManagePageState extends State<MucManagePage>
                               },
                               keyboardType: TextInputType.text,
                               decoration: buildInputDecoration(
-                                widget.roomUid.isGroup()
-                                    ? _i18n.get("enter_group_name")
-                                    : _i18n.get(
-                                        "enter_channel_name",
-                                      ),
+                                widget.roomUid.isBot()
+                                    ? _i18n.get("bot")
+                                    : widget.roomUid.isGroup()
+                                        ? _i18n.get("enter_group_name")
+                                        : _i18n.get(
+                                            "enter_channel_name",
+                                          ),
                               ),
                             ),
                           ),
@@ -666,7 +668,6 @@ class MucManagePageState extends State<MucManagePage>
               context,
               void Function(void Function()) alertSetState,
             ) {
-              // String changingInviteLink = inviteLink;
               return AlertDialog(
                 content: SizedBox(
                   width: MediaQuery.of(context).size.width / 3,
@@ -686,7 +687,6 @@ class MucManagePageState extends State<MucManagePage>
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            // boxShadow: ,
                             color: theme.colorScheme.primaryContainer
                                 .withOpacity(0.0),
                           ),
