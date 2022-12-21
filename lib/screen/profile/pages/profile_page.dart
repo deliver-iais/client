@@ -738,21 +738,24 @@ class ProfilePageState extends State<ProfilePage>
     ];
 
 
-    return IconButton(
-      icon: const Icon(
-        Icons.more_vert,
+    return GestureDetector(
+      onPanDown: (e) => storePosition(e),
+      child: IconButton(
+        icon: const Icon(
+          Icons.more_vert,
+        ),
+        onPressed: () {
+          this.showMenu(
+            // start: 0,
+            // top:0,
+            // textDirection: TextDirection.rtl,
+            context: context,
+            items: popups,
+          ).then((selectedString) {
+            onSelected(selectedString ?? "");
+          });
+        },
       ),
-      onPressed: () {
-        this.showMenu(
-          start: 0,
-          top:0,
-          textDirection: TextDirection.rtl,
-          context: context,
-          items: popups,
-        ).then((selectedString) {
-          onSelected(selectedString ?? "");
-        });
-      },
     );
   }
 
