@@ -37,6 +37,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/random_vm.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -105,7 +106,6 @@ class MessageRepo {
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  final random = Random(RANDOM_BASE);
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
@@ -369,10 +369,13 @@ class MessageRepo {
           if (_authRepo.isCurrentUserSender(room.lastMessage!)) {
             _fetchOtherLastSeen(roomUid);
           } else {
-            await _seenDao.saveOthersSeen(Seen(
+            await _seenDao.saveOthersSeen(
+              Seen(
                 uid: roomUid,
                 messageId: room.lastMessage!.id!,
-                hiddenMessageCount: 0,),);
+                hiddenMessageCount: 0,
+              ),
+            );
           }
         }
       }
@@ -1151,7 +1154,7 @@ class MessageRepo {
 
   String _getPacketId() =>
       clock.now().millisecondsSinceEpoch.toString() +
-      random.nextInt(RANDOM_SIZE).toString();
+      randomVM.nextInt(RANDOM_SIZE).toString();
 
   Future<List<Message?>> getPage(
     int page,
