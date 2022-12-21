@@ -362,10 +362,19 @@ class MessageRepo {
   Future<void> _updateOtherSeen(String roomUid) async {
     try {
       final room = await _roomDao.getRoom(roomUid);
-      if (room != null &&
-          room.lastMessage != null &&
-          _authRepo.isCurrentUserSender(room.lastMessage!)) {
-        _fetchOtherLastSeen(roomUid);
+      if (room != null && room.lastMessage != null) {
+        final othersSeen = await _seenDao.getOthersSeen(roomUid);
+        if (othersSeen == null ||
+            othersSeen.messageId < room.lastMessage!.id!) {
+          if (_authRepo.isCurrentUserSender(room.lastMessage!)) {
+            _fetchOtherLastSeen(roomUid);
+          } else {
+            await _seenDao.saveOthersSeen(Seen(
+                uid: roomUid,
+                messageId: room.lastMessage!.id!,
+                hiddenMessageCount: 0,),);
+          }
+        }
       }
     } catch (e) {
       _logger.e(e);
