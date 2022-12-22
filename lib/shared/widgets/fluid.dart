@@ -29,6 +29,7 @@ class FluidWidget extends StatelessWidget {
           decoration: boxDecoration,
           child: Center(
             child: ClipRRect(
+              clipBehavior: Clip.hardEdge,
               borderRadius: isLargeWidth(constraints.maxWidth)
                   ? mainBorder
                   : BorderRadius.zero,

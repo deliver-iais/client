@@ -135,6 +135,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     } catch (e) {
       return ClipRRect(
         borderRadius: secondaryBorder,
+        clipBehavior: Clip.hardEdge,
         child: Container(
           constraints: BoxConstraints(
             minWidth: widget.minWidth,

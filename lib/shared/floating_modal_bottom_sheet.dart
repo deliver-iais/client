@@ -15,6 +15,7 @@ class FloatingModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Center(
       heightFactor: 1,
       child: SizedBox(
@@ -46,6 +47,7 @@ Future<T> showFloatingModalBottomSheet<T>({
     builder: builder,
     enableDrag: enableDrag,
     isDismissible: isDismissible,
+    useRootNavigator: true,
     containerWidget: (_, animation, child) => FloatingModal(
       child: child,
     ),

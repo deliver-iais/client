@@ -39,6 +39,7 @@ class BlurContainer extends StatelessWidget {
     }
     return ClipRRect(
       borderRadius: mainBorder,
+      clipBehavior: Clip.hardEdge,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),
         child: Container(
