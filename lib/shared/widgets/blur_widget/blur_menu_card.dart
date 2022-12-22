@@ -28,7 +28,7 @@ class BlurMenuCard extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Material(
             color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-            clipBehavior: Clip.antiAlias,
+            clipBehavior: Clip.hardEdge,
             elevation: 1.0,
             type: MaterialType.card,
             child: child,
