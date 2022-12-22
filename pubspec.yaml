@@ -252,7 +252,6 @@ flutter:
     - lib/lang/fa.json
     - assets/animations/end_of_call.json
     - assets/audios/end_call.mp3
-    - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
     - assets/animations/call_permission.tgs
     - assets/animations/qr.zip
