@@ -28,6 +28,7 @@ import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
@@ -44,6 +45,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -121,6 +123,8 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MucDao>(),
     MockSpec<UxService>(),
     MockSpec<UrlHandlerService>(),
+    MockSpec<RoutingService>(),
+    MockSpec<CallRepo>(),
     MockSpec<AppLifecycleService>()
   ],
 )
@@ -134,6 +138,13 @@ MockCoreServices getAndRegisterCoreServices({
       BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting)
         ..add(connectionStatus);
   when(service.connectionStatus).thenAnswer((realInvocation) => cs);
+  return service;
+}
+
+MockRoutingService getAndRegisterRoutingServices() {
+  _removeRegistrationIfExists<RoutingService>();
+  final service = MockRoutingService();
+  GetIt.I.registerSingleton<RoutingService>(service);
   return service;
 }
 
@@ -205,6 +216,7 @@ MockI18N getAndRegisterI18N() {
   when(service.get(any)).thenReturn("d");
   when(service.get("you")).thenReturn("you");
   when(service.get("saved_message")).thenReturn("Saved Message");
+  when(service.defaultTextDirection).thenReturn(TextDirection.ltr);
   return service;
 }
 
@@ -445,6 +457,13 @@ MockRoomRepo getAndRegisterRoomRepo({
   return service;
 }
 
+MockCallRepo getAndRegisterCallRepo() {
+  _removeRegistrationIfExists<CallRepo>();
+  final service = MockCallRepo();
+  GetIt.I.registerSingleton<CallRepo>(service);
+  return service;
+}
+
 RoomRepo getAndRegisterRealRoomRepo() {
   _removeRegistrationIfExists<RoomRepo>();
   final service = RoomRepo();
@@ -466,6 +485,8 @@ MockAuthRepo getAndRegisterAuthRepo({
       .thenAnswer((d) => Future.value(AccessTokenRes()));
   when(service.checkQrCodeToken(any))
       .thenAnswer((f) => Future.value(AccessTokenRes()));
+  service.newVersionInformation =
+      BehaviorSubject.seeded(NewerVersionInformation());
   when(service.isLoggedIn()).thenReturn(isLoggedIn);
   return service;
 }
@@ -867,12 +888,17 @@ MockQueryServiceClient getMockQueryServicesClient({
   return queryServiceClient;
 }
 
-MockSharedDao getAndRegisterSharedDao({bool allRoomFetched = false}) {
+MockSharedDao getAndRegisterSharedDao({
+  bool allRoomFetched = false,
+  bool showCaseEnable = false,
+}) {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
   when(service.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED))
       .thenAnswer((realInvocation) => Future.value(allRoomFetched));
+  when(service.getBooleanStream(SHARED_DAO_IS_SHOWCASE_ENABLE))
+      .thenAnswer((realInvocation) => Stream.value(showCaseEnable));
   return service;
 }
 
@@ -925,6 +951,7 @@ void registerServices() {
   getAndRegisterMessageDao();
   getAndRegisterRoomDao();
   getAndRegisterRoomRepo();
+  getAndRegisterRoutingServices();
   getAndRegisterAuthRepo();
   getAndRegisterFileRepo();
   getAndRegisterLiveLocationRepo();
@@ -935,6 +962,7 @@ void registerServices() {
   getAndRegisterBlockDao();
   getAndRegisterFireBaseServices();
   getAndRegisterI18N();
+  getAndRegisterCallRepo();
   getAndRegisterMuteDao();
   getAndRegisterUidIdNameDao();
   getAndRegisterContactRepo();

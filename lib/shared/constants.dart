@@ -22,7 +22,10 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.8";
+const VERSION = "1.9.9";
+const SHOW_NEW_VERSION_INFORMATION_KEY = "SHOW_NEW_VERSION_INFORMATION_KEY";
+const SHOW_NEW_VERSION_INFORMATION_COUNT = 50;
+const SHOW_NEW_VERSION_INFORMATION_PERIOD = 2 * 60 * 60 * 1000;
 
 //messageRepo
 const RANDOM_SIZE = 100000;
