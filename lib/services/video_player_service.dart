@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:dart_vlc/dart_vlc.dart';
+import 'package:dart_vlc/dart_vlc.dart'
+    if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
 
 class VideoPlayerService {
   Player? currentDesktopPlayer;

@@ -29,7 +29,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:mockito/mockito.dart';
 
 import '../constants/constants.dart';
-import '../helper/matcher.dart';
 import '../helper/test_helper.dart';
 
 void main() {
