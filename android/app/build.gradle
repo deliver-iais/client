@@ -52,8 +52,10 @@ android {
         applicationId "ir.we.deliver"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+//        versionCode flutterVersionCode.toInteger()
+        versionCode 72
+//        versionName flutterVersionName
+        versionName "1.9.9"
         multiDexEnabled true
     }
     signingConfigs {
