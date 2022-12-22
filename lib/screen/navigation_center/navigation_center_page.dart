@@ -327,9 +327,10 @@ class NavigationCenterState extends State<NavigationCenter>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Lottie.asset(
-                              "assets/animations/new_version.zip",
-                              height: 200,
+                            const Tgs.asset(
+                              "assets/animations/new_version.tgs",
+                              height: 230,
+                              width: 300,
                             ),
                             Text(
                               _i18n.get("update_we"),

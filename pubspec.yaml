@@ -230,6 +230,7 @@ flutter:
     - assets/animations/touch.zip
     - assets/animations/done.zip
     - assets/animations/unlock.tgs
+    - assets/animations/new_version.tgs
     - assets/audios/beep_sound.mp3
     - assets/audios/busy_sound.mp3
     - assets/audios/incoming_msg.mp3
