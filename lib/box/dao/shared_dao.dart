@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/models/time_counter.dart';
@@ -98,7 +99,7 @@ class SharedDaoImpl extends SharedDao {
             (timeCounter.count < count &&
                 timeCheck(period, timeCounter.time))) {
           timeCounter.count++;
-          timeCounter.time = DateTime.now().millisecondsSinceEpoch;
+          timeCounter.time = clock.now().millisecondsSinceEpoch;
           await box.put(key, jsonEncode(timeCounter));
           return true;
         }
@@ -109,7 +110,7 @@ class SharedDaoImpl extends SharedDao {
           jsonEncode(
             TimeCounter(
               count: 1,
-              time: DateTime.now().millisecondsSinceEpoch,
+              time: clock.now().millisecondsSinceEpoch,
             ),
           ),
         );
@@ -121,7 +122,7 @@ class SharedDaoImpl extends SharedDao {
   }
 
   bool timeCheck(int period, int time) =>
-      DateTime.now().millisecondsSinceEpoch - time > period;
+      clock.now().millisecondsSinceEpoch - time > period;
 
   @override
   Future<void> resetTimeCounter(String key) async {
@@ -133,7 +134,7 @@ class SharedDaoImpl extends SharedDao {
           jsonEncode(
             TimeCounter(
               count: 0,
-              time: DateTime.now().millisecondsSinceEpoch,
+              time: clock.now().millisecondsSinceEpoch,
             ),
           ),
         ),
