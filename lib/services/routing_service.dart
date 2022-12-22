@@ -445,28 +445,30 @@ class RoutingService {
             const VerticalDivider()
           ],
           Expanded(
-            child: Navigator(
-              key: _homeNavigatorState,
-              observers: [
-                HeroController(
-                  createRectTween: (begin, end) {
-                    return MaterialRectArcTween(begin: begin, end: end);
-                  },
-                ),
-                _navigatorObserver
-              ],
-              onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
-                  (c, animation, secondaryAnimation) {
-                try {
-                  if (isLarge(c)) {
+            child: ClipRect(
+              child: Navigator(
+                key: _homeNavigatorState,
+                observers: [
+                  HeroController(
+                    createRectTween: (begin, end) {
+                      return MaterialRectArcTween(begin: begin, end: end);
+                    },
+                  ),
+                  _navigatorObserver
+                ],
+                onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
+                    (c, animation, secondaryAnimation) {
+                  try {
+                    if (isLarge(c)) {
+                      return _empty;
+                    } else {
+                      return _navigationCenter;
+                    }
+                  } catch (_) {
                     return _empty;
-                  } else {
-                    return _navigationCenter;
                   }
-                } catch (_) {
-                  return _empty;
-                }
-              }),
+                }),
+              ),
             ),
           ),
         ],
