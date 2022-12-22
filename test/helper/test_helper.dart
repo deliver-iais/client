@@ -124,7 +124,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<UxService>(),
     MockSpec<UrlHandlerService>(),
     MockSpec<RoutingService>(),
-    MockSpec<CallRepo>()
+    MockSpec<CallRepo>(),
     MockSpec<AppLifecycleService>()
   ],
 )
@@ -888,8 +888,10 @@ MockQueryServiceClient getMockQueryServicesClient({
   return queryServiceClient;
 }
 
-MockSharedDao getAndRegisterSharedDao(
-    {bool allRoomFetched = false, bool showCaseEnable = false}) {
+MockSharedDao getAndRegisterSharedDao({
+  bool allRoomFetched = false,
+  bool showCaseEnable = false,
+}) {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
