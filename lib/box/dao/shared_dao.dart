@@ -20,7 +20,7 @@ abstract class SharedDao {
 
   Stream<bool> getBooleanStream(String key, {bool defaultValue = false});
 
-  Future<bool> getTimeCounter(String key, int period, int count);
+  Future<bool> getAndUpdateTimeCounter(String key, int period, int count);
 
   Future<void> resetTimeCounter(String key);
 
@@ -89,7 +89,7 @@ class SharedDaoImpl extends SharedDao {
   }
 
   @override
-  Future<bool> getTimeCounter(String key, int period, int count) async {
+  Future<bool> getAndUpdateTimeCounter(String key, int period, int count) async {
     try {
       final box = await _open();
       final timeCounterModel = box.get(key);

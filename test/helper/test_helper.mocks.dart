@@ -3870,7 +3870,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
   @override
-  _i22.Future<bool> getTimeCounter(
+  _i22.Future<bool> getAndUpdateTimeCounter(
     String? key,
     int? period,
     int? count,

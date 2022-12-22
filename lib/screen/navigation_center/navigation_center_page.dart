@@ -303,7 +303,7 @@ class NavigationCenterState extends State<NavigationCenter>
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           return FutureBuilder<bool>(
-            future: _sharedDao.getTimeCounter(
+            future: _sharedDao.getAndUpdateTimeCounter(
               SHOW_NEW_VERSION_INFORMATION_KEY,
               SHOW_NEW_VERSION_INFORMATION_PERIOD,
               SHOW_NEW_VERSION_INFORMATION_COUNT,
