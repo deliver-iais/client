@@ -23,6 +23,7 @@ class Box extends StatelessWidget {
     return Padding(
       padding: margin ?? (isLarge(context) ? largePageMargin : EdgeInsets.zero),
       child: ClipRRect(
+        clipBehavior: Clip.hardEdge,
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
         child: Container(

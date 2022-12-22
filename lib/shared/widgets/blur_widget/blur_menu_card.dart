@@ -22,6 +22,7 @@ class BlurMenuCard extends StatelessWidget {
         ),
       ),
       child: ClipRRect(
+        clipBehavior: Clip.hardEdge,
         borderRadius: const BorderRadius.all(Radius.circular(10.0)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

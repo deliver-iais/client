@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
@@ -374,9 +375,9 @@ class RoutingService {
             builder: (c) => widget,
             settings: RouteSettings(name: path),
           )
-        : CupertinoPageRoute(
-            builder: (c) => widget,
-            settings: RouteSettings(name: path),
+        : customPageRoute(
+            RouteSettings(name: path),
+            (c, animation, secondaryAnimation) => widget,
           );
     if (popAllBeforePush) {
       return _homeNavigatorState.currentState?.pushAndRemoveUntil(
@@ -389,6 +390,23 @@ class RoutingService {
       );
     }
   }
+
+  PageRouteBuilder customPageRoute(
+    RouteSettings setting,
+    RoutePageBuilder builder,
+  ) =>
+      PageRouteBuilder(
+        settings: setting,
+        pageBuilder: builder,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeThroughTransition(
+            fillColor: Colors.transparent,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+      );
 
   void registerPreMaybePopScope(String name, bool Function() callback) =>
       _preMaybePopScope.register(name, callback);
@@ -427,25 +445,28 @@ class RoutingService {
             const VerticalDivider()
           ],
           Expanded(
-            child: ClipRect(
-              child: Navigator(
-                key: _homeNavigatorState,
-                observers: [HeroController(), _navigatorObserver],
-                onGenerateRoute: (r) => CupertinoPageRoute(
-                  settings: r.copyWith(name: "/"),
-                  builder: (c) {
-                    try {
-                      if (isLarge(c)) {
-                        return _empty;
-                      } else {
-                        return _navigationCenter;
-                      }
-                    } catch (_) {
-                      return _empty;
-                    }
+            child: Navigator(
+              key: _homeNavigatorState,
+              observers: [
+                HeroController(
+                  createRectTween: (begin, end) {
+                    return MaterialRectArcTween(begin: begin, end: end);
                   },
                 ),
-              ),
+                _navigatorObserver
+              ],
+              onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
+                  (c, animation, secondaryAnimation) {
+                try {
+                  if (isLarge(c)) {
+                    return _empty;
+                  } else {
+                    return _navigationCenter;
+                  }
+                } catch (_) {
+                  return _empty;
+                }
+              }),
             ),
           ),
         ],
