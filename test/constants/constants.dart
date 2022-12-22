@@ -7,8 +7,12 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:geolocator/geolocator.dart' as location;
+
+const int roomMetaDataLastUpdateTime = 1671431635717;
 
 location.Position testPosition = location.Position(
   altitude: 0,
@@ -21,6 +25,8 @@ location.Position testPosition = location.Position(
   timestamp: DateTime(2000),
 );
 Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
+
+Uid testGroupUid = "2:3049987b-e45g-4288-97cd-42dbc6d73abd".asUid();
 Message testMessage = Message(
   to: testUid.asString(),
   from: testUid.asString(),
@@ -30,6 +36,14 @@ Message testMessage = Message(
   json: '',
   isHidden: false,
 );
+
+RoomMetadata roomMetadata = RoomMetadata(
+  roomUid: testUid,
+  lastMessageId: Int64(10),
+  lastSeenId: Int64(8),
+  lastCurrentUserSentMessageId: Int64(9),
+);
+
 Message testLastMessage = Message(
   to: testUid.asString(),
   from: testUid.asString(),
@@ -45,10 +59,10 @@ Message testLastMessage = Message(
 
 PendingMessage testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),
-  packetId: "946672200000000",
+  packetId: "94667220000013418",
   msg: testMessage.copyWith(
     time: 946672200000,
-    packetId: "946672200000000",
+    packetId: "94667220000013418",
   ),
   status: SendingStatus.PENDING,
 );
@@ -56,7 +70,7 @@ final filePendingMessage = testPendingMessage.copyWith(
   msg: testPendingMessage.msg.copyWith(
     type: MessageType.FILE,
     json:
-    "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
+        "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
   ),
   status: SendingStatus.UPLOAD_FILE_FAIL,
 );

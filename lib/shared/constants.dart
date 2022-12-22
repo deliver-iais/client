@@ -27,6 +27,9 @@ const SHOW_NEW_VERSION_INFORMATION_KEY = "SHOW_NEW_VERSION_INFORMATION_KEY";
 const SHOW_NEW_VERSION_INFORMATION_COUNT = 10;
 const SHOW_NEW_VERSION_INFORMATION_PERIOD = 2 * 60 * 60 * 1000;
 
+//messageRepo
+const RANDOM_SIZE = 100000;
+
 // Time Constants
 const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
@@ -35,7 +38,7 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 
 // Paging Constants
 const MEDIA_PAGE_SIZE = 30;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 30;
 
 //Contacts Constants
 const MAX_CONTACT_SIZE_TO_SEND = 50;

@@ -219,7 +219,7 @@ class GalleryBoxState extends State<GalleryBox> {
                 return Container(
                   width: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
                   height: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
-                  clipBehavior: Clip.antiAlias,
+                  clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     borderRadius: secondaryBorder,
                     border: Border.all(

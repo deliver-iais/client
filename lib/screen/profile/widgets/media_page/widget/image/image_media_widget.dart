@@ -31,7 +31,6 @@ class ImageMediaWidget extends StatelessWidget {
               );
             },
             enableSlideOutPage: true,
-            isAntiAlias: true,
             onDoubleTap: (state) => onDoubleTap(state),
           );
   }

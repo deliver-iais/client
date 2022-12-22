@@ -75,4 +75,9 @@ class PendingMessage {
         const DeepCollectionEquality().hash(msg),
         const DeepCollectionEquality().hash(failed),
       );
+
+  @override
+  String toString() {
+    return "PendingMessage([roomUid:$roomUid] [packetId:$packetId] [msg:$msg] [failed:$failed] [status:$status])";
+  }
 }

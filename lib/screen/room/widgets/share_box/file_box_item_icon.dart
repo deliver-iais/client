@@ -39,7 +39,7 @@ class FileIcon extends StatelessWidget {
       switch (type) {
         case 'image':
           return ClipRRect(
-            clipBehavior: Clip.antiAliasWithSaveLayer,
+            clipBehavior: Clip.hardEdge,
             borderRadius: tertiaryBorder,
             child: Image(
               errorBuilder: (b, o, c) {

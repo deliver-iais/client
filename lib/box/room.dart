@@ -63,7 +63,7 @@ class Room {
     this.pinId = 0,
     this.synced = false,
     this.lastCurrentUserSentMessageId = 0,
-    this.seenSynced = true,
+    this.seenSynced = false,
     this.replyKeyboardMarkup,
     this.mentionsId,
   });

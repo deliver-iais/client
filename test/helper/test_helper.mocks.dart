@@ -42,19 +42,18 @@ import 'package:deliver/box/seen.dart' as _i2;
 import 'package:deliver/box/uid_id_name.dart' as _i57;
 import 'package:deliver/localization/i18n.dart' as _i53;
 import 'package:deliver/models/call_event_type.dart' as _i79;
-import 'package:deliver/models/call_timer.dart' as _i93;
 import 'package:deliver/repository/accountRepo.dart' as _i62;
 import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i31;
 import 'package:deliver/repository/avatarRepo.dart' as _i51;
 import 'package:deliver/repository/botRepo.dart' as _i68;
-import 'package:deliver/repository/callRepo.dart' as _i92;
 import 'package:deliver/repository/contactRepo.dart' as _i58;
 import 'package:deliver/repository/fileRepo.dart' as _i36;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i40;
 import 'package:deliver/repository/mediaRepo.dart' as _i74;
 import 'package:deliver/repository/mucRepo.dart' as _i64;
 import 'package:deliver/repository/roomRepo.dart' as _i29;
+import 'package:deliver/services/app_lifecycle_service.dart' as _i90;
 import 'package:deliver/services/call_service.dart' as _i78;
 import 'package:deliver/services/core_services.dart' as _i49;
 import 'package:deliver/services/data_stream_services.dart' as _i45;
@@ -62,7 +61,6 @@ import 'package:deliver/services/file_service.dart' as _i39;
 import 'package:deliver/services/firebase_services.dart' as _i35;
 import 'package:deliver/services/muc_services.dart' as _i44;
 import 'package:deliver/services/notification_services.dart' as _i83;
-import 'package:deliver/services/routing_service.dart' as _i90;
 import 'package:deliver/services/url_handler_service.dart' as _i88;
 import 'package:deliver/services/ux_service.dart' as _i87;
 import 'package:deliver/shared/language.dart' as _i54;
@@ -86,7 +84,6 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i11;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i33;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as _i47;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart' as _i34;
-import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i91;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart' as _i3;
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart' as _i5;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as _i14;
@@ -319,42 +316,6 @@ class _FakeExtraThemeData_18 extends _i1.SmartFake
 
 class _FakeCorePalette_19 extends _i1.SmartFake implements _i20.CorePalette {
   _FakeCorePalette_19(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeGlobalKey_20<T extends _i17.State<_i17.StatefulWidget>>
-    extends _i1.SmartFake implements _i17.GlobalKey<T> {
-  _FakeGlobalKey_20(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeWidget_21 extends _i1.SmartFake implements _i17.Widget {
-  _FakeWidget_21(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-
-  @override
-  String toString(
-          {_i18.DiagnosticLevel? minLevel = _i18.DiagnosticLevel.info}) =>
-      super.toString();
-}
-
-class _FakeStatsReport_22 extends _i1.SmartFake implements _i15.StatsReport {
-  _FakeStatsReport_22(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -606,7 +567,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
   _i22.Future<List<_i25.Message>> getMessagePage(
     String? roomUid,
     int? page, {
-    int? pageSize = 50,
+    int? pageSize = 30,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -850,14 +811,6 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Stream<_i28.Room>.empty(),
       ) as _i22.Stream<_i28.Room>);
-  @override
-  _i22.Future<List<_i28.Room>> getNotSyncedRoom() => (super.noSuchMethod(
-        Invocation.method(
-          #getNotSyncedRoom,
-          [],
-        ),
-        returnValue: _i22.Future<List<_i28.Room>>.value(<_i28.Room>[]),
-      ) as _i22.Future<List<_i28.Room>>);
   @override
   _i22.Future<List<_i28.Room>> getAllGroups() => (super.noSuchMethod(
         Invocation.method(
@@ -2368,6 +2321,17 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
   @override
+  _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteGroupJointToken,
+          [],
+          {#groupUid: groupUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -2377,6 +2341,17 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+  @override
+  _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteChannelJointToken,
+          [],
+          {#channelUid: channelUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
   _i22.Future<void> unpinMessage(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -2495,7 +2470,6 @@ class MockDataStreamServices extends _i1.Mock
     _i3.Uid? roomUid,
     int? lastMessageId,
     int? firstMessageId, {
-    bool? retry = true,
     bool? appRunInForeground = false,
   }) =>
       (super.noSuchMethod(
@@ -2506,10 +2480,7 @@ class MockDataStreamServices extends _i1.Mock
             lastMessageId,
             firstMessageId,
           ],
-          {
-            #retry: retry,
-            #appRunInForeground: appRunInForeground,
-          },
+          {#appRunInForeground: appRunInForeground},
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
@@ -3848,32 +3819,6 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
   @override
-  _i22.Future<bool> getTimeCounter(
-    String? key,
-    int? period,
-    int? count,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getTimeCounter,
-          [
-            key,
-            period,
-            count,
-          ],
-        ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
-  @override
-  _i22.Future<void> resetTimeCounter(String? key) => (super.noSuchMethod(
-        Invocation.method(
-          #resetTimeCounter,
-          [key],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
   _i22.Future<void> putBoolean(
     String? key,
     bool? value,
@@ -4763,6 +4708,17 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
   @override
+  _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteGroupJointToken,
+          [],
+          {#groupUid: groupUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4772,6 +4728,17 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+  @override
+  _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteChannelJointToken,
+          [],
+          {#channelUid: channelUid},
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
   _i22.Future<void> fetchChannelMembers(
     _i3.Uid? channelUid,
@@ -6622,1089 +6589,53 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
       );
 }
 
-/// A class which mocks [RoutingService].
+/// A class which mocks [AppLifecycleService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
-  MockRoutingService() {
+class MockAppLifecycleService extends _i1.Mock
+    implements _i90.AppLifecycleService {
+  MockAppLifecycleService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i17.GlobalKey<_i17.NavigatorState> get mainNavigatorState =>
-      (super.noSuchMethod(
-        Invocation.getter(#mainNavigatorState),
-        returnValue: _FakeGlobalKey_20<_i17.NavigatorState>(
-          this,
-          Invocation.getter(#mainNavigatorState),
-        ),
-      ) as _i17.GlobalKey<_i17.NavigatorState>);
-  @override
-  _i4.BehaviorSubject<bool> get shouldScrollToLastMessageInRoom =>
-      (super.noSuchMethod(
-        Invocation.getter(#shouldScrollToLastMessageInRoom),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#shouldScrollToLastMessageInRoom),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set shouldScrollToLastMessageInRoom(
-          _i4.BehaviorSubject<bool>? _shouldScrollToLastMessageInRoom) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #shouldScrollToLastMessageInRoom,
-          _shouldScrollToLastMessageInRoom,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i22.Stream<_i90.RouteEvent> get currentRouteStream => (super.noSuchMethod(
-        Invocation.getter(#currentRouteStream),
-        returnValue: _i22.Stream<_i90.RouteEvent>.empty(),
-      ) as _i22.Stream<_i90.RouteEvent>);
-  @override
-  void openSettings({bool? popAllBeforePush = false}) => super.noSuchMethod(
+  _i90.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
         Invocation.method(
-          #openSettings,
+          #getAppLiveCycle,
           [],
-          {#popAllBeforePush: popAllBeforePush},
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i90.AppLifecycle.ACTIVE,
+      ) as _i90.AppLifecycle);
   @override
-  void openLanguageSettings() => super.noSuchMethod(
+  void updateAppStateToPause() => super.noSuchMethod(
         Invocation.method(
-          #openLanguageSettings,
+          #updateAppStateToPause,
           [],
         ),
         returnValueForMissingStub: null,
       );
   @override
-  void openThemeSettings() => super.noSuchMethod(
+  bool appIsActive() => (super.noSuchMethod(
         Invocation.method(
-          #openThemeSettings,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openSecuritySettings() => super.noSuchMethod(
-        Invocation.method(
-          #openSecuritySettings,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openDeveloperPage() => super.noSuchMethod(
-        Invocation.method(
-          #openDeveloperPage,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openDevices() => super.noSuchMethod(
-        Invocation.method(
-          #openDevices,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openAutoDownload() => super.noSuchMethod(
-        Invocation.method(
-          #openAutoDownload,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openLab() => super.noSuchMethod(
-        Invocation.method(
-          #openLab,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openContacts() => super.noSuchMethod(
-        Invocation.method(
-          #openContacts,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openNewContact() => super.noSuchMethod(
-        Invocation.method(
-          #openNewContact,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openScanQrCode() => super.noSuchMethod(
-        Invocation.method(
-          #openScanQrCode,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openCallsList() => super.noSuchMethod(
-        Invocation.method(
-          #openCallsList,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openShowcase() => super.noSuchMethod(
-        Invocation.method(
-          #openShowcase,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openConnectionSettingPage() => super.noSuchMethod(
-        Invocation.method(
-          #openConnectionSettingPage,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  String getCurrentRoomId() => (super.noSuchMethod(
-        Invocation.method(
-          #getCurrentRoomId,
-          [],
-        ),
-        returnValue: '',
-      ) as String);
-  @override
-  void resetCurrentRoom() => super.noSuchMethod(
-        Invocation.method(
-          #resetCurrentRoom,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openRoom(
-    String? roomId, {
-    List<_i25.Message>? forwardedMessages = const [],
-    List<_i72.Media>? forwardedMedia = const [],
-    bool? popAllBeforePush = false,
-    _i46.ShareUid? shareUid,
-    bool? forceToOpenRoom = false,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openRoom,
-          [roomId],
-          {
-            #forwardedMessages: forwardedMessages,
-            #forwardedMedia: forwardedMedia,
-            #popAllBeforePush: popAllBeforePush,
-            #shareUid: shareUid,
-            #forceToOpenRoom: forceToOpenRoom,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openCallScreen(
-    _i3.Uid? roomUid, {
-    bool? isIncomingCall = false,
-    bool? isCallInitialized = false,
-    bool? isCallAccepted = false,
-    bool? isVideoCall = false,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openCallScreen,
-          [roomUid],
-          {
-            #isIncomingCall: isIncomingCall,
-            #isCallInitialized: isCallInitialized,
-            #isCallAccepted: isCallAccepted,
-            #isVideoCall: isVideoCall,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openLocation(
-    _i42.Location? location,
-    _i3.Uid? from,
-    _i25.Message? message,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openLocation,
-          [
-            location,
-            from,
-            message,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openProfile(String? roomId) => super.noSuchMethod(
-        Invocation.method(
-          #openProfile,
-          [roomId],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openShowAllAvatars({
-    required _i3.Uid? uid,
-    required bool? hasPermissionToDeleteAvatar,
-    required String? heroTag,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openShowAllAvatars,
-          [],
-          {
-            #uid: uid,
-            #hasPermissionToDeleteAvatar: hasPermissionToDeleteAvatar,
-            #heroTag: heroTag,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openShowAllVideos({
-    required String? roomUid,
-    required int? messageId,
-    int? initIndex,
-    _i25.Message? message,
-    String? filePath,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openShowAllVideos,
-          [],
-          {
-            #roomUid: roomUid,
-            #messageId: messageId,
-            #initIndex: initIndex,
-            #message: message,
-            #filePath: filePath,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openShowAllImage({
-    required String? uid,
-    required int? messageId,
-    int? initIndex,
-    _i25.Message? message,
-    String? filePath,
-    dynamic Function()? onEdit,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openShowAllImage,
-          [],
-          {
-            #uid: uid,
-            #messageId: messageId,
-            #initIndex: initIndex,
-            #message: message,
-            #filePath: filePath,
-            #onEdit: onEdit,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openCustomNotificationSoundSelection(String? roomId) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openCustomNotificationSoundSelection,
-          [roomId],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openAccountSettings({bool? forceToSetName = false}) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openAccountSettings,
-          [],
-          {#forceToSetName: forceToSetName},
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openMemberSelection({
-    required bool? isChannel,
-    _i3.Uid? mucUid,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openMemberSelection,
-          [],
-          {
-            #isChannel: isChannel,
-            #mucUid: mucUid,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openSelectForwardMessage({
-    List<_i25.Message>? forwardedMessages,
-    List<_i72.Media>? medias,
-    _i46.ShareUid? sharedUid,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openSelectForwardMessage,
-          [],
-          {
-            #forwardedMessages: forwardedMessages,
-            #medias: medias,
-            #sharedUid: sharedUid,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openAllGroupedRoomsGridPage(
-          {required _i91.GroupedRooms? groupedRooms}) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openAllGroupedRoomsGridPage,
-          [],
-          {#groupedRooms: groupedRooms},
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openGroupInfoDeterminationPage({required bool? isChannel}) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openGroupInfoDeterminationPage,
-          [],
-          {#isChannel: isChannel},
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openShareInput({
-    List<String>? paths = const [],
-    String? text = r'',
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #openShareInput,
-          [],
-          {
-            #paths: paths,
-            #text: text,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  bool notInRoom() => (super.noSuchMethod(
-        Invocation.method(
-          #notInRoom,
+          #appIsActive,
           [],
         ),
         returnValue: false,
       ) as bool);
   @override
-  bool isInRoom(String? roomId) => (super.noSuchMethod(
+  _i22.Stream<_i90.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
         Invocation.method(
-          #isInRoom,
-          [roomId],
+          #watchAppAppLifecycle,
+          [],
         ),
-        returnValue: false,
-      ) as bool);
+        returnValue: _i22.Stream<_i90.AppLifecycle>.empty(),
+      ) as _i22.Stream<_i90.AppLifecycle>);
   @override
-  void popAll() => super.noSuchMethod(
+  void startLifeCycListener() => super.noSuchMethod(
         Invocation.method(
-          #popAll,
+          #startLifeCycListener,
           [],
         ),
         returnValueForMissingStub: null,
       );
-  @override
-  void registerPreMaybePopScope(
-    String? name,
-    bool Function()? callback,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #registerPreMaybePopScope,
-          [
-            name,
-            callback,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void unregisterPreMaybePopScope(String? name) => super.noSuchMethod(
-        Invocation.method(
-          #unregisterPreMaybePopScope,
-          [name],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void pop() => super.noSuchMethod(
-        Invocation.method(
-          #pop,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  bool preMaybePopScopeValue() => (super.noSuchMethod(
-        Invocation.method(
-          #preMaybePopScopeValue,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  void maybePop() => super.noSuchMethod(
-        Invocation.method(
-          #maybePop,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  bool canPop() => (super.noSuchMethod(
-        Invocation.method(
-          #canPop,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  _i17.Widget outlet(_i17.BuildContext? context) => (super.noSuchMethod(
-        Invocation.method(
-          #outlet,
-          [context],
-        ),
-        returnValue: _FakeWidget_21(
-          this,
-          Invocation.method(
-            #outlet,
-            [context],
-          ),
-        ),
-      ) as _i17.Widget);
-  @override
-  void selectChatMenu(String? key) => super.noSuchMethod(
-        Invocation.method(
-          #selectChatMenu,
-          [key],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i22.Future<void> logout() => (super.noSuchMethod(
-        Invocation.method(
-          #logout,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i17.Widget backButtonLeading({_i10.Color? color}) => (super.noSuchMethod(
-        Invocation.method(
-          #backButtonLeading,
-          [],
-          {#color: color},
-        ),
-        returnValue: _FakeWidget_21(
-          this,
-          Invocation.method(
-            #backButtonLeading,
-            [],
-            {#color: color},
-          ),
-        ),
-      ) as _i17.Widget);
-}
-
-/// A class which mocks [CallRepo].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
-  MockCallRepo() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  set onLocalStream(dynamic Function(_i15.MediaStream)? _onLocalStream) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #onLocalStream,
-          _onLocalStream,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set onAddRemoteStream(
-          dynamic Function(_i15.MediaStream)? _onAddRemoteStream) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #onAddRemoteStream,
-          _onAddRemoteStream,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set onRemoveRemoteStream(
-          dynamic Function(_i15.MediaStream)? _onRemoveRemoteStream) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #onRemoveRemoteStream,
-          _onRemoveRemoteStream,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerDeclined(_i22.Timer? _timerDeclined) => super.noSuchMethod(
-        Invocation.setter(
-          #timerDeclined,
-          _timerDeclined,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerResendOffer(_i22.Timer? _timerResendOffer) => super.noSuchMethod(
-        Invocation.setter(
-          #timerResendOffer,
-          _timerResendOffer,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerResendAnswer(_i22.Timer? _timerResendAnswer) => super.noSuchMethod(
-        Invocation.setter(
-          #timerResendAnswer,
-          _timerResendAnswer,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerConnectionFailed(_i22.Timer? _timerConnectionFailed) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #timerConnectionFailed,
-          _timerConnectionFailed,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerDisconnected(_i22.Timer? _timerDisconnected) => super.noSuchMethod(
-        Invocation.setter(
-          #timerDisconnected,
-          _timerDisconnected,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timerEndCallDispose(_i22.Timer? _timerEndCallDispose) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #timerEndCallDispose,
-          _timerEndCallDispose,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<_i93.CallTimer> get callTimer => (super.noSuchMethod(
-        Invocation.getter(#callTimer),
-        returnValue: _FakeBehaviorSubject_2<_i93.CallTimer>(
-          this,
-          Invocation.getter(#callTimer),
-        ),
-      ) as _i4.BehaviorSubject<_i93.CallTimer>);
-  @override
-  set callTimer(_i4.BehaviorSubject<_i93.CallTimer>? _callTimer) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #callTimer,
-          _callTimer,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set timer(_i22.Timer? _timer) => super.noSuchMethod(
-        Invocation.setter(
-          #timer,
-          _timer,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get mute_camera => (super.noSuchMethod(
-        Invocation.getter(#mute_camera),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#mute_camera),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set mute_camera(_i4.BehaviorSubject<bool>? _mute_camera) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #mute_camera,
-          _mute_camera,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<_i92.CallStatus> get callingStatus => (super.noSuchMethod(
-        Invocation.getter(#callingStatus),
-        returnValue: _FakeBehaviorSubject_2<_i92.CallStatus>(
-          this,
-          Invocation.getter(#callingStatus),
-        ),
-      ) as _i4.BehaviorSubject<_i92.CallStatus>);
-  @override
-  set callingStatus(_i4.BehaviorSubject<_i92.CallStatus>? _callingStatus) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #callingStatus,
-          _callingStatus,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get switching => (super.noSuchMethod(
-        Invocation.getter(#switching),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#switching),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set switching(_i4.BehaviorSubject<bool>? _switching) => super.noSuchMethod(
-        Invocation.setter(
-          #switching,
-          _switching,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get sharing => (super.noSuchMethod(
-        Invocation.getter(#sharing),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#sharing),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set sharing(_i4.BehaviorSubject<bool>? _sharing) => super.noSuchMethod(
-        Invocation.setter(
-          #sharing,
-          _sharing,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get incomingSharing => (super.noSuchMethod(
-        Invocation.getter(#incomingSharing),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#incomingSharing),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingSharing(_i4.BehaviorSubject<bool>? _incomingSharing) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingSharing,
-          _incomingSharing,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get videoing => (super.noSuchMethod(
-        Invocation.getter(#videoing),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#videoing),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set videoing(_i4.BehaviorSubject<bool>? _videoing) => super.noSuchMethod(
-        Invocation.setter(
-          #videoing,
-          _videoing,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get incomingVideo => (super.noSuchMethod(
-        Invocation.getter(#incomingVideo),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#incomingVideo),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingVideo(_i4.BehaviorSubject<bool>? _incomingVideo) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingVideo,
-          _incomingVideo,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get incomingVideoSwitch => (super.noSuchMethod(
-        Invocation.getter(#incomingVideoSwitch),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#incomingVideoSwitch),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingVideoSwitch(_i4.BehaviorSubject<bool>? _incomingVideoSwitch) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingVideoSwitch,
-          _incomingVideoSwitch,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get desktopDualVideo => (super.noSuchMethod(
-        Invocation.getter(#desktopDualVideo),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#desktopDualVideo),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set desktopDualVideo(_i4.BehaviorSubject<bool>? _desktopDualVideo) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #desktopDualVideo,
-          _desktopDualVideo,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get isSpeaker => (super.noSuchMethod(
-        Invocation.getter(#isSpeaker),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#isSpeaker),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set isSpeaker(_i4.BehaviorSubject<bool>? _isSpeaker) => super.noSuchMethod(
-        Invocation.setter(
-          #isSpeaker,
-          _isSpeaker,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<bool> get incomingCallOnHold => (super.noSuchMethod(
-        Invocation.getter(#incomingCallOnHold),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#incomingCallOnHold),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingCallOnHold(_i4.BehaviorSubject<bool>? _incomingCallOnHold) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingCallOnHold,
-          _incomingCallOnHold,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  bool get isMicMuted => (super.noSuchMethod(
-        Invocation.getter(#isMicMuted),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool get isCaller => (super.noSuchMethod(
-        Invocation.getter(#isCaller),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool get isConnected => (super.noSuchMethod(
-        Invocation.getter(#isConnected),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool get isSharing => (super.noSuchMethod(
-        Invocation.getter(#isSharing),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool get isVideo => (super.noSuchMethod(
-        Invocation.getter(#isVideo),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool get isInitRenderer => (super.noSuchMethod(
-        Invocation.getter(#isInitRenderer),
-        returnValue: false,
-      ) as bool);
-  @override
-  set setRenderer(bool? isInit) => super.noSuchMethod(
-        Invocation.setter(
-          #setRenderer,
-          isInit,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i15.StatsReport get selectedCandidate => (super.noSuchMethod(
-        Invocation.getter(#selectedCandidate),
-        returnValue: _FakeStatsReport_22(
-          this,
-          Invocation.getter(#selectedCandidate),
-        ),
-      ) as _i15.StatsReport);
-  @override
-  Map<int, String> get callEvents => (super.noSuchMethod(
-        Invocation.getter(#callEvents),
-        returnValue: <int, String>{},
-      ) as Map<int, String>);
-  @override
-  _i22.Future<void> initCall({bool? isOffer = false}) => (super.noSuchMethod(
-        Invocation.method(
-          #initCall,
-          [],
-          {#isOffer: isOffer},
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<bool> requestPhoneStatePermission() => (super.noSuchMethod(
-        Invocation.method(
-          #requestPhoneStatePermission,
-          [],
-        ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
-  @override
-  void startListenToPhoneCallState() => super.noSuchMethod(
-        Invocation.method(
-          #startListenToPhoneCallState,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void onRTCPeerConnectionDisconnected() => super.noSuchMethod(
-        Invocation.method(
-          #onRTCPeerConnectionDisconnected,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i22.Future<void> onRTCPeerConnectionConnected() => (super.noSuchMethod(
-        Invocation.method(
-          #onRTCPeerConnectionConnected,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  void onRTCPeerConnectionStateFailed() => super.noSuchMethod(
-        Invocation.method(
-          #onRTCPeerConnectionStateFailed,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i22.Future<void> shareScreen({
-    bool? isWindows = false,
-    _i15.DesktopCapturerSource? source,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #shareScreen,
-          [],
-          {
-            #isWindows: isWindows,
-            #source: source,
-          },
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  bool muteMicrophone() => (super.noSuchMethod(
-        Invocation.method(
-          #muteMicrophone,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool enableSpeakerVoice() => (super.noSuchMethod(
-        Invocation.method(
-          #enableSpeakerVoice,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  _i22.Future<bool> switchCamera() => (super.noSuchMethod(
-        Invocation.method(
-          #switchCamera,
-          [],
-        ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
-  @override
-  bool toggleDesktopDualVideo() => (super.noSuchMethod(
-        Invocation.method(
-          #toggleDesktopDualVideo,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  bool muteCamera() => (super.noSuchMethod(
-        Invocation.method(
-          #muteCamera,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
-  _i22.Future<void> startCall(
-    _i3.Uid? roomId, {
-    bool? isVideo = false,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startCall,
-          [roomId],
-          {#isVideo: isVideo},
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> acceptCall(_i3.Uid? roomId) => (super.noSuchMethod(
-        Invocation.method(
-          #acceptCall,
-          [roomId],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> declineCall() => (super.noSuchMethod(
-        Invocation.method(
-          #declineCall,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> receivedBusyCall() => (super.noSuchMethod(
-        Invocation.method(
-          #receivedBusyCall,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> receivedDeclinedCall() => (super.noSuchMethod(
-        Invocation.method(
-          #receivedDeclinedCall,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> receivedEndCall(int? callDuration) => (super.noSuchMethod(
-        Invocation.method(
-          #receivedEndCall,
-          [callDuration],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  _i22.Future<void> cancelCallNotification() => (super.noSuchMethod(
-        Invocation.method(
-          #cancelCallNotification,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  void endCall() => super.noSuchMethod(
-        Invocation.method(
-          #endCall,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  int calculateCallEndTime() => (super.noSuchMethod(
-        Invocation.method(
-          #calculateCallEndTime,
-          [],
-        ),
-        returnValue: 0,
-      ) as int);
-  @override
-  _i22.Future<void> reset() => (super.noSuchMethod(
-        Invocation.method(
-          #reset,
-          [],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
-  @override
-  void startCallTimer() => super.noSuchMethod(
-        Invocation.method(
-          #startCallTimer,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i22.Future<void> fetchUserCallList(_i3.Uid? roomUid) => (super.noSuchMethod(
-        Invocation.method(
-          #fetchUserCallList,
-          [roomUid],
-        ),
-        returnValue: _i22.Future<void>.value(),
-        returnValueForMissingStub: _i22.Future<void>.value(),
-      ) as _i22.Future<void>);
 }
