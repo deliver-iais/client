@@ -10,7 +10,7 @@ import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
+as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -143,7 +143,10 @@ class _AttachContactState extends State<AttachContact> {
                   overflow: TextOverflow.fade,
                   maxLines: 1,
                   softWrap: false,
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .subtitle1,
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -153,7 +156,7 @@ class _AttachContactState extends State<AttachContact> {
                     ),
                   ),
                   onPressed: () {
-                    widget.pop();
+                    Navigator.pop(c);
                     Navigator.pop(context);
 
                     _messageRepo.sendShareUidMessage(
@@ -164,8 +167,6 @@ class _AttachContactState extends State<AttachContact> {
                         ..phoneNumber = "${contact.countryCode}"
                             "${contact.nationalNumber}",
                     );
-
-                    // Navigator.pop(context);
                   },
                   child: Text(
                     _i18n.get("share_contact"),
