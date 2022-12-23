@@ -117,7 +117,7 @@ dependencies:
   image_cropper: 3.0.1
   image_size_getter: 2.1.2
   intl: 0.17.0
-  js: 0.6.4
+  js: 0.6.6
   just_audio: 0.9.30
   just_audio_windows:
     git:
@@ -130,7 +130,7 @@ dependencies:
   lottie: 2.1.0
   map_launcher: 2.4.0
   marquee: 2.2.3
-  material_color_utilities: 0.1.5
+  material_color_utilities: 0.2.0
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime_type: 1.0.0
@@ -138,7 +138,7 @@ dependencies:
   modal_bottom_sheet: 2.1.2
   open_filex: 4.3.2
   pasteboard: 0.2.0
-  path: 1.8.2
+  path: 1.8.3
   path_provider: 2.0.11
   path_provider_android: 2.0.22
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
