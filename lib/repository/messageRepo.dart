@@ -684,6 +684,7 @@ class MessageRepo {
     );
 
     if (fileInfo != null) {
+      fileInfo.caption = caption ?? "";
       final newJson = fileInfo.writeToJson();
       for (final pendingMessage in pendingMessages) {
         final newPm = pendingMessage.copyWith(
