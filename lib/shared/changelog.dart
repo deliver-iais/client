@@ -2,6 +2,7 @@
 
 const List<String> FARSI_FEATURE_LIST = [
   'باز طراحی صفحه Emoji ها در موبایل و در دسکتاپ',
+  'رفع مشکل عدم ست شدن توضیحات برای عکس در هنگام اشتراک گذاری از اپلیکیش‌های دیگر',
   'اضافه کردن قابلیت share کردن کانتکت‌ها در Attachment در موبایل',
   'آپدیت شدن پیام‌ها و همگام سازی اولیه با سرعت خیلی بیشتر',
   'رفع باگ‌های سینک نبودن پیام‌های دیده نشده و باگ‌های مربوط به آن',
@@ -11,6 +12,7 @@ const List<String> FARSI_FEATURE_LIST = [
   'رفع مشکل نمایش Attach در اندرویدهای ۱۳ به بعد',
   'رفع مشکل نمایش، دریافت و ارسال فایل‌ها در اندروید ۱۳ به بعد',
   'نمایش بهتر Video ها در گوشی',
+  'اضافه کردن حالت نوتیفیکیشن پیشرفته که دریافت نوتیفیکیشن را بهبود می‌دهد',
   'اضافه کردن قابلیت نمایش ویدیو در ویندوز و لینوکس',
   'باگ دوربین‌ها و جهت نمایش تصاویر در تماس‌های تصویری',
   'رفع مشکل نمایش تماس‌ها در لیست تماس',
@@ -19,6 +21,7 @@ const List<String> FARSI_FEATURE_LIST = [
 
 const List<String> ENGLISH_FEATURE_LIST = [
   'Re-designing Emoji Page in Mobile and Desktop',
+  'Bug fix in setting caption for files which is sharing from other applications',
   'Adding sharing contact in attachment dialog in mobile',
   'Faster Updating ans Syncing Process',
   'Bug fix in Seen and Unread Counts',
@@ -28,6 +31,7 @@ const List<String> ENGLISH_FEATURE_LIST = [
   'Bug fix in showing attachment dialog in android 13',
   'Bug fix in showing, sending, receiving files in android 13',
   'Better Video player in android',
+  'Adding new advance notification mode in application for better receiving notifications',
   'Adding video player in windows and linux',
   'Bug fix in camera direction in video calls',
   'Bug fix showing calls in calls page',
