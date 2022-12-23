@@ -55,24 +55,27 @@ class _ShareInputFileState extends State<ShareInputFile> {
             if (widget.inputShareText.isNotEmpty)
               buildSend()
             else
-              ShareBoxInputCaption(
-                captionEditingController: _textEditingController,
-                count: _selectedRooms.length,
-                send: () {
-                  for (final path in widget.inputSharedFilePath) {
-                    _messageRepo.sendFileToChats(
-                      _selectedRooms,
-                      File(
-                        path,
-                        path.split(".").last,
-                      ),
-                      caption: widget.inputSharedFilePath.last == path
-                          ? _textEditingController.text
-                          : "",
-                    );
-                  }
-                  pop();
-                },
+              Align(
+                alignment: AlignmentDirectional.bottomCenter,
+                child: ShareBoxInputCaption(
+                  captionEditingController: _textEditingController,
+                  count: _selectedRooms.length,
+                  send: () {
+                    for (final path in widget.inputSharedFilePath) {
+                      _messageRepo.sendFileToChats(
+                        _selectedRooms,
+                        File(
+                          path,
+                          path.split(".").last,
+                        ),
+                        caption: widget.inputSharedFilePath.last == path
+                            ? _textEditingController.text
+                            : "",
+                      );
+                    }
+                    pop();
+                  },
+                ),
               )
         ],
       ),
