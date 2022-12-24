@@ -39,14 +39,15 @@ class NewContactState extends State<NewContact> {
       body: FluidContainerWidget(
         child: Section(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Directionality(
-                    textDirection: _i18n.defaultTextDirection,
-                    child: AutoDirectionTextField(
+            Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    AutoDirectionTextField(
                       onChanged: (firstName) {
                         _firstName = firstName;
                       },
@@ -55,11 +56,8 @@ class NewContactState extends State<NewContact> {
                       decoration:
                           InputDecoration(labelText: _i18n.get("firstName")),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Directionality(
-                    textDirection: _i18n.defaultTextDirection,
-                    child: AutoDirectionTextField(
+                    const SizedBox(height: 10),
+                    AutoDirectionTextField(
                       onChanged: (lastName) {
                         _lastName = lastName;
                       },
@@ -68,50 +66,49 @@ class NewContactState extends State<NewContact> {
                       decoration:
                           InputDecoration(labelText: _i18n.get("lastName")),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Directionality(
-                    textDirection: _i18n.defaultTextDirection,
-                    child: IntlPhoneField(
-                      controller: TextEditingController(),
-                      onMaxLengthChanged: (_) {},
-                      validator: (value) =>
-                          (value!.length == 11 && value[0] != '0') ||
-                                  (value.length < 10 &&
-                                      (value.isNotEmpty && value[0] == '0'))
-                              ? _i18n.get("invalid_mobile_number")
-                              : null,
-                      style: theme.textTheme.bodyText1,
-                      onChanged: (ph) {
-                        _phoneNumber = ph;
-                      },
-                      onSubmitted: (p) {
-                        _phoneNumber = p;
-                        // checkAndGoNext();
-                      },
+                    const SizedBox(height: 50),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: IntlPhoneField(
+                        controller: TextEditingController(),
+                        onMaxLengthChanged: (_) {},
+                        validator: (value) =>
+                            (value!.length == 11 && value[0] != '0') ||
+                                    (value.length < 10 &&
+                                        (value.isNotEmpty && value[0] == '0'))
+                                ? _i18n.get("invalid_mobile_number")
+                                : null,
+                        style: theme.textTheme.bodyText1,
+                        onChanged: (ph) {
+                          _phoneNumber = ph;
+                        },
+                        onSubmitted: (p) {
+                          _phoneNumber = p;
+                          // checkAndGoNext();
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
+                    const SizedBox(height: 10),
+                    TextButton(
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          final contactAdded =
-                              await _contactRepo.sendNewContact(
+                          final contactUid = await _contactRepo.sendNewContact(
                             Contact()
                               ..phoneNumber = _phoneNumber!
                               ..firstName = _firstName
                               ..lastName = _lastName,
                           );
-                          showResult(contactAdded: contactAdded);
-                          if (contactAdded) _routingServices.pop();
+                          if (contactUid != null) {
+                            _routingServices.openRoom(contactUid);
+                          } else {
+                            showContactNotExistToast();
+                          }
                         }
                       },
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
           ],
@@ -120,17 +117,10 @@ class NewContactState extends State<NewContact> {
     );
   }
 
-  void showResult({bool contactAdded = false}) {
-    if (contactAdded) {
-      ToastDisplay.showToast(
-        toastText: _i18n.get("contactAdd"),
-        toastContext: context,
-      );
-    } else {
-      ToastDisplay.showToast(
-        toastText: _i18n.get("contact_not_exist"),
-        toastContext: context,
-      );
-    }
+  void showContactNotExistToast() {
+    ToastDisplay.showToast(
+      toastText: _i18n.get("contact_not_exist"),
+      toastContext: context,
+    );
   }
 }
