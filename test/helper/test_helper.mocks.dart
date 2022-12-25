@@ -3877,7 +3877,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getTimeCounter,
+          #getAndUpdateTimeCounter,
           [
             key,
             period,
@@ -4332,14 +4332,14 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<bool> sendNewContact(_i59.Contact? contact) =>
+  _i22.Future<String?> sendNewContact(_i59.Contact? contact) =>
       (super.noSuchMethod(
         Invocation.method(
           #sendNewContact,
           [contact],
         ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
+        returnValue: _i22.Future<String?>.value(),
+      ) as _i22.Future<String?>);
   @override
   _i22.Stream<List<_i60.Contact>> watchAllMessengerContacts() =>
       (super.noSuchMethod(
