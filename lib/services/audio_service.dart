@@ -167,44 +167,49 @@ class AudioService {
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    _mainPlayer.completedStream.listen((_) async {
-      //todo check to see if message has been edited or deleted
-      stopAudio();
-      if (autoPlayMediaList.isNotEmpty &&
-          autoPlayMediaIndex != autoPlayMediaList.length) {
-        final json =
-            jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
-        final fileUuid = json["uuid"];
-        final fileName = json["name"];
-        final fileDuration = json["duration"];
-        final filePath = await _getFilePathFromMedia();
-        if (filePath != null) {
-          playAudioMessage(filePath, fileUuid, fileName, fileDuration);
-          autoPlayMediaIndex++;
+    try{
+      _mainPlayer.completedStream.listen((_) async {
+        //todo check to see if message has been edited or deleted
+        stopAudio();
+        if (autoPlayMediaList.isNotEmpty &&
+            autoPlayMediaIndex != autoPlayMediaList.length) {
+          final json =
+          jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+          final fileUuid = json["uuid"];
+          final fileName = json["name"];
+          final fileDuration = json["duration"];
+          final filePath = await _getFilePathFromMedia();
+          if (filePath != null) {
+            playAudioMessage(filePath, fileUuid, fileName, fileDuration);
+            autoPlayMediaIndex++;
 
-          //looking for new media
-          // ignore: invariant_booleans
-          if (autoPlayMediaList.length == autoPlayMediaIndex) {
-            final list =
-                await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
-              messageId: autoPlayMediaList.last.messageId,
-              roomUid: autoPlayMediaList.last.roomId,
-              messageTime: autoPlayMediaList.last.createdOn,
-            );
+            //looking for new media
+            // ignore: invariant_booleans
+            if (autoPlayMediaList.length == autoPlayMediaIndex) {
+              final list =
+              await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+                messageId: autoPlayMediaList.last.messageId,
+                roomUid: autoPlayMediaList.last.roomId,
+                messageTime: autoPlayMediaList.last.createdOn,
+              );
 
-            if (list != null && list.isNotEmpty) {
-              autoPlayMediaList = list;
-              autoPlayMediaIndex = 0;
+              if (list != null && list.isNotEmpty) {
+                autoPlayMediaList = list;
+                autoPlayMediaIndex = 0;
+              }
+            }
+
+            //download next file
+            if (autoPlayMediaIndex != autoPlayMediaList.length) {
+              await _getFilePathFromMedia();
             }
           }
-
-          //download next file
-          if (autoPlayMediaIndex != autoPlayMediaList.length) {
-            await _getFilePathFromMedia();
-          }
         }
-      }
-    });
+      });
+    }catch(e){
+      GetIt.I.get<Logger>().e(e);
+    }
+
   }
 
   Future<String?> _getFilePathFromMedia() {
