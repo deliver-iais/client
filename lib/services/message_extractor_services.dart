@@ -307,8 +307,9 @@ class MessageExtractorServices {
           pe.mucSpecificPersistentEvent,
         );
         String? endPart;
-        if(pe.mucSpecificPersistentEvent.issue == MucSpecificPersistentEvent_Issue.NAME_CHANGED){
-          endPart = "\""+pe.mucSpecificPersistentEvent.name+"\" ";
+        if (pe.mucSpecificPersistentEvent.issue ==
+            MucSpecificPersistentEvent_Issue.NAME_CHANGED) {
+          endPart = "\"${pe.mucSpecificPersistentEvent.name}\" ";
         }
         return [
           issuer,
