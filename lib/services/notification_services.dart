@@ -167,7 +167,7 @@ class NotificationServices {
     String roomUid, {
     String? roomName,
   }) {
-    if (_routingService.isInRoom(roomUid) && !isDesktop) {
+    if (_routingService.isInRoom(roomUid)) {
       _playSoundIn();
     } else {
       _showTextNotification(message, roomUid, roomName: roomName);
