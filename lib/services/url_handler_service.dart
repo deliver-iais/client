@@ -253,8 +253,7 @@ class UrlHandlerService {
                     TextButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
-                        final newContactAdded =
-                            await _contactRepo.sendNewContact(
+                        final contactUid = await _contactRepo.sendNewContact(
                           Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -263,7 +262,7 @@ class UrlHandlerService {
                               nationalNumber: Int64(nationalNumber),
                             ),
                         );
-                        if (newContactAdded) {
+                        if (contactUid != null) {
                           ToastDisplay.showToast(
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",
@@ -579,7 +578,8 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(c);
-                    await launchUrl(Uri.parse(uri));
+                    await launchUrl(Uri.parse(uri),
+                        mode: LaunchMode.externalApplication);
                   },
                   child: Text(_i18n.get("open")),
                 ),

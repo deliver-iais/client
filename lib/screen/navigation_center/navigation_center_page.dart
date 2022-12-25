@@ -10,6 +10,7 @@ import 'package:deliver/screen/navigation_center/widgets/feature_discovery_descr
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -27,9 +28,7 @@ import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
@@ -67,6 +66,7 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
@@ -366,9 +366,11 @@ class NavigationCenterState extends State<NavigationCenter>
                                         vertical: 8,
                                       ),
                                     ),
-                                    onPressed: () {
-                                      launchUrl(Uri.parse(downloadLink.url));
-                                    },
+                                    onPressed: () =>
+                                        _urlHandlerService.handleNormalLink(
+                                      downloadLink.url,
+                                      context,
+                                    ),
                                     child: Text(
                                       downloadLink.label,
                                       style: const TextStyle(fontSize: 16),
@@ -385,9 +387,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                     _i18n.get("remind_me_later"),
                                     style: const TextStyle(fontSize: 16),
                                   ),
-                                  onPressed: () {
-                                    Navigator.pop(c);
-                                  },
+                                  onPressed: () => Navigator.pop(c),
                                 )
                               ],
                             )

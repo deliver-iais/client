@@ -487,17 +487,13 @@ class RoutingService {
   }
 
   Future<void> logout() async {
-    final coreServices = GetIt.I.get<CoreServices>();
-    final authRepo = GetIt.I.get<AuthRepo>();
-    final accountRepo = GetIt.I.get<AccountRepo>();
-    final fireBaseServices = GetIt.I.get<FireBaseServices>();
-    final dbManager = GetIt.I.get<DBManager>();
-    if (authRepo.isLoggedIn()) {
-      await accountRepo.logOut();
-      if (!isDesktop) fireBaseServices.deleteToken();
-      coreServices.closeConnection();
-      await authRepo.deleteTokens();
-      await dbManager.deleteDB();
+    final autRepo = GetIt.I.get<AuthRepo>();
+    if (autRepo.isLoggedIn()) {
+      await GetIt.I.get<AccountRepo>().logOut();
+      if (!isDesktop) GetIt.I.get<FireBaseServices>().deleteToken();
+      GetIt.I.get<CoreServices>().closeConnection();
+      await autRepo.deleteTokens();
+      await GetIt.I.get<DBManager>().deleteDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
