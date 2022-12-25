@@ -46,20 +46,23 @@ class AuthRepo {
 
   String? get accessToken => _accessToken;
 
-  Future<void> init() async {
+  Future<void> init({bool retry = false}) async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       return _setTokensAndCurrentUserUid(accessToken, refreshToken);
-    } catch (_) {
-      _logger.e(_.toString());
+    } catch (e) {
+      _logger.e(e);
+      if (retry) {
+        return init();
+      }
     }
   }
 
   Future<void> setCurrentUserUid() async {
     try {
-      await init();
+      await init(retry: true);
       final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
       if (res != null) currentUserUid = (res).asUid();
     } catch (e) {
