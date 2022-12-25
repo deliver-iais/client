@@ -520,7 +520,7 @@ packages:
   extended_image:
     dependency: "direct main"
     description:
-      name: extended_image
+      name: extended_image.dart
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.3.4"
