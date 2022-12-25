@@ -579,7 +579,8 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(c);
-                    await launchUrl(Uri.parse(uri));
+                    await launchUrl(Uri.parse(uri),
+                        mode: LaunchMode.externalApplication);
                   },
                   child: Text(_i18n.get("open")),
                 ),
