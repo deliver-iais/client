@@ -25,6 +25,10 @@ class PersistentEventHandlerService {
     required bool isChannel,
   }) async {
     if (isChannel) {
+      if(mucSpecificPersistentEvent.issue == MucSpecificPersistentEvent_Issue.NAME_CHANGED
+      || mucSpecificPersistentEvent.issue == MucSpecificPersistentEvent_Issue.AVATAR_CHANGED){
+        return Tuple2("", false);
+      }
       final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
         roomUid,
@@ -94,12 +98,17 @@ class PersistentEventHandlerService {
         );
 
       case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-        return _i18n.verb(
-          isChannel ? "change_channel_avatar" : "change_group_avatar",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
+        if(isChannel){
+          return _i18n.get("change_channel_avatar");
+        }else {
+          return _i18n.verb(
+            "change_group_avatar",
+            isFirstPerson: _authRepo.isCurrentUser(
+              persistentEventMessage.mucSpecificPersistentEvent.issuer
+                  .asString(),
+            ),
+          );
+        }
 
       case MucSpecificPersistentEvent_Issue.JOINED_USER:
         return _i18n.verb(
@@ -135,12 +144,15 @@ class PersistentEventHandlerService {
         );
 
       case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-        return _i18n.verb(
-          isChannel ? "changed_channel_name" : "changed_group_name",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
+        if(isChannel){
+          return _i18n.get("changed_channel_name");
+        }else{
+          return _i18n.verb("changed_group_name",
+            isFirstPerson: _authRepo.isCurrentUser(
+              persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            ),
+          );
+        }
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return _i18n.verb(
           "pinned",
