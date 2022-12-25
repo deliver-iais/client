@@ -306,19 +306,25 @@ class MessageExtractorServices {
             .getAssignerNameFromMucSpecificPersistentEvent(
           pe.mucSpecificPersistentEvent,
         );
+        String? endPart;
+        if(pe.mucSpecificPersistentEvent.issue == MucSpecificPersistentEvent_Issue.NAME_CHANGED){
+          endPart = "\""+pe.mucSpecificPersistentEvent.name+"\" ";
+        }
         return [
           issuer,
           if (_i18n.isPersian)
             [
+              if (endPart != null) endPart,
               issue,
               if (pinMessage != null) pinMessage,
-              if (assignee != null) assignee
+              if (assignee != null) assignee,
             ].reversed.join(" ").trim()
           else
             [
               issue,
               if (pinMessage != null) pinMessage,
-              if (assignee != null) assignee
+              if (assignee != null) assignee,
+              if (endPart != null) endPart,
             ].join(" ").trim()
         ].join(" ").trim();
       case PersistentEvent_Type.messageManipulationPersistentEvent:
