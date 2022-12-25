@@ -291,12 +291,11 @@ class MessageRepo {
     return false;
   }
 
-
   Future<void> processSeen(RoomMetadata roomMetadata) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
       final int lastSeenId =
-      max(seen.messageId, roomMetadata.lastSeenId.toInt());
+          max(seen.messageId, roomMetadata.lastSeenId.toInt());
       if (lastSeenId > 0) {
         await _updateCurrentUserLastSeen(
           max(
@@ -324,10 +323,10 @@ class MessageRepo {
   }
 
   Future<void> _updateCurrentUserLastSeen(
-      int lastSeenMessageId,
-      String roomUid,
-      int lastMessageId,
-      ) async {
+    int lastSeenMessageId,
+    String roomUid,
+    int lastMessageId,
+  ) async {
     unawaited(
       (_seenDao.updateMySeen(
         uid: roomUid,
@@ -347,7 +346,9 @@ class MessageRepo {
     }
   }
 
-  Future<void> _notifyOfflineMessagesWhenAppInBackground(RoomMetadata roomMetadata) async {
+  Future<void> _notifyOfflineMessagesWhenAppInBackground(
+    RoomMetadata roomMetadata,
+  ) async {
     if (roomMetadata.lastMessageId > roomMetadata.lastSeenId) {
       unawaited(
         fetchRoomLastMessage(
@@ -1101,8 +1102,12 @@ class MessageRepo {
     List<Message> forwardedMessage,
   ) async {
     for (final forwardedMessage in forwardedMessage) {
-      final msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
-          .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
+      final msg = _createMessage(
+        room,
+        forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
+            ? forwardedMessage.roomUid
+            : forwardedMessage.forwardedFrom,
+      ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 

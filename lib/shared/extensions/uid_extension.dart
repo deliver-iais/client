@@ -64,4 +64,6 @@ extension StringUidExtension on String {
   bool isSystem() => asUid().isSystem();
 
   bool isMuc() => isGroup() || isChannel();
+
+  bool isEmptyUid() => asUid().node.isEmpty;
 }

@@ -25,6 +25,12 @@ class PersistentEventHandlerService {
     required bool isChannel,
   }) async {
     if (isChannel) {
+      if (mucSpecificPersistentEvent.issue ==
+              MucSpecificPersistentEvent_Issue.NAME_CHANGED ||
+          mucSpecificPersistentEvent.issue ==
+              MucSpecificPersistentEvent_Issue.AVATAR_CHANGED) {
+        return const Tuple2("", false);
+      }
       final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
         roomUid,
@@ -42,7 +48,8 @@ class PersistentEventHandlerService {
   }
 
   Future<String?> getAssignerNameFromMucSpecificPersistentEvent(
-      MucSpecificPersistentEvent mucSpecificPersistentEvent,) async {
+    MucSpecificPersistentEvent mucSpecificPersistentEvent,
+  ) async {
     if ({
       MucSpecificPersistentEvent_Issue.ADD_USER,
       MucSpecificPersistentEvent_Issue.MUC_CREATED,
@@ -55,14 +62,16 @@ class PersistentEventHandlerService {
     return null;
   }
 
-  Future<String> getPinnedMessageBriefContent(String roomUid,
-      int messageId,) async {
+  Future<String> getPinnedMessageBriefContent(
+    String roomUid,
+    int messageId,
+  ) async {
     final message = await _messageDao.getMessage(
       roomUid,
       messageId,
     );
     final messageSRF =
-    await _messageExtractorServices.extractMessageSimpleRepresentative(
+        await _messageExtractorServices.extractMessageSimpleRepresentative(
       _messageExtractorServices.extractProtocolBufferMessage(message!),
     );
     var content = "";
@@ -80,7 +89,8 @@ class PersistentEventHandlerService {
     return '"${content.substring(0, min(content.length, 15))}${content.length > 15 ? "..." : ""}"';
   }
 
-  String getMucSpecificPersistentEventIssue(PersistentEvent persistentEventMessage, {
+  String getMucSpecificPersistentEventIssue(
+    PersistentEvent persistentEventMessage, {
     bool isChannel = false,
   }) {
     switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
@@ -94,12 +104,17 @@ class PersistentEventHandlerService {
         );
 
       case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-        return _i18n.verb(
-          isChannel ? "change_channel_avatar" : "change_group_avatar",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
+        if (isChannel) {
+          return _i18n.get("change_channel_avatar");
+        } else {
+          return _i18n.verb(
+            "change_group_avatar",
+            isFirstPerson: _authRepo.isCurrentUser(
+              persistentEventMessage.mucSpecificPersistentEvent.issuer
+                  .asString(),
+            ),
+          );
+        }
 
       case MucSpecificPersistentEvent_Issue.JOINED_USER:
         return _i18n.verb(
@@ -135,12 +150,17 @@ class PersistentEventHandlerService {
         );
 
       case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-        return _i18n.verb(
-          isChannel ? "changed_channel_name" : "changed_group_name",
-          isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
-          ),
-        );
+        if (isChannel) {
+          return _i18n.get("changed_channel_name");
+        } else {
+          return _i18n.verb(
+            "changed_group_name",
+            isFirstPerson: _authRepo.isCurrentUser(
+              persistentEventMessage.mucSpecificPersistentEvent.issuer
+                  .asString(),
+            ),
+          );
+        }
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return _i18n.verb(
           "pinned",

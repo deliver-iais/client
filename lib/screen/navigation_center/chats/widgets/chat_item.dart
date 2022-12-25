@@ -185,7 +185,7 @@ class ChatItemState extends State<ChatItem> {
       message: message,
       showSeenStatus: _authRepo.isCurrentUser(message.from),
       showSender:
-          widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
+          widget.room.uid.isGroup() || _authRepo.isCurrentUser(message.from),
     );
   }
 
