@@ -1411,10 +1411,11 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<void> init() => (super.noSuchMethod(
+  _i22.Future<void> init({bool? retry = false}) => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
+          {#retry: retry},
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
