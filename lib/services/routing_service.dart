@@ -487,25 +487,18 @@ class RoutingService {
   }
 
   Future<void> logout() async {
-    final coreServices = GetIt.I.get<CoreServices>();
-    final authRepo = GetIt.I.get<AuthRepo>();
-    final accountRepo = GetIt.I.get<AccountRepo>();
-    final fireBaseServices = GetIt.I.get<FireBaseServices>();
-    final dbManager = GetIt.I.get<DBManager>();
-    if (authRepo.isLoggedIn()) {
-      await accountRepo.logOut();
-      if (!isDesktop) fireBaseServices.deleteToken();
-      coreServices.closeConnection();
-      await authRepo.deleteTokens();
-      await dbManager.deleteDB();
-      popAll();
-      await mainNavigatorState.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (c) => const LoginPage(key: Key("/login_page")),
-        ),
-        (route) => false,
-      );
-    }
+    await GetIt.I.get<AccountRepo>().logOut();
+    if (!isDesktop) GetIt.I.get<FireBaseServices>().deleteToken();
+    GetIt.I.get<CoreServices>().closeConnection();
+    await GetIt.I.get<AuthRepo>().deleteTokens();
+    await GetIt.I.get<DBManager>().deleteDB();
+    popAll();
+    await mainNavigatorState.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (c) => const LoginPage(key: Key("/login_page")),
+      ),
+      (route) => false,
+    );
   }
 
   Widget backButtonLeading({Color? color}) => BackButton(

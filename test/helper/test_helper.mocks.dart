@@ -388,26 +388,31 @@ class MockAnalyticsRepo extends _i1.Mock implements _i21.AnalyticsRepo {
         Invocation.getter(#requestsFrequency),
         returnValue: <String, int>{},
       ) as Map<String, int>);
+
   @override
   Map<String, int> get pageViewFrequency => (super.noSuchMethod(
         Invocation.getter(#pageViewFrequency),
         returnValue: <String, int>{},
       ) as Map<String, int>);
+
   @override
   Map<String, int> get daoFrequency => (super.noSuchMethod(
         Invocation.getter(#daoFrequency),
         returnValue: <String, int>{},
       ) as Map<String, int>);
+
   @override
   _i22.Stream<void> get events => (super.noSuchMethod(
         Invocation.getter(#events),
         returnValue: _i22.Stream<void>.empty(),
       ) as _i22.Stream<void>);
+
   @override
   _i22.Stream<void> get daoEvents => (super.noSuchMethod(
         Invocation.getter(#daoEvents),
         returnValue: _i22.Stream<void>.empty(),
       ) as _i22.Stream<void>);
+
   @override
   void incRF(String? key) => super.noSuchMethod(
         Invocation.method(
@@ -416,6 +421,7 @@ class MockAnalyticsRepo extends _i1.Mock implements _i21.AnalyticsRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void incPVF(String? key) => super.noSuchMethod(
         Invocation.method(
@@ -424,6 +430,7 @@ class MockAnalyticsRepo extends _i1.Mock implements _i21.AnalyticsRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void incDao(String? key) => super.noSuchMethod(
         Invocation.method(
@@ -459,6 +466,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void d(
     dynamic message, [
@@ -476,6 +484,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void i(
     dynamic message, [
@@ -493,6 +502,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void w(
     dynamic message, [
@@ -510,6 +520,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void e(
     dynamic message, [
@@ -527,6 +538,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void wtf(
     dynamic message, [
@@ -544,6 +556,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void log(
     _i23.Level? level,
@@ -563,6 +576,7 @@ class MockLogger extends _i1.Mock implements _i23.Logger {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void close() => super.noSuchMethod(
         Invocation.method(
@@ -590,6 +604,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> deleteMessage(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -599,6 +614,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i25.Message?> getMessage(
     String? roomUid,
@@ -614,6 +630,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
+
   @override
   _i22.Future<List<_i25.Message>> getMessagePage(
     String? roomUid,
@@ -631,6 +648,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Future<List<_i25.Message>>.value(<_i25.Message>[]),
       ) as _i22.Future<List<_i25.Message>>);
+
   @override
   _i22.Future<List<_i26.PendingMessage>> getPendingMessages(String? roomUid) =>
       (super.noSuchMethod(
@@ -641,6 +659,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<List<_i26.PendingMessage>>.value(
             <_i26.PendingMessage>[]),
       ) as _i22.Future<List<_i26.PendingMessage>>);
+
   @override
   _i22.Stream<List<_i26.PendingMessage>> watchPendingMessages(
           String? roomUid) =>
@@ -651,6 +670,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Stream<List<_i26.PendingMessage>>.empty(),
       ) as _i22.Stream<List<_i26.PendingMessage>>);
+
   @override
   _i22.Future<_i26.PendingMessage?> getPendingMessage(String? packetId) =>
       (super.noSuchMethod(
@@ -660,6 +680,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Future<_i26.PendingMessage?>.value(),
       ) as _i22.Future<_i26.PendingMessage?>);
+
   @override
   _i22.Stream<_i26.PendingMessage?> watchPendingMessage(String? packetId) =>
       (super.noSuchMethod(
@@ -669,6 +690,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Stream<_i26.PendingMessage?>.empty(),
       ) as _i22.Stream<_i26.PendingMessage?>);
+
   @override
   _i22.Future<List<_i26.PendingMessage>> getAllPendingMessages() =>
       (super.noSuchMethod(
@@ -679,6 +701,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<List<_i26.PendingMessage>>.value(
             <_i26.PendingMessage>[]),
       ) as _i22.Future<List<_i26.PendingMessage>>);
+
   @override
   _i22.Future<void> deletePendingMessage(String? packetId) =>
       (super.noSuchMethod(
@@ -689,6 +712,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> savePendingMessage(_i26.PendingMessage? pm) =>
       (super.noSuchMethod(
@@ -699,6 +723,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i26.PendingMessage?> getPendingEditedMessage(
     String? roomUid,
@@ -714,6 +739,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Future<_i26.PendingMessage?>.value(),
       ) as _i22.Future<_i26.PendingMessage?>);
+
   @override
   _i22.Future<List<_i26.PendingMessage>> getAllPendingEditedMessages() =>
       (super.noSuchMethod(
@@ -724,6 +750,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<List<_i26.PendingMessage>>.value(
             <_i26.PendingMessage>[]),
       ) as _i22.Future<List<_i26.PendingMessage>>);
+
   @override
   _i22.Future<void> deletePendingEditedMessage(
     String? roomUid,
@@ -740,6 +767,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> savePendingEditedMessage(_i26.PendingMessage? pm) =>
       (super.noSuchMethod(
@@ -750,6 +778,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Stream<List<_i26.PendingMessage>> watchPendingEditedMessages(
           String? roomUid) =>
@@ -760,6 +789,7 @@ class MockMessageDao extends _i1.Mock implements _i24.MessageDao {
         ),
         returnValue: _i22.Stream<List<_i26.PendingMessage>>.empty(),
       ) as _i22.Stream<List<_i26.PendingMessage>>);
+
   @override
   _i22.Stream<_i26.PendingMessage?> watchPendingEditedMessage(
     String? roomUid,
@@ -830,6 +860,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i28.Room>> getAllRooms() => (super.noSuchMethod(
         Invocation.method(
@@ -838,6 +869,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Future<List<_i28.Room>>.value(<_i28.Room>[]),
       ) as _i22.Future<List<_i28.Room>>);
+
   @override
   _i22.Stream<List<_i28.Room>> watchAllRooms() => (super.noSuchMethod(
         Invocation.method(
@@ -846,6 +878,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Stream<List<_i28.Room>>.empty(),
       ) as _i22.Stream<List<_i28.Room>>);
+
   @override
   _i22.Future<_i28.Room?> getRoom(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -854,6 +887,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Future<_i28.Room?>.value(),
       ) as _i22.Future<_i28.Room?>);
+
   @override
   _i22.Stream<_i28.Room> watchRoom(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -862,6 +896,7 @@ class MockRoomDao extends _i1.Mock implements _i27.RoomDao {
         ),
         returnValue: _i22.Stream<_i28.Room>.empty(),
       ) as _i22.Stream<_i28.Room>);
+
   @override
   _i22.Future<List<_i28.Room>> getAllGroups() => (super.noSuchMethod(
         Invocation.method(
@@ -886,6 +921,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         Invocation.getter(#activityObject),
         returnValue: <String, _i4.BehaviorSubject<_i30.Activity>>{},
       ) as Map<String, _i4.BehaviorSubject<_i30.Activity>>);
+
   @override
   _i22.Future<String> getSlangName(
     _i3.Uid? uid, {
@@ -899,6 +935,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   bool fastForwardIsVerified(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -907,6 +944,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<bool> isVerified(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -915,12 +953,14 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   String? fastForwardName(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(
         #fastForwardName,
         [uid],
       )) as String?);
+
   @override
   _i22.Future<String> getName(
     _i3.Uid? uid, {
@@ -938,6 +978,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Stream<String?> watchId(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -946,6 +987,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<String?>.empty(),
       ) as _i22.Stream<String?>);
+
   @override
   _i22.Future<bool> deleteRoom(_i3.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -954,6 +996,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<String?> getIdByUid(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -962,6 +1005,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Future<void> updateUserInfo(
     _i3.Uid? uid, {
@@ -976,6 +1020,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void updateActivity(_i30.Activity? activity) => super.noSuchMethod(
         Invocation.method(
@@ -984,6 +1029,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void initActivity(String? roomId) => super.noSuchMethod(
         Invocation.method(
@@ -992,6 +1038,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void updateRoomName(
     _i3.Uid? uid,
@@ -1007,6 +1054,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<bool> isRoomHaveACustomNotification(String? uid) =>
       (super.noSuchMethod(
@@ -1016,6 +1064,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> setRoomCustomNotification(
     String? uid,
@@ -1032,6 +1081,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getRoomCustomNotification(String? uid) =>
       (super.noSuchMethod(
@@ -1041,6 +1091,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Stream<String> watchRoomCustomNotification(String? uid) =>
       (super.noSuchMethod(
@@ -1050,6 +1101,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<String>.empty(),
       ) as _i22.Stream<String>);
+
   @override
   _i22.Future<bool> isRoomMuted(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1058,6 +1110,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<bool> watchIsRoomMuted(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1066,6 +1119,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
+
   @override
   void mute(String? uid) => super.noSuchMethod(
         Invocation.method(
@@ -1074,6 +1128,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void unMute(String? uid) => super.noSuchMethod(
         Invocation.method(
@@ -1082,6 +1137,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<bool> isRoomBlocked(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1090,6 +1146,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<bool?> watchIsRoomBlocked(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1098,6 +1155,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<bool?>.empty(),
       ) as _i22.Stream<bool?>);
+
   @override
   _i22.Stream<List<_i28.Room>> watchAllRooms() => (super.noSuchMethod(
         Invocation.method(
@@ -1106,6 +1164,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<List<_i28.Room>>.empty(),
       ) as _i22.Stream<List<_i28.Room>>);
+
   @override
   _i22.Stream<_i28.Room> watchRoom(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1114,6 +1173,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<_i28.Room>.empty(),
       ) as _i22.Stream<_i28.Room>);
+
   @override
   _i22.Future<_i28.Room?> getRoom(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1122,6 +1182,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<_i28.Room?>.value(),
       ) as _i22.Future<_i28.Room?>);
+
   @override
   _i22.Future<void> updateMentionIds(
     String? roomUid,
@@ -1138,6 +1199,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> processMentionIds(
     String? roomUid,
@@ -1154,6 +1216,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> createRoomIfNotExist(String? roomUid) =>
       (super.noSuchMethod(
@@ -1164,6 +1227,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Stream<_i2.Seen> watchMySeen(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1172,6 +1236,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Stream<_i2.Seen>.empty(),
       ) as _i22.Stream<_i2.Seen>);
+
   @override
   _i22.Future<_i2.Seen> getMySeen(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1186,6 +1251,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
           ),
         )),
       ) as _i22.Future<_i2.Seen>);
+
   @override
   _i22.Future<_i2.Seen?> getOthersSeen(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1194,6 +1260,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<_i2.Seen?>.value(),
       ) as _i22.Future<_i2.Seen?>);
+
   @override
   _i22.Future<void> updateMySeen({
     required String? uid,
@@ -1213,6 +1280,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> updateReplyKeyboard(
     String? replyKeyboardMarkup,
@@ -1229,6 +1297,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> block(
     String? uid, {
@@ -1243,6 +1312,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> fetchBlockedRoom() => (super.noSuchMethod(
         Invocation.method(
@@ -1252,6 +1322,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i3.Uid>> getAllRooms() => (super.noSuchMethod(
         Invocation.method(
@@ -1260,6 +1331,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
       ) as _i22.Future<List<_i3.Uid>>);
+
   @override
   _i22.Future<List<_i3.Uid>> searchInRooms(String? text) => (super.noSuchMethod(
         Invocation.method(
@@ -1268,6 +1340,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
       ) as _i22.Future<List<_i3.Uid>>);
+
   @override
   _i22.Future<String> getUidById(String? id) => (super.noSuchMethod(
         Invocation.method(
@@ -1276,6 +1349,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<_i3.Uid> fetchUidById(String? username) => (super.noSuchMethod(
         Invocation.method(
@@ -1290,6 +1364,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
           ),
         )),
       ) as _i22.Future<_i3.Uid>);
+
   @override
   _i22.Future<void> reportRoom(_i3.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1299,6 +1374,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i28.Room>> getAllGroups() => (super.noSuchMethod(
         Invocation.method(
@@ -1307,6 +1383,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<List<_i28.Room>>.value(<_i28.Room>[]),
       ) as _i22.Future<List<_i28.Room>>);
+
   @override
   void updateRoomDraft(
     String? roomUid,
@@ -1322,6 +1399,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<bool> isDeletedRoom(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -1330,6 +1408,7 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   String getCustomNotificationShowingName(String? customNotificationSound) =>
       (super.noSuchMethod(
@@ -1357,6 +1436,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
           Invocation.getter(#outOfDateObject),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set outOfDateObject(_i4.BehaviorSubject<bool>? _outOfDateObject) =>
       super.noSuchMethod(
@@ -1366,6 +1446,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<_i5.NewerVersionInformation?> get newVersionInformation =>
       (super.noSuchMethod(
@@ -1375,6 +1456,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
           Invocation.getter(#newVersionInformation),
         ),
       ) as _i4.BehaviorSubject<_i5.NewerVersionInformation?>);
+
   @override
   set newVersionInformation(
           _i4.BehaviorSubject<_i5.NewerVersionInformation?>?
@@ -1386,6 +1468,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i3.Uid get currentUserUid => (super.noSuchMethod(
         Invocation.getter(#currentUserUid),
@@ -1394,6 +1477,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
           Invocation.getter(#currentUserUid),
         ),
       ) as _i3.Uid);
+
   @override
   set currentUserUid(_i3.Uid? _currentUserUid) => super.noSuchMethod(
         Invocation.setter(
@@ -1402,6 +1486,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set avatar(_i32.Avatar? _avatar) => super.noSuchMethod(
         Invocation.setter(
@@ -1410,8 +1495,9 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
-  _i22.Future<void> init() => (super.noSuchMethod(
+  _i22.Future<void> init({bool retry = false}) => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
@@ -1419,6 +1505,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> setCurrentUserUid() => (super.noSuchMethod(
         Invocation.method(
@@ -1428,6 +1515,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> getVerificationCode(_i33.PhoneNumber? p) =>
       (super.noSuchMethod(
@@ -1438,6 +1526,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i5.AccessTokenRes> sendVerificationCode(
     String? code, {
@@ -1459,6 +1548,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
           ),
         )),
       ) as _i22.Future<_i5.AccessTokenRes>);
+
   @override
   _i22.Future<_i5.AccessTokenRes> checkQrCodeToken(
     String? token, {
@@ -1480,6 +1570,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
           ),
         )),
       ) as _i22.Future<_i5.AccessTokenRes>);
+
   @override
   _i22.Future<String> getAccessToken() => (super.noSuchMethod(
         Invocation.method(
@@ -1488,6 +1579,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   bool isLocalLockEnabled() => (super.noSuchMethod(
         Invocation.method(
@@ -1496,6 +1588,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool localPasswordIsCorrect(String? pass) => (super.noSuchMethod(
         Invocation.method(
@@ -1504,6 +1597,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   String getLocalPassword() => (super.noSuchMethod(
         Invocation.method(
@@ -1512,6 +1606,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: '',
       ) as String);
+
   @override
   void setLocalPassword(String? pass) => super.noSuchMethod(
         Invocation.method(
@@ -1520,6 +1615,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool isLoggedIn() => (super.noSuchMethod(
         Invocation.method(
@@ -1528,6 +1624,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool isCurrentUser(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1536,6 +1633,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool isCurrentUserUid(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1544,6 +1642,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool isCurrentUserSender(_i25.Message? msg) => (super.noSuchMethod(
         Invocation.method(
@@ -1552,6 +1651,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool isCurrentSession(_i34.Session? session) => (super.noSuchMethod(
         Invocation.method(
@@ -1560,6 +1660,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<void> deleteTokens() => (super.noSuchMethod(
         Invocation.method(
@@ -1569,6 +1670,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> sendForgetPasswordEmail(_i33.PhoneNumber? phoneNumber) =>
       (super.noSuchMethod(
@@ -1598,6 +1700,7 @@ class MockFireBaseServices extends _i1.Mock implements _i35.FireBaseServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> updateFirebaseToken() => (super.noSuchMethod(
         Invocation.method(
@@ -1607,6 +1710,7 @@ class MockFireBaseServices extends _i1.Mock implements _i35.FireBaseServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void deleteToken() => super.noSuchMethod(
         Invocation.method(
@@ -1615,6 +1719,7 @@ class MockFireBaseServices extends _i1.Mock implements _i35.FireBaseServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> sendGlitchReportForFirebaseNotification(String? roomUid) =>
       (super.noSuchMethod(
@@ -1640,6 +1745,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         Invocation.getter(#localUploadedFilePath),
         returnValue: <String, String>{},
       ) as Map<String, String>);
+
   @override
   set localUploadedFilePath(Map<String, String>? _localUploadedFilePath) =>
       super.noSuchMethod(
@@ -1649,6 +1755,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> saveInFileInfo(
     _i37.File? file,
@@ -1667,6 +1774,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i38.File?> uploadClonedFile(
     String? uploadKey,
@@ -1688,6 +1796,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValue: _i22.Future<_i38.File?>.value(),
       ) as _i22.Future<_i38.File?>);
+
   @override
   _i22.Future<bool> isExist(
     String? uuid,
@@ -1705,6 +1814,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   void saveDownloadedFile(
     String? url,
@@ -1720,6 +1830,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool fileExitInCache(String? uuid) => (super.noSuchMethod(
         Invocation.method(
@@ -1728,6 +1839,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<String?> getFileIfExist(
     String? uuid,
@@ -1745,6 +1857,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Future<String?> getFile(
     String? uuid,
@@ -1768,6 +1881,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   void saveDownloadedFileInWeb(
     String? uuid,
@@ -1785,6 +1899,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void saveFileInDownloadDir(
     String? uuid,
@@ -1802,6 +1917,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void cancelUploadFile(String? uuid) => super.noSuchMethod(
         Invocation.method(
@@ -1810,6 +1926,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void saveFileToSpecifiedAddress(
     String? uuid,
@@ -1829,6 +1946,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void copyFileToPasteboard(String? path) => super.noSuchMethod(
         Invocation.method(
@@ -1855,6 +1973,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i40.LiveLocationRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<_i41.LiveLocation?> getLiveLocation(String? uuid) =>
       (super.noSuchMethod(
@@ -1864,6 +1983,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i40.LiveLocationRepo {
         ),
         returnValue: _i22.Future<_i41.LiveLocation?>.value(),
       ) as _i22.Future<_i41.LiveLocation?>);
+
   @override
   _i22.Stream<_i41.LiveLocation?> watchLiveLocation(String? uuid) =>
       (super.noSuchMethod(
@@ -1873,6 +1993,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i40.LiveLocationRepo {
         ),
         returnValue: _i22.Stream<_i41.LiveLocation?>.empty(),
       ) as _i22.Stream<_i41.LiveLocation?>);
+
   @override
   void updateLiveLocation(_i42.LiveLocation? liveLocation) =>
       super.noSuchMethod(
@@ -1882,6 +2003,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i40.LiveLocationRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<_i6.CreateLiveLocationRes> createLiveLocation(
     _i3.Uid? roomUid,
@@ -1907,6 +2029,7 @@ class MockLiveLocationRepo extends _i1.Mock implements _i40.LiveLocationRepo {
           ),
         )),
       ) as _i22.Future<_i6.CreateLiveLocationRes>);
+
   @override
   void sendLiveLocationAsStream(
     String? uuid,
@@ -1942,6 +2065,7 @@ class MockSeenDao extends _i1.Mock implements _i43.SeenDao {
         ),
         returnValue: _i22.Future<_i2.Seen?>.value(),
       ) as _i22.Future<_i2.Seen?>);
+
   @override
   _i22.Stream<_i2.Seen?> watchOthersSeen(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1950,6 +2074,7 @@ class MockSeenDao extends _i1.Mock implements _i43.SeenDao {
         ),
         returnValue: _i22.Stream<_i2.Seen?>.empty(),
       ) as _i22.Stream<_i2.Seen?>);
+
   @override
   _i22.Future<_i2.Seen> getMySeen(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1964,6 +2089,7 @@ class MockSeenDao extends _i1.Mock implements _i43.SeenDao {
           ),
         )),
       ) as _i22.Future<_i2.Seen>);
+
   @override
   _i22.Stream<_i2.Seen> watchMySeen(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -1972,6 +2098,7 @@ class MockSeenDao extends _i1.Mock implements _i43.SeenDao {
         ),
         returnValue: _i22.Stream<_i2.Seen>.empty(),
       ) as _i22.Stream<_i2.Seen>);
+
   @override
   _i22.Future<void> saveOthersSeen(_i2.Seen? seen) => (super.noSuchMethod(
         Invocation.method(
@@ -1981,6 +2108,7 @@ class MockSeenDao extends _i1.Mock implements _i43.SeenDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> updateMySeen({
     required String? uid,
@@ -2025,6 +2153,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<_i3.Uid?>.value(),
       ) as _i22.Future<_i3.Uid?>);
+
   @override
   _i22.Future<int> addGroupMembers(
     List<_i11.Member>? members,
@@ -2042,6 +2171,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<int>.value(0),
       ) as _i22.Future<int>);
+
   @override
   _i22.Future<_i7.GetGroupRes?> getGroup(_i3.Uid? groupUid) =>
       (super.noSuchMethod(
@@ -2051,6 +2181,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<_i7.GetGroupRes?>.value(),
       ) as _i22.Future<_i7.GetGroupRes?>);
+
   @override
   _i22.Future<bool> removeGroup(_i3.Uid? groupUid) => (super.noSuchMethod(
         Invocation.method(
@@ -2059,6 +2190,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> changeGroupRole(
     _i11.Member? member,
@@ -2074,6 +2206,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<_i7.GetMembersRes> getGroupMembers(
     _i3.Uid? groupUid,
@@ -2101,6 +2234,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
           ),
         )),
       ) as _i22.Future<_i7.GetMembersRes>);
+
   @override
   _i22.Future<bool> leaveGroup(_i3.Uid? groupUid) => (super.noSuchMethod(
         Invocation.method(
@@ -2109,6 +2243,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> kickGroupMembers(
     List<_i11.Member>? members,
@@ -2124,6 +2259,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> banGroupMember(
     _i11.Member? member,
@@ -2139,6 +2275,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> unbanGroupMember(
     _i11.Member? member,
@@ -2154,6 +2291,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> joinGroup(
     _i3.Uid? groupUid,
@@ -2169,6 +2307,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> modifyGroup(
     _i7.GroupInfo? group,
@@ -2184,6 +2323,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<_i3.Uid?> createNewChannel(
     String? channelName,
@@ -2205,6 +2345,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<_i3.Uid?>.value(),
       ) as _i22.Future<_i3.Uid?>);
+
   @override
   _i22.Future<int> addChannelMembers(
     List<_i11.Member>? members,
@@ -2220,6 +2361,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<int>.value(0),
       ) as _i22.Future<int>);
+
   @override
   _i22.Future<_i12.GetChannelRes?> getChannel(_i3.Uid? channelUid) =>
       (super.noSuchMethod(
@@ -2229,6 +2371,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<_i12.GetChannelRes?>.value(),
       ) as _i22.Future<_i12.GetChannelRes?>);
+
   @override
   _i22.Future<bool> removeChannel(_i3.Uid? channelUid) => (super.noSuchMethod(
         Invocation.method(
@@ -2237,6 +2380,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> changeCahnnelRole(
     _i11.Member? member,
@@ -2252,6 +2396,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<_i12.GetMembersRes?> getChannelMembers(
     _i3.Uid? channelUid,
@@ -2269,6 +2414,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<_i12.GetMembersRes?>.value(),
       ) as _i22.Future<_i12.GetMembersRes?>);
+
   @override
   _i22.Future<bool> leaveChannel(_i3.Uid? channelUid) => (super.noSuchMethod(
         Invocation.method(
@@ -2277,6 +2423,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> kickChannelMembers(
     List<_i11.Member>? members,
@@ -2292,6 +2439,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> banChannelMember(
     _i11.Member? member,
@@ -2307,6 +2455,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> unbanChannelMember(
     _i11.Member? member,
@@ -2322,6 +2471,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> joinChannel(
     _i3.Uid? channelUid,
@@ -2337,6 +2487,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> modifyChannel(
     _i12.ChannelInfo? channelInfo,
@@ -2352,6 +2503,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> pinMessage(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -2361,6 +2513,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getGroupJointToken({required _i3.Uid? groupUid}) =>
       (super.noSuchMethod(
@@ -2371,6 +2524,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
       (super.noSuchMethod(
@@ -2382,6 +2536,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
@@ -2392,6 +2547,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
@@ -2403,6 +2559,7 @@ class MockMucServices extends _i1.Mock implements _i44.MucServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> unpinMessage(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -2444,6 +2601,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
+
   @override
   _i22.Future<void> handleSeen(_i47.Seen? seen) => (super.noSuchMethod(
         Invocation.method(
@@ -2453,6 +2611,7 @@ class MockDataStreamServices extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void handleActivity(_i30.Activity? activity) => super.noSuchMethod(
         Invocation.method(
@@ -2461,6 +2620,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> handleAckMessage(
           _i46.MessageDeliveryAck? messageDeliveryAck) =>
@@ -2472,6 +2632,7 @@ class MockDataStreamServices extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void handleRoomPresenceTypeChange(
           _i48.RoomPresenceTypeChanged? roomPresenceTypeChanged) =>
@@ -2482,6 +2643,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void handleCallOffer(_i16.CallOffer? callOffer) => super.noSuchMethod(
         Invocation.method(
@@ -2490,6 +2652,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void handleCallAnswer(_i16.CallAnswer? callAnswer) => super.noSuchMethod(
         Invocation.method(
@@ -2498,6 +2661,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<bool> shouldNotifyForThisMessage(_i46.Message? message) =>
       (super.noSuchMethod(
@@ -2507,6 +2671,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<_i25.Message?> saveMessageInMessagesDB(_i46.Message? message) =>
       (super.noSuchMethod(
@@ -2516,6 +2681,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
+
   @override
   _i22.Future<_i25.Message?> fetchLastNotHiddenMessage(
     _i3.Uid? roomUid,
@@ -2535,6 +2701,7 @@ class MockDataStreamServices extends _i1.Mock
         ),
         returnValue: _i22.Future<_i25.Message?>.value(),
       ) as _i22.Future<_i25.Message?>);
+
   @override
   _i22.Future<void> getAndProcessLastIncomingCallsFromServer(
     _i3.Uid? roomUid,
@@ -2551,6 +2718,7 @@ class MockDataStreamServices extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleFetchMessagesActions(
     String? roomId,
@@ -2567,6 +2735,7 @@ class MockDataStreamServices extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i25.Message>> saveFetchMessages(
     List<_i46.Message>? messages, {
@@ -2595,6 +2764,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         Invocation.getter(#responseChecked),
         returnValue: false,
       ) as bool);
+
   @override
   set responseChecked(bool? _responseChecked) => super.noSuchMethod(
         Invocation.setter(
@@ -2603,11 +2773,13 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   int get backoffTime => (super.noSuchMethod(
         Invocation.getter(#backoffTime),
         returnValue: 0,
       ) as int);
+
   @override
   set backoffTime(int? _backoffTime) => super.noSuchMethod(
         Invocation.setter(
@@ -2616,6 +2788,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<_i49.ConnectionStatus> get connectionStatus =>
       (super.noSuchMethod(
@@ -2625,6 +2798,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
           Invocation.getter(#connectionStatus),
         ),
       ) as _i4.BehaviorSubject<_i49.ConnectionStatus>);
+
   @override
   set connectionStatus(
           _i4.BehaviorSubject<_i49.ConnectionStatus>? _connectionStatus) =>
@@ -2635,6 +2809,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void retryConnection({bool? forced = false}) => super.noSuchMethod(
         Invocation.method(
@@ -2644,6 +2819,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void fasterRetryConnection() => super.noSuchMethod(
         Invocation.method(
@@ -2652,6 +2828,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> initStreamConnection() => (super.noSuchMethod(
         Invocation.method(
@@ -2661,6 +2838,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void closeConnection() => super.noSuchMethod(
         Invocation.method(
@@ -2669,6 +2847,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void startCheckerTimer() => super.noSuchMethod(
         Invocation.method(
@@ -2677,6 +2856,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void checkConnectionTimer() => super.noSuchMethod(
         Invocation.method(
@@ -2685,6 +2865,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void gotResponse() => super.noSuchMethod(
         Invocation.method(
@@ -2693,6 +2874,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void startStream() => super.noSuchMethod(
         Invocation.method(
@@ -2701,6 +2883,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> sendMessage(_i46.MessageByClient? message) =>
       (super.noSuchMethod(
@@ -2711,6 +2894,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void sendPing() => super.noSuchMethod(
         Invocation.method(
@@ -2719,6 +2903,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void sendSeen(_i47.SeenByClient? seen) => super.noSuchMethod(
         Invocation.method(
@@ -2727,6 +2912,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void sendCallAnswer(_i16.CallAnswerByClient? callAnswerByClient) =>
       super.noSuchMethod(
@@ -2736,6 +2922,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void sendCallOffer(_i16.CallOfferByClient? callOfferByClient) =>
       super.noSuchMethod(
@@ -2745,6 +2932,7 @@ class MockCoreServices extends _i1.Mock implements _i49.CoreServices {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void sendActivity(
     _i30.ActivityByClient? activity,
@@ -2791,6 +2979,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetTimeRes>);
+
   @override
   _i8.ResponseFuture<_i14.IdIsAvailableRes> idIsAvailable(
     _i14.IdIsAvailableReq? request, {
@@ -2811,6 +3000,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.IdIsAvailableRes>);
+
   @override
   _i8.ResponseFuture<_i14.SetIdRes> setId(
     _i14.SetIdReq? request, {
@@ -2831,6 +3021,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.SetIdRes>);
+
   @override
   _i8.ResponseFuture<_i14.BlockUidRes> blockUid(
     _i14.BlockUidReq? request, {
@@ -2851,6 +3042,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.BlockUidRes>);
+
   @override
   _i8.ResponseFuture<_i14.UnblockUidRes> unblockUid(
     _i14.UnblockUidReq? request, {
@@ -2871,6 +3063,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.UnblockUidRes>);
+
   @override
   _i8.ResponseFuture<_i14.ReportRes> report(
     _i14.ReportReq? request, {
@@ -2891,6 +3084,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.ReportRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetBlockedListRes> getBlockedList(
     _i14.GetBlockedListReq? request, {
@@ -2911,6 +3105,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetBlockedListRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetIdByUidRes> getIdByUid(
     _i14.GetIdByUidReq? request, {
@@ -2931,6 +3126,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetIdByUidRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetUidByIdRes> getUidById(
     _i14.GetUidByIdReq? request, {
@@ -2951,6 +3147,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetUidByIdRes>);
+
   @override
   _i8.ResponseFuture<_i14.SearchUidRes> searchUid(
     _i14.SearchUidReq? request, {
@@ -2971,6 +3168,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.SearchUidRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetLastActivityRes> getLastActivity(
     _i14.GetLastActivityReq? request, {
@@ -2991,6 +3189,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetLastActivityRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchMessagesRes> fetchMessages(
     _i14.FetchMessagesReq? request, {
@@ -3011,6 +3210,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchMessagesRes>);
+
   @override
   _i8.ResponseFuture<_i14.CountIsHiddenMessagesRes> countIsHiddenMessages(
     _i14.CountIsHiddenMessagesReq? request, {
@@ -3031,6 +3231,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.CountIsHiddenMessagesRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetAllUserRoomMetaRes> getAllUserRoomMeta(
     _i14.GetAllUserRoomMetaReq? request, {
@@ -3051,6 +3252,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetAllUserRoomMetaRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetUserRoomMetaRes> getUserRoomMeta(
     _i14.GetUserRoomMetaReq? request, {
@@ -3071,6 +3273,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetUserRoomMetaRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetMediaMetadataRes> getMediaMetadata(
     _i14.GetMediaMetadataReq? request, {
@@ -3091,6 +3294,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetMediaMetadataRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchMediasRes> fetchMedias(
     _i14.FetchMediasReq? request, {
@@ -3111,6 +3315,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchMediasRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetMetaCountsRes> getMetaCounts(
     _i14.GetMetaCountsReq? request, {
@@ -3131,6 +3336,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetMetaCountsRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchMetaRes> fetchMetaList(
     _i14.FetchMetaReq? request, {
@@ -3151,6 +3357,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchMetaRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchMentionListRes> fetchMentionList(
     _i14.FetchMentionListReq? request, {
@@ -3171,6 +3378,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchMentionListRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchCurrentUserSeenDataRes> fetchCurrentUserSeenData(
     _i14.FetchCurrentUserSeenDataReq? request, {
@@ -3191,6 +3399,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchCurrentUserSeenDataRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchLastOtherUserSeenDataRes>
       fetchLastOtherUserSeenData(
@@ -3213,6 +3422,7 @@ class MockQueryServiceClient extends _i1.Mock
               ),
             ),
           ) as _i8.ResponseFuture<_i14.FetchLastOtherUserSeenDataRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchSeenCountOfChannelMessageRes>
       fetchSeenCountOfChannelMessage(
@@ -3235,6 +3445,7 @@ class MockQueryServiceClient extends _i1.Mock
               ),
             ),
           ) as _i8.ResponseFuture<_i14.FetchSeenCountOfChannelMessageRes>);
+
   @override
   _i8.ResponseFuture<_i14.FetchUserCallsRes> fetchUserCalls(
     _i14.FetchUserCallsReq? request, {
@@ -3255,6 +3466,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.FetchUserCallsRes>);
+
   @override
   _i8.ResponseFuture<_i14.UpdateMessageRes> updateMessage(
     _i14.UpdateMessageReq? request, {
@@ -3275,6 +3487,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.UpdateMessageRes>);
+
   @override
   _i8.ResponseFuture<_i14.DeleteMessageRes> deleteMessage(
     _i14.DeleteMessageReq? request, {
@@ -3295,6 +3508,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.DeleteMessageRes>);
+
   @override
   _i8.ResponseFuture<_i14.ForwardMessagesRes> forwardMessages(
     _i14.ForwardMessagesReq? request, {
@@ -3315,6 +3529,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.ForwardMessagesRes>);
+
   @override
   _i8.ResponseFuture<_i14.AddAvatarRes> addAvatar(
     _i14.AddAvatarReq? request, {
@@ -3335,6 +3550,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.AddAvatarRes>);
+
   @override
   _i8.ResponseFuture<_i14.RemoveAvatarRes> removeAvatar(
     _i14.RemoveAvatarReq? request, {
@@ -3355,6 +3571,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.RemoveAvatarRes>);
+
   @override
   _i8.ResponseFuture<_i14.RemovePrivateRoomRes> removePrivateRoom(
     _i14.RemovePrivateRoomReq? request, {
@@ -3375,6 +3592,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.RemovePrivateRoomRes>);
+
   @override
   _i8.ResponseFuture<_i14.SearchInMessagesRes> searchInMessages(
     _i14.SearchInMessagesReq? request, {
@@ -3395,6 +3613,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.SearchInMessagesRes>);
+
   @override
   _i8.ResponseFuture<_i14.SendGlitchRes> sendGlitch(
     _i14.SendGlitchReq? request, {
@@ -3415,6 +3634,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.SendGlitchRes>);
+
   @override
   _i8.ResponseFuture<_i14.CreateGroupCallRes> createGroupCall(
     _i14.CreateGroupCallReq? request, {
@@ -3435,6 +3655,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.CreateGroupCallRes>);
+
   @override
   _i8.ResponseFuture<_i14.EndGroupCallRes> endGroupCall(
     _i14.EndGroupCallReq? request, {
@@ -3455,6 +3676,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.EndGroupCallRes>);
+
   @override
   _i8.ResponseFuture<_i14.GetShowcasesRes> getShowcases(
     _i14.GetShowcasesReq? request, {
@@ -3475,6 +3697,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i14.GetShowcasesRes>);
+
   @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3502,6 +3725,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i9.ClientCall<Q, R>);
+
   @override
   _i8.ResponseFuture<R> $createUnaryCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3529,6 +3753,7 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<R>);
+
   @override
   _i8.ResponseStream<R> $createStreamingCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3586,6 +3811,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.GetVerificationCodeRes>);
+
   @override
   _i8.ResponseFuture<_i5.AccessTokenRes> verifyAndGetToken(
     _i5.VerifyCodeReq? request, {
@@ -3606,6 +3832,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.AccessTokenRes>);
+
   @override
   _i8.ResponseFuture<_i5.AccessTokenRes> checkQrCodeIsVerifiedAndLogin(
     _i5.CheckQrCodeIsVerifiedAndLoginReq? request, {
@@ -3626,6 +3853,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.AccessTokenRes>);
+
   @override
   _i8.ResponseFuture<_i5.RenewAccessTokenRes> renewAccessToken(
     _i5.RenewAccessTokenReq? request, {
@@ -3646,6 +3874,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.RenewAccessTokenRes>);
+
   @override
   _i8.ResponseFuture<_i5.VerifyEmailAddressRes> verifyEmailAddress(
     _i5.VerifyEmailAddressReq? request, {
@@ -3666,6 +3895,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.VerifyEmailAddressRes>);
+
   @override
   _i8.ResponseFuture<_i5.SendErasePasswordEmailRes> sendErasePasswordEmail(
     _i5.SendErasePasswordEmailReq? request, {
@@ -3686,6 +3916,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.SendErasePasswordEmailRes>);
+
   @override
   _i8.ResponseFuture<_i5.ErasePasswordRes> erasePassword(
     _i5.ErasePasswordReq? request, {
@@ -3706,6 +3937,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<_i5.ErasePasswordRes>);
+
   @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3733,6 +3965,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i9.ClientCall<Q, R>);
+
   @override
   _i8.ResponseFuture<R> $createUnaryCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3760,6 +3993,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ),
         ),
       ) as _i8.ResponseFuture<R>);
+
   @override
   _i8.ResponseStream<R> $createStreamingCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -3805,6 +4039,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Stream<String?> getStream(
     String? key, {
@@ -3818,6 +4053,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         ),
         returnValue: _i22.Stream<String?>.empty(),
       ) as _i22.Stream<String?>);
+
   @override
   _i22.Future<void> put(
     String? key,
@@ -3834,6 +4070,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> remove(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -3843,6 +4080,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<bool> getBoolean(
     String? key, {
@@ -3856,6 +4094,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<bool> getBooleanStream(
     String? key, {
@@ -3869,6 +4108,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         ),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
+
   @override
   _i22.Future<bool> getAndUpdateTimeCounter(
     String? key,
@@ -3886,6 +4126,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> resetTimeCounter(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -3895,6 +4136,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> putBoolean(
     String? key,
@@ -3911,6 +4153,7 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<bool> toggleBoolean(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -3943,6 +4186,7 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Stream<List<_i32.Avatar?>> getAvatar(
     _i3.Uid? userUid, {
@@ -3956,6 +4200,7 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         ),
         returnValue: _i22.Stream<List<_i32.Avatar?>>.empty(),
       ) as _i22.Stream<List<_i32.Avatar?>>);
+
   @override
   _i22.Future<_i32.Avatar?> getLastAvatar(
     _i3.Uid? userUid, {
@@ -3969,6 +4214,7 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         ),
         returnValue: _i22.Future<_i32.Avatar?>.value(),
       ) as _i22.Future<_i32.Avatar?>);
+
   @override
   _i22.Future<void> setMucAvatar(
     _i3.Uid? uid,
@@ -3985,12 +4231,14 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   String? fastForwardAvatarFilePath(_i3.Uid? userUid) =>
       (super.noSuchMethod(Invocation.method(
         #fastForwardAvatarFilePath,
         [userUid],
       )) as String?);
+
   @override
   _i22.Stream<String> getLastAvatarFilePathStream(
     _i3.Uid? userUid, {
@@ -4004,6 +4252,7 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         ),
         returnValue: _i22.Stream<String>.empty(),
       ) as _i22.Stream<String>);
+
   @override
   _i22.Future<void> uploadAvatar(
     String? path,
@@ -4020,6 +4269,7 @@ class MockAvatarRepo extends _i1.Mock implements _i51.AvatarRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> deleteAvatar(_i32.Avatar? avatar) => (super.noSuchMethod(
         Invocation.method(
@@ -4047,6 +4297,7 @@ class MockBlockDao extends _i1.Mock implements _i52.BlockDao {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<bool?> watchIsBlocked(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4055,6 +4306,7 @@ class MockBlockDao extends _i1.Mock implements _i52.BlockDao {
         ),
         returnValue: _i22.Stream<bool?>.empty(),
       ) as _i22.Stream<bool?>);
+
   @override
   _i22.Future<void> block(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4064,6 +4316,7 @@ class MockBlockDao extends _i1.Mock implements _i52.BlockDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> unblock(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4088,16 +4341,19 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
         Invocation.getter(#isPersian),
         returnValue: false,
       ) as bool);
+
   @override
   _i10.TextDirection get defaultTextDirection => (super.noSuchMethod(
         Invocation.getter(#defaultTextDirection),
         returnValue: _i10.TextDirection.rtl,
       ) as _i10.TextDirection);
+
   @override
   _i22.Stream<dynamic> get localeStream => (super.noSuchMethod(
         Invocation.getter(#localeStream),
         returnValue: _i22.Stream<dynamic>.empty(),
       ) as _i22.Stream<dynamic>);
+
   @override
   _i10.Locale get locale => (super.noSuchMethod(
         Invocation.getter(#locale),
@@ -4106,6 +4362,7 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
           Invocation.getter(#locale),
         ),
       ) as _i10.Locale);
+
   @override
   bool isRtl() => (super.noSuchMethod(
         Invocation.method(
@@ -4114,6 +4371,7 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   String get(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -4122,6 +4380,7 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
         ),
         returnValue: '',
       ) as String);
+
   @override
   String verb(
     String? key, {
@@ -4139,6 +4398,7 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
         ),
         returnValue: '',
       ) as String);
+
   @override
   void changeLanguage(_i54.Language? language) => super.noSuchMethod(
         Invocation.method(
@@ -4147,6 +4407,7 @@ class MockI18N extends _i1.Mock implements _i53.I18N {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i10.TextDirection getDirection(String? v) => (super.noSuchMethod(
         Invocation.method(
@@ -4173,6 +4434,7 @@ class MockMuteDao extends _i1.Mock implements _i55.MuteDao {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<bool> watchIsMuted(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4181,6 +4443,7 @@ class MockMuteDao extends _i1.Mock implements _i55.MuteDao {
         ),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
+
   @override
   _i22.Future<void> mute(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4190,6 +4453,7 @@ class MockMuteDao extends _i1.Mock implements _i55.MuteDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> unMute(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4217,6 +4481,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i56.UidIdNameDao {
         ),
         returnValue: _i22.Future<_i57.UidIdName?>.value(),
       ) as _i22.Future<_i57.UidIdName?>);
+
   @override
   _i22.Stream<String?> watchIdByUid(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4225,6 +4490,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i56.UidIdNameDao {
         ),
         returnValue: _i22.Stream<String?>.empty(),
       ) as _i22.Stream<String?>);
+
   @override
   _i22.Future<String?> getUidById(String? id) => (super.noSuchMethod(
         Invocation.method(
@@ -4233,6 +4499,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i56.UidIdNameDao {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Future<void> update(
     String? uid, {
@@ -4251,6 +4518,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i56.UidIdNameDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i57.UidIdName>> search(String? term) => (super.noSuchMethod(
         Invocation.method(
@@ -4278,6 +4546,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
           Invocation.getter(#isSyncingContacts),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   _i4.BehaviorSubject<double> get sendContactProgress => (super.noSuchMethod(
         Invocation.getter(#sendContactProgress),
@@ -4286,11 +4555,13 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
           Invocation.getter(#sendContactProgress),
         ),
       ) as _i4.BehaviorSubject<double>);
+
   @override
   bool get hasContactPermission => (super.noSuchMethod(
         Invocation.getter(#hasContactPermission),
         returnValue: false,
       ) as bool);
+
   @override
   set hasContactPermission(bool? _hasContactPermission) => super.noSuchMethod(
         Invocation.setter(
@@ -4299,6 +4570,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> syncContacts() => (super.noSuchMethod(
         Invocation.method(
@@ -4308,6 +4580,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> sendNotSyncedContactInStartTime() => (super.noSuchMethod(
         Invocation.method(
@@ -4317,6 +4590,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> sendContacts(
     List<_i59.Contact>? contacts, {
@@ -4331,6 +4605,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<bool> sendNewContact(_i59.Contact? contact) =>
       (super.noSuchMethod(
@@ -4340,6 +4615,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Stream<List<_i60.Contact>> watchAllMessengerContacts() =>
       (super.noSuchMethod(
@@ -4349,6 +4625,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Stream<List<_i60.Contact>>.empty(),
       ) as _i22.Stream<List<_i60.Contact>>);
+
   @override
   _i22.Future<List<_i60.Contact>> getAllUserAsContact() => (super.noSuchMethod(
         Invocation.method(
@@ -4357,6 +4634,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<List<_i60.Contact>>.value(<_i60.Contact>[]),
       ) as _i22.Future<List<_i60.Contact>>);
+
   @override
   _i22.Stream<List<_i60.Contact>> watchNotMessengerContact() =>
       (super.noSuchMethod(
@@ -4366,6 +4644,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Stream<List<_i60.Contact>>.empty(),
       ) as _i22.Stream<List<_i60.Contact>>);
+
   @override
   _i22.Stream<List<_i60.Contact>> watchAll() => (super.noSuchMethod(
         Invocation.method(
@@ -4374,6 +4653,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Stream<List<_i60.Contact>>.empty(),
       ) as _i22.Stream<List<_i60.Contact>>);
+
   @override
   _i22.Future<void> getContacts() => (super.noSuchMethod(
         Invocation.method(
@@ -4383,6 +4663,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> getUserIdByUid(_i3.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4392,6 +4673,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> fetchMemberId(_i61.Member? member) => (super.noSuchMethod(
         Invocation.method(
@@ -4401,6 +4683,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<List<_i3.Uid>> searchUser(String? query) => (super.noSuchMethod(
         Invocation.method(
@@ -4409,6 +4692,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
       ) as _i22.Future<List<_i3.Uid>>);
+
   @override
   _i22.Future<List<_i3.Uid>> searchInContacts(String? text) =>
       (super.noSuchMethod(
@@ -4418,6 +4702,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<List<_i3.Uid>>.value(<_i3.Uid>[]),
       ) as _i22.Future<List<_i3.Uid>>);
+
   @override
   _i22.Future<_i60.Contact?> getContact(_i3.Uid? userUid) =>
       (super.noSuchMethod(
@@ -4427,6 +4712,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<_i60.Contact?>.value(),
       ) as _i22.Future<_i60.Contact?>);
+
   @override
   _i22.Future<String?> getContactFromServer(
     _i3.Uid? contactUid, {
@@ -4443,6 +4729,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Future<bool> contactIsExist(
     int? countryCode,
@@ -4458,6 +4745,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> importContactsFormVcard() => (super.noSuchMethod(
         Invocation.method(
@@ -4486,6 +4774,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> getUserProfileFromServer() => (super.noSuchMethod(
         Invocation.method(
@@ -4494,6 +4783,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> fetchCurrentUserId({bool? retry = false}) =>
       (super.noSuchMethod(
@@ -4505,6 +4795,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i63.Account?> getAccount() => (super.noSuchMethod(
         Invocation.method(
@@ -4513,6 +4804,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<_i63.Account?>.value(),
       ) as _i22.Future<_i63.Account?>);
+
   @override
   _i22.Stream<_i63.Account?> getAccountAsStream() => (super.noSuchMethod(
         Invocation.method(
@@ -4521,6 +4813,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Stream<_i63.Account?>.empty(),
       ) as _i22.Stream<_i63.Account?>);
+
   @override
   _i22.Future<bool> idIsAvailable(String? username) => (super.noSuchMethod(
         Invocation.method(
@@ -4529,6 +4822,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> updateEmail(String? email) => (super.noSuchMethod(
         Invocation.method(
@@ -4537,6 +4831,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> setAccountDetails({
     String? username,
@@ -4557,6 +4852,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> updatePassword({
     String? currentPassword,
@@ -4575,6 +4871,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> disableTwoStepVerification(String? password) =>
       (super.noSuchMethod(
@@ -4584,6 +4881,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<List<_i34.Session>> getSessions() => (super.noSuchMethod(
         Invocation.method(
@@ -4592,6 +4890,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<List<_i34.Session>>.value(<_i34.Session>[]),
       ) as _i22.Future<List<_i34.Session>>);
+
   @override
   _i22.Future<void> checkUpdatePlatformSessionInformation() =>
       (super.noSuchMethod(
@@ -4602,6 +4901,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> updatePlatformVersion() => (super.noSuchMethod(
         Invocation.method(
@@ -4611,6 +4911,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   bool shouldUpdateSessionPlatformInformation(String? previousVersion) =>
       (super.noSuchMethod(
@@ -4620,6 +4921,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool shouldShowNewFeaturesDialog(String? previousVersion) =>
       (super.noSuchMethod(
@@ -4629,6 +4931,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<bool> verifyQrCodeToken(String? token) => (super.noSuchMethod(
         Invocation.method(
@@ -4637,6 +4940,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> revokeSession(String? session) => (super.noSuchMethod(
         Invocation.method(
@@ -4645,6 +4949,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> revokeAllOtherSession() => (super.noSuchMethod(
         Invocation.method(
@@ -4653,6 +4958,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> logOut() => (super.noSuchMethod(
         Invocation.method(
@@ -4662,6 +4968,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getName() => (super.noSuchMethod(
         Invocation.method(
@@ -4670,6 +4977,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<bool> shouldShowNewFeatureDialog() => (super.noSuchMethod(
         Invocation.method(
@@ -4678,6 +4986,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> isTwoStepVerificationEnabled() => (super.noSuchMethod(
         Invocation.method(
@@ -4686,6 +4995,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> changeTwoStepVerificationPassword({
     required String? currentPassword,
@@ -4729,6 +5039,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i3.Uid?>.value(),
       ) as _i22.Future<_i3.Uid?>);
+
   @override
   _i22.Future<_i3.Uid?> createNewChannel(
     String? channelId,
@@ -4750,6 +5061,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i3.Uid?>.value(),
       ) as _i22.Future<_i3.Uid?>);
+
   @override
   _i22.Future<bool> channelIdIsAvailable(String? id) => (super.noSuchMethod(
         Invocation.method(
@@ -4758,6 +5070,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> fetchGroupMembers(
     _i3.Uid? groupUid,
@@ -4774,6 +5087,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getGroupJointToken({required _i3.Uid? groupUid}) =>
       (super.noSuchMethod(
@@ -4784,6 +5098,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<void> deleteGroupJointToken({required _i3.Uid? groupUid}) =>
       (super.noSuchMethod(
@@ -4795,6 +5110,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<String> getChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
@@ -4805,6 +5121,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<String>.value(''),
       ) as _i22.Future<String>);
+
   @override
   _i22.Future<void> deleteChannelJointToken({required _i3.Uid? channelUid}) =>
       (super.noSuchMethod(
@@ -4816,6 +5133,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> fetchChannelMembers(
     _i3.Uid? channelUid,
@@ -4832,6 +5150,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i65.Muc?> fetchMucInfo(
     _i3.Uid? mucUid, {
@@ -4845,6 +5164,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i65.Muc?>.value(),
       ) as _i22.Future<_i65.Muc?>);
+
   @override
   _i22.Future<bool> isMucAdminOrOwner(
     String? memberUid,
@@ -4860,6 +5180,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> isMucOwner(
     String? userUid,
@@ -4875,6 +5196,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<List<_i61.Member>> searchMemberByNameOrId(String? mucUid) =>
       (super.noSuchMethod(
@@ -4884,6 +5206,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<List<_i61.Member>>.value(<_i61.Member>[]),
       ) as _i22.Future<List<_i61.Member>>);
+
   @override
   _i22.Future<List<_i61.Member?>> getAllMembers(String? mucUid) =>
       (super.noSuchMethod(
@@ -4893,6 +5216,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<List<_i61.Member?>>.value(<_i61.Member?>[]),
       ) as _i22.Future<List<_i61.Member?>>);
+
   @override
   _i22.Stream<List<_i61.Member?>> watchAllMembers(String? mucUid) =>
       (super.noSuchMethod(
@@ -4902,6 +5226,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Stream<List<_i61.Member?>>.empty(),
       ) as _i22.Stream<List<_i61.Member?>>);
+
   @override
   _i22.Future<_i65.Muc?> getMuc(String? mucUid) => (super.noSuchMethod(
         Invocation.method(
@@ -4910,6 +5235,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i65.Muc?>.value(),
       ) as _i22.Future<_i65.Muc?>);
+
   @override
   _i22.Stream<_i65.Muc?> watchMuc(String? mucUid) => (super.noSuchMethod(
         Invocation.method(
@@ -4918,6 +5244,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Stream<_i65.Muc?>.empty(),
       ) as _i22.Stream<_i65.Muc?>);
+
   @override
   _i22.Future<bool> removeMuc(_i3.Uid? mucUid) => (super.noSuchMethod(
         Invocation.method(
@@ -4926,6 +5253,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<_i12.GetChannelRes?> getChannelInfo(_i3.Uid? channelUid) =>
       (super.noSuchMethod(
@@ -4935,6 +5263,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i12.GetChannelRes?>.value(),
       ) as _i22.Future<_i12.GetChannelRes?>);
+
   @override
   _i22.Future<void> changeGroupMemberRole(_i61.Member? groupMember) =>
       (super.noSuchMethod(
@@ -4945,6 +5274,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> changeChannelMemberRole(_i61.Member? channelMember) =>
       (super.noSuchMethod(
@@ -4955,6 +5285,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<bool> leaveMuc(_i3.Uid? mucUid) => (super.noSuchMethod(
         Invocation.method(
@@ -4963,6 +5294,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> kickGroupMembers(List<_i61.Member>? groupMembers) =>
       (super.noSuchMethod(
@@ -4972,6 +5304,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<bool> kickChannelMembers(List<_i61.Member>? channelMembers) =>
       (super.noSuchMethod(
@@ -4981,6 +5314,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> banGroupMember(_i61.Member? groupMember) =>
       (super.noSuchMethod(
@@ -4991,6 +5325,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> banChannelMember(_i61.Member? channelMember) =>
       (super.noSuchMethod(
@@ -5001,6 +5336,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> unBanGroupMember(_i61.Member? groupMember) =>
       (super.noSuchMethod(
@@ -5011,6 +5347,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> unBanChannelMember(_i61.Member? channelMember) =>
       (super.noSuchMethod(
@@ -5021,6 +5358,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i65.Muc?> joinGroup(
     _i3.Uid? groupUid,
@@ -5036,6 +5374,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i65.Muc?>.value(),
       ) as _i22.Future<_i65.Muc?>);
+
   @override
   _i22.Future<_i65.Muc?> joinChannel(
     _i3.Uid? channelUid,
@@ -5051,6 +5390,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<_i65.Muc?>.value(),
       ) as _i22.Future<_i65.Muc?>);
+
   @override
   _i22.Future<void> modifyGroup(
     String? mucId,
@@ -5069,6 +5409,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> modifyChannel(
     String? mucUid,
@@ -5091,6 +5432,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<int> sendMembers(
     _i3.Uid? mucUid,
@@ -5106,6 +5448,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i22.Future<int>.value(0),
       ) as _i22.Future<int>);
+
   @override
   _i22.Future<void> updateMemberListOfMUC(
     _i3.Uid? mucUid,
@@ -5122,6 +5465,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i11.Role getRole(_i66.MucRole? role) => (super.noSuchMethod(
         Invocation.method(
@@ -5136,6 +5480,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
           ),
         ),
       ) as _i11.Role);
+
   @override
   _i66.MucRole getLocalRole(_i11.Role? role) => (super.noSuchMethod(
         Invocation.method(
@@ -5144,6 +5489,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i66.MucRole.NONE,
       ) as _i66.MucRole);
+
   @override
   _i22.Future<List<_i57.UidIdName?>> getFilteredMember(
     String? roomUid, {
@@ -5158,6 +5504,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         returnValue:
             _i22.Future<List<_i57.UidIdName?>>.value(<_i57.UidIdName?>[]),
       ) as _i22.Future<List<_i57.UidIdName?>>);
+
   @override
   _i67.MucType pbMucTypeToHiveMucType(_i12.ChannelType? channelType) =>
       (super.noSuchMethod(
@@ -5167,6 +5514,7 @@ class MockMucRepo extends _i1.Mock implements _i64.MucRepo {
         ),
         returnValue: _i67.MucType.Private,
       ) as _i67.MucType);
+
   @override
   _i12.ChannelType hiveMucTypeToPbMucType(_i67.MucType? mucType) =>
       (super.noSuchMethod(
@@ -5207,6 +5555,7 @@ class MockBotRepo extends _i1.Mock implements _i68.BotRepo {
           ),
         )),
       ) as _i22.Future<_i13.BotInfo>);
+
   @override
   _i22.Future<String?> sendCallbackQuery(
     String? data,
@@ -5222,6 +5571,7 @@ class MockBotRepo extends _i1.Mock implements _i68.BotRepo {
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
+
   @override
   _i22.Future<void> handleInlineMarkUpMessageCallBack(
     _i25.Message? message,
@@ -5240,6 +5590,7 @@ class MockBotRepo extends _i1.Mock implements _i68.BotRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i13.BotInfo?> getBotInfo(_i3.Uid? botUid) => (super.noSuchMethod(
         Invocation.method(
@@ -5268,6 +5619,7 @@ class MockCustomNotificationDao extends _i1.Mock
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   _i22.Future<void> setCustomNotificationSound(
     String? uid,
@@ -5284,6 +5636,7 @@ class MockCustomNotificationDao extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Stream<String> watchCustomNotificationSound(String? uid) =>
       (super.noSuchMethod(
@@ -5293,6 +5646,7 @@ class MockCustomNotificationDao extends _i1.Mock
         ),
         returnValue: _i22.Stream<String>.empty(),
       ) as _i22.Stream<String>);
+
   @override
   _i22.Future<String> getCustomNotificationSound(String? uid) =>
       (super.noSuchMethod(
@@ -5331,6 +5685,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
       ) as _i22.Future<List<_i72.Media>>);
+
   @override
   _i22.Future<List<_i72.Media>> getByRoomIdAndType(
     String? roomUid,
@@ -5346,6 +5701,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
       ) as _i22.Future<List<_i72.Media>>);
+
   @override
   _i22.Future<dynamic> save(_i72.Media? media) => (super.noSuchMethod(
         Invocation.method(
@@ -5354,6 +5710,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
+
   @override
   _i22.Future<int?> getIndexOfMedia(
     String? roomUid,
@@ -5371,6 +5728,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Future<int?>.value(),
       ) as _i22.Future<int?>);
+
   @override
   _i22.Stream<int> getIndexOfMediaAsStream(
     String? roomUid,
@@ -5388,6 +5746,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         ),
         returnValue: _i22.Stream<int>.empty(),
       ) as _i22.Stream<int>);
+
   @override
   _i22.Future<void> deleteMedia(
     String? roomId,
@@ -5404,6 +5763,7 @@ class MockMediaDao extends _i1.Mock implements _i71.MediaDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<dynamic> clear(String? roomId) => (super.noSuchMethod(
         Invocation.method(
@@ -5436,6 +5796,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void saveMediaMetaData(_i75.MediaMetaData? metaData) => super.noSuchMethod(
         Invocation.method(
@@ -5444,6 +5805,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<List<_i72.Media>?> getMediaAutoPlayListPageByMessageId({
     required int? messageId,
@@ -5464,6 +5826,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<List<_i72.Media>?>.value(),
       ) as _i22.Future<List<_i72.Media>?>);
+
   @override
   _i22.Future<List<_i72.Media>?> getMediaAutoPlayListPageByIndex({
     required String? roomUid,
@@ -5482,6 +5845,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<List<_i72.Media>?>.value(),
       ) as _i22.Future<List<_i72.Media>?>);
+
   @override
   _i22.Future<_i75.MediaMetaData?> getMediaMetaData(String? roomUid) =>
       (super.noSuchMethod(
@@ -5491,6 +5855,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<_i75.MediaMetaData?>.value(),
       ) as _i22.Future<_i75.MediaMetaData?>);
+
   @override
   _i22.Future<void> updateMediaMetaData(
     _i3.Uid? roomUid,
@@ -5507,6 +5872,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void checkNeedFetchMedia(
     String? roomUid,
@@ -5524,6 +5890,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<dynamic> fetchLastMedia(
     String? roomUid,
@@ -5543,6 +5910,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
+
   @override
   _i22.Stream<_i75.MediaMetaData?> getMediasMetaDataCountFromDB(
           _i3.Uid? roomId) =>
@@ -5553,6 +5921,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Stream<_i75.MediaMetaData?>.empty(),
       ) as _i22.Stream<_i75.MediaMetaData?>);
+
   @override
   _i22.Future<List<_i72.Media>> getLastMediasList(
     _i3.Uid? roomId,
@@ -5572,6 +5941,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<List<_i72.Media>>.value(<_i72.Media>[]),
       ) as _i22.Future<List<_i72.Media>>);
+
   @override
   _i73.MediaType findFetchedMediaType(
           _i14.FetchMediasReq_MediaType? mediaType) =>
@@ -5582,6 +5952,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i73.MediaType.IMAGE,
       ) as _i73.MediaType);
+
   @override
   _i14.FetchMediasReq_MediaType convertType(_i73.MediaType? mediaType) =>
       (super.noSuchMethod(
@@ -5597,6 +5968,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
           ),
         ),
       ) as _i14.FetchMediasReq_MediaType);
+
   @override
   _i22.Future<List<_i72.Media>?> getMediaPage(
     String? roomUid,
@@ -5616,6 +5988,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<List<_i72.Media>?>.value(),
       ) as _i22.Future<List<_i72.Media>?>);
+
   @override
   void saveMediaFromMessage(_i25.Message? message) => super.noSuchMethod(
         Invocation.method(
@@ -5624,6 +5997,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<List<_i72.Media>?> fetchMoreMedia(
     String? roomUid,
@@ -5644,6 +6018,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: _i22.Future<List<_i72.Media>?>.value(),
       ) as _i22.Future<List<_i72.Media>?>);
+
   @override
   String findFetchedMediaJson(_i76.Media? media) => (super.noSuchMethod(
         Invocation.method(
@@ -5652,6 +6027,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: '',
       ) as String);
+
   @override
   String buildJsonFromFile(_i38.File? file) => (super.noSuchMethod(
         Invocation.method(
@@ -5660,6 +6036,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         ),
         returnValue: '',
       ) as String);
+
   @override
   _i22.Future<void> updateMedia(_i25.Message? message) => (super.noSuchMethod(
         Invocation.method(
@@ -5669,6 +6046,7 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i73.MediaType loadTypeFromString(String? type) => (super.noSuchMethod(
         Invocation.method(
@@ -5696,6 +6074,7 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
         ),
         returnValue: _i22.Future<dynamic>.value(),
       ) as _i22.Future<dynamic>);
+
   @override
   _i22.Stream<_i75.MediaMetaData?> get(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -5704,6 +6083,7 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
         ),
         returnValue: _i22.Stream<_i75.MediaMetaData?>.empty(),
       ) as _i22.Stream<_i75.MediaMetaData?>);
+
   @override
   _i22.Future<_i75.MediaMetaData?> getAsFuture(String? roomUid) =>
       (super.noSuchMethod(
@@ -5713,6 +6093,7 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i77.MediaMetaDataDao {
         ),
         returnValue: _i22.Future<_i75.MediaMetaData?>.value(),
       ) as _i22.Future<_i75.MediaMetaData?>);
+
   @override
   _i22.Future<dynamic> clear(String? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -5739,11 +6120,13 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           Invocation.getter(#callEvents),
         ),
       ) as _i4.BehaviorSubject<_i79.CallEvents>);
+
   @override
   bool get shouldRemoveData => (super.noSuchMethod(
         Invocation.getter(#shouldRemoveData),
         returnValue: false,
       ) as bool);
+
   @override
   set shouldRemoveData(bool? _shouldRemoveData) => super.noSuchMethod(
         Invocation.setter(
@@ -5752,11 +6135,13 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get isInitRenderer => (super.noSuchMethod(
         Invocation.getter(#isInitRenderer),
         returnValue: false,
       ) as bool);
+
   @override
   set isInitRenderer(bool? _isInitRenderer) => super.noSuchMethod(
         Invocation.setter(
@@ -5765,11 +6150,13 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i78.UserCallState get getUserCallState => (super.noSuchMethod(
         Invocation.getter(#getUserCallState),
         returnValue: _i78.UserCallState.IN_GROUP_CALL,
       ) as _i78.UserCallState);
+
   @override
   _i3.Uid get getRoomUid => (super.noSuchMethod(
         Invocation.getter(#getRoomUid),
@@ -5778,16 +6165,19 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           Invocation.getter(#getRoomUid),
         ),
       ) as _i3.Uid);
+
   @override
   String get getCallId => (super.noSuchMethod(
         Invocation.getter(#getCallId),
         returnValue: '',
       ) as String);
+
   @override
   bool get isHangedUp => (super.noSuchMethod(
         Invocation.getter(#isHangedUp),
         returnValue: false,
       ) as bool);
+
   @override
   _i15.RTCVideoRenderer get getLocalRenderer => (super.noSuchMethod(
         Invocation.getter(#getLocalRenderer),
@@ -5796,6 +6186,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           Invocation.getter(#getLocalRenderer),
         ),
       ) as _i15.RTCVideoRenderer);
+
   @override
   _i15.RTCVideoRenderer get getRemoteRenderer => (super.noSuchMethod(
         Invocation.getter(#getRemoteRenderer),
@@ -5804,6 +6195,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           Invocation.getter(#getRemoteRenderer),
         ),
       ) as _i15.RTCVideoRenderer);
+
   @override
   set setUserCallState(_i78.UserCallState? cs) => super.noSuchMethod(
         Invocation.setter(
@@ -5812,6 +6204,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set setRoomUid(_i3.Uid? ru) => super.noSuchMethod(
         Invocation.setter(
@@ -5820,6 +6213,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set setCallId(String? callId) => super.noSuchMethod(
         Invocation.setter(
@@ -5828,6 +6222,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set setCallHangedUp(bool? isHangedUp) => super.noSuchMethod(
         Invocation.setter(
@@ -5836,6 +6231,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void addCallEvent(_i79.CallEvents? event) => super.noSuchMethod(
         Invocation.method(
@@ -5844,6 +6240,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> saveCallOnDb(_i80.CurrentCallInfo? callInfo) =>
       (super.noSuchMethod(
@@ -5854,6 +6251,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Stream<_i80.CurrentCallInfo?> watchCurrentCall() => (super.noSuchMethod(
         Invocation.method(
@@ -5862,6 +6260,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValue: _i22.Stream<_i80.CurrentCallInfo?>.empty(),
       ) as _i22.Stream<_i80.CurrentCallInfo?>);
+
   @override
   _i22.Future<void> removeCallFromDb() => (super.noSuchMethod(
         Invocation.method(
@@ -5871,6 +6270,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i80.CurrentCallInfo?> loadCurrentCall() => (super.noSuchMethod(
         Invocation.method(
@@ -5879,6 +6279,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValue: _i22.Future<_i80.CurrentCallInfo?>.value(),
       ) as _i22.Future<_i80.CurrentCallInfo?>);
+
   @override
   _i22.Future<void> initRenderer() => (super.noSuchMethod(
         Invocation.method(
@@ -5888,6 +6289,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i81.CallStatus findCallEventStatusProto(
           _i16.CallEvent_CallStatus? eventCallStatus) =>
@@ -5898,6 +6300,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValue: _i81.CallStatus.CREATED,
       ) as _i81.CallStatus);
+
   @override
   _i82.CallType findCallEventType(_i16.CallEvent_CallType? eventCallType) =>
       (super.noSuchMethod(
@@ -5907,6 +6310,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValue: _i82.CallType.VIDEO,
       ) as _i82.CallType);
+
   @override
   _i16.CallEvent_CallType findProtoCallEventType(
           _i82.CallType? eventCallType) =>
@@ -5923,6 +6327,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           ),
         ),
       ) as _i16.CallEvent_CallType);
+
   @override
   _i16.CallEvent_CallStatus findCallEventStatusDB(
           _i81.CallStatus? eventCallStatus) =>
@@ -5939,6 +6344,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
           ),
         ),
       ) as _i16.CallEvent_CallStatus);
+
   @override
   String writeCallEventsToJson(_i79.CallEvents? event) => (super.noSuchMethod(
         Invocation.method(
@@ -5947,6 +6353,7 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         ),
         returnValue: '',
       ) as String);
+
   @override
   _i22.Future<void> clearCallData({bool? forceToClearData = false}) =>
       (super.noSuchMethod(
@@ -5977,6 +6384,7 @@ class MockNotificationServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void notifyIncomingMessage(
     _i46.Message? message,
@@ -5994,6 +6402,7 @@ class MockNotificationServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> notifyIncomingCall(
     String? roomUid, {
@@ -6012,6 +6421,7 @@ class MockNotificationServices extends _i1.Mock
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void cancelRoomNotifications(String? roomUid) => super.noSuchMethod(
         Invocation.method(
@@ -6020,6 +6430,7 @@ class MockNotificationServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void cancelNotificationById(
     int? id,
@@ -6035,6 +6446,7 @@ class MockNotificationServices extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void cancelAllNotifications() => super.noSuchMethod(
         Invocation.method(
@@ -6061,6 +6473,7 @@ class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
         ),
         returnValue: _i22.Future<_i85.LastActivity?>.value(),
       ) as _i22.Future<_i85.LastActivity?>);
+
   @override
   _i22.Stream<_i85.LastActivity?> watch(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -6069,6 +6482,7 @@ class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
         ),
         returnValue: _i22.Stream<_i85.LastActivity?>.empty(),
       ) as _i22.Stream<_i85.LastActivity?>);
+
   @override
   _i22.Future<void> save(_i85.LastActivity? lastActivity) =>
       (super.noSuchMethod(
@@ -6097,6 +6511,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         ),
         returnValue: _i22.Future<_i65.Muc?>.value(),
       ) as _i22.Future<_i65.Muc?>);
+
   @override
   _i22.Stream<_i65.Muc?> watch(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -6105,6 +6520,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         ),
         returnValue: _i22.Stream<_i65.Muc?>.empty(),
       ) as _i22.Stream<_i65.Muc?>);
+
   @override
   _i22.Future<void> save(_i65.Muc? muc) => (super.noSuchMethod(
         Invocation.method(
@@ -6114,6 +6530,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> delete(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -6123,6 +6540,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> updateMuc({
     required String? uid,
@@ -6154,6 +6572,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<_i61.Member?> getMember(
     String? mucUid,
@@ -6169,6 +6588,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         ),
         returnValue: _i22.Future<_i61.Member?>.value(),
       ) as _i22.Future<_i61.Member?>);
+
   @override
   _i22.Future<List<_i61.Member?>> getAllMembers(String? mucUid) =>
       (super.noSuchMethod(
@@ -6178,6 +6598,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         ),
         returnValue: _i22.Future<List<_i61.Member?>>.value(<_i61.Member?>[]),
       ) as _i22.Future<List<_i61.Member?>>);
+
   @override
   _i22.Stream<List<_i61.Member?>> watchAllMembers(String? mucUid) =>
       (super.noSuchMethod(
@@ -6187,6 +6608,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         ),
         returnValue: _i22.Stream<List<_i61.Member?>>.empty(),
       ) as _i22.Stream<List<_i61.Member?>>);
+
   @override
   _i22.Future<void> saveMember(_i61.Member? member) => (super.noSuchMethod(
         Invocation.method(
@@ -6196,6 +6618,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> deleteMember(_i61.Member? member) => (super.noSuchMethod(
         Invocation.method(
@@ -6205,6 +6628,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> deleteAllMembers(String? mucUid) => (super.noSuchMethod(
         Invocation.method(
@@ -6229,6 +6653,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         Invocation.getter(#maxKeyboardSizePortrait),
         returnValue: 0.0,
       ) as double);
+
   @override
   set maxKeyboardSizePortrait(double? _maxKeyboardSizePortrait) =>
       super.noSuchMethod(
@@ -6238,11 +6663,13 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   double get maxKeyboardSizeLandscape => (super.noSuchMethod(
         Invocation.getter(#maxKeyboardSizeLandscape),
         returnValue: 0.0,
       ) as double);
+
   @override
   set maxKeyboardSizeLandscape(double? _maxKeyboardSizeLandscape) =>
       super.noSuchMethod(
@@ -6252,26 +6679,31 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Stream<int> get themeIndexStream => (super.noSuchMethod(
         Invocation.getter(#themeIndexStream),
         returnValue: _i22.Stream<int>.empty(),
       ) as _i22.Stream<int>);
+
   @override
   _i22.Stream<int> get patternIndexStream => (super.noSuchMethod(
         Invocation.getter(#patternIndexStream),
         returnValue: _i22.Stream<int>.empty(),
       ) as _i22.Stream<int>);
+
   @override
   _i22.Stream<bool> get themeIsDarkStream => (super.noSuchMethod(
         Invocation.getter(#themeIsDarkStream),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
+
   @override
   _i22.Stream<bool> get showColorfulStream => (super.noSuchMethod(
         Invocation.getter(#showColorfulStream),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
+
   @override
   _i17.ThemeData get theme => (super.noSuchMethod(
         Invocation.getter(#theme),
@@ -6280,6 +6712,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
           Invocation.getter(#theme),
         ),
       ) as _i17.ThemeData);
+
   @override
   _i19.ExtraThemeData get extraTheme => (super.noSuchMethod(
         Invocation.getter(#extraTheme),
@@ -6288,46 +6721,55 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
           Invocation.getter(#extraTheme),
         ),
       ) as _i19.ExtraThemeData);
+
   @override
   bool get themeIsDark => (super.noSuchMethod(
         Invocation.getter(#themeIsDark),
         returnValue: false,
       ) as bool);
+
   @override
   bool get showColorful => (super.noSuchMethod(
         Invocation.getter(#showColorful),
         returnValue: false,
       ) as bool);
+
   @override
   int get themeIndex => (super.noSuchMethod(
         Invocation.getter(#themeIndex),
         returnValue: 0,
       ) as int);
+
   @override
   int get patternIndex => (super.noSuchMethod(
         Invocation.getter(#patternIndex),
         returnValue: 0,
       ) as int);
+
   @override
   bool get sendByEnter => (super.noSuchMethod(
         Invocation.getter(#sendByEnter),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isAllNotificationDisabled => (super.noSuchMethod(
         Invocation.getter(#isAllNotificationDisabled),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isNotificationAdvanceModeDisabled => (super.noSuchMethod(
         Invocation.getter(#isNotificationAdvanceModeDisabled),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isAutoNightModeEnable => (super.noSuchMethod(
         Invocation.getter(#isAutoNightModeEnable),
         returnValue: false,
       ) as bool);
+
   @override
   _i4.BehaviorSubject<bool> get isAutoNightModeEnableStream =>
       (super.noSuchMethod(
@@ -6337,6 +6779,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
           Invocation.getter(#isAutoNightModeEnableStream),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   void init() => super.noSuchMethod(
         Invocation.method(
@@ -6345,6 +6788,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void reInitialize() => super.noSuchMethod(
         Invocation.method(
@@ -6353,6 +6797,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void checkPlatformBrightness() => super.noSuchMethod(
         Invocation.method(
@@ -6361,6 +6806,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i20.CorePalette getCorePalette() => (super.noSuchMethod(
         Invocation.method(
@@ -6375,6 +6821,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
           ),
         ),
       ) as _i20.CorePalette);
+
   @override
   void toggleThemeLightingMode() => super.noSuchMethod(
         Invocation.method(
@@ -6383,6 +6830,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleThemeToLightMode({bool? forceToDisableAutoNightMode = false}) =>
       super.noSuchMethod(
@@ -6393,6 +6841,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void setKeyBoardSizePortrait(double? size) => super.noSuchMethod(
         Invocation.method(
@@ -6401,6 +6850,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void setKeyBoardSizeLandScape(double? size) => super.noSuchMethod(
         Invocation.method(
@@ -6409,6 +6859,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleThemeToDarkMode({bool? forceToDisableAutoNightMode = false}) =>
       super.noSuchMethod(
@@ -6419,6 +6870,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleShowColorful() => super.noSuchMethod(
         Invocation.method(
@@ -6427,6 +6879,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void selectTheme(int? index) => super.noSuchMethod(
         Invocation.method(
@@ -6435,6 +6888,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void selectPattern(int? index) => super.noSuchMethod(
         Invocation.method(
@@ -6443,6 +6897,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleSendByEnter() => super.noSuchMethod(
         Invocation.method(
@@ -6451,6 +6906,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleIsAllNotificationDisabled() => super.noSuchMethod(
         Invocation.method(
@@ -6459,6 +6915,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleIsAdvanceNotificationModeDisabled() => super.noSuchMethod(
         Invocation.method(
@@ -6467,6 +6924,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void enableAutoNightMode() => super.noSuchMethod(
         Invocation.method(
@@ -6475,6 +6933,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void changeLogLevel(String? level) => super.noSuchMethod(
         Invocation.method(
@@ -6483,6 +6942,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void toggleLogInFileEnable() => super.noSuchMethod(
         Invocation.method(
@@ -6517,6 +6977,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void handleApplicationUri(
     String? url,
@@ -6534,6 +6995,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> handleIdLink(
     _i17.BuildContext? context,
@@ -6552,6 +7014,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleLogin(
     _i17.BuildContext? context,
@@ -6568,6 +7031,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleAddContact({
     String? firstName,
@@ -6591,6 +7055,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleSendMsgToBot(
     _i17.BuildContext? context,
@@ -6609,6 +7074,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleSendPrivateDateAcceptance(
     _i17.BuildContext? context,
@@ -6629,6 +7095,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> handleJoin(
     _i17.BuildContext? context,
@@ -6649,6 +7116,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void handleNormalLink(
     String? uri,
@@ -6683,6 +7151,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
           Invocation.getter(#mainNavigatorState),
         ),
       ) as _i17.GlobalKey<_i17.NavigatorState>);
+
   @override
   _i4.BehaviorSubject<bool> get shouldScrollToLastMessageInRoom =>
       (super.noSuchMethod(
@@ -6692,6 +7161,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
           Invocation.getter(#shouldScrollToLastMessageInRoom),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set shouldScrollToLastMessageInRoom(
           _i4.BehaviorSubject<bool>? _shouldScrollToLastMessageInRoom) =>
@@ -6702,11 +7172,13 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Stream<_i90.RouteEvent> get currentRouteStream => (super.noSuchMethod(
         Invocation.getter(#currentRouteStream),
         returnValue: _i22.Stream<_i90.RouteEvent>.empty(),
       ) as _i22.Stream<_i90.RouteEvent>);
+
   @override
   void openSettings({bool? popAllBeforePush = false}) => super.noSuchMethod(
         Invocation.method(
@@ -6716,6 +7188,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openLanguageSettings() => super.noSuchMethod(
         Invocation.method(
@@ -6724,6 +7197,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openThemeSettings() => super.noSuchMethod(
         Invocation.method(
@@ -6732,6 +7206,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openSecuritySettings() => super.noSuchMethod(
         Invocation.method(
@@ -6740,6 +7215,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openDeveloperPage() => super.noSuchMethod(
         Invocation.method(
@@ -6748,6 +7224,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openDevices() => super.noSuchMethod(
         Invocation.method(
@@ -6756,6 +7233,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openAutoDownload() => super.noSuchMethod(
         Invocation.method(
@@ -6764,6 +7242,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openLab() => super.noSuchMethod(
         Invocation.method(
@@ -6772,6 +7251,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openContacts() => super.noSuchMethod(
         Invocation.method(
@@ -6780,6 +7260,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openNewContact() => super.noSuchMethod(
         Invocation.method(
@@ -6788,6 +7269,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openScanQrCode() => super.noSuchMethod(
         Invocation.method(
@@ -6796,6 +7278,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openCallsList() => super.noSuchMethod(
         Invocation.method(
@@ -6804,6 +7287,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openShowcase() => super.noSuchMethod(
         Invocation.method(
@@ -6812,6 +7296,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openConnectionSettingPage() => super.noSuchMethod(
         Invocation.method(
@@ -6820,6 +7305,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   String getCurrentRoomId() => (super.noSuchMethod(
         Invocation.method(
@@ -6828,6 +7314,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValue: '',
       ) as String);
+
   @override
   void resetCurrentRoom() => super.noSuchMethod(
         Invocation.method(
@@ -6836,6 +7323,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openRoom(
     String? roomId, {
@@ -6859,6 +7347,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openCallScreen(
     _i3.Uid? roomUid, {
@@ -6880,6 +7369,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openLocation(
     _i42.Location? location,
@@ -6897,6 +7387,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openProfile(String? roomId) => super.noSuchMethod(
         Invocation.method(
@@ -6905,12 +7396,14 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<dynamic>? openManageMuc(String? roomId) =>
       (super.noSuchMethod(Invocation.method(
         #openManageMuc,
         [roomId],
       )) as _i22.Future<dynamic>?);
+
   @override
   void openShowAllAvatars({
     required _i3.Uid? uid,
@@ -6929,6 +7422,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openShowAllVideos({
     required String? roomUid,
@@ -6951,6 +7445,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openShowAllImage({
     required String? uid,
@@ -6975,6 +7470,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openCustomNotificationSoundSelection(String? roomId) =>
       super.noSuchMethod(
@@ -6984,6 +7480,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openAccountSettings({bool? forceToSetName = false}) =>
       super.noSuchMethod(
@@ -6994,6 +7491,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openMemberSelection({
     required bool? isChannel,
@@ -7010,6 +7508,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openSelectForwardMessage({
     List<_i25.Message>? forwardedMessages,
@@ -7028,6 +7527,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openAllGroupedRoomsGridPage(
           {required _i91.GroupedRooms? groupedRooms}) =>
@@ -7039,6 +7539,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openGroupInfoDeterminationPage({required bool? isChannel}) =>
       super.noSuchMethod(
@@ -7049,6 +7550,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void openShareInput({
     List<String>? paths = const [],
@@ -7065,6 +7567,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool notInRoom() => (super.noSuchMethod(
         Invocation.method(
@@ -7073,6 +7576,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool isInRoom(String? roomId) => (super.noSuchMethod(
         Invocation.method(
@@ -7081,6 +7585,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   void popAll() => super.noSuchMethod(
         Invocation.method(
@@ -7089,6 +7594,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i17.PageRouteBuilder<dynamic> customPageRoute(
     _i17.RouteSettings? setting,
@@ -7113,6 +7619,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
           ),
         ),
       ) as _i17.PageRouteBuilder<dynamic>);
+
   @override
   void registerPreMaybePopScope(
     String? name,
@@ -7128,6 +7635,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void unregisterPreMaybePopScope(String? name) => super.noSuchMethod(
         Invocation.method(
@@ -7136,6 +7644,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void pop() => super.noSuchMethod(
         Invocation.method(
@@ -7144,6 +7653,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool preMaybePopScopeValue() => (super.noSuchMethod(
         Invocation.method(
@@ -7152,6 +7662,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   void maybePop() => super.noSuchMethod(
         Invocation.method(
@@ -7160,6 +7671,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool canPop() => (super.noSuchMethod(
         Invocation.method(
@@ -7168,6 +7680,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i17.Widget outlet(_i17.BuildContext? context) => (super.noSuchMethod(
         Invocation.method(
@@ -7182,6 +7695,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
           ),
         ),
       ) as _i17.Widget);
+
   @override
   void selectChatMenu(String? key) => super.noSuchMethod(
         Invocation.method(
@@ -7190,6 +7704,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> logout() => (super.noSuchMethod(
         Invocation.method(
@@ -7199,6 +7714,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i17.Widget backButtonLeading({_i10.Color? color}) => (super.noSuchMethod(
         Invocation.method(
@@ -7234,6 +7750,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set onAddRemoteStream(
           dynamic Function(_i15.MediaStream)? _onAddRemoteStream) =>
@@ -7244,6 +7761,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set onRemoveRemoteStream(
           dynamic Function(_i15.MediaStream)? _onRemoveRemoteStream) =>
@@ -7254,6 +7772,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerDeclined(_i22.Timer? _timerDeclined) => super.noSuchMethod(
         Invocation.setter(
@@ -7262,6 +7781,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerResendOffer(_i22.Timer? _timerResendOffer) => super.noSuchMethod(
         Invocation.setter(
@@ -7270,6 +7790,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerResendAnswer(_i22.Timer? _timerResendAnswer) => super.noSuchMethod(
         Invocation.setter(
@@ -7278,6 +7799,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerConnectionFailed(_i22.Timer? _timerConnectionFailed) =>
       super.noSuchMethod(
@@ -7287,6 +7809,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerDisconnected(_i22.Timer? _timerDisconnected) => super.noSuchMethod(
         Invocation.setter(
@@ -7295,6 +7818,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timerEndCallDispose(_i22.Timer? _timerEndCallDispose) =>
       super.noSuchMethod(
@@ -7304,6 +7828,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<_i93.CallTimer> get callTimer => (super.noSuchMethod(
         Invocation.getter(#callTimer),
@@ -7312,6 +7837,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#callTimer),
         ),
       ) as _i4.BehaviorSubject<_i93.CallTimer>);
+
   @override
   set callTimer(_i4.BehaviorSubject<_i93.CallTimer>? _callTimer) =>
       super.noSuchMethod(
@@ -7321,6 +7847,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set timer(_i22.Timer? _timer) => super.noSuchMethod(
         Invocation.setter(
@@ -7329,6 +7856,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get mute_camera => (super.noSuchMethod(
         Invocation.getter(#mute_camera),
@@ -7337,6 +7865,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#mute_camera),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set mute_camera(_i4.BehaviorSubject<bool>? _mute_camera) =>
       super.noSuchMethod(
@@ -7346,6 +7875,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<_i92.CallStatus> get callingStatus => (super.noSuchMethod(
         Invocation.getter(#callingStatus),
@@ -7354,6 +7884,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#callingStatus),
         ),
       ) as _i4.BehaviorSubject<_i92.CallStatus>);
+
   @override
   set callingStatus(_i4.BehaviorSubject<_i92.CallStatus>? _callingStatus) =>
       super.noSuchMethod(
@@ -7363,6 +7894,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get switching => (super.noSuchMethod(
         Invocation.getter(#switching),
@@ -7371,6 +7903,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#switching),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set switching(_i4.BehaviorSubject<bool>? _switching) => super.noSuchMethod(
         Invocation.setter(
@@ -7379,6 +7912,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get sharing => (super.noSuchMethod(
         Invocation.getter(#sharing),
@@ -7387,6 +7921,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#sharing),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set sharing(_i4.BehaviorSubject<bool>? _sharing) => super.noSuchMethod(
         Invocation.setter(
@@ -7395,6 +7930,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get incomingSharing => (super.noSuchMethod(
         Invocation.getter(#incomingSharing),
@@ -7403,6 +7939,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#incomingSharing),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set incomingSharing(_i4.BehaviorSubject<bool>? _incomingSharing) =>
       super.noSuchMethod(
@@ -7412,6 +7949,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get videoing => (super.noSuchMethod(
         Invocation.getter(#videoing),
@@ -7420,6 +7958,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#videoing),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set videoing(_i4.BehaviorSubject<bool>? _videoing) => super.noSuchMethod(
         Invocation.setter(
@@ -7428,6 +7967,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get incomingVideo => (super.noSuchMethod(
         Invocation.getter(#incomingVideo),
@@ -7436,6 +7976,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#incomingVideo),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set incomingVideo(_i4.BehaviorSubject<bool>? _incomingVideo) =>
       super.noSuchMethod(
@@ -7445,6 +7986,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get incomingVideoSwitch => (super.noSuchMethod(
         Invocation.getter(#incomingVideoSwitch),
@@ -7453,6 +7995,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#incomingVideoSwitch),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set incomingVideoSwitch(_i4.BehaviorSubject<bool>? _incomingVideoSwitch) =>
       super.noSuchMethod(
@@ -7462,6 +8005,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get desktopDualVideo => (super.noSuchMethod(
         Invocation.getter(#desktopDualVideo),
@@ -7470,6 +8014,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#desktopDualVideo),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set desktopDualVideo(_i4.BehaviorSubject<bool>? _desktopDualVideo) =>
       super.noSuchMethod(
@@ -7479,6 +8024,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get isSpeaker => (super.noSuchMethod(
         Invocation.getter(#isSpeaker),
@@ -7487,6 +8033,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#isSpeaker),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set isSpeaker(_i4.BehaviorSubject<bool>? _isSpeaker) => super.noSuchMethod(
         Invocation.setter(
@@ -7495,6 +8042,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i4.BehaviorSubject<bool> get incomingCallOnHold => (super.noSuchMethod(
         Invocation.getter(#incomingCallOnHold),
@@ -7503,6 +8051,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#incomingCallOnHold),
         ),
       ) as _i4.BehaviorSubject<bool>);
+
   @override
   set incomingCallOnHold(_i4.BehaviorSubject<bool>? _incomingCallOnHold) =>
       super.noSuchMethod(
@@ -7512,36 +8061,43 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get isMicMuted => (super.noSuchMethod(
         Invocation.getter(#isMicMuted),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isCaller => (super.noSuchMethod(
         Invocation.getter(#isCaller),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isConnected => (super.noSuchMethod(
         Invocation.getter(#isConnected),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isSharing => (super.noSuchMethod(
         Invocation.getter(#isSharing),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isVideo => (super.noSuchMethod(
         Invocation.getter(#isVideo),
         returnValue: false,
       ) as bool);
+
   @override
   bool get isInitRenderer => (super.noSuchMethod(
         Invocation.getter(#isInitRenderer),
         returnValue: false,
       ) as bool);
+
   @override
   set setRenderer(bool? isInit) => super.noSuchMethod(
         Invocation.setter(
@@ -7550,6 +8106,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i15.StatsReport get selectedCandidate => (super.noSuchMethod(
         Invocation.getter(#selectedCandidate),
@@ -7558,11 +8115,13 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
           Invocation.getter(#selectedCandidate),
         ),
       ) as _i15.StatsReport);
+
   @override
   Map<int, String> get callEvents => (super.noSuchMethod(
         Invocation.getter(#callEvents),
         returnValue: <int, String>{},
       ) as Map<int, String>);
+
   @override
   _i22.Future<void> initCall({bool? isOffer = false}) => (super.noSuchMethod(
         Invocation.method(
@@ -7573,6 +8132,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<bool> requestPhoneStatePermission() => (super.noSuchMethod(
         Invocation.method(
@@ -7581,6 +8141,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   void startListenToPhoneCallState() => super.noSuchMethod(
         Invocation.method(
@@ -7589,6 +8150,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void onRTCPeerConnectionDisconnected() => super.noSuchMethod(
         Invocation.method(
@@ -7597,6 +8159,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> onRTCPeerConnectionConnected() => (super.noSuchMethod(
         Invocation.method(
@@ -7606,6 +8169,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void onRTCPeerConnectionStateFailed() => super.noSuchMethod(
         Invocation.method(
@@ -7614,6 +8178,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> shareScreen({
     bool? isWindows = false,
@@ -7631,6 +8196,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   bool muteMicrophone() => (super.noSuchMethod(
         Invocation.method(
@@ -7639,6 +8205,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool enableSpeakerVoice() => (super.noSuchMethod(
         Invocation.method(
@@ -7647,6 +8214,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<bool> switchCamera() => (super.noSuchMethod(
         Invocation.method(
@@ -7655,6 +8223,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
+
   @override
   bool toggleDesktopDualVideo() => (super.noSuchMethod(
         Invocation.method(
@@ -7663,6 +8232,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   bool muteCamera() => (super.noSuchMethod(
         Invocation.method(
@@ -7671,6 +8241,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Future<void> startCall(
     _i3.Uid? roomId, {
@@ -7685,6 +8256,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> acceptCall(_i3.Uid? roomId) => (super.noSuchMethod(
         Invocation.method(
@@ -7694,6 +8266,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> declineCall() => (super.noSuchMethod(
         Invocation.method(
@@ -7703,6 +8276,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> receivedBusyCall() => (super.noSuchMethod(
         Invocation.method(
@@ -7712,6 +8286,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> receivedDeclinedCall() => (super.noSuchMethod(
         Invocation.method(
@@ -7721,6 +8296,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> receivedEndCall(int? callDuration) => (super.noSuchMethod(
         Invocation.method(
@@ -7730,6 +8306,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   _i22.Future<void> cancelCallNotification() => (super.noSuchMethod(
         Invocation.method(
@@ -7739,6 +8316,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void endCall() => super.noSuchMethod(
         Invocation.method(
@@ -7747,6 +8325,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   int calculateCallEndTime() => (super.noSuchMethod(
         Invocation.method(
@@ -7755,6 +8334,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValue: 0,
       ) as int);
+
   @override
   _i22.Future<void> reset() => (super.noSuchMethod(
         Invocation.method(
@@ -7764,6 +8344,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+
   @override
   void startCallTimer() => super.noSuchMethod(
         Invocation.method(
@@ -7772,6 +8353,7 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   _i22.Future<void> fetchUserCallList(_i3.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
@@ -7800,6 +8382,7 @@ class MockAppLifecycleService extends _i1.Mock
         ),
         returnValue: _i94.AppLifecycle.ACTIVE,
       ) as _i94.AppLifecycle);
+
   @override
   void updateAppStateToPause() => super.noSuchMethod(
         Invocation.method(
@@ -7808,6 +8391,7 @@ class MockAppLifecycleService extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool appIsActive() => (super.noSuchMethod(
         Invocation.method(
@@ -7816,6 +8400,7 @@ class MockAppLifecycleService extends _i1.Mock
         ),
         returnValue: false,
       ) as bool);
+
   @override
   _i22.Stream<_i94.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
         Invocation.method(
@@ -7824,6 +8409,7 @@ class MockAppLifecycleService extends _i1.Mock
         ),
         returnValue: _i22.Stream<_i94.AppLifecycle>.empty(),
       ) as _i22.Stream<_i94.AppLifecycle>);
+
   @override
   void startLifeCycListener() => super.noSuchMethod(
         Invocation.method(
