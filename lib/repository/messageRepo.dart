@@ -1104,8 +1104,9 @@ class MessageRepo {
     for (final forwardedMessage in forwardedMessage) {
       final msg = _createMessage(
         room,
-        forwardedFrom:
-            forwardedMessage.forwardedFrom ?? forwardedMessage.roomUid,
+        forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
+            ? forwardedMessage.roomUid
+            : forwardedMessage.forwardedFrom,
       ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
