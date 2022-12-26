@@ -593,6 +593,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   void _hideDesktopEmojiKeyboardOverlay() {
     _desktopEmojiKeyboardOverlayEntry?.remove();
+    widget.focusNode.requestFocus();
   }
 
   void _showDesktopEmojiKeyboardOverlay() {
@@ -743,55 +744,67 @@ class InputMessageWidgetState extends State<InputMessage> {
           return RawKeyboardListener(
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
-            child: AutoDirectionTextField(
-              textFieldKey: _inputTextKey,
-              selectionControls: selectionControls,
-              focusNode: widget.focusNode,
-              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-              controller: widget.textController,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
-                contentPadding:
-                    EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
-                border: InputBorder.none,
-                counterText: "",
-                hintText: _hasMarkUpPlaceHolder()
-                    ? widget.currentRoom.lastMessage!.markup!
-                        .toMessageMarkup()
-                        .inputFieldPlaceholder
-                    : _i18n.get("write_a_message"),
-                hintTextDirection: _hasMarkUpPlaceHolder()
-                    ? _i18n.getDirection(
-                        widget.currentRoom.lastMessage!.markup!
-                            .toMessageMarkup()
-                            .inputFieldPlaceholder,
-                      )
-                    : _i18n.defaultTextDirection,
-                hintStyle: theme.textTheme.bodyMedium,
-              ),
-              textInputAction: TextInputAction.newline,
-              minLines: 1,
-              maxLines: isAndroid ? 10 : 15,
-              maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-              inputFormatters: [
-                MaxLinesTextInputFormatter(
-                  INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                )
-                //max line of text field
-              ],
-              style: theme.textTheme.bodyMedium,
-              onChanged: (str) {
-                if (str.isNotEmpty) {
-                  isTypingActivitySubject.add(
-                    ActivityType.TYPING,
-                  );
-                } else {
-                  noActivitySubject.add(
-                    ActivityType.NO_ACTIVITY,
-                  );
+            child: Focus(
+              onFocusChange: (c) {
+                if (!c && isDesktop) {
+                  if (FocusScope.of(context).focusedChild !=
+                          _desktopEmojiKeyboardFocusNode &&
+                      FocusManager.instance.primaryFocus !=
+                          MAIN_SEARCH_BOX_FOCUS_NODE) {
+                    widget.focusNode.requestFocus();
+                  }
                 }
               },
+              child: AutoDirectionTextField(
+                textFieldKey: _inputTextKey,
+                selectionControls: selectionControls,
+                focusNode: widget.focusNode,
+                autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+                controller: widget.textController,
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
+                  contentPadding:
+                      EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
+                  border: InputBorder.none,
+                  counterText: "",
+                  hintText: _hasMarkUpPlaceHolder()
+                      ? widget.currentRoom.lastMessage!.markup!
+                          .toMessageMarkup()
+                          .inputFieldPlaceholder
+                      : _i18n.get("write_a_message"),
+                  hintTextDirection: _hasMarkUpPlaceHolder()
+                      ? _i18n.getDirection(
+                          widget.currentRoom.lastMessage!.markup!
+                              .toMessageMarkup()
+                              .inputFieldPlaceholder,
+                        )
+                      : _i18n.defaultTextDirection,
+                  hintStyle: theme.textTheme.bodyMedium,
+                ),
+                textInputAction: TextInputAction.newline,
+                minLines: 1,
+                maxLines: isAndroid ? 10 : 15,
+                maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                inputFormatters: [
+                  MaxLinesTextInputFormatter(
+                    INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                  )
+                  //max line of text field
+                ],
+                style: theme.textTheme.bodyMedium,
+                onChanged: (str) {
+                  if (str.isNotEmpty) {
+                    isTypingActivitySubject.add(
+                      ActivityType.TYPING,
+                    );
+                  } else {
+                    noActivitySubject.add(
+                      ActivityType.NO_ACTIVITY,
+                    );
+                  }
+                },
+              ),
             ),
           );
         },
