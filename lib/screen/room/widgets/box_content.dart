@@ -129,7 +129,9 @@ class BoxContentState extends State<BoxContent> {
                     ],
                   ),
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
-                if (hasReply()) replyToIdBox(),
+                if (!AnimatedEmoji.isAnimatedEmojiMessage(widget.message) &&
+                    hasReply())
+                  replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
                 Container(key: _messageBoxKey, child: messageBox())
               ],
@@ -255,10 +257,17 @@ class BoxContentState extends State<BoxContent> {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     if (AnimatedEmoji.isAnimatedEmojiMessage(widget.message)) {
-      return AnimatedEmoji(
-        message: widget.message,
-        isSeen: widget.isSeen,
-        colorScheme: colorScheme,
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasReply()&&widget.isSender) replyToIdBox(),
+          AnimatedEmoji(
+            message: widget.message,
+            isSeen: widget.isSeen,
+            colorScheme: colorScheme,
+          ),
+          if (hasReply()&& !widget.isSender) replyToIdBox(),
+        ],
       );
     }
 
