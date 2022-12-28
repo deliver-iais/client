@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -220,18 +221,14 @@ class LocationDialog extends StatelessWidget {
   }
 }
 
-class LocationPage extends StatelessWidget {
+class LocationPage extends StatefulWidget {
   final Location location;
   final Uid from;
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _uxService = GetIt.I.get<UxService>();
-  final position = _determinePosition();
   final Message message;
-  late final MapController _mapController = MapController();
 
-  LocationPage({
+  const LocationPage({
     super.key,
     required this.location,
     required this.from,
@@ -239,13 +236,28 @@ class LocationPage extends StatelessWidget {
   });
 
   @override
+  State<LocationPage> createState() => _LocationPageState();
+}
+
+class _LocationPageState extends State<LocationPage> {
+  final _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
+
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+
+  final _uxService = GetIt.I.get<UxService>();
+
+  final position = _determinePosition();
+
+  late final MapController _mapController = MapController();
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        leading: _routingServices.backButtonLeading(),
-        title: Text(_i18n.get("location")),
+        leading: LocationPage._routingServices.backButtonLeading(),
+        title: Text(LocationPage._i18n.get("location")),
         actions: [
           PopupMenuButton(
             icon: const Icon(Icons.more_vert),
@@ -261,21 +273,21 @@ class LocationPage extends StatelessWidget {
                             ? await MapLauncher.showMarker(
                                 mapType: MapType.apple,
                                 coords: map.Coords(
-                                  location.latitude,
-                                  location.longitude,
+                                  widget.location.latitude,
+                                  widget.location.longitude,
                                 ),
-                                title: locationToString(location),
+                                title: locationToString(widget.location),
                               )
                             : MapLauncher.showMarker(
                                 mapType: MapType.google,
                                 coords: map.Coords(
-                                  location.latitude,
-                                  location.longitude,
+                                  widget.location.latitude,
+                                  widget.location.longitude,
                                 ),
-                                title: locationToString(location),
+                                title: locationToString(widget.location),
                               );
                       },
-                      child: Text(_i18n.get("open_in")),
+                      child: Text(LocationPage._i18n.get("open_in")),
                     ),
                   ],
                 ),
@@ -293,7 +305,10 @@ class LocationPage extends StatelessWidget {
               return FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  center: LatLng(location.latitude, location.longitude),
+                  center: LatLng(
+                    widget.location.latitude,
+                    widget.location.longitude,
+                  ),
                   zoom: 15.0,
                   enableMultiFingerGestureRace: true,
                 ),
@@ -341,7 +356,10 @@ class LocationPage extends StatelessWidget {
                           },
                         ),
                       Marker(
-                        point: LatLng(location.latitude, location.longitude),
+                        point: LatLng(
+                          widget.location.latitude,
+                          widget.location.longitude,
+                        ),
                         builder: (_) {
                           return GestureDetector(
                             child: Icon(
@@ -374,6 +392,9 @@ class LocationPage extends StatelessWidget {
                           LatLng(position.latitude, position.longitude),
                           15,
                         );
+                      } else {
+                        _checkPermissionsService.haveLocationPermission();
+                        setState(() {});
                       }
                     },
                     icon: const Icon(Icons.my_location_sharp),
@@ -386,7 +407,7 @@ class LocationPage extends StatelessWidget {
             ),
           ),
           Directionality(
-            textDirection: _i18n.defaultTextDirection,
+            textDirection: LocationPage._i18n.defaultTextDirection,
             child: Align(
               alignment: FractionalOffset.bottomCenter,
               child: Container(
@@ -408,7 +429,7 @@ class LocationPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          CircleAvatarWidget(from, 25),
+                          CircleAvatarWidget(widget.from, 25),
                           const SizedBox(
                             width: 20,
                           ),
@@ -419,14 +440,16 @@ class LocationPage extends StatelessWidget {
                                 height: 1,
                               ),
                               FutureBuilder<String>(
-                                initialData: _roomRepo
-                                    .fastForwardName(message.from.asUid()),
-                                future: _roomRepo.getName(message.from.asUid()),
+                                initialData: _roomRepo.fastForwardName(
+                                  widget.message.from.asUid(),
+                                ),
+                                future: _roomRepo
+                                    .getName(widget.message.from.asUid()),
                                 builder: (context, snapshot) {
-                                  final roomName =
-                                      snapshot.data ?? _i18n.get("loading");
+                                  final roomName = snapshot.data ??
+                                      LocationPage._i18n.get("loading");
                                   return RoomName(
-                                    uid: message.from.asUid(),
+                                    uid: widget.message.from.asUid(),
                                     name: roomName,
                                   );
                                 },
@@ -435,18 +458,30 @@ class LocationPage extends StatelessWidget {
                                 height: 10,
                               ),
                               FutureBuilder(
-                                future: _distance(message),
+                                future: _distance(widget.message),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     var distance = snapshot.data;
                                     distance = double.parse("$distance")
                                         .toStringAsFixed(3);
                                     return Text(
-                                      "$distance ${_i18n.get("away")}",
+                                      "$distance ${LocationPage._i18n.get("away")}",
                                     );
                                   } else {
-                                    return Text(
-                                      _i18n.get("locating"),
+                                    return FutureBuilder<bool>(
+                                      future: _checkPermissionsService
+                                          .haveLocationPermission(),
+                                      builder: (context, havePermission) {
+                                        if (havePermission.hasData &&
+                                            havePermission.data != null &&
+                                            havePermission.data!) {
+                                          return Text(
+                                            LocationPage._i18n.get("locating"),
+                                          );
+                                        } else {
+                                          return const Text(" ");
+                                        }
+                                      },
                                     );
                                   }
                                 },
@@ -490,20 +525,20 @@ class LocationPage extends StatelessWidget {
                                     ? await MapLauncher.showDirections(
                                         mapType: MapType.apple,
                                         destination: map.Coords(
-                                          location.latitude,
-                                          location.longitude,
+                                          widget.location.latitude,
+                                          widget.location.longitude,
                                         ),
                                       )
                                     : MapLauncher.showDirections(
                                         mapType: MapType.google,
                                         destination: map.Coords(
-                                          location.latitude,
-                                          location.longitude,
+                                          widget.location.latitude,
+                                          widget.location.longitude,
                                         ),
                                       );
                               },
                               child: Text(
-                                _i18n.get("direction"),
+                                LocationPage._i18n.get("direction"),
                                 style: TextStyle(
                                   color: theme.colorScheme.surface,
                                 ),
@@ -537,27 +572,12 @@ Future<double> _distance(Message message) async {
 }
 
 Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error('Location services are disabled.');
+  final checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
+  if (await checkPermissionsService.haveLocationPermission()) {
+    return Geolocator.getCurrentPosition();
+  } else {
+    return Future.error('Location permissions are denied');
   }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      return Future.error('Location permissions are denied');
-    }
-  }
-
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error(
-      'Location permissions are permanently denied, we cannot request permissions.',
-    );
-  }
-  return Geolocator.getCurrentPosition();
 }
 
 String locationToString(Location location) {
