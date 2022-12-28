@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -37,7 +38,6 @@ class AsyncLastMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return FutureBuilder<MessageSimpleRepresentative>(
       future: messageSRF,
       builder: (context, snapshot) {
@@ -61,6 +61,7 @@ class AsyncLastMessage extends StatelessWidget {
 
 class LastMessage extends StatelessWidget {
   static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final MessageSimpleRepresentative messageSR;
 
@@ -123,8 +124,8 @@ class LastMessage extends StatelessWidget {
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
                 maxLines: maxLine ?? (showSender ? 1 : 2),
-                textAlign: TextAlign.end,
-                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.left,
+                textDirection: _i18n.defaultTextDirection,
                 text: TextSpan(
                   children: [
                     if (mb.typeDetails.isNotEmpty)

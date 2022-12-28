@@ -28,7 +28,7 @@ import 'package:universal_html/html.dart' as html;
 
 import 'ext_storage_services.dart';
 
-enum ThumbnailSize { medium, small }
+enum ThumbnailSize { medium, small, frame }
 
 enum FileStatus { NONE, STARTED, CANCELED, COMPLETED }
 
@@ -354,12 +354,12 @@ class FileService {
     try {
       final cancelToken = CancelToken();
       _addCancelToken(cancelToken, uuid);
-
       final res = await _dio.get(
         "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
         options: Options(responseType: ResponseType.bytes),
         cancelToken: cancelToken,
       );
+
       if (isWeb) {
         final blob = html.Blob(
           <Object>[res.data],
@@ -377,7 +377,6 @@ class FileService {
       if (initProgressbar) {
         updateFileStatus(uuid, FileStatus.CANCELED);
       }
-
       _logger.e(e);
       return null;
     }

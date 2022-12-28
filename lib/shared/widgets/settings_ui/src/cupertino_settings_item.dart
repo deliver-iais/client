@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -87,8 +88,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     if (widget.leading != null) {
       leadingIcon = IconTheme.merge(
         data: iconThemeData,
-        child:
-        widget.leading!,
+        child: widget.leading!,
       );
     }
 
@@ -160,6 +160,21 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
     switch (widget.type) {
       case SettingsItemType.toggle:
+        if (widget.onPress != null) {
+          rowChildren.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: mainBorder,
+                  color: theme.dividerColor,
+                ),
+                height: 26,
+                width: 3,
+              ),
+            ),
+          );
+        }
         rowChildren.add(
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 11.0),
@@ -261,7 +276,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
           if (widget.type == SettingsItemType.toggle && widget.enabled) {
             if (mounted) {
-              if(widget.onPress == null) {
+              if (widget.onPress == null) {
                 setState(() {
                   _checked = !_checked!;
                   widget.onToggle!(_checked!);

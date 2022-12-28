@@ -13,6 +13,7 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,8 +32,7 @@ class SplashScreenState extends State<SplashScreen>
   final _focusNode = FocusNode();
 
   late AnimationController _animationController;
-  int _attempts = 0;
-  bool _isLocked = false;
+  final _locked = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -50,24 +50,11 @@ class SplashScreenState extends State<SplashScreen>
   Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
-      return _authRepo.init().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () {
-          if (_attempts < 3) {
-            _attempts++;
-            tryInitAccountRepo();
-          } else {
-            _navigateToIntroPage();
-          }
-        },
-      ).then((_) {
+      return _authRepo.init(retry:  true).then((_) {
         if (!_authRepo.isLocalLockEnabled()) {
           navigateToApp();
         } else {
-          // navigateToApp();
-          setState(() {
-            _isLocked = true;
-          });
+          _locked.add(true);
         }
       });
     } catch (_) {}
@@ -125,7 +112,16 @@ class SplashScreenState extends State<SplashScreen>
       textDirection: TextDirection.ltr,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 100),
-        child: _isLocked ? desktopLock() : loading(),
+        child: StreamBuilder<bool>(
+          initialData: false,
+          stream: _locked,
+          builder: (c, s) {
+            if (s.hasData && s.data!) {
+              return desktopLock();
+            }
+            return loading();
+          },
+        ),
       ),
     );
   }

@@ -251,9 +251,14 @@ class PersistentEventMessage extends StatelessWidget {
 
         final issueWidget = Text(
           _persistentEventHandlerService.getMucSpecificPersistentEventIssue(
-            persistentEventMessage,
-            isChannel: isChannel,
-          ),
+                persistentEventMessage,
+                isChannel: isChannel,
+              ) +
+              (persistentEventMessage.mucSpecificPersistentEvent.issue ==
+                      MucSpecificPersistentEvent_Issue.NAME_CHANGED
+                  ? " \"${persistentEventMessage.mucSpecificPersistentEvent.name}\""
+                  : ""),
+          textDirection: _i18n.defaultTextDirection,
           overflow: TextOverflow.ellipsis,
           softWrap: false,
           style: const TextStyle(fontSize: 14, height: 1),

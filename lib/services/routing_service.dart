@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
@@ -15,6 +16,7 @@ import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
+import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/widgets/media_page/all_media_page.dart';
@@ -47,7 +49,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dismissible_page/dismissible_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
@@ -217,6 +218,13 @@ class RoutingService {
         ),
       );
 
+  Future<dynamic>? openManageMuc(String roomId) => _push(
+        MucManagePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/manage"),
+        ),
+      );
+
   void openShowAllAvatars({
     required Uid uid,
     required bool hasPermissionToDeleteAvatar,
@@ -350,7 +358,7 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  void _push(
+  Future<dynamic>? _push(
     Widget widget, {
     bool popAllBeforePush = false,
     bool useTransparentRoute = false,
@@ -366,21 +374,38 @@ class RoutingService {
             builder: (c) => widget,
             settings: RouteSettings(name: path),
           )
-        : CupertinoPageRoute(
-            builder: (c) => widget,
-            settings: RouteSettings(name: path),
+        : customPageRoute(
+            RouteSettings(name: path),
+            (c, animation, secondaryAnimation) => widget,
           );
     if (popAllBeforePush) {
-      _homeNavigatorState.currentState?.pushAndRemoveUntil(
+      return _homeNavigatorState.currentState?.pushAndRemoveUntil(
         route,
         (r) => r.isFirst,
       );
     } else {
-      _homeNavigatorState.currentState?.push(
+      return _homeNavigatorState.currentState?.push(
         route,
       );
     }
   }
+
+  PageRouteBuilder customPageRoute(
+    RouteSettings setting,
+    RoutePageBuilder builder,
+  ) =>
+      PageRouteBuilder(
+        settings: setting,
+        pageBuilder: builder,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeThroughTransition(
+            fillColor: Theme.of(context).scaffoldBackgroundColor,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+      );
 
   void registerPreMaybePopScope(String name, bool Function() callback) =>
       _preMaybePopScope.register(name, callback);
@@ -422,21 +447,26 @@ class RoutingService {
             child: ClipRect(
               child: Navigator(
                 key: _homeNavigatorState,
-                observers: [HeroController(), _navigatorObserver],
-                onGenerateRoute: (r) => CupertinoPageRoute(
-                  settings: r.copyWith(name: "/"),
-                  builder: (c) {
-                    try {
-                      if (isLarge(c)) {
-                        return _empty;
-                      } else {
-                        return _navigationCenter;
-                      }
-                    } catch (_) {
+                observers: [
+                  HeroController(
+                    createRectTween: (begin, end) {
+                      return MaterialRectArcTween(begin: begin, end: end);
+                    },
+                  ),
+                  _navigatorObserver
+                ],
+                onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
+                    (c, animation, secondaryAnimation) {
+                  try {
+                    if (isLarge(c)) {
                       return _empty;
+                    } else {
+                      return _navigationCenter;
                     }
-                  },
-                ),
+                  } catch (_) {
+                    return _empty;
+                  }
+                }),
               ),
             ),
           ),
@@ -457,17 +487,13 @@ class RoutingService {
   }
 
   Future<void> logout() async {
-    final coreServices = GetIt.I.get<CoreServices>();
-    final authRepo = GetIt.I.get<AuthRepo>();
-    final accountRepo = GetIt.I.get<AccountRepo>();
-    final fireBaseServices = GetIt.I.get<FireBaseServices>();
-    final dbManager = GetIt.I.get<DBManager>();
-    if (authRepo.isLoggedIn()) {
-      await accountRepo.logOut();
-      if (!isDesktop) fireBaseServices.deleteToken();
-      coreServices.closeConnection();
-      await authRepo.deleteTokens();
-      await dbManager.deleteDB();
+    final autRepo = GetIt.I.get<AuthRepo>();
+    if (autRepo.isLoggedIn()) {
+      await GetIt.I.get<AccountRepo>().logOut();
+      if (!isDesktop) GetIt.I.get<FireBaseServices>().deleteToken();
+      GetIt.I.get<CoreServices>().closeConnection();
+      await autRepo.deleteTokens();
+      await GetIt.I.get<DBManager>().deleteDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(

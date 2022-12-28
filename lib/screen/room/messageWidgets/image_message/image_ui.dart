@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -136,6 +135,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     } catch (e) {
       return ClipRRect(
         borderRadius: secondaryBorder,
+        clipBehavior: Clip.hardEdge,
         child: Container(
           constraints: BoxConstraints(
             minWidth: widget.minWidth,
@@ -160,10 +160,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ),
       builder: (c, path) {
         if (path.hasData && path.data != null) {
-          return ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: buildThumbnail(path.data!),
-          );
+          return buildThumbnail(path.data!);
         }
         return defaultImageUI();
       },

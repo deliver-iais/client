@@ -330,6 +330,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
               height: height,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
+                clipBehavior: Clip.hardEdge,
                 child: RTCVideoView(
                   switching.value
                       ? widget.remoteRenderer
@@ -365,6 +366,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
               height: height,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
+                clipBehavior: Clip.hardEdge,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(

@@ -32,7 +32,7 @@ class FileDetails extends StatelessWidget {
             colorScheme: colorScheme,
           )
         : SizedBox(
-            height: 15,
+            height: 32,
             child: StreamBuilder<Map<String, FileStatus>>(
               stream: _fileService.watchFileStatus(),
               builder: (context, snapshot) {
@@ -65,7 +65,16 @@ class FileDetails extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.only(left: 3, right: 3, top: 1, bottom: 1),
+        padding: const EdgeInsets.only(
+          left: 7,
+          right: 8,
+          top: 6,
+          bottom: 4,
+        ),
+        margin: const EdgeInsets.only(
+          left: 5,
+          top: 5,
+        ),
         decoration: BoxDecoration(
           color: withColor
               ? Theme.of(context).colorScheme.surface.withOpacity(0.7)

@@ -227,7 +227,7 @@ class ContactRepo {
     }
   }
 
-  Future<bool> sendNewContact(Contact contact) async {
+  Future<String?> sendNewContact(Contact contact) async {
     try {
       final res = await _sdr.contactServiceClient.saveContacts(
         SaveContactsReq()
@@ -235,10 +235,10 @@ class ContactRepo {
           ..returnUserContactByPhoneNumberList.add(contact.phoneNumber),
       );
       _saveUserContact(res.userList);
-      return res.userList.isNotEmpty;
+      return res.userList.isNotEmpty ? res.userList.last.uid.asString() : null;
     } catch (e) {
       _logger.e(e);
-      return false;
+      return null;
     }
   }
 

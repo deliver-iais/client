@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:extended_image/extended_image.dart';
+
+import 'package:extended_image/extended_image.dart'
+    if (dart.library.html) 'package:deliver/web_classes/extended_image.dart';
+
 import 'package:flutter/material.dart';
 
 class ImageMediaWidget extends StatelessWidget {
@@ -31,7 +34,6 @@ class ImageMediaWidget extends StatelessWidget {
               );
             },
             enableSlideOutPage: true,
-            isAntiAlias: true,
             onDoubleTap: (state) => onDoubleTap(state),
           );
   }

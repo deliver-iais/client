@@ -600,6 +600,13 @@ class RoomPageState extends State<RoomPage> {
         _calmScrollEvent(_isScrolling.valueOrNull!.pixel);
       }
       _room.add(event);
+      if (!event.synced) {
+        _messageRepo.fetchRoomLastMessage(
+          event.uid,
+          event.lastMessageId,
+          event.firstMessageId,
+        );
+      }
     });
 
     messageEventSubject
@@ -843,7 +850,8 @@ class RoomPageState extends State<RoomPage> {
     _lastShowedMessageId = seen.messageId;
     if (room != null) {
       _lastShowedMessageId = _lastShowedMessageId - room.firstMessageId;
-      if (_authRepo.isCurrentUser(room.lastMessage!.from)) {
+      if (room.lastMessage != null &&
+          _authRepo.isCurrentUser(room.lastMessage!.from)) {
         _lastShowedMessageId = -1;
       }
     }
@@ -1300,9 +1308,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget buildMessagesListView() {
-    if (room.lastMessage == null || _itemCount <= 0) {
-      return const SizedBox.shrink();
-    }
+    if (_itemCount <= 0) return const SizedBox.shrink();
 
     final scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)

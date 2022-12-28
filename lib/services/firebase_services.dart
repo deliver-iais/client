@@ -90,7 +90,11 @@ class FireBaseServices {
   }
 
   void deleteToken() {
-    _firebaseMessaging.deleteToken();
+    try {
+      _firebaseMessaging.deleteToken();
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> _sendFirebaseToken(String fireBaseToken) async {

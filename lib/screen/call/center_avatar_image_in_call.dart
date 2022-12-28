@@ -64,6 +64,7 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
               } else {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(widget.radius),
+                  clipBehavior: Clip.hardEdge,
                   child: Container(
                     width: 140,
                     height: 140,

@@ -36,8 +36,6 @@ abstract class RoomDao {
 
   Stream<Room> watchRoom(String roomUid);
 
-  Future<List<Room>> getNotSyncedRoom();
-
   Future<List<Room>> getAllGroups();
 }
 
@@ -187,18 +185,4 @@ class RoomDaoImpl extends RoomDao {
     }
   }
 
-  @override
-  Future<List<Room>> getNotSyncedRoom() async {
-    try {
-      final box = await _openRoom();
-      return box.values
-          .where(
-            (element) =>
-                !element.deleted && (!element.synced || !element.seenSynced),
-          )
-          .toList();
-    } catch (e) {
-      return [];
-    }
-  }
 }

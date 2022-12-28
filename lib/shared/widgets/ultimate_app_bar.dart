@@ -22,6 +22,7 @@ class BlurredPreferredSizedWidget extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
+      clipBehavior: Clip.hardEdge,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 14, sigmaY: 8),
         child: child,
