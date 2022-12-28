@@ -304,6 +304,23 @@ class ShareBoxState extends State<ShareBox> {
                             break;
                           case 2:
                             _currentPage = ShareBoxPage.LOCATION;
+                            if (_draggableScrollableController.isAttached) {
+                              unawaited(
+                                _draggableScrollableController.animateTo(
+                                  max(
+                                    0.26,
+                                    min(
+                                      ((80 + BOTTOM_BUTTONS_HEIGHT) /
+                                              mq.size.height) +
+                                          0.25,
+                                      1,
+                                    ),
+                                  ),
+                                  duration: SLOW_ANIMATION_DURATION,
+                                  curve: Curves.easeInOut,
+                                ),
+                              );
+                            }
                             break;
                           case 3:
                             _currentPage = ShareBoxPage.MUSIC;
