@@ -499,7 +499,6 @@ void main() {
         expect(await RoomRepo().searchInRooms("test"), [testUid]);
         verify(uidIdNameDao.search("test"));
       });
-
     });
     group('getUidById -', () {
       test('When called if uidIdNameDao contain uid should return uid',
