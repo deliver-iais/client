@@ -673,7 +673,6 @@ class CallRepo {
     if (_isVideo) {
       if (isAndroid) {
         await Wakelock.enable();
-        switching.add(false);
         _localStream!.getAudioTracks()[0].enableSpeakerphone(true);
         isSpeaker.add(true);
       }
@@ -744,6 +743,10 @@ class CallRepo {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
         } else if (videoing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+        }
+        if (switching.value) {
+          await _dataChannel!
+              .send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_ON));
         }
       } else {
         _shareDelay = _shareDelay * 2;
@@ -1068,9 +1071,11 @@ class CallRepo {
       switching.add(!isCameraSwitched);
       if (_isConnected) {
         if (!isCameraSwitched) {
-          await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_ON));
+          await _dataChannel!
+              .send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_ON));
         } else {
-          await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_OFF));
+          await _dataChannel!
+              .send(RTCDataChannelMessage(STATUS_CAMERA_SWITCH_OFF));
         }
       }
       return isCameraSwitched;
