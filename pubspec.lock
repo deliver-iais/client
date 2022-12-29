@@ -701,13 +701,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
-  flare_flutter:
-    dependency: "direct main"
-    description:
-      name: flare_flutter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1698,6 +1691,20 @@ packages:
       url: "https://github.com/deliveriais/record"
     source: git
     version: "0.4.3"
+  rive:
+    dependency: "direct main"
+    description:
+      name: rive
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.10.0"
+  rive_common:
+    dependency: transitive
+    description:
+      name: rive_common
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.1"
   rxdart:
     dependency: "direct main"
     description:
