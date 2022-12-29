@@ -16,13 +16,14 @@ class BotStartWidget extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       height: 45,
-      color: theme.primaryColor,
+      color: theme.colorScheme.surface,
       child: Center(
         child: GestureDetector(
           child: Text(
             _i18n.get("start"),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
+              color: theme.colorScheme.primary,
             ),
           ),
           onTap: () {
