@@ -129,6 +129,7 @@ class BoxContentState extends State<BoxContent> {
                     ],
                   ),
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
+                // Reply box in animated emoji has different UI
                 if (!AnimatedEmoji.isAnimatedEmojiMessage(widget.message) &&
                     hasReply())
                   replyToIdBox(),
@@ -257,16 +258,17 @@ class BoxContentState extends State<BoxContent> {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     if (AnimatedEmoji.isAnimatedEmojiMessage(widget.message)) {
+      // Reply box in animated emoji has different UI
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasReply()&&widget.isSender) replyToIdBox(),
+          if (hasReply() && widget.isSender) replyToIdBox(),
           AnimatedEmoji(
             message: widget.message,
             isSeen: widget.isSeen,
             colorScheme: colorScheme,
           ),
-          if (hasReply()&& !widget.isSender) replyToIdBox(),
+          if (hasReply() && !widget.isSender) replyToIdBox(),
         ],
       );
     }
