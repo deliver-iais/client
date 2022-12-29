@@ -331,6 +331,9 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
         AnimatedEmoji._authRepo.isCurrentUserSender(widget.message);
 
     return Column(
+      // Reply box in animated emoji has different UI
+      crossAxisAlignment:
+          isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         if (_featureFlags.showDeveloperDetails)
           DebugC(
