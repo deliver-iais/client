@@ -1,3 +1,5 @@
+// ignore_for_file: type_annotate_public_apis, avoid_annotating_with_dynamic, avoid_unused_constructor_parameters
+
 import 'package:flutter/cupertino.dart';
 
 enum ExtendedImageMode {
@@ -6,7 +8,7 @@ enum ExtendedImageMode {
 
 class GestureConfig {
   final dynamic inPageView;
-  final dynamic  minScale;
+  final dynamic minScale;
   final dynamic maxScale;
 
   GestureConfig({
@@ -20,10 +22,9 @@ class ExtendedImageGestureState {
   late final dynamic pointerDownPosition;
   final GestureDetails _gestureDetails;
 
-
   ExtendedImageGestureState(this._gestureDetails);
 
- dynamic  handleDoubleTap({scale, doubleTapPosition}) {}
+  dynamic handleDoubleTap({scale, doubleTapPosition}) {}
 
   GestureDetails? get gestureDetails => _gestureDetails;
 }
@@ -35,11 +36,14 @@ class GestureDetails {
 }
 
 class ExtendedImage extends StatelessWidget {
-  const ExtendedImage.file(file,
-      {super.key, dynamic mode,
-      initGestureConfigHandler,
-      enableSlideOutPage,
-      onDoubleTap});
+  const ExtendedImage.file(
+    file, {
+    super.key,
+    dynamic mode,
+    initGestureConfigHandler,
+    enableSlideOutPage,
+    onDoubleTap,
+  });
 
   @override
   Widget build(BuildContext context) {
