@@ -33,6 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion 33
+    ndkVersion "25.1.8937393"
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility 1.8

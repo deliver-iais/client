@@ -482,7 +482,7 @@
   "text_empty": "Text should not be empty",
   "theme": "Theme",
   "select_theme": "Theme selection",
-  "these_feature_arent_stable_yet": "These feature aren't stable yet and there are some bugs and API change in them, so be patient.",
+  "these_feature_arent_stable_yet": "These feature aren't stable yet and there are some bugs and API changes in them, so may cause some problems",
   "this_device": "This device",
   "this_filed_not_empty": "This field should not be empty",
   "to": "to",
