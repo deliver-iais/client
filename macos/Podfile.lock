@@ -147,6 +147,8 @@ PODS:
   - ReachabilitySwift (5.0.0)
   - record_macos (1.0.0):
     - FlutterMacOS
+  - rive_common (0.0.1):
+    - FlutterMacOS
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
@@ -179,6 +181,7 @@ DEPENDENCIES:
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/macos`)
   - record_macos (from `Flutter/ephemeral/.symlinks/plugins/record_macos/macos`)
+  - rive_common (from `Flutter/ephemeral/.symlinks/plugins/rive_common/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
@@ -243,6 +246,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/photo_manager/macos
   record_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/record_macos/macos
+  rive_common:
+    :path: Flutter/ephemeral/.symlinks/plugins/rive_common/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   url_launcher_macos:
@@ -286,6 +291,7 @@ SPEC CHECKSUMS:
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   record_macos: dcf4f2bb654970437e012521cb4ea1fca4f78bb9
+  rive_common: 0ac58617cab300ee9bcf495e710d593578ff328b
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9

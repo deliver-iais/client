@@ -78,11 +78,11 @@ class CallScreenState extends State<CallScreen> {
       if (!widget.isCallInitialized) {
         startCall();
         checkForSystemAlertWindowPermission();
+        if (isAndroid) {
+          _listenSensor();
+        }
       }
     });
-    if (isAndroid) {
-      _listenSensor();
-    }
     super.initState();
   }
 
@@ -457,7 +457,7 @@ class CallScreenState extends State<CallScreen> {
   void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopCallAudioPlayer();
-    if(!_callService.isHangedUp) {
+    if (!_callService.isHangedUp) {
       _callRepo.endCall();
       _callService.setCallHangedUp = true;
     }
