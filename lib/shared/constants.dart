@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-
+const APP_NAME = "";
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
@@ -105,11 +105,11 @@ const STATUS_CONNECTION_ENDED = "connection-ended";
 const STATUS_CAMERA_SWITCH_ON = "camera-switch-on";
 const STATUS_CAMERA_SWITCH_OFF = "camera-switch-off";
 const WEBRTC_MAX_BITRATE =
-    256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
+256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
 const WEBRTC_MIN_BITRATE =
-    128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const WEBRTC_MAX_FRAME_RATE =
-    30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
 // Shared Dao Settings Constants
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
@@ -297,30 +297,52 @@ bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
-  if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
-    return isLargeWidth(MediaQuery.of(context).size.width);
+  if (isDesktop || MediaQuery
+      .of(context)
+      .orientation == Orientation.portrait) {
+    return isLargeWidth(MediaQuery
+        .of(context)
+        .size
+        .width);
   } else {
-    return isLargeHeight(MediaQuery.of(context).size.height);
+    return isLargeHeight(MediaQuery
+        .of(context)
+        .size
+        .height);
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
 bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(MediaQuery.of(context).size.width);
+    isVeryLargeWidth(MediaQuery
+        .of(context)
+        .size
+        .width);
 
 // Dynamics
-double animationSquareSize(BuildContext context) => isLarge(context)
-    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(
-        MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7,
-      );
+double animationSquareSize(BuildContext context) =>
+    isLarge(context)
+        ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
+        : min(
+      MediaQuery
+          .of(context)
+          .size
+          .width * 0.7,
+      MediaQuery
+          .of(context)
+          .size
+          .height * 0.7,
+    );
 
-double maxWidthOfMessage(BuildContext context) => min(
-      (MediaQuery.of(context).size.width -
-                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-              0.8 -
+double maxWidthOfMessage(BuildContext context) =>
+    min(
+      (MediaQuery
+          .of(context)
+          .size
+          .width -
+          (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+          0.8 -
           SELECTED_MESSAGE_CHECKBOX_WIDTH,
       450,
     );
