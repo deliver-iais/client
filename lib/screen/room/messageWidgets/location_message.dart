@@ -224,8 +224,6 @@ class LocationDialog extends StatelessWidget {
 class LocationPage extends StatefulWidget {
   final Location location;
   final Uid from;
-  static final _routingServices = GetIt.I.get<RoutingService>();
-  static final _i18n = GetIt.I.get<I18N>();
   final Message message;
 
   const LocationPage({
@@ -242,6 +240,10 @@ class LocationPage extends StatefulWidget {
 class _LocationPageState extends State<LocationPage> {
   final _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
 
+  final _routingServices = GetIt.I.get<RoutingService>();
+
+  final _i18n = GetIt.I.get<I18N>();
+
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final _uxService = GetIt.I.get<UxService>();
@@ -256,8 +258,8 @@ class _LocationPageState extends State<LocationPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: LocationPage._routingServices.backButtonLeading(),
-        title: Text(LocationPage._i18n.get("location")),
+        leading: _routingServices.backButtonLeading(),
+        title: Text(_i18n.get("location")),
         actions: [
           PopupMenuButton(
             icon: const Icon(Icons.more_vert),
@@ -287,7 +289,7 @@ class _LocationPageState extends State<LocationPage> {
                                 title: locationToString(widget.location),
                               );
                       },
-                      child: Text(LocationPage._i18n.get("open_in")),
+                      child: Text(_i18n.get("open_in")),
                     ),
                   ],
                 ),
@@ -407,7 +409,7 @@ class _LocationPageState extends State<LocationPage> {
             ),
           ),
           Directionality(
-            textDirection: LocationPage._i18n.defaultTextDirection,
+            textDirection: _i18n.defaultTextDirection,
             child: Align(
               alignment: FractionalOffset.bottomCenter,
               child: Container(
@@ -446,8 +448,8 @@ class _LocationPageState extends State<LocationPage> {
                                 future: _roomRepo
                                     .getName(widget.message.from.asUid()),
                                 builder: (context, snapshot) {
-                                  final roomName = snapshot.data ??
-                                      LocationPage._i18n.get("loading");
+                                  final roomName =
+                                      snapshot.data ?? _i18n.get("loading");
                                   return RoomName(
                                     uid: widget.message.from.asUid(),
                                     name: roomName,
@@ -465,7 +467,7 @@ class _LocationPageState extends State<LocationPage> {
                                     distance = double.parse("$distance")
                                         .toStringAsFixed(3);
                                     return Text(
-                                      "$distance ${LocationPage._i18n.get("away")}",
+                                      "$distance ${_i18n.get("away")}",
                                     );
                                   } else {
                                     return FutureBuilder<bool>(
@@ -476,7 +478,7 @@ class _LocationPageState extends State<LocationPage> {
                                             havePermission.data != null &&
                                             havePermission.data!) {
                                           return Text(
-                                            LocationPage._i18n.get("locating"),
+                                            _i18n.get("locating"),
                                           );
                                         } else {
                                           return const Text(" ");
@@ -538,7 +540,7 @@ class _LocationPageState extends State<LocationPage> {
                                       );
                               },
                               child: Text(
-                                LocationPage._i18n.get("direction"),
+                                _i18n.get("direction"),
                                 style: TextStyle(
                                   color: theme.colorScheme.surface,
                                 ),
