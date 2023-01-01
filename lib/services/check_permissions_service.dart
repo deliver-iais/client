@@ -12,81 +12,105 @@ import 'package:synchronized/synchronized.dart';
 class CheckPermissionsService {
   final _requestLock = Lock();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final grantedPermissions = <int>{};
+  final permanentlyDeniedPermissions = <int>{};
 
-  Future<bool> checkAndGetPermission(
+  Future<bool> _checkAndGetPermission(
     Permission permission,
     String dialogKey, {
     OnceOptions? onceOption,
     BuildContext? context,
   }) =>
-      advancedCheckAndGetPermission(
+      _advancedCheckAndGetPermission(
         permission,
         rationalDialogI18nKey: dialogKey,
+        permanentlyDeniedDialogI18nKey: dialogKey,
         context: context,
-        onceOption: onceOption,
+        onceOptions: onceOption,
       );
 
-  Future<bool> advancedCheckAndGetPermission(
+  Future<bool> _advancedCheckAndGetPermission(
     Permission permission, {
     String? rationalDialogI18nKey,
     String? permanentlyDeniedDialogI18nKey,
-    OnceOptions? onceOption,
+    bool shouldShowRationalDialog = false,
+    OnceOptions? onceOptions,
     BuildContext? context,
   }) async {
-    final status = await permission.status;
-
-    if (status.isGranted) {
+    if (grantedPermissions.contains(permission.value)) {
       return true;
     }
 
-    if (status.isPermanentlyDenied) {
-      if (permanentlyDeniedDialogI18nKey != null) {
-        if (onceOption != null) {
-          await _sharedDao.once(onceOption, () async {
-            await showPermanentlyDeniedDialog(
-              permanentlyDeniedDialogI18nKey,
-              context: context,
-            );
-          });
-        } else {
-          await showPermanentlyDeniedDialog(
-            permanentlyDeniedDialogI18nKey,
-            context: context,
-          );
-        }
-      }
+    final status = await permission.status;
+
+    if (status.isGranted) {
+      grantedPermissions.add(Permission.contacts.value);
+      return true;
+    }
+
+    if (permanentlyDeniedPermissions.contains(permission.value)) {
+      await showPermanentlyDeniedDialog(
+        permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
+        onceOptions: onceOptions,
+        context: context,
+      );
 
       return false;
     }
 
-    if (rationalDialogI18nKey != null ||
-        (await permission.shouldShowRequestRationale &&
-            rationalDialogI18nKey != null)) {
-      await showContinueAbleDialog(rationalDialogI18nKey);
+    if (!permanentlyDeniedPermissions.contains(permission.value)) {
+      if ((shouldShowRationalDialog ||
+          await permission.shouldShowRequestRationale) &&
+          rationalDialogI18nKey != null) {
+        await showContinueAbleDialog(rationalDialogI18nKey);
+      }
     }
 
     return _requestLock.synchronized(() async {
-      return permission.request().isGranted;
+      final s = await permission.request();
+
+      if (s.isPermanentlyDenied) {
+        permanentlyDeniedPermissions.add(Permission.contacts.value);
+
+        await showPermanentlyDeniedDialog(
+          permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
+          onceOptions: onceOptions,
+          context: context,
+        );
+
+        return false;
+      } else if (s.isGranted) {
+        grantedPermissions.add(Permission.contacts.value);
+
+        return true;
+      } else {
+        return false;
+      }
     });
   }
 
-  Future<void> showPermanentlyDeniedDialog(
-    String permanentlyDeniedDialogI18nKey, {
+  Future<void> showPermanentlyDeniedDialog({
+    String? permanentlyDeniedDialogI18nKey,
+    OnceOptions? onceOptions,
     BuildContext? context,
   }) async {
-    final isOk = await showCancelableAbleDialog(
-      permanentlyDeniedDialogI18nKey,
-      okTextKey: "open_settings",
-      context: context,
-    );
+    if (permanentlyDeniedDialogI18nKey != null) {
+      return _sharedDao.once(onceOptions, () async {
+        final isOk = await showCancelableAbleDialog(
+          permanentlyDeniedDialogI18nKey,
+          okTextKey: "open_settings",
+          context: context,
+        );
 
-    if (isOk) {
-      await openAppSettings();
+        if (isOk) {
+          await openAppSettings();
+        }
+      });
     }
   }
 
-  Future<bool> checkContactPermission({BuildContext? context}) async {
-    return checkAndGetPermission(
+  Future<bool> checkContactPermission({BuildContext? context}) {
+    return _checkAndGetPermission(
       Permission.contacts,
       "send_contacts_message",
       context: context,

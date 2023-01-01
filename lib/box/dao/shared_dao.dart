@@ -29,7 +29,7 @@ abstract class SharedDao {
   Stream<bool> getBooleanStream(String key, {bool defaultValue = false});
 
   Future<void> once(
-    OnceOptions onceOptions,
+    OnceOptions? onceOptions,
     Future<void> Function() callback,
   );
 
@@ -101,14 +101,20 @@ class SharedDaoImpl extends SharedDao {
 
   @override
   Future<void> once(
-    OnceOptions onceOptions,
+    OnceOptions? onceOptions,
     void Function() callback,
   ) async {
+    if (onceOptions == null) {
+      print("timeCounter");
+      return callback();
+    }
     try {
       final box = await _open();
+      print("timeCounter2");
       final timeCounterModel = box.get(onceOptions.key);
       if (timeCounterModel != null) {
         final timeCounter = TimeCounter.fromJson(jsonDecode(timeCounterModel));
+        print(timeCounter);
         if (timeCounter.count == 0 ||
             (timeCounter.count < onceOptions.count &&
                 timeCheck(onceOptions.period, timeCounter.time))) {
@@ -133,8 +139,11 @@ class SharedDaoImpl extends SharedDao {
     } catch (_) {}
   }
 
-  bool timeCheck(Duration period, int time) =>
-      clock.now().millisecondsSinceEpoch - time > period.inMilliseconds;
+  bool timeCheck(Duration period, int time) {
+    print(
+        "${clock.now().millisecondsSinceEpoch} - $time > ${period.inMilliseconds}: ${clock.now().millisecondsSinceEpoch - time > period.inMilliseconds}");
+    return clock.now().millisecondsSinceEpoch - time > period.inMilliseconds;
+  }
 
   @override
   Future<void> resetTimeCounter(OnceOptions onceOptions) async {

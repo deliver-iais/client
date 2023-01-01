@@ -24,7 +24,7 @@ Future<T?> showCancelableAbleDialog<T>(
     actions: (c) => [
       TextButton(
         onPressed: () {
-          Navigator.pop(c, true);
+          Navigator.pop(ctx, true);
         },
         child: Text(
           i18n.get(okTextKey),
@@ -32,7 +32,7 @@ Future<T?> showCancelableAbleDialog<T>(
       ),
       TextButton(
         onPressed: () {
-          Navigator.pop(c, false);
+          Navigator.pop(ctx, false);
         },
         child: Text(
           i18n.get("cancel"),

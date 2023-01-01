@@ -114,7 +114,7 @@ const ONCE_SHOW_NEW_VERSION_INFORMATION =
     OnceOptions("ONCE_SHOW_NEW_VERSION_INFORMATION", 50, Duration(hours: 2));
 
 const ONCE_SHOW_CONTACT_DIALOG =
-    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 4, Duration(minutes: 15));
+    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 40, Duration(seconds: 15));
 
 // Shared Dao Settings Constants
 const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";
