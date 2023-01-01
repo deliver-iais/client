@@ -1,14 +1,12 @@
-import 'package:deliver/localization/i18n.dart';
+import 'dart:async';
+
 import 'package:deliver/shared/methods/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
-  static final _i18n = GetIt.I.get<I18N>();
-
   final requestLock = Lock();
 
   Future<bool> checkAndGetPermission(
@@ -24,7 +22,16 @@ class CheckPermissionsService {
     }
 
     if (status.isPermanentlyDenied && permanentlyDeniedDialogI18nKey != null) {
-      // TODO(bitbeter): Show Permanently Denied Dialog
+      final isOk = await showCancelableAbleDialog(
+        permanentlyDeniedDialogI18nKey,
+        okTextKey: "open_settings",
+        context: context,
+      );
+
+      if (isOk) {
+        unawaited(openAppSettings());
+      }
+
       return false;
     }
 

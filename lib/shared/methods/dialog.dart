@@ -5,29 +5,59 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-Future<T?> showContinueAbleDialog<T>(String titleKey, {BuildContext? context}) {
+Future<T?> showCancelableAbleDialog<T>(
+  String titleKey, {
+  String okTextKey = "ok",
+  BuildContext? context,
+}) {
   final i18n = GetIt.I.get<I18N>();
-  final routingService = GetIt.I.get<RoutingService>();
 
-  // Assert in debug mode!
-  assert(
-    (context ?? routingService.mainNavigatorState.currentContext) != null,
-    "at least one of `context` or `routingService.mainNavigatorState.currentContext` should be defined",
-  );
+  final ctx = _checkAndGetBuildContext(context);
 
-  if ((context ?? routingService.mainNavigatorState.currentContext) == null) {
+  if (ctx == null) {
     return Future.value(); // Just Ignore
   }
-
-  final ctx = context ?? routingService.mainNavigatorState.currentContext!;
 
   return showTitledDialog(
     titleKey,
     context: ctx,
-    actions: [
+    actions: (c) => [
       TextButton(
         onPressed: () {
-          Navigator.pop(ctx);
+          Navigator.pop(c, true);
+        },
+        child: Text(
+          i18n.get(okTextKey),
+        ),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.pop(c, false);
+        },
+        child: Text(
+          i18n.get("cancel"),
+        ),
+      )
+    ],
+  );
+}
+
+Future<T?> showContinueAbleDialog<T>(String titleKey, {BuildContext? context}) {
+  final i18n = GetIt.I.get<I18N>();
+
+  final ctx = _checkAndGetBuildContext(context);
+
+  if (ctx == null) {
+    return Future.value(); // Just Ignore
+  }
+
+  return showTitledDialog(
+    titleKey,
+    context: ctx,
+    actions: (c) => [
+      TextButton(
+        onPressed: () {
+          Navigator.pop(c);
         },
         child: Text(
           i18n.get("continue"),
@@ -39,23 +69,16 @@ Future<T?> showContinueAbleDialog<T>(String titleKey, {BuildContext? context}) {
 
 Future<T?> showTitledDialog<T>(
   String titleKey, {
-  List<Widget> actions = const [],
+  required List<Widget> Function(BuildContext) actions,
   BuildContext? context,
 }) {
   final i18n = GetIt.I.get<I18N>();
-  final routingService = GetIt.I.get<RoutingService>();
 
-  // Assert in debug mode!
-  assert(
-    (context ?? routingService.mainNavigatorState.currentContext) != null,
-    "at least one of `context` or `routingService.mainNavigatorState.currentContext` should be defined",
-  );
+  final ctx = _checkAndGetBuildContext(context);
 
-  if ((context ?? routingService.mainNavigatorState.currentContext) == null) {
+  if (ctx == null) {
     return Future.value(); // Just Ignore
   }
-
-  final ctx = context ?? routingService.mainNavigatorState.currentContext!;
 
   return showDialog(
     context: ctx,
@@ -72,8 +95,20 @@ Future<T?> showTitledDialog<T>(
             textAlign: TextAlign.center,
           ),
         ),
-        actions: actions,
+        actions: actions(ctx),
       );
     },
   );
+}
+
+BuildContext? _checkAndGetBuildContext(BuildContext? context) {
+  final routingService = GetIt.I.get<RoutingService>();
+
+  // Assert in debug mode!
+  assert(
+    (context ?? routingService.mainNavigatorState.currentContext) != null,
+    "at least one of `context` or `routingService.mainNavigatorState.currentContext` should be defined",
+  );
+
+  return context ?? routingService.mainNavigatorState.currentContext;
 }
