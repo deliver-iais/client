@@ -35,12 +35,18 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>EnableBackgroundLocationUpdates</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Can I use the camera please?</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Needed to access location always when the app is open.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Needed to access location when the app is open and run in background.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need to access to the microphone to record audio file</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -64,12 +70,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Needed to access location always when the app is open.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Needed to access location when the app is open and run in background.</string>
-    <key>EnableBackgroundLocationUpdates</key> <true/>
 </dict>
 </plist>
