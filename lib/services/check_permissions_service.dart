@@ -1,18 +1,36 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
-  final requestLock = Lock();
+  final _requestLock = Lock();
+  final _sharedDao = GetIt.I.get<SharedDao>();
 
   Future<bool> checkAndGetPermission(
+    Permission permission,
+    String dialogKey, {
+    OnceOptions? onceOption,
+    BuildContext? context,
+  }) =>
+      advancedCheckAndGetPermission(
+        permission,
+        rationalDialogI18nKey: dialogKey,
+        context: context,
+        onceOption: onceOption,
+      );
+
+  Future<bool> advancedCheckAndGetPermission(
     Permission permission, {
     String? rationalDialogI18nKey,
     String? permanentlyDeniedDialogI18nKey,
+    OnceOptions? onceOption,
     BuildContext? context,
   }) async {
     final status = await permission.status;
@@ -21,15 +39,21 @@ class CheckPermissionsService {
       return true;
     }
 
-    if (status.isPermanentlyDenied && permanentlyDeniedDialogI18nKey != null) {
-      final isOk = await showCancelableAbleDialog(
-        permanentlyDeniedDialogI18nKey,
-        okTextKey: "open_settings",
-        context: context,
-      );
-
-      if (isOk) {
-        unawaited(openAppSettings());
+    if (status.isPermanentlyDenied) {
+      if (permanentlyDeniedDialogI18nKey != null) {
+        if (onceOption != null) {
+          await _sharedDao.once(onceOption, () async {
+            await showPermanentlyDeniedDialog(
+              permanentlyDeniedDialogI18nKey,
+              context: context,
+            );
+          });
+        } else {
+          await showPermanentlyDeniedDialog(
+            permanentlyDeniedDialogI18nKey,
+            context: context,
+          );
+        }
       }
 
       return false;
@@ -41,23 +65,33 @@ class CheckPermissionsService {
       await showContinueAbleDialog(rationalDialogI18nKey);
     }
 
-    return requestLock.synchronized(() async {
+    return _requestLock.synchronized(() async {
       return permission.request().isGranted;
     });
   }
 
-  Future<bool> checkContactPermission() async {
-    try {
-      if (!await Permission.contacts.isGranted) {
-        return await requestLock.synchronized(() async {
-          return Permission.contacts.request().isGranted;
-        });
-      } else {
-        return true;
-      }
-    } catch (e) {
-      return false;
+  Future<void> showPermanentlyDeniedDialog(
+    String permanentlyDeniedDialogI18nKey, {
+    BuildContext? context,
+  }) async {
+    final isOk = await showCancelableAbleDialog(
+      permanentlyDeniedDialogI18nKey,
+      okTextKey: "open_settings",
+      context: context,
+    );
+
+    if (isOk) {
+      await openAppSettings();
     }
+  }
+
+  Future<bool> checkContactPermission({BuildContext? context}) async {
+    return checkAndGetPermission(
+      Permission.contacts,
+      "send_contacts_message",
+      context: context,
+      onceOption: ONCE_SHOW_CONTACT_DIALOG,
+    );
   }
 
   Future<bool> checkAudioRecorderPermission() async {
@@ -87,7 +121,7 @@ class CheckPermissionsService {
   Future<bool> checkMediaLibraryPermission() async {
     try {
       return await Permission.mediaLibrary.isGranted &&
-          await requestLock.synchronized(() async {
+          await _requestLock.synchronized(() async {
             return Permission.mediaLibrary.request().isGranted;
           });
     } catch (e) {
@@ -98,7 +132,7 @@ class CheckPermissionsService {
   Future<bool> checkAccessMediaLocationPermission() async {
     try {
       return await Permission.accessMediaLocation.isGranted ||
-          await requestLock.synchronized(() async {
+          await _requestLock.synchronized(() async {
             return Permission.accessMediaLocation.request().isGranted;
           });
     } catch (e) {

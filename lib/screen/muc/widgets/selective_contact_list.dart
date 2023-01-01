@@ -105,7 +105,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
-            SyncContact.syncingStatusWidget(context),
+            const SyncContact(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(

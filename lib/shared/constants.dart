@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,9 +24,6 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = "1.9.9";
-const SHOW_NEW_VERSION_INFORMATION_KEY = "SHOW_NEW_VERSION_INFORMATION_KEY";
-const SHOW_NEW_VERSION_INFORMATION_COUNT = 50;
-const SHOW_NEW_VERSION_INFORMATION_PERIOD = 2 * 60 * 60 * 1000;
 
 //messageRepo
 const RANDOM_SIZE = 100000;
@@ -111,8 +109,14 @@ const WEBRTC_MIN_BITRATE =
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
+// Shared Dao Once
+const ONCE_SHOW_NEW_VERSION_INFORMATION =
+    OnceOptions("ONCE_SHOW_NEW_VERSION_INFORMATION", 50, Duration(hours: 2));
+
+const ONCE_SHOW_CONTACT_DIALOG =
+    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 4, Duration(minutes: 15));
+
 // Shared Dao Settings Constants
-const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";
 const SHARED_DAO_THEME_COLOR = "SHARED_DAO_THEME_COLOR";
 const SHARED_DAO_THEME_SHOW_COLORFUL = "SHARED_DAO_THEME_SHOW_COLORFUL";
