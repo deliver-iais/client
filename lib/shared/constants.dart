@@ -114,7 +114,16 @@ const ONCE_SHOW_NEW_VERSION_INFORMATION =
     OnceOptions("ONCE_SHOW_NEW_VERSION_INFORMATION", 50, Duration(hours: 2));
 
 const ONCE_SHOW_CONTACT_DIALOG =
-    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 40, Duration(seconds: 15));
+    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 2, Duration(hours: 2));
+
+const ONCE_SHOW_MICROPHONE_DIALOG =
+    OnceOptions("ONCE_SHOW_MICROPHONE_DIALOG", 40, Duration(minutes: 15));
+
+const ONCE_SHOW_CAMERA_DIALOG =
+    OnceOptions("ONCE_SHOW_CAMERA_DIALOG", 5, Duration(hours: 1));
+
+const ONCE_SHOW_MEDIA_LIBRARY_DIALOG =
+    OnceOptions("ONCE_SHOW_MEDIA_LIBRARY_DIALOG", 10, Duration(hours: 1));
 
 // Shared Dao Settings Constants
 const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";

@@ -16,15 +16,17 @@ class CheckPermissionsService {
   final permanentlyDeniedPermissions = <int>{};
 
   Future<bool> _checkAndGetPermission(
-    Permission permission,
-    String dialogKey, {
+    Permission permission, {
+    String? dialogKey,
     OnceOptions? onceOption,
+    bool shouldShowRationalDialog = false,
     BuildContext? context,
   }) =>
       _advancedCheckAndGetPermission(
         permission,
         rationalDialogI18nKey: dialogKey,
         permanentlyDeniedDialogI18nKey: dialogKey,
+        shouldShowRationalDialog: shouldShowRationalDialog,
         context: context,
         onceOptions: onceOption,
       );
@@ -37,6 +39,11 @@ class CheckPermissionsService {
     OnceOptions? onceOptions,
     BuildContext? context,
   }) async {
+    assert(
+      shouldShowRationalDialog == false || rationalDialogI18nKey != null,
+      "if you set shouldShowRationalDialog to true, you should set rationalDialogI18nKey too!",
+    );
+
     if (grantedPermissions.contains(permission.value)) {
       return true;
     }
@@ -60,7 +67,7 @@ class CheckPermissionsService {
 
     if (!permanentlyDeniedPermissions.contains(permission.value)) {
       if ((shouldShowRationalDialog ||
-          await permission.shouldShowRequestRationale) &&
+              await permission.shouldShowRequestRationale) &&
           rationalDialogI18nKey != null) {
         await showContinueAbleDialog(rationalDialogI18nKey);
       }
@@ -109,72 +116,47 @@ class CheckPermissionsService {
     }
   }
 
-  Future<bool> checkContactPermission({BuildContext? context}) {
-    return _checkAndGetPermission(
-      Permission.contacts,
-      "send_contacts_message",
-      context: context,
-      onceOption: ONCE_SHOW_CONTACT_DIALOG,
-    );
-  }
+  Future<bool> checkContactPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.contacts,
+        dialogKey: "send_contacts_message",
+        context: context,
+        shouldShowRationalDialog: true,
+        onceOption: ONCE_SHOW_CONTACT_DIALOG,
+      );
 
-  Future<bool> checkAudioRecorderPermission() async {
-    try {
-      if (!await Permission.microphone.isGranted) {
-        return await Permission.microphone.request().isGranted;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkAudioRecorderPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.microphone,
+        context: context,
+        onceOption: ONCE_SHOW_MICROPHONE_DIALOG,
+      );
 
-  Future<bool> checkCameraRecorderPermission() async {
-    try {
-      if (!await Permission.camera.isGranted) {
-        return await Permission.camera.request().isGranted;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkCameraRecorderPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.camera,
+        context: context,
+        onceOption: ONCE_SHOW_CAMERA_DIALOG,
+      );
 
-  Future<bool> checkMediaLibraryPermission() async {
-    try {
-      return await Permission.mediaLibrary.isGranted &&
-          await _requestLock.synchronized(() async {
-            return Permission.mediaLibrary.request().isGranted;
-          });
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkMediaLibraryPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.mediaLibrary,
+        context: context,
+        onceOption: ONCE_SHOW_MEDIA_LIBRARY_DIALOG,
+      );
 
-  Future<bool> checkAccessMediaLocationPermission() async {
-    try {
-      return await Permission.accessMediaLocation.isGranted ||
-          await _requestLock.synchronized(() async {
-            return Permission.accessMediaLocation.request().isGranted;
-          });
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkAccessMediaLocationPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.accessMediaLocation,
+        context: context,
+      );
 
-  Future<bool> checkLocationPermission() async {
-    try {
-      if (!await Permission.location.isGranted) {
-        return await Permission.location.request().isGranted;
-      } else {
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkLocationPermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.location,
+        context: context,
+      );
 
   Future<bool> haveLocationPermission() async {
     LocationPermission permission;

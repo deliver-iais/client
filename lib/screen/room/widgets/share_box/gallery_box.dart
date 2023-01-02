@@ -59,7 +59,9 @@ class GalleryBoxState extends State<GalleryBox> {
   }
 
   Future<void> _initFolders() async {
-    if (await _checkPermissionServices.checkAccessMediaLocationPermission()) {
+    if (await _checkPermissionServices.checkAccessMediaLocationPermission(
+      context: context,
+    )) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
