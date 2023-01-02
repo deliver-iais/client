@@ -746,14 +746,15 @@ class InputMessageWidgetState extends State<InputMessage> {
             onKey: handleKey,
             child: Focus(
               onFocusChange: (c) {
-                if (!c && isDesktop) {
+                if (!c && isDesktop&&_routingService.isInRoom(widget.currentRoom.uid)) {
                   if (FocusScope.of(context).focusedChild !=
                           _desktopEmojiKeyboardFocusNode &&
                       FocusManager.instance.primaryFocus !=
                           MAIN_SEARCH_BOX_FOCUS_NODE) {
-                    widget.focusNode.requestFocus();
+                       FocusScope.of(context).requestFocus(widget.focusNode);
+
                   }
-                }
+               }
               },
               child: AutoDirectionTextField(
                 textFieldKey: _inputTextKey,
