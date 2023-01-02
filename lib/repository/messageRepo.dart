@@ -112,7 +112,7 @@ class MessageRepo {
   }
 
   Future<void> createConnectionStatusHandler() async {
-    if (_authRepo.isLoggedIn()) {
+    if (await _authRepo.isLoggedIn()) {
       await update();
     }
     _coreServices.connectionStatus.listen((mode) async {

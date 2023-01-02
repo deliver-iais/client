@@ -61,7 +61,7 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> navigateToApp() async {
-    if (await _authRepo.isLogin()) {
+    if (await _authRepo.isLoggedIn()) {
       unawaited(_navigateToHomePage());
     } else {
       _navigateToIntroPage();
