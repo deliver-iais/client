@@ -109,6 +109,8 @@ const WEBRTC_MIN_BITRATE =
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
+const DEFAULT_ZOOM_LEVEL = 15.0;
+
 // Shared Dao Once
 const ONCE_SHOW_NEW_VERSION_INFORMATION =
     OnceOptions("ONCE_SHOW_NEW_VERSION_INFORMATION", 50, Duration(hours: 2));

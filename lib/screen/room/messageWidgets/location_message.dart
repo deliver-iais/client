@@ -65,7 +65,7 @@ class LocationMessageWidget extends StatelessWidget {
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(location.latitude, location.longitude),
-                  zoom: 15.0,
+                  zoom: DEFAULT_ZOOM_LEVEL,
                   enableScrollWheel: false,
                   onTap: (_, point) async {
                     isWeb || isDesktop
@@ -159,7 +159,7 @@ class LocationDialog extends StatelessWidget {
               FlutterMap(
                 options: MapOptions(
                   center: LatLng(location.latitude, location.longitude),
-                  zoom: 15.0,
+                  zoom: DEFAULT_ZOOM_LEVEL,
                   enableMultiFingerGestureRace: true,
                 ),
                 children: [
@@ -311,7 +311,7 @@ class _LocationPageState extends State<LocationPage> {
                     widget.location.latitude,
                     widget.location.longitude,
                   ),
-                  zoom: 15.0,
+                  zoom: DEFAULT_ZOOM_LEVEL,
                   enableMultiFingerGestureRace: true,
                 ),
                 children: [

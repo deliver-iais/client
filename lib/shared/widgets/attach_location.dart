@@ -67,8 +67,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                   updatePoint(null, context);
                 },
                 center: pointerLocation,
-                zoom: 5,
-                minZoom: 15,
+                zoom: DEFAULT_ZOOM_LEVEL,
+                minZoom: DEFAULT_ZOOM_LEVEL,
               ),
               children: [
                 TileLayer(
@@ -279,7 +279,7 @@ class AttachLocation {
           position.latitude,
           position.longitude,
         ),
-        zoom: 24.0,
+        zoom: DEFAULT_ZOOM_LEVEL,
       ),
       children: [
         TileLayer(
