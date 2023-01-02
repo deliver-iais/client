@@ -751,7 +751,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                           _desktopEmojiKeyboardFocusNode &&
                       FocusManager.instance.primaryFocus !=
                           MAIN_SEARCH_BOX_FOCUS_NODE) {
-                       FocusScope.of(context).requestFocus(widget.focusNode);
+                       widget.focusNode.requestFocus();
 
                   }
                }
