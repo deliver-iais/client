@@ -92,8 +92,6 @@ class RecorderModule {
   bool recorderIsAvailable() => true;
 
   void checkPermission() {
-    _logger.wtf("Checking recording permission");
-
     if (isAndroid) {
       _checkPermission.checkAudioRecorderPermission().then(_hasPermission.add);
     } else {

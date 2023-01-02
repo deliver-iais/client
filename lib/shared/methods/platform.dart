@@ -30,6 +30,8 @@ final hasVibrationCapability = isAndroid || isIOS || isWeb;
 
 final hasVirtualKeyboardCapability = isAndroid || isIOS;
 
+final hasContactCapability = isAndroid || isIOS;
+
 Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()
     ..clientVersion = VERSION

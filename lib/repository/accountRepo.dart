@@ -238,7 +238,7 @@ class AccountRepo {
           );
           await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
           unawaited(
-            _sharedDao.resetTimeCounter(SHOW_NEW_VERSION_INFORMATION_KEY),
+            _sharedDao.resetTimeCounter(ONCE_SHOW_NEW_VERSION_INFORMATION),
           );
           unawaited(GetIt.I.get<ContactRepo>().getContacts());
         } catch (e) {

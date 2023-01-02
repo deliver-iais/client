@@ -1,6 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -12,6 +12,7 @@ import 'package:get_it/get_it.dart';
 class MemberSelectionPage extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _createMucService = GetIt.I.get<CreateMucService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -22,7 +23,7 @@ class MemberSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SyncContact.showSyncContactDialog(context);
+    _contactRepo.syncContacts(context);
     final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(

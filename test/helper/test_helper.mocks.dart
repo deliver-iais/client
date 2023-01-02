@@ -3889,27 +3889,27 @@ class MockSharedDao extends _i1.Mock implements _i50.SharedDao {
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
   @override
-  _i22.Future<bool> getAndUpdateTimeCounter(
-    String? key,
-    int? period,
-    int? count,
+  _i22.Future<void> once(
+    _i50.OnceOptions? onceOptions,
+    _i22.Future<void> Function()? callback,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAndUpdateTimeCounter,
+          #once,
           [
-            key,
-            period,
-            count,
+            onceOptions,
+            callback,
           ],
         ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
   @override
-  _i22.Future<void> resetTimeCounter(String? key) => (super.noSuchMethod(
+  _i22.Future<void> resetTimeCounter(_i50.OnceOptions? onceOptions) =>
+      (super.noSuchMethod(
         Invocation.method(
           #resetTimeCounter,
-          [key],
+          [onceOptions],
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
@@ -4319,10 +4319,11 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<void> syncContacts() => (super.noSuchMethod(
+  _i22.Future<void> syncContacts(_i17.BuildContext? context) =>
+      (super.noSuchMethod(
         Invocation.method(
           #syncContacts,
-          [],
+          [context],
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),

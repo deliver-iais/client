@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:android_intent_plus/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as file_model;
@@ -9,17 +8,14 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/music_box.dart';
-import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/attach_contact.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -62,7 +58,6 @@ class ShareBoxState extends State<ShareBox> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _audioPlayer = AudioPlayer();
-  final _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
   final _remainingPixelsStream = BehaviorSubject.seeded(APPBAR_HEIGHT * 2);
   final _captionEditingController = TextEditingController();
   final _draggableScrollableController = DraggableScrollableController();
@@ -308,36 +303,23 @@ class ShareBoxState extends State<ShareBox> {
                             _currentPage = ShareBoxPage.FILES;
                             break;
                           case 2:
-                            if (await _checkPermissionsService
-                                    .checkLocationPermission() ||
-                                isIOS) {
-                              if (!await Geolocator
-                                  .isLocationServiceEnabled()) {
-                                const intent = AndroidIntent(
-                                  action:
-                                      'android.settings.LOCATION_SOURCE_SETTINGS',
-                                );
-                                await intent.launch();
-                              } else {
-                                _currentPage = ShareBoxPage.LOCATION;
-                                if (_draggableScrollableController.isAttached) {
-                                  unawaited(
-                                    _draggableScrollableController.animateTo(
-                                      max(
-                                        0.26,
-                                        min(
-                                          ((80 + BOTTOM_BUTTONS_HEIGHT) /
+                            _currentPage = ShareBoxPage.LOCATION;
+                            if (_draggableScrollableController.isAttached) {
+                              unawaited(
+                                _draggableScrollableController.animateTo(
+                                  max(
+                                    0.26,
+                                    min(
+                                      ((80 + BOTTOM_BUTTONS_HEIGHT) /
                                               mq.size.height) +
-                                              0.25,
-                                          1,
-                                        ),
-                                      ),
-                                      duration: SLOW_ANIMATION_DURATION,
-                                      curve: Curves.easeInOut,
+                                          0.25,
+                                      1,
                                     ),
-                                  );
-                                }
-                              }
+                                  ),
+                                  duration: SLOW_ANIMATION_DURATION,
+                                  curve: Curves.easeInOut,
+                                ),
+                              );
                             }
                             break;
                           case 3:
