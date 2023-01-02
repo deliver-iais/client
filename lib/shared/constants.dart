@@ -274,6 +274,9 @@ const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
+//FOCUS NODE
+final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
+
 // UI
 const double APPBAR_HEIGHT = 56.0;
 const double FLUID_MAX_WIDTH = 500.0;

@@ -212,6 +212,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
                     controller: _searchBoxController,
+                    focusNode: MAIN_SEARCH_BOX_FOCUS_NODE,
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
