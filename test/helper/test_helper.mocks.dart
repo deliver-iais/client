@@ -1530,7 +1530,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValue: _i22.Future<bool>.value(false),
       ) as _i22.Future<bool>);
   @override
-  _i22.Future<void> login() => (super.noSuchMethod(
+  _i22.Future<void> setAsLoggedIn() => (super.noSuchMethod(
         Invocation.method(
           #login,
           [],
@@ -1539,7 +1539,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<void> logout() => (super.noSuchMethod(
+  _i22.Future<void> setAsLoggedOut() => (super.noSuchMethod(
         Invocation.method(
           #logout,
           [],

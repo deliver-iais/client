@@ -77,7 +77,7 @@ class VerificationPageState extends State<VerificationPage> {
   Future<void> _navigationToHome() async {
     final navigatorState = Navigator.of(context);
     _contactRepo.getContacts().ignore();
-    unawaited(_authRepo.login());
+    unawaited(_authRepo.setAsLoggedIn());
 
     if (await _accountRepo.hasProfile(retry: true)) {
       unawaited(_accountRepo.fetchCurrentUserId(retry: true));

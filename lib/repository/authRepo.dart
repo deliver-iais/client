@@ -187,10 +187,10 @@ class AuthRepo {
     return _sharedDao.getBoolean(SHARED_DAO_IS_LOGGED_IN);
   }
 
-  Future<void> login() async =>
+  Future<void> setAsLoggedIn() async =>
       _sharedDao.putBoolean(SHARED_DAO_IS_LOGGED_IN, true);
 
-  Future<void> logout() async =>
+  Future<void> setAsLoggedOut() async =>
       _sharedDao.putBoolean(SHARED_DAO_IS_LOGGED_IN, false);
 
   bool _isExpired(accessToken) =>
