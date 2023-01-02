@@ -51,10 +51,13 @@ class CheckPermissionsService {
     final status = await permission.status;
 
     if (status.isGranted) {
-      grantedPermissions.add(Permission.contacts.value);
+      grantedPermissions.add(permission.value);
       return true;
     }
 
+    if (status.isPermanentlyDenied) {
+      permanentlyDeniedPermissions.add(permission.value);
+    }
     if (permanentlyDeniedPermissions.contains(permission.value)) {
       await showPermanentlyDeniedDialog(
         permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
@@ -77,7 +80,7 @@ class CheckPermissionsService {
       final s = await permission.request();
 
       if (s.isPermanentlyDenied) {
-        permanentlyDeniedPermissions.add(Permission.contacts.value);
+        permanentlyDeniedPermissions.add(permission.value);
 
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
@@ -87,7 +90,7 @@ class CheckPermissionsService {
 
         return false;
       } else if (s.isGranted) {
-        grantedPermissions.add(Permission.contacts.value);
+        grantedPermissions.add(permission.value);
 
         return true;
       } else {
