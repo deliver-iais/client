@@ -12,4 +12,9 @@ class TimeCounter {
       };
 
   TimeCounter({required this.count, required this.time});
+
+  @override
+  String toString() {
+    return "TimeCounter([count:$count],[time:$time])";
+  }
 }

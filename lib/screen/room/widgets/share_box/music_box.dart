@@ -41,7 +41,9 @@ class MusicBoxState extends State<MusicBox> {
     final theme = Theme.of(context);
     return FutureBuilder<bool>(
       initialData: false,
-      future: _checkPermissionServices.checkAccessMediaLocationPermission(),
+      future: _checkPermissionServices.checkAccessMediaLocationPermission(
+        context: context,
+      ),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!) {
           return FutureBuilder<List<File>?>(

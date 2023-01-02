@@ -30,6 +30,7 @@ import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -49,15 +50,15 @@ class ContactRepo {
   bool hasContactPermission = false;
   var _syncedContacts = <Contact>[];
 
-  Future<void> syncContacts() async {
+  Future<void> syncContacts(BuildContext? context) async {
     if (_requestLock.locked) {
       return;
     }
     return _requestLock.synchronized(() async {
-      if (await _checkPermission.checkContactPermission() ||
-          isDesktop ||
-          isIOS) {
-        if (!isDesktop) {
+      final hasPermission =
+          !hasContactCapability || isIOS || await _checkPermission.checkContactPermission(context: context);
+      if (hasPermission) {
+        if (hasContactCapability) {
           _syncedContacts = [];
           hasContactPermission = true;
           final phoneContacts = await fast_contact.FastContacts.allContacts;

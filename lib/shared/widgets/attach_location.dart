@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -66,8 +67,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                   updatePoint(null, context);
                 },
                 center: pointerLocation,
-                zoom: 5,
-                minZoom: 15,
+                zoom: DEFAULT_ZOOM_LEVEL,
+                minZoom: DEFAULT_ZOOM_LEVEL,
               ),
               children: [
                 TileLayer(
@@ -182,15 +183,9 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                                 ),
                                 style: const TextStyle(fontSize: 18),
                               ),
-                            if (widget.position.latitude !=
-                                    pointerLocation.latitude ||
-                                widget.position.longitude !=
-                                    pointerLocation.longitude)
-                              Text(
-                                "${pointerLocation.latitude},${pointerLocation.longitude}",
-                              )
-                            else
-                              Text("${widget.position.accuracy}")
+                            Text(
+                              "${_i18n.get("location")} (${pointerLocation.latitude.toStringAsFixed(5)},${pointerLocation.longitude.toStringAsFixed(5)})",
+                            )
                           ],
                         ),
                       ],
@@ -199,7 +194,6 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                   onTap: () {
                     Navigator.of(context).pop();
                     _messageRepo.sendLocationMessage(
-                      // LatLng(widget.position.latitude, widget.position.longitude),
                       pointerLocation,
                       widget.roomUid,
                     );
@@ -232,22 +226,47 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
 class AttachLocation {
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
   final BuildContext context;
   final Uid roomUid;
 
   AttachLocation(this.context, this.roomUid);
 
-  FutureBuilder<Position> showLocation() {
-    return FutureBuilder(
-      future: Geolocator.getCurrentPosition(),
-      builder: (c, position) {
-        if (position.hasData && position.data != null) {
-          return PointToLatLngPage(
-            position: position.data!,
-            roomUid: roomUid,
+  Widget showLocation() {
+    return FutureBuilder<bool>(
+      future: _checkPermissionsService.haveLocationPermission(),
+      builder: (context, havePermission) {
+        if (havePermission.hasData &&
+            havePermission.data != null &&
+            havePermission.data!) {
+          return FutureBuilder<Position>(
+            future: _checkPermissionsService.getCurrentPosition(),
+            builder: (c, position) {
+              if (position.hasData && position.data != null) {
+                return PointToLatLngPage(
+                  position: position.data!,
+                  roomUid: roomUid,
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           );
         } else {
-          return const SizedBox.shrink();
+          const defaultPosition = Position(
+            longitude: 51.338113116657055,
+            latitude: 35.699693143116974,
+            timestamp: null,
+            accuracy: 0.0,
+            altitude: 0.0,
+            heading: 0.0,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+          );
+          return PointToLatLngPage(
+            position: defaultPosition,
+            roomUid: roomUid,
+          );
         }
       },
     );
@@ -260,7 +279,7 @@ class AttachLocation {
           position.latitude,
           position.longitude,
         ),
-        zoom: 24.0,
+        zoom: DEFAULT_ZOOM_LEVEL,
       ),
       children: [
         TileLayer(
