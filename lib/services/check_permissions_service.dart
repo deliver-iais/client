@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/dialog.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -176,5 +178,17 @@ class CheckPermissionsService {
       return false;
     }
     return true;
+  }
+
+  Future<Position> getCurrentPosition() async {
+    if (isAndroid) {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        const intent = AndroidIntent(
+          action: 'android.settings.LOCATION_SOURCE_SETTINGS',
+        );
+        await intent.launch();
+      }
+    }
+    return Geolocator.getCurrentPosition();
   }
 }

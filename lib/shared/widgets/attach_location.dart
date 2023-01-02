@@ -240,7 +240,7 @@ class AttachLocation {
             havePermission.data != null &&
             havePermission.data!) {
           return FutureBuilder<Position>(
-            future: Geolocator.getCurrentPosition(),
+            future: _checkPermissionsService.getCurrentPosition(),
             builder: (c, position) {
               if (position.hasData && position.data != null) {
                 return PointToLatLngPage(

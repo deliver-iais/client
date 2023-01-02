@@ -576,7 +576,7 @@ Future<double> _distance(Message message) async {
 Future<Position> _determinePosition() async {
   final checkPermissionsService = GetIt.I.get<CheckPermissionsService>();
   if (await checkPermissionsService.haveLocationPermission()) {
-    return Geolocator.getCurrentPosition();
+    return checkPermissionsService.getCurrentPosition();
   } else {
     return Future.error('Location permissions are denied');
   }
