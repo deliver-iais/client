@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
@@ -9,6 +10,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/methods/dialog.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
@@ -32,6 +34,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -58,6 +61,9 @@ class HomePageState extends State<HomePage> {
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
+
+    checkRefreshToken();
+
     checkIfVersionChange();
     checkAddToHomeInWeb(context);
 
@@ -153,6 +159,39 @@ class HomePageState extends State<HomePage> {
       showDialog(builder: (context) => NewFeatureDialog(), context: context)
           .ignore();
       unawaited(_accountRepo.updatePlatformVersion());
+    }
+  }
+
+  Future<void> checkRefreshToken() async {
+    await checkRefreshTokenExpiration();
+    await checkRefreshTokenEmptiness();
+  }
+
+  Future<void> checkRefreshTokenExpiration() async {
+    if (_authRepo.isRefreshTokenExpired()) {
+      _logger.wtf("refreshToken: ${_authRepo.refreshToken}, accessToken: ${_authRepo.accessToken}");
+      // Delay for displaying dialog
+      await Future.delayed(const Duration(seconds: 1));
+
+      await showContinueAbleDialog(
+        "your_session_is_expired_please_login_again",
+        context: context,
+      );
+      return _routingService.logout();
+    }
+  }
+
+  Future<void> checkRefreshTokenEmptiness() async {
+    if (_authRepo.isRefreshTokenEmpty()) {
+      _logger.wtf("refreshToken: ${_authRepo.refreshToken}, accessToken: ${_authRepo.accessToken}");
+      // Delay for displaying dialog
+      await Future.delayed(const Duration(seconds: 1));
+
+      await showContinueAbleDialog(
+        "your_session_is_has_a_problem",
+        context: context,
+      );
+      return _routingService.logout();
     }
   }
 }

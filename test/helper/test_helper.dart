@@ -487,7 +487,7 @@ MockAuthRepo getAndRegisterAuthRepo({
       .thenAnswer((f) => Future.value(AccessTokenRes()));
   service.newVersionInformation =
       BehaviorSubject.seeded(NewerVersionInformation());
-  when(service.isLoggedIn()).thenReturn(isLoggedIn);
+  when(service.isLoggedIn()).thenReturn(Future.value(true));
   return service;
 }
 

@@ -672,7 +672,7 @@ packages:
       name: firebase_core_web
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.2"
+    version: "2.1.0"
   firebase_messaging:
     dependency: "direct main"
     description:
@@ -1958,7 +1958,7 @@ packages:
       name: timezone
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.1"
   timing:
     dependency: transitive
     description:
