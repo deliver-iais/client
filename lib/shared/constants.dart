@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-
+const APP_NAME = "";
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
@@ -269,6 +269,9 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
+
+//FOCUS NODE
+final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;

@@ -31,7 +31,9 @@ final hasVibrationCapability = isAndroid || isIOS || isWeb;
 final hasVirtualKeyboardCapability = isAndroid || isIOS;
 
 Future<platform_pb.Platform> getPlatformPB() async {
-  final platform = platform_pb.Platform()..clientVersion = VERSION;
+  final platform = platform_pb.Platform()
+    ..clientVersion = VERSION
+    ..applicationName = APP_NAME;
   if (isWeb) {
     platform
       ..platformType = platform_pb.PlatformsType.WEB

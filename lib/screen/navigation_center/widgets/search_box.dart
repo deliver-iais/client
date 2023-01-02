@@ -12,12 +12,14 @@ class SearchBox extends StatefulWidget {
   final void Function(String) onChange;
   final void Function()? onCancel;
   final TextEditingController? controller;
+  final FocusNode? focusNode;
 
   const SearchBox({
     super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
+    this.focusNode,
   });
 
   @override
@@ -42,12 +44,16 @@ class SearchBoxState extends State<SearchBox> {
     super.dispose();
   }
 
+  FocusNode _getFocusNode() {
+    return widget.focusNode ?? _localFocusNode;
+  }
+
   @override
   void initState() {
     if (hasVirtualKeyboardCapability) {
       _keyboardVisibilityController.onChange.listen((event) {
         if (!event) {
-          _localFocusNode.unfocus();
+          _getFocusNode().unfocus();
         }
       });
     }
@@ -71,7 +77,7 @@ class SearchBoxState extends State<SearchBox> {
           height: 40,
           child: AutoDirectionTextField(
             style: const TextStyle(fontSize: 16),
-            focusNode: _localFocusNode,
+            focusNode: _getFocusNode(),
             controller: widget.controller ?? _localController,
             onChanged: (str) {
               widget.onChange(str);
@@ -98,7 +104,7 @@ class SearchBoxState extends State<SearchBox> {
                       onPressed: () {
                         _hasText.add(false);
                         _clearTextEditingController();
-                        _localFocusNode.unfocus();
+                        _getFocusNode().unfocus();
                         widget.onCancel?.call();
                       },
                     );

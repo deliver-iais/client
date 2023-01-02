@@ -204,7 +204,7 @@ class IntroPageState extends State<IntroPage> {
                   width: 300,
                   height: 300,
                   child: RiveAnimation.asset(
-                    'assets/animations/new_file.riv',
+                    'assets/animations/intro.riv',
                     fit: BoxFit.cover,
                     onInit: _onRiveInit,
                   ),
