@@ -487,13 +487,12 @@ class RoutingService {
   }
 
   Future<void> logout() async {
-    final autRepo = GetIt.I.get<AuthRepo>();
-    if (await autRepo.isLoggedIn()) {
-      await autRepo.setAsLoggedOut();
+    final authRepo = GetIt.I.get<AuthRepo>();
+    if (await authRepo.isLoggedIn()) {
       await GetIt.I.get<AccountRepo>().logOut();
       if (!isDesktop) GetIt.I.get<FireBaseServices>().deleteToken();
       GetIt.I.get<CoreServices>().closeConnection();
-      await autRepo.deleteTokens();
+      await authRepo.deleteTokens();
       await GetIt.I.get<DBManager>().deleteDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(

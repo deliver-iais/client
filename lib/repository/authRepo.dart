@@ -182,6 +182,10 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
+  bool isRefreshTokenExpired() =>
+      _refreshToken != null &&
+      _refreshToken!.isNotEmpty &&
+      !_isExpired(_refreshToken);
 
   Future<bool> isLoggedIn() async {
     return _sharedDao.getBoolean(SHARED_DAO_IS_LOGGED_IN);
@@ -214,6 +218,7 @@ class AuthRepo {
     _refreshToken = refreshToken;
     await _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
     await _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    await setAsLoggedIn();
     return _setCurrentUid(accessToken);
   }
 
@@ -246,6 +251,7 @@ class AuthRepo {
     _accessToken = null;
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
+    return setAsLoggedOut();
   }
 
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
