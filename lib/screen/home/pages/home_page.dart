@@ -169,6 +169,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> checkRefreshTokenExpiration() async {
     if (_authRepo.isRefreshTokenExpired()) {
+      _logger.wtf("refreshToken: ${_authRepo.refreshToken}, accessToken: ${_authRepo.accessToken}");
       // Delay for displaying dialog
       await Future.delayed(const Duration(seconds: 1));
 
@@ -182,6 +183,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> checkRefreshTokenEmptiness() async {
     if (_authRepo.isRefreshTokenEmpty()) {
+      _logger.wtf("refreshToken: ${_authRepo.refreshToken}, accessToken: ${_authRepo.accessToken}");
       // Delay for displaying dialog
       await Future.delayed(const Duration(seconds: 1));
 
