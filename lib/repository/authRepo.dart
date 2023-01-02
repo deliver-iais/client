@@ -182,10 +182,12 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
+  bool isRefreshTokenEmpty() => _refreshToken == null || _refreshToken!.isEmpty;
+
   bool isRefreshTokenExpired() =>
       _refreshToken != null &&
       _refreshToken!.isNotEmpty &&
-      !_isExpired(_refreshToken);
+      JwtDecoder.isExpired(_refreshToken!);
 
   Future<bool> isLoggedIn() async {
     return _sharedDao.getBoolean(SHARED_DAO_IS_LOGGED_IN);
