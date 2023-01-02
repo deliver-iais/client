@@ -114,6 +114,7 @@ class LoginPageState extends State<LoginPage> {
   }
 
   void _navigationToHome() {
+    _authRepo.login();
     _contactRepo.getContacts();
     _accountRepo
       ..hasProfile(retry: true)

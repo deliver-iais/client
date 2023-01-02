@@ -31,7 +31,7 @@ class AuthRepo {
   BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
 
   BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-      BehaviorSubject();
+  BehaviorSubject();
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -83,8 +83,7 @@ class AuthRepo {
     );
   }
 
-  Future<AccessTokenRes> sendVerificationCode(
-    String code, {
+  Future<AccessTokenRes> sendVerificationCode(String code, {
     String? password,
   }) async {
     final platform = await getPlatformPB();
@@ -107,8 +106,7 @@ class AuthRepo {
     return res;
   }
 
-  Future<AccessTokenRes> checkQrCodeToken(
-    String token, {
+  Future<AccessTokenRes> checkQrCodeToken(String token, {
     String? password,
   }) async {
     final platform = await getPlatformPB();
@@ -184,8 +182,18 @@ class AuthRepo {
 
   bool isLoggedIn() =>
       _refreshToken != null &&
-      _refreshToken!.isNotEmpty &&
-      !_isExpired(_refreshToken);
+          _refreshToken!.isNotEmpty &&
+          !_isExpired(_refreshToken);
+
+  Future<bool> isLogin() async {
+    return _sharedDao.getBoolean(SHARED_DAO_IS_LOGIN);
+  }
+
+  Future<void> login() async =>
+      _sharedDao.putBoolean(SHARED_DAO_IS_LOGIN, true);
+
+  Future<void> logout() async =>
+      _sharedDao.putBoolean(SHARED_DAO_IS_LOGIN, false);
 
   bool _isExpired(accessToken) =>
       accessToken == null || JwtDecoder.isExpired(accessToken);
@@ -194,10 +202,8 @@ class AuthRepo {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
-  Future<void> _setTokensAndCurrentUserUid(
-    String? accessToken,
-    String? refreshToken,
-  ) async {
+  Future<void> _setTokensAndCurrentUserUid(String? accessToken,
+      String? refreshToken,) async {
     if (accessToken == null ||
         refreshToken == null ||
         accessToken.isEmpty ||
@@ -233,7 +239,7 @@ class AuthRepo {
 
   bool isCurrentSession(Session session) =>
       currentUserUid.sessionId == session.sessionId &&
-      currentUserUid.node == session.node;
+          currentUserUid.node == session.node;
 
   Future<void> deleteTokens() async {
     _refreshToken = null;
@@ -254,20 +260,16 @@ class AuthRepo {
 class DeliverClientInterceptor implements ClientInterceptor {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  Future<void> metadataProvider(
-    Map<String, String> metadata,
-    String uri,
-  ) async {
+  Future<void> metadataProvider(Map<String, String> metadata,
+      String uri,) async {
     metadata['access_token'] = await _authRepo.getAccessToken();
   }
 
   @override
-  ResponseFuture<R> interceptUnary<Q, R>(
-    ClientMethod<Q, R> method,
-    Q request,
-    CallOptions options,
-    ClientUnaryInvoker<Q, R> invoker,
-  ) =>
+  ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method,
+      Q request,
+      CallOptions options,
+      ClientUnaryInvoker<Q, R> invoker,) =>
       invoker(
         method,
         request,
@@ -275,12 +277,10 @@ class DeliverClientInterceptor implements ClientInterceptor {
       );
 
   @override
-  ResponseStream<R> interceptStreaming<Q, R>(
-    ClientMethod<Q, R> method,
-    Stream<Q> requests,
-    CallOptions options,
-    ClientStreamingInvoker<Q, R> invoker,
-  ) =>
+  ResponseStream<R> interceptStreaming<Q, R>(ClientMethod<Q, R> method,
+      Stream<Q> requests,
+      CallOptions options,
+      ClientStreamingInvoker<Q, R> invoker,) =>
       invoker(
         method,
         requests,

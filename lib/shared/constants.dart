@@ -105,11 +105,11 @@ const STATUS_CONNECTION_ENDED = "connection-ended";
 const STATUS_CAMERA_SWITCH_ON = "camera-switch-on";
 const STATUS_CAMERA_SWITCH_OFF = "camera-switch-off";
 const WEBRTC_MAX_BITRATE =
-    256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
+256000; // 256 kbps with 2 Mbps we can have about 10 concurrent at high rate
 const WEBRTC_MIN_BITRATE =
-    128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const WEBRTC_MAX_FRAME_RATE =
-    30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
 // Shared Dao Settings Constants
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
@@ -146,6 +146,7 @@ const SHARED_DAO_BAD_CERTIFICATE_CONNECTION =
     "SHARED_DAO_USE_CERTIFICATE_CONNECTION";
 const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
 const SHARED_DAO_FIREBASE_TOKEN = "SHARED_DAO_FIREBASE_TOKEN";
+const SHARED_DAO_IS_LOGIN = "SHARED_DAO_IS_LOGIN";
 
 //KEYBOARD SIZE
 const SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT = "SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT";
@@ -300,30 +301,52 @@ bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
-  if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
-    return isLargeWidth(MediaQuery.of(context).size.width);
+  if (isDesktop || MediaQuery
+      .of(context)
+      .orientation == Orientation.portrait) {
+    return isLargeWidth(MediaQuery
+        .of(context)
+        .size
+        .width);
   } else {
-    return isLargeHeight(MediaQuery.of(context).size.height);
+    return isLargeHeight(MediaQuery
+        .of(context)
+        .size
+        .height);
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
 bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(MediaQuery.of(context).size.width);
+    isVeryLargeWidth(MediaQuery
+        .of(context)
+        .size
+        .width);
 
 // Dynamics
-double animationSquareSize(BuildContext context) => isLarge(context)
-    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(
-        MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7,
-      );
+double animationSquareSize(BuildContext context) =>
+    isLarge(context)
+        ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
+        : min(
+      MediaQuery
+          .of(context)
+          .size
+          .width * 0.7,
+      MediaQuery
+          .of(context)
+          .size
+          .height * 0.7,
+    );
 
-double maxWidthOfMessage(BuildContext context) => min(
-      (MediaQuery.of(context).size.width -
-                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-              0.8 -
+double maxWidthOfMessage(BuildContext context) =>
+    min(
+      (MediaQuery
+          .of(context)
+          .size
+          .width -
+          (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+          0.8 -
           SELECTED_MESSAGE_CHECKBOX_WIDTH,
       450,
     );
