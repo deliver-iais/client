@@ -424,7 +424,11 @@ class InputMessageWidgetState extends State<InputMessage> {
                               unawaited(
                                 _messageRepo.sendFileMessage(
                                   widget.currentRoom.uid.asUid(),
-                                  File(res, res),
+                                  File(
+                                    res,
+                                    res,
+                                    isVoice: true,
+                                  ),
                                   replyToId: _replyMessageId,
                                 ),
                               );
@@ -1102,7 +1106,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           res.add(await xFileToFileModel(file));
         }
       } else {
-        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+        final result = await FilePicker.platform.pickFiles(allowMultiple: true, lockParentWindow: true);
 
         res.addAll(
           (result?.files ?? []).map(filePickerPlatformFileToFileModel),

@@ -724,7 +724,7 @@ void main() {
                 ..caption = "test"
                 ..width = 0
                 ..height = 0
-                ..type = "application/octet-stream"
+                ..type = DEFAULT_FILE_TYPE
                 ..size = Int64(File("test").statSync().size)
                 ..name = "test"
                 ..duration = 0;
@@ -1014,7 +1014,7 @@ void main() {
             caption: "test",
             uuid: pm.msg.packetId,
             size: Int64(4096),
-            type: "application/octet-stream",
+            type: DEFAULT_FILE_TYPE,
             width: 0,
             height: 0,
             duration: 0.0,

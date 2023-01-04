@@ -1522,6 +1522,22 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: null,
       );
   @override
+  bool isRefreshTokenEmpty() => (super.noSuchMethod(
+        Invocation.method(
+          #isRefreshTokenEmpty,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool isRefreshTokenExpired() => (super.noSuchMethod(
+        Invocation.method(
+          #isRefreshTokenExpired,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
   _i22.Future<bool> isLoggedIn() => (super.noSuchMethod(
         Invocation.method(
           #isLoggedIn,
@@ -1692,6 +1708,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
     String? name, {
     required List<String>? packetIds,
     void Function(int)? sendActivity,
+    bool? isVoice = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1703,6 +1720,7 @@ class MockFileRepo extends _i1.Mock implements _i36.FileRepo {
           {
             #packetIds: packetIds,
             #sendActivity: sendActivity,
+            #isVoice: isVoice,
           },
         ),
         returnValue: _i22.Future<_i38.File?>.value(),

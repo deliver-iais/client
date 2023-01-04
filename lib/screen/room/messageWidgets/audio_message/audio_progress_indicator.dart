@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:math';
-
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -32,22 +29,10 @@ class AudioProgressIndicator extends StatefulWidget {
 
 class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   static final audioPlayerService = GetIt.I.get<AudioService>();
-  List<double> _localAudioWave = [];
 
   @override
   void initState() {
-    // TODO(chitsaz): audioWaveData is empty in media remove this line after deploy,
-    if (widget.audioWaveData.isEmpty) {
-      _getLocalAudioWave();
-    }
     super.initState();
-  }
-
-  Future<void> _getLocalAudioWave() async {
-    _localAudioWave = _loadParseJson(
-      (await (File(widget.audioPath).readAsBytes())).toList(),
-      100,
-    );
   }
 
   @override
@@ -82,12 +67,9 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       activeColor:
                           widget.colorScheme?.primary ?? theme.primaryColor,
                       elapsedDuration: position.data,
-                      // TODO(chitsaz): audioWaveData is empty in media remove this line after deploy,
-                      samples: widget.audioWaveData.isEmpty
-                          ? _localAudioWave
-                          : widget.audioWaveData
-                              .map((i) => i.toDouble())
-                              .toList(),
+                      samples: widget.audioWaveData
+                          .map((i) => i.toDouble())
+                          .toList(),
                       height: 20,
                       width: widget.maxWidth,
                     ),
@@ -136,27 +118,4 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
       },
     );
   }
-}
-
-List<double> _loadParseJson(List<int> rawSamples, int totalSamples) {
-  final filteredData = <int>[];
-  final blockSize = rawSamples.length / totalSamples;
-
-  for (var i = 0; i < totalSamples; i++) {
-    final blockStart = blockSize * i;
-    var sum = 0;
-    for (var j = 0; j < blockSize; j++) {
-      sum = sum + rawSamples[(blockStart + j).toInt()];
-    }
-    filteredData.add(
-      (sum / blockSize).round(),
-    );
-  }
-  final maxNum = filteredData.reduce((a, b) => max(a.abs(), b.abs()));
-
-  final multiplier = pow(maxNum, -1).toDouble();
-
-  final samples = filteredData.map<double>((e) => (e * multiplier)).toList();
-
-  return samples;
 }

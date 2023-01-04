@@ -265,7 +265,7 @@ packages:
       name: checked_yaml
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   chewie:
     dependency: "direct main"
     description:
@@ -1303,19 +1303,12 @@ packages:
     source: hosted
     version: "2.0.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.3"
-  mime_type:
-    dependency: "direct main"
-    description:
-      name: mime_type
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.0"
   mobile_scanner:
     dependency: "direct main"
     description:
@@ -1590,7 +1583,7 @@ packages:
     source: hosted
     version: "2.1.0"
   provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: provider
       url: "https://pub.flutter-io.cn"
