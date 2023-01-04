@@ -8,7 +8,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -86,13 +85,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   late file_pb.File _editableFile;
   final FocusNode _captionFocusNode = FocusNode();
   model.File? _editedFile;
-  Iterable<NotAcceptableFile>? _notAcceptableFiles;
 
   @override
   void initState() {
     if (widget.editableMessage == null) {
-      _notAcceptableFiles = getNotAcceptableFiles(widget.files!);
-
       if (widget.caption != null && widget.caption!.isNotEmpty) {
         _editingController.text = synthesizeToOriginalWord(widget.caption!);
       }
@@ -105,39 +101,37 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return  _notAcceptableFiles!=null && _notAcceptableFiles!.isNotEmpty
-        ? NotAcceptableFilesErrorDialog(notAcceptableFiles: _notAcceptableFiles!)
-        : ((widget.files?.isNotEmpty ?? false) ||
-                widget.editableMessage != null)
-            ? Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: SingleChildScrollView(
-                  child: AlertDialog(
-                    contentPadding: const EdgeInsets.all(0),
-                    actionsPadding: const EdgeInsets.all(0),
-                    content: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height - 300,
-                      ),
-                      width: 330,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.editableMessage == null) ...[
-                            _buildSelectedFileTitle(),
-                            const Divider()
-                          ],
-                          _buildFilesListWidget(),
-                          const Divider(),
-                          _buildCaptionInputBox(),
-                        ],
-                      ),
-                    ),
-                    actions: [buildActionButtonsRow()],
+    return ((widget.files?.isNotEmpty ?? false) ||
+            widget.editableMessage != null)
+        ? Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                contentPadding: const EdgeInsets.all(0),
+                actionsPadding: const EdgeInsets.all(0),
+                content: Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height - 300,
+                  ),
+                  width: 330,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.editableMessage == null) ...[
+                        _buildSelectedFileTitle(),
+                        const Divider()
+                      ],
+                      _buildFilesListWidget(),
+                      const Divider(),
+                      _buildCaptionInputBox(),
+                    ],
                   ),
                 ),
-              )
-            : const SizedBox.shrink();
+                actions: [buildActionButtonsRow()],
+              ),
+            ),
+          )
+        : const SizedBox.shrink();
   }
 
   bool isImageFile(int index) {
@@ -146,7 +140,9 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         : widget.editableMessage != null
             ? _editableFile.type
             : widget.files?[index].extension;
-    return (extension != null && isImageFileExtension(extension));
+    return (extension != null &&
+        isImageFileExtension(extension) &&
+        isFileContentMimeMatchFileExtensionMime(widget.files?[index].path));
   }
 
   Widget _buildSelectedFileTitle() {
@@ -488,96 +484,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       allowMultiple: allowMultiple,
     );
 
-    final files = (result?.files ?? []).map(filePickerPlatformFileToFileModel);
-
-    final notAcceptableFile = getNotAcceptableFiles(files);
-
-    if (notAcceptableFile.isNotEmpty) {
-      final naf = notAcceptableFile.first;
-
-      final errorText = naf.hasNotAcceptableExtension
-          ? _i18n.get("cant_sent")
-          : naf.isEmpty
-              ? _i18n.get("file_size_zero")
-              : _i18n.get("file_size_error");
-
-      ToastDisplay.showToast(
-        toastText: errorText,
-        toastContext: context,
-      );
-
-      return [];
-    } else {
-      return files;
-    }
-  }
-}
-
-class NotAcceptableFilesErrorDialog extends StatelessWidget {
-  static final _i18n = GetIt.I.get<I18N>();
-
-  final Iterable<NotAcceptableFile> notAcceptableFiles;
-
-  const NotAcceptableFilesErrorDialog({
-    super.key,
-    required this.notAcceptableFiles,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: AlertDialog(
-        title: Text(
-          _i18n.get("error"),
-          style: const TextStyle(
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              _i18n.get("ok"),
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
-        ],
-        content: SizedBox(
-          width: 350,
-          child: Column(
-            children: [
-              for (final file in notAcceptableFiles)
-                if (file.hasNotAcceptableExtension)
-                  Wrap(
-                    children: [
-                      Text(file.file.name),
-                      Text(_i18n.get("cant_sent")),
-                    ],
-                  )
-                else if (file.isEmpty)
-                  Wrap(
-                    children: [
-                      Text(file.file.name),
-                      Text(_i18n.get("file_size_zero"))
-                    ],
-                  )
-                else if (file.hasExtraSize)
-                  Wrap(
-                    children: [
-                      Text(file.file.name),
-                      Text(_i18n.get("file_size_error")),
-                    ],
-                  )
-            ],
-          ),
-        ),
-      ),
-    );
+    return (result?.files ?? []).map(filePickerPlatformFileToFileModel);
   }
 }

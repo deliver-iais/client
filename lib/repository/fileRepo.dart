@@ -38,6 +38,7 @@ class FileRepo {
     String name, {
     required List<String> packetIds,
     void Function(int)? sendActivity,
+    bool isVoice = false,
   }) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
 
@@ -48,6 +49,7 @@ class FileRepo {
         name,
         uploadKey: uploadKey,
         sendActivity: sendActivity,
+        isVoice: isVoice,
       );
     } on DioError catch (e) {
       if (e.response!.statusCode == 400 && packetIds.isNotEmpty) {

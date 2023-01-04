@@ -7,35 +7,9 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
-
-class NotAcceptableFile {
-  final file_model.File file;
-  final bool isEmpty;
-  final bool hasExtraSize;
-  final bool hasNotAcceptableExtension;
-
-  const NotAcceptableFile(
-    this.file, {
-    this.isEmpty = false,
-    this.hasExtraSize = false,
-    this.hasNotAcceptableExtension = false,
-  });
-
-  NotAcceptableFile.fromPath(
-    String path, {
-    this.isEmpty = false,
-    this.hasExtraSize = false,
-    this.hasNotAcceptableExtension = false,
-  }) : file = pathToFileModel(path);
-
-  NotAcceptableFile.fromFile(
-    File file, {
-    this.isEmpty = false,
-    this.hasExtraSize = false,
-    this.hasNotAcceptableExtension = false,
-  }) : file = fileToFileModel(file);
-}
 
 String normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
 
@@ -96,31 +70,39 @@ bool isVideoFileExtension(String extension) {
   return !isImageFileExtension(extension) && lt.contains('video');
 }
 
+bool isFileNameMimeMatchFileType(String fileName, String fileType) =>
+    fileName.getMimeString().getMimeMainType() == fileType.getMimeMainType();
+
+bool isFileContentMimeMatchFileExtensionMime(String? filePath) =>
+    detectFileTypeByNameAndContent(filePath).hasSameMainType();
+
+String detectFileMimeByFilePath(String? filePath) {
+  final fileMainType = detectFileTypeByNameAndContent(filePath);
+  if (fileMainType.hasSameMainType()) {
+    return fileMainType.mimeByContent;
+  } else {
+    return DEFAULT_FILE_TYPE;
+  }
+}
+
+file_model.MimeByNameAndContent detectFileTypeByNameAndContent(
+  String? filePath,
+) {
+  final typeByContent = lookupMimeType(
+        "no-file",
+        headerBytes: File(filePath ?? "").readAsBytesSync(),
+      ) ??
+      DEFAULT_FILE_TYPE;
+
+  return file_model.MimeByNameAndContent(
+    filePath.getMimeString(),
+    typeByContent,
+  );
+}
+
 // TODO(bitbeter): add more details
 bool isVoiceFilePath(String path) {
   return getFileExtension(path) == "m4a" || getFileExtension(path) == "ogg";
-}
-
-Iterable<NotAcceptableFile> getNotAcceptableFiles(
-  Iterable<file_model.File> files,
-) {
-  return files
-      .where(
-        (file) =>
-            fileIsEmpty(file) ||
-            fileHasExtraSize(file) ||
-            !isAcceptableFileExtension(file.extension ?? ""),
-      )
-      .map(
-        (file) => NotAcceptableFile(
-          file,
-          hasExtraSize: fileHasExtraSize(file),
-          isEmpty: fileIsEmpty(file),
-          hasNotAcceptableExtension:
-              !isAcceptableFileExtension(file.extension ?? ""),
-        ),
-      )
-      .toList();
 }
 
 bool fileIsEmpty(file_model.File file) =>
@@ -201,4 +183,48 @@ String byteFormat(int bytes, {int decimals = 2}) {
   final sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   final i = (log(bytes) / log(k)).floor();
   return ('${(bytes / pow(k, i)).toStringAsFixed(dm)} ${sizes[i]}');
+}
+
+extension MimeExtensions on String? {
+  String getMimeMainType() {
+    if (this == null) {
+      return "";
+    }
+
+    final parts = this!.split("/");
+
+    if (parts.isEmpty) {
+      return "";
+    }
+
+    return parts[0];
+  }
+
+  String getMimeSubType() {
+    if (this == null) {
+      return "";
+    }
+
+    final parts = this!.split("/");
+
+    if (parts.isEmpty) {
+      return "";
+    }
+
+    return parts[1];
+  }
+}
+
+extension MimeTypeOfFileName on String? {
+  String getMimeString() {
+    if (this == null || this!.trim().isEmpty) {
+      return DEFAULT_FILE_TYPE;
+    } else {
+      return lookupMimeType(this!) ?? DEFAULT_FILE_TYPE;
+    }
+  }
+
+  MediaType getMediaType() {
+    return MediaType.parse(getMimeString());
+  }
 }

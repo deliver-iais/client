@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:deliver/screen/room/widgets/share_box/video_thumbnail.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart';
 
 class FileIcon extends StatelessWidget {
@@ -17,10 +17,8 @@ class FileIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final f = File(file.path);
-    final extensions = extension(f.path).toLowerCase();
-    final mimeType = mime(basename(file.path).toLowerCase()) ?? '';
-    final type = mimeType.isEmpty ? '' : mimeType.split('/')[0];
+    final extensions = extension(file.path).toLowerCase();
+    final mimeMainType = file.path.getMimeString().getMimeMainType();
     if (extensions == '.apk') {
       return buildFileIcon(Icons.android, theme, theme.colorScheme.secondary);
     } else if (extensions == '.crdownload') {
@@ -36,7 +34,7 @@ class FileIcon extends StatelessWidget {
         theme.colorScheme.tertiary,
       );
     } else {
-      switch (type) {
+      switch (mimeMainType) {
         case 'image':
           return ClipRRect(
             clipBehavior: Clip.hardEdge,

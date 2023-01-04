@@ -28,6 +28,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -35,6 +36,7 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/random_vm.dart';
@@ -65,7 +67,6 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum TitleStatusConditions {
@@ -84,6 +85,7 @@ BehaviorSubject<MessageEvent?> messageEventSubject =
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   // migrate to room repo
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -669,7 +671,8 @@ class MessageRepo {
     final pendingMessages = <PendingMessage>[];
     final pendingMessagePacketId = <String>[];
     for (final room in rooms) {
-      final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
+      final msg =
+          await buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
           _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
       pendingMessagePacketId.add(pm.packetId);
@@ -706,7 +709,7 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final packetId = _getPacketId();
-    final msg = buildMessageFromFile(
+    final msg = await buildMessageFromFile(
       room,
       file,
       packetId,
@@ -742,14 +745,14 @@ class MessageRepo {
     }
   }
 
-  Message buildMessageFromFile(
+  Future<Message> buildMessageFromFile(
     Uid room,
     model.File file,
     String fileUuid, {
     String? caption,
     int replyToId = 0,
-  }) {
-    final sendingFakeFile = _createFakeSendFile(file, fileUuid, caption);
+  }) async {
+    final sendingFakeFile = await _createFakeSendFile(file, fileUuid, caption);
 
     return _createMessage(room, replyId: replyToId).copyWith(
       packetId: _getPacketId(),
@@ -758,17 +761,17 @@ class MessageRepo {
     );
   }
 
-  file_pb.File _createFakeSendFile(
+  Future<file_pb.File> _createFakeSendFile(
     model.File file,
     String fileUuid,
     String? caption,
-  ) {
+  ) async {
     var tempDimension = Size.zero;
     var tempFileSize = 0;
     var tempType = "";
 
     try {
-      tempType = _findType(isWeb ? file.name : file.path);
+      tempType = detectFileMimeByFilePath(isWeb ? file.name : file.path);
     } catch (e) {
       _logger.e("Error in getting file type", e);
     }
@@ -806,6 +809,17 @@ class MessageRepo {
     } catch (e) {
       _logger.e("Error in fetching fake file dimensions", e);
     }
+    final file_pb.AudioWaveform audioWaveForm;
+    if (file.isVoice ?? false) {
+      audioWaveForm = file_pb.AudioWaveform(
+        length: 100,
+        bits: 8,
+        data: (await _audioService.getAudioWave(file.path))
+            .map((e) => e.toInt()),
+      );
+    } else {
+      audioWaveForm = file_pb.AudioWaveform.getDefault();
+    }
 
     return file_pb.File()
       ..uuid = fileUuid
@@ -815,6 +829,7 @@ class MessageRepo {
       ..type = tempType
       ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize)
       ..name = file.name
+      ..audioWaveform = audioWaveForm
       ..duration = 0;
   }
 
@@ -1242,8 +1257,6 @@ class MessageRepo {
     return messagesMap.values.toList();
   }
 
-  String _findType(String path) => mime(path) ?? DEFAULT_FILE_TYPE;
-
   void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {
       final activityByClient = ActivityByClient()
@@ -1529,7 +1542,8 @@ class MessageRepo {
         updatedFile = await _sendFileToServerOfPendingEditedMessage(
           _createPendingMessage(
             editableMessage.copyWith(
-              json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
+              json: (await _createFakeSendFile(file, uploadKey, caption))
+                  .writeToJson(),
               edited: true,
             ),
             SendingStatus.UPLOAD_FILE_IN_PROGRESS,

@@ -5,7 +5,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/screen/room/widgets/share_box/file_box_item.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -151,26 +150,7 @@ class FilesBoxState extends State<FilesBox> {
                     ),
                   ),
                   onTap: () {
-                    final file = fileToFileModel(fileItem);
-
-                    final notAcceptableFile = getNotAcceptableFiles([file]);
-
-                    if (notAcceptableFile.isNotEmpty) {
-                      final naf = notAcceptableFile.first;
-
-                      final errorText = naf.hasNotAcceptableExtension
-                          ? _i18n.get("cant_sent")
-                          : naf.isEmpty
-                              ? _i18n.get("file_size_zero")
-                              : _i18n.get("file_size_error");
-
-                      ToastDisplay.showToast(
-                        toastText: errorText,
-                        toastContext: context,
-                      );
-                    } else {
-                      widget.onClick(index - 1, file);
-                    }
+                    widget.onClick(index - 1, fileToFileModel(fileItem));
                   },
                 );
               }

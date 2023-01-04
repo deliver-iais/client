@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_vlc/dart_vlc.dart'
-if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
+    if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -167,14 +168,14 @@ class AudioService {
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    try{
+    try {
       _mainPlayer.completedStream.listen((_) async {
         //todo check to see if message has been edited or deleted
         stopAudio();
         if (autoPlayMediaList.isNotEmpty &&
             autoPlayMediaIndex != autoPlayMediaList.length) {
           final json =
-          jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+              jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
           final fileUuid = json["uuid"];
           final fileName = json["name"];
           final fileDuration = json["duration"];
@@ -187,7 +188,7 @@ class AudioService {
             // ignore: invariant_booleans
             if (autoPlayMediaList.length == autoPlayMediaIndex) {
               final list =
-              await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+                  await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
                 messageId: autoPlayMediaList.last.messageId,
                 roomUid: autoPlayMediaList.last.roomId,
                 messageTime: autoPlayMediaList.last.createdOn,
@@ -206,10 +207,9 @@ class AudioService {
           }
         }
       });
-    }catch(e){
+    } catch (e) {
       GetIt.I.get<Logger>().e(e);
     }
-
   }
 
   Future<String?> _getFilePathFromMedia() {
@@ -391,6 +391,36 @@ class AudioService {
   bool recorderIsAvailable() => _recorder.recorderIsAvailable();
 
   void lockRecorder() => _recorder.lock();
+
+  Future<List<double>> getAudioWave(String audioPath) async {
+    return _loadParseJson(
+      (await (File(audioPath).readAsBytes())).toList(),
+      100,
+    );
+  }
+
+  List<double> _loadParseJson(List<int> rawSamples, int totalSamples) {
+    final filteredData = <int>[];
+    final blockSize = rawSamples.length / totalSamples;
+
+    for (var i = 0; i < totalSamples; i++) {
+      final blockStart = blockSize * i;
+      var sum = 0;
+      for (var j = 0; j < blockSize; j++) {
+        sum = sum + rawSamples[(blockStart + j).toInt()];
+      }
+      filteredData.add(
+        (sum / blockSize).round(),
+      );
+    }
+    final maxNum = filteredData.reduce((a, b) => max(a.abs(), b.abs()));
+
+    final multiplier = pow(maxNum, -1).toDouble();
+
+    final samples = filteredData.map<double>((e) => (e * multiplier)).toList();
+
+    return samples;
+  }
 }
 
 class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {

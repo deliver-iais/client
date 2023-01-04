@@ -11,17 +11,16 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:image/image.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart' as html;
@@ -472,9 +471,9 @@ class FileService {
   Future<void> _concurrentCloneFileInLocalDirectory(
     File file,
     String uploadKey,
-    String fileType,
+    String fileExtension,
   ) async {
-    final f = await localFile(uploadKey, fileType);
+    final f = await localFile(uploadKey, fileExtension);
     await f.writeAsBytes(file.readAsBytesSync());
     await _updateFileInfoWithNewPath(uploadKey, f.path);
   }
@@ -483,96 +482,107 @@ class FileService {
     String filePath,
     String filename, {
     String? uploadKey,
+    bool isVoice = false,
     void Function(int)? sendActivity,
   }) async {
     updateFileStatus(uploadKey!, FileStatus.STARTED);
-    try {
-      if (!isWeb) {
-        try {
-          if (isWindows) {
-            filePath = filePath.replaceAll("\\", "/");
-          }
-          final mediaType =
-              MediaType.parse(mime(filePath) ?? filePath).toString();
-          if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
-            if (isAndroid || isIOS) {
-              filePath = await compressImageInMobile(File(filePath));
-            } else {
-              filePath = await compressImageInDesktop(File(filePath));
+
+    filename = getFileName(filename);
+    filePath = normalizePath(filePath);
+
+    //check file status for upload
+    final String size;
+    final Uint8List webFile;
+    final Response result;
+    if (isWeb) {
+      webFile = Uint8List.fromList(filePath.codeUnits);
+      size = webFile.length.toString();
+    } else {
+      webFile = Uint8List(0);
+      size = (File(filePath).lengthSync()).toString();
+    }
+    result = await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
+    if (result.statusCode! == 200) {
+      try {
+        if (!isWeb) {
+          try {
+            final mediaType = filePath.getMediaType();
+            if (mediaType.type.contains("image") &&
+                !mediaType.subtype.contains("gif")) {
+              if (isAndroid || isIOS) {
+                filePath = await compressImageInMobile(File(filePath));
+              } else {
+                filePath = await compressImageInDesktop(File(filePath));
+              }
             }
+          } catch (_) {
+            _logger.e(_);
           }
-        } catch (_) {
-          _logger.e(_);
         }
-      }
-      final cancelToken = CancelToken();
-      _addCancelToken(cancelToken, uploadKey);
-      //concurrent save file in local directory
-      if (isDesktop) {
-        unawaited(
-          _concurrentCloneFileInLocalDirectory(
-            File(filePath),
-            uploadKey,
-            MediaType.parse(mime(filePath) ?? filePath).subtype,
+        final cancelToken = CancelToken();
+        _addCancelToken(cancelToken, uploadKey);
+        //concurrent save file in local directory
+        if (isDesktop) {
+          unawaited(
+            _concurrentCloneFileInLocalDirectory(
+              File(filePath),
+              uploadKey,
+              getFileExtension(filePath),
+            ),
+          );
+        }
+        FormData? formData;
+        if (isWeb) {
+          formData = FormData.fromMap({
+            "file": MultipartFile.fromBytes(
+              webFile.toList(),
+              filename: filename,
+              contentType: filename.getMediaType(),
+              headers: {
+                Headers.contentLengthHeader: [size], // set content-length
+              },
+            )
+          });
+        } else {
+          formData = FormData.fromMap({
+            "file": MultipartFile.fromFileSync(
+              filePath,
+              contentType: filePath.getMediaType(),
+              headers: {
+                Headers.contentLengthHeader: [size], // set content-length
+              },
+            )
+          });
+        }
+
+        _dio.interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) async {
+              options.onSendProgress = (i, j) {
+                if (i / j < 1) {
+                  sendActivity?.call(i);
+                  if (filesProgressBarStatus.value[uploadKey] == null) {
+                    filesProgressBarStatus
+                        .add(filesProgressBarStatus.value..[uploadKey] = 0);
+                  }
+                  filesProgressBarStatus.add(
+                    filesProgressBarStatus.value..[uploadKey] = (i / j),
+                  );
+                }
+              };
+              handler.next(options);
+            },
           ),
         );
+        final uploadUri = isVoice ? "/upload" : "/upload?isVoice=true";
+        return _dio.post(uploadUri, data: formData, cancelToken: cancelToken);
+      } catch (e) {
+        updateFileStatus(uploadKey, FileStatus.CANCELED);
+        _logger.e(e);
+        return null;
       }
-      FormData? formData;
-      if (isWeb) {
-        final file = Uint8List.fromList(filePath.codeUnits);
-
-        formData = FormData.fromMap({
-          "file": MultipartFile.fromBytes(
-            file.toList(),
-            filename: filename,
-            contentType:
-                MediaType.parse(mime(filename) ?? "application/octet-stream"),
-            headers: {
-              Headers.contentLengthHeader: [
-                file.length.toString()
-              ], // set content-length
-            },
-          )
-        });
-      } else {
-        formData = FormData.fromMap({
-          "file": MultipartFile.fromFileSync(
-            filePath,
-            contentType:
-                MediaType.parse(mime(filePath) ?? "application/octet-stream"),
-            headers: {
-              Headers.contentLengthHeader: [
-                (File(filePath).lengthSync()).toString()
-              ], // set content-length
-            },
-          )
-        });
-      }
-
-      _dio.interceptors.add(
-        InterceptorsWrapper(
-          onRequest: (options, handler) async {
-            options.onSendProgress = (i, j) {
-              if (i / j < 1) {
-                sendActivity?.call(i);
-                if (filesProgressBarStatus.value[uploadKey] == null) {
-                  filesProgressBarStatus
-                      .add(filesProgressBarStatus.value..[uploadKey] = 0);
-                }
-                filesProgressBarStatus.add(
-                  filesProgressBarStatus.value..[uploadKey] = (i / j),
-                );
-              }
-            };
-            handler.next(options);
-          },
-        ),
-      );
-      return _dio.post("/upload", data: formData, cancelToken: cancelToken);
-    } catch (e) {
-      updateFileStatus(uploadKey, FileStatus.CANCELED);
-      _logger.e(e);
-      return null;
+    } else {
+      return result;
     }
   }
 }
