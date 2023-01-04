@@ -96,9 +96,9 @@ class FileService {
   }
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkMediaLibraryPermission() ||
-        isDesktop ||
-        isIOS) {
+    if (isDesktop ||
+        isIOS ||
+        await _checkPermission.checkMediaLibraryPermission()) {
       final directory = await getApplicationDocumentsDirectory();
       if (!Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
           .existsSync()) {
