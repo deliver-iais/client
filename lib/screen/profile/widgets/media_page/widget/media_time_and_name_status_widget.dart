@@ -26,7 +26,8 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
       children: [
         FutureBuilder<String>(
           future: _roomRepo.getName(
-              (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid()),
+            (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid(),
+          ),
           builder: (c, name) {
             if (name.hasData && name.data != null) {
               return Text(
