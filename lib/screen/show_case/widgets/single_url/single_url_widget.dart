@@ -52,82 +52,78 @@ class SingleUrlWidget extends StatelessWidget {
               ),
             ),
           Center(
-            child: Container(
-              width: width,
-              decoration: BoxDecoration(
-                color: isPrimary ? theme.primaryColor.withOpacity(0.2) : null,
-                borderRadius: secondaryBorder,
-                border: Border.all(color: theme.dividerColor),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: secondaryBorder,
-                    child: SizedBox(
-                      width: width,
-                      height: imageHeight,
-                      child: FutureBuilder<String?>(
-                        future: _fileRepo.getFile(
-                          urlCase.img.uuid,
-                          urlCase.img.name,
+            child: InkWell(
+              onTap: () {
+                _urlHandlerService.onUrlTap(
+                  urlCase.url,
+                  context,
+                );
+              },
+              child: Container(
+                width: width,
+                decoration: BoxDecoration(
+                  color: isPrimary ? theme.primaryColor.withOpacity(0.2) : null,
+                  borderRadius: secondaryBorder,
+                  border: Border.all(color: theme.dividerColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: secondaryBorder,
+                      child: SizedBox(
+                        width: width,
+                        height: imageHeight,
+                        child: FutureBuilder<String?>(
+                          future: _fileRepo.getFile(
+                            urlCase.img.uuid,
+                            urlCase.img.name,
+                          ),
+                          builder: (c, s) {
+                            if (s.hasData && s.data != null) {
+                              return isWeb
+                                  ? Image.network(
+                                      s.data!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(
+                                      File(s.data!),
+                                      fit: BoxFit.cover,
+                                    );
+                            }
+                            return const TextLoader(
+                              Text(""),
+                            );
+                          },
                         ),
-                        builder: (c, s) {
-                          if (s.hasData && s.data != null) {
-                            return isWeb
-                                ? Image.network(
-                                    s.data!,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.file(
-                                    File(s.data!),
-                                    fit: BoxFit.cover,
-                                  );
-                          }
-                          return const TextLoader(
-                            Text(""),
-                          );
-                        },
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 15, left: 15, right: 15),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          urlCase.name,
-                          maxLines: 1,
-                          style: const TextStyle(fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                          urlCase.description,
-                          maxLines: 1,
-                          style: TextStyle(color: theme.colorScheme.outline),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Row(
-                          children: [
-                            const Spacer(),
-                            TextButton(
-                              child: Text(_i18n.get("see_website")),
-                              onPressed: () => _urlHandlerService.onUrlTap(
-                                urlCase.url,
-                                context,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 15, left: 15, right: 15,bottom: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            urlCase.name,
+                            maxLines: 1,
+                            style: const TextStyle(fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            urlCase.description,
+                            maxLines: 1,
+                            style: TextStyle(color: theme.colorScheme.outline),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
