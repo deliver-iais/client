@@ -218,10 +218,13 @@ class RoomPageState extends State<RoomPage> {
                   if (s.hasData &&
                       s.data!.uid.asUid().category == Categories.BOT &&
                       s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-                    return  Expanded(
-                        child: Center(
-                            child:
-                            BotStartInformationBoxWidget(roomUid: widget.roomId.asUid()),),);
+                    return Expanded(
+                      child: Center(
+                        child: BotStartInformationBoxWidget(
+                          roomUid: widget.roomId.asUid(),
+                        ),
+                      ),
+                    );
                   } else {
                     return buildAllMessagesBox();
                   }
@@ -1068,9 +1071,12 @@ class RoomPageState extends State<RoomPage> {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: FEATURE_4,
+                      featureId: CALL_FEATURE,
                       tapTarget: IconButton(
-                        icon: const Icon(CupertinoIcons.phone),
+                        icon: Icon(
+                          CupertinoIcons.phone,
+                          color: theme.colorScheme.tertiaryContainer,
+                        ),
                         onPressed: () {},
                       ),
                       backgroundColor: theme.colorScheme.tertiaryContainer,

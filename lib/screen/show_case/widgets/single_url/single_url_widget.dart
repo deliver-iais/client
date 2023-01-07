@@ -85,7 +85,6 @@ class SingleUrlWidget extends StatelessWidget {
                                   );
                           }
                           return const TextLoader(
-                            Text(""),
                           );
                         },
                       ),

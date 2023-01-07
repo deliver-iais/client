@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 class TextLoader extends StatelessWidget {
-  final Text text;
+  final Text? text;
 
   final double width;
   final BorderRadius? borderRadius;
 
-  const TextLoader(this.text, {super.key, this.width = 80, this.borderRadius});
+  const TextLoader( {super.key, this.width = 80, this.borderRadius,this.text,});
 
   @override
   Widget build(BuildContext context) {
-    if (text.data == null || text.data!.isEmpty) return buildLoader(context);
+    if (text==null || text?.data == null || text!.data!.isEmpty || text?.data=="\u200B") return buildLoader(context);
 
-    return text;
+    return text!;
   }
 
   Widget buildLoader(BuildContext context) {
@@ -27,7 +27,7 @@ class TextLoader extends StatelessWidget {
           color: theme.surface,
         ),
         width: width,
-        height: (text.style?.fontSize ?? 10) + 2,
+        height: (text?.style?.fontSize ?? 10) + 2,
       ),
     );
   }

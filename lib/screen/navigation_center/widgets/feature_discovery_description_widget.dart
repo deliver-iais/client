@@ -18,6 +18,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -41,6 +42,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   child: Text(
                     key: const Key("understood"),
                     _i18n.get("understood"),
+                    style: TextStyle(color: theme.colorScheme.onTertiaryContainer,),
                   ),
                 ),
                 const SizedBox(
@@ -51,6 +53,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   onPressed: () => FeatureDiscovery.dismissAll(context),
                   child: Text(
                     _i18n.get("dismiss"),
+                    style: TextStyle(color: theme.colorScheme.onTertiaryContainer,),
                   ),
                 ),
               ],
