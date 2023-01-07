@@ -7158,13 +7158,13 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         returnValue: false,
       ) as bool);
   @override
-  void maybePop() => super.noSuchMethod(
+  bool maybePop() => (super.noSuchMethod(
         Invocation.method(
           #maybePop,
           [],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: false,
+      ) as bool);
   @override
   bool canPop() => (super.noSuchMethod(
         Invocation.method(
