@@ -2,7 +2,9 @@ import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -15,6 +17,7 @@ import 'package:random_string/random_string.dart';
 class TitleStatus extends StatefulWidget {
   final TextStyle style;
   final Widget normalConditionWidget;
+  final Color? color;
   final Uid? currentRoomUid;
 
   const TitleStatus({
@@ -22,6 +25,7 @@ class TitleStatus extends StatefulWidget {
     required this.style,
     this.normalConditionWidget = const SizedBox.shrink(),
     this.currentRoomUid,
+    this.color,
   });
 
   @override
@@ -90,7 +94,8 @@ class TitleStatusState extends State<TitleStatus> {
                 key: ValueKey(randomString(10)),
                 overflow: TextOverflow.fade,
                 softWrap: false,
-                style: widget.style.copyWith(color: theme.primaryColor),
+                style: widget.style
+                    .copyWith(color: widget.color ?? theme.primaryColor),
               );
             } else {
               final lastActivityTime =
@@ -101,11 +106,14 @@ class TitleStatusState extends State<TitleStatus> {
                 key: ValueKey(randomString(10)),
                 overflow: TextOverflow.fade,
                 softWrap: false,
-                style: widget.style.copyWith(color: theme.primaryColor),
+                style: widget.style
+                    .copyWith(color: widget.color ?? theme.primaryColor),
               );
             }
           }
-          return const SizedBox.shrink();
+          return const TextLoader(
+            borderRadius: mainBorder,
+          );
         },
       );
     } else {

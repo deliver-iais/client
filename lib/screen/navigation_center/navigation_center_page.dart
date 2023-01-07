@@ -2,10 +2,9 @@ import 'package:animations/animations.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/contactRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
+import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -21,8 +20,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-import 'package:deliver/theme/theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,27 +56,36 @@ class NavigationCenter extends StatefulWidget {
 }
 
 class NavigationCenterState extends State<NavigationCenter>
-    with CustomPopupMenu {
+    with CustomPopupMenu, SingleTickerProviderStateMixin {
   static final _routingServices = GetIt.I.get<RoutingService>();
-  static final _contactRepo = GetIt.I.get<ContactRepo>();
+
   static final _i18n = GetIt.I.get<I18N>();
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
-
-  final ScrollController _scrollController = ScrollController();
-  final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
+  final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   final TextEditingController _searchBoxController = TextEditingController();
-  final BehaviorSubject<String> _queryTermDebouncedSubject =
-      BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
-
+  final ScrollController _scrollController = ScrollController();
+  late AnimationController _searchBoxAnimationController;
+  late final Animation<double> _searchBoxAnimation;
   bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
 
   @override
   void initState() {
+    _searchBoxAnimationController = AnimationController(
+      vsync: this,
+      duration: MOTION_STANDARD_ANIMATION_DURATION,
+      animationBehavior: AnimationBehavior.preserve,
+    );
+    _searchBoxAnimation = Tween(begin: 40.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _searchBoxAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
         _routingService.openRoom(event);
@@ -108,10 +115,6 @@ class NavigationCenterState extends State<NavigationCenter>
           ),
         );
 
-    _queryTermDebouncedSubject
-        .debounceTime(const Duration(milliseconds: 250))
-        .listen((text) => _searchMode.add(text));
-
     _routingService.registerPreMaybePopScope(
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
@@ -125,7 +128,6 @@ class NavigationCenterState extends State<NavigationCenter>
     _searchBoxController.dispose();
     _scrollController.dispose();
     _searchMode.close();
-    _queryTermDebouncedSubject.close();
     super.dispose();
   }
 
@@ -208,49 +210,74 @@ class NavigationCenterState extends State<NavigationCenter>
               children: <Widget>[
                 const HasCallRow(),
                 RepaintBoundary(
-                  child: SearchBox(
-                    onChange: _queryTermDebouncedSubject.add,
-                    onCancel: () => _queryTermDebouncedSubject.add(""),
-                    controller: _searchBoxController,
-                    focusNode: MAIN_SEARCH_BOX_FOCUS_NODE,
+                  child: AnimatedBuilder(
+                    animation: _searchBoxAnimation,
+                    builder: (c, w) {
+                      return SearchBox(
+                        focusNode: MAIN_SEARCH_BOX_FOCUS_NODE,
+                        animationValue: _searchBoxAnimation.value,
+                        controller: _searchBoxController,
+                        onChange: (c) {
+                          _searchMode.add(true);
+                        },
+                        onCancel: () {
+                          _searchMode.add(true);
+                        },
+                        onSearchEnd: () {
+                          _searchBoxAnimationController.reverse();
+                          _searchMode.add(false);
+                        },
+                        onTap: () {
+                          _searchBoxAnimationController.forward();
+                          _searchMode.add(true);
+                        },
+                      );
+                    },
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
-                StreamBuilder<String>(
-                  stream: _searchMode,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!.isNotEmpty) {
-                      _onNavigationCenterBackPressed = () {
-                        _queryTermDebouncedSubject.add("");
-                        _searchBoxController.clear();
-                      };
-                      return searchResult(s.data!);
-                    } else {
-                      _onNavigationCenterBackPressed = null;
-                      return Expanded(
-                        child: PageTransitionSwitcher(
-                          transitionBuilder: (
-                            child,
-                            animation,
-                            secondaryAnimation,
-                          ) {
-                            return SharedAxisTransition(
-                              fillColor: Colors.transparent,
-                              animation: animation,
-                              secondaryAnimation: secondaryAnimation,
-                              transitionType: SharedAxisTransitionType.scaled,
-                              child: child,
-                            );
-                          },
-                          child: !_isShowCaseEnable
+                Expanded(
+                  child: PageTransitionSwitcher(
+                    transitionBuilder: (
+                      child,
+                      animation,
+                      secondaryAnimation,
+                    ) {
+                      return SharedAxisTransition(
+                        fillColor: Colors.transparent,
+                        animation: animation,
+                        secondaryAnimation: secondaryAnimation,
+                        transitionType: SharedAxisTransitionType.scaled,
+                        child: child,
+                      );
+                    },
+                    child: StreamBuilder<bool>(
+                      stream: _searchMode,
+                      builder: (c, s) {
+                        if (s.hasData && s.data != null && s.data!) {
+                          _onNavigationCenterBackPressed = () {
+                            if (_searchBoxController.text.isNotEmpty) {
+                              _searchMode.add(true);
+                              _searchBoxController.clear();
+                            } else {
+                              _searchBoxAnimationController.reverse();
+                              _searchMode.add(false);
+                            }
+                          };
+                          return SearchRoomsWidget(
+                            searchBoxController: _searchBoxController,
+                          );
+                        } else {
+                          _onNavigationCenterBackPressed = null;
+                          return !_isShowCaseEnable
                               ? ChatsPage(
                                   scrollController: _scrollController,
                                 )
-                              : const ShowcasePage(),
-                        ),
-                      );
-                    }
-                  },
+                              : const ShowcasePage();
+                        }
+                      },
+                    ),
+                  ),
                 ),
                 _newVersionInfo(),
                 _outOfDateWidget()
@@ -437,323 +464,170 @@ class NavigationCenterState extends State<NavigationCenter>
     }
   }
 
-  Widget searchResult(String query) {
-    return Expanded(
-      child: FutureBuilder<List<List<Uid>>>(
-        future: searchUidList(query),
-        builder: (c, snaps) {
-          if (!snaps.hasData || snaps.data!.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final contacts = snaps.data![0];
-          final roomAndContacts = snaps.data![1];
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                if (contacts.isNotEmpty) ...[
-                  buildTitle(_i18n.get("contacts")),
-                  ...searchResultWidget(contacts),
-                ],
-                if (roomAndContacts.isNotEmpty) ...[
-                  buildTitle(_i18n.get("local_search")),
-                  ...searchResultWidget(roomAndContacts)
-                ],
-                FutureBuilder<List<Uid>>(
-                  future: globalSearchUser(query),
-                  builder: (c, snaps) {
-                    if (!snaps.hasData) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    final global = snaps.data!;
-                    if (global.isEmpty &&
-                        roomAndContacts.isEmpty &&
-                        contacts.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: Tgs.asset(
-                          'assets/duck_animation/not_found.tgs',
-                        ),
-                      );
-                    }
-                    return Column(
-                      children: [
-                        if (global.isNotEmpty) ...[
-                          buildTitle(_i18n.get("global_search")),
-                          ...searchResultWidget(global)
-                        ]
-                      ],
+  PreferredSizeWidget _buildAppBar() {
+    final theme = Theme.of(context);
+    return BlurredPreferredSizedWidget(
+      child: AnimatedBuilder(
+        animation: _searchBoxAnimation,
+        builder: (c, w) {
+          return Container(
+            color: Colors.transparent,
+            height: _searchBoxAnimation.value * 2,
+            child: Opacity(
+              opacity: _searchBoxAnimation.value / 40,
+              child: GestureDetector(
+                onTap: () {
+                  if (_scrollController.hasClients) {
+                    _scrollController.animateTo(
+                      0.0,
+                      curve: Curves.easeOut,
+                      duration: SLOW_ANIMATION_DURATION,
                     );
-                  },
-                )
-              ],
+                  }
+                },
+                child: AppBar(
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: DescribedFeatureOverlay(
+                      featureId: SETTING_FEATURE,
+                      tapTarget:
+                          CircleAvatarWidget(_authRepo.currentUserUid, 30),
+                      backgroundColor: theme.colorScheme.tertiaryContainer,
+                      targetColor: theme.colorScheme.tertiary,
+                      title: Text(
+                        _i18n.get("setting_icon_feature_discovery_title"),
+                        textDirection: _i18n.defaultTextDirection,
+                        style: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: FeatureDiscoveryDescriptionWidget(
+                        permissionWidget: (!isDesktop)
+                            ? TextButton(
+                                onPressed: () {
+                                  FeatureDiscovery.dismissAll(context);
+                                  _routingService.openContacts();
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(_i18n.get("sync_contact")),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                    )
+                                  ],
+                                ),
+                              )
+                            : null,
+                        description: _i18n
+                            .get("setting_icon_feature_discovery_description"),
+                        descriptionStyle: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      child: GestureDetector(
+                        child: Center(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              20,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          _routingServices.openSettings(popAllBeforePush: true);
+                        },
+                      ),
+                    ),
+                  ),
+                  titleSpacing: 8.0,
+                  title: ConnectionStatus(
+                    isShowCase: _isShowCaseEnable,
+                  ),
+                  actions: [
+                    if (!isDesktop)
+                      DescribedFeatureOverlay(
+                        featureId: QRCODE_FEATURE,
+                        tapTarget: Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                          color: theme.colorScheme.tertiaryContainer,
+                        ),
+                        backgroundColor: theme.colorScheme.tertiaryContainer,
+                        targetColor: theme.colorScheme.tertiary,
+                        title: Text(
+                          _i18n.get("qr_code_feature_discovery_title"),
+                          textDirection: _i18n.defaultTextDirection,
+                          style: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        description: FeatureDiscoveryDescriptionWidget(
+                          description: _i18n
+                              .get("qr_code_feature_discovery_description"),
+                          descriptionStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            _routingService.openScanQrCode();
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.qrcode_viewfinder,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    if (SHOWCASES_IS_AVAILABLE)
+                      DescribedFeatureOverlay(
+                        featureId: SHOW_CASE_FEATURE,
+                        tapTarget: !_isShowCaseEnable
+                            ? Icon(
+                                Icons.storefront_outlined,
+                                color: theme.colorScheme.tertiaryContainer,
+                              )
+                            : Icon(
+                                CupertinoIcons.chat_bubble_text,
+                                color: theme.colorScheme.tertiaryContainer,
+                              ),
+                        backgroundColor: theme.colorScheme.tertiaryContainer,
+                        targetColor: theme.colorScheme.tertiary,
+                        title: Text(
+                          _i18n.get("show_case_feature_discovery_title"),
+                          textDirection: _i18n.defaultTextDirection,
+                          style: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        description: FeatureDiscoveryDescriptionWidget(
+                          description: _i18n
+                              .get("show_case_feature_discovery_description"),
+                          descriptionStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: () => _sharedDao
+                              .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                          icon: !_isShowCaseEnable
+                              ? const Icon(Icons.storefront_outlined)
+                              : const Icon(CupertinoIcons.chat_bubble_text),
+                        ),
+                      ),
+                    const SizedBox(
+                      width: 8,
+                    )
+                  ],
+                ),
+              ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget buildTitle(String title) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(8),
-      margin: const EdgeInsets.only(bottom: 4),
-      width: double.infinity,
-      color: theme.dividerColor.withAlpha(10),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: theme.primaryTextTheme.caption,
-      ),
-    );
-  }
-
-  Future<List<List<Uid>>> searchUidList(String query) async {
-    return [
-      //in contacts
-      await _contactRepo.searchInContacts(query),
-      //in rooms
-      await _roomRepo.searchInRooms(query),
-    ];
-  }
-
-  Future<List<Uid>> globalSearchUser(String query) {
-    return _contactRepo.searchUser(query);
-  }
-
-  List<Widget> searchResultWidget(List<Uid> uidList) {
-    return List.generate(
-      uidList.length,
-      (index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                _roomRepo.createRoomIfNotExist(uidList[index].asString());
-                _routingServices.openRoom(uidList[index].asString());
-              },
-              child:
-                  _contactResultWidget(uid: uidList[index], context: context),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _contactResultWidget({
-    required Uid uid,
-    required BuildContext context,
-  }) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Row(
-          children: [
-            CircleAvatarWidget(uid, 24, showSavedMessageLogoIfNeeded: true),
-            const SizedBox(
-              width: 20,
-            ),
-            Flexible(
-              child: FutureBuilder<String>(
-                future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
-                builder: (c, snaps) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          snaps.data ?? "",
-                          style: theme.textTheme.subtitle1,
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.fade,
-                        ),
-                      ),
-                      FutureBuilder<bool>(
-                        initialData: _roomRepo.fastForwardIsVerified(uid),
-                        future: _roomRepo.isVerified(uid),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data!) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: Icon(
-                                CupertinoIcons.checkmark_seal,
-                                size: ((theme.textTheme.subtitle2)?.fontSize ??
-                                    14),
-                                color: ACTIVE_COLOR,
-                              ),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      )
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        const Divider()
-      ],
-    );
-  }
-
-  PreferredSize _buildAppBar() {
-    final theme = Theme.of(context);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(56),
-      child: GestureDetector(
-        onTap: () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              0.0,
-              curve: Curves.easeOut,
-              duration: SLOW_ANIMATION_DURATION,
-            );
-          }
-        },
-        child: AppBar(
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: DescribedFeatureOverlay(
-              featureId: FEATURE_3,
-              tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 30),
-              backgroundColor: theme.colorScheme.tertiaryContainer,
-              targetColor: theme.colorScheme.tertiary,
-              title: Text(
-                _i18n.get("setting_icon_feature_discovery_title"),
-                textDirection: _i18n.defaultTextDirection,
-                style: TextStyle(
-                  color: theme.colorScheme.onTertiaryContainer,
-                ),
-              ),
-              overflowMode: OverflowMode.extendBackground,
-              description: FeatureDiscoveryDescriptionWidget(
-                permissionWidget: (!isDesktop)
-                    ? TextButton(
-                        onPressed: () {
-                          FeatureDiscovery.dismissAll(context);
-                          _routingService.openContacts();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(_i18n.get("sync_contact")),
-                            const Icon(
-                              Icons.arrow_forward,
-                            )
-                          ],
-                        ),
-                      )
-                    : null,
-                description:
-                    _i18n.get("setting_icon_feature_discovery_description"),
-                descriptionStyle: TextStyle(
-                  color: theme.colorScheme.onTertiaryContainer,
-                ),
-              ),
-              child: GestureDetector(
-                child: Center(
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: CircleAvatarWidget(
-                      _authRepo.currentUserUid,
-                      20,
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  _routingServices.openSettings(popAllBeforePush: true);
-                },
-              ),
-            ),
-          ),
-          titleSpacing: 8.0,
-          title: ConnectionStatus(
-            isShowCase: _isShowCaseEnable,
-          ),
-          actions: [
-            if (!isDesktop)
-              DescribedFeatureOverlay(
-                featureId: FEATURE_2,
-                tapTarget: const Icon(
-                  CupertinoIcons.qrcode_viewfinder,
-                ),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("qr_code_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                description: FeatureDiscoveryDescriptionWidget(
-                  description:
-                      _i18n.get("qr_code_feature_discovery_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    _routingService.openScanQrCode();
-                  },
-                  icon: const Icon(
-                    CupertinoIcons.qrcode_viewfinder,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 8),
-            if (SHOWCASES_IS_AVAILABLE)
-              DescribedFeatureOverlay(
-                featureId: FEATURE_2,
-                tapTarget: const Icon(Icons.storefront_outlined),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("qr_code_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                description: FeatureDiscoveryDescriptionWidget(
-                  description:
-                      _i18n.get("qr_code_feature_discovery_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: IconButton(
-                  onPressed: () =>
-                      _sharedDao.toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
-                  icon: !_isShowCaseEnable
-                      ? const Icon(Icons.storefront_outlined)
-                      : const Icon(CupertinoIcons.chat_bubble_text),
-                ),
-              ),
-            const SizedBox(
-              width: 8,
-            )
-          ],
-        ),
       ),
     );
   }

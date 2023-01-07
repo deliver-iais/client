@@ -65,7 +65,7 @@ class HasCallRowState extends State<HasCallRow> {
                               if (name.hasData) {
                                 return Flexible(
                                   child: TextLoader(
-                                    Text(
+                                    text: Text(
                                       name.data!,
                                       maxLines: 1,
                                       softWrap: false,

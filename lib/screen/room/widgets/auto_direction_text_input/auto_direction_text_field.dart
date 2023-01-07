@@ -9,14 +9,12 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AutoDirectionTextField extends StatelessWidget {
-  static final direction = BehaviorSubject.seeded(TextDirection.ltr);
-  static final _i18n = GetIt.I.get<I18N>();
-  static final _controller = TextEditingController();
-
+class AutoDirectionTextField extends StatefulWidget {
   final TextEditingController? controller;
 
   final FocusNode? focusNode;
+
+  final bool needEndingSpace;
 
   final InputDecoration? decoration;
 
@@ -179,44 +177,55 @@ class AutoDirectionTextField extends StatelessWidget {
     this.smartQuotesType,
     this.toolbarOptions,
     this.enableInteractiveSelection,
+    this.needEndingSpace = false,
   }) : super(key: key);
 
   @override
+  State<AutoDirectionTextField> createState() => _AutoDirectionTextFieldState();
+}
+
+class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
+  final BehaviorSubject<TextDirection?> direction =
+      BehaviorSubject.seeded(null);
+  final _i18n = GetIt.I.get<I18N>();
+  final _controller = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<TextDirection>(
+    return StreamBuilder<TextDirection?>(
       stream: direction.distinct(),
       builder: (c, sn) {
-        final textDir = sn.data ?? TextDirection.ltr;
+        final textDir = sn.data ?? _i18n.defaultTextDirection;
         return TextField(
-          key: textFieldKey,
-          controller: controller ?? _controller,
-          focusNode: focusNode,
-          decoration: decoration,
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          textCapitalization: textCapitalization,
-          style: style,
-          strutStyle: strutStyle,
-          textAlign: textAlign,
-          textAlignVertical: textAlignVertical,
-          textDirection: textDirection ?? textDir,
-          readOnly: readOnly,
-          toolbarOptions: toolbarOptions,
-          showCursor: showCursor,
-          autofocus: autofocus,
-          obscuringCharacter: obscuringCharacter,
-          obscureText: obscureText,
-          autocorrect: autocorrect,
-          smartDashesType: smartDashesType,
-          smartQuotesType: smartQuotesType,
-          enableSuggestions: enableSuggestions,
-          maxLines: maxLines,
-          minLines: minLines,
-          maxLength: maxLength,
+          key: widget.textFieldKey,
+          controller: widget.controller ?? _controller,
+          focusNode: widget.focusNode,
+          decoration: widget.decoration,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          textCapitalization: widget.textCapitalization,
+          style: widget.style,
+          strutStyle: widget.strutStyle,
+          textAlign: widget.textAlign,
+          textAlignVertical: widget.textAlignVertical,
+          textDirection: widget.textDirection ?? textDir,
+          readOnly: widget.readOnly,
+          toolbarOptions: widget.toolbarOptions,
+          showCursor: widget.showCursor,
+          autofocus: widget.autofocus,
+          obscuringCharacter: widget.obscuringCharacter,
+          obscureText: widget.obscureText,
+          autocorrect: widget.autocorrect,
+          smartDashesType: widget.smartDashesType,
+          smartQuotesType: widget.smartQuotesType,
+          enableSuggestions: widget.enableSuggestions,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          maxLength: widget.maxLength,
           onTap: () {
             // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
 
-            final localController = controller ?? _controller;
+            final localController = widget.controller ?? _controller;
             if (localController.selection ==
                 TextSelection.fromPosition(
                   TextPosition(
@@ -229,7 +238,8 @@ class AutoDirectionTextField extends StatelessWidget {
                 ),
               );
             }
-            if (localController.text.isNotEmpty &&
+            if (widget.needEndingSpace &&
+                localController.text.isNotEmpty &&
                 localController.text[localController.text.length - 1] != ' ') {
               final selection = localController.selection;
               localController
@@ -237,38 +247,38 @@ class AutoDirectionTextField extends StatelessWidget {
                 ..selection = selection;
             }
 
-            onTap?.call();
+            widget.onTap?.call();
           },
-          maxLengthEnforcement: maxLengthEnforcement,
+          maxLengthEnforcement: widget.maxLengthEnforcement,
           onChanged: (value) {
             if (value.isNotEmpty) {
               direction.add(_i18n.getDirection(value));
             }
-            onChanged?.call(value);
+            widget.onChanged?.call(value);
           },
-          onEditingComplete: onEditingComplete,
-          onSubmitted: onSubmitted,
-          onAppPrivateCommand: onAppPrivateCommand,
-          inputFormatters: inputFormatters,
-          enabled: enabled,
-          cursorWidth: cursorWidth,
-          cursorHeight: cursorHeight,
-          cursorRadius: cursorRadius,
-          cursorColor: cursorColor,
-          selectionHeightStyle: selectionHeightStyle,
-          selectionWidthStyle: selectionWidthStyle,
-          keyboardAppearance: keyboardAppearance,
-          scrollPadding: scrollPadding,
-          dragStartBehavior: dragStartBehavior,
-          enableInteractiveSelection: enableInteractiveSelection,
-          selectionControls: selectionControls ??
+          onEditingComplete: widget.onEditingComplete,
+          onSubmitted: widget.onSubmitted,
+          onAppPrivateCommand: widget.onAppPrivateCommand,
+          inputFormatters: widget.inputFormatters,
+          enabled: widget.enabled,
+          cursorWidth: widget.cursorWidth,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorColor: widget.cursorColor,
+          selectionHeightStyle: widget.selectionHeightStyle,
+          selectionWidthStyle: widget.selectionWidthStyle,
+          keyboardAppearance: widget.keyboardAppearance,
+          scrollPadding: widget.scrollPadding,
+          dragStartBehavior: widget.dragStartBehavior,
+          enableInteractiveSelection: widget.enableInteractiveSelection,
+          selectionControls: widget.selectionControls ??
               ((isDesktop) ? CustomDesktopTextSelectionControls() : null),
-          scrollPhysics: scrollPhysics,
-          autofillHints: autofillHints,
-          clipBehavior: clipBehavior,
-          restorationId: restorationId,
-          scribbleEnabled: scribbleEnabled,
-          enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+          scrollPhysics: widget.scrollPhysics,
+          autofillHints: widget.autofillHints,
+          clipBehavior: widget.clipBehavior,
+          restorationId: widget.restorationId,
+          scribbleEnabled: widget.scribbleEnabled,
+          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
         );
       },
     );
