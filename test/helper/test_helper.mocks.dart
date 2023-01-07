@@ -1403,7 +1403,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: null,
       );
   @override
-  set avatar(_i32.Avatar? _avatar) => super.noSuchMethod(
+  set _avatar(_i32.Avatar? _avatar) => super.noSuchMethod(
         Invocation.setter(
           #avatar,
           _avatar,
@@ -1421,7 +1421,7 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
   @override
-  _i22.Future<void> setCurrentUserUid() => (super.noSuchMethod(
+  _i22.Future<void> _setCurrentUserUidFromDB() => (super.noSuchMethod(
         Invocation.method(
           #setCurrentUserUid,
           [],

@@ -91,7 +91,9 @@ class FireBaseServices {
 
   void deleteToken() {
     try {
-      _firebaseMessaging.deleteToken();
+      if (hasFirebaseCapability) {
+        _firebaseMessaging.deleteToken();
+      }
     } catch (e) {
       _logger.e(e);
     }

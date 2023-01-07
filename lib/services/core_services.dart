@@ -96,9 +96,13 @@ class CoreServices {
   }
 
   void closeConnection() {
-    _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacketStream?.close();
-    if (_connectionTimer != null) _connectionTimer!.cancel();
+    try {
+      _connectionStatus.add(ConnectionStatus.Disconnected);
+      _clientPacketStream?.close();
+      if (_connectionTimer != null) _connectionTimer!.cancel();
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   @visibleForTesting

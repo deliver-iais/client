@@ -75,19 +75,17 @@ class DBManager {
   }
 
   Future<void> migrate({
-    bool deleteSharedDao = true,
     bool removeOld = false,
   }) async {
     final boxes = await BoxDao.getAll();
 
     // Remove Older Tables than version "1.9.7"
     if (removeOld) {
-      await (BoxDao.removeOldDb(deleteSharedDao: deleteSharedDao));
+      await (BoxDao.removeOldDb());
     }
 
     for (final boxInfo in boxes) {
-      if (boxInfo.version != getTableInfo(boxInfo.name)?.version &&
-          (!deleteSharedDao || boxInfo.dbKey != "shared")) {
+      if (boxInfo.version != getTableInfo(boxInfo.name)?.version) {
         unawaited(BoxDao.deleteBox(boxInfo.dbKey));
       }
     }
