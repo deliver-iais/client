@@ -20,6 +20,7 @@ import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 
 const ACCESS_TOKEN_EXPIRATION_DELTA = Duration(seconds: 90);
@@ -30,6 +31,8 @@ class AuthRepo {
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
+
+  late SharedPreferences _prefs;
 
   BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
 
@@ -51,9 +54,10 @@ class AuthRepo {
 
   Future<void> init({bool retry = false}) async {
     try {
+      _prefs = await SharedPreferences.getInstance();
+      _accessToken = _prefs.getString(SHARED_DAO_ACCESS_TOKEN_KEY) ?? "";
+      _refreshToken = _prefs.getString(SHARED_DAO_REFRESH_TOKEN_KEY) ?? "";
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-      _accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY) ?? "";
-      _refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY) ?? "";
       return await _setCurrentUserUidFromDB();
     } catch (e) {
       _logger.e(e);
@@ -187,9 +191,7 @@ class AuthRepo {
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
-  Future<bool> isLoggedIn() async {
-    return _sharedDao.getBoolean(SHARED_DAO_IS_LOGGED_IN);
-  }
+  bool isLoggedIn() => _hasValidRefreshToken();
 
   Future<bool> _setTokensAndCurrentUserUid({
     required String accessToken,
@@ -207,9 +209,8 @@ class AuthRepo {
 
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    await _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
-    await _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
-    await _sharedDao.putBoolean(SHARED_DAO_IS_LOGGED_IN, true);
+    await _prefs.setString(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    await _prefs.setString(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
     await _setCurrentUserUidFromAccessToken(accessToken);
     return true;
   }
@@ -268,9 +269,8 @@ class AuthRepo {
     try {
       _accessToken = "";
       _refreshToken = "";
-      await _sharedDao.remove(SHARED_DAO_ACCESS_TOKEN_KEY);
-      await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
-      return _sharedDao.putBoolean(SHARED_DAO_IS_LOGGED_IN, false);
+      await _prefs.remove(SHARED_DAO_ACCESS_TOKEN_KEY);
+      await _prefs.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
     } catch (e) {
       _logger.e(e);
     }
