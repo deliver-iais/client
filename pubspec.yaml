@@ -185,6 +185,7 @@ dependencies:
   vibration: 1.7.6
   video_player: 2.4.10
   wakelock: 0.6.2
+  shared_preferences: 2.0.15
   win_toast:
     git:
       path: packages/win_toast
