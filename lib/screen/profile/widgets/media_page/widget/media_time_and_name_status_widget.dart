@@ -8,11 +8,13 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
 
   final String createdBy;
   final int createdOn;
+  final String roomUid;
 
   const MediaTimeAndNameStatusWidget({
     Key? key,
     required this.createdBy,
     required this.createdOn,
+    required this.roomUid,
   }) : super(key: key);
 
   @override
@@ -23,7 +25,9 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         FutureBuilder<String>(
-          future: _roomRepo.getName(createdBy.asUid()),
+          future: _roomRepo.getName(
+            (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid(),
+          ),
           builder: (c, name) {
             if (name.hasData && name.data != null) {
               return Text(

@@ -605,6 +605,7 @@ class _AllMediaPageState extends State<AllMediaPage>
               child: MediaTimeAndNameStatusWidget(
                 createdBy: createdBy,
                 createdOn: createdOn,
+                roomUid: widget.roomUid,
               ),
             ),
             // const Spacer(),

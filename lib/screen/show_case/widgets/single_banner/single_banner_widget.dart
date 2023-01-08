@@ -108,7 +108,6 @@ class SingleBannerWidget extends StatelessWidget {
                                         );
                                 }
                                 return TextLoader(
-                                  const Text(""),
                                   width: width ??
                                       MediaQuery.of(context).size.width,
                                 );

@@ -5,6 +5,13 @@ import 'package:material_color_utilities/palettes/core_palette.dart';
 
 final ACTIVE_COLOR = Colors.greenAccent.shade700;
 
+TextStyle getFadeTextStyle(BuildContext context) {
+  return TextStyle(
+    color: Theme.of(context).colorScheme.onSurface.withAlpha(140),
+    fontWeight: FontWeight.w600,
+  );
+}
+
 const LIGHT_BOX_SHADOWS = [
   BoxShadow(
     color: Color(0x10000000),

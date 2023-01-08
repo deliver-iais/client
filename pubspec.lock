@@ -36,6 +36,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.5"
+  animate_do:
+    dependency: "direct main"
+    description:
+      name: animate_do
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.2"
   animations:
     dependency: "direct main"
     description:
@@ -407,7 +414,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.12"
+    version: "1.0.11"
   date_time_format:
     dependency: "direct main"
     description:
@@ -865,7 +872,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.18"
+    version: "0.9.17"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1790,7 +1797,7 @@ packages:
       name: shared_preferences_macos
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   shared_preferences_platform_interface:
     dependency: transitive
     description:

@@ -762,6 +762,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 }
               },
               child: AutoDirectionTextField(
+                needEndingSpace: true,
                 textFieldKey: _inputTextKey,
                 selectionControls: selectionControls,
                 focusNode: widget.focusNode,

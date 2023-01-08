@@ -91,9 +91,7 @@ class SingleUrlWidget extends StatelessWidget {
                                       fit: BoxFit.cover,
                                     );
                             }
-                            return const TextLoader(
-                              Text(""),
-                            );
+                            return const TextLoader();
                           },
                         ),
                       ),

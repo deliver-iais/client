@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/constants.dart';
@@ -9,16 +10,22 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
-  final void Function(String) onChange;
+  final void Function(String)? onChange;
+  final void Function()? onTap;
   final void Function()? onCancel;
+  final void Function()? onSearchEnd;
+  final double? animationValue;
   final TextEditingController? controller;
   final FocusNode? focusNode;
 
   const SearchBox({
     super.key,
-    required this.onChange,
+    this.onChange,
     this.onCancel,
     this.controller,
+    this.onTap,
+    this.onSearchEnd,
+    this.animationValue,
     this.focusNode,
   });
 
@@ -28,7 +35,7 @@ class SearchBox extends StatefulWidget {
 
 class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
-  final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool?> _hasText = BehaviorSubject.seeded(null);
   final _localFocusNode = FocusNode(canRequestFocus: false);
   final _keyboardVisibilityController = KeyboardVisibilityController();
   static final _i18n = GetIt.I.get<I18N>();
@@ -60,7 +67,7 @@ class SearchBoxState extends State<SearchBox> {
     (widget.controller ?? _localController).addListener(() {
       if ((widget.controller ?? _localController).text.isNotEmpty) {
         _hasText.add(true);
-      } else {
+      } else if (_hasText.value ?? false) {
         _hasText.add(false);
       }
     });
@@ -69,54 +76,118 @@ class SearchBoxState extends State<SearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Directionality(
-        textDirection: _i18n.defaultTextDirection,
-        child: SizedBox(
-          height: 40,
-          child: AutoDirectionTextField(
-            style: const TextStyle(fontSize: 16),
-            focusNode: _getFocusNode(),
-            controller: widget.controller ?? _localController,
-            onChanged: (str) {
-              widget.onChange(str);
-            },
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.only(top: 15),
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: mainBorder,
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderRadius: mainBorder,
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              isDense: true,
-              prefixIcon: const Icon(CupertinoIcons.search),
-              suffixIcon: StreamBuilder<bool?>(
-                stream: _hasText,
-                builder: (c, ht) {
-                  if (ht.hasData && ht.data!) {
-                    return IconButton(
-                      icon: const Icon(CupertinoIcons.xmark),
-                      onPressed: () {
-                        _hasText.add(false);
-                        _clearTextEditingController();
-                        _getFocusNode().unfocus();
-                        widget.onCancel?.call();
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: AutoDirectionTextField(
+                  style: const TextStyle(fontSize: 16),
+                  focusNode: _getFocusNode(),
+                  controller: widget.controller ?? _localController,
+                  onChanged: (str) {
+                    widget.onChange?.call(str);
+                  },
+                  onTap: () {
+                    widget.onTap?.call();
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(top: 15),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: mainBorder,
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: const OutlineInputBorder(
+                      borderRadius: mainBorder,
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    isDense: true,
+                    prefixIcon: const Icon(CupertinoIcons.search),
+                    suffixIcon: StreamBuilder<bool?>(
+                      stream: _hasText,
+                      builder: (c, ht) {
+                        if (ht.hasData) {
+                          if (ht.data!) {
+                            return _buildZoomInClearIcon();
+                          } else {
+                            return _buildZoomOutClearIcon();
+                          }
+                        } else {
+                          return const SizedBox.shrink();
+                        }
                       },
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
+                    ),
+                    hintText: _i18n.get("search"),
+                  ),
+                ),
               ),
-              hintText: _i18n.get("search"),
             ),
-          ),
+            if (
+                widget.animationValue != null)
+              SizedBox(
+                width: (widget.animationValue! - 40) * -1,
+                height: 40,
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  hoverColor:Colors.transparent,
+                  onPressed: () {
+                    widget.onSearchEnd?.call();
+                    _hasText.add(false);
+                    _clearTextEditingController();
+                    _getFocusNode().unfocus();
+                  },
+                  icon: Opacity(
+                    opacity: widget.animationValue! < 10
+                        ? ((widget.animationValue!) - 40) * -1 / 40
+                        : 0,
+                    child: Text(_i18n.get("cancel")),
+                  ),
+                ),
+              ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildZoomInClearIcon() {
+    return Spin(
+      key: const Key("zoom-in"),
+      spins: 1 / 4,
+      duration: const Duration(milliseconds: 200),
+      child: ZoomIn(
+        duration: const Duration(milliseconds: 200),
+        child: _buildClearIcon(),
+      ),
+    );
+  }
+
+  Widget _buildClearIcon() {
+    return IconButton(
+      icon: const Icon(Icons.clear),
+      onPressed: () {
+        _hasText.add(false);
+        _clearTextEditingController();
+       _getFocusNode().unfocus();
+        widget.onCancel?.call();
+      },
+    );
+  }
+
+  Widget _buildZoomOutClearIcon() {
+    return Spin(
+      key: const Key("zoom-out"),
+      spins: 1 / 4,
+      duration: const Duration(milliseconds: 200),
+      child: ZoomOut(
+        duration: const Duration(milliseconds: 400),
+        child: _buildClearIcon(),
       ),
     );
   }

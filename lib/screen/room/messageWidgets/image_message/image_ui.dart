@@ -150,21 +150,25 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
-  FutureBuilder<String?> buildGetThumbnail() {
-    return FutureBuilder<String?>(
-      future: _fileRepo.getFile(
-        widget.image.uuid,
-        widget.image.name,
-        thumbnailSize: ThumbnailSize.small,
-        intiProgressbar: false,
-      ),
-      builder: (c, path) {
-        if (path.hasData && path.data != null) {
-          return buildThumbnail(path.data!);
-        }
-        return defaultImageUI();
-      },
-    );
+  Widget buildGetThumbnail() {
+    if (widget.message.id != null) {
+      return FutureBuilder<String?>(
+        future: _fileRepo.getFile(
+          widget.image.uuid,
+          widget.image.name,
+          thumbnailSize: ThumbnailSize.small,
+          intiProgressbar: false,
+        ),
+        builder: (c, path) {
+          if (path.hasData && path.data != null) {
+            return buildThumbnail(path.data!);
+          }
+          return defaultImageUI();
+        },
+      );
+    } else {
+      return defaultImageUI();
+    }
   }
 
   SizedBox defaultImageUI() {
