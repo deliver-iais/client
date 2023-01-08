@@ -1507,13 +1507,13 @@ class MockAuthRepo extends _i1.Mock implements _i31.AuthRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<bool> isLoggedIn() => (super.noSuchMethod(
+  bool isLoggedIn() => (super.noSuchMethod(
         Invocation.method(
           #isLoggedIn,
           [],
         ),
-        returnValue: _i22.Future<bool>.value(false),
-      ) as _i22.Future<bool>);
+        returnValue: false,
+      ) as bool);
   @override
   bool isRefreshTokenEmpty() => (super.noSuchMethod(
         Invocation.method(
