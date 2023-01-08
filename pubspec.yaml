@@ -171,6 +171,7 @@ dependencies:
   sensors_plus: 2.0.1
   service_worker: 0.3.0
   share: 2.0.4
+  shared_preferences: 2.0.15
   shimmer: 2.0.0
   simple_animations: 5.0.0+3
   sms_autofill: 2.2.0
@@ -186,7 +187,6 @@ dependencies:
   vibration: 1.7.6
   video_player: 2.4.10
   wakelock: 0.6.2
-  shared_preferences: 2.0.15
   win_toast:
     git:
       path: packages/win_toast
