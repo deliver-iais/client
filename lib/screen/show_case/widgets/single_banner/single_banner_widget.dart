@@ -43,7 +43,7 @@ class SingleBannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var infoFuture;
+    Future<dynamic> infoFuture;
     if (bannerCase.uid.isBot()) {
       infoFuture = _botRepo.fetchBotInfo(bannerCase.uid);
     } else {
@@ -51,12 +51,11 @@ class SingleBannerWidget extends StatelessWidget {
     }
     return FutureBuilder(
       future: infoFuture,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      builder: (context, snapshot) {
         return Padding(
           padding: EdgeInsets.all(padding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
             children: [
               if (isAdvertisement)
                 Padding(
@@ -73,18 +72,16 @@ class SingleBannerWidget extends StatelessWidget {
                 child: Container(
                   padding: isPrimary ? const EdgeInsets.all(10) : null,
                   decoration: BoxDecoration(
-                          color: isPrimary
-                              ? theme.primaryColor.withOpacity(0.2)
-                              : null,
-                          borderRadius: secondaryBorder,
-                          border: Border.all(color: theme.dividerColor),
-                        ),
+                    color:
+                        isPrimary ? theme.primaryColor.withOpacity(0.2) : null,
+                    borderRadius: secondaryBorder,
+                    border: Border.all(color: theme.dividerColor),
+                  ),
                   child: InkWell(
                     hoverColor: Theme.of(context).colorScheme.background,
                     onTap: () =>
                         _routingService.openRoom(bannerCase.uid.asString()),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         ClipRRect(
                           borderRadius: secondaryBorder,
@@ -119,17 +116,20 @@ class SingleBannerWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (showDescription && snapshot.hasData)
+                        if (showDescription && snapshot.data != null)
                           Padding(
                             padding: const EdgeInsets.only(
-                                top: 15, left: 15, right: 15, bottom: 15),
+                              top: 15,
+                              left: 15,
+                              right: 15,
+                              bottom: 15,
+                            ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
                                   bannerCase.uid.isBot()
-                                      ? (snapshot.data as BotInfo).name ?? ""
-                                      : (snapshot.data as Muc).name,
+                                      ? (snapshot.data! as BotInfo).name ?? ""
+                                      : (snapshot.data! as Muc).name,
                                   maxLines: 1,
                                   style: const TextStyle(fontSize: 16),
                                   overflow: TextOverflow.ellipsis,
@@ -139,13 +139,14 @@ class SingleBannerWidget extends StatelessWidget {
                                 ),
                                 Text(
                                   bannerCase.uid.isBot()
-                                      ? (snapshot.data as BotInfo)
+                                      ? (snapshot.data! as BotInfo)
                                               .description ??
                                           ""
-                                      : (snapshot.data as Muc).info,
+                                      : (snapshot.data! as Muc).info,
                                   maxLines: 1,
                                   style: TextStyle(
-                                      color: theme.colorScheme.outline),
+                                    color: theme.colorScheme.outline,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
