@@ -72,19 +72,31 @@ class LinkPreview extends StatelessWidget {
       initialData: cache.get(link),
       future: _fetchMetadata(link),
       builder: (context, snapshot) {
-        if ((!snapshot.hasData || snapshot.data == null) ||
-            ((snapshot.data?.description == null) &&
-                (snapshot.data?.description == null))) {
-          return const SizedBox.shrink();
+        Widget widget;
+
+        if (!snapshot.hasData || snapshot.data?.description == null) {
+          widget = const SizedBox.shrink();
+        } else {
+          widget = MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () async {
+                await launchUrl(Uri.parse(link));
+              },
+              child: linkPreviewContent(snapshot.data, context),
+            ),
+          );
         }
 
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () async {
-              await launchUrl(Uri.parse(link));
-            },
-            child: linkPreviewContent(snapshot.data, context),
+        return AnimatedOpacity(
+          duration: MOTION_STANDARD_ANIMATION_DURATION,
+          opacity: (!snapshot.hasData || snapshot.data?.description == null) ? 0 : 1,
+          curve: Curves.easeInOut,
+          child: AnimatedSize(
+            duration: MOTION_STANDARD_ANIMATION_DURATION,
+            alignment: Alignment.topRight,
+            curve: Curves.easeInOut,
+            child: widget,
           ),
         );
       },
@@ -97,7 +109,7 @@ class LinkPreview extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       constraints: BoxConstraints(
-        maxWidth: max(maxWidth, 150),
+        maxWidth: getWidth(),
         maxHeight: maxHeight,
       ),
       decoration: BoxDecoration(
@@ -146,4 +158,6 @@ class LinkPreview extends StatelessWidget {
       ),
     );
   }
+
+  double getWidth() => max(maxWidth, 150);
 }
