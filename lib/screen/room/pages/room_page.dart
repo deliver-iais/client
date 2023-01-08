@@ -372,7 +372,7 @@ class RoomPageState extends State<RoomPage> {
                     fillColor: Colors.transparent,
                     animation: animation,
                     secondaryAnimation: secondaryAnimation,
-                    transitionType: SharedAxisTransitionType.scaled,
+                    transitionType: SharedAxisTransitionType.vertical,
                     child: child,
                   );
                 },
