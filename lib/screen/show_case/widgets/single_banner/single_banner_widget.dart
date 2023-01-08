@@ -15,7 +15,7 @@ import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class SingleBannerWidget extends StatelessWidget {
+class SingleBannerWidget extends StatefulWidget {
   final BannerCase bannerCase;
   final bool isAdvertisement;
   final bool isPrimary;
@@ -41,27 +41,41 @@ class SingleBannerWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<SingleBannerWidget> createState() => _SingleBannerWidgetState();
+}
+
+class _SingleBannerWidgetState extends State<SingleBannerWidget> {
+  late Future<dynamic> infoFuture;
+
+  @override
+  void initState() {
+    if (widget.bannerCase.uid.isBot()) {
+      infoFuture =
+          SingleBannerWidget._botRepo.fetchBotInfo(widget.bannerCase.uid);
+    } else {
+      infoFuture =
+          SingleBannerWidget._mucRepo.fetchMucInfo(widget.bannerCase.uid);
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Future<dynamic> infoFuture;
-    if (bannerCase.uid.isBot()) {
-      infoFuture = _botRepo.fetchBotInfo(bannerCase.uid);
-    } else {
-      infoFuture = _mucRepo.fetchMucInfo(bannerCase.uid);
-    }
+
     return FutureBuilder(
       future: infoFuture,
       builder: (context, snapshot) {
         return Padding(
-          padding: EdgeInsets.all(padding),
+          padding: EdgeInsets.all(widget.padding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isAdvertisement)
+              if (widget.isAdvertisement)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    _i18n.get("ads"),
+                    SingleBannerWidget._i18n.get("ads"),
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -70,28 +84,29 @@ class SingleBannerWidget extends StatelessWidget {
                 ),
               Center(
                 child: Container(
-                  padding: isPrimary ? const EdgeInsets.all(10) : null,
+                  padding: widget.isPrimary ? const EdgeInsets.all(10) : null,
                   decoration: BoxDecoration(
-                    color:
-                        isPrimary ? theme.primaryColor.withOpacity(0.2) : null,
+                    color: widget.isPrimary
+                        ? theme.primaryColor.withOpacity(0.2)
+                        : null,
                     borderRadius: secondaryBorder,
                     border: Border.all(color: theme.dividerColor),
                   ),
                   child: InkWell(
                     hoverColor: Theme.of(context).colorScheme.background,
-                    onTap: () =>
-                        _routingService.openRoom(bannerCase.uid.asString()),
+                    onTap: () => SingleBannerWidget._routingService
+                        .openRoom(widget.bannerCase.uid.asString()),
                     child: Column(
                       children: [
                         ClipRRect(
                           borderRadius: secondaryBorder,
                           child: SizedBox(
-                            height: height,
-                            width: width,
+                            height: widget.height,
+                            width: widget.width,
                             child: FutureBuilder<String?>(
-                              future: _fileRepo.getFile(
-                                bannerCase.bannerImg.uuid,
-                                bannerCase.bannerImg.name,
+                              future: SingleBannerWidget._fileRepo.getFile(
+                                widget.bannerCase.bannerImg.uuid,
+                                widget.bannerCase.bannerImg.name,
                               ),
                               builder: (c, s) {
                                 if (s.hasData && s.data != null) {
@@ -102,20 +117,20 @@ class SingleBannerWidget extends StatelessWidget {
                                         )
                                       : Image.file(
                                           File(s.data!),
-                                          height: height,
-                                          width: width,
+                                          height: widget.height,
+                                          width: widget.width,
                                           fit: BoxFit.cover,
                                         );
                                 }
                                 return TextLoader(
-                                  width: width ??
+                                  width: widget.width ??
                                       MediaQuery.of(context).size.width,
                                 );
                               },
                             ),
                           ),
                         ),
-                        if (showDescription && snapshot.data != null)
+                        if (widget.showDescription && snapshot.data != null)
                           Padding(
                             padding: const EdgeInsets.only(
                               top: 15,
@@ -126,7 +141,7 @@ class SingleBannerWidget extends StatelessWidget {
                             child: Column(
                               children: [
                                 Text(
-                                  bannerCase.uid.isBot()
+                                  widget.bannerCase.uid.isBot()
                                       ? (snapshot.data! as BotInfo).name ?? ""
                                       : (snapshot.data! as Muc).name,
                                   maxLines: 1,
@@ -137,7 +152,7 @@ class SingleBannerWidget extends StatelessWidget {
                                   height: 8,
                                 ),
                                 Text(
-                                  bannerCase.uid.isBot()
+                                  widget.bannerCase.uid.isBot()
                                       ? (snapshot.data! as BotInfo)
                                               .description ??
                                           ""
