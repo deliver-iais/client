@@ -5,6 +5,7 @@ import 'dart:io' as io;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -22,6 +23,7 @@ class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
+  final _i18N = GetIt.I.get<I18N>();
 
   Map<String, String> localUploadedFilePath = {};
 
@@ -52,9 +54,20 @@ class FileRepo {
         isVoice: isVoice,
       );
     } on DioError catch (e) {
-      if (e.response!.statusCode == 400 && packetIds.isNotEmpty) {
+      if (e.response?.statusCode == 400 &&
+          packetIds.isNotEmpty) {
         ToastDisplay.showToast(
           toastText: e.response!.data,
+          maxWidth: 500.0,
+          duration: const Duration(seconds: 1),
+        );
+        for (final packetId in packetIds) {
+          GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+        }
+        cancelUploadFile(uploadKey);
+      } else if (e.response == null) {
+        ToastDisplay.showToast(
+          toastText: _i18N.get("connection_error"),
           maxWidth: 500.0,
           duration: const Duration(seconds: 1),
         );

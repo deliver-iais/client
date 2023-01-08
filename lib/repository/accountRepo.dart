@@ -232,10 +232,7 @@ class AccountRepo {
       if (pDbVersion == null ||
           int.parse(pDbVersion) != _dbManager.getDbVersionHashcode()) {
         try {
-          await _dbManager.migrate(
-            deleteSharedDao: false,
-            removeOld: true,
-          );
+          await _dbManager.migrate(removeOld: true);
           await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
           unawaited(
             _sharedDao.resetTimeCounter(ONCE_SHOW_NEW_VERSION_INFORMATION),

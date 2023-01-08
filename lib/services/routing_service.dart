@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
@@ -110,6 +111,7 @@ class RoutingService {
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
+  final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
   var _currentRoom = "";
 
@@ -166,6 +168,7 @@ class RoutingService {
     //todo forwardMedia
     _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
+      _recentRoomsDao.addRecentRoom(roomId);
       _push(
         RoomPage(
           key: ValueKey("/room/$roomId"),
@@ -422,12 +425,14 @@ class RoutingService {
 
   bool preMaybePopScopeValue() => _preMaybePopScope.maybePop();
 
-  void maybePop() {
-    if (_preMaybePopScope.maybePop()) {
+  bool maybePop() {
+    final value = _preMaybePopScope.maybePop();
+    if (value) {
       if (canPop()) {
         _homeNavigatorState.currentState?.maybePop();
       }
     }
+    return value;
   }
 
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
@@ -489,9 +494,9 @@ class RoutingService {
   Future<void> logout() async {
     final authRepo = GetIt.I.get<AuthRepo>();
     if (await authRepo.isLoggedIn()) {
-      await GetIt.I.get<AccountRepo>().logOut();
-      if (!isDesktop) GetIt.I.get<FireBaseServices>().deleteToken();
+      GetIt.I.get<FireBaseServices>().deleteToken();
       GetIt.I.get<CoreServices>().closeConnection();
+      await GetIt.I.get<AccountRepo>().logOut();
       await authRepo.deleteTokens();
       await GetIt.I.get<DBManager>().deleteDB();
       popAll();

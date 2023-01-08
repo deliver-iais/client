@@ -43,6 +43,8 @@ enum TableInfo {
   CUSTOM_NOTIFICATION_TABLE_NAME("CUSTOM_NOTIFICATION", 1),
   RECENT_EMOJI_TABLE_NAME("RECENT_EMOJI", 1),
   EMOJI_SKIN_TONE_TABLE_NAME("EMOJI_SKIN_TONE", 1),
+  RECENT_ROOMS_TABLE_NAME("RECENT_ROOMS", 1),
+  RECENT_SEARCH_TABLE_NAME("RECENT_SEARCH", 1),
   SHARED_TABLE_NAME("SHARED", 1);
 
   final String name;
@@ -75,19 +77,17 @@ class DBManager {
   }
 
   Future<void> migrate({
-    bool deleteSharedDao = true,
     bool removeOld = false,
   }) async {
     final boxes = await BoxDao.getAll();
 
     // Remove Older Tables than version "1.9.7"
     if (removeOld) {
-      await (BoxDao.removeOldDb(deleteSharedDao: deleteSharedDao));
+      await (BoxDao.removeOldDb());
     }
 
     for (final boxInfo in boxes) {
-      if (boxInfo.version != getTableInfo(boxInfo.name)?.version &&
-          (!deleteSharedDao || boxInfo.dbKey != "shared")) {
+      if (boxInfo.version != getTableInfo(boxInfo.name)?.version) {
         unawaited(BoxDao.deleteBox(boxInfo.dbKey));
       }
     }

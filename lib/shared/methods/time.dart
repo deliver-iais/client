@@ -26,26 +26,23 @@ String durationTimeFormat(Duration duration) {
 String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
   final now = clock.now();
   final difference = now.difference(time);
-  if (difference.inDays < 1 && time.day == now.day) {
-    // TODO(amirhossein): is it important?? [WHY YOU COMMENT WHIT - is is important?]
+  final isInSameYear = _i18n.isPersian
+      ? Jalali.fromDateTime(time).year == Jalali.fromDateTime(now).year
+      : now.year == time.year;
+  if (isInSameYear && difference.inDays < 1 && time.day == now.day) {
     return DateTimeFormat.format(time, format: 'H:i');
-  } else if (difference.inDays <= 7) {
+  } else if (isInSameYear) {
     if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).formatter.wN;
+      return Jalali.fromDateTime(time).deliverFormat();
     } else {
-      return DateTimeFormat.format(time, format: weekFormat);
-    }
-  } else if (difference.inDays <= 365) {
-    if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).formatShortMonthDay();
-    } else {
-      return DateTimeFormat.format(time, format: 'M j');
+      return DateTimeFormat.format(time, format: 'l, F j');
+      // return DateTimeFormat.format(time, format: 'l, F j, Y');
     }
   } else {
     if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatFullDate();
     } else {
-      return DateTimeFormat.format(time, format: 'M j');
+      return DateTimeFormat.format(time, format: 'l, F j, Y');
     }
   }
 }
@@ -77,5 +74,22 @@ String sameDayTitle(DateTime time) {
     } else {
       return DateTimeFormat.format(time, format: 'M j');
     }
+  }
+}
+
+List<String> _deliverShortDayName = [
+  'شنبه',
+  'یکشنبه',
+  'دوشنبه',
+  'سه‌شنبه',
+  'چهارشنبه',
+  'پنجشنبه',
+  'جمعه',
+];
+
+extension DeliverJalaliFormats on Jalali {
+  String deliverFormat() {
+    final f = formatter;
+    return '${_deliverShortDayName[weekDay - 1]}, ${f.d} ${f.mN}';
   }
 }
