@@ -292,7 +292,7 @@ SPEC CHECKSUMS:
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   record_macos: dcf4f2bb654970437e012521cb4ea1fca4f78bb9
   rive_common: 0ac58617cab300ee9bcf495e710d593578ff328b
-  shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
+  shared_preferences_macos: 8b221d457159a85f478c0b9d2f19aeae9feff475
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
   WebRTC-SDK: 85ee61404eb5698cf23a69a27008271db07159fc
