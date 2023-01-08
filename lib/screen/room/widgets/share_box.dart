@@ -131,11 +131,11 @@ class ShareBoxState extends State<ShareBox> {
           if (_currentPage == ShareBoxPage.MUSIC) {
             w = MusicBox(
               scrollController: scrollController,
-              onClick: (index, path) {
+              onClick: (index, fileModel) {
                 setState(() {
                   selectedAudioMap[index] = !(selectedAudioMap[index] ?? false);
                   selectedAudioMap[index]!
-                      ? finalSelected[index] = path
+                      ? finalSelected[index] = fileModel
                       : finalSelected.remove(index);
                 });
               },
@@ -160,11 +160,11 @@ class ShareBoxState extends State<ShareBox> {
             w = FilesBox(
               roomUid: widget.currentRoomUid,
               scrollController: scrollController,
-              onClick: (index, path) {
+              onClick: (index, fileModel) {
                 setState(() {
                   selectedFilesMap[index] = !(selectedFilesMap[index] ?? false);
                   selectedFilesMap[index]!
-                      ? finalSelected[index] = path
+                      ? finalSelected[index] = fileModel
                       : finalSelected.remove(index);
                 });
               },

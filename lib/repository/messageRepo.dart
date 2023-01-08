@@ -114,7 +114,7 @@ class MessageRepo {
   }
 
   Future<void> createConnectionStatusHandler() async {
-    if (await _authRepo.isLoggedIn()) {
+    if (_authRepo.isLoggedIn()) {
       await update();
     }
     _coreServices.connectionStatus.listen((mode) async {
@@ -814,8 +814,8 @@ class MessageRepo {
       audioWaveForm = file_pb.AudioWaveform(
         length: 100,
         bits: 8,
-        data: (await _audioService.getAudioWave(file.path))
-            .map((e) => e.toInt()),
+        data:
+            (await _audioService.getAudioWave(file.path)).map((e) => e.toInt()),
       );
     } else {
       audioWaveForm = file_pb.AudioWaveform.getDefault();

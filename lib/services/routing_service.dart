@@ -493,7 +493,7 @@ class RoutingService {
 
   Future<void> logout() async {
     final authRepo = GetIt.I.get<AuthRepo>();
-    if (await authRepo.isLoggedIn()) {
+    if (authRepo.isLoggedIn()) {
       GetIt.I.get<FireBaseServices>().deleteToken();
       GetIt.I.get<CoreServices>().closeConnection();
       await GetIt.I.get<AccountRepo>().logOut();
