@@ -52,7 +52,7 @@ class BotStartInformationBoxWidget extends StatelessWidget {
             elevation: 1.0,
             type: MaterialType.card,
             child: Container(
-              width: 400,
+              width: 300,
               constraints: const BoxConstraints(maxHeight: 500),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -121,19 +121,26 @@ class BotStartInformationBoxWidget extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            "/${botCommands.keys.toList()[index]}",
-                                            style: TextStyle(
-                                              color: theme.colorScheme.primary,
-                                              fontSize: 16,
+                                          Flexible(
+                                            child: Text(
+                                              "/${botCommands.keys.toList()[index]}",
+                                              style: TextStyle(
+                                                color:
+                                                    theme.colorScheme.primary,
+                                                fontSize: 16,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(width: 10),
-                                          Text(
-                                            botCommands.values.toList()[index],
-                                            style: TextStyle(
-                                              color:
-                                                  Colors.white.withOpacity(0.8),
+                                          Expanded(
+                                            child: Text(
+                                              botCommands.values
+                                                  .toList()[index],
+                                              textDirection: TextDirection.rtl,
+                                              style: TextStyle(
+                                                color: Colors.white
+                                                    .withOpacity(0.8),
+                                              ),
                                             ),
                                           ),
                                         ],
