@@ -372,7 +372,7 @@ class CallScreenState extends State<CallScreen> {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
-            endCallTimer = Timer(const Duration(milliseconds: 1500), () async {
+            endCallTimer = Timer(const Duration(milliseconds: 1000), () async {
               if (_routingService.canPop()) {
                 _routingService.pop();
               }
