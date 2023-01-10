@@ -5622,14 +5622,6 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: _i22.Future<List<_i72.Media>?>.value(),
       ) as _i22.Future<List<_i72.Media>?>);
   @override
-  void saveMediaFromMessage(_i25.Message? message) => super.noSuchMethod(
-        Invocation.method(
-          #saveMediaFromMessage,
-          [message],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i22.Future<List<_i72.Media>?> fetchMoreMedia(
     String? roomUid,
     _i14.FetchMediasReq_MediaType? mediaType,
@@ -5658,17 +5650,10 @@ class MockMediaRepo extends _i1.Mock implements _i74.MediaRepo {
         returnValue: '',
       ) as String);
   @override
-  String buildJsonFromFile(_i37.File? file) => (super.noSuchMethod(
+  _i22.Future<void> updateMediaFile(_i25.Message? message) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #buildJsonFromFile,
-          [file],
-        ),
-        returnValue: '',
-      ) as String);
-  @override
-  _i22.Future<void> updateMedia(_i25.Message? message) => (super.noSuchMethod(
-        Invocation.method(
-          #updateMedia,
+          #updateMediaFile,
           [message],
         ),
         returnValue: _i22.Future<void>.value(),
@@ -6509,8 +6494,9 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
   @override
   _i22.Future<void> onUrlTap(
     String? uri,
-    _i17.BuildContext? context,
-  ) =>
+    _i17.BuildContext? context, {
+    bool? openLinkImmediately = false,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #onUrlTap,
@@ -6518,6 +6504,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
             uri,
             context,
           ],
+          {#openLinkImmediately: openLinkImmediately},
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
@@ -6657,8 +6644,9 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
   @override
   void handleNormalLink(
     String? uri,
-    _i17.BuildContext? context,
-  ) =>
+    _i17.BuildContext? context, {
+    bool? openLinkImmediately = false,
+  }) =>
       super.noSuchMethod(
         Invocation.method(
           #handleNormalLink,
@@ -6666,6 +6654,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
             uri,
             context,
           ],
+          {#openLinkImmediately: openLinkImmediately},
         ),
         returnValueForMissingStub: null,
       );

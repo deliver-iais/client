@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' as dart_file;
 import 'dart:math';
 
@@ -1132,24 +1131,9 @@ class MessageRepo {
 
   void sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
     for (final media in forwardedMedias) {
-      final json = jsonDecode(media.json) as Map;
-      final file = file_pb.File()
-        ..type = json["type"]
-        ..name = json["name"]
-        ..width = json["width"] ?? 0
-        ..size = Int64(json["size"])
-        ..height = json["height"] ?? 0
-        ..uuid = json["uuid"]
-        ..duration = json["duration"] ?? 0.0
-        ..caption = json["caption"] ?? ""
-        ..tempLink = json["tempLink"] ?? ""
-        ..hash = json["hash"] ?? ""
-        ..sign = json["sign"] ?? ""
-        ..blurHash = json["blurHash"] ?? "";
-
       final msg =
           _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
-              .copyWith(type: MessageType.FILE, json: file.writeToJson());
+              .copyWith(type: MessageType.FILE, json: media.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
       _saveAndSend(pm);
@@ -1600,7 +1584,7 @@ class MessageRepo {
         ..json = updatedFile.writeToJson()
         ..edited = true;
       await _messageDao.saveMessage(editableMessage);
-      await _mediaRepo.updateMedia(editableMessage);
+      await _mediaRepo.updateMediaFile(editableMessage);
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,

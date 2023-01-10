@@ -85,9 +85,7 @@ class FileDetails extends StatelessWidget {
           text,
           textDirection: TextDirection.ltr,
           style: withColor
-              ? Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 10,
-                  )
+              ? Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 10)
               : const TextStyle(fontSize: 10),
         ),
       ),

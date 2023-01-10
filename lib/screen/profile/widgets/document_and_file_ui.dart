@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -7,6 +5,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +68,8 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
           future: _getMedia(index),
           builder: (c, mediaSnapshot) {
             if (mediaSnapshot.hasData) {
-              final json = jsonDecode(mediaSnapshot.data!.json) as Map;
+              final filePb = mediaSnapshot.data!.json.toFile();
+
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(mediaSnapshot.data!),
                 onTap: () => widget.addSelectedMedia(mediaSnapshot.data!),
@@ -79,8 +79,8 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                       : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
                     future: _fileRepo.getFileIfExist(
-                      json["uuid"],
-                      json["name"],
+                      filePb.uuid,
+                      filePb.name,
                     ),
                     builder: (context, filePath) {
                       if (filePath.hasData && filePath.data != null) {
@@ -133,7 +133,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                               top: 3,
                                             ),
                                             child: Text(
-                                              json["name"],
+                                              filePb.name,
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
@@ -159,17 +159,9 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                               title: Row(
                                 children: <Widget>[
                                   LoadFileStatus(
-                                    uuid: json["uuid"],
-                                    name: json["name"],
-                                    onCancel: () {},
+                                    file: filePb,
                                     isUploading: false,
-                                    onDownload: () async {
-                                      await _fileRepo.getFile(
-                                        json["uuid"],
-                                        json["name"],
-                                      );
-                                      setState(() {});
-                                    },
+                                    onDownloadCompleted: (_) => setState(() {}),
                                     background: theme.colorScheme.primary,
                                     foreground: theme.colorScheme.onPrimary,
                                   ),
@@ -182,7 +174,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             top: 3,
                                           ),
                                           child: Text(
-                                            json["name"],
+                                            filePb.name,
                                             style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,

@@ -156,7 +156,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
         future: _fileRepo.getFile(
           widget.image.uuid,
           widget.image.name,
-          thumbnailSize: ThumbnailSize.small,
+          thumbnailSize: ThumbnailSize.large,
           intiProgressbar: false,
         ),
         builder: (c, path) {
@@ -179,31 +179,33 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     );
   }
 
-  Stack buildDownloadImageWidget() {
-    return Stack(
-      fit: StackFit.expand,
-      alignment: Alignment.center,
-      children: [
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => _downloadFile(),
-            child: buildGetThumbnail(),
-          ),
+  Widget buildDownloadImageWidget() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _downloadFile(),
+        child: Stack(
+          fit: StackFit.expand,
+          alignment: Alignment.center,
+          children: [
+            buildGetThumbnail(),
+            Positioned(
+              left: 2,
+              top: 2,
+              child: buildLoadFileStatus(widgetSize: 30),
+            ),
+            if (widget.image.caption.isEmpty)
+              TimeAndSeenStatus(
+                widget.message,
+                isSender: widget.isSender,
+                isSeen: widget.isSeen,
+                needsPadding: true,
+                showBackground: true,
+              )
+          ],
         ),
-        buildLoadFileStatus(
-          onDownload: () => _downloadFile(),
-        ),
-        if (widget.image.caption.isEmpty)
-          TimeAndSeenStatus(
-            widget.message,
-            isSender: widget.isSender,
-            isSeen: widget.isSeen,
-            needsPadding: true,
-            showBackground: true,
-          )
-      ],
+      ),
     );
   }
 
@@ -276,6 +278,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
           return const SizedBox.shrink();
         case SendingStatus.UPLOAD_FILE_FAIL:
           return buildLoadFileStatus(
+            widgetSize: 50,
             sendingFileFailed: true,
             onResendFileMessage: () => _messageRepo.resendFileMessage(
               pendingMessage.data!,
@@ -286,6 +289,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
         case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
         case SendingStatus.PENDING:
           return buildLoadFileStatus(
+            widgetSize: 50,
             onCancel: () => _deletePendingMessage(),
             isPendingMessage: true,
           );
@@ -296,23 +300,23 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   }
 
   Widget buildLoadFileStatus({
-    Function()? onDownload,
     Function()? onCancel,
     Function()? onResendFileMessage,
+    required double widgetSize,
     bool isPendingMessage = false,
     bool sendingFileFailed = false,
   }) {
     return Center(
       child: LoadFileStatus(
-        uuid: widget.image.uuid,
-        name: widget.image.name,
+        file: widget.image,
         isUploading: isPendingMessage,
-        onDownload: () => onDownload?.call(),
-        onCancel: () => onCancel?.call(),
-        resendFileMessage: () => onResendFileMessage?.call(),
-        background: widget.colorScheme.onPrimary.withOpacity(0.8),
-        foreground: widget.colorScheme.primary,
+        onCanceled: () => onCancel?.call(),
+        onResendFile: () => onResendFileMessage?.call(),
+        background: widget.colorScheme.onPrimaryContainer.withOpacity(0.7),
+        foreground: widget.colorScheme.onPrimary,
         sendingFileFailed: sendingFileFailed,
+        widgetSize: widgetSize,
+        showDetails: !isPendingMessage,
       ),
     );
   }

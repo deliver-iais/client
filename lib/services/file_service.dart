@@ -27,7 +27,7 @@ import 'package:universal_html/html.dart' as html;
 
 import 'ext_storage_services.dart';
 
-enum ThumbnailSize { medium, small, frame }
+enum ThumbnailSize { medium, large, frame }
 
 enum FileStatus { NONE, STARTED, CANCELED, COMPLETED }
 

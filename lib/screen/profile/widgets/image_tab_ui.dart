@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:deliver/box/media.dart';
@@ -9,6 +8,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -91,7 +91,7 @@ class ImageTabUiState extends State<ImageTabUi> {
   }
 
   Container buildMediaWidget(Media media, int index) {
-    final json = jsonDecode(media.json) as Map;
+    final file = media.json.toFile();
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -108,12 +108,12 @@ class ImageTabUiState extends State<ImageTabUi> {
             ),
             onLongPress: () => _addSelectedMedia(media),
             child: FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
+              future: _fileRepo.getFileIfExist(file.uuid, file.name),
               builder: (c, filePath) {
                 Widget c = const SizedBox.shrink();
                 if (filePath.hasData && filePath.data != null) {
                   c = Hero(
-                    tag: json["uuid"],
+                    tag: file.uuid,
                     transitionOnUserGestures: true,
                     child: Container(
                       decoration: BoxDecoration(
@@ -131,36 +131,30 @@ class ImageTabUiState extends State<ImageTabUi> {
                 } else {
                   c = FutureBuilder<String?>(
                     future: _fileRepo.getFile(
-                      json["uuid"],
-                      json["name"],
-                      thumbnailSize: ThumbnailSize.small,
+                      file.uuid,
+                      file.name,
+                      thumbnailSize: ThumbnailSize.large,
                       intiProgressbar: false,
                     ),
                     builder: (s, path) {
                       Widget child = const SizedBox.shrink();
                       if (path.hasData && path.data != null) {
                         child = Hero(
-                          tag: json["uuid"],
+                          tag: file.uuid,
                           transitionOnUserGestures: true,
                           child: Container(
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: isWeb
                                     ? Image.network(path.data!).image
-                                    : Image.file(
-                                        File(path.data!),
-                                      ).image,
+                                    : Image.file(File(path.data!)).image,
                                 fit: BoxFit.cover,
                               ),
                             ),
                           ),
                         );
                       } else {
-                        child = SizedBox(
-                          child: BlurHash(
-                            hash: json["blurHash"],
-                          ),
-                        );
+                        child = SizedBox(child: BlurHash(hash: file.blurHash));
                       }
 
                       return AnimatedSwitcher(
