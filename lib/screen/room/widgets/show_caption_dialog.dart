@@ -142,7 +142,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             : widget.files?[index].extension;
     return (extension != null &&
         isImageFileExtension(extension) &&
-        isFileContentMimeMatchFileExtensionMime(widget.files?[index].path));
+        (widget.files == null ||
+            isFileContentMimeMatchFileExtensionMime(
+              widget.files?[index].path,
+            )));
   }
 
   Widget _buildSelectedFileTitle() {
