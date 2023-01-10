@@ -32,6 +32,9 @@ final hasVirtualKeyboardCapability = isAndroid || isIOS;
 
 final hasContactCapability = isAndroid || isIOS;
 
+Future<int> getAndroidVersion() async =>
+    (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+
 Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()
     ..clientVersion = VERSION
