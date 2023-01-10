@@ -406,10 +406,7 @@ class RoomRepo {
       return [];
     }
     final searchResult = <Uid>[];
-    final res = (await _roomDao.getAllRooms()).where(
-      (element) => !element.deleted,
-    );
-    for (final element in res) {
+    for (final element in await _roomDao.getAllRooms()) {
       final name = await getName(element.uid.asUid(), unknownName: "");
       //search by name
       if (name.toLowerCase().contains(text.toLowerCase()) && name.isNotEmpty) {

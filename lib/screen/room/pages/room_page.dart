@@ -527,7 +527,7 @@ class RoomPageState extends State<RoomPage> {
               (e) => Stream.value(null),
               listenDelay: Rx.timer(null, MOTION_STANDARD_ANIMATION_DURATION),
             )
-            .debounceTime(const Duration(milliseconds: 50));
+            .debounceTime(const Duration(milliseconds: 50)).asBroadcastStream();
 
     super.initState();
   }

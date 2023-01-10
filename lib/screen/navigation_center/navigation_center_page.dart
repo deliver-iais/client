@@ -354,7 +354,7 @@ class NavigationCenterState extends State<NavigationCenter>
                           width: 300,
                         ),
                         Text(
-                          _i18n.get("update_we"),
+                          "${_i18n.get("update")} $APPLICATION_NAME",
                           style: const TextStyle(fontSize: 25),
                         ),
                         Text(
