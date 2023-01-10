@@ -293,7 +293,7 @@ class FileService {
     String directory,
   ) async {
     try {
-      if (isAndroid && await _checkPermission.checkStoragePermission()) {
+      if (await _checkPermission.checkStoragePermission()) {
         final downloadDir =
             await ExtStorage.getExternalStoragePublicDirectory(directory);
         await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
