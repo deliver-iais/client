@@ -180,6 +180,12 @@ class CheckPermissionsService {
     return true;
   }
 
+  Future<bool> checkStoragePermission({BuildContext? context}) =>
+      _checkAndGetPermission(
+        Permission.storage,
+        context: context,
+      );
+
   Future<Position> getCurrentPosition() async {
     if (isAndroid) {
       if (!await Geolocator.isLocationServiceEnabled()) {

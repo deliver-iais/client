@@ -48,7 +48,7 @@ class RoomDaoImpl extends RoomDao {
       return sorted(
         box.values
             .where(
-              (element) => element.lastMessage != null && !element.deleted,
+              (element) => !element.deleted,
             )
             .toList(),
       );
@@ -184,5 +184,4 @@ class RoomDaoImpl extends RoomDao {
       return gen(Hive.openBox<Room>(_keyRoom()));
     }
   }
-
 }

@@ -293,18 +293,22 @@ class FileService {
     String directory,
   ) async {
     try {
-      final downloadDir =
-          await ExtStorage.getExternalStoragePublicDirectory(directory);
-      await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
-          .create(recursive: true);
-      File(
-        '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
-      ).writeAsBytesSync(
-        name.endsWith(".webp")
-            ? await convertImageToJpg(File(path))
-            : File(path).readAsBytesSync(),
-      );
-    } catch (_) {}
+      if (await _checkPermission.checkStoragePermission()) {
+        final downloadDir =
+            await ExtStorage.getExternalStoragePublicDirectory(directory);
+        await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
+            .create(recursive: true);
+        File(
+          '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
+        ).writeAsBytesSync(
+          name.endsWith(".webp")
+              ? await convertImageToJpg(File(path))
+              : File(path).readAsBytesSync(),
+        );
+      }
+    } catch (_) {
+      _logger.e(_);
+    }
   }
 
   Future<void> saveFileInDesktopDownloadFolder(
