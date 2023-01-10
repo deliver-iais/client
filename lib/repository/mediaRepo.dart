@@ -15,7 +15,6 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart'
     as media_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -403,19 +402,6 @@ class MediaRepo {
     return completer.future;
   }
 
-  void saveMediaFromMessage(Message message) {
-    _mediaDao.save(
-      Media(
-        createdOn: message.time,
-        json: buildJsonFromFile(message.json.toFile()),
-        roomId: message.roomUid,
-        messageId: message.id!,
-        type: MediaType.IMAGE,
-        createdBy: message.from,
-      ),
-    );
-  }
-
   Future<List<Media>?> fetchMoreMedia(
     String roomUid,
     FetchMediasReq_MediaType mediaType,
@@ -460,42 +446,19 @@ class MediaRepo {
   }
 
   String findFetchedMediaJson(media_pb.Media media) {
-    var json = Object();
     if (media.hasLink()) {
-      json = {"url": media.link};
+      return jsonEncode({"url": media.link});
     } else if (media.hasFile()) {
-      json = {
-        "uuid": media.file.uuid,
-        "size": media.file.size.toInt(),
-        "type": media.file.type,
-        "name": media.file.name,
-        "caption": media.file.caption,
-        "width": media.file.width,
-        "height": media.file.height,
-        "blurHash": media.file.blurHash,
-        "duration": media.file.duration,
-        "audioWaveData": media.file.audioWaveform.data
-      };
+      return media.file.writeToJson();
+    } else {
+      return jsonEncode({});
     }
-    return jsonEncode(json);
   }
 
-  String buildJsonFromFile(File file) => jsonEncode({
-        "uuid": file.uuid,
-        "size": file.size.toInt(),
-        "type": file.type,
-        "name": file.name,
-        "caption": file.caption,
-        "width": file.width,
-        "height": file.height,
-        "blurHash": file.blurHash,
-        "duration": file.duration
-      });
-
-  Future<void> updateMedia(Message message) => _mediaDao.save(
+  Future<void> updateMediaFile(Message message) => _mediaDao.save(
         Media(
           createdOn: clock.now().millisecondsSinceEpoch,
-          json: buildJsonFromFile(message.json.toFile()),
+          json: message.json,
           roomId: message.roomUid,
           messageId: message.id!,
           type: loadTypeFromString(message.json.toFile().type),

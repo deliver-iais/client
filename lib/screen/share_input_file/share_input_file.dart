@@ -1,5 +1,4 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
