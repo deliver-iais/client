@@ -47,8 +47,8 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
         child: Stack(
           children: [
             SizedBox(
-              width: widget.file.width.toDouble(),
-              height: widget.file.height.toDouble(),
+              width: getSize(widget.file.width),
+              height: getSize(widget.file.height),
               child: FutureBuilder<String?>(
                 key: _futureKey,
                 future: _fileRepo.getFile(
@@ -59,16 +59,9 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 ),
                 builder: (c, thumbnail) {
                   if (thumbnail.hasData && thumbnail.data != null) {
-                    final hasValidDimension =
-                        (widget.file.width.toDouble() > 0.0 ||
-                            widget.file.height.toDouble() > 0.0);
                     return Container(
-                      width: hasValidDimension
-                          ? widget.file.width.toDouble()
-                          : null,
-                      height: hasValidDimension
-                          ? widget.file.height.toDouble()
-                          : null,
+                      width: getSize(widget.file.width),
+                      height: getSize(widget.file.height),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
                         image: DecorationImage(
@@ -115,6 +108,14 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
         showAlertOnError: true,
       ),
     );
+  }
+
+  double? getSize(int size) {
+    if (size < 1) {
+      return null;
+    } else {
+      return size * 1.0;
+    }
   }
 
   Widget buildLoadFileStatus({
