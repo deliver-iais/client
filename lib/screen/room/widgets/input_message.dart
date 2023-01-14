@@ -125,6 +125,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   OverlayEntry? _desktopEmojiKeyboardOverlayEntry;
   final _desktopEmojiKeyboardFocusNode = FocusNode();
 
+  bool get _isRecordingInCurrentRoom =>
+      _audioService.recordingRoom == widget.currentRoom.uid;
+
   void _attachFile() {
     if (isWeb || isDesktop) {
       _attachFileInDesktopMode();
@@ -371,10 +374,6 @@ class InputMessageWidgetState extends State<InputMessage> {
                       stream: _audioService.recorderIsRecording,
                       builder: (ctx, snapshot) {
                         final isRecording = snapshot.data ?? false;
-                        final isRecordingInCurrentRoom =
-                            _audioService.recordingRoom ==
-                                widget.currentRoom.uid;
-
                         return Expanded(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -382,9 +381,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                               if (!isRecording) buildEmojiKeyboardActions(),
                               if (!isRecording) buildTextInput(theme),
                               if (!isRecording) buildDefaultActions(),
-                              if (isRecording && isRecordingInCurrentRoom)
+                              if (isRecording && _isRecordingInCurrentRoom)
                                 const RecordAudioSlideWidget(),
-                              if (isRecording && !isRecordingInCurrentRoom)
+                              if (isRecording && !_isRecordingInCurrentRoom)
                                 Expanded(
                                   child: IconButton(
                                     icon: SizedBox(

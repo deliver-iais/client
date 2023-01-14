@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
 typedef RecordOnCompleteCallback = void Function(String?);
@@ -17,6 +18,8 @@ typedef RecordOnCancelCallback = void Function();
 typedef RecordFinallyCallback = void Function();
 
 class RecorderModule {
+  final _requestLock = Lock();
+
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _fileService = GetIt.I.get<FileService>();
   final _logger = GetIt.I.get<Logger>();
@@ -45,7 +48,7 @@ class RecorderModule {
       }
     });
 
-    final tickerStream = isRecordingStream.switchMap((isRecording) {
+    final tickerStream = isRecordingStream.distinct().switchMap((isRecording) {
       if (isRecording) {
         return _timedCounter(
           const Duration(milliseconds: 100),
@@ -62,13 +65,20 @@ class RecorderModule {
     tickerStream.throttleTime(const Duration(microseconds: 500)).listen(
       (tickTime) async {
         if (!isWindows) {
-          final amplitude = await _recorder.getAmplitude();
-          recordingAmplitudeStream.add(
-            min(
-              max(amplitude.current + 40, 0) / max(amplitude.max + 40, 40),
-              1,
-            ),
-          );
+          try {
+            final amplitude = await _recorder.getAmplitude();
+            recordingAmplitudeStream.add(
+              min(
+                max(amplitude.current + 40, 0) / max(amplitude.max + 40, 40),
+                1,
+              ),
+            );
+          } catch (e) {
+            _logger.e(e);
+            recordingAmplitudeStream.add(
+              (Random().nextDouble() * 0.2),
+            );
+          }
         } else {
           recordingAmplitudeStream.add(
             (Random().nextDouble() * 0.2),
@@ -104,58 +114,68 @@ class RecorderModule {
     RecordOnCancelCallback? onCancel,
     required String roomUid,
   }) async {
-    if (isRecordingStream.valueOrNull ?? false) {
-      await togglePause();
-      return;
-    } else {
-      recordingRoom = roomUid;
-    }
+    await _requestLock.synchronized(() async {
+      if (isAndroid) {
+        if (!(await _checkPermission.checkAudioRecorderPermission())) {
+          _logger.wtf("There is no permission for recording voice");
+          return;
+        }
+      }
 
-    if (!_hasPermission.value) {
-      _logger.wtf("There is no permission for recording voice");
+      if (isRecordingStream.valueOrNull ?? false) {
+        await togglePause();
+        return;
+      } else {
+        recordingRoom = roomUid;
+      }
 
-      return;
-    }
+      isRecordingStream.add(true);
 
-    // Check supports of recording options...
-    final isOpusSupported = await _recorder.isEncoderSupported(
-      AudioEncoder.opus,
-    );
+      // if (!_hasPermission.value) {
+      //   _logger.wtf("There is no permission for recording voice");
+      //
+      //   return;
+      // }
 
-    var fileType = "m4a";
-    //use wav for windows and convert to m4a on file servers :/
-    var fileEncoder = AudioEncoder.aacLc;
+      // Check supports of recording options...
+      final isOpusSupported = await _recorder.isEncoderSupported(
+        AudioEncoder.opus,
+      );
 
-    if (isWindows) {
-      fileType = "ogg";
-    }
+      var fileType = "m4a";
+      //use wav for windows and convert to m4a on file servers :/
+      var fileEncoder = AudioEncoder.aacLc;
 
-    // Remove these comment if opus is stable
-    // ignore: invariant_booleans, dead_code
-    if (isOpusSupported && false) {
-      _logger.wtf("ogg is available for recording");
+      if (isWindows) {
+        fileType = "ogg";
+      }
 
-      fileType = "opus";
-      fileEncoder = AudioEncoder.opus;
-    }
+      // Remove these comment if opus is stable
+      // ignore: invariant_booleans, dead_code
+      if (isOpusSupported && false) {
+        _logger.wtf("ogg is available for recording");
 
-    final path = await _fileService.localFilePath(_uuid.v4(), fileType);
+        fileType = "opus";
+        fileEncoder = AudioEncoder.opus;
+      }
 
-    _logger.wtf("recording path: [$path]");
+      final path = await _fileService.localFilePath(_uuid.v4(), fileType);
 
-    await _recorder.start(
-      path: path,
-      encoder: fileEncoder,
-    );
+      _logger.wtf("recording path: [$path]");
 
-    _onCompleteCallbackStream.add(onComplete);
-    _onCancelCallbackStream.add(onCancel);
+      await _recorder.start(
+        path: path,
+        encoder: fileEncoder,
+      );
 
-    quickVibrate();
+      _onCompleteCallbackStream.add(onComplete);
+      _onCancelCallbackStream.add(onCancel);
 
-    _logger.wtf("recording started");
+      quickVibrate();
 
-    unawaited(_recorder.isRecording().then(isRecordingStream.add));
+      _logger.wtf("recording started");
+      isRecordingStream.add(await _recorder.isRecording());
+    });
   }
 
   void lock() {
@@ -178,46 +198,56 @@ class RecorderModule {
   }
 
   Future<bool> end() async {
-    try {
-      _logger.wtf("recording ended");
+    return _requestLock.synchronized(() async {
+      try {
+        _logger.wtf("recording ended");
 
-      isRecordingStream.add(false);
-      recordingRoom = "";
+        isRecordingStream.add(false);
+        recordingRoom = "";
 
-      quickVibrate();
+        quickVibrate();
+        final recordingDuration =
+            recordingDurationStream.valueOrNull ?? Duration.zero;
+        if (recordingDuration.inMilliseconds < 300) {
+          return true;
+        }
 
-      final String? path;
-      if (await _recorder.isPaused()) {
-        await _recorder.resume();
-        path = await _recorder.stop();
-      } else {
-        path = await _recorder.stop();
+        final String? path;
+        if (await _recorder.isPaused()) {
+          await _recorder.resume();
+          path = await _recorder.stop();
+        } else {
+          path = await _recorder.stop();
+        }
+
+        var fileLength = await File(path!).length();
+        print("fileLength: $fileLength");
+        var pathLengthRetry = 4;
+        while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
+          fileLength = File(path).lengthSync();
+          await Future.delayed(const Duration(milliseconds: 50));
+          pathLengthRetry--;
+        }
+
+        _onCompleteCallbackStream.valueOrNull?.call(path);
+        return true;
+      } catch (e) {
+        _logger.e(e);
+        return false;
       }
-
-      var fileLength = await File(path!).length();
-      var pathLengthRetry = 4;
-      while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
-        fileLength = File(path).lengthSync();
-        await Future.delayed(const Duration(milliseconds: 50));
-        pathLengthRetry--;
-      }
-
-      _onCompleteCallbackStream.valueOrNull?.call(path);
-      return true;
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
+    });
   }
 
-  Future<void> cancel() {
-    _logger.wtf("1.recording canceled");
-    isRecordingStream.add(false);
-    recordingRoom = "";
-    quickVibrate();
+  Future<void> cancel() async {
+    await _requestLock.synchronized(() async {
+      _logger.wtf("1.recording canceled");
+      isRecordingStream.add(false);
+      recordingRoom = "";
+      quickVibrate();
 
-    _onCancelCallbackStream.valueOrNull?.call();
+      _onCancelCallbackStream.valueOrNull?.call();
 
-    return _recorder.stop();
+      return _recorder.stop();
+    });
   }
 }
