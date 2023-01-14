@@ -18,10 +18,11 @@ Future<void> vibrate({
     );
   }
 }
-Future<void> cancelVibration(){
+
+Future<void> cancelVibration() {
   return Vibration.cancel();
 }
 
 void quickVibrate() {
-  vibrate(duration: 100).ignore();
+  if (isAndroid) vibrate(duration: 100).ignore();
 }

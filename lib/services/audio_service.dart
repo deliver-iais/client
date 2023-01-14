@@ -385,8 +385,6 @@ class AudioService {
 
   void cancelRecording() => _recorder.cancel();
 
-  void checkRecorderPermission() => _recorder.checkPermission();
-
   bool recorderIsAvailable() => _recorder.recorderIsAvailable();
 
   void lockRecorder() => _recorder.lock();

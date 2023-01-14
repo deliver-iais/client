@@ -407,39 +407,41 @@ class InputMessageWidgetState extends State<InputMessage> {
                         );
                       },
                     ),
-                    StreamBuilder<bool>(
-                      stream: _showSendIcon,
-                      builder: (c, sm) {
-                        if (!sm.hasData ||
-                            sm.data! ||
-                            widget.waitingForForward ||
-                            !_audioService.recorderIsAvailable()) {
-                          return const SizedBox();
-                        }
+                    // TODO : Recorder(library) need change for web from returning blob to return Uri
+                    if (!isWeb)
+                      StreamBuilder<bool>(
+                        stream: _showSendIcon,
+                        builder: (c, sm) {
+                          if (!sm.hasData ||
+                              sm.data! ||
+                              widget.waitingForForward ||
+                              !_audioService.recorderIsAvailable()) {
+                            return const SizedBox();
+                          }
 
-                        return RecordAudioAnimation(
-                          onComplete: (res) {
-                            if (res != null) {
-                              unawaited(
-                                _messageRepo.sendFileMessage(
-                                  widget.currentRoom.uid.asUid(),
-                                  File(
-                                    res,
-                                    res,
-                                    isVoice: true,
+                          return RecordAudioAnimation(
+                            onComplete: (res) {
+                              if (res != null) {
+                                unawaited(
+                                  _messageRepo.sendFileMessage(
+                                    widget.currentRoom.uid.asUid(),
+                                    File(
+                                      res,
+                                      res,
+                                      isVoice: true,
+                                    ),
+                                    replyToId: _replyMessageId,
                                   ),
-                                  replyToId: _replyMessageId,
-                                ),
-                              );
-                              if (_replyMessageId > 0) {
-                                widget.resetRoomPageDetails!();
+                                );
+                                if (_replyMessageId > 0) {
+                                  widget.resetRoomPageDetails!();
+                                }
                               }
-                            }
-                          },
-                          roomUid: widget.currentRoom.uid.asUid(),
-                        );
-                      },
-                    )
+                            },
+                            roomUid: widget.currentRoom.uid.asUid(),
+                          );
+                        },
+                      )
                   ],
                 ),
               ),
@@ -758,7 +760,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 isCollapsed: true,
                 // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
                 contentPadding:
-                    EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
+                    EdgeInsets.only(top: 9, bottom: isDesktop || isWeb ? 9 : 16),
                 border: InputBorder.none,
                 counterText: "",
                 hintText: _hasMarkUpPlaceHolder()
