@@ -132,7 +132,7 @@ abstract class TemporaryAudioPlayerModule {
 }
 
 AudioPlayerModule getAudioPlayerModule() {
-  if (isAndroid || isIOS) {
+  if (isAndroid || isIOS || isWeb) {
     return AudioPlayersAudioPlayer();
   } else if (isMacOS) {
     return JustAudioAudioPlayer();
@@ -498,7 +498,11 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
   void play(String path) {
     _audioCurrentState.add(AudioPlayerState.playing);
     _audioPlayer
-      ..play(DeviceFileSource(path))
+      ..play(
+        isWeb
+            ? UrlSource(UriData.parse(path).uri.path)
+            : DeviceFileSource(path),
+      )
       ..setPlaybackRate(playbackRate);
   }
 

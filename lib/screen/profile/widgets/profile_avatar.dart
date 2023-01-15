@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -9,6 +8,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -47,9 +47,7 @@ class ProfileAvatar extends StatelessWidget {
           if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(
               radius: 40,
-              backgroundImage: isWeb
-                  ? Image.network(s.data!).image
-                  : Image.file(File(s.data!)).image,
+              backgroundImage: s.data!.imageProvider(),
               child: const Center(
                 child: SizedBox(
                   height: 20.0,

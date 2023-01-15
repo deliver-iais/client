@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -8,6 +6,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -139,8 +138,7 @@ class PersistentEventMessage extends StatelessWidget {
                   builder: (context, fileSnapshot) {
                     if (fileSnapshot.hasData && fileSnapshot.data != null) {
                       return CircleAvatar(
-                        backgroundImage:
-                            Image.file(File(fileSnapshot.data!)).image,
+                        backgroundImage: fileSnapshot.data!.imageProvider(),
                         radius: 35,
                       );
                     } else {

@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -40,13 +39,10 @@ class ProfileBlurAvatar extends StatelessWidget {
       ),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          final image = isWeb
-              ? Image.network(snapshot.data!, fit: BoxFit.cover)
-              : Image.file(
-                  File(snapshot.data!),
-                  fit: BoxFit.cover,
-                  // scale: 0.001,
-                );
+          final image = Image(
+            image: snapshot.data!.imageProvider(),
+            fit: BoxFit.cover,
+          );
           return ShaderMask(
             blendMode: BlendMode.srcOver,
             shaderCallback: (bounds) => LinearGradient(

@@ -10,6 +10,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -120,18 +121,18 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                         copyText =
                             "$copyText${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}";
                       } else if (message.type == MessageType.FILE) {
-                        final type = message.json.toFile().type;
-                        var fileType = "🖼";
-                        if (type.contains("image")) {
-                          fileType = "🖼";
-                        } else if (type.contains("video")) {
-                          fileType = "🎥";
-                        } else if (type.contains("audio")) {
-                          fileType = "🎵";
+                        final file = message.json.toFile();
+                        var fileTypeEmoji = "📎";
+                        if (file.isImageFileProto()) {
+                          fileTypeEmoji = "🖼";
+                        } else if (file.isVideoFileProto()) {
+                          fileTypeEmoji = "🎥";
+                        } else if (file.isAudioFileProto()) {
+                          fileTypeEmoji = "🎵";
                         }
 
                         copyText =
-                            "$copyText${await _roomRepo.getName(message.from.asUid())}:\n$fileType\n${message.json.toFile().caption}";
+                            "$copyText${await _roomRepo.getName(message.from.asUid())}:\n$fileTypeEmoji\n${message.json.toFile().caption}";
                       }
                       copyText =
                           "$copyText\n${DateTime.fromMillisecondsSinceEpoch(

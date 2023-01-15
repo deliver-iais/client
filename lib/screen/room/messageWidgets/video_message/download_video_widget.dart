@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
@@ -65,10 +63,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
                         image: DecorationImage(
-                          image: isWeb
-                              ? Image.network(thumbnail.data!, fit: BoxFit.fill)
-                                  .image
-                              : Image.file(File(thumbnail.data!)).image,
+                          image: thumbnail.data!.imageProvider(),
                           fit: BoxFit.cover,
                         ),
                         color: Colors.black.withOpacity(0.5),
