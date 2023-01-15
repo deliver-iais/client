@@ -1,9 +1,6 @@
-import 'dart:io';
+import 'package:deliver/shared/methods/file_helpers.dart';
 
-import 'package:deliver/shared/methods/platform.dart';
-
-import 'package:extended_image/extended_image.dart'
-    if (dart.library.html) 'package:deliver/web_classes/extended_image.dart';
+import 'package:extended_image/extended_image.dart';
 
 import 'package:flutter/material.dart';
 
@@ -19,22 +16,13 @@ class ImageMediaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isWeb
-        ? Image.network(filePath)
-        : ExtendedImage.file(
-            File(filePath),
-            mode: ExtendedImageMode.gesture,
-            initGestureConfigHandler: (state) {
-              return GestureConfig(
-                inPageView: true,
-                minScale: 1.0,
-                maxScale: 4.0,
-                //you can cache gesture state even though page view page change.
-                //remember call clearGestureDetailsCache() method at the right time.(for example,this page dispose)
-              );
-            },
-            enableSlideOutPage: true,
-            onDoubleTap: (state) => onDoubleTap(state),
-          );
+    return ExtendedImage(
+      image: filePath.imageProvider(),
+      mode: ExtendedImageMode.gesture,
+      initGestureConfigHandler: (state) =>
+          GestureConfig(inPageView: true, minScale: 1.0, maxScale: 4.0),
+      enableSlideOutPage: true,
+      onDoubleTap: (state) => onDoubleTap(state),
+    );
   }
 }

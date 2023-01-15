@@ -62,7 +62,6 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart' as location;
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
@@ -770,16 +769,14 @@ class MessageRepo {
     var tempType = "";
 
     try {
-      tempType = detectFileMimeByFilePath(isWeb ? file.name : file.path);
+      tempType = detectFileMimeByFileModel(file);
     } catch (e) {
       _logger.e("Error in getting file type", e);
     }
 
-    final f = dart_file.File(file.path);
-
     try {
       if (!isWeb) {
-        tempFileSize = f.statSync().size;
+        tempFileSize = getFileSizeSync(file.path);
       }
       _logger.d(
         "File size set to file size: $tempFileSize",
@@ -790,10 +787,9 @@ class MessageRepo {
 
     // Get size of image
     try {
-      if (tempType.split('/')[0] == 'image' ||
-          tempType.contains("jpg") ||
-          tempType.contains("png")) {
-        tempDimension = ImageSizeGetter.getSize(FileInput(f));
+      if (isImageFileType(tempType)) {
+        tempDimension = getImageDimension(file.path);
+
         _logger.d(
           "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
         );

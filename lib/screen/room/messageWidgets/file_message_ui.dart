@@ -12,6 +12,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +101,7 @@ class FileMessageUiState extends State<FileMessageUi> {
   }
 
   Widget _buildMainUi() {
-    if (isImageFile()) {
+    if (_isImageFile()) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -110,7 +111,8 @@ class FileMessageUiState extends State<FileMessageUi> {
         colorScheme: widget.colorScheme,
         onEdit: widget.onEdit,
       );
-    } else if (isVideoFile()) {
+    } else if (_isVideoFile() && !isWeb) {
+      // we can't support audio or video player on web!!!
       return VideoMessage(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -157,11 +159,11 @@ class FileMessageUiState extends State<FileMessageUi> {
     final category = _autoDownloadDao.convertCategory(
       widget.message.roomUid.asUid().category,
     );
-    final isAutoDownloadEnable = isImageFile()
+    final isAutoDownloadEnable = _isImageFile()
         ? await _autoDownloadDao.isPhotoAutoDownloadEnable(category)
         : await _autoDownloadDao.isFileAutoDownloadEnable(category);
     if (isAutoDownloadEnable) {
-      if (!isImageFile()) {
+      if (!_isImageFile()) {
         final limitSize =
             await _autoDownloadDao.getFileSizeLimitForAutoDownload(category);
         if (widget.file.size > limitSize) {
@@ -188,7 +190,7 @@ class FileMessageUiState extends State<FileMessageUi> {
     }
   }
 
-  bool isImageFile() => isImageFileExtension(widget.file.type) && isFileNameMimeMatchFileType(widget.file.name, widget.file.type);
+  bool _isImageFile() => widget.file.isImageFileProto();
 
-  bool isVideoFile() => isVideoFileExtension(widget.file.type) && isFileNameMimeMatchFileType(widget.file.name, widget.file.type);
+  bool _isVideoFile() => widget.file.isVideoFileProto();
 }

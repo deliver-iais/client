@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:deliver/box/account.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -13,6 +12,7 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -224,11 +224,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                       Center(
                                         child: CircleAvatar(
                                           radius: 60,
-                                          backgroundImage: isWeb
-                                              ? Image.network(snapshot.data!)
-                                                  .image
-                                              : Image.file(File(snapshot.data!))
-                                                  .image,
+                                          backgroundImage:
+                                              snapshot.data!.imageProvider(),
                                         ),
                                       ),
                                       const Padding(

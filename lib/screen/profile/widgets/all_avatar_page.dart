@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -9,6 +7,7 @@ import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -136,9 +135,9 @@ class AllAvatarPageState extends State<AllAvatarPage> {
 
                                     return InteractiveViewer(
                                       child: Center(
-                                        child: isWeb
-                                            ? Image.network(filePath.data!)
-                                            : Image.file(File(filePath.data!)),
+                                        child: Image(
+                                          image: filePath.data!.imageProvider(),
+                                        ),
                                       ),
                                     );
                                   } else {
