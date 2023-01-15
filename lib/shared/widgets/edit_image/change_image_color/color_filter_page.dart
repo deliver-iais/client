@@ -1,7 +1,7 @@
-import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_generator.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +86,8 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
                           brightness: brightnessValue,
                           saturation: saturationValue,
                           child: ClipRect(
-                            child: Image.file(File(widget.imagePath)),
+                            child:
+                                Image(image: widget.imagePath.imageProvider()),
                           ),
                         ),
                       ),

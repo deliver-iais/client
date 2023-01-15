@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -10,7 +8,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -110,17 +108,12 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
                               ),
                               builder: (c, s) {
                                 if (s.hasData && s.data != null) {
-                                  return isWeb
-                                      ? Image.network(
-                                          s.data!,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.file(
-                                          File(s.data!),
-                                          height: widget.height,
-                                          width: widget.width,
-                                          fit: BoxFit.cover,
-                                        );
+                                  return Image(
+                                    image: s.data!.imageProvider(),
+                                    height: widget.height,
+                                    width: widget.width,
+                                    fit: BoxFit.cover,
+                                  );
                                 }
                                 return TextLoader(
                                   width: widget.width ??

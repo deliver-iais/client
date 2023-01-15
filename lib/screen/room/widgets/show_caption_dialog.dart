@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -14,7 +14,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,23 +22,23 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 void showCaptionDialog({
-  List<model.File>? files,
   required Uid roomUid,
   required BuildContext context,
+  List<model.File> files = const [],
   void Function()? resetRoomPageDetails,
   int replyMessageId = 0,
   Message? editableMessage,
   String? caption,
   bool showSelectedImage = false,
 }) {
-  if (editableMessage == null && (files?.isEmpty ?? false)) return;
+  if (editableMessage == null && files.isEmpty) return;
   showDialog(
     context: context,
     builder: (context) {
       return ShowCaptionDialog(
         resetRoomPageDetails: resetRoomPageDetails,
         replyMessageId: replyMessageId,
-        caption: caption,
+        caption: caption ?? "",
         showSelectedImage: showSelectedImage,
         editableMessage: editableMessage,
         currentRoom: roomUid,
@@ -51,23 +50,23 @@ void showCaptionDialog({
 
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
 class ShowCaptionDialog extends StatefulWidget {
-  final List<model.File>? files;
+  final List<model.File> files;
   final Uid currentRoom;
   final Message? editableMessage;
   final bool showSelectedImage;
   final int replyMessageId;
+  final String caption;
   final void Function()? resetRoomPageDetails;
-  final String? caption;
 
   const ShowCaptionDialog({
     super.key,
-    this.files,
+    required this.files,
     required this.currentRoom,
-    this.showSelectedImage = false,
-    this.editableMessage,
     required this.resetRoomPageDetails,
     required this.replyMessageId,
-    this.caption,
+    this.editableMessage,
+    this.showSelectedImage = false,
+    this.caption = "",
   });
 
   @override
@@ -81,28 +80,23 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final _dragAndDropService = GetIt.I.get<DragAndDropService>();
 
   final TextEditingController _editingController = TextEditingController();
-
-  late file_pb.File _editableFile;
   final FocusNode _captionFocusNode = FocusNode();
+
+  file_pb.File? get _editableMessageFile =>
+      widget.editableMessage?.json.toFile();
   model.File? _editedFile;
 
   @override
   void initState() {
-    if (widget.editableMessage == null) {
-      if (widget.caption != null && widget.caption!.isNotEmpty) {
-        _editingController.text = synthesizeToOriginalWord(widget.caption!);
-      }
-    } else {
-      _editableFile = widget.editableMessage!.json.toFile();
-      _editingController.text = synthesizeToOriginalWord(_editableFile.caption);
-    }
+    _editingController.text = synthesizeToOriginalWord(
+      _editableMessageFile?.caption ?? widget.caption,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ((widget.files?.isNotEmpty ?? false) ||
-            widget.editableMessage != null)
+    return ((widget.files.isNotEmpty) || widget.editableMessage != null)
         ? Directionality(
             textDirection: _i18n.defaultTextDirection,
             child: SingleChildScrollView(
@@ -127,25 +121,21 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     ],
                   ),
                 ),
-                actions: [buildActionButtonsRow()],
+                actions: [_buildActionButtonsRow()],
               ),
             ),
           )
         : const SizedBox.shrink();
   }
 
+  bool isEditing() => _editableMessageFile != null;
+
   bool isImageFile(int index) {
-    final extension = _editedFile != null
-        ? _editedFile!.extension
-        : widget.editableMessage != null
-            ? _editableFile.type
-            : widget.files?[index].extension;
-    return (extension != null &&
-        isImageFileExtension(extension) &&
-        (widget.files == null ||
-            isFileContentMimeMatchFileExtensionMime(
-              widget.files?[index].path,
-            )));
+    final type = _editedFile?.path.getMimeString() ??
+        _editableMessageFile?.type ??
+        getWidgetFilesIndex(index)?.path.getMimeString();
+
+    return type != null && isImageFileType(type);
   }
 
   Widget _buildSelectedFileTitle() {
@@ -155,15 +145,13 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            widget.files!.length.toString() + _i18n.get("files_selected"),
+            "${widget.files.length} ${_i18n.get("files_selected")}",
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
           ),
           IconButton(
             onPressed: () async {
               final files = await getFile(allowMultiple: true);
-              for (final f in files) {
-                widget.files!.add(f);
-              }
+              widget.files.addAll(files);
               setState(() {});
             },
             icon: const Icon(Icons.add),
@@ -173,7 +161,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     );
   }
 
-  Widget buildActionButtonsRow() {
+  Widget _buildActionButtonsRow() {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -215,15 +203,13 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     return Flexible(
       child: ListView.builder(
         shrinkWrap: true,
-        itemCount: widget.editableMessage != null ? 1 : widget.files!.length,
+        itemCount: isEditing() ? 1 : widget.files.length,
         itemBuilder: (c, index) {
           return Padding(
             padding: const EdgeInsets.all(10.0),
-            child: (isImageFile(
-              index,
-            ))
+            child: (isImageFile(index))
                 ? GestureDetector(
-                    onTap: () => openEditImagePage(index),
+                    onTap: () => _openEditImagePage(index),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: tertiaryBorder,
@@ -234,7 +220,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                       ),
                       child: Stack(
                         children: [
-                          Center(child: buildImageFileUi(index)),
+                          Center(child: _buildImageFileUi(index)),
                           Positioned(
                             right: 3,
                             top: 3,
@@ -262,34 +248,32 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     );
   }
 
-  Widget buildImageFileUi(int index) {
-    if (widget.editableMessage != null && _editedFile == null) {
-      return FutureBuilder<String?>(
-        future: _fileRepo.getFileIfExist(
-          _editableFile.uuid,
-          _editableFile.name,
-        ),
-        builder: (c, s) {
-          if (s.hasData && s.data != null) {
-            return Image.file(
-              File(s.data!),
-              width: 180,
-            );
-          } else {
-            return buildSimpleFileUi(
-              0,
-              showManage: false,
-            );
-          }
-        },
-      );
-    } else {
-      return buildImage(
-        _editedFile?.path ?? widget.files![index].path,
-        width: 180,
-      );
+  Widget _buildImageFileUi(int index) {
+    try {
+      if (_editableMessageFile != null && _editedFile == null) {
+        return FutureBuilder<String?>(
+          future: _fileRepo.getFileIfExist(
+            _editableMessageFile!.uuid,
+            _editableMessageFile!.name,
+          ),
+          builder: (c, s) {
+            if (s.hasData && s.data != null) {
+              return _buildImageWidget(s.data!);
+            } else {
+              return buildSimpleFileUi(0, showManage: false);
+            }
+          },
+        );
+      } else {
+        return _buildImageWidget(_editedFile?.path ?? widget.files[index].path);
+      }
+    } catch (_) {
+      return buildSimpleFileUi(0, showManage: false);
     }
   }
+
+  Widget _buildImageWidget(String path) =>
+      Image(image: path.imageProvider(cacheWidth: 180), width: 180);
 
   Widget _buildCaptionInputBox() {
     return RawKeyboardListener(
@@ -320,14 +304,23 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     );
   }
 
-  Future<void> openEditImagePage(int index) async {
+  Future<void> _openEditImagePage(int index) async {
     final navigatorState = Navigator.of(context);
-    String? path = "";
-    if (widget.editableMessage != null) {
-      path = await _fileRepo.getFileIfExist(
-        _editableFile.uuid,
-        _editableFile.name,
-      );
+
+    final String? path;
+
+    if (isEditing()) {
+      path = _editedFile?.path ??
+          await _fileRepo.getFileIfExist(
+            _editableMessageFile!.uuid,
+            _editableMessageFile!.name,
+          );
+    } else {
+      path = getWidgetFilesIndex(index)?.path;
+    }
+
+    if (path == null) {
+      return;
     }
 
     navigatorState.push(
@@ -335,41 +328,24 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         builder: (c) {
           return OpenImagePage(
             onEditEnd: (path) {
-              if (widget.files != null) {
-                widget.files![index].path = path;
-              } else if (_editedFile != null) {
-                _editedFile!.path = path;
-              } else if (widget.editableMessage != null) {
-                _editedFile = model.File(
-                  path,
-                  extension: _editableFile.type,
-                  path.split(".").first,
-                );
+              if (isEditing()) {
+                _editedFile = pathToFileModel(path);
+              } else {
+                widget.files[index].path = path;
               }
               Navigator.pop(context);
               setState(() {});
             },
-            imagePath: (_editedFile?.path) ??
-                (widget.editableMessage != null
-                    ? path!
-                    : widget.files![index].path),
+            imagePath: path!,
           );
         },
       ),
     ).ignore();
   }
 
-  Widget buildImage(String path, {double? width, double? height}) => isWeb
-      ? Image.network(path)
-      : Image.file(
-          File(path),
-          width: width,
-          height: height,
-        );
-
   void send() {
     Navigator.pop(context);
-    widget.editableMessage != null
+    isEditing()
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(),
             widget.editableMessage!,
@@ -378,7 +354,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           )
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom,
-            widget.files!,
+            widget.files,
             replyToId: widget.replyMessageId,
             caption: _editingController.text,
           );
@@ -406,16 +382,13 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             ),
           ),
         ),
-        const SizedBox(
-          width: 8,
-        ),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
-            widget.editableMessage != null
-                ? _editedFile != null
-                    ? _editedFile!.name
-                    : widget.editableMessage!.json.toFile().name
-                : widget.files![index].name,
+            _editedFile?.name ??
+                _editableMessageFile?.name ??
+                getWidgetFilesIndex(index)?.name ??
+                "",
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -441,7 +414,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               if (widget.editableMessage != null) {
                 _editedFile = file;
               } else {
-                widget.files![index] = file;
+                widget.files[index] = file;
               }
               setState(() {});
             }
@@ -455,8 +428,8 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         if (widget.editableMessage == null)
           IconButton(
             onPressed: () {
-              widget.files!.removeAt(index);
-              if (widget.files == null || widget.files!.isEmpty) {
+              widget.files.removeAt(index);
+              if (widget.files.isEmpty) {
                 Navigator.pop(context);
               }
               setState(() {});
@@ -469,9 +442,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           ),
         if (isImageFile(index))
           IconButton(
-            onPressed: () {
-              openEditImagePage(index);
-            },
+            onPressed: () => _openEditImagePage(index),
             icon: Icon(
               Icons.edit,
               color: theme.primaryColor,
@@ -489,4 +460,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
     return (result?.files ?? []).map(filePickerPlatformFileToFileModel);
   }
+
+  model.File? getWidgetFilesIndex(int index) =>
+      widget.files.length - index < 1 ? null : widget.files[index];
 }

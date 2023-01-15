@@ -54,8 +54,7 @@ class FileRepo {
         isVoice: isVoice,
       );
     } on DioError catch (e) {
-      if (e.response?.statusCode == 400 &&
-          packetIds.isNotEmpty) {
+      if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
         ToastDisplay.showToast(
           toastText: e.response!.data,
           maxWidth: 500.0,
@@ -65,7 +64,7 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
-      } else if (e.response == null) {
+      } else if (e.response == null && e.type != DioErrorType.cancel) {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
           maxWidth: 500.0,
@@ -153,17 +152,14 @@ class FileRepo {
   bool fileExitInCache(String uuid) =>
       localUploadedFilePath[uuid] != null &&
       localUploadedFilePath[uuid]!.isNotEmpty &&
-      io.File(localUploadedFilePath[uuid]!).existsSync();
+      (isWeb || io.File(localUploadedFilePath[uuid]!).existsSync());
 
   Future<String?> getFileIfExist(
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
-    if (thumbnailSize == null &&
-        localUploadedFilePath[uuid] != null &&
-        localUploadedFilePath[uuid]!.isNotEmpty &&
-        io.File(localUploadedFilePath[uuid] ?? "").existsSync()) {
+    if (thumbnailSize == null && fileExitInCache(uuid)) {
       return localUploadedFilePath[uuid];
     }
     final fileInfo = await _getFileInfoInDB(
@@ -270,16 +266,7 @@ class FileRepo {
   void saveDownloadedFileInWeb(String uuid, String name, String type) {
     getFileIfExist(uuid, name).then((url) {
       if (url != null) {
-        if (type.contains("image") ||
-            type.contains("png") ||
-            type.contains("jpeg")) {
-          _fileService.saveDownloadedFile(
-            url,
-            name.replaceAll(".webp", ".jpg"),
-          );
-        } else {
-          _fileService.saveDownloadedFile(url, name);
-        }
+        _fileService.saveDownloadedFile(url, name);
       }
     });
   }

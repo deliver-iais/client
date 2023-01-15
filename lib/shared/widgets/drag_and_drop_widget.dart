@@ -25,8 +25,9 @@ class DragDropWidget extends StatelessWidget {
   final double height;
   final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
+  late DropzoneViewController controllerWeb;
 
-  const DragDropWidget({
+  DragDropWidget({
     super.key,
     required this.child,
     required this.roomUid,
@@ -50,6 +51,7 @@ class DragDropWidget extends StatelessWidget {
                       child: DropzoneView(
                         operation: DragOperation.copy,
                         cursor: CursorType.grab,
+                        onCreated: (ctrl) => controllerWeb = ctrl,
                         onDropMultiple: (files) async {
                           try {
                             if (files != null &&
@@ -57,10 +59,12 @@ class DragDropWidget extends StatelessWidget {
                               final inputFiles = <model.File>[];
                               for (final File file in (files)) {
                                 final url =
-                                    Url.createObjectUrlFromBlob(file.slice());
+                                    await controllerWeb.getFileData(file);
                                 inputFiles.add(
                                   model.File(
-                                    url,
+                                    Uri.dataFromBytes(
+                                      (url).toList(),
+                                    ).toString(),
                                     file.name,
                                     extension: file.name.split(".").last,
                                     size: file.size,

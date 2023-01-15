@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:custom_image_crop/custom_image_crop.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,7 +91,7 @@ class _CropImageState extends State<CropImage> {
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   overlayColor: Theme.of(context).scaffoldBackgroundColor,
                   cropController: controller,
-                  image: Image.file(File(widget.imagePath)).image,
+                  image: widget.imagePath.imageProvider(),
                   shape: CustomCropShape.Square,
                 ),
                 StreamBuilder<bool?>(

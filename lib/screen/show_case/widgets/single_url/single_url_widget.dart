@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -82,15 +80,10 @@ class SingleUrlWidget extends StatelessWidget {
                           ),
                           builder: (c, s) {
                             if (s.hasData && s.data != null) {
-                              return isWeb
-                                  ? Image.network(
-                                      s.data!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.file(
-                                      File(s.data!),
-                                      fit: BoxFit.cover,
-                                    );
+                              return Image(
+                                image: s.data!.imageProvider(),
+                                fit: BoxFit.cover,
+                              );
                             }
                             return const TextLoader();
                           },
