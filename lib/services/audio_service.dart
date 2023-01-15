@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,6 +8,7 @@ import 'package:dart_vlc/dart_vlc.dart'
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
@@ -174,11 +174,10 @@ class AudioService {
         stopAudio();
         if (autoPlayMediaList.isNotEmpty &&
             autoPlayMediaIndex != autoPlayMediaList.length) {
-          final json =
-              jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
-          final fileUuid = json["uuid"];
-          final fileName = json["name"];
-          final fileDuration = json["duration"];
+          final file = autoPlayMediaList[autoPlayMediaIndex].json.toFile();
+          final fileUuid = file.uuid;
+          final fileName = file.name;
+          final fileDuration = file.duration;
           final filePath = await _getFilePathFromMedia();
           if (filePath != null) {
             playAudioMessage(filePath, fileUuid, fileName, fileDuration);
@@ -213,9 +212,9 @@ class AudioService {
   }
 
   Future<String?> _getFilePathFromMedia() {
-    final json = jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
-    final fileUuid = json["uuid"];
-    final fileName = json["name"];
+    final file = autoPlayMediaList[autoPlayMediaIndex].json.toFile();
+    final fileUuid = file.uuid;
+    final fileName = file.name;
     return _fileRepo.getFile(
       fileUuid,
       fileName,

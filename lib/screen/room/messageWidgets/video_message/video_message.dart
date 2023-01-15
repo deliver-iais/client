@@ -8,6 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -118,11 +119,9 @@ class VideoMessageState extends State<VideoMessage> {
                                   top: 5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surface
+                                  color: widget.colorScheme.onPrimaryContainer
                                       .withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: secondaryBorder,
                                 ),
                                 child: Text(
                                   formatDuration(
@@ -132,6 +131,7 @@ class VideoMessageState extends State<VideoMessage> {
                                       .textTheme
                                       .bodySmall!
                                       .copyWith(
+                                        color: widget.colorScheme.onPrimary,
                                         fontSize: 10,
                                       ),
                                 ),
@@ -149,14 +149,7 @@ class VideoMessageState extends State<VideoMessage> {
                     maxWidth: widget.maxWidth,
                     colorScheme: widget.colorScheme,
                     foreground: foreground,
-                    download: () async {
-                      await _fileRepo.getFile(
-                        video.uuid,
-                        video.name,
-                        showAlertOnError: true,
-                      );
-                      setState(() {});
-                    },
+                    onDownloadCompleted: (_) => setState(() {}),
                   );
                 }
               },
@@ -184,26 +177,21 @@ class VideoMessageState extends State<VideoMessage> {
           children: [
             Center(
               child: LoadFileStatus(
-                uuid: video.uuid,
-                name: video.name,
+                file: video,
                 isPendingForwarded: (widget.message.forwardedFrom != null &&
                     widget.message.forwardedFrom!.isNotEmpty),
                 isUploading: true,
-                onDownload: () => {},
-                onCancel: () => {
-                  if (widget.message.id == null)
-                    {
-                      _messageRepo.deletePendingMessage(
-                        widget.message.packetId,
-                      )
-                    }
-                  else
-                    {
-                      _messageRepo.deletePendingEditedMessage(
-                        widget.message.roomUid,
-                        widget.message.id,
-                      )
-                    }
+                onCanceled: () {
+                  if (widget.message.id == null) {
+                    _messageRepo.deletePendingMessage(
+                      widget.message.packetId,
+                    );
+                  } else {
+                    _messageRepo.deletePendingEditedMessage(
+                      widget.message.roomUid,
+                      widget.message.id,
+                    );
+                  }
                 },
                 background: widget.colorScheme.onPrimary.withOpacity(0.8),
                 foreground: widget.colorScheme.primary,
@@ -222,12 +210,10 @@ class VideoMessageState extends State<VideoMessage> {
           children: [
             Center(
               child: LoadFileStatus(
-                uuid: video.uuid,
-                name: video.name,
+                file: video,
                 isUploading: true,
-                onDownload: () => {},
                 sendingFileFailed: true,
-                onCancel: () {
+                onCanceled: () {
                   if (widget.message.id == null) {
                     _messageRepo.deletePendingMessage(
                       widget.message.packetId,
@@ -239,7 +225,7 @@ class VideoMessageState extends State<VideoMessage> {
                     );
                   }
                 },
-                resendFileMessage: () =>
+                onResendFile: () =>
                     _messageRepo.resendFileMessage(pendingMessage),
                 background: widget.colorScheme.onPrimary.withOpacity(0.8),
                 foreground: widget.colorScheme.primary,

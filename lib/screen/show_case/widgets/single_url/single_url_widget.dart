@@ -57,6 +57,7 @@ class SingleUrlWidget extends StatelessWidget {
                 _urlHandlerService.onUrlTap(
                   urlCase.url,
                   context,
+                  openLinkImmediately: true,
                 );
               },
               child: Container(
@@ -97,8 +98,12 @@ class SingleUrlWidget extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding:
-                          const EdgeInsets.only(top: 15, left: 15, right: 15,bottom: 15),
+                      padding: const EdgeInsets.only(
+                        top: 15,
+                        left: 15,
+                        right: 15,
+                        bottom: 15,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

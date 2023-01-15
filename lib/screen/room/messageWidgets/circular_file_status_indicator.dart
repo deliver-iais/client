@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
@@ -68,9 +66,7 @@ class _CircularFileStatusIndicatorState
                   return showExitFile(file, path.data!);
                 }
 
-                return buildLoadFileStatus(
-                  file: file,
-                );
+                return buildLoadFileStatus(file: file);
               },
             );
           }
@@ -169,17 +165,15 @@ class _CircularFileStatusIndicatorState
     bool sendingFileFailed = false,
   }) {
     return LoadFileStatus(
-      uuid: file.uuid,
+      file: file,
       isUploading: widget.message.id == null,
-      name: file.name,
-      onCancel: () => onCancel?.call(),
+      onCanceled: () => onCancel?.call(),
       sendingFileFailed: sendingFileFailed,
       isPendingForwarded: !(widget.message.forwardedFrom == null ||
           widget.message.forwardedFrom!.isEmpty),
-      resendFileMessage: () => onResendFileMessage?.call(),
-      onDownload: () async {
-        final audioPath = await _fileRepo.getFile(file.uuid, file.name,
-            showAlertOnError: true,);
+      onResendFile: () => onResendFileMessage?.call(),
+      onDownloadCompleted: (audioPath) async {
+        setState(() {});
         if (audioPath != null &&
             (file.type == "audio/mp4" || file.type == "audio/ogg")) {
           _audioPlayerService.playAudioMessage(
@@ -190,7 +184,6 @@ class _CircularFileStatusIndicatorState
           );
           await initMediaAutoPlay();
         }
-        setState(() {});
       },
       background: widget.backgroundColor,
       foreground: widget.foregroundColor,
@@ -206,15 +199,11 @@ class _CircularFileStatusIndicatorState
         messageTime: widget.message.time,
       );
       if (autoPlayMediaList != null) {
-        final json = jsonDecode(
-          autoPlayMediaList.first.json,
-        ) as Map;
-        final fileUuid = json["uuid"];
-        final fileName = json["name"];
+        final file = autoPlayMediaList.first.json.toFile();
         //download next audio
         await _fileRepo.getFile(
-          fileUuid,
-          fileName,
+          file.uuid,
+          file.name,
         );
         _audioPlayerService.autoPlayMediaIndex = 0;
         _audioPlayerService.autoPlayMediaList = autoPlayMediaList;
