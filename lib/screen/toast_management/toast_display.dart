@@ -26,6 +26,7 @@ class ToastDisplay {
     final Widget toast = Container(
       constraints: BoxConstraints(
         maxWidth: maxWidth,
+        maxHeight: 200,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

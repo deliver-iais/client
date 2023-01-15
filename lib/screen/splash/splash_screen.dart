@@ -50,7 +50,7 @@ class SplashScreenState extends State<SplashScreen>
   Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
-      return _authRepo.init(retry:  true).then((_) {
+      return _authRepo.init(retry: true).then((_) {
         if (!_authRepo.isLocalLockEnabled()) {
           navigateToApp();
         } else {
@@ -60,9 +60,9 @@ class SplashScreenState extends State<SplashScreen>
     } catch (_) {}
   }
 
-  void navigateToApp() {
+  Future<void> navigateToApp() async {
     if (_authRepo.isLoggedIn()) {
-      _navigateToHomePage();
+      unawaited(_navigateToHomePage());
     } else {
       _navigateToIntroPage();
     }

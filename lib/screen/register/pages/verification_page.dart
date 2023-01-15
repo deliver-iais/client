@@ -114,7 +114,7 @@ class VerificationPageState extends State<VerificationPage> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: TextButton(
-          onPressed:  _sendVerificationCode,
+          onPressed: _sendVerificationCode,
           child: Text(
             _i18n.get("start"),
             key: const Key('start'),
@@ -125,7 +125,6 @@ class VerificationPageState extends State<VerificationPage> {
             ),
           ),
         ),
-
         appBar: AppBar(
           backgroundColor: theme.colorScheme.background,
           title: Text(

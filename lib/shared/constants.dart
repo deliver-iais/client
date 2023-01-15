@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -22,10 +23,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.9";
-const SHOW_NEW_VERSION_INFORMATION_KEY = "SHOW_NEW_VERSION_INFORMATION_KEY";
-const SHOW_NEW_VERSION_INFORMATION_COUNT = 50;
-const SHOW_NEW_VERSION_INFORMATION_PERIOD = 2 * 60 * 60 * 1000;
+const VERSION = "2.0.0";
 
 //messageRepo
 const RANDOM_SIZE = 100000;
@@ -111,8 +109,25 @@ const WEBRTC_MIN_BITRATE =
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
+const DEFAULT_ZOOM_LEVEL = 15.0;
+
+// Shared Dao Once
+const ONCE_SHOW_NEW_VERSION_INFORMATION =
+    OnceOptions("ONCE_SHOW_NEW_VERSION_INFORMATION", 50, Duration(hours: 2));
+
+const ONCE_SHOW_CONTACT_DIALOG =
+    OnceOptions("ONCE_SHOW_CONTACT_DIALOG", 2, Duration(hours: 2));
+
+const ONCE_SHOW_MICROPHONE_DIALOG =
+    OnceOptions("ONCE_SHOW_MICROPHONE_DIALOG", 40, Duration(minutes: 15));
+
+const ONCE_SHOW_CAMERA_DIALOG =
+    OnceOptions("ONCE_SHOW_CAMERA_DIALOG", 5, Duration(hours: 1));
+
+const ONCE_SHOW_MEDIA_LIBRARY_DIALOG =
+    OnceOptions("ONCE_SHOW_MEDIA_LIBRARY_DIALOG", 10, Duration(hours: 1));
+
 // Shared Dao Settings Constants
-const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";
 const SHARED_DAO_THEME_COLOR = "SHARED_DAO_THEME_COLOR";
 const SHARED_DAO_THEME_SHOW_COLORFUL = "SHARED_DAO_THEME_SHOW_COLORFUL";
@@ -248,20 +263,23 @@ const ACTIVE_NOTIFICATION_TRACK_ID = 31;
 const BOX_INFO_TRACK_ID = 32;
 const RECENT_EMOJI_TRACK_ID = 33;
 const EMOJI_SKIN_TONE_TRACK_ID = 34;
+const RECENT_ROOMS_TRACK_ID = 35;
+const RECENT_SEARCH_TRACK_ID = 36;
 
 // Emoji
 const MAX_RECENT_EMOJI_LENGTH = 48;
 const double PERSISTENT_EMOJI_HEADER_HEIGHT = 42.0;
 const double DESKTOP_EMOJI_OVERLAY_WIDTH = 360.0;
 
-//FEATURE DISCOVERY ID
-const FEATURE_1 = 'feature1';
-const FEATURE_2 = 'feature2';
-const FEATURE_3 = 'feature3';
-const FEATURE_4 = 'feature4';
-const FEATURE_5 = 'feature5';
-const FEATURE_6 = 'feature6';
+//RECENT ROOMS & RECENT SEARCH
+const MAX_RECENT_ROOM_LENGTH = 20;
+const MAX_RECENT_SEARCH_LENGTH = 40;
 
+//FEATURE DISCOVERY ID
+const QRCODE_FEATURE = 'QRCODE_FEATURE';
+const SETTING_FEATURE = 'SETTING_FEATURE';
+const SHOW_CASE_FEATURE = 'SHOW_CASE_FEATURE';
+const CALL_FEATURE = 'CALL_FEATURE';
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
@@ -269,6 +287,9 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
+
+//FOCUS NODE
+final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;
@@ -298,16 +319,21 @@ bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
   if (isDesktop || MediaQuery.of(context).orientation == Orientation.portrait) {
-    return isLargeWidth(MediaQuery.of(context).size.width);
+    return isLargeWidth(
+      MediaQuery.of(context).size.width,
+    );
   } else {
-    return isLargeHeight(MediaQuery.of(context).size.height);
+    return isLargeHeight(
+      MediaQuery.of(context).size.height,
+    );
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
-bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(MediaQuery.of(context).size.width);
+bool isVeryLarge(BuildContext context) => isVeryLargeWidth(
+      MediaQuery.of(context).size.width,
+    );
 
 // Dynamics
 double animationSquareSize(BuildContext context) => isLarge(context)

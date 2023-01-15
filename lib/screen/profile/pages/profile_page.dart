@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -30,6 +28,7 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -368,8 +367,8 @@ class ProfilePageState extends State<ProfilePage>
   Future<List<String>> _getPathOfMedia(List<Media> medias) async {
     final paths = <String>[];
     for (final media in medias) {
-      final json = jsonDecode(media.json) as Map;
-      final path = await (_fileRepo.getFileIfExist(json["uuid"], json["name"]));
+      final file = media.json.toFile();
+      final path = await (_fileRepo.getFileIfExist(file.uuid, file.name));
       if (path != null) {
         paths.add(path);
       }

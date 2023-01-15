@@ -10,15 +10,14 @@ stages:
 variables:
   PROJECT_NAME: deliver-web
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
-  PROJECT_BUILD_NAME: "1.9.9"
-  PROJECT_BUILD_NUMBER: "72"
+  PROJECT_BUILD_NAME: "2.0.0"
+  PROJECT_BUILD_NUMBER: "73"
 
 test:
   needs: [ ]
   extends: [ .test-definition ]
   script:
     - echo "Flutter Test not passing for Now - Use `flutter test` instead"
-
 publish-we-android:
   needs: [ test ]
   extends: [ .publish-android-definition ]

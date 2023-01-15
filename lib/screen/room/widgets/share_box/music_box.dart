@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as file_model;
-import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,7 +30,6 @@ class MusicBox extends StatefulWidget {
 }
 
 class MusicBoxState extends State<MusicBox> {
-  static final _i18n = GetIt.I.get<I18N>();
   static final _checkPermissionServices =
       GetIt.I.get<CheckPermissionsService>();
 
@@ -41,7 +38,9 @@ class MusicBoxState extends State<MusicBox> {
     final theme = Theme.of(context);
     return FutureBuilder<bool>(
       initialData: false,
-      future: _checkPermissionServices.checkAccessMediaLocationPermission(),
+      future: _checkPermissionServices.checkAccessMediaLocationPermission(
+        context: context,
+      ),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!) {
           return FutureBuilder<List<File>?>(
@@ -119,26 +118,7 @@ class MusicBoxState extends State<MusicBox> {
                         ),
                       ),
                       onTap: () async {
-                        final file = fileToFileModel(fileItem);
-
-                        final notAcceptableFile = getNotAcceptableFiles([file]);
-
-                        if (notAcceptableFile.isNotEmpty) {
-                          final naf = notAcceptableFile.first;
-
-                          final errorText = naf.hasNotAcceptableExtension
-                              ? _i18n.get("cant_sent")
-                              : naf.isEmpty
-                                  ? _i18n.get("file_size_zero")
-                                  : _i18n.get("file_size_error");
-
-                          ToastDisplay.showToast(
-                            toastText: errorText,
-                            toastContext: context,
-                          );
-                        } else {
-                          widget.onClick(index, file);
-                        }
+                        widget.onClick(index, fileToFileModel(fileItem));
                       },
                     );
                   },

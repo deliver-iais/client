@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -262,7 +262,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
   void _send() {
     _messageRepo.sendMultipleFilesMessages(
       widget.roomUid,
-      _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
+      _selectedImage.map(pathToFileModel).toList(),
       replyToId: widget.replyMessageId,
       caption: _textEditingController.text,
     );

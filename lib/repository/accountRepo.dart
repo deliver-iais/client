@@ -226,36 +226,40 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final pDbVersion = await _sharedDao.get(SHARED_DAO_DB_VERSION);
-    if (pDbVersion == null ||
-        int.parse(pDbVersion) != _dbManager.getDbVersionHashcode()) {
-      try {
-        await _dbManager.migrate(
-          deleteSharedDao: false,
-          removeOld: true,
-        );
-        await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
+    final version = await _sharedDao.get(SHARED_DAO_VERSION);
+    if (version == null || version != VERSION) {
+      final pDbVersion = await _sharedDao.get(SHARED_DAO_DB_VERSION);
+      if (pDbVersion == null ||
+          int.parse(pDbVersion) != _dbManager.getDbVersionHashcode()) {
+        try {
+          await _dbManager.migrate(removeOld: true);
+          await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
+          unawaited(
+            _sharedDao.resetTimeCounter(ONCE_SHOW_NEW_VERSION_INFORMATION),
+          );
+          unawaited(GetIt.I.get<ContactRepo>().getContacts());
+        } catch (e) {
+          _logger.e(e);
+        }
         unawaited(
-          _sharedDao.resetTimeCounter(SHOW_NEW_VERSION_INFORMATION_KEY),
+          _sharedDao.put(
+            SHARED_DAO_DB_VERSION,
+            _dbManager.getDbVersionHashcode().toString(),
+          ),
         );
-        unawaited(GetIt.I.get<ContactRepo>().getContacts());
-      } catch (e) {
-        _logger.e(e);
       }
-      unawaited(
-        _sharedDao.put(
-          SHARED_DAO_DB_VERSION,
-          _dbManager.getDbVersionHashcode().toString(),
-        ),
-      );
+      unawaited(_updateSessionInformationIfNeed());
     }
-    unawaited(_updateSessionInformationIfNeed());
   }
 
   Future<void> _updateSessionInformationIfNeed() async {
-    final version = await _sharedDao.get(SHARED_DAO_VERSION);
-    if (version == null || shouldUpdateSessionPlatformInformation(version)) {
-      await updatePlatformVersion();
+    try {
+      final version = await _sharedDao.get(SHARED_DAO_VERSION);
+      if (version == null || shouldUpdateSessionPlatformInformation(version)) {
+        await updatePlatformVersion();
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

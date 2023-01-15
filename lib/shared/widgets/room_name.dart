@@ -17,6 +17,7 @@ class RoomName extends StatelessWidget {
   final String? status;
   final int maxLines;
   final TextOverflow overflow;
+  final bool forceToReturnSavedMessage;
 
   const RoomName({
     super.key,
@@ -26,6 +27,7 @@ class RoomName extends StatelessWidget {
     this.maxLines = 1,
     this.overflow = TextOverflow.ellipsis,
     this.status,
+    this.forceToReturnSavedMessage = false,
   });
 
   @override
@@ -42,10 +44,10 @@ class RoomName extends StatelessWidget {
           children: [
             Flexible(
               child: TextLoader(
-                Text(
+                text: Text(
                   name.replaceAll('', '\u200B'),
-                  style:
-                      (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
+                  style: (style ?? theme.textTheme.subtitle2)!
+                      .copyWith(height: 1.5),
                   maxLines: maxLines,
                   softWrap: false,
                   overflow: overflow,
@@ -91,7 +93,10 @@ class RoomName extends StatelessWidget {
       return Future.value(name);
     }
 
-    return _roomRepo.getName(uid);
+    return _roomRepo.getName(
+      uid,
+      forceToReturnSavedMessage: forceToReturnSavedMessage,
+    );
   }
 
   String? fastForwardGetName() {

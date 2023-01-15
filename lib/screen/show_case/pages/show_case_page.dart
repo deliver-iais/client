@@ -101,6 +101,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
           bannerCase: showCase.singleBanner,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
+          showDescription: true,
         );
       case Showcase_Type.singleUrl:
         return SingleUrlWidget(

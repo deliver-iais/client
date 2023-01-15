@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:deliver/box/media.dart';
@@ -10,12 +9,11 @@ import 'package:deliver/screen/room/messageWidgets/video_message/download_video_
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -102,7 +100,7 @@ class VideoTabUiState extends State<VideoTabUi> {
   }
 
   Container buildMediaWidget(Media media, int index, ThemeData theme) {
-    final json = jsonDecode(media.json) as Map;
+    final file = media.json.toFile();
 
     return Container(
       decoration: BoxDecoration(
@@ -114,7 +112,7 @@ class VideoTabUiState extends State<VideoTabUi> {
       child: Stack(
         children: [
           FutureBuilder<String?>(
-            future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
+            future: _fileRepo.getFileIfExist(file.uuid, file.name),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 return InkWell(
@@ -126,14 +124,15 @@ class VideoTabUiState extends State<VideoTabUi> {
                     );
                   },
                   child: Hero(
-                    tag: json["uuid"],
+                    tag: file.uuid,
                     child: Stack(
                       children: [
                         FutureBuilder<String?>(
                           future: _fileRepo.getFile(
-                            json["uuid"],
-                            "${json["name"]}.png",
-                            thumbnailSize: ThumbnailSize.small,
+                            file.uuid,
+                            // TODO(fix-this): it should change to webp
+                            file.name,
+                            thumbnailSize: ThumbnailSize.large,
                             intiProgressbar: false,
                           ),
                           builder: (c, path) {
@@ -167,9 +166,8 @@ class VideoTabUiState extends State<VideoTabUi> {
                           child: Text(
                             formatDuration(
                               Duration(
-                                seconds:
-                                    double.parse(json["duration"].toString())
-                                        .round(),
+                                seconds: double.parse(file.duration.toString())
+                                    .round(),
                               ),
                             ),
                             style:
@@ -213,20 +211,11 @@ class VideoTabUiState extends State<VideoTabUi> {
   }
 
   Widget downloadVideo(Media media, ThemeData theme) {
-    final json = jsonDecode(media.json) as Map;
     return DownloadVideoWidget(
-      file: File()
-        ..name = json["name"]
-        ..uuid = json["uuid"]
-        ..type = json["type"]
-        ..size = Int64(json["size"])
-        ..duration = json["duration"],
+      file: media.json.toFile(),
       maxWidth: 100,
       colorScheme: ExtraTheme.of(context).primaryColorsScheme,
-      download: () async {
-        await _fileRepo.getFile(json["uuid"], json["name"]);
-        setState(() {});
-      },
+      onDownloadCompleted: (_) => setState(() {}),
       background: theme.colorScheme.onPrimary,
       foreground: theme.colorScheme.primary,
     );

@@ -7,6 +7,14 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/models/time_counter.dart';
 import 'package:hive/hive.dart';
 
+class OnceOptions {
+  final String key;
+  final int count;
+  final Duration period;
+
+  const OnceOptions(this.key, this.count, this.period);
+}
+
 abstract class SharedDao {
   Future<String?> get(String key);
 
@@ -20,9 +28,12 @@ abstract class SharedDao {
 
   Stream<bool> getBooleanStream(String key, {bool defaultValue = false});
 
-  Future<bool> getAndUpdateTimeCounter(String key, int period, int count);
+  Future<void> once(
+    OnceOptions? onceOptions,
+    Future<void> Function() callback,
+  );
 
-  Future<void> resetTimeCounter(String key);
+  Future<void> resetTimeCounter(OnceOptions onceOptions);
 
   // ignore: avoid_positional_boolean_parameters
   Future<void> putBoolean(String key, bool value);
@@ -89,24 +100,30 @@ class SharedDaoImpl extends SharedDao {
   }
 
   @override
-  Future<bool> getAndUpdateTimeCounter(String key, int period, int count) async {
+  Future<void> once(
+    OnceOptions? onceOptions,
+    void Function() callback,
+  ) async {
+    if (onceOptions == null) {
+      return callback();
+    }
     try {
       final box = await _open();
-      final timeCounterModel = box.get(key);
+      final timeCounterModel = box.get(onceOptions.key);
       if (timeCounterModel != null) {
         final timeCounter = TimeCounter.fromJson(jsonDecode(timeCounterModel));
         if (timeCounter.count == 0 ||
-            (timeCounter.count < count &&
-                timeCheck(period, timeCounter.time))) {
+            (timeCounter.count < onceOptions.count &&
+                timeCheck(onceOptions.period, timeCounter.time))) {
           timeCounter.count++;
           timeCounter.time = clock.now().millisecondsSinceEpoch;
-          await box.put(key, jsonEncode(timeCounter));
-          return true;
+          await box.put(onceOptions.key, jsonEncode(timeCounter));
+
+          return callback();
         }
-        return false;
       } else {
         await box.put(
-          key,
+          onceOptions.key,
           jsonEncode(
             TimeCounter(
               count: 1,
@@ -114,23 +131,21 @@ class SharedDaoImpl extends SharedDao {
             ),
           ),
         );
-        return true;
+        return callback();
       }
-    } catch (_) {
-      return false;
-    }
+    } catch (_) {}
   }
 
-  bool timeCheck(int period, int time) =>
-      clock.now().millisecondsSinceEpoch - time > period;
+  bool timeCheck(Duration period, int time) =>
+      clock.now().millisecondsSinceEpoch - time > period.inMilliseconds;
 
   @override
-  Future<void> resetTimeCounter(String key) async {
+  Future<void> resetTimeCounter(OnceOptions onceOptions) async {
     try {
       final box = await _open();
       unawaited(
         box.put(
-          key,
+          onceOptions.key,
           jsonEncode(
             TimeCounter(
               count: 0,

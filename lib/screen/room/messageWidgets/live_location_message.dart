@@ -3,6 +3,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -80,7 +81,7 @@ class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
           child: FlutterMap(
             options: MapOptions(
               center: LatLng(location.latitude, location.longitude),
-              zoom: 15.0,
+              zoom: DEFAULT_ZOOM_LEVEL,
             ),
             children: [
               TileLayer(

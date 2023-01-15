@@ -1,11 +1,11 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -64,10 +64,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
                     for (final path in widget.inputSharedFilePath) {
                       _messageRepo.sendFileToChats(
                         _selectedRooms,
-                        File(
-                          path,
-                          path.split(".").last,
-                        ),
+                        pathToFileModel(path),
                         caption: widget.inputSharedFilePath.last == path
                             ? _textEditingController.text
                             : "",

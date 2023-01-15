@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -9,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_stat
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -52,11 +51,11 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
           future: _getMedia(index),
           builder: (c, snapShot) {
             if (snapShot.hasData && snapShot.data != null) {
-              final json = jsonDecode(snapShot.data!.json) as Map;
-              final fileUuid = json["uuid"];
-              final fileName = json["name"];
-              final fileDuration = json["duration"];
-              final audioWave = List<int>.from(json["audioWaveData"]);
+              final filePb = snapShot.data!.json.toFile();
+              final fileUuid = filePb.uuid;
+              final fileName = filePb.name;
+              final fileDuration = filePb.duration;
+              final audioWave = filePb.audioWaveform.data;
 
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(snapShot.data!),
@@ -132,15 +131,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: [
                                   LoadFileStatus(
-                                    uuid: fileUuid,
-                                    name: fileName,
+                                    file: filePb,
                                     isUploading: false,
-                                    onCancel: () {},
-                                    onDownload: () async {
-                                      final audioPath = await _fileRepo.getFile(
-                                        fileUuid,
-                                        fileName,
-                                      );
+                                    onDownloadCompleted: (audioPath) {
+                                      setState(() {});
                                       if (audioPath != null) {
                                         _audioPlayerService.playAudioMessage(
                                           audioPath,
@@ -149,7 +143,6 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           fileDuration,
                                         );
                                       }
-                                      setState(() {});
                                     },
                                     background: theme.colorScheme.primary,
                                     foreground: theme.colorScheme.onPrimary,

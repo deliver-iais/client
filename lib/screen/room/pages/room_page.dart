@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -160,9 +161,13 @@ class RoomPageState extends State<RoomPage> {
 
   Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
 
+  // Streams and Futures
+  late Stream<Object> pendingAndRoomMessagesStream;
+
   @override
   void dispose() {
     _shouldScrollToLastMessageInRoom?.cancel();
+
     super.dispose();
   }
 
@@ -218,10 +223,13 @@ class RoomPageState extends State<RoomPage> {
                   if (s.hasData &&
                       s.data!.uid.asUid().category == Categories.BOT &&
                       s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-                    return  Expanded(
-                        child: Center(
-                            child:
-                            BotStartInformationBoxWidget(roomUid: widget.roomId.asUid()),),);
+                    return Expanded(
+                      child: Center(
+                        child: BotStartInformationBoxWidget(
+                          roomUid: widget.roomId.asUid(),
+                        ),
+                      ),
+                    );
                   } else {
                     return buildAllMessagesBox();
                   }
@@ -342,9 +350,7 @@ class RoomPageState extends State<RoomPage> {
       child: Stack(
         children: [
           StreamBuilder(
-            stream:
-                MergeStream([_pendingMessages, _room, _pendingEditedMessage])
-                    .debounceTime(const Duration(milliseconds: 50)),
+            stream: pendingAndRoomMessagesStream,
             builder: (context, event) {
               // Set Item Count
               _itemCount = room.lastMessageId +
@@ -353,7 +359,24 @@ class RoomPageState extends State<RoomPage> {
               _itemCountSubject.add(_itemCount);
               if (_itemCount < 50) _defaultMessageHeight = 50;
 
-              return buildMessagesListView();
+              return PageTransitionSwitcher(
+                transitionBuilder: (
+                  child,
+                  animation,
+                  secondaryAnimation,
+                ) {
+                  return SharedAxisTransition(
+                    fillColor: Colors.transparent,
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.vertical,
+                    child: child,
+                  );
+                },
+                child: event.connectionState == ConnectionState.waiting
+                    ? const SizedBox.shrink()
+                    : buildMessagesListView(),
+              );
             },
           ),
           StreamBuilder<ScrollingState>(
@@ -496,6 +519,15 @@ class RoomPageState extends State<RoomPage> {
     } else if (widget.roomId.asUid().isChannel()) {
       checkChannelRole();
     }
+
+    // Init Streams and Futures
+    pendingAndRoomMessagesStream =
+        MergeStream([_pendingMessages, _room, _pendingEditedMessage])
+            .delayWhen(
+              (e) => Stream.value(null),
+              listenDelay: Rx.timer(null, MOTION_STANDARD_ANIMATION_DURATION),
+            )
+            .debounceTime(const Duration(milliseconds: 50)).asBroadcastStream();
 
     super.initState();
   }
@@ -1068,9 +1100,12 @@ class RoomPageState extends State<RoomPage> {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: FEATURE_4,
+                      featureId: CALL_FEATURE,
                       tapTarget: IconButton(
-                        icon: const Icon(CupertinoIcons.phone),
+                        icon: Icon(
+                          CupertinoIcons.phone,
+                          color: theme.colorScheme.tertiaryContainer,
+                        ),
                         onPressed: () {},
                       ),
                       backgroundColor: theme.colorScheme.tertiaryContainer,

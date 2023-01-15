@@ -418,15 +418,14 @@ class _AllMediaPageState extends State<AllMediaPage>
                             future: _getMedia(index),
                             builder: (c, mediaSnapShot) {
                               if (mediaSnapShot.hasData) {
-                                final json =
-                                    jsonDecode(mediaSnapShot.data!.json) as Map;
+                                final file = mediaSnapShot.data!.json.toFile();
                                 return Hero(
-                                  tag: json['uuid'],
+                                  tag: file.uuid,
                                   child: FutureBuilder<String?>(
                                     initialData: _fileCache.get(index),
                                     future: _fileRepo.getFile(
-                                      json['uuid'],
-                                      json['name'],
+                                      file.uuid,
+                                      file.name,
                                     ),
                                     builder: (c, filePath) {
                                       if (filePath.hasData &&
@@ -439,12 +438,12 @@ class _AllMediaPageState extends State<AllMediaPage>
                                             ? InteractiveViewer(
                                                 child: buildMediaUi(
                                                   filePath.data!,
-                                                  json["caption"].toString(),
+                                                  file.caption,
                                                 ),
                                               )
                                             : buildMediaUi(
                                                 filePath.data!,
-                                                json["caption"].toString(),
+                                                file.caption,
                                               );
                                       } else {
                                         return Center(
@@ -605,6 +604,7 @@ class _AllMediaPageState extends State<AllMediaPage>
               child: MediaTimeAndNameStatusWidget(
                 createdBy: createdBy,
                 createdOn: createdOn,
+                roomUid: widget.roomUid,
               ),
             ),
             // const Spacer(),

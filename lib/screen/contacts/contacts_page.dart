@@ -77,7 +77,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
   }
 
   void _syncContacts() {
-    SyncContact.showSyncContactDialog(context);
+    _contactRepo.syncContacts(context);
   }
 
   @override
@@ -120,9 +120,8 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
               children: [
                 Column(
                   children: [
-                    SyncContact.syncingStatusWidget(
-                      context,
-                      padding: const EdgeInsets.symmetric(
+                    const SyncContact(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 24.0,
                         vertical: 8,
                       ),

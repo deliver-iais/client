@@ -43,23 +43,32 @@ class IntroPageState extends State<IntroPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FeatureDiscovery.discoverFeatures(
         context,
-        isAndroid || isIOS
-            ? const <String>{
-                FEATURE_1,
-                FEATURE_2,
-                FEATURE_3,
-                FEATURE_4,
-                FEATURE_5,
-              }
-            : const <String>{
-                FEATURE_1,
-                FEATURE_3,
-                FEATURE_4,
-                FEATURE_5,
-              },
+        getFeatureDiscoverySteps(),
       );
     });
     super.initState();
+  }
+
+  Iterable<String> getFeatureDiscoverySteps() {
+    final featureDiscoverySteps = <String>[];
+    if (SHOWCASES_IS_AVAILABLE) {
+      featureDiscoverySteps.add(
+        SHOW_CASE_FEATURE,
+      );
+    }
+    if (!isDesktop) {
+      featureDiscoverySteps.add(
+        QRCODE_FEATURE,
+      );
+    }
+    featureDiscoverySteps
+      ..add(
+        SETTING_FEATURE,
+      )
+      ..add(
+        CALL_FEATURE,
+      );
+    return featureDiscoverySteps;
   }
 
   void navigateToLoginPage() {
@@ -204,7 +213,7 @@ class IntroPageState extends State<IntroPage> {
                   width: 300,
                   height: 300,
                   child: RiveAnimation.asset(
-                    'assets/animations/new_file.riv',
+                    'assets/animations/intro.riv',
                     fit: BoxFit.cover,
                     onInit: _onRiveInit,
                   ),

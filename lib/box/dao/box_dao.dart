@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -41,19 +42,18 @@ class BoxDao {
   static Future<void> deleteAllBox({bool deleteSharedDao = true}) async {
     final box = await Hive.openBox<BoxInfo>(_key());
     box.values.toList().forEach((boxInfo) async {
-      if (deleteSharedDao || boxInfo.dbKey != 'shared') {
+      if (deleteSharedDao ||
+          boxInfo.dbKey != TableInfo.SHARED_TABLE_NAME.name) {
         await deleteBox(boxInfo.dbKey);
       }
     });
     return deleteBox(_key());
   }
 
-  static Future<void> removeOldDb({bool deleteSharedDao = true}) async {
+  static Future<void> removeOldDb() async {
     final box = await Hive.openBox<String>(_oldKey());
     box.values.toList().forEach((key) async {
-      if (deleteSharedDao || key != 'shared') {
-        await deleteBox(key);
-      }
+      await deleteBox(key);
     });
     return deleteBox(_key());
   }

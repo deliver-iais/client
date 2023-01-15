@@ -21,7 +21,7 @@ enum TableInfo {
   FILE_INFO_TABLE_NAME("FILE_INFO", 1),
   LAST_ACTIVITY_TABLE_NAME("LAST_ACTIVITY", 1),
   LIVE_LOCATION_TABLE_NAME("LIVE_LOCATION", 1),
-  MEDIA_TABLE_NAME("MEDIA", 1),
+  MEDIA_TABLE_NAME("MEDIA", 2),
   MEDIA_META_DATA_TABLE_NAME("MEDIA_META_DATA", 1),
   MEDIA_TYPE_TABLE_NAME("MEDIA_TYPE", 1),
   MEMBER_TABLE_NAME("MEMBER", 1),
@@ -43,6 +43,8 @@ enum TableInfo {
   CUSTOM_NOTIFICATION_TABLE_NAME("CUSTOM_NOTIFICATION", 1),
   RECENT_EMOJI_TABLE_NAME("RECENT_EMOJI", 1),
   EMOJI_SKIN_TONE_TABLE_NAME("EMOJI_SKIN_TONE", 1),
+  RECENT_ROOMS_TABLE_NAME("RECENT_ROOMS", 1),
+  RECENT_SEARCH_TABLE_NAME("RECENT_SEARCH", 1),
   SHARED_TABLE_NAME("SHARED", 1);
 
   final String name;
@@ -75,19 +77,17 @@ class DBManager {
   }
 
   Future<void> migrate({
-    bool deleteSharedDao = true,
     bool removeOld = false,
   }) async {
     final boxes = await BoxDao.getAll();
 
     // Remove Older Tables than version "1.9.7"
     if (removeOld) {
-      await (BoxDao.removeOldDb(deleteSharedDao: deleteSharedDao));
+      await (BoxDao.removeOldDb());
     }
 
     for (final boxInfo in boxes) {
-      if (boxInfo.version != getTableInfo(boxInfo.name)?.version &&
-          (!deleteSharedDao || boxInfo.dbKey != "shared")) {
+      if (boxInfo.version != getTableInfo(boxInfo.name)?.version) {
         unawaited(BoxDao.deleteBox(boxInfo.dbKey));
       }
     }

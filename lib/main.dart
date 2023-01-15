@@ -26,6 +26,8 @@ import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
+import 'package:deliver/box/dao/recent_rooms_dao.dart';
+import 'package:deliver/box/dao/recent_search_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -46,6 +48,8 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/recent_emoji.dart';
+import 'package:deliver/box/recent_rooms.dart';
+import 'package:deliver/box/recent_search.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -147,7 +151,7 @@ Future<void> setupDI() async {
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
   registerSingleton<FeatureFlags>(FeatureFlags());
-  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
+  await GetIt.I.get<AuthRepo>().init(retry: true);
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
   await GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp();
 
@@ -177,6 +181,7 @@ Future<void> setupDI() async {
 
   try {
     registerSingleton<AudioService>(AudioService());
+    registerSingleton<VideoPlayerService>(VideoPlayerService());
   } catch (_) {}
 
   if (isWeb) {
@@ -255,7 +260,11 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter())
     ..registerAdapter(RecentEmojiAdapter())
-    ..registerAdapter(EmojiSkinToneAdapter());
+    ..registerAdapter(EmojiSkinToneAdapter())
+    ..registerAdapter(RecentRoomsAdapter())
+    ..registerAdapter(RecentSearchAdapter());
+
+
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -283,7 +292,9 @@ Future<void> dbSetupDI() async {
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
   registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
-  registerSingleton<VideoPlayerService>(VideoPlayerService());
+  registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
+  registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
+
 }
 
 Future initializeFirebase() async {
@@ -393,15 +404,12 @@ class MyApp extends StatelessWidget {
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),
-            child: Focus(
+            child: RawKeyboardListener(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              onKey: (_, event) {
+              onKey: ( event) {
                 _rawKeyboardService
                   ..escapeHandling(event)
                   ..searchHandling(event);
-                return event.physicalKey == PhysicalKeyboardKey.shiftRight
-                    ? KeyEventResult.handled
-                    : KeyEventResult.ignored;
               },
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,

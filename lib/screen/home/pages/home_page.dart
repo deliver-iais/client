@@ -43,7 +43,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FToast().init(context);
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
@@ -126,16 +125,16 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    FToast().init(context);
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop() &&
-            _routingService.preMaybePopScopeValue()) {
+        if (!_routingService.canPop()) {
           if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();
             return false;
           } else {
-            return true;
+            return _routingService.maybePop();
           }
         }
         _routingService.maybePop();

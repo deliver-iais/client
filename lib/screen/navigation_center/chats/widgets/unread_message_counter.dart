@@ -2,6 +2,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -53,6 +54,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
                   borderRadius: mainBorder,
+                  boxShadow: DEFAULT_BOX_SHADOWS,
                 ),
                 child: AnimatedSwitchWidget(
                   child: Text(
