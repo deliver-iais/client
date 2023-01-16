@@ -146,6 +146,7 @@ class CallRepo {
   Timer? timerConnectionFailed;
   Timer? timerDisconnected;
   Timer? timerEndCallDispose;
+  Timer? videoMotivation;
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
   bool _isNotificationSelected = false;
@@ -1192,12 +1193,10 @@ class CallRepo {
         // change location of this line from mediaStream get to this line for prevent
         // exception on callScreen and increase call speed .
         onLocalStream?.call(_localStream!);
-        if (isVideo) {
-          muteCamera();
-        }
 
         _logger.i("Start Call and Created !!!");
         callingStatus.add(CallStatus.CREATED);
+        _callService.setCallStart(callStart: true);
         //Set Timer 50 sec for end call
         timerDeclined = Timer(const Duration(seconds: 50), () {
           if (callingStatus.value == CallStatus.IS_RINGING ||
@@ -1225,6 +1224,12 @@ class CallRepo {
             });
           }
         }
+        //this delay because we want show video animation to user
+        videoMotivation = Timer(MOTION_STANDARD_ANIMATION_DURATION, () {
+          if (isVideo) {
+            muteCamera();
+          }
+        });
       } else {
         _logger.i("User on Call ... !");
       }
@@ -1295,7 +1300,7 @@ class CallRepo {
       // change location of this line from mediaStream get to this line for prevent
       // exception on callScreen and increase call speed .
       onLocalStream?.call(_localStream!);
-
+      _callService.setCallStart(callStart: true);
       unawaited(_sendOffer());
       if (isAndroid) {
         final foregroundStatus =
@@ -1448,10 +1453,12 @@ class CallRepo {
       } catch (e) {
         _logger.e(e);
       } finally {
-        timerEndCallDispose = Timer(const Duration(seconds: 4), () {
-          // if don't received EndCall from callee we force to end call
-          _dispose();
-        });
+        if (!_isCaller) {
+          timerEndCallDispose = Timer(const Duration(seconds: 4), () {
+            // if don't received EndCall from callee we force to end call
+            _dispose();
+          });
+        }
       }
     }
   }
@@ -1512,13 +1519,13 @@ class CallRepo {
         ? 20
         : int.parse(
             (await _sharedDao.get("ICECandidateNumbers")) ??
-                ((_isVideo) ? "15" : "10"),
+                ((_isVideo) ? "15" : ICE_CANDIDATE_NUMBER.toString()),
           );
     final candidateTimeLimit = _reconnectTry
         ? 3000
         : int.parse(
             (await _sharedDao.get("ICECandidateTimeLimit")) ??
-                ((_isVideo) ? "1000" : "500"),
+                ((_isVideo) ? "3000" : ICE_CANDIDATE_TIME_LIMIT.toString()),
           ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
       "candidateNumber:$candidateNumber",
@@ -1633,6 +1640,7 @@ class CallRepo {
 
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
+    _logger.i("!!!!Disposeeeee!!!!");
     try {
       await cancelCallNotification();
       if (isAndroid) {
@@ -1663,8 +1671,10 @@ class CallRepo {
           await _dataChannel?.close();
         }
       }
+
       callingStatus.add(CallStatus.ENDED);
       _logger.i("end call in service");
+
       await _cleanLocalStream();
       //await _cleanRtpSender();
       if (_peerConnection != null) {
@@ -1718,7 +1728,12 @@ class CallRepo {
       }
 
       Timer(const Duration(milliseconds: 1000), () async {
-        callingStatus.add(CallStatus.NO_CALL);
+        _logger.i("END!");
+        _audioService.playEndCallSound();
+        if (_routingService.canPop() && _routingService.isInCallRoom()) {
+          _routingService.pop();
+        }
+
         _isEnded = false;
         _isEndedReceived = false;
         _reconnectTry = false;
@@ -1730,6 +1745,9 @@ class CallRepo {
           ..turnUpTheCallVolume()
           ..stopCallAudioPlayer();
         _audioToggleOnCall();
+        Timer(const Duration(milliseconds: 100), () async {
+          callingStatus.add(CallStatus.NO_CALL);
+        });
       });
     }
   }
@@ -1751,8 +1769,10 @@ class CallRepo {
       timerDeclined!.cancel();
     }
     if (timer != null) {
-      _logger.i("timer canceled");
       timer!.cancel();
+    }
+    if (videoMotivation != null) {
+      videoMotivation!.cancel();
     }
   }
 
@@ -1856,7 +1876,9 @@ class CallRepo {
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200
-            ..pointer = Int64(clock.now().millisecondsSinceEpoch)
+            ..pointer = Int64(
+              clock.now().millisecondsSinceEpoch,
+            )
             ..fetchingDirectionType =
                 FetchUserCallsReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = date.month - 1
@@ -1886,13 +1908,15 @@ class CallRepo {
   }
 
   Future<void> _increaseCandidateAndWaitingTime() async {
-    final candidateNumber =
-        int.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
-    if (candidateNumber < 10) {
+    final candidateNumber = int.parse(
+      await _sharedDao.get("ICECandidateNumbers") ??
+          ICE_CANDIDATE_NUMBER.toString(),
+    );
+    if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
       _featureFlags
         ..setICECandidateTimeLimit(2000)
-        ..setICECandidateNumber(15);
-    } else if (candidateNumber < 15) {
+        ..setICECandidateNumber(17);
+    } else if (candidateNumber <= 17) {
       _featureFlags
         ..setICECandidateTimeLimit(3000)
         ..setICECandidateNumber(20);
@@ -1900,16 +1924,18 @@ class CallRepo {
   }
 
   Future<void> _decreaseCandidateAndWaitingTime() async {
-    final candidateNumber =
-        int.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
-    if (candidateNumber > 15) {
+    final candidateNumber = int.parse(
+      await _sharedDao.get("ICECandidateNumbers") ??
+          ICE_CANDIDATE_NUMBER.toString(),
+    );
+    if (candidateNumber >= 19) {
       _featureFlags
         ..setICECandidateTimeLimit(2000)
-        ..setICECandidateNumber(15);
-    } else if (candidateNumber < 10) {
+        ..setICECandidateNumber(17);
+    } else if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
       _featureFlags
-        ..setICECandidateTimeLimit(1000)
-        ..setICECandidateNumber(10);
+        ..setICECandidateTimeLimit(ICE_CANDIDATE_TIME_LIMIT)
+        ..setICECandidateNumber(ICE_CANDIDATE_NUMBER);
     }
   }
 }

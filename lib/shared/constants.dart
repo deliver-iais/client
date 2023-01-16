@@ -108,6 +108,8 @@ const WEBRTC_MIN_BITRATE =
     128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
+const ICE_CANDIDATE_NUMBER = 15.0;
+const ICE_CANDIDATE_TIME_LIMIT = 1500.0;
 
 const DEFAULT_ZOOM_LEVEL = 15.0;
 

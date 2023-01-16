@@ -11,16 +11,12 @@ import 'package:get_it/get_it.dart';
 class AudioCallScreen extends StatelessWidget {
   static final _callRepo = GetIt.I.get<CallRepo>();
   final Uid roomUid;
-  final CallStatus callStatus;
-  final String callStatusOnScreen;
   final void Function() hangUp;
   final bool isIncomingCall;
 
   const AudioCallScreen({
     super.key,
     required this.roomUid,
-    required this.callStatus,
-    required this.callStatusOnScreen,
     required this.hangUp,
     this.isIncomingCall = false,
   });
@@ -39,9 +35,15 @@ class AudioCallScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  CallStatusWidget(
-                    callStatus: callStatus,
-                    callStatusOnScreen: callStatusOnScreen,
+                  StreamBuilder<CallStatus>(
+                    initialData: CallStatus.NO_CALL,
+                    stream: _callRepo.callingStatus,
+                    builder: (context, snapshot) {
+                      return CallStatusWidget(
+                        callStatus: snapshot.data!,
+                        isIncomingCall: isIncomingCall,
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 30,
@@ -53,11 +55,21 @@ class AudioCallScreen extends StatelessWidget {
               ),
             ),
           ),
-          if (callStatus != CallStatus.ENDED)
-            CallBottomRow(
-              hangUp: hangUp,
-              isIncomingCall: isIncomingCall,
-            ),
+          StreamBuilder<CallStatus>(
+            initialData: CallStatus.NO_CALL,
+            stream: _callRepo.callingStatus,
+            builder: (context, snapshot) {
+              if (snapshot.data! != CallStatus.ENDED) {
+                return CallBottomRow(
+                  hangUp: hangUp,
+                  isIncomingCall: isIncomingCall,
+                  callStatus: snapshot.data!,
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
           if (_callRepo.isConnected) const HoleAnimation(),
         ],
       ),

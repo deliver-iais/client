@@ -12,10 +12,12 @@ import 'package:get_it/get_it.dart';
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
   final bool isIncomingCall;
+  final CallStatus callStatus;
 
   const CallBottomRow({
     super.key,
     required this.hangUp,
+    required this.callStatus,
     this.isIncomingCall = false,
   });
 
@@ -26,17 +28,20 @@ class CallBottomRow extends StatefulWidget {
 class CallBottomRowState extends State<CallBottomRow>
     with SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
+  final _callRepo = GetIt.I.get<CallRepo>();
   final _iconsSize = isAndroid ? 30.0 : 40.0;
 
   Color? _switchCameraColor;
   Color? _offVideoCamColor;
   Color? _speakerColor;
+
   // ignore: unused_field
   Color? _screenShareColor;
   Color? _muteMicColor;
 
   IconData? _offVideoCamIcon;
   IconData? _speakerIcon;
+
   // ignore: unused_field
   IconData? _screenShareIcon;
   IconData? _muteMicIcon;
@@ -70,7 +75,7 @@ class CallBottomRowState extends State<CallBottomRow>
     final theme = Theme.of(context);
     initializeIcons();
 
-    if (widget.isIncomingCall) {
+    if (callBottomStatus(widget.callStatus)) {
       return _buildIncomingCallWidget(theme);
     } else {
       return callRepo.isVideo
@@ -107,13 +112,9 @@ class CallBottomRowState extends State<CallBottomRow>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    FloatingActionButton(
-                      heroTag: "1",
-                      elevation: 0,
-                      shape: const CircleBorder(),
-                      backgroundColor: Colors.transparent,
+                    IconButton(
                       onPressed: () => _enableSpeaker(theme),
-                      child: Icon(
+                      icon: Icon(
                         _speakerIcon,
                         size: isAndroid ? 30 : 40,
                         color: _speakerColor,
@@ -128,12 +129,8 @@ class CallBottomRowState extends State<CallBottomRow>
                 SizedBox(
                   height: isAndroid ? 65 : 80,
                   width: isAndroid ? 65 : 80,
-                  child: FloatingActionButton(
-                    backgroundColor: theme.colorScheme.tertiary,
-                    heroTag: "2",
-                    elevation: 0,
-                    shape: const CircleBorder(),
-                    child: Icon(
+                  child: IconButton(
+                    icon: Icon(
                       CupertinoIcons.phone_down_fill,
                       size: isAndroid ? 37 : 50,
                       color: Colors.white,
@@ -144,13 +141,9 @@ class CallBottomRowState extends State<CallBottomRow>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    FloatingActionButton(
-                      heroTag: "3",
-                      elevation: 0,
-                      shape: const CircleBorder(),
-                      backgroundColor: theme.cardColor.withOpacity(0),
+                    IconButton(
                       onPressed: () => _muteMic(theme),
-                      child: Padding(
+                      icon: Padding(
                         padding: const EdgeInsets.all(0),
                         child: Icon(
                           _muteMicIcon,
@@ -197,17 +190,13 @@ class CallBottomRowState extends State<CallBottomRow>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              FloatingActionButton(
-                heroTag: 22,
-                elevation: 0,
-                shape: const CircleBorder(),
-                backgroundColor: Colors.transparent,
+              IconButton(
                 onPressed: () =>
                     isDesktop ? _desktopDualVideo() : _switchCamera(theme),
                 tooltip: isDesktop
                     ? _i18n.get("screen")
                     : _i18n.get("camera_switch"),
-                child: Icon(
+                icon: Icon(
                   isDesktop
                       ? _desktopDualVideoIcon
                       : CupertinoIcons.switch_camera,
@@ -215,14 +204,10 @@ class CallBottomRowState extends State<CallBottomRow>
                   color: isDesktop ? theme.shadowColor : _switchCameraColor,
                 ),
               ),
-              FloatingActionButton(
-                heroTag: 33,
-                elevation: 0,
-                shape: const CircleBorder(),
-                backgroundColor: Colors.transparent,
+              IconButton(
                 onPressed: () => _offVideoCam(theme),
                 tooltip: _i18n.get("camera"),
-                child: Icon(
+                icon: Icon(
                   _offVideoCamIcon,
                   size: _iconsSize,
                   color: _offVideoCamColor,
@@ -232,12 +217,8 @@ class CallBottomRowState extends State<CallBottomRow>
               SizedBox(
                 width: 65,
                 height: 65,
-                child: FloatingActionButton(
-                  backgroundColor: theme.colorScheme.tertiary,
-                  heroTag: 66,
-                  elevation: 0,
-                  shape: const CircleBorder(),
-                  child: const Icon(
+                child: IconButton(
+                  icon: const Icon(
                     CupertinoIcons.phone_down_fill,
                     size: 40,
                     color: Colors.white,
@@ -245,28 +226,20 @@ class CallBottomRowState extends State<CallBottomRow>
                   onPressed: () => widget.hangUp(),
                 ),
               ),
-              FloatingActionButton(
-                heroTag: 44,
-                elevation: 0,
-                shape: const CircleBorder(),
-                backgroundColor: theme.cardColor.withOpacity(0),
+              IconButton(
                 hoverColor: theme.primaryColor.withOpacity(0.6),
                 onPressed: () => _muteMic(theme),
                 tooltip: _i18n.get("mute_call"),
-                child: Icon(
+                icon: Icon(
                   _muteMicIcon,
                   size: _iconsSize,
                   color: _muteMicColor,
                 ),
               ),
-              // FloatingActionButton(
-              //   heroTag: 55,
-              //   elevation: 0,
-              //   shape: const CircleBorder(),
-              //   backgroundColor: Colors.transparent,
+              // IconButton(
               //   onPressed: () => _shareScreen(theme, context),
               //   tooltip: _i18n.get("share_screen"),
-              //   child: Icon(
+              //   icon: Icon(
               //     _screenShareIcon,
               //     size: _iconsSize,
               //     color: _screenShareColor,
@@ -275,13 +248,9 @@ class CallBottomRowState extends State<CallBottomRow>
               StreamBuilder<bool>(
                 stream: callRepo.isSpeaker,
                 builder: (context, snapshot) {
-                  return FloatingActionButton(
-                    heroTag: 55,
-                    elevation: 0,
-                    shape: const CircleBorder(),
-                    backgroundColor: Colors.transparent,
+                  return IconButton(
                     onPressed: () => _enableSpeaker(theme),
-                    child: Icon(
+                    icon: Icon(
                       snapshot.data ?? false
                           ? CupertinoIcons.speaker_3
                           : CupertinoIcons.speaker_1,
@@ -311,12 +280,8 @@ class CallBottomRowState extends State<CallBottomRow>
             SizedBox(
               width: 80,
               height: 80,
-              child: FloatingActionButton(
-                heroTag: 11,
-                backgroundColor: Colors.white,
-                elevation: 0,
-                shape: const CircleBorder(),
-                child: Icon(
+              child: IconButton(
+                icon: Icon(
                   CupertinoIcons.phone_fill,
                   size: 50,
                   color: ACTIVE_COLOR,
@@ -327,12 +292,8 @@ class CallBottomRowState extends State<CallBottomRow>
             SizedBox(
               height: 80,
               width: 80,
-              child: FloatingActionButton(
-                backgroundColor: Colors.white,
-                heroTag: 66,
-                elevation: 0,
-                shape: const CircleBorder(),
-                child: Icon(
+              child: IconButton(
+                icon: Icon(
                   CupertinoIcons.phone_down_fill,
                   size: 50,
                   color: theme.errorColor,
@@ -344,6 +305,27 @@ class CallBottomRowState extends State<CallBottomRow>
         ),
       ),
     );
+  }
+
+  bool callBottomStatus(CallStatus callStatus) {
+    switch (callStatus) {
+      case CallStatus.CREATED:
+        return !_callRepo.isCaller;
+      case CallStatus.IS_RINGING:
+        return widget.isIncomingCall;
+      case CallStatus.DECLINED:
+      case CallStatus.BUSY:
+      case CallStatus.ENDED:
+      case CallStatus.NO_CALL:
+      case CallStatus.ACCEPTED:
+      case CallStatus.CONNECTING:
+      case CallStatus.RECONNECTING:
+      case CallStatus.CONNECTED:
+      case CallStatus.DISCONNECTED:
+      case CallStatus.FAILED:
+      case CallStatus.NO_ANSWER:
+        return false;
+    }
   }
 
   void initializeIcons() {

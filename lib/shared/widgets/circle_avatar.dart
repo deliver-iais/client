@@ -20,6 +20,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool hideName;
   final bool isHeroEnabled;
   final bool forceToUpdateAvatar;
+  final Widget? noAvatarWidget;
   final BorderRadius? borderRadius;
   final _streamKey = GlobalKey();
   final _futureKey = GlobalKey();
@@ -29,28 +30,28 @@ class CircleAvatarWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(
-    this.contactUid,
-    this.radius, {
-    super.key,
-    this.borderRadius,
-    this.forceText = "",
-    this.hideName = false,
-    this.isHeroEnabled = true,
-    this.showSavedMessageLogoIfNeeded = false,
-    this.forceToUpdateAvatar = false,
-  });
+  CircleAvatarWidget(this.contactUid,
+      this.radius, {
+        super.key,
+        this.borderRadius,
+        this.forceText = "",
+        this.hideName = false,
+        this.isHeroEnabled = true,
+        this.showSavedMessageLogoIfNeeded = false,
+        this.forceToUpdateAvatar = false,
+        this.noAvatarWidget,
+      });
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
-      _authRepo.isCurrentUser(contactUid.asString());
+          _authRepo.isCurrentUser(contactUid.asString());
 
   bool isSystem() => contactUid.category == Categories.SYSTEM;
 
   @override
   Widget build(BuildContext context) {
     final scheme =
-        ExtraTheme.of(context).messageColorScheme(contactUid.asString());
+    ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
     var boxDecoration = BoxDecoration(
       shape: BoxShape.circle,
@@ -104,11 +105,9 @@ class CircleAvatarWidget extends StatelessWidget {
     }
   }
 
-  Widget builder(
-    BuildContext context,
-    AsyncSnapshot<String?> snapshot,
-    Color textColor,
-  ) {
+  Widget builder(BuildContext context,
+      AsyncSnapshot<String?> snapshot,
+      Color textColor,) {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
       Image image;
       if (isWeb) {
@@ -132,7 +131,7 @@ class CircleAvatarWidget extends StatelessWidget {
           builder: (context, snapshot2) {
             if (snapshot2.hasData &&
                 ((snapshot2.data!.image.height - snapshot2.data!.image.width)
-                        .abs() <=
+                    .abs() <=
                     3)) {
               return image = Image.file(
                 File(snapshot.data!),
@@ -145,7 +144,7 @@ class CircleAvatarWidget extends StatelessWidget {
         );
       }
     } else {
-      return showDisplayName(textColor);
+      return noAvatarWidget ?? showDisplayName(textColor);
     }
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
@@ -6,15 +8,16 @@ import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class CallStatusWidget extends StatefulWidget {
   final CallStatus callStatus;
-  final String callStatusOnScreen;
+  final bool isIncomingCall;
 
   const CallStatusWidget({
     super.key,
     required this.callStatus,
-    required this.callStatusOnScreen,
+    this.isIncomingCall = false,
   });
 
   @override
@@ -23,8 +26,10 @@ class CallStatusWidget extends StatefulWidget {
 
 class _CallStatusWidgetState extends State<CallStatusWidget>
     with TickerProviderStateMixin {
+  final _logger = GetIt.I.get<Logger>();
   final _callRepo = GetIt.I.get<CallRepo>();
   final _i18n = GetIt.I.get<I18N>();
+
   late AnimationController _repeatEndCallAnimationController;
 
   @override
@@ -64,18 +69,18 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
                 duration: SUPER_SLOW_ANIMATION_DURATION,
                 child: (isCallOnHold.data ?? false)
                     ? Text(
-                        _i18n.get("call_on_hold"),
-                        style: theme.textTheme.titleLarge!.copyWith(
-                          color: theme.colorScheme.surface,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        key: const Key("hold_on"),
-                      )
+                  _i18n.get("call_on_hold"),
+                  style: theme.textTheme.titleLarge!.copyWith(
+                    color: theme.colorScheme.surface,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  key: const Key("hold_on"),
+                )
                     : callTimerWidget(
-                        theme,
-                        snapshot.data!,
-                        isEnd: false,
-                      ),
+                  theme,
+                  snapshot.data!,
+                  isEnd: false,
+                ),
               );
             },
           );
@@ -90,28 +95,28 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
           children: [
             if (widget.callStatus != CallStatus.ENDED)
               Text(
-                widget.callStatusOnScreen,
+                callStatusOnScreen(widget.callStatus),
                 style:
-                    theme.textTheme.titleLarge!.copyWith(color: Colors.white70),
+                theme.textTheme.titleLarge!.copyWith(color: Colors.white70),
               )
             else
               FadeTransition(
                 opacity: _repeatEndCallAnimationController,
                 child: (_callRepo.isConnected)
                     ? Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: callTimerWidget(
-                          theme,
-                          _callRepo.callTimer.value,
-                          isEnd: true,
-                        ),
-                      )
+                  textDirection: TextDirection.ltr,
+                  child: callTimerWidget(
+                    theme,
+                    _callRepo.callTimer.value,
+                    isEnd: true,
+                  ),
+                )
                     : Text(
-                        widget.callStatusOnScreen,
-                        style: theme.textTheme.titleLarge!.copyWith(
-                          color: theme.colorScheme.error,
-                        ),
-                      ),
+                  callStatusOnScreen(widget.callStatus),
+                  style: theme.textTheme.titleLarge!.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
               ),
             if (widget.callStatus == CallStatus.CONNECTING ||
                 widget.callStatus == CallStatus.RECONNECTING ||
@@ -124,11 +129,10 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
     }
   }
 
-  Row callTimerWidget(
-    ThemeData theme,
-    CallTimer callTimer, {
-    required bool isEnd,
-  }) {
+  Row callTimerWidget(ThemeData theme,
+      CallTimer callTimer, {
+        required bool isEnd,
+      }) {
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
     var callSecond = callTimer.seconds.toString();
@@ -158,5 +162,40 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
         ),
       ],
     );
+  }
+
+  String callStatusOnScreen(CallStatus callStatus) {
+    _logger.i("callStatussss : ${callStatus.toString()}");
+    switch (callStatus) {
+      case CallStatus.CONNECTED:
+        return _i18n.get("call_connected");
+      case CallStatus.DISCONNECTED:
+        return _i18n.get("call_dis_connected");
+      case CallStatus.CONNECTING:
+        return _i18n.get("call_connecting");
+      case CallStatus.RECONNECTING:
+        return _i18n.get("call_reconnecting");
+      case CallStatus.FAILED:
+        return _i18n.get("call_connection_failed");
+      case CallStatus.IS_RINGING:
+        return _i18n.get("call_ringing");
+      case CallStatus.NO_ANSWER:
+        return _i18n.get("call_user_not_answer");
+      case CallStatus.CREATED:
+        return widget.isIncomingCall
+            ? _i18n.get("call_incoming")
+            : _i18n.get("call_calling");
+      case CallStatus.ENDED:
+        return _i18n.get("call_ended");
+      case CallStatus.BUSY:
+        return "${_i18n.get("call_busy")}....";
+      case CallStatus.DECLINED:
+        return "${_i18n.get("call_declined")}....";
+      case CallStatus.ACCEPTED:
+        unawaited(_callRepo.cancelCallNotification());
+        return _i18n.get("call_accepted");
+      case CallStatus.NO_CALL:
+        return "";
+    }
   }
 }

@@ -38,12 +38,22 @@ class CallService {
 
   bool shouldRemoveData = false;
 
+  final BehaviorSubject<bool> isCallStart = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _isCallStart = BehaviorSubject.seeded(false);
+
   bool isInitRenderer = false;
 
   CallService() {
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
+    _isCallStart.distinct().listen((event) {
+      isCallStart.add(event);
+    });
+  }
+
+  void setCallStart({required bool callStart}) {
+    _isCallStart.add(callStart);
   }
 
   void addCallEvent(CallEvents event) {
@@ -182,7 +192,7 @@ class CallService {
 
   Future<void> clearCallData({bool forceToClearData = false}) async {
     if (shouldRemoveData || forceToClearData) {
-      _logger.d("Clearing Call Data");
+      _logger.i("Clearing Call Data");
       _callId = "";
       _callState = UserCallState.NO_CALL;
       isInitRenderer = false;

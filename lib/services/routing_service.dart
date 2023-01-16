@@ -353,6 +353,8 @@ class RoutingService {
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
+  bool isInCallRoom() => _path() == "/call-screen";
+
   String _path() => _navigatorObserver.currentRoute.value.nextRoute;
 
   // Routing Functions

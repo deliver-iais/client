@@ -1,6 +1,6 @@
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,8 +23,9 @@ class CenterAvatarInCall extends StatefulWidget {
 
 class CenterAvatarInCallState extends State<CenterAvatarInCall> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _uxService = GetIt.I.get<UxService>();
+
+  late final _globalKey = GlobalObjectKey(widget.roomUid.asString());
 
   @override
   Widget build(BuildContext context) {
@@ -52,54 +53,54 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
           height: 15,
         ),
         Material(
+          key: _globalKey,
           elevation: 5,
           color: theme.colorScheme.outline.withOpacity(0.6),
           shadowColor: theme.colorScheme.outline.withOpacity(0.6),
           borderRadius: BorderRadius.circular(widget.radius),
-          child: StreamBuilder<String>(
-            stream: _avatarRepo.getLastAvatarFilePathStream(widget.roomUid),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                return CircleAvatarWidget(widget.roomUid, widget.radius);
-              } else {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(widget.radius),
-                  clipBehavior: Clip.hardEdge,
-                  child: Container(
-                    width: 140,
-                    height: 140,
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          Color(
-                            _uxService.getCorePalette().tertiary.get(
-                                  _uxService.themeIsDark ? 60 : 75,
-                                ),
-                          ),
-                          Color(
-                            _uxService.getCorePalette().primary.get(
-                                  _uxService.themeIsDark ? 60 : 75,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      size: 100,
-                      color: Colors.white60,
-                    ),
-                  ),
-                );
-              }
-            },
+          child: CircleAvatarWidget(
+            widget.roomUid,
+            widget.radius,
+            noAvatarWidget: noAvatarWidget(),
           ),
         ),
       ],
+    );
+  }
+
+  Widget noAvatarWidget() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.radius),
+      clipBehavior: Clip.hardEdge,
+      child: Container(
+        width: 140,
+        height: 140,
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color(
+                _uxService.getCorePalette().tertiary.get(
+                      _uxService.themeIsDark ? 60 : 75,
+                    ),
+              ),
+              Color(
+                _uxService.getCorePalette().primary.get(
+                      _uxService.themeIsDark ? 60 : 75,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        child: const Icon(
+          Icons.person,
+          size: 100,
+          color: Colors.white60,
+        ),
+      ),
     );
   }
 }

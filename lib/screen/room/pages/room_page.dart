@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:animations/animations.dart';
+import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -527,7 +528,8 @@ class RoomPageState extends State<RoomPage> {
               (e) => Stream.value(null),
               listenDelay: Rx.timer(null, MOTION_STANDARD_ANIMATION_DURATION),
             )
-            .debounceTime(const Duration(milliseconds: 50)).asBroadcastStream();
+            .debounceTime(const Duration(milliseconds: 50))
+            .asBroadcastStream();
 
     super.initState();
   }
@@ -981,6 +983,7 @@ class RoomPageState extends State<RoomPage> {
         child: Stack(
           children: [
             FloatingActionButton(
+              heroTag: clock.now(),
               mini: true,
               onPressed: _scrollToLastMessage,
               child: const Icon(CupertinoIcons.arrow_down),
