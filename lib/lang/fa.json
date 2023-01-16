@@ -522,7 +522,7 @@
   "user_experience": "رابط کاربری",
   "username": "شناسه ",
   "username_already_exist": "شناسه کاربری از قبل وجود دارد",
-  "username_granted": "اجازه دسترسی به نام کاربری  تلفن داده شد",
+  "username_granted": "اجازه دسترسی به نام کاربری داده شد",
   "username_helper": "حداقل 5 وحداکثر 20 حرف باشد. وشامل . نباشد و با عدد شروع نشود",
   "username_length": "شناسه یکتا معتبر نیست",
   "username_not_empty": "شناسه نباید خالی باشد",
