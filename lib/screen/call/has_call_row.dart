@@ -1,10 +1,13 @@
-import 'package:deliver/models/call_timer.dart';
+import 'package:animations/animations.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+import 'call_status.dart';
 
 class HasCallRow extends StatefulWidget {
   const HasCallRow({super.key});
@@ -21,11 +24,12 @@ class HasCallRowState extends State<HasCallRow> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder(
+    return StreamBuilder<CallStatus>(
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
+        Widget renderer;
         if (snapshot.data != CallStatus.NO_CALL) {
-          return GestureDetector(
+          renderer = GestureDetector(
             onTap: () {
               if (snapshot.data == CallStatus.CREATED && !callRepo.isCaller) {
                 _routingService.openCallScreen(
@@ -42,13 +46,14 @@ class HasCallRowState extends State<HasCallRow> {
               }
             },
             child: callRepo.roomUid != null
-                ? Container(
+                ? AnimatedContainer(
+                    duration: const Duration(seconds: 1),
                     margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.primary.withAlpha(100),
+                          detectBackGroundColor(snapshot.data!),
+                          detectBackGroundColor(snapshot.data!).withAlpha(100),
                         ],
                       ),
                     ),
@@ -83,45 +88,12 @@ class HasCallRowState extends State<HasCallRow> {
                           ),
                           Row(
                             children: [
-                              Icon(
-                                callRepo.isVideo ? Icons.videocam : Icons.call,
-                                color: Colors.white,
-                              ),
                               const SizedBox(
                                 width: 5,
                               ),
-                              if (snapshot.data == CallStatus.CONNECTED)
-                                StreamBuilder<CallTimer>(
-                                  stream: callRepo.callTimer,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData &&
-                                        snapshot.data != null) {
-                                      var callHour =
-                                          snapshot.data!.hours.toString();
-                                      var callMin =
-                                          snapshot.data!.minutes.toString();
-                                      var callSecond =
-                                          snapshot.data!.seconds.toString();
-                                      callHour = callHour.length != 2
-                                          ? '0$callHour'
-                                          : callHour;
-                                      callMin = callMin.length != 2
-                                          ? '0$callMin'
-                                          : callMin;
-                                      callSecond = callSecond.length != 2
-                                          ? '0$callSecond'
-                                          : callSecond;
-                                      return Text(
-                                        '$callHour:$callMin:$callSecond',
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                ),
+                              CallStatusWidget(
+                                callStatus: snapshot.data!,
+                              ),
                             ],
                           ),
                         ],
@@ -131,9 +103,51 @@ class HasCallRowState extends State<HasCallRow> {
                 : const SizedBox.shrink(),
           );
         } else {
-          return const SizedBox.shrink();
+          renderer = const SizedBox.shrink();
         }
+        return PageTransitionSwitcher(
+          duration: const Duration(seconds: 1),
+          transitionBuilder: (
+            child,
+            animation,
+            secondaryAnimation,
+          ) {
+            return SharedAxisTransition(
+              fillColor: Colors.transparent,
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              transitionType: SharedAxisTransitionType.vertical,
+              child: child,
+            );
+          },
+          child: renderer,
+        );
       },
     );
+  }
+
+  Color detectBackGroundColor(CallStatus callStatus) {
+    switch (callStatus) {
+      case CallStatus.CONNECTED:
+        return backgroundColorCard;
+
+      case CallStatus.CONNECTING:
+      case CallStatus.DISCONNECTED:
+      case CallStatus.RECONNECTING:
+        return Colors.orange;
+
+      case CallStatus.FAILED:
+      case CallStatus.NO_ANSWER:
+      case CallStatus.ENDED:
+      case CallStatus.BUSY:
+      case CallStatus.DECLINED:
+        return Colors.red;
+
+      case CallStatus.ACCEPTED:
+      case CallStatus.NO_CALL:
+      case CallStatus.IS_RINGING:
+      case CallStatus.CREATED:
+        return Colors.blueAccent;
+    }
   }
 }

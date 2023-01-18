@@ -42,6 +42,7 @@ class CallService {
   final BehaviorSubject<bool> _isCallStart = BehaviorSubject.seeded(false);
 
   bool isInitRenderer = false;
+  bool isHole = false;
 
   CallService() {
     _callEvents.distinct().listen((event) {
@@ -197,6 +198,7 @@ class CallService {
       _callState = UserCallState.NO_CALL;
       isInitRenderer = false;
       _isHangedUp = false;
+      isHole = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
       await _disposeRenderer();

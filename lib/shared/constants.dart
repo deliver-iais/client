@@ -110,7 +110,8 @@ const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const ICE_CANDIDATE_NUMBER = 15.0;
 const ICE_CANDIDATE_TIME_LIMIT = 1500.0;
-
+const grayColor = Color.fromRGBO(55, 58, 62, 1.0);
+const backgroundColorCard = Color.fromRGBO(44, 99, 45, 1.0);
 const DEFAULT_ZOOM_LEVEL = 15.0;
 
 // Shared Dao Once

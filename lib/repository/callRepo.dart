@@ -693,6 +693,8 @@ class CallRepo {
 
   void onRTCPeerConnectionStateFailed() {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Failed";
+    isConnectedSubject.add(false);
+    _isConnected = false;
     if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
       _reconnectTry = true;
       callingStatus.add(CallStatus.RECONNECTING);
@@ -733,6 +735,7 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
+    isConnectedSubject.add(true);
     await _ShareCameraStatusFromDataChannel();
     if (!isDesktop) {
       _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
@@ -1110,7 +1113,6 @@ class CallRepo {
           }
         }
         _localStream!.getVideoTracks()[0].enabled = !enabled;
-        mute_camera.add(enabled);
         return enabled;
       }
     }
@@ -1706,7 +1708,6 @@ class CallRepo {
       _isCallFromDb = false;
 
       //reset BehaviorSubject values
-      mute_camera.add(true);
       switching.add(false);
       sharing.add(false);
       incomingSharing.add(false);
@@ -1715,6 +1716,7 @@ class CallRepo {
       incomingVideoSwitch.add(false);
       desktopDualVideo.add(true);
       incomingCallOnHold.add(false);
+      isConnectedSubject.add(false);
       await _phoneStateStream?.cancel();
       isSpeaker.add(false);
 
@@ -1853,7 +1855,6 @@ class CallRepo {
   }
 
 // ignore: non_constant_identifier_names
-  BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
@@ -1865,6 +1866,7 @@ class CallRepo {
   BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
   BehaviorSubject<bool> isSpeaker = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingCallOnHold = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> isConnectedSubject = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,
