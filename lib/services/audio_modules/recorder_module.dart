@@ -139,34 +139,11 @@ class RecorderModule {
 
       // Check supports of recording options...
       final isOpusSupported = await _recorder.isEncoderSupported(
-        AudioEncoder.opus,
+        AudioEncoder.aacLc,
       );
+      _logger.wtf("isOpusSupported: [$isOpusSupported]");
 
-      var fileType = "m4a";
-      //use wav for windows and convert to m4a on file servers :/
-      var fileEncoder = AudioEncoder.aacLc;
-
-      if (isWindows) {
-        fileType = "ogg";
-      }
-
-      // Remove these comment if opus is stable
-      // ignore: invariant_booleans, dead_code
-      if (isOpusSupported && false) {
-        _logger.wtf("ogg is available for recording");
-
-        fileType = "opus";
-        fileEncoder = AudioEncoder.opus;
-      }
-
-      final path = await _fileService.localFilePath(_uuid.v4(), fileType);
-
-      _logger.wtf("recording path: [$path]");
-
-      await _recorder.start(
-        path: path,
-        encoder: fileEncoder,
-      );
+      await _recorder.start();
 
       _onCompleteCallbackStream.add(onComplete);
       _onCancelCallbackStream.add(onCancel);
@@ -212,7 +189,7 @@ class RecorderModule {
           return true;
         }
 
-        final String? path;
+        String? path;
         if (await _recorder.isPaused()) {
           await _recorder.resume();
           path = await _recorder.stop();

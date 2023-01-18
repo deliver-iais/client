@@ -1648,49 +1648,45 @@ packages:
   record:
     dependency: "direct main"
     description:
-      path: record
-      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
-      resolved-ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
-      url: "https://github.com/deliveriais/record"
-    source: git
-    version: "4.1.1"
+      name: record
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.4.4"
   record_linux:
     dependency: transitive
     description:
       name: record_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.4.1"
   record_macos:
     dependency: transitive
     description:
       name: record_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.2.2"
   record_platform_interface:
     dependency: transitive
     description:
       name: record_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.0"
   record_web:
     dependency: transitive
     description:
       name: record_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1"
+    version: "0.5.0"
   record_windows:
     dependency: transitive
     description:
-      path: record_windows
-      ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      url: "https://github.com/deliveriais/record"
-    source: git
-    version: "0.4.3"
+      name: record_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.1"
   rive:
     dependency: "direct main"
     description:
