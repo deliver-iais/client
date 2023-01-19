@@ -37,7 +37,8 @@ class CallBottomRowState extends State<CallBottomRow>
   // ignore: unused_field
   Color? _screenShareColor;
   Color? _muteMicColor;
-  Color? _screenShareBackgroundColor;
+
+  //Color? _screenShareBackgroundColor;
   Color? _muteMicBackgroundColor;
 
   // ignore: unused_field
@@ -407,8 +408,8 @@ class CallBottomRowState extends State<CallBottomRow>
     _muteMicBackgroundColor = _callRepo.isMicMuted ? Colors.white : grayColor;
     _switchCameraBackgroundColor =
         _callRepo.switching.value ? grayColor : Colors.white;
-    _screenShareBackgroundColor =
-        _callRepo.isSharing ? grayColor : Colors.white;
+    // _screenShareBackgroundColor =
+    //     _callRepo.isSharing ? grayColor : Colors.white;
 
     _muteMicIcon =
         _callRepo.isMicMuted ? CupertinoIcons.mic_off : CupertinoIcons.mic;

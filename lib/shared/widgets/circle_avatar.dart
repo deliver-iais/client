@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -109,40 +109,32 @@ class CircleAvatarWidget extends StatelessWidget {
       AsyncSnapshot<String?> snapshot,
       Color textColor,) {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-      Image image;
-      if (isWeb) {
-        return Image.network(snapshot.data!, fit: BoxFit.fill);
-      } else {
-        image = Image.file(
-          File(snapshot.data!),
-          fit: BoxFit.cover,
-        );
-        final completer = Completer<ImageInfo>();
-        image.image.resolve(const ImageConfiguration()).addListener(
-          ImageStreamListener((info, synchronousCall) {
-            if (completer.isCompleted == false) {
-              completer.complete(info);
-            }
-          }),
-        );
+      final imgP = snapshot.data!.imageProvider();
 
-        return FutureBuilder<ImageInfo>(
-          future: completer.future,
-          builder: (context, snapshot2) {
-            if (snapshot2.hasData &&
-                ((snapshot2.data!.image.height - snapshot2.data!.image.width)
-                    .abs() <=
-                    3)) {
-              return image = Image.file(
-                File(snapshot.data!),
-                fit: BoxFit.scaleDown,
-              );
-            } else {
-              return image;
-            }
-          },
-        );
-      }
+      final image = Image(image: imgP, fit: BoxFit.cover);
+
+      final completer = Completer<ImageInfo>();
+      imgP.resolve(const ImageConfiguration()).addListener(
+        ImageStreamListener((info, synchronousCall) {
+          if (completer.isCompleted == false) {
+            completer.complete(info);
+          }
+        }),
+      );
+
+      return FutureBuilder<ImageInfo>(
+        future: completer.future,
+        builder: (context, snapshot2) {
+          if (snapshot2.hasData &&
+              ((snapshot2.data!.image.height - snapshot2.data!.image.width)
+                      .abs() <=
+                  3)) {
+            return Image(image: imgP, fit: BoxFit.scaleDown);
+          } else {
+            return image;
+          }
+        },
+      );
     } else {
       return noAvatarWidget ?? showDisplayName(textColor);
     }

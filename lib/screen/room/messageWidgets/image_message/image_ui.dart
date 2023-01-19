@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/box/message.dart';
@@ -12,7 +11,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
@@ -232,9 +231,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
               );
             }
           },
-          child: isWeb
-              ? Image.network(path.data!, fit: BoxFit.fill)
-              : Image.file(File(path.data!), fit: BoxFit.fill),
+          child: Image(image: path.data!.imageProvider(), fit: BoxFit.fill),
         ),
         if (widget.message.id == null &&
             (widget.message.forwardedFrom == null ||
@@ -267,9 +264,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget buildThumbnail(String path) => isWeb
-      ? Image.network(path, fit: BoxFit.fill)
-      : Image.file(File(path), fit: BoxFit.fill);
+  Widget buildThumbnail(String path) =>
+      Image(image: path.imageProvider(), fit: BoxFit.fill);
 
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {

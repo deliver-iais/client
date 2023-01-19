@@ -10,6 +10,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -185,10 +186,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               ? OperationOnMessage.SAVE
                               : isDesktop
                                   ? OperationOnMessage.SAVE_TO_DOWNLOADS
-                                  : f.type.contains("image")
+                                  : (f.isImageFileProto() ||
+                                          f.isVideoFileProto())
                                       ? OperationOnMessage.SAVE_TO_GALLERY
-                                      : f.type.contains("audio") ||
-                                              f.type.contains("mp3")
+                                      : f.isAudioFileProto()
                                           ? OperationOnMessage.SAVE_TO_MUSIC
                                           : OperationOnMessage
                                               .SAVE_TO_DOWNLOADS,
@@ -206,13 +207,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                                   _i18n.get("save_to_downloads"),
                                   style: theme.primaryTextTheme.bodyText2,
                                 )
-                              else if (f.type.contains("image"))
+                              else if (f.isImageFileProto() ||
+                                  f.isVideoFileProto())
                                 Text(
                                   _i18n.get("save_to_gallery"),
                                   style: theme.primaryTextTheme.bodyText2,
                                 )
-                              else if (f.type.contains("audio") ||
-                                  f.type.contains("mp3"))
+                              else if (f.isAudioFileProto())
                                 Text(
                                   _i18n.get("save_in_music"),
                                   style: theme.primaryTextTheme.bodyText2,

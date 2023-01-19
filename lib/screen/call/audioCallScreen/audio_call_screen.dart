@@ -3,7 +3,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/call_status.dart';
 import 'package:deliver/screen/call/center_avatar_image_in_call.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_gradient.dart';
 import 'package:deliver/shared/widgets/hole_animation.dart';
@@ -14,12 +13,11 @@ import 'package:rxdart/rxdart.dart';
 
 class AudioCallScreen extends StatelessWidget {
   static final _callRepo = GetIt.I.get<CallRepo>();
-  static final _callService = GetIt.I.get<CallService>();
   final Uid roomUid;
   final void Function() hangUp;
   final bool isIncomingCall;
 
-  BehaviorSubject<bool> showButtonRow = BehaviorSubject.seeded(true);
+  final BehaviorSubject<bool> showButtonRow = BehaviorSubject.seeded(true);
 
   AudioCallScreen({
     super.key,
@@ -72,12 +70,12 @@ class AudioCallScreen extends StatelessWidget {
               ]),
               builder: (context, snapshot) {
                 Widget renderer;
-                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value!) &&
+                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value) &&
                     showButtonRow.value) {
                   renderer = CallBottomRow(
                     hangUp: hangUp,
                     isIncomingCall: isIncomingCall,
-                    callStatus: _callRepo.callingStatus.value!,
+                    callStatus: _callRepo.callingStatus.value,
                   );
                 } else {
                   renderer = const SizedBox.shrink();
@@ -102,15 +100,16 @@ class AudioCallScreen extends StatelessWidget {
               },
             ),
             StreamBuilder<bool>(
-                initialData: false,
-                stream: _callRepo.isConnectedSubject,
-                builder: (context, snapshot) {
-                  if (snapshot.data!) {
-                    return const HoleAnimation();
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
+              initialData: false,
+              stream: _callRepo.isConnectedSubject,
+              builder: (context, snapshot) {
+                if (snapshot.data!) {
+                  return const HoleAnimation();
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           ],
         ),
       ),

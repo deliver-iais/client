@@ -490,22 +490,17 @@ class FileService {
     void Function(int)? sendActivity,
   }) async {
     updateFileStatus(uploadKey!, FileStatus.STARTED);
-
     filename = getFileName(filename);
     filePath = normalizePath(filePath);
 
-    //check file status for upload
     final String size;
-    final Uint8List webFile;
-    final Response result;
     if (isWeb) {
-      webFile = Uint8List.fromList(filePath.codeUnits);
-      size = webFile.length.toString();
+      size = filePath.length.toString();
     } else {
-      webFile = Uint8List(0);
       size = (File(filePath).lengthSync()).toString();
     }
-    result = await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
+    final result =
+        await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
     if (result.statusCode! == 200) {
       try {
         if (!isWeb) {
@@ -537,13 +532,14 @@ class FileService {
         }
         FormData? formData;
         if (isWeb) {
+          final bytes = UriData.parse(filePath).contentAsBytes();
           formData = FormData.fromMap({
             "file": MultipartFile.fromBytes(
-              webFile.toList(),
+              bytes,
               filename: filename,
               contentType: filename.getMediaType(),
               headers: {
-                Headers.contentLengthHeader: [size], // set content-length
+                Headers.contentLengthHeader: [bytes.length.toString()],
               },
             )
           });
@@ -578,7 +574,7 @@ class FileService {
             },
           ),
         );
-        final uploadUri = isVoice ? "/upload" : "/upload?isVoice=true";
+        final uploadUri = !isVoice ? "/upload" : "/upload?isVoice=true";
         return _dio.post(uploadUri, data: formData, cancelToken: cancelToken);
       } catch (e) {
         updateFileStatus(uploadKey, FileStatus.CANCELED);

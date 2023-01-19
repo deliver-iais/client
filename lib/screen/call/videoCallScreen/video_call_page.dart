@@ -440,12 +440,12 @@ class VideoCallScreenState extends State<VideoCallScreen>
               ]),
               builder: (context, snapshot) {
                 Widget renderer;
-                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value!) &&
+                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value) &&
                     showButtonRow.value) {
                   renderer = CallBottomRow(
                     hangUp: widget.hangUp,
                     isIncomingCall: widget.isIncomingCall,
-                    callStatus: _callRepo.callingStatus.value!,
+                    callStatus: _callRepo.callingStatus.value,
                   );
                 } else {
                   renderer = const SizedBox.shrink();
