@@ -263,13 +263,18 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       CheckBoxListTileModel(
         checkboxId: 2,
         title: "stun:stun.l.google.com:19302",
-        isCheck: await _sharedDao.getBoolean("stun:stun.l.google.com:19302"),
+        isCheck: await _sharedDao.getBoolean(
+          "stun:stun.l.google.com:19302",
+          defaultValue: true,
+        ),
       ),
       CheckBoxListTileModel(
         checkboxId: 4,
         title: "turn:47.102.201.4:19303?transport=udp",
-        isCheck: await _sharedDao
-            .getBoolean("turn:47.102.201.4:19303?transport=udp"),
+        isCheck: await _sharedDao.getBoolean(
+          "turn:47.102.201.4:19303?transport=udp",
+          defaultValue: true,
+        ),
       ),
     ];
   }

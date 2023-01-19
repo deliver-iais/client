@@ -201,7 +201,6 @@ class CallRepo {
           }
           break;
         case CallTypes.Offer:
-          callingStatus.add(CallStatus.ACCEPTED);
           if (from == to) {
             _dispose();
           } else {
@@ -1353,6 +1352,7 @@ class CallRepo {
 //here we have accepted Call
   Future<void> _receivedCallOffer(CallOffer callOffer) async {
     if (!_reconnectTry) {
+      callingStatus.add(CallStatus.ACCEPTED);
       try {
         _audioService.stopCallAudioPlayer();
       } catch (e) {
@@ -1521,13 +1521,13 @@ class CallRepo {
         ? 20
         : int.parse(
             (await _sharedDao.get("ICECandidateNumbers")) ??
-                ((_isVideo) ? "15" : ICE_CANDIDATE_NUMBER.toString()),
+                ICE_CANDIDATE_NUMBER.toString(),
           );
     final candidateTimeLimit = _reconnectTry
         ? 3000
         : int.parse(
             (await _sharedDao.get("ICECandidateTimeLimit")) ??
-                ((_isVideo) ? "3000" : ICE_CANDIDATE_TIME_LIMIT.toString()),
+                ((_isVideo) ? "2000" : ICE_CANDIDATE_TIME_LIMIT.toString()),
           ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
       "candidateNumber:$candidateNumber",
@@ -1934,7 +1934,7 @@ class CallRepo {
       _featureFlags
         ..setICECandidateTimeLimit(2000)
         ..setICECandidateNumber(17);
-    } else if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
+    } else if (candidateNumber >= 17) {
       _featureFlags
         ..setICECandidateTimeLimit(ICE_CANDIDATE_TIME_LIMIT)
         ..setICECandidateNumber(ICE_CANDIDATE_NUMBER);

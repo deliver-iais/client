@@ -47,7 +47,7 @@ class HasCallRowState extends State<HasCallRow> {
             },
             child: callRepo.roomUid != null
                 ? AnimatedContainer(
-                    duration: const Duration(seconds: 1),
+                    duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
                     margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -106,7 +106,7 @@ class HasCallRowState extends State<HasCallRow> {
           renderer = const SizedBox.shrink();
         }
         return PageTransitionSwitcher(
-          duration: const Duration(seconds: 1),
+          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
           transitionBuilder: (
             child,
             animation,

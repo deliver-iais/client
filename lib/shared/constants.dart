@@ -290,6 +290,8 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
+const ULTRA_SLOW_ANIMATION_DURATION = Duration(milliseconds: 750);
+const SUPER_ULTRA_SLOW_ANIMATION_DURATION = Duration(milliseconds: 1000);
 
 //FOCUS NODE
 final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);

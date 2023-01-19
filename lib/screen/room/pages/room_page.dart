@@ -1731,7 +1731,7 @@ class RoomPageState extends State<RoomPage> {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: index,
-        duration: const Duration(seconds: 1),
+        duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],

@@ -62,8 +62,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
       backgroundColor: Colors.black87,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () =>
-            showButtonRow.add(!showButtonRow.value),
+        onTap: () => showButtonRow.add(!showButtonRow.value),
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
@@ -452,6 +451,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                   renderer = const SizedBox.shrink();
                 }
                 return PageTransitionSwitcher(
+                  duration: ULTRA_SLOW_ANIMATION_DURATION,
                   transitionBuilder: (
                     child,
                     animation,

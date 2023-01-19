@@ -9,6 +9,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -54,12 +55,11 @@ class FileRepo {
         isVoice: isVoice,
       );
     } on DioError catch (e) {
-      if (e.response?.statusCode == 400 &&
-          packetIds.isNotEmpty) {
+      if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
         ToastDisplay.showToast(
           toastText: e.response!.data,
           maxWidth: 500.0,
-          duration: const Duration(seconds: 1),
+          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
         );
         for (final packetId in packetIds) {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
@@ -69,7 +69,7 @@ class FileRepo {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
           maxWidth: 500.0,
-          duration: const Duration(seconds: 1),
+          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
         );
         for (final packetId in packetIds) {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);

@@ -65,7 +65,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
         color: detectBackGroundColor(widget.callStatus),
       ),
       clipBehavior: Clip.hardEdge,
-      duration: const Duration(seconds: 1),
+      duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
       width: widget.callStatus == CallStatus.CONNECTED
           ? 120
           : (isAndroid ? 150 : 170),
