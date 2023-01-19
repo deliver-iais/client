@@ -189,7 +189,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.sharePrivateDataAcceptance:
         typeDetails =
-            "${_i18n.get("spda")} ${_i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
+            "${_i18n.get("spda")} ${_i18n.get(msg.sharePrivateDataAcceptance.data.name).toLowerCase()}";
         break;
       case message_pb.Message_Type.transaction:
         typeDetails = _i18n.get("payment_transaction");
