@@ -3,14 +3,12 @@ library intl_phone_field;
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
-import 'package:deliver/shared/emoji.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
 import './countries.dart';
 
 class IntlPhoneField extends StatefulWidget {
@@ -83,7 +81,8 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
         (item) => item['phone'] == "+${widget.initialCountryCode}",
       );
     } else {
-      _selectedCountry = countries.firstWhere((item) => item['code'] == 'IR');
+      _selectedCountry =
+          countries.firstWhere((element) => element["code"] == "IR");
     }
 
     _changeMaxLength();
@@ -128,8 +127,8 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                         children: <Widget>[
                           ListTile(
                             leading: Text(
-                              filteredCountries[index]['code']!,
-                              style: const TextStyle(fontSize: 30),
+                              filteredCountries[index]["flag"]!,
+                              style: EmojiFont.notoColorEmojiCompat(),
                             ),
                             title: Text(
                               filteredCountries[index]['label']!,
@@ -285,24 +284,14 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
               const SizedBox(width: 4)
             ],
             Text(
-                Emoji.byGroup(EmojiGroup.flags)
-                    .toList()
-                    .firstWhere(
-                      (element) => element.char.contains("🇮🇷"),
-                )
-                    .char,
+              _selectedCountry['flag'],
               style: EmojiFont.notoColorEmojiCompat(),
             ),
             const SizedBox(width: 8),
             FittedBox(
               child: Text(
-                Emoji.byGroup(EmojiGroup.flags)
-                    .toList()
-                    .firstWhere(
-                      (element) => element.char.contains("🇮🇷"),
-                    )
-                    .char,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                _selectedCountry['code'],
+                style: EmojiFont.notoColorEmojiCompat(),
               ),
             ),
             const SizedBox(width: 8),
