@@ -3,6 +3,7 @@ library intl_phone_field;
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
+import 'package:deliver/shared/emoji.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -284,13 +285,23 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
               const SizedBox(width: 4)
             ],
             Text(
-              _selectedCountry['code']!,
+                Emoji.byGroup(EmojiGroup.flags)
+                    .toList()
+                    .firstWhere(
+                      (element) => element.char.contains("🇮🇷"),
+                )
+                    .char,
               style: EmojiFont.notoColorEmojiCompat(),
             ),
             const SizedBox(width: 8),
             FittedBox(
               child: Text(
-                _selectedCountry['code']!,
+                Emoji.byGroup(EmojiGroup.flags)
+                    .toList()
+                    .firstWhere(
+                      (element) => element.char.contains("🇮🇷"),
+                    )
+                    .char,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),

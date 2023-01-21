@@ -182,7 +182,7 @@ const List<Map<String, dynamic>> countries = [
   },
   {"code": 'IQ', "label": 'Iraq', "phone": '+964', "length": 10},
   {
-    "code": 'IR',
+    "code": "🇮🇷",
     "label": 'Iran, Islamic Republic of',
     "phone": '+98',
     "length": 10
