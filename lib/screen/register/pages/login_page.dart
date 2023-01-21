@@ -63,6 +63,7 @@ class LoginPageState extends State<LoginPage> {
 
   final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
   int _maxLength = 10;
+  int _minLength = 10;
 
   @override
   void initState() {
@@ -299,21 +300,19 @@ class LoginPageState extends State<LoginPage> {
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
                             : null,
-                        maxLength: _maxLength,
                         controller: controller,
-                        validator: (value) =>
-                            (value!.length == 11 && value[0] != '0') ||
-                                    (value.length < 10 &&
-                                        (value.isNotEmpty && value[0] == '0'))
-                                ? i18n.get("invalid_mobile_number")
-                                : null,
+                        validator: (value) => value == null ||
+                                value.isEmpty ||
+                                value.length > _maxLength ||
+                                value.length < _minLength
+                            ? i18n.get("invalid_mobile_number")
+                            : null,
                         onChanged: (p) {
                           phoneNumber = p;
                         },
-                        onMaxLengthChanged: (m) {
-                          setState(() {
-                            _maxLength = m;
-                          });
+                        onMaxAndMinLengthChanged: (min, max) {
+                          _maxLength = max;
+                          _minLength = min;
                         },
                         onSubmitted: (p) {
                           phoneNumber = p;

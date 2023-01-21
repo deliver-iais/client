@@ -211,12 +211,10 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                           key: _formKey,
                                           child: IntlPhoneField(
                                             controller: _phoneNumberController,
-                                            onMaxLengthChanged: (m) {
-                                              setState(() {
-                                                _maxLenght = m;
-                                              });
+                                            onMaxAndMinLengthChanged:
+                                                (min, max) {
+                                              _maxLenght = max;
                                             },
-                                            maxLength: _maxLenght,
                                             validator: (value) => value == null
                                                 ? _i18n.get(
                                                     "insert_phone_number",
