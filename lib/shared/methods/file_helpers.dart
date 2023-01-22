@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -5,13 +6,22 @@ import 'dart:typed_data';
 import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
+    as file_proto;
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
 
-String normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
+String normalizePath(String path) =>
+    isWeb ? path : p.normalize(path).replaceAll("\\", "/");
+
+String _normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
 
 String getFileExtension(String path) =>
     p.extension(path).substring(1).toLowerCase();
@@ -20,11 +30,15 @@ String getFileName(String path) => p.basename(path);
 
 int getFileSizeSync(String path) => File(path).lengthSync();
 
+Size getImageDimension(String path) => isWeb
+    ? ImageSizeGetter.getSize(MemoryInput(UriData.parse(path).contentAsBytes()))
+    : ImageSizeGetter.getSize(FileInput(File(path)));
+
 file_model.File filePickerPlatformFileToFileModel(PlatformFile f) =>
     file_model.File(
       isWeb
           ? Uri.dataFromBytes(
-              (f.bytes ?? Uint8List(0)).toList(),
+              (Uint8List.fromList(f.bytes!)).toList(),
             ).toString()
           : f.path ?? "",
       f.name,
@@ -32,6 +46,7 @@ file_model.File filePickerPlatformFileToFileModel(PlatformFile f) =>
       size: f.size,
     );
 
+// TODO(bitbeter): Test this in all platforms
 file_model.File pathToFileModel(String path) => file_model.File(
       normalizePath(path),
       getFileName(path),
@@ -40,44 +55,28 @@ file_model.File pathToFileModel(String path) => file_model.File(
     );
 
 file_model.File fileToFileModel(File file) => file_model.File(
-      normalizePath(file.path),
+      _normalizePath(file.path),
       getFileName(file.path),
       size: file.lengthSync(),
       extension: getFileExtension(file.path),
     );
 
 Future<file_model.File> xFileToFileModel(XFile file) async => file_model.File(
-      normalizePath(file.path),
+      _normalizePath(file.path),
       getFileName(file.path),
       size: await file.length(),
       extension: getFileExtension(file.path),
     );
 
-bool isImageFileExtension(String extension) {
-  final lt = extension.toLowerCase();
-
-  return lt.contains('image') ||
-      lt.contains("png") ||
-      lt.contains("jfif") ||
-      lt.contains("webp") ||
-      lt.contains("jpeg") ||
-      lt.contains("jpg");
-}
-
-bool isVideoFileExtension(String extension) {
-  final lt = extension.toLowerCase();
-
-  return !isImageFileExtension(extension) && lt.contains('video');
-}
-
 bool isFileNameMimeMatchFileType(String fileName, String fileType) =>
     fileName.getMimeString().getMimeMainType() == fileType.getMimeMainType();
 
-bool isFileContentMimeMatchFileExtensionMime(String? filePath) =>
-    detectFileTypeByNameAndContent(filePath).hasSameMainType();
+String detectFileMimeByFileModel(file_model.File file) => isWeb
+    ? _detectFileMimeByFilePathForWeb(file.name, file.path)
+    : _detectFileMimeByFilePath(file.path);
 
-String detectFileMimeByFilePath(String? filePath) {
-  final fileMainType = detectFileTypeByNameAndContent(filePath);
+String _detectFileMimeByFilePath(String? filePath) {
+  final fileMainType = _detectFileTypeByNameAndContent(filePath);
   if (fileMainType.hasSameMainType()) {
     return fileMainType.mimeByContent;
   } else {
@@ -85,7 +84,17 @@ String detectFileMimeByFilePath(String? filePath) {
   }
 }
 
-file_model.MimeByNameAndContent detectFileTypeByNameAndContent(
+String _detectFileMimeByFilePathForWeb(String? fileName, String? filePath) {
+  final fileMainType =
+      _detectFileTypeByNameAndContentForWeb(fileName, filePath);
+  if (fileMainType.hasSameMainType()) {
+    return fileMainType.mimeByContent;
+  } else {
+    return DEFAULT_FILE_TYPE;
+  }
+}
+
+file_model.MimeByNameAndContent _detectFileTypeByNameAndContent(
   String? filePath,
 ) {
   final typeByContent = lookupMimeType(
@@ -100,17 +109,25 @@ file_model.MimeByNameAndContent detectFileTypeByNameAndContent(
   );
 }
 
-// TODO(bitbeter): add more details
-bool isVoiceFilePath(String path) {
-  return getFileExtension(path) == "m4a" || getFileExtension(path) == "ogg";
+file_model.MimeByNameAndContent _detectFileTypeByNameAndContentForWeb(
+  String? fileName,
+  String? filePath,
+) {
+  final typeByContent = lookupMimeType(
+        "no-file",
+        headerBytes: _getWebFileData(filePath!),
+      ) ??
+      DEFAULT_FILE_TYPE;
+
+  return file_model.MimeByNameAndContent(
+    fileName.getMimeString(),
+    typeByContent,
+  );
 }
 
-bool fileIsEmpty(file_model.File file) =>
-    (file.size ?? 0) <= MIN_FILE_SIZE_BYTE;
-
-bool fileHasExtraSize(file_model.File file) =>
-    (file.size ?? 0) >= MAX_FILE_SIZE_BYTE;
-
+Uint8List _getWebFileData(String fileByte) => Uint8List.fromList(
+      const Base64Codec().decode(fileByte.split("base64,")[1]),
+    );
 
 String byteFormat(int bytes, {int decimals = 2}) {
   if (bytes == 0) return '0.0 KB';
@@ -119,6 +136,17 @@ String byteFormat(int bytes, {int decimals = 2}) {
   final sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   final i = (log(bytes) / log(k)).floor();
   return ('${(bytes / pow(k, i)).toStringAsFixed(dm)} ${sizes[i]}');
+}
+
+extension FileProtoExtensions on file_proto.File {
+  bool isImageFileProto() =>
+      isImageFileType(type) && isFileNameMimeMatchFileType(name, type);
+
+  bool isVideoFileProto() =>
+      isVideoFileType(type) && isFileNameMimeMatchFileType(name, type);
+
+  bool isAudioFileProto() =>
+      isAudioFileType(type) && isFileNameMimeMatchFileType(name, type);
 }
 
 extension MimeExtensions on String? {
@@ -162,5 +190,58 @@ extension MimeTypeOfFileName on String? {
 
   MediaType getMediaType() {
     return MediaType.parse(getMimeString());
+  }
+}
+
+bool isImageFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+
+  return lt.contains('image') ||
+      lt.contains("png") ||
+      lt.contains("jfif") ||
+      lt.contains("webp") ||
+      lt.contains("jpeg") ||
+      lt.contains("jpg");
+}
+
+bool isVideoFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+
+  return !isImageFileType(fileType) && lt.contains('video');
+}
+
+bool isAudioFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+
+  return !isImageFileType(fileType) &&
+          !isVideoFileType(fileType) &&
+          lt.contains('audio') ||
+      lt.contains("m4a") ||
+      lt.contains("mp4") ||
+      lt.contains("ogg") ||
+      lt.contains("opus");
+}
+
+// TODO(bitbeter): Remove This as soon as possible
+bool isVoiceFilePath(String filePath) {
+  return !isWeb &&
+      (getFileExtension(filePath) == "m4a" ||
+          getFileExtension(filePath) == "ogg");
+}
+
+extension ImagePath on String {
+  ImageProvider<Object> imageProvider({
+    double scale = 1.0,
+    Map<String, String>? headers,
+    int? cacheWidth,
+    int? cacheHeight,
+  }) {
+    return ResizeImage.resizeIfNeeded(
+      cacheWidth,
+      cacheHeight,
+      (isWeb
+          ? NetworkImage(this, scale: scale, headers: headers)
+          : FileImage(File(this), scale: scale)) as ImageProvider<Object>,
+    );
   }
 }

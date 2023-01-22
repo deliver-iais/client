@@ -223,21 +223,21 @@ packages:
       name: camera_android
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.2"
+    version: "0.10.2+1"
   camera_avfoundation:
     dependency: transitive
     description:
       name: camera_avfoundation
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.10"
+    version: "0.9.10+1"
   camera_platform_interface:
     dependency: transitive
     description:
       name: camera_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   camera_web:
     dependency: transitive
     description:
@@ -616,7 +616,7 @@ packages:
       name: file_selector_macos
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.0+3"
+    version: "0.9.0+4"
   file_selector_platform_interface:
     dependency: transitive
     description:
@@ -2235,7 +2235,7 @@ packages:
       name: xdg_directories
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.2.0+2"
+    version: "0.2.0+3"
   xml:
     dependency: transitive
     description:

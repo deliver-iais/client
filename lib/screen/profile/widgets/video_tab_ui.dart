@@ -1,5 +1,3 @@
-import 'dart:io' as io;
-
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -11,6 +9,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -141,8 +140,7 @@ class VideoTabUiState extends State<VideoTabUi> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(4.0),
                                   image: DecorationImage(
-                                    image:
-                                        Image.file(io.File(path.data!)).image,
+                                    image: path.data!.imageProvider(),
                                     fit: BoxFit.cover,
                                   ),
                                   color: Colors.black.withOpacity(0.5),

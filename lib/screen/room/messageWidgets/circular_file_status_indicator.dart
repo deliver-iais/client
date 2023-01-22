@@ -12,6 +12,8 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -63,7 +65,7 @@ class _CircularFileStatusIndicatorState
               future: _fileRepo.getFileIfExist(file.uuid, file.name),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
-                  return showExitFile(file, path.data!);
+                  return _showExistedFile(file, path.data!);
                 }
 
                 return buildLoadFileStatus(file: file);
@@ -90,7 +92,7 @@ class _CircularFileStatusIndicatorState
         builder: (c, fileSnapShot) {
           Widget child = const SizedBox();
           if (fileSnapShot.hasData && fileSnapShot.data != null) {
-            child = showExitFile(file, fileSnapShot.data!);
+            child = _showExistedFile(file, fileSnapShot.data!);
           } else {
             child = FutureBuilder<PendingMessage?>(
               future: _messageRepo.getPendingEditedMessage(
@@ -130,8 +132,9 @@ class _CircularFileStatusIndicatorState
     }
   }
 
-  Widget showExitFile(File file, String filePath) {
-    return file.type.contains("audio")
+  Widget _showExistedFile(File file, String filePath) {
+    return (file.isAudioFileProto() &&
+            !isWeb) // we not support audio player for web
         ? StreamBuilder<int>(
             stream: _mediaDao.getIndexOfMediaAsStream(
               widget.message.roomUid,
