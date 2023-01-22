@@ -1,4 +1,3 @@
-
 import 'package:animations/animations.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
