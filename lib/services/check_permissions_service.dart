@@ -151,8 +151,9 @@ class CheckPermissionsService {
         onceOption: ONCE_SHOW_MEDIA_LIBRARY_DIALOG,
       );
 
-  Future<bool> checkAccessMediaLocationPermission(
-      {BuildContext? context}) async {
+  Future<bool> checkAccessMediaLocationPermission({
+    BuildContext? context,
+  }) async {
     if (isAndroid) {
       return _checkAndGetPermission(
         Permission.accessMediaLocation,
