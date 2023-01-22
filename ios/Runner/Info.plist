@@ -74,5 +74,6 @@
 	<false/>
 	<key>kTCCServiceMediaLibrary</key>
 	<string>media</string>
+
 </dict>
 </plist>
