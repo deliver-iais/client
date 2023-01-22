@@ -23,14 +23,14 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "AG",
     "label": "Antigua and Barbuda",
-    "phone": "+1-268",
+    "phone": "+1268",
     "length": 10,
     "flag": "🇦🇬"
   },
   {
     "code": "AI",
     "label": "Anguilla",
-    "phone": "+1-264",
+    "phone": "+1264",
     "length": 10,
     "flag": "🇦🇮"
   },
@@ -66,7 +66,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "AS",
     "label": "American Samoa",
-    "phone": "+1-684",
+    "phone": "+1684",
     "length": 10,
     "flag": "🇦🇸"
   },
@@ -110,7 +110,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "BB",
     "label": "Barbados",
-    "phone": "+1-246",
+    "phone": "+1246",
     "length": 10,
     "flag": "🇧🇧"
   },
@@ -161,7 +161,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "BM",
     "label": "Bermuda",
-    "phone": "+1-441",
+    "phone": "+1441",
     "length": 10,
     "flag": "🇧🇲"
   },
@@ -183,7 +183,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "BS",
     "label": "Bahamas",
-    "phone": "+1-242",
+    "phone": "+1242",
     "length": 10,
     "flag": "🇧🇸"
   },
@@ -324,14 +324,14 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "DM",
     "label": "Do\"min\"ica",
-    "phone": "+1-767",
+    "phone": "+1767",
     "length": 10,
     "flag": "🇩🇲"
   },
   {
     "code": "DO",
     "label": "Do\"min\"ican Republic",
-    "phone": "+1-809",
+    "phone": "+1809",
     "length": 10,
     "flag": "🇩🇴"
   },
@@ -414,7 +414,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "GD",
     "label": "Grenada",
-    "phone": "+1-473",
+    "phone": "+1473",
     "length": 10,
     "flag": "🇬🇩"
   },
@@ -488,13 +488,13 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "GU",
     "label": "Guam",
-    "phone": "+1-671",
+    "phone": "+1671",
     "length": 10,
     "flag": "🇬🇺"
   },
   {
     "code": "GW",
-    "label": "Guinea-Bissau",
+    "label": "GuineaBissau",
     "phone": "+245",
     "length": 9,
     "flag": "🇬🇼"
@@ -579,7 +579,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "JM",
     "label": "Jamaica",
-    "phone": "+1-876",
+    "phone": "+1876",
     "length": 10,
     "flag": "🇯🇲"
   },
@@ -623,7 +623,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "KN",
     "label": "Saint Kitts and Nevis",
-    "phone": "+1-869",
+    "phone": "+1869",
     "length": 10,
     "flag": "🇰🇳"
   },
@@ -645,7 +645,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "KY",
     "label": "Cayman Islands",
-    "phone": "+1-345",
+    "phone": "+1345",
     "length": 7,
     "flag": "🇰🇾"
   },
@@ -673,7 +673,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "LC",
     "label": "Saint Lucia",
-    "phone": "+1-758",
+    "phone": "+1758",
     "length": 7,
     "flag": "🇱🇨"
   },
@@ -791,7 +791,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "MP",
     "label": "Northern Mariana Islands",
-    "phone": "+1-670",
+    "phone": "+1670",
     "length": 7,
     "flag": "🇲🇵"
   },
@@ -812,7 +812,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "MS",
     "label": "Montserrat",
-    "phone": "+1-664",
+    "phone": "+1664",
     "length": 10,
     "flag": "🇲🇸"
   },
@@ -1137,7 +1137,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "TC",
     "label": "Turks and Caicos Islands",
-    "phone": "+1-649",
+    "phone": "+1649",
     "length": 10,
     "flag": "🇹🇨"
   },
@@ -1173,7 +1173,7 @@ const List<Map<String, dynamic>> countries = [
   },
   {
     "code": "TL",
-    "label": "Timor-Leste",
+    "label": "TimorLeste",
     "phone": "+670",
     "length": 7,
     "flag": "🇹🇱"
@@ -1197,7 +1197,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "TT",
     "label": "Trinidad and Tobago",
-    "phone": "+1-868",
+    "phone": "+1868",
     "length": 7,
     "flag": "🇹🇹"
   },
@@ -1255,7 +1255,7 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "VC",
     "label": "Saint Vincent and the Grenadines",
-    "phone": "+1-784",
+    "phone": "+1784",
     "length": 7,
     "flag": "🇻🇨"
   },
@@ -1269,14 +1269,14 @@ const List<Map<String, dynamic>> countries = [
   {
     "code": "VG",
     "label": "British Virgin Islands",
-    "phone": "+1-284",
+    "phone": "+1284",
     "length": 7,
     "flag": "🇻🇬"
   },
   {
     "code": "VI",
     "label": "US Virgin Islands",
-    "phone": "+1-340",
+    "phone": "+1340",
     "length": 10,
     "flag": "🇻🇮"
   },
