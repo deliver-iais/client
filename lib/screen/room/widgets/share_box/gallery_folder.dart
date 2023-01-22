@@ -128,7 +128,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
           children: [
             GridView.builder(
               controller: ScrollController(),
-              itemCount: widget.folder.assetCount,
+              // itemCount: widget.folder.assetCount,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
               ),

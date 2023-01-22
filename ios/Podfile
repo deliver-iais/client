@@ -43,7 +43,7 @@ end
                         '$(inherited)',
 
                         ## dart: PermissionGroup.calendar
-                        'PERMISSION_EVENTS=1',
+#                         'PERMISSION_EVENTS=1',
 
                         ## dart: PermissionGroup.reminders
                         'PERMISSION_REMINDERS=1',
@@ -73,16 +73,16 @@ end
                         'PERMISSION_MEDIA_LIBRARY=1',
 
                         ## dart: PermissionGroup.sensors
-                        'PERMISSION_SENSORS=1',
+                        'PERMISSION_SENSORS=0',
 
                         ## dart: PermissionGroup.bluetooth
-                        'PERMISSION_BLUETOOTH=1',
+                        'PERMISSION_BLUETOOTH=0',
 
                         ## dart: PermissionGroup.appTrackingTransparency
-                        'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
+                        'PERMISSION_APP_TRACKING_TRANSPARENCY=0',
 
                         ## dart: PermissionGroup.criticalAlerts
-                        'PERMISSION_CRITICAL_ALERTS=1',
+                        'PERMISSION_CRITICAL_ALERTS=0',
                       ]
      end
    end

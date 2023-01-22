@@ -11,8 +11,6 @@ import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
-import '../shared/methods/platform.dart';
-
 class CheckPermissionsService {
   final _requestLock = Lock();
   final _sharedDao = GetIt.I.get<SharedDao>();
@@ -153,11 +151,21 @@ class CheckPermissionsService {
         onceOption: ONCE_SHOW_MEDIA_LIBRARY_DIALOG,
       );
 
-  Future<bool> checkAccessMediaLocationPermission({BuildContext? context}) =>
-      _checkAndGetPermission(
+  Future<bool> checkAccessMediaLocationPermission(
+      {BuildContext? context}) async {
+    if (isAndroid) {
+      return _checkAndGetPermission(
         Permission.accessMediaLocation,
         context: context,
       );
+    } else if (isIOS) {
+      return _checkAndGetPermission(
+        Permission.photos,
+        context: context,
+      );
+    }
+    return true;
+  }
 
   Future<bool> checkLocationPermission({BuildContext? context}) =>
       _checkAndGetPermission(
