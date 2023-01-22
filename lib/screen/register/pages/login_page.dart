@@ -333,6 +333,8 @@ class LoginPageState extends State<LoginPage> {
                       Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: ShakeWidget(
+                          horizontalPadding: 10,
+                          animationRange: 10,
                           controller: _shakeWidgetController,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -342,11 +344,14 @@ class LoginPageState extends State<LoginPage> {
                                 child: FormField<bool>(
                                   builder: (state) {
                                     return Checkbox(
+                                      activeColor: theme.primaryColor,
                                       side: BorderSide(
                                         width: state.hasError ? 2 : 1,
                                         color: state.hasError
                                             ? Colors.red
-                                            : Colors.black,
+                                            : theme.checkboxTheme.shape?.side
+                                                    .color ??
+                                                theme.primaryColor,
                                       ),
                                       value: _acceptPrivacy,
                                       onChanged: (value) {
