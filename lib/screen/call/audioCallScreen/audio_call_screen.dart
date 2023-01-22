@@ -3,6 +3,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/call_status.dart';
 import 'package:deliver/screen/call/center_avatar_image_in_call.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_gradient.dart';
 import 'package:deliver/shared/widgets/hole_animation.dart';
@@ -13,6 +14,7 @@ import 'package:rxdart/rxdart.dart';
 
 class AudioCallScreen extends StatelessWidget {
   static final _callRepo = GetIt.I.get<CallRepo>();
+  static final _callService = GetIt.I.get<CallService>();
   final Uid roomUid;
   final void Function() hangUp;
   final bool isIncomingCall;
@@ -70,7 +72,8 @@ class AudioCallScreen extends StatelessWidget {
               ]),
               builder: (context, snapshot) {
                 Widget renderer;
-                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value) &&
+                if (!_callService
+                        .isHiddenCallBottomRow(_callRepo.callingStatus.value) ||
                     showButtonRow.value) {
                   renderer = CallBottomRow(
                     hangUp: hangUp,
@@ -114,11 +117,5 @@ class AudioCallScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  bool isHiddenCallBottomRow(CallStatus callStatus) {
-    return callStatus == CallStatus.ENDED ||
-        callStatus == CallStatus.BUSY ||
-        callStatus == CallStatus.DECLINED;
   }
 }

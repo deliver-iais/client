@@ -223,7 +223,7 @@ flutter:
   assets:
     - android/app/src/main/res/raw/
     - assets/animations/intro.riv
-    - assets/animations/accept_call.json
+    - assets/animations/accepting_call.json
     - assets/animations/arrow.json
     - assets/animations/audio_wave.tgs
     - assets/animations/clock.json

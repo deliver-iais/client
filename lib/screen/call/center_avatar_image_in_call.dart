@@ -31,27 +31,8 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        FutureBuilder<String>(
-          future: _roomRepo.getName(widget.roomUid),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Text(
-                textAlign: TextAlign.center,
-                snapshot.data!,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline3!
-                    .copyWith(color: Colors.white),
-              );
-            } else {
-              return const Text("");
-            }
-          },
-        ),
-        const SizedBox(
-          height: 15,
-        ),
         Material(
           key: _globalKey,
           elevation: 5,
@@ -63,6 +44,26 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
             widget.radius,
             noAvatarWidget: noAvatarWidget(),
           ),
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        FutureBuilder<String>(
+          future: _roomRepo.getName(widget.roomUid),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text(
+                textAlign: TextAlign.center,
+                snapshot.data!,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6!
+                    .copyWith(color: Colors.white),
+              );
+            } else {
+              return const Text("");
+            }
+          },
         ),
       ],
     );

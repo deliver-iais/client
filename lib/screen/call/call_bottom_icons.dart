@@ -3,11 +3,11 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
@@ -87,7 +87,7 @@ class CallBottomRowState extends State<CallBottomRow>
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
-          width: isWindows ? 600 : 400,
+          width: 400,
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -132,9 +132,12 @@ class CallBottomRowState extends State<CallBottomRow>
                         );
                       },
                     ),
-                    Text(
-                      _i18n.get("speaker"),
-                      style: theme.textTheme.titleSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(
+                        _i18n.get("speaker"),
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                   ],
                 ),
@@ -157,9 +160,12 @@ class CallBottomRowState extends State<CallBottomRow>
                         ),
                       ),
                     ),
-                    Text(
-                      _i18n.get("end_call"),
-                      style: theme.textTheme.titleSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(
+                        _i18n.get("end_call"),
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                   ],
                 ),
@@ -180,9 +186,12 @@ class CallBottomRowState extends State<CallBottomRow>
                         ),
                       ),
                     ),
-                    Text(
-                      _i18n.get("mute_call"),
-                      style: theme.textTheme.titleSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Text(
+                        _i18n.get("mute_call"),
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                   ],
                 ),
@@ -205,16 +214,6 @@ class CallBottomRowState extends State<CallBottomRow>
             bottom: 10,
             top: 10,
           ),
-          // decoration: BoxDecoration(
-          //   boxShadow: [
-          //     BoxShadow(
-          //       blurRadius: 5,
-          //       color: theme.colorScheme.outline.withOpacity(0.6),
-          //     ),
-          //   ],
-          //   borderRadius: BorderRadius.circular(35.0),
-          //   color: theme.colorScheme.tertiaryContainer,
-          // ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -334,41 +333,50 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Padding _buildIncomingCallWidget(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
+      padding: const EdgeInsets.only(bottom: 25),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             SizedBox(
-              width: 80,
-              height: 80,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: IconButton(
-                  icon: Icon(
-                    CupertinoIcons.phone_fill,
-                    size: 50,
-                    color: ACTIVE_COLOR,
+              width: 150,
+              height: 150,
+              child: IconButton(
+                hoverColor: Colors.transparent,
+                icon: Lottie.asset(
+                  "assets/animations/accepting_call.json",
+                  width: 150,
+                  height: 150,
+                  delegates: LottieDelegates(
+                    values: [
+                      ValueDelegate.color(
+                        const ['**'],
+                        value:
+                            Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ],
                   ),
-                  onPressed: () => _acceptCall(),
                 ),
+                onPressed: () => _acceptCall(),
               ),
             ),
-            SizedBox(
-              height: 80,
-              width: 80,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: IconButton(
-                  icon: Icon(
-                    CupertinoIcons.phone_down_fill,
-                    size: 50,
-                    color: theme.errorColor,
+            Padding(
+              padding: const EdgeInsets.all(45.0),
+              child: SizedBox(
+                height: 60,
+                width: 60,
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: IconButton(
+                    icon: Icon(
+                      CupertinoIcons.phone_down_fill,
+                      size: 35,
+                      color: theme.errorColor,
+                    ),
+                    onPressed: () => _declineCall(),
                   ),
-                  onPressed: () => _declineCall(),
                 ),
               ),
             )

@@ -93,6 +93,7 @@ class HasCallRowState extends State<HasCallRow> {
                               ),
                               CallStatusWidget(
                                 callStatus: snapshot.data!,
+                                isIncomingCall: !callRepo.isCaller,
                               ),
                             ],
                           ),
@@ -105,22 +106,26 @@ class HasCallRowState extends State<HasCallRow> {
         } else {
           renderer = const SizedBox.shrink();
         }
-        return PageTransitionSwitcher(
-          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
-          transitionBuilder: (
-            child,
-            animation,
-            secondaryAnimation,
-          ) {
-            return SharedAxisTransition(
-              fillColor: Colors.transparent,
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              transitionType: SharedAxisTransitionType.vertical,
-              child: child,
-            );
-          },
-          child: renderer,
+        return AnimatedContainer(
+          curve: Curves.easeInOut,
+          duration: MOTION_STANDARD_ANIMATION_DURATION,
+          height: snapshot.data == CallStatus.NO_CALL ? 0 : APPBAR_HEIGHT,
+          child: PageTransitionSwitcher(
+            transitionBuilder: (
+              child,
+              animation,
+              secondaryAnimation,
+            ) {
+              return SharedAxisTransition(
+                fillColor: Colors.transparent,
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                transitionType: SharedAxisTransitionType.vertical,
+                child: child,
+              );
+            },
+            child: renderer,
+          ),
         );
       },
     );

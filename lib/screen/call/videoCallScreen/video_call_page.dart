@@ -43,7 +43,9 @@ class VideoCallScreenState extends State<VideoCallScreen>
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> showButtonRow = BehaviorSubject.seeded(true);
 
-  Offset position = isWindows ? const Offset(20, 80) : const Offset(20, 115);
+  Offset position = isWindows
+      ? const Offset(20, 80)
+      : const Offset(20, androidSmallCallWidgetVerticalMargin);
 
   @override
   void initState() {
@@ -59,7 +61,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: isWindows ? grayColor : Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => showButtonRow.add(!showButtonRow.value),
@@ -179,16 +181,24 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     )
                                   else
                                     Expanded(
-                                      child: CenterAvatarInCall(
-                                        roomUid: widget.roomUid,
+                                      child: Container(
+                                        margin: const EdgeInsets.all(
+                                          0.0,
+                                        ),
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: mainBorder,
+                                          boxShadow: DEFAULT_BOX_SHADOWS,
+                                        ),
+                                        child: CenterAvatarInCall(
+                                          roomUid: widget.roomUid,
+                                        ),
                                       ),
                                     ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 8.0,
-                                      right: 8.0,
-                                    ),
-                                    child: VerticalDivider(),
+                                  const SizedBox(
+                                    width: 8,
                                   ),
                                   if (_callRepo.sharing.value)
                                     Expanded(
@@ -274,8 +284,20 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     )
                                   else
                                     Expanded(
-                                      child: CenterAvatarInCall(
-                                        roomUid: _authRepo.currentUserUid,
+                                      child: Container(
+                                        margin: const EdgeInsets.all(
+                                          0.0,
+                                        ),
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: mainBorder,
+                                          boxShadow: DEFAULT_BOX_SHADOWS,
+                                        ),
+                                        child: CenterAvatarInCall(
+                                          roomUid: _authRepo.currentUserUid,
+                                        ),
                                       ),
                                     ),
                                 ],
@@ -306,80 +328,72 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                               !snapshot.data!) ||
                                           (snapshot.data! &&
                                               _callRepo.videoing.value)))
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: SizedBox(
-                                        width: x,
-                                        height: y,
-                                        child: StreamBuilder<bool>(
-                                          initialData: false,
-                                          stream: _callService.isCallStart,
-                                          builder: (context, snapshot2) {
-                                            Widget renderer;
-                                            if (snapshot2.hasData &&
-                                                snapshot2.data!) {
-                                              renderer = InteractiveViewer(
-                                                // Set it to false to prevent panning.
-                                                minScale: 0.5,
-                                                maxScale: 4,
-                                                child: ClipRRect(
-                                                  borderRadius: mainBorder,
-                                                  clipBehavior: Clip.hardEdge,
-                                                  child: RTCVideoView(
-                                                    snapshot.data!
-                                                        ? _callService
-                                                            .getLocalRenderer
-                                                        : _callService
-                                                            .getRemoteRenderer,
-                                                    objectFit: RTCVideoViewObjectFit
-                                                        .RTCVideoViewObjectFitCover,
-                                                    mirror: !(snapshot.data! &&
-                                                        _callRepo
-                                                            .switching.value),
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              renderer =
-                                                  const SizedBox.shrink();
-                                            }
-
-                                            return PageTransitionSwitcher(
-                                              transitionBuilder: (
-                                                child,
-                                                animation,
-                                                secondaryAnimation,
-                                              ) {
-                                                return SharedAxisTransition(
-                                                  fillColor: Colors.transparent,
-                                                  animation: animation,
-                                                  secondaryAnimation:
-                                                      secondaryAnimation,
-                                                  transitionType:
-                                                      SharedAxisTransitionType
-                                                          .vertical,
-                                                  child: child,
-                                                );
-                                              },
-                                              child: renderer,
+                                    SizedBox(
+                                      width: x,
+                                      height: y,
+                                      child: StreamBuilder<bool>(
+                                        initialData: false,
+                                        stream: _callService.isCallStart,
+                                        builder: (context, snapshot2) {
+                                          Widget renderer;
+                                          if (snapshot2.hasData &&
+                                              snapshot2.data!) {
+                                            renderer = InteractiveViewer(
+                                              // Set it to false to prevent panning.
+                                              minScale: 0.5,
+                                              maxScale: 4,
+                                              child: RTCVideoView(
+                                                snapshot.data!
+                                                    ? _callService
+                                                        .getLocalRenderer
+                                                    : _callService
+                                                        .getRemoteRenderer,
+                                                objectFit: RTCVideoViewObjectFit
+                                                    .RTCVideoViewObjectFitCover,
+                                                mirror: !(snapshot.data! &&
+                                                    _callRepo.switching.value),
+                                              ),
                                             );
-                                          },
-                                        ),
+                                          } else {
+                                            renderer = const SizedBox.shrink();
+                                          }
+
+                                          return PageTransitionSwitcher(
+                                            transitionBuilder: (
+                                              child,
+                                              animation,
+                                              secondaryAnimation,
+                                            ) {
+                                              return SharedAxisTransition(
+                                                fillColor: Colors.transparent,
+                                                animation: animation,
+                                                secondaryAnimation:
+                                                    secondaryAnimation,
+                                                transitionType:
+                                                    SharedAxisTransitionType
+                                                        .vertical,
+                                                child: child,
+                                              );
+                                            },
+                                            child: renderer,
+                                          );
+                                        },
                                       ),
                                     )
                                   else
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        top:
-                                            MediaQuery.of(context).size.height *
-                                                0.3,
+                                    Container(
+                                      width: x,
+                                      height: y,
+                                      margin: const EdgeInsets.all(
+                                        0.0,
                                       ),
-                                      child: SizedBox(
-                                        width: x,
-                                        height: y,
-                                        child: CenterAvatarInCall(
-                                          roomUid: widget.roomUid,
-                                        ),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black,
+                                        boxShadow: DEFAULT_BOX_SHADOWS,
+                                      ),
+                                      child: CenterAvatarInCall(
+                                        roomUid: widget.roomUid,
                                       ),
                                     ),
                                   if ((!snapshot.data! &&
@@ -405,11 +419,14 @@ class VideoCallScreenState extends State<VideoCallScreen>
                       );
               },
             ),
-            if (isWindows)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 40, right: 50, left: 50),
+            SafeArea(
+              child: Padding(
+                padding: isWindows
+                    ? const EdgeInsets.only(bottom: 40, right: 50, left: 50)
+                    : const EdgeInsets.only(top: 8),
                 child: Align(
-                  alignment: Alignment.bottomRight,
+                  alignment:
+                      isWindows ? Alignment.bottomRight : Alignment.topCenter,
                   child: StreamBuilder<CallStatus>(
                     initialData: CallStatus.NO_CALL,
                     stream: _callRepo.callingStatus,
@@ -421,18 +438,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     },
                   ),
                 ),
-              )
-            else
-              StreamBuilder<CallStatus>(
-                initialData: CallStatus.NO_CALL,
-                stream: _callRepo.callingStatus,
-                builder: (context, snapshot) {
-                  return CallStatusWidget(
-                    callStatus: snapshot.data!,
-                    isIncomingCall: widget.isIncomingCall,
-                  );
-                },
               ),
+            ),
             StreamBuilder<Object>(
               stream: MergeStream([
                 _callRepo.callingStatus,
@@ -440,7 +447,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
               ]),
               builder: (context, snapshot) {
                 Widget renderer;
-                if (!isHiddenCallBottomRow(_callRepo.callingStatus.value) &&
+                if (!_callService
+                        .isHiddenCallBottomRow(_callRepo.callingStatus.value) ||
                     showButtonRow.value) {
                   renderer = CallBottomRow(
                     hangUp: widget.hangUp,
@@ -450,22 +458,28 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 } else {
                   renderer = const SizedBox.shrink();
                 }
-                return PageTransitionSwitcher(
-                  duration: ULTRA_SLOW_ANIMATION_DURATION,
-                  transitionBuilder: (
-                    child,
-                    animation,
-                    secondaryAnimation,
-                  ) {
-                    return SharedAxisTransition(
-                      fillColor: Colors.transparent,
-                      animation: animation,
-                      secondaryAnimation: secondaryAnimation,
-                      transitionType: SharedAxisTransitionType.vertical,
-                      child: child,
-                    );
-                  },
-                  child: renderer,
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    height: (isAndroid && _callRepo.isAccepted) ? 100 : 200,
+                    child: PageTransitionSwitcher(
+                      duration: ULTRA_SLOW_ANIMATION_DURATION,
+                      transitionBuilder: (
+                        child,
+                        animation,
+                        secondaryAnimation,
+                      ) {
+                        return SharedAxisTransition(
+                          fillColor: Colors.transparent,
+                          animation: animation,
+                          secondaryAnimation: secondaryAnimation,
+                          transitionType: SharedAxisTransitionType.vertical,
+                          child: child,
+                        );
+                      },
+                      child: renderer,
+                    ),
+                  ),
                 );
               },
             ),
@@ -496,110 +510,71 @@ class VideoCallScreenState extends State<VideoCallScreen>
             builder: (context, snapshot2) {
               Widget renderer;
               if (snapshot2.hasData && snapshot2.data!) {
-                renderer = Draggable(
-                  feedback: SizedBox(
-                    width: width,
-                    height: height,
-                    child: ClipRRect(
-                      borderRadius: mainBorder,
-                      clipBehavior: Clip.hardEdge,
-                      child: RTCVideoView(
-                        switching.value
-                            ? _callService.getRemoteRenderer
-                            : _callService.getLocalRenderer,
-                        mirror: isMirror,
-                      ),
-                    ),
-                  ),
-                  onDraggableCanceled: (velocity, offset) {
-                    setState(() {
-                      final horizontalMargin =
-                          (isAndroid || x < 600) ? 20 : x * 0.22;
-                      final verticalMargin = isAndroid ? 65 : 80;
-                      if (offset.dx > x / 2 && offset.dy > y / 2) {
-                        position = Offset(
-                          x - width - horizontalMargin,
-                          y - height - verticalMargin,
-                        );
-                      }
-                      if (offset.dx < x / 2 && offset.dy > y / 2) {
-                        position = Offset(20, y - height - verticalMargin);
-                      }
-                      if (offset.dx > x / 2 && offset.dy < y / 2) {
-                        position = Offset(x - width - horizontalMargin, 115);
-                      }
-                      if (offset.dx < x / 2 && offset.dy < y / 2) {
-                        position = isWindows
-                            ? const Offset(20, 80)
-                            : const Offset(20, 115);
-                      }
-                    });
-                  },
-                  childWhenDragging: Container(),
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: ClipRRect(
-                      borderRadius: mainBorder,
-                      clipBehavior: Clip.hardEdge,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          child: !switching.value
-                              ? InteractiveViewer(
-                                  // Set it to false to prevent panning.
-                                  minScale: 0.5,
-                                  maxScale: 4,
-                                  child: RTCVideoView(
-                                    _callService.getLocalRenderer,
-                                    objectFit: RTCVideoViewObjectFit
-                                        .RTCVideoViewObjectFitCover,
-                                    mirror: !(snapshot.data ?? false),
-                                  ),
-                                )
-                              : inComingVideo
-                                  ? InteractiveViewer(
-                                      // Set it to false to prevent panning.
-                                      minScale: 0.5,
-                                      maxScale: 4,
-                                      child: RTCVideoView(
-                                        _callService.getRemoteRenderer,
-                                        mirror: true,
-                                      ),
-                                    )
-                                  : Container(
-                                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          begin: Alignment.bottomLeft,
-                                          end: Alignment.topRight,
-                                          colors: [
-                                            Colors.teal,
-                                            Colors.cyan,
-                                            Colors.greenAccent
-                                          ],
-                                        ),
-                                        color: Theme.of(context)
-                                            .primaryColor
-                                            .withOpacity(0.5),
-                                        borderRadius: mainBorder,
-                                        boxShadow: DEFAULT_BOX_SHADOWS,
-                                      ),
-                                      child: CenterAvatarInCall(
-                                        radius: 60,
-                                        roomUid: widget.roomUid,
-                                      ),
-                                    ),
-                          onTap: () {
-                            setState(() {
-                              switching.add(!switching.value);
-                            });
-                          },
+                if (isAndroid) {
+                  renderer = Draggable(
+                    feedback: SizedBox(
+                      width: width,
+                      height: height,
+                      child: ClipRRect(
+                        borderRadius: mainBorder,
+                        clipBehavior: Clip.hardEdge,
+                        child: RTCVideoView(
+                          switching.value
+                              ? _callService.getRemoteRenderer
+                              : _callService.getLocalRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          mirror: isMirror,
                         ),
                       ),
                     ),
-                  ),
-                );
+                    // onDragStarted: () => print("drag Start"),
+                    onDraggableCanceled: (velocity, offset) {
+                      setState(() {
+                        final horizontalMargin =
+                            (isAndroid || x < 600) ? 20 : x * 0.22;
+                        final verticalMargin = isAndroid ? 65 : 80;
+                        if (offset.dx > x / 2 && offset.dy > y / 2) {
+                          position = Offset(
+                            x - width - horizontalMargin,
+                            y - height - verticalMargin,
+                          );
+                        }
+                        if (offset.dx < x / 2 && offset.dy > y / 2) {
+                          position = Offset(20, y - height - verticalMargin);
+                        }
+                        if (offset.dx > x / 2 && offset.dy < y / 2) {
+                          position = Offset(
+                            x - width - horizontalMargin,
+                            androidSmallCallWidgetVerticalMargin,
+                          );
+                        }
+                        if (offset.dx < x / 2 && offset.dy < y / 2) {
+                          position = isWindows
+                              ? const Offset(20, 80)
+                              : const Offset(
+                                  20,
+                                  androidSmallCallWidgetVerticalMargin,
+                                );
+                        }
+                      });
+                    },
+                    childWhenDragging: Container(),
+                    child: smallUserWidget(
+                      width,
+                      height,
+                      isSwitching: snapshot.data ?? false,
+                      inComingVideo: inComingVideo,
+                    ),
+                  );
+                } else {
+                  renderer = smallUserWidget(
+                    width,
+                    height,
+                    isSwitching: snapshot.data ?? false,
+                    inComingVideo: inComingVideo,
+                  );
+                }
               } else {
                 renderer = const SizedBox.shrink();
               }
@@ -627,9 +602,75 @@ class VideoCallScreenState extends State<VideoCallScreen>
     );
   }
 
-  bool isHiddenCallBottomRow(CallStatus callStatus) {
-    return callStatus == CallStatus.ENDED ||
-        callStatus == CallStatus.BUSY ||
-        callStatus == CallStatus.DECLINED;
+  Widget smallUserWidget(
+    double width,
+    double height, {
+    required bool isSwitching,
+    required bool inComingVideo,
+  }) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ClipRRect(
+        borderRadius: mainBorder,
+        clipBehavior: Clip.hardEdge,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            child: !switching.value
+                ? InteractiveViewer(
+                    // Set it to false to prevent panning.
+                    minScale: 0.5,
+                    maxScale: 4,
+                    child: RTCVideoView(
+                      _callService.getLocalRenderer,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      mirror: !isSwitching,
+                    ),
+                  )
+                : inComingVideo
+                    ? InteractiveViewer(
+                        // Set it to false to prevent panning.
+                        minScale: 0.5,
+                        maxScale: 4,
+                        child: RTCVideoView(
+                          _callService.getRemoteRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          mirror: true,
+                        ),
+                      )
+                    : Container(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                            colors: [
+                              Colors.teal,
+                              Colors.cyan,
+                              Colors.greenAccent
+                            ],
+                          ),
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.5),
+                          borderRadius: mainBorder,
+                          boxShadow: DEFAULT_BOX_SHADOWS,
+                        ),
+                        child: CenterAvatarInCall(
+                          radius: 60,
+                          roomUid: widget.roomUid,
+                        ),
+                      ),
+            onTap: () {
+              setState(() {
+                switching.add(!switching.value);
+              });
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

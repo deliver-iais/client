@@ -52,6 +52,7 @@ abstract class Notifier {
           roomUid.asUid(),
           isVideoCall: isVideoCall,
           isCallAccepted: isCallAccepted,
+          isIncomingCall: true,
         );
   }
 

@@ -150,7 +150,7 @@ class CallRepo {
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
   bool _isNotificationSelected = false;
-  bool _isAccepted = false;
+  bool isAccepted = false;
   Timer? timer;
   StreamSubscription<PhoneStateStatus?>? _phoneStateStream;
 
@@ -159,13 +159,13 @@ class CallRepo {
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
       if (call != null && !isDesktop) {
-        _isNotificationSelected = call.notificationSelected;
-        _isAccepted = call.isAccepted;
-        _logger.i(
-          "read call from DB notificationSelected : ${call.notificationSelected}",
-        );
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NO_CALL) {
+          _isNotificationSelected = call.notificationSelected;
+          isAccepted = call.isAccepted;
+          _logger.i(
+            "read call from DB notificationSelected : ${call.notificationSelected}",
+          );
           _callService.callEvents.add(
             CallEvents.callEvent(
               call_pb.CallEvent()
@@ -192,7 +192,7 @@ class CallRepo {
       final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
         case CallTypes.Answer:
-          if (from == to || !_isAccepted) {
+          if (from == to || !isAccepted) {
             _dispose();
           } else {
             timerResendOffer!.cancel();
@@ -248,7 +248,7 @@ class CallRepo {
                     _isVideo = false;
                   }
 
-                  if (_isAccepted) {
+                  if (isAccepted) {
                     modifyRoutingByCallNotificationActionInBackgroundInAndroid
                         .add(
                       CallNotificationActionInBackground(
@@ -275,7 +275,7 @@ class CallRepo {
                         to: to,
                         expireTime: event.time + 60000,
                         notificationSelected: _isNotificationSelected,
-                        isAccepted: _isAccepted,
+                        isAccepted: isAccepted,
                       );
 
                       _callService.saveCallOnDb(callInfo);
@@ -1264,7 +1264,7 @@ class CallRepo {
       if (isAndroid) {
         cancelVibration().ignore();
       }
-      _isAccepted = true;
+      isAccepted = true;
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
@@ -1534,6 +1534,16 @@ class CallRepo {
       "candidateTimeLimit:$candidateTimeLimit",
     );
 
+    return _WaitingTillCandidateExceed(
+      candidateNumber,
+      candidateTimeLimit,
+    );
+  }
+
+  Future _WaitingTillCandidateExceed(
+    int candidateNumber,
+    int candidateTimeLimit,
+  ) async {
     final completer = Completer();
     _logger.i(
       "Time for w8:${clock.now().millisecondsSinceEpoch - _candidateStartTime}",
@@ -1544,8 +1554,8 @@ class CallRepo {
       completer.complete();
       _isOfferReady = true;
     } else {
-      await Future.delayed(const Duration(milliseconds: 100));
-      return _waitUntilCandidateConditionDone();
+      await Future.delayed(const Duration(milliseconds: 50));
+      return _WaitingTillCandidateExceed(candidateNumber, candidateTimeLimit);
     }
     return completer.future;
   }
@@ -1696,7 +1706,7 @@ class CallRepo {
       //reset variable valeus
       _offerSdp = "";
       _answerSdp = "";
-      _isAccepted = false;
+      isAccepted = false;
       _isSharing = false;
       _isMicMuted = false;
       _isCaller = false;
