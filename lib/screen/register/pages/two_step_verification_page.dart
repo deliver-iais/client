@@ -43,7 +43,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
   PhoneNumber? phoneNumber;
 
   String? _password;
-  int _maxLenght = 10;
+  int _maxLength = 10;
+  int _minLength = 10;
 
   final BehaviorSubject<bool> _showPasswordHint = BehaviorSubject.seeded(false);
 
@@ -211,26 +212,19 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                           key: _formKey,
                                           child: IntlPhoneField(
                                             controller: _phoneNumberController,
-                                            onMaxLengthChanged: (m) {
-                                              setState(() {
-                                                _maxLenght = m;
-                                              });
+                                            onMaxAndMinLengthChanged:
+                                                (min, max) {
+                                              _maxLength = max;
+                                              _minLength = min;
                                             },
-                                            maxLength: _maxLenght,
-                                            validator: (value) => value == null
+                                            validator: (value) => value ==
+                                                        null ||
+                                                    value.isEmpty ||
+                                                    value.length > _maxLength ||
+                                                    value.length < _minLength
                                                 ? _i18n.get(
-                                                    "insert_phone_number",
-                                                  )
-                                                : (value.length == 11 &&
-                                                            value[0] != '0') ||
-                                                        (value.length < 10 &&
-                                                            (value.isNotEmpty &&
-                                                                value[0] ==
-                                                                    '0'))
-                                                    ? _i18n.get(
-                                                        "invalid_mobile_number",
-                                                      )
-                                                    : null,
+                                                    "invalid_mobile_number",)
+                                                : null,
                                             onChanged: (p) {
                                               phoneNumber = p;
                                             },
