@@ -22,11 +22,10 @@ import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
@@ -52,15 +51,16 @@ class LoginPageState extends State<LoginPage> {
   static final _accountRepo = GetIt.I.get<AccountRepo>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _formKey = GlobalKey<FormState>();
+  final _acceptPrivacyKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktop;
-  bool _acceptPrivacy = kDebugMode;
+  bool _acceptPrivacy = false;
   final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
-
+  final ShakeWidgetController _shakeWidgetController = ShakeWidgetController();
   final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
   int _maxLength = 10;
   int _minLength = 10;
@@ -138,44 +138,48 @@ class LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
-    final navigatorState = Navigator.of(context);
-
-    final isValidated = _formKey.currentState?.validate() ?? false;
-    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-      _isLoading.add(true);
-      try {
-        await _authRepo.getVerificationCode(phoneNumber!);
-        navigatorState
-            .push(
-              MaterialPageRoute(builder: (c) => const VerificationPage()),
-            )
-            .ignore();
-        _isLoading.add(false);
-      } on GrpcError catch (e) {
-        _isLoading.add(false);
-        _logger.e(e);
-        if (e.code == StatusCode.unavailable) {
-          _networkError.add(true);
-          ToastDisplay.showToast(
-            toastText: _i18n.get("notwork_is_unavailable"),
-            toastContext: context,
-          );
-        } else if (e.code == StatusCode.aborted) {
-          showOutOfDateDialog(context);
-        } else {
-          ToastDisplay.showToast(
-            toastText: _i18n.get("error_occurred"),
-            toastContext: context,
-          );
+  Future<void> checkAndGoNext() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (!(_acceptPrivacyKey.currentState?.validate() ?? false)) {
+        unawaited(_shakeWidgetController.shake());
+      } else {
+        final navigatorState = Navigator.of(context);
+        if (phoneNumber != null) {
+          _isLoading.add(true);
+          try {
+            await _authRepo.getVerificationCode(phoneNumber!);
+            navigatorState
+                .push(
+                  MaterialPageRoute(builder: (c) => const VerificationPage()),
+                )
+                .ignore();
+            _isLoading.add(false);
+          } on GrpcError catch (e) {
+            _isLoading.add(false);
+            _logger.e(e);
+            if (e.code == StatusCode.unavailable) {
+              _networkError.add(true);
+              ToastDisplay.showToast(
+                toastText: _i18n.get("notwork_is_unavailable"),
+                toastContext: context,
+              );
+            } else if (e.code == StatusCode.aborted) {
+              showOutOfDateDialog(context);
+            } else {
+              ToastDisplay.showToast(
+                toastText: _i18n.get("error_occurred"),
+                toastContext: context,
+              );
+            }
+          } catch (e) {
+            _isLoading.add(false);
+            _logger.e(e);
+            ToastDisplay.showToast(
+              toastText: _i18n.get("error_occurred"),
+              toastContext: context,
+            );
+          }
         }
-      } catch (e) {
-        _isLoading.add(false);
-        _logger.e(e);
-        ToastDisplay.showToast(
-          toastText: _i18n.get("error_occurred"),
-          toastContext: context,
-        );
       }
     }
   }
@@ -328,37 +332,60 @@ class LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 24),
                       Directionality(
                         textDirection: _i18n.defaultTextDirection,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Checkbox(
-                              activeColor: theme.primaryColor,
-                              value: _acceptPrivacy,
-                              onChanged: (c) {
-                                setState(() {
-                                  _acceptPrivacy = c!;
-                                });
-                              },
-                            ),
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _acceptPrivacy = true;
-                                  });
-                                },
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: buildText(
-                                      "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                      context,
+                        child: ShakeWidget(
+                          controller: _shakeWidgetController,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Form(
+                                key: _acceptPrivacyKey,
+                                child: FormField<bool>(
+                                  builder: (state) {
+                                    return Checkbox(
+                                      side: BorderSide(
+                                        width: state.hasError ? 2 : 1,
+                                        color: state.hasError
+                                            ? Colors.red
+                                            : Colors.black,
+                                      ),
+                                      value: _acceptPrivacy,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _acceptPrivacy = value ?? false;
+                                          state.didChange(value);
+                                        });
+                                      },
+                                    );
+                                  },
+                                  validator: (value) {
+                                    if (!_acceptPrivacy) {
+                                      return 'You need to accept terms';
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                              ),
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _acceptPrivacy = !_acceptPrivacy;
+                                    });
+                                  },
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: buildText(
+                                        "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                        context,
+                                      ),
+                                      style: theme.textTheme.bodyText2,
                                     ),
-                                    style: theme.textTheme.bodyText2,
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -452,22 +479,21 @@ class LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     const Spacer(),
-                    if (_acceptPrivacy)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextButton(
-                          onPressed: checkAndGoNext,
-                          child: Text(
-                            i18n.get("next"),
-                            key: const Key('next'),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                              fontSize: 14.5,
-                            ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: checkAndGoNext,
+                        child: Text(
+                          i18n.get("next"),
+                          key: const Key('next'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: theme.primaryColor,
+                            fontSize: 14.5,
                           ),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ],
