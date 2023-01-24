@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
@@ -529,13 +528,12 @@ class _AllMediaPageState extends State<AllMediaPage>
                         builder: (c, mediaSnapshot) {
                           if (mediaSnapshot.hasData &&
                               mediaSnapshot.data != null) {
-                            final json =
-                                jsonDecode(mediaSnapshot.data!.json) as Map;
+                            final file = mediaSnapshot.data!.json.toFile();
                             return buildBottomSection(
                               createdOn: mediaSnapshot.data!.createdOn,
                               createdBy: mediaSnapshot.data!.createdBy,
                               messageId: mediaSnapshot.data!.messageId,
-                              caption: (json["caption"].toString()),
+                              caption: file.caption,
                             );
                           }
                           return const SizedBox.shrink();
