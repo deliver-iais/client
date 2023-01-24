@@ -184,7 +184,9 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                       borderRadius: secondaryBorder,
                                       border: Border.all(
                                         color: isSelected
-                                            ? Theme.of(context).colorScheme.primary
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
                                             : Colors.transparent,
                                         width: isSelected ? 6 : 0,
                                       ),
@@ -206,9 +208,11 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                         child: widget.setAvatar != null
                                             ? const SizedBox.shrink()
                                             : Align(
-                                                alignment: Alignment.bottomRight,
+                                                alignment:
+                                                    Alignment.bottomRight,
                                                 child: IconButton(
-                                                  splashColor: Colors.transparent,
+                                                  splashColor:
+                                                      Colors.transparent,
                                                   highlightColor:
                                                       Colors.transparent,
                                                   enableFeedback: false,
@@ -216,7 +220,8 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                                     onTap(imagePath);
                                                   },
                                                   icon: CircularCheckMarkWidget(
-                                                    shouldShowCheckMark: isSelected,
+                                                    shouldShowCheckMark:
+                                                        isSelected,
                                                   ),
                                                   iconSize: 30,
                                                 ),
@@ -235,7 +240,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                     );
                   },
                 );
-              }
+              },
             ),
             Align(
               alignment: Alignment.bottomCenter,
