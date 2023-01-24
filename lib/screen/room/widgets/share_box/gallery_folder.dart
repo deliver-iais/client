@@ -126,111 +126,116 @@ class _GalleryFolderState extends State<GalleryFolder> {
         ),
         body: Stack(
           children: [
-            GridView.builder(
-              controller: ScrollController(),
-              // itemCount: widget.folder.assetCount,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-              ),
-              itemBuilder: (c, index) {
-                return FutureBuilder<AssetEntity?>(
-                  future: _getImageAtIndex(index),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return FutureBuilder<File?>(
-                        future: snapshot.data!.file,
-                        builder: (context, fileSnapshot) {
-                          if (fileSnapshot.hasData &&
-                              fileSnapshot.data!.existsSync()) {
-                            var imagePath = fileSnapshot.data!.path;
-                            final isSelected =
-                                _selectedImage.contains(imagePath);
-                            return GestureDetector(
-                              onTap: () {
-                                if (widget.setAvatar != null) {
-                                  widget.pop();
-                                  Navigator.pop(context);
-                                  widget.setAvatar!(imagePath);
-                                } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (c) {
-                                        return OpenImagePage(
-                                          imagePath: imagePath,
-                                          onEditEnd: (path) {
-                                            imagePath = path;
+            FutureBuilder<int>(
+              future: widget.folder.assetCountAsync,
+              builder: (context, snapshot) {
+                return GridView.builder(
+                  controller: ScrollController(),
+                  itemCount: snapshot.data,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                  ),
+                  itemBuilder: (c, index) {
+                    return FutureBuilder<AssetEntity?>(
+                      future: _getImageAtIndex(index),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return FutureBuilder<File?>(
+                            future: snapshot.data!.file,
+                            builder: (context, fileSnapshot) {
+                              if (fileSnapshot.hasData &&
+                                  fileSnapshot.data!.existsSync()) {
+                                var imagePath = fileSnapshot.data!.path;
+                                final isSelected =
+                                    _selectedImage.contains(imagePath);
+                                return GestureDetector(
+                                  onTap: () {
+                                    if (widget.setAvatar != null) {
+                                      widget.pop();
+                                      Navigator.pop(context);
+                                      widget.setAvatar!(imagePath);
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (c) {
+                                            return OpenImagePage(
+                                              imagePath: imagePath,
+                                              onEditEnd: (path) {
+                                                imagePath = path;
+                                              },
+                                              sendSingleImage: true,
+                                              onTap: onTap,
+                                              selectedImage: _selectedImage,
+                                              send: _send,
+                                              pop: widget.pop,
+                                              textEditingController:
+                                                  _textEditingController,
+                                            );
                                           },
-                                          sendSingleImage: true,
-                                          onTap: onTap,
-                                          selectedImage: _selectedImage,
-                                          send: _send,
-                                          pop: widget.pop,
-                                          textEditingController:
-                                              _textEditingController,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                }
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                margin: const EdgeInsets.all(4.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: secondaryBorder,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Colors.transparent,
-                                    width: isSelected ? 6 : 0,
-                                  ),
-                                ),
-                                child: Hero(
-                                  tag: imagePath,
-                                  child: Container(
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    margin: const EdgeInsets.all(4.0),
                                     decoration: BoxDecoration(
-                                      borderRadius: secondaryBorder / 2,
-                                      image: DecorationImage(
-                                        image: Image.file(
-                                          File(imagePath),
-                                          height: 500,
-                                          cacheWidth: 200,
-                                        ).image,
-                                        fit: BoxFit.cover,
+                                      borderRadius: secondaryBorder,
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Colors.transparent,
+                                        width: isSelected ? 6 : 0,
                                       ),
                                     ),
-                                    child: widget.setAvatar != null
-                                        ? const SizedBox.shrink()
-                                        : Align(
-                                            alignment: Alignment.bottomRight,
-                                            child: IconButton(
-                                              splashColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              enableFeedback: false,
-                                              onPressed: () {
-                                                onTap(imagePath);
-                                              },
-                                              icon: CircularCheckMarkWidget(
-                                                shouldShowCheckMark: isSelected,
-                                              ),
-                                              iconSize: 30,
-                                            ),
+                                    child: Hero(
+                                      tag: imagePath,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: secondaryBorder / 2,
+                                          image: DecorationImage(
+                                            image: Image.file(
+                                              File(imagePath),
+                                              height: 500,
+                                              cacheWidth: 200,
+                                            ).image,
+                                            fit: BoxFit.cover,
                                           ),
+                                        ),
+                                        child: widget.setAvatar != null
+                                            ? const SizedBox.shrink()
+                                            : Align(
+                                                alignment: Alignment.bottomRight,
+                                                child: IconButton(
+                                                  splashColor: Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  enableFeedback: false,
+                                                  onPressed: () {
+                                                    onTap(imagePath);
+                                                  },
+                                                  icon: CircularCheckMarkWidget(
+                                                    shouldShowCheckMark: isSelected,
+                                                  ),
+                                                  iconSize: 30,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      );
-                    }
-                    return const SizedBox.shrink();
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    );
                   },
                 );
-              },
+              }
             ),
             Align(
               alignment: Alignment.bottomCenter,
