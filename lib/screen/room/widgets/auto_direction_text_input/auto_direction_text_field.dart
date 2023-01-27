@@ -189,19 +189,22 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
       BehaviorSubject.seeded(null);
   final _i18n = GetIt.I.get<I18N>();
   final _controller = TextEditingController();
+
   @override
   void initState() {
     getController().addListener(() {
-      final value= getController().text;
+      final value = getController().text;
       if (value.isNotEmpty) {
         direction.add(_i18n.getDirection(value));
-      }else{
+      } else {
         direction.add(null);
       }
     });
     super.initState();
   }
-TextEditingController getController ()=>widget.controller ?? _controller;
+
+  TextEditingController getController() => widget.controller ?? _controller;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<TextDirection?>(
@@ -262,9 +265,7 @@ TextEditingController getController ()=>widget.controller ?? _controller;
             widget.onTap?.call();
           },
           maxLengthEnforcement: widget.maxLengthEnforcement,
-          onChanged:
-
-            widget.onChanged,
+          onChanged: widget.onChanged,
           onEditingComplete: widget.onEditingComplete,
           onSubmitted: widget.onSubmitted,
           onAppPrivateCommand: widget.onAppPrivateCommand,
