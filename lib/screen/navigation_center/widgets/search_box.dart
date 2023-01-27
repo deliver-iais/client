@@ -130,7 +130,7 @@ class SearchBoxState extends State<SearchBox> {
             if (
                 widget.animationValue != null)
               SizedBox(
-                width: (widget.animationValue! - 40) * -2,
+                width: (widget.animationValue! - 40) * -1.7,
                 height: 40,
                 child: IconButton(
                   highlightColor: Colors.transparent,
