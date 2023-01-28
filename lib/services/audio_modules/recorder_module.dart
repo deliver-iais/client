@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/services/check_permissions_service.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:get_it/get_it.dart';
@@ -11,7 +10,6 @@ import 'package:logger/logger.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:uuid/uuid.dart';
 
 typedef RecordOnCompleteCallback = void Function(String?);
 typedef RecordOnCancelCallback = void Function();
@@ -21,11 +19,8 @@ class RecorderModule {
   final _requestLock = Lock();
 
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
-  final _fileService = GetIt.I.get<FileService>();
   final _logger = GetIt.I.get<Logger>();
   final _recorder = Record();
-  final _uuid = const Uuid();
-  final _hasPermission = BehaviorSubject.seeded(false);
 
   final isRecordingStream = BehaviorSubject.seeded(false);
   final recordingDurationStream = BehaviorSubject.seeded(Duration.zero);
@@ -101,14 +96,6 @@ class RecorderModule {
 
   bool recorderIsAvailable() => true;
 
-  void checkPermission() {
-    if (isAndroid) {
-      _checkPermission.checkAudioRecorderPermission().then(_hasPermission.add);
-    } else {
-      _hasPermission.add(true);
-    }
-  }
-
   Future<void> start({
     RecordOnCompleteCallback? onComplete,
     RecordOnCancelCallback? onCancel,
@@ -130,12 +117,6 @@ class RecorderModule {
       }
 
       isRecordingStream.add(true);
-
-      // if (!_hasPermission.value) {
-      //   _logger.wtf("There is no permission for recording voice");
-      //
-      //   return;
-      // }
 
       // Check supports of recording options...
       final isOpusSupported = await _recorder.isEncoderSupported(
