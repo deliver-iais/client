@@ -24,5 +24,5 @@ Future<void> cancelVibration() {
 }
 
 void quickVibrate() {
-  if (isAndroid) vibrate(duration: 100).ignore();
+  vibrate(duration: 100).ignore();
 }
