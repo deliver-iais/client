@@ -155,10 +155,6 @@ dependencies:
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
   record: 4.4.4
-#    git:
-#      path: record
-#      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
-#      url: https://github.com/deliveriais/record
   rive: 0.10.0
   rxdart: 0.27.7
   screenshot: 1.2.3
