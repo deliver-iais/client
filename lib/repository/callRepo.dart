@@ -1265,7 +1265,7 @@ class CallRepo {
         cancelVibration().ignore();
       }
       isAccepted = true;
-      if (isWindows) {
+      if (isDesktop) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
 
@@ -1327,7 +1327,7 @@ class CallRepo {
 
   Future<void> declineCall() async {
     if (_callService.getUserCallState == UserCallState.IN_USER_CALL) {
-      if (isWindows) {
+      if (isDesktop) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       _logger.i("declineCall");
@@ -1397,7 +1397,7 @@ class CallRepo {
     if (!_isEnded) {
       _isEnded = true;
       _logger.i("Call Duration Received: $callDuration");
-      if (isWindows) {
+      if (isDesktop) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       if (_isCaller) {
@@ -1425,7 +1425,7 @@ class CallRepo {
       cancelVibration().ignore();
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-    } else if (isWindows) {
+    } else if (isDesktop) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
   }
@@ -1435,7 +1435,7 @@ class CallRepo {
     if (callingStatus.value != CallStatus.ENDED ||
         callingStatus.value != CallStatus.NO_CALL) {
       try {
-        if (isWindows) {
+        if (isDesktop) {
           _notificationServices.cancelRoomNotifications(roomUid!.node);
         }
         if (_callService.getUserCallState != CallStatus.NO_CALL) {

@@ -422,10 +422,10 @@ class CallBottomRowState extends State<CallBottomRow>
     _muteMicIcon =
         _callRepo.isMicMuted ? CupertinoIcons.mic_off : CupertinoIcons.mic;
     _screenShareIcon = _callRepo.isSharing
-        ? (isWindows
+        ? (isDesktop
             ? Icons.screen_share_outlined
             : Icons.mobile_screen_share_outlined)
-        : (isWindows
+        : (isDesktop
             ? Icons.stop_screen_share_outlined
             : Icons.mobile_screen_share_outlined);
 

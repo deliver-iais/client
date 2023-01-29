@@ -64,7 +64,7 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    if (isWindows) {
+    if (isDesktop) {
       setWindowMinSize(
         const Size(2 * FLUID_MAX_WIDTH, 1.5 * FLUID_MAX_HEIGHT),
       );
@@ -164,7 +164,7 @@ class CallScreenState extends State<CallScreen> {
   void dispose() {
     super.dispose();
     endCallTimer?.cancel();
-    if (isWindows) {
+    if (isDesktop) {
       setWindowMinSize(
         const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
       );

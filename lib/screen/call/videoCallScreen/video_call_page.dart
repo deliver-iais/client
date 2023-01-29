@@ -43,7 +43,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> showButtonRow = BehaviorSubject.seeded(true);
 
-  Offset position = isWindows
+  Offset position = isDesktop
       ? const Offset(20, 80)
       : const Offset(20, androidSmallCallWidgetVerticalMargin);
 
@@ -61,7 +61,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: isWindows ? grayColor : Colors.black,
+      backgroundColor: isDesktop ? grayColor : Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => showButtonRow.add(!showButtonRow.value),
@@ -79,7 +79,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 _callRepo.incomingVideoSwitch,
               ]),
               builder: (c, s) {
-                return isWindows && _callRepo.desktopDualVideo.value
+                return isDesktop && _callRepo.desktopDualVideo.value
                     ? OrientationBuilder(
                         builder: (context, orientation) {
                           return Padding(
@@ -421,12 +421,12 @@ class VideoCallScreenState extends State<VideoCallScreen>
             ),
             SafeArea(
               child: Padding(
-                padding: isWindows
+                padding: isDesktop
                     ? const EdgeInsets.only(bottom: 40, right: 50, left: 50)
                     : const EdgeInsets.only(top: 8),
                 child: Align(
                   alignment:
-                      isWindows ? Alignment.bottomRight : Alignment.topCenter,
+                  isDesktop ? Alignment.bottomRight : Alignment.topCenter,
                   child: StreamBuilder<CallStatus>(
                     initialData: CallStatus.NO_CALL,
                     stream: _callRepo.callingStatus,
@@ -550,7 +550,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                           );
                         }
                         if (offset.dx < x / 2 && offset.dy < y / 2) {
-                          position = isWindows
+                          position = isDesktop
                               ? const Offset(20, 80)
                               : const Offset(
                                   20,
