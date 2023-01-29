@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -30,7 +29,6 @@ const REFRESH_TOKEN_EXPIRATION_DELTA = Duration(days: 3);
 
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
-  static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
 
@@ -59,8 +57,10 @@ class AuthRepo {
       _prefs = await SharedPreferences.getInstance();
       _accessToken = _prefs.getString(SHARED_DAO_ACCESS_TOKEN_KEY) ?? "";
       _refreshToken = _prefs.getString(SHARED_DAO_REFRESH_TOKEN_KEY) ?? "";
-      _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-      return await _setCurrentUserUidFromDB();
+      _localPassword = _prefs.getString(SHARED_DAO_LOCAL_PASSWORD) ?? "";
+      if (accessToken.isNotEmpty) {
+        _setCurrentUserUidFromAccessToken(accessToken);
+      }
     } catch (e) {
       try {
         //todo add delete shared pref file for other platform
@@ -204,7 +204,7 @@ class AuthRepo {
 
   void setLocalPassword(String pass) {
     _localPassword = pass;
-    _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
+    _prefs.setString(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 
   bool isLoggedIn() => _hasValidRefreshToken();
@@ -227,7 +227,7 @@ class AuthRepo {
     _refreshToken = refreshToken;
     await _prefs.setString(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
     await _prefs.setString(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
-    await _setCurrentUserUidFromAccessToken(accessToken);
+    _setCurrentUserUidFromAccessToken(accessToken);
     return true;
   }
 
@@ -249,25 +249,14 @@ class AuthRepo {
     return clock.now().add(fromNow).isAfter(expirationDate);
   }
 
-  Future<void> _setCurrentUserUidFromAccessToken(String accessToken) {
+  void _setCurrentUserUidFromAccessToken(String accessToken) {
     final decodedToken = JwtDecoder.decode(accessToken);
 
     currentUserUid = Uid()
       ..category = Categories.USER
       ..node = decodedToken["sub"]
       ..sessionId = decodedToken["jti"];
-
     _logger.d(currentUserUid);
-
-    return _sharedDao.put(
-      SHARED_DAO_CURRENT_USER_UID,
-      currentUserUid.asString(),
-    );
-  }
-
-  Future<void> _setCurrentUserUidFromDB() async {
-    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
-    if (res != null) currentUserUid = (res).asUid();
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
