@@ -62,8 +62,16 @@ class GalleryBoxState extends State<GalleryBox> {
     if (await _checkPermissionServices.checkAccessMediaLocationPermission(
       context: context,
     )) {
-      _folders
-          .add(await PhotoManager.getAssetPathList(type: RequestType.image));
+      final folders =
+          await PhotoManager.getAssetPathList(type: RequestType.image);
+      final finalFolders = <AssetPathEntity>[];
+
+      for (final f in folders) {
+        if ((await f.assetCountAsync) > 0) {
+          finalFolders.add(f);
+        }
+      }
+      _folders.add(finalFolders);
     }
     try {
       if (await _checkPermissionServices.checkCameraRecorderPermission()) {
@@ -110,18 +118,18 @@ class GalleryBoxState extends State<GalleryBox> {
       backgroundColor: theme.colorScheme.surfaceVariant,
       body: StreamBuilder<List<AssetPathEntity>?>(
         stream: _folders,
-        builder: (context, folders) {
-          if (folders.hasData &&
-              folders.data != null &&
-              folders.data!.isNotEmpty) {
+        builder: (context, snap) {
+          if (snap.hasData && snap.data != null && snap.data!.isNotEmpty) {
+            final folders = snap.data!;
+
             return GridView.builder(
               controller: widget.scrollController,
-              itemCount: _getItemCount(),
+              itemCount: folders.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
               itemBuilder: (co, index) {
-                final folder = _getFolderAtIndex(index);
+                final folder = folders[index];
                 if (_hasCameraCapacity() && index <= 0) {
                   return Container(
                     clipBehavior: Clip.hardEdge,
@@ -164,7 +172,7 @@ class GalleryBoxState extends State<GalleryBox> {
                         MaterialPageRoute(
                           builder: (c) {
                             return GalleryFolder(
-                              folder!,
+                              folder,
                               widget.roomUid,
                               () {
                                 if (widget.setAvatar == null) {
@@ -183,7 +191,7 @@ class GalleryBoxState extends State<GalleryBox> {
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: FutureBuilder<List<AssetEntity>>(
-                        future: folder!.getAssetListPaged(page: 0, size: 2),
+                        future: folder.getAssetListPaged(page: 0, size: 2),
                         builder: (context, snapshot) {
                           if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                             return Stack(
@@ -301,21 +309,6 @@ class GalleryBoxState extends State<GalleryBox> {
 
   bool _hasCameraCapacity() =>
       _controller != null && _controller!.value.isInitialized;
-
-  int _getItemCount() =>
-      _hasCameraCapacity() ? _getFoldersCount() + 1 : _getFoldersCount();
-
-  int _getFoldersCount() =>
-      _folders.value.where((element) => element.assetCount > 0).length;
-
-  AssetPathEntity _getFolder(int index) =>
-      _folders.value.where((element) => element.assetCount > 0).toList()[index];
-
-  AssetPathEntity? _getFolderAtIndex(int index) => _hasCameraCapacity()
-      ? index > 0
-          ? _getFolder(index - 1)
-          : null
-      : _getFolder(index);
 
   void openCamera(void Function() pop) {
     Navigator.push(

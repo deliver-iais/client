@@ -414,7 +414,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.12"
+    version: "1.0.11"
   date_time_format:
     dependency: "direct main"
     description:
@@ -872,7 +872,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.19"
+    version: "0.9.17"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -926,14 +926,14 @@ packages:
       name: geolocator_android
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.4"
+    version: "4.1.7"
   geolocator_apple:
     dependency: transitive
     description:
       name: geolocator_apple
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.3"
+    version: "2.2.5"
   geolocator_platform_interface:
     dependency: transitive
     description:
@@ -1252,7 +1252,7 @@ packages:
       name: logging
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   lottie:
     dependency: "direct main"
     description:
@@ -1648,49 +1648,45 @@ packages:
   record:
     dependency: "direct main"
     description:
-      path: record
-      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
-      resolved-ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
-      url: "https://github.com/deliveriais/record"
-    source: git
-    version: "4.1.1"
+      name: record
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.4.4"
   record_linux:
     dependency: transitive
     description:
       name: record_linux
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.0"
+    version: "0.4.1"
   record_macos:
     dependency: transitive
     description:
       name: record_macos
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.0"
+    version: "0.2.2"
   record_platform_interface:
     dependency: transitive
     description:
       name: record_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.0"
   record_web:
     dependency: transitive
     description:
       name: record_web
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.1"
+    version: "0.5.0"
   record_windows:
     dependency: transitive
     description:
-      path: record_windows
-      ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      url: "https://github.com/deliveriais/record"
-    source: git
-    version: "0.4.3"
+      name: record_windows
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.7.1"
   rive:
     dependency: "direct main"
     description:
@@ -2056,7 +2052,7 @@ packages:
       name: url_launcher_windows
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   uuid:
     dependency: "direct main"
     description:

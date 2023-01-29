@@ -40,14 +40,13 @@ class FilesBox extends StatefulWidget {
 class FilesBoxState extends State<FilesBox> {
   Future<List<io.FileSystemEntity>> getRecentFile() async {
     final files = <io.FileSystemEntity>[];
-    var d = io.Directory(
-      (await ExtStorage.getExternalStoragePublicDirectory(
-        ExtStorage.download,
-      ))!,
-    );
-    if (isIOS) {
-      d = await getApplicationDocumentsDirectory();
-    }
+    final d = isIOS
+        ? await getLibraryDirectory()
+        : io.Directory(
+            (await ExtStorage.getExternalStoragePublicDirectory(
+              ExtStorage.download,
+            ))!,
+          );
     final l = d.listSync();
     for (final file in l) {
       if (io.FileSystemEntity.isFileSync(file.path)) {
@@ -118,17 +117,18 @@ class FilesBoxState extends State<FilesBox> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        _i18n.get("recent_files"),
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
+                    if (!isIOS)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          _i18n.get("recent_files"),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
-                      ),
-                    )
+                      )
                   ],
                 );
               } else {

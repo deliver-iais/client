@@ -403,10 +403,8 @@ class RoutingService {
         settings: setting,
         pageBuilder: builder,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeThroughTransition(
-            fillColor: Theme.of(context).scaffoldBackgroundColor,
+          return FadeScaleTransition(
             animation: animation,
-            secondaryAnimation: secondaryAnimation,
             child: child,
           );
         },

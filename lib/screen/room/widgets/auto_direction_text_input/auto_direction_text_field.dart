@@ -191,6 +191,21 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
   final _controller = TextEditingController();
 
   @override
+  void initState() {
+    getController().addListener(() {
+      final value = getController().text;
+      if (value.isNotEmpty) {
+        direction.add(_i18n.getDirection(value));
+      } else {
+        direction.add(null);
+      }
+    });
+    super.initState();
+  }
+
+  TextEditingController getController() => widget.controller ?? _controller;
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<TextDirection?>(
       stream: direction.distinct(),
@@ -198,7 +213,7 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
         final textDir = sn.data ?? _i18n.defaultTextDirection;
         return TextField(
           key: widget.textFieldKey,
-          controller: widget.controller ?? _controller,
+          controller: getController(),
           focusNode: widget.focusNode,
           decoration: widget.decoration,
           keyboardType: widget.keyboardType,
@@ -225,7 +240,7 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
           onTap: () {
             // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
 
-            final localController = widget.controller ?? _controller;
+            final localController = getController();
             if (localController.selection ==
                 TextSelection.fromPosition(
                   TextPosition(
@@ -250,12 +265,7 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
             widget.onTap?.call();
           },
           maxLengthEnforcement: widget.maxLengthEnforcement,
-          onChanged: (value) {
-            if (value.isNotEmpty) {
-              direction.add(_i18n.getDirection(value));
-            }
-            widget.onChanged?.call(value);
-          },
+          onChanged: widget.onChanged,
           onEditingComplete: widget.onEditingComplete,
           onSubmitted: widget.onSubmitted,
           onAppPrivateCommand: widget.onAppPrivateCommand,

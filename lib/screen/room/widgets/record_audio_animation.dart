@@ -25,6 +25,9 @@ class RecordAudioAnimation extends StatelessWidget {
   final _pointerOffset = BehaviorSubject.seeded(Offset.zero);
   final _buttonOffset = BehaviorSubject.seeded(Offset.zero);
 
+  bool get _isRecordingInCurrentRoom =>
+      _audioService.recordingRoom == roomUid.asString();
+
   RecordAudioAnimation({
     super.key,
     this.onComplete,
@@ -69,9 +72,6 @@ class RecordAudioAnimation extends StatelessWidget {
       stream: _audioService.recorderIsRecording,
       builder: (ctx, snapshot) {
         final isRecording = snapshot.data ?? false;
-
-        final isRecordingInCurrentRoom =
-            _audioService.recordingRoom == roomUid.asString();
 
         return AnimatedContainer(
           duration: ANIMATION_DURATION,
@@ -209,15 +209,6 @@ class RecordAudioAnimation extends StatelessWidget {
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTapDown: (_) => _audioService.checkRecorderPermission(),
-                      onTapUp: (_) {
-                        if (isRecording &&
-                            isRecordingInCurrentRoom &&
-                            (_audioService.recorderIsLocked.valueOrNull ??
-                                false)) {
-                          endRecording(context);
-                        }
-                      },
                       onLongPressStart: (_) {
                         if (isRecording) {
                           return;
@@ -237,8 +228,10 @@ class RecordAudioAnimation extends StatelessWidget {
                             if (!_isCanceled.value) {
                               _audioService.cancelRecording();
                             }
-                          } else if (isRecordingInCurrentRoom) {
+                          } else if (_isRecordingInCurrentRoom) {
                             endRecording(context);
+                          } else if (_audioService.recordingRoom == "") {
+                            _audioService.cancelRecording();
                           }
                           _isCanceled.add(false);
                         }
@@ -290,7 +283,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                               (snapshot.data ?? false);
                                       return IconButton(
                                         icon: Icon(
-                                          isRecordingInCurrentRoom &&
+                                          _isRecordingInCurrentRoom &&
                                                   showSendButtonInsteadOfMicrophone
                                               ? CupertinoIcons.arrow_up
                                               : CupertinoIcons.mic,
@@ -300,7 +293,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                         ),
                                         onPressed: () {
                                           if (isRecording &&
-                                              !isRecordingInCurrentRoom) {
+                                              !_isRecordingInCurrentRoom) {
                                             _routingService.openRoom(
                                               _audioService.recordingRoom,
                                             );
@@ -331,7 +324,7 @@ class RecordAudioAnimation extends StatelessWidget {
   Future<void> endRecording(BuildContext context) async {
     if (!await _audioService.endRecording()) {
       ToastDisplay.showToast(
-        toastContext: context,
+        maxWidth: 500,
         toastText: _i18n.get("mic_problem"),
       );
     }

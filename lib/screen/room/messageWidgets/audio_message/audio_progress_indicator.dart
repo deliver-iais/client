@@ -41,7 +41,9 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
     return StreamBuilder<Duration>(
       stream: audioPlayerService.playerPosition,
       builder: (context, position) {
-        if (position.hasData && position.data != null) {
+        if (position.hasData &&
+            position.data != null &&
+            position.data! < widget.audioDuration) {
           return Column(
             children: [
               Stack(
