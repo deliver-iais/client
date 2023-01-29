@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:get_it/get_it.dart';
@@ -177,9 +178,14 @@ class RecorderModule {
         } else {
           path = await _recorder.stop();
         }
+        if (path == null) {
+          _logger.e("no path exist after recording");
+          return false;
+        }
 
-        var fileLength = await File(path!).length();
-        print("fileLength: $fileLength");
+        path = trimRecorderSavedPath(path);
+
+        var fileLength = await File(path).length();
         var pathLengthRetry = 4;
         while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
           fileLength = File(path).lengthSync();

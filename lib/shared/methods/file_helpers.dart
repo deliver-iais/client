@@ -21,6 +21,8 @@ import 'package:path/path.dart' as p;
 String normalizePath(String path) =>
     isWeb ? path : p.normalize(path).replaceAll("\\", "/");
 
+String trimRecorderSavedPath(String path) => p.prettyUri(path);
+
 String _normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
 
 String getFileExtension(String path) =>
