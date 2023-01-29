@@ -1741,9 +1741,12 @@ class CallRepo {
 
       Timer(const Duration(milliseconds: 1000), () async {
         _logger.i("END!");
-        _audioService.playEndCallSound();
         if (_routingService.canPop() && _routingService.isInCallRoom()) {
           _routingService.pop();
+        }
+
+        if(_isConnected){
+          _audioService.playEndCallSound();
         }
 
         _isEnded = false;
