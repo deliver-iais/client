@@ -264,8 +264,6 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(RecentRoomsAdapter())
     ..registerAdapter(RecentSearchAdapter());
 
-
-
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
   registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -294,7 +292,6 @@ Future<void> dbSetupDI() async {
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
-
 }
 
 Future initializeFirebase() async {
@@ -372,6 +369,11 @@ Future<void> _setWindowSize() async {
   } else {
     setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   }
+
+  // Showcase Creation Values
+  // Tablet
+  // setWindowMaxSize(const Size(100, 100));
+  // setWindowFrame(Rect.fromLTRB(0, 0, 1120, 864));
 }
 
 class MyApp extends StatelessWidget {
@@ -406,7 +408,7 @@ class MyApp extends StatelessWidget {
             ),
             child: RawKeyboardListener(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              onKey: ( event) {
+              onKey: (event) {
                 _rawKeyboardService
                   ..escapeHandling(event)
                   ..searchHandling(event);

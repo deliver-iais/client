@@ -58,7 +58,7 @@ class RoomName extends StatelessWidget {
             ),
             if (status != null) ...[
               Text(
-                status!,
+                 " $status",
                 style: style,
               ),
               DotAnimation(dotsColor: Theme.of(context).primaryColor)
