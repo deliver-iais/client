@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
@@ -18,6 +19,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
@@ -60,6 +62,20 @@ class AuthRepo {
         _setCurrentUserUidFromAccessToken(accessToken);
       }
     } catch (e) {
+      try {
+        //todo add delete shared pref file for other platform
+        //delete shared pref file
+        if (isWindows || isLinux) {
+          final path = "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
+          if (File(path).existsSync()) {
+            await (File(path)).delete(recursive: true);
+            _logger.i("delete $path");
+          }
+        }
+      } catch (e) {
+        _logger.e(e);
+      }
+
       _logger.e(e);
       if (retry) {
         return init();
