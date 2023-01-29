@@ -192,16 +192,18 @@ class RoutingService {
     bool isCallAccepted = false,
     bool isVideoCall = false,
   }) {
-    _push(
-      CallScreen(
-        key: const ValueKey("/call-screen"),
-        roomUid: roomUid,
-        isCallAccepted: isCallAccepted,
-        isCallInitialized: isCallInitialized,
-        isIncomingCall: isIncomingCall,
-        isVideoCall: isVideoCall,
-      ),
-    );
+    if (!isInCallRoom()) {
+      _push(
+        CallScreen(
+          key: const ValueKey("/call-screen"),
+          roomUid: roomUid,
+          isCallAccepted: isCallAccepted,
+          isCallInitialized: isCallInitialized,
+          isIncomingCall: isIncomingCall,
+          isVideoCall: isVideoCall,
+        ),
+      );
+    }
   }
 
   void openLocation(final Location location, Uid from, Message message) =>

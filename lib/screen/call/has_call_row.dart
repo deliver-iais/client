@@ -31,79 +31,82 @@ class HasCallRowState extends State<HasCallRow> {
       builder: (context, snapshot) {
         Widget renderer;
         if (snapshot.data != CallStatus.NO_CALL) {
-          renderer = GestureDetector(
-            onTap: () {
-              if (snapshot.data == CallStatus.CREATED && !callRepo.isCaller) {
-                _routingService.openCallScreen(
-                  callRepo.roomUid!,
-                  isIncomingCall: true,
-                  isVideoCall: callRepo.isVideo,
-                );
-              } else {
-                _routingService.openCallScreen(
-                  callRepo.roomUid!,
-                  isCallInitialized: true,
-                  isVideoCall: callRepo.isVideo,
-                );
-              }
-            },
-            child: callRepo.roomUid != null
-                ? AnimatedContainer(
-                    duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
-                    margin: const EdgeInsets.only(bottom: 4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          detectBackGroundColor(snapshot.data!),
-                          detectBackGroundColor(snapshot.data!).withAlpha(100),
-                        ],
+          renderer = MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                if (snapshot.data == CallStatus.CREATED && !callRepo.isCaller) {
+                  _routingService.openCallScreen(
+                    callRepo.roomUid!,
+                    isIncomingCall: true,
+                    isVideoCall: callRepo.isVideo,
+                  );
+                } else {
+                  _routingService.openCallScreen(
+                    callRepo.roomUid!,
+                    isCallInitialized: true,
+                    isVideoCall: callRepo.isVideo,
+                  );
+                }
+              },
+              child: callRepo.roomUid != null
+                  ? AnimatedContainer(
+                      duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+                      margin: const EdgeInsets.only(bottom: 4),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            detectBackGroundColor(snapshot.data!),
+                            detectBackGroundColor(snapshot.data!).withAlpha(100),
+                          ],
+                        ),
                       ),
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    height: 40,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          FutureBuilder<String>(
-                            future: _roomRepo.getName(callRepo.roomUid!),
-                            builder: (context, name) {
-                              if (name.hasData) {
-                                return Flexible(
-                                  child: TextLoader(
-                                    text: Text(
-                                      name.data!,
-                                      maxLines: 1,
-                                      softWrap: false,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: theme.textTheme.subtitle2!
-                                          .copyWith(color: Colors.white),
+                      width: MediaQuery.of(context).size.width,
+                      height: 40,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            FutureBuilder<String>(
+                              future: _roomRepo.getName(callRepo.roomUid!),
+                              builder: (context, name) {
+                                if (name.hasData) {
+                                  return Flexible(
+                                    child: TextLoader(
+                                      text: Text(
+                                        name.data!,
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.subtitle2!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                      width: 120,
                                     ),
-                                    width: 120,
-                                  ),
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            },
-                          ),
-                          Row(
-                            children: [
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              CallStatusWidget(
-                                callStatus: snapshot.data!,
-                                isIncomingCall: !callRepo.isCaller,
-                              ),
-                            ],
-                          ),
-                        ],
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            ),
+                            Row(
+                              children: [
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                CallStatusWidget(
+                                  callStatus: snapshot.data!,
+                                  isIncomingCall: !callRepo.isCaller,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                    )
+                  : const SizedBox.shrink(),
+            ),
           );
         } else {
           renderer = const SizedBox.shrink();
