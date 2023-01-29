@@ -35,7 +35,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
       textDirection: _i18n.defaultTextDirection,
       child: Column(
         children: [
-          if (isWindows || isLinux || isMacOS) ...[
+          if (isDesktop) ...[
             _buildPopupMenuItem(
               _i18n.get("show_in_folder"),
               CupertinoIcons.folder_open,

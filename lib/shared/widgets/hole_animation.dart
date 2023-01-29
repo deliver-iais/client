@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:deliver/services/call_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class HoleAnimation extends StatefulWidget {
   const HoleAnimation({
@@ -13,12 +15,14 @@ class HoleAnimation extends StatefulWidget {
 
 class HoleAnimationState extends State<HoleAnimation>
     with SingleTickerProviderStateMixin {
+  final _callService = GetIt.I.get<CallService>();
   late Animation<double> _animation;
   late AnimationController _animationController;
 
   @override
   void dispose() {
     _animationController.dispose();
+    _callService.isHole = true;
     super.dispose();
   }
 
@@ -36,9 +40,21 @@ class HoleAnimationState extends State<HoleAnimation>
 
   @override
   Widget build(BuildContext context) {
-    return HoleAnimatedBackground(
-      animation: _animation,
-    );
+    if (_callService.isHole) {
+      final width = window.physicalSize.longestSide / window.devicePixelRatio;
+      return Center(
+        child: CustomPaint(
+          painter: HolePainter(
+            color: Colors.black12,
+            holeSize: (width * 2),
+          ),
+        ),
+      );
+    } else {
+      return HoleAnimatedBackground(
+        animation: _animation,
+      );
+    }
   }
 }
 

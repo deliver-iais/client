@@ -20,6 +20,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool hideName;
   final bool isHeroEnabled;
   final bool forceToUpdateAvatar;
+  final Widget? noAvatarWidget;
   final BorderRadius? borderRadius;
   final _streamKey = GlobalKey();
   final _futureKey = GlobalKey();
@@ -39,6 +40,7 @@ class CircleAvatarWidget extends StatelessWidget {
     this.isHeroEnabled = true,
     this.showSavedMessageLogoIfNeeded = false,
     this.forceToUpdateAvatar = false,
+    this.noAvatarWidget,
   });
 
   bool isSavedMessage() =>
@@ -137,7 +139,7 @@ class CircleAvatarWidget extends StatelessWidget {
         },
       );
     } else {
-      return showDisplayName(textColor);
+      return noAvatarWidget ?? showDisplayName(textColor);
     }
   }
 

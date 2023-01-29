@@ -92,7 +92,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.1.0
-  flutter_webrtc: 0.9.17
+  flutter_webrtc: 0.9.19
   fluttertoast: 8.1.2
   font_awesome_flutter: 10.3.0
   fuzzy: 0.4.0-nullsafety.0
@@ -219,7 +219,7 @@ flutter:
   assets:
     - android/app/src/main/res/raw/
     - assets/animations/intro.riv
-    - assets/animations/accept_call.json
+    - assets/animations/accepting_call.json
     - assets/animations/arrow.json
     - assets/animations/audio_wave.tgs
     - assets/animations/clock.json

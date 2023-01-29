@@ -16,17 +16,17 @@ import 'package:deliver/box/contact.dart' as _i60;
 import 'package:deliver/box/current_call_info.dart' as _i80;
 import 'package:deliver/box/dao/block_dao.dart' as _i52;
 import 'package:deliver/box/dao/custom_notification_dao.dart' as _i70;
-import 'package:deliver/box/dao/last_activity_dao.dart' as _i84;
+import 'package:deliver/box/dao/last_activity_dao.dart' as _i85;
 import 'package:deliver/box/dao/media_dao.dart' as _i71;
 import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i77;
 import 'package:deliver/box/dao/message_dao.dart' as _i24;
-import 'package:deliver/box/dao/muc_dao.dart' as _i86;
+import 'package:deliver/box/dao/muc_dao.dart' as _i87;
 import 'package:deliver/box/dao/mute_dao.dart' as _i55;
 import 'package:deliver/box/dao/room_dao.dart' as _i27;
 import 'package:deliver/box/dao/seen_dao.dart' as _i42;
 import 'package:deliver/box/dao/shared_dao.dart' as _i49;
 import 'package:deliver/box/dao/uid_id_name_dao.dart' as _i56;
-import 'package:deliver/box/last_activity.dart' as _i85;
+import 'package:deliver/box/last_activity.dart' as _i86;
 import 'package:deliver/box/livelocation.dart' as _i40;
 import 'package:deliver/box/media.dart' as _i72;
 import 'package:deliver/box/media_meta_data.dart' as _i75;
@@ -48,7 +48,7 @@ import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i31;
 import 'package:deliver/repository/avatarRepo.dart' as _i50;
 import 'package:deliver/repository/botRepo.dart' as _i68;
-import 'package:deliver/repository/callRepo.dart' as _i92;
+import 'package:deliver/repository/callRepo.dart' as _i83;
 import 'package:deliver/repository/contactRepo.dart' as _i58;
 import 'package:deliver/repository/fileRepo.dart' as _i35;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i39;
@@ -62,10 +62,10 @@ import 'package:deliver/services/data_stream_services.dart' as _i44;
 import 'package:deliver/services/file_service.dart' as _i38;
 import 'package:deliver/services/firebase_services.dart' as _i34;
 import 'package:deliver/services/muc_services.dart' as _i43;
-import 'package:deliver/services/notification_services.dart' as _i83;
-import 'package:deliver/services/routing_service.dart' as _i90;
-import 'package:deliver/services/url_handler_service.dart' as _i88;
-import 'package:deliver/services/ux_service.dart' as _i87;
+import 'package:deliver/services/notification_services.dart' as _i84;
+import 'package:deliver/services/routing_service.dart' as _i91;
+import 'package:deliver/services/url_handler_service.dart' as _i89;
+import 'package:deliver/services/ux_service.dart' as _i88;
 import 'package:deliver/shared/language.dart' as _i54;
 import 'package:deliver/theme/extra_theme.dart' as _i19;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart' as _i12;
@@ -76,7 +76,7 @@ import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart'
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart' as _i30;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as _i16;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart'
-    as _i89;
+    as _i90;
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as _i59;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as _i37;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as _i41;
@@ -87,7 +87,7 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i11;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i32;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as _i46;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart' as _i33;
-import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i91;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i92;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart' as _i3;
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart' as _i5;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as _i14;
@@ -5743,6 +5743,14 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValueForMissingStub: null,
       );
   @override
+  _i4.BehaviorSubject<bool> get isCallStart => (super.noSuchMethod(
+        Invocation.getter(#isCallStart),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#isCallStart),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
   bool get isInitRenderer => (super.noSuchMethod(
         Invocation.getter(#isInitRenderer),
         returnValue: false,
@@ -5752,6 +5760,19 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         Invocation.setter(
           #isInitRenderer,
           _isInitRenderer,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  bool get isHole => (super.noSuchMethod(
+        Invocation.getter(#isHole),
+        returnValue: false,
+      ) as bool);
+  @override
+  set isHole(bool? _isHole) => super.noSuchMethod(
+        Invocation.setter(
+          #isHole,
+          _isHole,
         ),
         returnValueForMissingStub: null,
       );
@@ -5823,6 +5844,15 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         Invocation.setter(
           #setCallHangedUp,
           isHangedUp,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void setCallStart({required bool? callStart}) => super.noSuchMethod(
+        Invocation.method(
+          #setCallStart,
+          [],
+          {#callStart: callStart},
         ),
         returnValueForMissingStub: null,
       );
@@ -5948,13 +5978,22 @@ class MockCallService extends _i1.Mock implements _i78.CallService {
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
       ) as _i22.Future<void>);
+  @override
+  bool isHiddenCallBottomRow(_i83.CallStatus? callStatus) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #isHiddenCallBottomRow,
+          [callStatus],
+        ),
+        returnValue: false,
+      ) as bool);
 }
 
 /// A class which mocks [NotificationServices].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNotificationServices extends _i1.Mock
-    implements _i83.NotificationServices {
+    implements _i84.NotificationServices {
   MockNotificationServices() {
     _i1.throwOnMissingStub(this);
   }
@@ -6038,29 +6077,29 @@ class MockNotificationServices extends _i1.Mock
 /// A class which mocks [LastActivityDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
+class MockLastActivityDao extends _i1.Mock implements _i85.LastActivityDao {
   MockLastActivityDao() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i22.Future<_i85.LastActivity?> get(String? uid) => (super.noSuchMethod(
+  _i22.Future<_i86.LastActivity?> get(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #get,
           [uid],
         ),
-        returnValue: _i22.Future<_i85.LastActivity?>.value(),
-      ) as _i22.Future<_i85.LastActivity?>);
+        returnValue: _i22.Future<_i86.LastActivity?>.value(),
+      ) as _i22.Future<_i86.LastActivity?>);
   @override
-  _i22.Stream<_i85.LastActivity?> watch(String? uid) => (super.noSuchMethod(
+  _i22.Stream<_i86.LastActivity?> watch(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [uid],
         ),
-        returnValue: _i22.Stream<_i85.LastActivity?>.empty(),
-      ) as _i22.Stream<_i85.LastActivity?>);
+        returnValue: _i22.Stream<_i86.LastActivity?>.empty(),
+      ) as _i22.Stream<_i86.LastActivity?>);
   @override
-  _i22.Future<void> save(_i85.LastActivity? lastActivity) =>
+  _i22.Future<void> save(_i86.LastActivity? lastActivity) =>
       (super.noSuchMethod(
         Invocation.method(
           #save,
@@ -6074,7 +6113,7 @@ class MockLastActivityDao extends _i1.Mock implements _i84.LastActivityDao {
 /// A class which mocks [MucDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMucDao extends _i1.Mock implements _i86.MucDao {
+class MockMucDao extends _i1.Mock implements _i87.MucDao {
   MockMucDao() {
     _i1.throwOnMissingStub(this);
   }
@@ -6209,7 +6248,7 @@ class MockMucDao extends _i1.Mock implements _i86.MucDao {
 /// A class which mocks [UxService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUxService extends _i1.Mock implements _i87.UxService {
+class MockUxService extends _i1.Mock implements _i88.UxService {
   MockUxService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6486,7 +6525,7 @@ class MockUxService extends _i1.Mock implements _i87.UxService {
 /// A class which mocks [UrlHandlerService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
+class MockUrlHandlerService extends _i1.Mock implements _i89.UrlHandlerService {
   MockUrlHandlerService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6530,7 +6569,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
   _i22.Future<void> handleIdLink(
     _i17.BuildContext? context,
     String? node,
-    _i89.Categories? category,
+    _i90.Categories? category,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -6663,7 +6702,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i88.UrlHandlerService {
 /// A class which mocks [RoutingService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
+class MockRoutingService extends _i1.Mock implements _i91.RoutingService {
   MockRoutingService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6697,10 +6736,10 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Stream<_i90.RouteEvent> get currentRouteStream => (super.noSuchMethod(
+  _i22.Stream<_i91.RouteEvent> get currentRouteStream => (super.noSuchMethod(
         Invocation.getter(#currentRouteStream),
-        returnValue: _i22.Stream<_i90.RouteEvent>.empty(),
-      ) as _i22.Stream<_i90.RouteEvent>);
+        returnValue: _i22.Stream<_i91.RouteEvent>.empty(),
+      ) as _i22.Stream<_i91.RouteEvent>);
   @override
   void openSettings({bool? popAllBeforePush = false}) => super.noSuchMethod(
         Invocation.method(
@@ -7024,7 +7063,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
       );
   @override
   void openAllGroupedRoomsGridPage(
-          {required _i91.GroupedRooms? groupedRooms}) =>
+          {required _i92.GroupedRooms? groupedRooms}) =>
       super.noSuchMethod(
         Invocation.method(
           #openAllGroupedRoomsGridPage,
@@ -7072,6 +7111,14 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
         Invocation.method(
           #isInRoom,
           [roomId],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool isInCallRoom() => (super.noSuchMethod(
+        Invocation.method(
+          #isInCallRoom,
+          [],
         ),
         returnValue: false,
       ) as bool);
@@ -7214,7 +7261,7 @@ class MockRoutingService extends _i1.Mock implements _i90.RoutingService {
 /// A class which mocks [CallRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
+class MockCallRepo extends _i1.Mock implements _i83.CallRepo {
   MockCallRepo() {
     _i1.throwOnMissingStub(this);
   }
@@ -7299,6 +7346,14 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
+  set videoMotivation(_i22.Timer? _videoMotivation) => super.noSuchMethod(
+        Invocation.setter(
+          #videoMotivation,
+          _videoMotivation,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   _i4.BehaviorSubject<_i93.CallTimer> get callTimer => (super.noSuchMethod(
         Invocation.getter(#callTimer),
         returnValue: _FakeBehaviorSubject_2<_i93.CallTimer>(
@@ -7316,6 +7371,19 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
+  bool get isAccepted => (super.noSuchMethod(
+        Invocation.getter(#isAccepted),
+        returnValue: false,
+      ) as bool);
+  @override
+  set isAccepted(bool? _isAccepted) => super.noSuchMethod(
+        Invocation.setter(
+          #isAccepted,
+          _isAccepted,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   set timer(_i22.Timer? _timer) => super.noSuchMethod(
         Invocation.setter(
           #timer,
@@ -7324,32 +7392,15 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i4.BehaviorSubject<bool> get mute_camera => (super.noSuchMethod(
-        Invocation.getter(#mute_camera),
-        returnValue: _FakeBehaviorSubject_2<bool>(
-          this,
-          Invocation.getter(#mute_camera),
-        ),
-      ) as _i4.BehaviorSubject<bool>);
-  @override
-  set mute_camera(_i4.BehaviorSubject<bool>? _mute_camera) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #mute_camera,
-          _mute_camera,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  _i4.BehaviorSubject<_i92.CallStatus> get callingStatus => (super.noSuchMethod(
+  _i4.BehaviorSubject<_i83.CallStatus> get callingStatus => (super.noSuchMethod(
         Invocation.getter(#callingStatus),
-        returnValue: _FakeBehaviorSubject_2<_i92.CallStatus>(
+        returnValue: _FakeBehaviorSubject_2<_i83.CallStatus>(
           this,
           Invocation.getter(#callingStatus),
         ),
-      ) as _i4.BehaviorSubject<_i92.CallStatus>);
+      ) as _i4.BehaviorSubject<_i83.CallStatus>);
   @override
-  set callingStatus(_i4.BehaviorSubject<_i92.CallStatus>? _callingStatus) =>
+  set callingStatus(_i4.BehaviorSubject<_i83.CallStatus>? _callingStatus) =>
       super.noSuchMethod(
         Invocation.setter(
           #callingStatus,
@@ -7503,6 +7554,23 @@ class MockCallRepo extends _i1.Mock implements _i92.CallRepo {
         Invocation.setter(
           #incomingCallOnHold,
           _incomingCallOnHold,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  _i4.BehaviorSubject<bool> get isConnectedSubject => (super.noSuchMethod(
+        Invocation.getter(#isConnectedSubject),
+        returnValue: _FakeBehaviorSubject_2<bool>(
+          this,
+          Invocation.getter(#isConnectedSubject),
+        ),
+      ) as _i4.BehaviorSubject<bool>);
+  @override
+  set isConnectedSubject(_i4.BehaviorSubject<bool>? _isConnectedSubject) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #isConnectedSubject,
+          _isConnectedSubject,
         ),
         returnValueForMissingStub: null,
       );
