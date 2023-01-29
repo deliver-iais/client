@@ -103,7 +103,7 @@ class RecorderModule {
     required String roomUid,
   }) async {
     await _requestLock.synchronized(() async {
-      if (isAndroid) {
+      if (isAndroid || isIOS) {
         if (!(await _checkPermission.checkAudioRecorderPermission())) {
           _logger.wtf("There is no permission for recording voice");
           return;
