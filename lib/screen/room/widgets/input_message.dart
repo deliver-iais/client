@@ -407,7 +407,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                         );
                       },
                     ),
-                    // TODO : Recorder(library) need change for web from returning blob to return Uri
+                    // TODO(bitbeter): Recorder(library) need change for web from returning blob to return Uri
                     if (!isWeb)
                       StreamBuilder<bool>(
                         stream: _showSendIcon,
@@ -759,8 +759,10 @@ class InputMessageWidgetState extends State<InputMessage> {
               decoration: InputDecoration(
                 isCollapsed: true,
                 // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
-                contentPadding:
-                    EdgeInsets.only(top: 9, bottom: isDesktop || isWeb ? 9 : 16),
+                contentPadding: EdgeInsets.only(
+                  top: 9,
+                  bottom: isDesktop || isWeb ? 9 : 16,
+                ),
                 border: InputBorder.none,
                 counterText: "",
                 hintText: _hasMarkUpPlaceHolder()
