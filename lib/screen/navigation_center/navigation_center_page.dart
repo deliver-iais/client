@@ -4,6 +4,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
@@ -18,6 +19,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
+import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
@@ -611,12 +613,56 @@ class NavigationCenterState extends State<NavigationCenter>
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
-                        child: IconButton(
-                          onPressed: () => _sharedDao
-                              .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
-                          icon: !_isShowCaseEnable
-                              ? const Icon(Icons.storefront_outlined)
-                              : const Icon(CupertinoIcons.chat_bubble_text),
+                        child: Stack(
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: InkWell(
+                                onTap: () => _sharedDao
+                                    .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: tertiaryBorder,
+                                  ),
+                                  child: PageTransitionSwitcher(
+                                    transitionBuilder: (
+                                      child,
+                                      animation,
+                                      secondaryAnimation,
+                                    ) {
+                                      return FadeScaleTransition(
+                                        animation: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    child: !_isShowCaseEnable
+                                        ? Icon(
+                                            Icons.storefront_outlined,
+                                            color: theme.colorScheme.surface,
+                                          )
+                                        : Icon(
+                                            CupertinoIcons.chat_bubble_fill,
+                                            color: theme.colorScheme.surface,
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (_isShowCaseEnable) ...[
+                              JumpingDotAnimation(
+                                dotsColor: theme.colorScheme.primary,
+                              ),
+                              const Positioned(
+                                top:3,
+                                right: 1,
+                                child: UnreadRoomCounterWidget(),),
+                            ]
+
+                          ],
                         ),
                       ),
                     const SizedBox(

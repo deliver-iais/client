@@ -1,11 +1,21 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
 abstract class SeenDao {
+  Future<String?> getRoomSeen(String uid);
+
+  Future<void> addRoomSeen(String uid);
+
+  Stream<List<String?>> watchAllRoomSeen();
+
+  Future<void> deleteRoomSeen(String uid);
+
   Future<Seen?> getOthersSeen(String uid);
 
   Stream<Seen?> watchOthersSeen(String uid);
@@ -80,7 +90,31 @@ class SeenDaoImpl extends SeenDao {
     final seen = box.get(uid) ?? _defaultSeenValue(uid);
 
     if ((messageId != null && seen.messageId < messageId) ||
-        hiddenMessageCount != null) {
+        (hiddenMessageCount != null && hiddenMessageCount != 0)) {
+      final box2 = await _openRoomSeen();
+      final seenRoom = box2.get(uid);
+      final roomDao = GetIt.I.get<RoomDao>();
+      final room = await roomDao.getRoom(uid);
+      print("seenRoom $seenRoom");
+      print("room?.lastMessageId ${room?.lastMessageId}");
+      print("messageId $messageId");
+      print("seen.messageId ${seen.messageId}");
+      print("hiddenMessageCount ${hiddenMessageCount}");
+      if (seenRoom != null) {
+        if (messageId == (room?.lastMessageId ?? 0) ||
+            (messageId == null &&
+                hiddenMessageCount != null &&
+                (room?.lastMessageId ?? 0) - hiddenMessageCount ==
+                    seen.messageId)) {
+          print("deleteRoomSeen $uid");
+          await deleteRoomSeen(uid);
+        }
+      } else if (messageId != null) {
+        if (messageId != (room?.lastMessageId ?? 0)) {
+          print("addRoomSeen $uid");
+          await addRoomSeen(uid);
+        }
+      }
       return box.put(
         uid,
         seen.copyWith(
@@ -102,9 +136,16 @@ class SeenDaoImpl extends SeenDao {
 
   static String _key2() => "my-seen";
 
+  static String _key3() => "room-seen";
+
   Future<BoxPlus<Seen>> _openOthersSeen() {
     DBManager.open(_key(), TableInfo.OTHER_SEEN_TABLE_NAME);
     return gen(Hive.openBox<Seen>(_key()));
+  }
+
+  Future<BoxPlus<String>> _openRoomSeen() {
+    DBManager.open(_key3(), TableInfo.ROOM_SEEN_TABLE_NAME);
+    return gen(Hive.openBox<String>(_key3()));
   }
 
   Future<BoxPlus<Seen>> _openMySeen() async {
@@ -115,5 +156,32 @@ class SeenDaoImpl extends SeenDao {
       await Hive.deleteBoxFromDisk(_key2());
       return gen(Hive.openBox<Seen>(_key2()));
     }
+  }
+
+  @override
+  Future<void> deleteRoomSeen(String uid) async {
+    final box = await _openRoomSeen();
+    return box.delete(uid);
+  }
+
+  @override
+  Future<String?> getRoomSeen(String uid) async {
+    final box = await _openRoomSeen();
+    return box.get(uid);
+  }
+
+  @override
+  Future<void> addRoomSeen(String uid) async {
+    final box = await _openRoomSeen();
+    return box.put(uid, uid);
+  }
+
+  @override
+  Stream<List<String?>> watchAllRoomSeen() async* {
+    final box = await _openRoomSeen();
+
+    yield box.values.toList();
+
+    yield* box.watch().map((event) => box.values.toList());
   }
 }

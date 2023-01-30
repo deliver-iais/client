@@ -294,8 +294,14 @@ class MessageRepo {
   Future<void> processSeen(RoomMetadata roomMetadata) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
+      final roomSeen =
+          await _seenDao.getRoomSeen(roomMetadata.roomUid.asString());
       final int lastSeenId =
           max(seen.messageId, roomMetadata.lastSeenId.toInt());
+      if (roomSeen == null &&
+          roomMetadata.lastMessageId.toInt() - lastSeenId != 0) {
+        await _seenDao.addRoomSeen(roomMetadata.roomUid.asString());
+      }
       if (lastSeenId > 0) {
         await _updateCurrentUserLastSeen(
           max(
