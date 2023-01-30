@@ -370,6 +370,8 @@ Future<void> _setWindowSize() async {
     setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   }
 
+  // setWindowMaxSize(const Size(3000, 3000));
+
   // Showcase Creation Values
   // Tablet
   // const width = 1139.0;
