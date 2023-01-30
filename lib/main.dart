@@ -372,15 +372,15 @@ Future<void> _setWindowSize() async {
 
   // Showcase Creation Values
   // Tablet
-  // const width = 1120.0;
-  // const height = 864.0;
+  // const width = 1139.0;
+  // const height = 755.0;
   // setWindowMinSize(const Size(width, height));
   // setWindowMaxSize(const Size(width, height));
   // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
 
   // Mobile
-  // const width = 366.0;
-  // const height = 676.0;
+  // const width = 362.0;
+  // const height = 688.0;
   // setWindowMinSize(const Size(width, height));
   // setWindowMaxSize(const Size(width, height));
   // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
