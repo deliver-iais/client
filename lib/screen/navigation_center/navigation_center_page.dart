@@ -594,13 +594,13 @@ class NavigationCenterState extends State<NavigationCenter>
                                 color: theme.colorScheme.tertiaryContainer,
                               )
                             : Icon(
-                                CupertinoIcons.chat_bubble_text,
+                                CupertinoIcons.chat_bubble_fill,
                                 color: theme.colorScheme.tertiaryContainer,
                               ),
                         backgroundColor: theme.colorScheme.tertiaryContainer,
                         targetColor: theme.colorScheme.tertiary,
                         title: Text(
-                          _i18n.get("show_case_feature_discovery_title"),
+                          _i18n.get("chats_feature_discovery_title"),
                           textDirection: _i18n.defaultTextDirection,
                           style: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
@@ -608,19 +608,20 @@ class NavigationCenterState extends State<NavigationCenter>
                         ),
                         description: FeatureDiscoveryDescriptionWidget(
                           description: _i18n
-                              .get("show_case_feature_discovery_description"),
+                              .get("chats_feature_discovery_description"),
                           descriptionStyle: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
-                        child: Stack(
-                          alignment: AlignmentDirectional.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: InkWell(
-                                onTap: () => _sharedDao
-                                    .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                        child: InkWell(
+                          onTap: () => _sharedDao
+                              .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                          child: Stack(
+                            alignment: AlignmentDirectional.center,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: Container(
                                   width: 35,
                                   height: 35,
@@ -651,18 +652,17 @@ class NavigationCenterState extends State<NavigationCenter>
                                   ),
                                 ),
                               ),
-                            ),
-                            if (_isShowCaseEnable) ...[
-                              JumpingDotAnimation(
-                                dotsColor: theme.colorScheme.primary,
-                              ),
-                              const Positioned(
-                                top:3,
-                                right: 1,
-                                child: UnreadRoomCounterWidget(),),
-                            ]
-
-                          ],
+                              if (_isShowCaseEnable) ...[
+                                JumpingDotAnimation(
+                                  dotsColor: theme.colorScheme.primary,
+                                ),
+                                const Positioned(
+                                  top:3,
+                                  right: 1,
+                                  child: UnreadRoomCounterWidget(),),
+                              ]
+                            ],
+                          ),
                         ),
                       ),
                     const SizedBox(

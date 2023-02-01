@@ -92,6 +92,8 @@
   "channel_id_no_whitespace": "channel Id should not contain whitespace",
   "channel_type": "Channel Type",
   "chats": "Chats",
+  "chats_feature_discovery_title" : "You can see your chats",
+  "chats_feature_discovery_description" : "With this option you can see your chats page and talk to anyone you want",
   "choose_a_song": "Choose a song",
   "choose_live_location_time": "Choose for how long to share your live location",
   "click_to_send_file": "Click to send file",
