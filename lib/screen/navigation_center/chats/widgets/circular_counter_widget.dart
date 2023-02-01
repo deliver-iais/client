@@ -29,7 +29,7 @@ class CircularCounterWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: bgColor?? theme.colorScheme.primary,
             borderRadius: mainBorder,
-            border: needBorder ? Border.all(color: Colors.white,width: 2,strokeAlign:StrokeAlign.outside ) :  null,
+            border: needBorder ? Border.all(color: theme.colorScheme.surface,width: 2,strokeAlign:StrokeAlign.outside ) :  null,
             boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: AnimatedSwitchWidget(
