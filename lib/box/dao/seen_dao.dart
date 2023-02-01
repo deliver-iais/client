@@ -95,23 +95,16 @@ class SeenDaoImpl extends SeenDao {
       final seenRoom = box2.get(uid);
       final roomDao = GetIt.I.get<RoomDao>();
       final room = await roomDao.getRoom(uid);
-      print("seenRoom $seenRoom");
-      print("room?.lastMessageId ${room?.lastMessageId}");
-      print("messageId $messageId");
-      print("seen.messageId ${seen.messageId}");
-      print("hiddenMessageCount ${hiddenMessageCount}");
       if (seenRoom != null) {
         if (messageId == (room?.lastMessageId ?? 0) ||
             (messageId == null &&
                 hiddenMessageCount != null &&
                 (room?.lastMessageId ?? 0) - hiddenMessageCount ==
                     seen.messageId)) {
-          print("deleteRoomSeen $uid");
           await deleteRoomSeen(uid);
         }
       } else if (messageId != null) {
         if (messageId != (room?.lastMessageId ?? 0)) {
-          print("addRoomSeen $uid");
           await addRoomSeen(uid);
         }
       }
