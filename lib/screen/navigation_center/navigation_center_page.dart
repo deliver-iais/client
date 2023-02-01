@@ -584,7 +584,6 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,
@@ -607,60 +606,67 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                         description: FeatureDiscoveryDescriptionWidget(
-                          description: _i18n
-                              .get("chats_feature_discovery_description"),
+                          description:
+                              _i18n.get("chats_feature_discovery_description"),
                           descriptionStyle: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
-                        child: InkWell(
+                        child: GestureDetector(
                           onTap: () => _sharedDao
                               .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
                           child: Stack(
                             alignment: AlignmentDirectional.center,
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary,
-                                    borderRadius: tertiaryBorder,
-                                  ),
-                                  child: PageTransitionSwitcher(
-                                    transitionBuilder: (
-                                      child,
-                                      animation,
-                                      secondaryAnimation,
-                                    ) {
-                                      return FadeScaleTransition(
-                                        animation: animation,
-                                        child: child,
-                                      );
-                                    },
-                                    child: !_isShowCaseEnable
-                                        ? Icon(
-                                            Icons.storefront_outlined,
-                                            color: theme.colorScheme.surface,
-                                          )
-                                        : Icon(
-                                            CupertinoIcons.chat_bubble_fill,
-                                            color: theme.colorScheme.surface,
-                                          ),
-                                  ),
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Stack(
+                                  alignment: AlignmentDirectional.center,
+                                  children: [
+                                    Container(
+                                      width: 35,
+                                      height: 35,
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.primary,
+                                        borderRadius: tertiaryBorder,
+                                      ),
+                                      child: PageTransitionSwitcher(
+                                        transitionBuilder: (
+                                          child,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) {
+                                          return FadeScaleTransition(
+                                            animation: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        child: !_isShowCaseEnable
+                                            ? Icon(
+                                                Icons.storefront_outlined,
+                                                color:
+                                                    theme.colorScheme.surface,
+                                              )
+                                            : Icon(
+                                                CupertinoIcons.chat_bubble_fill,
+                                                color:
+                                                    theme.colorScheme.surface,
+                                              ),
+                                      ),
+                                    ),
+                                    if (_isShowCaseEnable) ...[
+                                      JumpingDotAnimation(
+                                        dotsColor: theme.colorScheme.primary,
+                                      ),
+                                    ]
+                                  ],
                                 ),
                               ),
-                              if (_isShowCaseEnable) ...[
-                                JumpingDotAnimation(
-                                  dotsColor: theme.colorScheme.primary,
-                                ),
-                                const Positioned(
-                                  top:3,
-                                  right: 1,
-                                  child: UnreadRoomCounterWidget(),),
-                              ]
+                              const Positioned(
+                                top: 3,
+                                right: 0,
+                                child: UnreadRoomCounterWidget(),
+                              ),
                             ],
                           ),
                         ),

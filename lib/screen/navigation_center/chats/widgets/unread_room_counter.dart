@@ -18,7 +18,6 @@ class UnreadRoomCounterWidget extends StatelessWidget {
             snapshot.data != null &&
             snapshot.data!.isNotEmpty) {
           final unreadCount = snapshot.data!.length;
-          print(snapshot.data);
           return CircularCounterWidget(
             unreadCount: unreadCount,
             bgColor: Theme.of(context).colorScheme.error,
