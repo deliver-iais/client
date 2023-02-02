@@ -229,7 +229,7 @@ flutter:
     - assets/backgrounds/
     - assets/emoji/
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
-    - assets/images/logo.png
+    - assets/images/logo.webp
     - assets/images/no-profile-pic.png
     - assets/images/security.webp
     - assets/images/experiment.webp

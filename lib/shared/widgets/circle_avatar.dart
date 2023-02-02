@@ -85,7 +85,7 @@ class CircleAvatarWidget extends StatelessWidget {
   Widget getImageWidget(Uid uid, Color textColor) {
     if (uid.category == Categories.SYSTEM) {
       return const Image(
-        image: AssetImage('assets/images/logo.png'),
+        image: AssetImage('assets/images/logo.webp'),
       );
     } else if (isSavedMessage()) {
       return Icon(
