@@ -152,6 +152,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  brotli:
+    dependency: "direct main"
+    description:
+      name: brotli
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.5.0"
   build:
     dependency: transitive
     description:

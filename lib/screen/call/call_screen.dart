@@ -11,7 +11,7 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,8 +91,8 @@ class CallScreenState extends State<CallScreen> {
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: const Tgs.asset(
-            'assets/animations/call_permission.tgs',
+          title: const Ws.asset(
+            'assets/animations/call_permission.ws',
             width: 150,
             height: 150,
           ),

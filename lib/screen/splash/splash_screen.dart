@@ -9,7 +9,7 @@ import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
@@ -137,10 +137,10 @@ class SplashScreenState extends State<SplashScreen>
             children: [
               ShakeWidget(
                 controller: _shakeController,
-                child: Tgs.asset(
-                  "assets/animations/unlock.tgs",
+                child: Ws.asset(
+                  "assets/animations/unlock.ws",
                   controller: _animationController,
-                  autoPlay: false,
+                  animate: false,
                   width: 60,
                   height: 60,
                 ),

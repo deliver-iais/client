@@ -1,7 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants.dart';
@@ -24,8 +24,8 @@ void showOutOfDateDialog(BuildContext context) {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Lottie.asset(
-                  "assets/animations/out_of_date.zip",
+                const Ws.asset(
+                  "assets/animations/out_of_date.ws",
                   height: 200,
                 ),
                 Text(

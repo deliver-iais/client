@@ -1,9 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanQrCode extends StatefulWidget {
@@ -52,8 +52,8 @@ class _ScanQrCode extends State<ScanQrCode> {
         Padding(
           padding: const EdgeInsets.only(right: 40),
           child: Center(
-            child: Lottie.asset(
-              "assets/animations/qr.zip",
+            child: Ws.asset(
+              "assets/animations/qr.ws",
               height: MediaQuery.of(context).size.height / 2,
             ),
           ),

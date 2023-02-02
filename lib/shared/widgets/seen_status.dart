@@ -4,6 +4,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -105,11 +106,10 @@ class SeenStatus extends StatelessWidget {
       case SeenMessageStatus.PENDING:
         return Container(
           key: const ValueKey("PENDING"),
-          child: Lottie.asset(
-            'assets/animations/clock.json',
+          child: Ws.asset(
+            'assets/animations/clock.ws',
             width: size,
             height: size,
-            // fit: BoxFit.fitHeight,
             delegates: LottieDelegates(
               values: [
                 ValueDelegate.color(
@@ -122,7 +122,6 @@ class SeenStatus extends StatelessWidget {
                 )
               ],
             ),
-            repeat: true,
           ),
         );
       case SeenMessageStatus.SENT:
