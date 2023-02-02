@@ -335,7 +335,7 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
             ],
           ),
         GestureDetector(
-          onTap: () => _controller.forward(from: 0),
+          onTap: () => isWeb ? _controller.forward(from: 0) : null,
           child: SizedBox(
             width: 120,
             height: 120,
