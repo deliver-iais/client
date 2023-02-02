@@ -654,14 +654,14 @@ class NavigationCenterState extends State<NavigationCenter>
                                               ),
                                       ),
                                     ),
-                                    if (_isShowCaseEnable) ...[
+                                    if (_isShowCaseEnable)
                                       JumpingDotAnimation(
                                         dotsColor: theme.colorScheme.primary,
                                       ),
-                                    ]
                                   ],
                                 ),
                               ),
+                              if (_isShowCaseEnable)
                               const Positioned(
                                 top: 3,
                                 right: 0,
