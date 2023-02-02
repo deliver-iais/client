@@ -1,5 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -13,12 +13,8 @@ class NoResultWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Tgs.asset(
-          'assets/duck_animation/not_found.tgs',
-        ),
-        const SizedBox(
-          height: 10,
-        ),
+        const Ws.asset('assets/duck_animation/not_found.ws'),
+        const SizedBox(height: 10),
         Text(_i18n.get("no_results"))
       ],
     );

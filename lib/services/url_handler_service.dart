@@ -16,7 +16,7 @@ import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -184,8 +184,8 @@ class UrlHandlerService {
           builder: (ctx) {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 40),
-              child: const Tgs.asset(
-                'assets/animations/done.tgs',
+              child: const Ws.asset(
+                'assets/animations/done.ws',
                 width: 150,
                 height: 150,
                 repeat: false,

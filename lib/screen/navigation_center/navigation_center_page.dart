@@ -19,8 +19,8 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
@@ -348,8 +348,8 @@ class NavigationCenterState extends State<NavigationCenter>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Tgs.asset(
-                          "assets/animations/new_version.tgs",
+                        const Ws.asset(
+                          "assets/animations/new_version.ws",
                           height: 230,
                           width: 300,
                         ),

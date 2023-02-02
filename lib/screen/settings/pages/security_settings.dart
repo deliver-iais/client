@@ -10,6 +10,7 @@ import 'package:deliver/shared/widgets/brand_image.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
@@ -255,8 +256,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Lottie.asset(
-              "assets/animations/lock.json",
+            Ws.asset(
+              "assets/animations/lock.ws",
               width: 60,
               height: 60,
               delegates: LottieDelegates(
@@ -369,8 +370,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Lottie.asset(
-                "assets/animations/lock.json",
+              Ws.asset(
+                "assets/animations/lock.ws",
                 width: 60,
                 height: 60,
                 delegates: LottieDelegates(

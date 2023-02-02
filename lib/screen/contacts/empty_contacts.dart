@@ -1,5 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -22,8 +22,8 @@ class EmptyContacts extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
-            child: Tgs.asset(
-              "assets/duck_animation/cry.tgs",
+            child: Ws.asset(
+              "assets/duck_animation/cry.ws",
               width: 180,
               height: 180,
             ),

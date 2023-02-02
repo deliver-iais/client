@@ -3,6 +3,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/gestures.dart';
@@ -127,8 +128,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
               Column(
                 children: <Widget>[
                   const SizedBox(height: 30),
-                  Lottie.asset(
-                    "assets/animations/lock.json",
+                  Ws.asset(
+                    "assets/animations/lock.ws",
                     width: 60,
                     height: 60,
                     delegates: LottieDelegates(

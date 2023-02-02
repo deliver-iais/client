@@ -3,6 +3,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -344,16 +345,15 @@ class CallBottomRowState extends State<CallBottomRow>
               height: 150,
               child: IconButton(
                 hoverColor: Colors.transparent,
-                icon: Lottie.asset(
-                  "assets/animations/accepting_call.json",
+                icon: Ws.asset(
+                  "assets/animations/accepting_call.ws",
                   width: 150,
                   height: 150,
                   delegates: LottieDelegates(
                     values: [
                       ValueDelegate.color(
                         const ['**'],
-                        value:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
+                        value: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ],
                   ),

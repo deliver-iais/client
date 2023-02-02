@@ -1,10 +1,10 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
   static void showToast({
@@ -46,7 +46,11 @@ class ToastDisplay {
                 width: 12.0,
               ),
             if (animateDone)
-              Lottie.asset("assets/animations/done.zip", width: 60, height: 40),
+              const Ws.asset(
+                "assets/animations/data.ws",
+                width: 60,
+                height: 40,
+              ),
             Expanded(
               child: Text(
                 toastText,

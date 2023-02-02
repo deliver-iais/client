@@ -34,6 +34,7 @@ dependencies:
       url: https://github.com/deliveriais/audioplayers
       path: packages/audioplayers
   badges: 2.0.3
+  brotli: 0.5.0
   camera:
     git:
       url: https://github.com/bottlepay/plugins.git
@@ -218,19 +219,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - android/app/src/main/res/raw/
-    - assets/animations/intro.riv
-    - assets/animations/accepting_call.json
-    - assets/animations/arrow.json
-    - assets/animations/audio_wave.tgs
-    - assets/animations/clock.json
-    - assets/animations/lock.json
-    - assets/animations/done.tgs
-    - assets/animations/file-save.json
-    - assets/animations/not-found.tgs
-    - assets/animations/touch.zip
-    - assets/animations/done.zip
-    - assets/animations/unlock.tgs
-    - assets/animations/new_version.tgs
+    - assets/animations/
     - assets/audios/beep_sound.mp3
     - assets/audios/busy_sound.mp3
     - assets/audios/incoming_msg.mp3
@@ -242,18 +231,13 @@ flutter:
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
     - assets/images/logo.png
     - assets/images/no-profile-pic.png
-    - assets/images/wave.png
     - assets/images/security.webp
     - assets/images/experiment.webp
     - assets/images/language.webp
     - assets/images/connection.webp
     - lib/lang/en.json
     - lib/lang/fa.json
-    - assets/animations/end_of_call.json
     - assets/audios/end_call.mp3
-    - assets/animations/out_of_date.zip
-    - assets/animations/call_permission.tgs
-    - assets/animations/qr.zip
     - assets/duck_animation/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
