@@ -1517,18 +1517,26 @@ class CallRepo {
   }
 
   Future<void> _waitUntilCandidateConditionDone() async {
-    final candidateNumber = _reconnectTry
-        ? 20
-        : int.parse(
-            (await _sharedDao.get("ICECandidateNumbers")) ??
-                ICE_CANDIDATE_NUMBER.toString(),
-          );
-    final candidateTimeLimit = _reconnectTry
-        ? 3000
-        : int.parse(
-            (await _sharedDao.get("ICECandidateTimeLimit")) ??
-                ((_isVideo) ? "2000" : ICE_CANDIDATE_TIME_LIMIT.toString()),
-          ); // 0.5 sec for audio and 1.0 for video
+    var candidateNumber;
+    var candidateTimeLimit;
+    try {
+      candidateNumber = _reconnectTry
+          ? 20
+          : int.parse(
+        (await _sharedDao.get("ICECandidateNumbers")) ??
+            ICE_CANDIDATE_NUMBER.toInt().toString(),
+      );
+      candidateTimeLimit = _reconnectTry
+          ? 3000
+          : int.parse(
+        (await _sharedDao.get("ICECandidateTimeLimit")) ??
+            ((_isVideo) ? "2000" : ICE_CANDIDATE_TIME_LIMIT.toInt().toString()),
+      ); // 0.5 sec for audio and 1.0 for video
+    } catch(e) {
+      _logger.e(e);
+      candidateNumber = ICE_CANDIDATE_NUMBER;
+      candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
+    }
     _logger.i(
       "candidateNumber:$candidateNumber",
       "candidateTimeLimit:$candidateTimeLimit",
