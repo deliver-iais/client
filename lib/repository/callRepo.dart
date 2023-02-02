@@ -1517,8 +1517,8 @@ class CallRepo {
   }
 
   Future<void> _waitUntilCandidateConditionDone() async {
-    var candidateNumber;
-    var candidateTimeLimit;
+    late final int candidateNumber;
+    late final int candidateTimeLimit;
     try {
       candidateNumber = _reconnectTry
           ? 20
@@ -1534,8 +1534,8 @@ class CallRepo {
       ); // 0.5 sec for audio and 1.0 for video
     } catch(e) {
       _logger.e(e);
-      candidateNumber = ICE_CANDIDATE_NUMBER;
-      candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
+      candidateNumber = ICE_CANDIDATE_NUMBER.toInt();
+      candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT.toInt();
     }
     _logger.i(
       "candidateNumber:$candidateNumber",

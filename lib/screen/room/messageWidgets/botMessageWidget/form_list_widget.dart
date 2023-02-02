@@ -28,8 +28,6 @@ class FormListWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ShakeWidget(
-        horizontalPadding: 5,
-        animationRange: 5,
         controller: shakeWidgetController,
         child: Column(
           children: [

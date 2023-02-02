@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;

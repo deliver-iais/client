@@ -236,7 +236,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                     child: Row(
                       children: [
                         Ws.asset(
-                          "assets/animations/ws.zip",
+                          "assets/animations/touch.ws",
                           width: 90,
                           height: 70,
                           delegates: LottieDelegates(

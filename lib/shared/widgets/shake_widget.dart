@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class ShakeWidget extends StatefulWidget {
   final Widget child;
-  final double horizontalPadding;
   final double animationRange;
   final ShakeWidgetController controller;
   final Duration animationDuration;
@@ -10,7 +9,6 @@ class ShakeWidget extends StatefulWidget {
   const ShakeWidget({
     super.key,
     required this.child,
-    this.horizontalPadding = 30,
     this.animationRange = 24,
     required this.controller,
     this.animationDuration = const Duration(milliseconds: 400),
@@ -49,11 +47,11 @@ class ShakeWidgetState extends State<ShakeWidget>
       animation: offsetAnimation,
       builder: (context, child) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: widget.animationRange),
-          padding: EdgeInsets.only(
-            left: offsetAnimation.value + widget.horizontalPadding,
-            right: widget.horizontalPadding - offsetAnimation.value,
-          ),
+          transform: Matrix4.translationValues(offsetAnimation.value, 0, 0),
+          // padding: EdgeInsets.only(
+          //   left: offsetAnimation.value + widget.horizontalPadding,
+          //   right: widget.horizontalPadding - offsetAnimation.value,
+          // ),
           child: widget.child,
         );
       },
