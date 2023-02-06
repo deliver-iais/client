@@ -1,9 +1,9 @@
-import 'package:deliver/box/call_status.dart' as call_status;
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/repository/callRepo.dart' as call_status;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -38,12 +38,23 @@ class CallService {
 
   bool shouldRemoveData = false;
 
+  final BehaviorSubject<bool> isCallStart = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _isCallStart = BehaviorSubject.seeded(false);
+
   bool isInitRenderer = false;
+  bool isHole = false;
 
   CallService() {
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
+    _isCallStart.distinct().listen((event) {
+      isCallStart.add(event);
+    });
+  }
+
+  void setCallStart({required bool callStart}) {
+    _isCallStart.add(callStart);
   }
 
   void addCallEvent(CallEvents event) {
@@ -111,22 +122,22 @@ class CallService {
 
   set setCallHangedUp(bool isHangedUp) => _isHangedUp = isHangedUp;
 
-  call_status.CallStatus findCallEventStatusProto(
+  CallStatus findCallEventStatusProto(
     CallEvent_CallStatus eventCallStatus,
   ) {
     switch (eventCallStatus) {
       case CallEvent_CallStatus.CREATED:
-        return call_status.CallStatus.CREATED;
+        return CallStatus.CREATED;
       case CallEvent_CallStatus.BUSY:
-        return call_status.CallStatus.BUSY;
+        return CallStatus.BUSY;
       case CallEvent_CallStatus.DECLINED:
-        return call_status.CallStatus.DECLINED;
+        return CallStatus.DECLINED;
       case CallEvent_CallStatus.ENDED:
-        return call_status.CallStatus.ENDED;
+        return CallStatus.ENDED;
       case CallEvent_CallStatus.IS_RINGING:
-        return call_status.CallStatus.IS_RINGING;
+        return CallStatus.IS_RINGING;
     }
-    return call_status.CallStatus.ENDED;
+    return CallStatus.ENDED;
   }
 
   CallType findCallEventType(CallEvent_CallType eventCallType) {
@@ -182,14 +193,19 @@ class CallService {
 
   Future<void> clearCallData({bool forceToClearData = false}) async {
     if (shouldRemoveData || forceToClearData) {
-      _logger.d("Clearing Call Data");
+      _logger.i("Clearing Call Data");
       _callId = "";
       _callState = UserCallState.NO_CALL;
       isInitRenderer = false;
       _isHangedUp = false;
+      isHole = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
       await _disposeRenderer();
     }
+  }
+
+  bool isHiddenCallBottomRow(call_status.CallStatus callStatus) {
+    return callStatus == call_status.CallStatus.CONNECTED;
   }
 }

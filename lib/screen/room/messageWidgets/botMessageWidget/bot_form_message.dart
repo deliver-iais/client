@@ -12,6 +12,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/widgets/count_down_timer.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:flutter/cupertino.dart';
@@ -234,8 +235,8 @@ class BotFormMessageState extends State<BotFormMessage> {
                     ),
                     child: Row(
                       children: [
-                        Lottie.asset(
-                          "assets/animations/touch.zip",
+                        Ws.asset(
+                          "assets/animations/touch.ws",
                           width: 90,
                           height: 70,
                           delegates: LottieDelegates(

@@ -51,16 +51,16 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
 
-  final _scrollController =
-      ScrollController(initialScrollOffset: hasVirtualKeyboardCapability ? 55 : 0);
+  final _scrollController = ScrollController(
+    initialScrollOffset: hasVirtualKeyboardCapability ? 55 : 0,
+  );
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final _selectedEmojiGroup = BehaviorSubject<EmojiGroup?>.seeded(null);
   final BehaviorSubject<bool> _searchBoxHasText = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _hideHeaderAndFooter =
       BehaviorSubject.seeded(false);
-  final BehaviorSubject<bool> _pinHeader =
-  BehaviorSubject.seeded(true);
+  final BehaviorSubject<bool> _pinHeader = BehaviorSubject.seeded(true);
   final BehaviorSubject<List<Emoji>?> _searchEmojiResult =
       BehaviorSubject.seeded(null);
 
@@ -159,9 +159,11 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
             onTap: () => _closeSkinToneOverlay(),
             child: Container(
               decoration: BoxDecoration(
-                boxShadow: hasVirtualKeyboardCapability ? null : DEFAULT_BOX_SHADOWS,
+                boxShadow:
+                    hasVirtualKeyboardCapability ? null : DEFAULT_BOX_SHADOWS,
                 color: theme.colorScheme.onInverseSurface,
-                borderRadius: hasVirtualKeyboardCapability ? null : tertiaryBorder,
+                borderRadius:
+                    hasVirtualKeyboardCapability ? null : tertiaryBorder,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -188,7 +190,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
                         //todo(chitsaz) fix overlay problem with text field and add search box
                         //search box
-                        if (hasVirtualKeyboardCapability) _buildEmojiSearchBox(theme),
+                        if (hasVirtualKeyboardCapability)
+                          _buildEmojiSearchBox(theme),
 
                         //emoji grid
                         if (_isSearchModeEnable)

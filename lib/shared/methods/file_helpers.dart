@@ -21,6 +21,8 @@ import 'package:path/path.dart' as p;
 String normalizePath(String path) =>
     isWeb ? path : p.normalize(path).replaceAll("\\", "/");
 
+String trimRecorderSavedPath(String path) => p.prettyUri(path);
+
 String _normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
 
 String getFileExtension(String path) =>
@@ -245,3 +247,24 @@ extension ImagePath on String {
     );
   }
 }
+
+// TODO(bitbeter): Use these for later
+// const List<String> videoFormats = [
+//   '.mp4',
+//   '.mov',
+//   '.avi',
+//   '.wmv',
+//   '.3gp',
+//   '.3gpp',
+//   '.mkv',
+//   '.flv'
+// ];
+// const List<String> imageFormats = [
+//   '.jpeg',
+//   '.png',
+//   '.jpg',
+//   '.gif',
+//   '.webp',
+//   '.tif',
+//   '.heic'
+// ];

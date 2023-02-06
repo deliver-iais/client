@@ -11,8 +11,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -56,8 +56,8 @@ class CallListPageState extends State<CallListPage> {
             if (snapshot.hasData && snapshot.data != null) {
               final calls = snapshot.data!.reversed.toList();
               if (snapshot.data!.isEmpty) {
-                return const Tgs.asset(
-                  'assets/animations/not-found.tgs',
+                return const Ws.asset(
+                  'assets/duck_animation/not_found.ws',
                   width: 180,
                   height: 150,
                 );

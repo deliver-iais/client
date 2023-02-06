@@ -26,7 +26,7 @@ final isDesktop = (isLinux || isWindows || isMacOS) && !isWeb;
 
 final hasFirebaseCapability = isAndroid;
 
-final hasVibrationCapability = isAndroid || isIOS || isWeb;
+final hasVibrationCapability = isAndroid || isIOS;
 
 final hasVirtualKeyboardCapability = isAndroid || isIOS;
 

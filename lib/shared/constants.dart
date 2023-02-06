@@ -23,7 +23,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "2.0.0";
+const VERSION = "2.0.1";
 
 //messageRepo
 const RANDOM_SIZE = 100000;
@@ -106,8 +106,12 @@ const WEBRTC_MIN_BITRATE =
     128000; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
-
+const ICE_CANDIDATE_NUMBER = 15.0;
+const ICE_CANDIDATE_TIME_LIMIT = 1500.0;
+const grayColor = Color.fromRGBO(55, 58, 62, 1.0);
+const backgroundColorCard = Color.fromRGBO(44, 99, 45, 1.0);
 const DEFAULT_ZOOM_LEVEL = 15.0;
+const androidSmallCallWidgetVerticalMargin = 120.0;
 
 // Shared Dao Once
 const ONCE_SHOW_NEW_VERSION_INFORMATION =
@@ -133,7 +137,6 @@ const SHARED_DAO_THEME_PATTERN = "SHARED_DAO_THEME_PATTERN";
 const SHARED_DAO_SEND_BY_ENTER = "SHARED_DAO_SEND_BY_ENTER";
 const SHARED_DAO_LANGUAGE = "SHARED_DAO_LANGUAGE";
 const SHARED_DAO_FIREBASE_SETTING_IS_SET = "SHARED_DAO_FIREBASE_SETTING_IS_SET";
-const SHARED_DAO_CURRENT_USER_UID = "SHARED_DAO_CURRENT_USER_UID";
 const SHARED_DAO_ACCESS_TOKEN_KEY = "SHARED_DAO_ACCESS_TOKEN_KEY";
 const SHARED_DAO_REFRESH_TOKEN_KEY = "SHARED_DAO_REFRESH_TOKEN_KEY";
 const SHARED_DAO_LOCAL_PASSWORD = "SHARED_DAO_LOCAL_PASSWORD";
@@ -285,6 +288,8 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const MOTION_STANDARD_ANIMATION_DURATION = Duration(milliseconds: 300);
 const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
+const ULTRA_SLOW_ANIMATION_DURATION = Duration(milliseconds: 750);
+const SUPER_ULTRA_SLOW_ANIMATION_DURATION = Duration(milliseconds: 1000);
 
 //FOCUS NODE
 final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);

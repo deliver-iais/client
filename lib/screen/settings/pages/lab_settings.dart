@@ -1,14 +1,17 @@
+import 'dart:math';
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -28,9 +31,9 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
 
-  double ICECandidateNumber = 10;
+  double ICECandidateNumber = ICE_CANDIDATE_NUMBER;
 
-  double ICECandidateTimeLimit = 500;
+  double ICECandidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
 
   List<CheckBoxListTileModel> checkBoxListTileModel = [];
 
@@ -42,10 +45,19 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
   }
 
   Future<void> getCandidateValues() async {
-    ICECandidateNumber =
-        double.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
-    ICECandidateTimeLimit = double.parse(
-      await _sharedDao.get("ICECandidateTimeLimit") ?? "500",
+    ICECandidateNumber = max(
+      double.parse(
+        await _sharedDao.get("ICECandidateNumbers") ??
+            ICE_CANDIDATE_NUMBER.toString(),
+      ),
+      ICECandidateNumber,
+    );
+    ICECandidateTimeLimit = max(
+      double.parse(
+        await _sharedDao.get("ICECandidateTimeLimit") ??
+            ICE_CANDIDATE_TIME_LIMIT.toString(),
+      ),
+      ICECandidateTimeLimit,
     ); //mSec
     setState(() {});
   }
@@ -141,9 +153,9 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                   .setICECandidateNumber(ICECandidateNumber);
                             });
                           },
-                          divisions: 10,
+                          divisions: 5,
                           label: "$ICECandidateNumber",
-                          min: 10,
+                          min: ICE_CANDIDATE_NUMBER,
                           max: 20,
                         )
                       ],
@@ -165,9 +177,9 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                               );
                             });
                           },
-                          divisions: 45,
+                          divisions: 15,
                           label: "$ICECandidateTimeLimit",
-                          min: 500,
+                          min: ICE_CANDIDATE_TIME_LIMIT,
                           max: 3000,
                         )
                       ],
@@ -251,13 +263,18 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       CheckBoxListTileModel(
         checkboxId: 2,
         title: "stun:stun.l.google.com:19302",
-        isCheck: await _sharedDao.getBoolean("stun:stun.l.google.com:19302"),
+        isCheck: await _sharedDao.getBoolean(
+          "stun:stun.l.google.com:19302",
+          defaultValue: true,
+        ),
       ),
       CheckBoxListTileModel(
         checkboxId: 4,
         title: "turn:47.102.201.4:19303?transport=udp",
-        isCheck: await _sharedDao
-            .getBoolean("turn:47.102.201.4:19303?transport=udp"),
+        isCheck: await _sharedDao.getBoolean(
+          "turn:47.102.201.4:19303?transport=udp",
+          defaultValue: true,
+        ),
       ),
     ];
   }
@@ -268,8 +285,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: const Tgs.asset(
-            'assets/animations/call_permission.tgs',
+          title: const Ws.asset(
+            'assets/animations/call_permission.ws',
             width: 150,
             height: 150,
           ),

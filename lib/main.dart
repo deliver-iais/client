@@ -370,10 +370,22 @@ Future<void> _setWindowSize() async {
     setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   }
 
+  // setWindowMaxSize(const Size(3000, 3000));
+
   // Showcase Creation Values
   // Tablet
-  // setWindowMaxSize(const Size(100, 100));
-  // setWindowFrame(Rect.fromLTRB(0, 0, 1120, 864));
+  // const width = 1139.0;
+  // const height = 755.0;
+  // setWindowMinSize(const Size(width, height));
+  // setWindowMaxSize(const Size(width, height));
+  // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
+
+  // Mobile
+  // const width = 362.0;
+  // const height = 688.0;
+  // setWindowMinSize(const Size(width, height));
+  // setWindowMaxSize(const Size(width, height));
+  // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
 }
 
 class MyApp extends StatelessWidget {

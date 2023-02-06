@@ -39,6 +39,8 @@
 	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>In order to access your music for attachments and sharing in messenger</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Can I use the camera please?</string>
 	<key>NSContactsUsageDescription</key>
@@ -70,7 +72,8 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-    <true/>
+	<key>kTCCServiceMediaLibrary</key>
+	<string>media</string>
+
 </dict>
 </plist>

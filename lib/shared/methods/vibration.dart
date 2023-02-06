@@ -18,7 +18,8 @@ Future<void> vibrate({
     );
   }
 }
-Future<void> cancelVibration(){
+
+Future<void> cancelVibration() {
   return Vibration.cancel();
 }
 

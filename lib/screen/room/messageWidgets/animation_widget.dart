@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
@@ -9,11 +7,11 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 bool isAnimatedEmoji(String content) {
   switch (content) {
@@ -301,22 +299,15 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   late AnimationController _controller;
-  late Future<LottieComposition?> _composition;
+  late String path;
 
   @override
   void initState() {
     super.initState();
     try {
-      _composition = _loadComposition();
+      path = getPath();
     } catch (_) {}
     _controller = AnimationController(vsync: this);
-  }
-
-  Future<LottieComposition?> _loadComposition() async {
-    final assetData = await rootBundle.load(getPath());
-    var bytes = assetData.buffer.asUint8List();
-    bytes = GZipCodec().decode(bytes) as Uint8List;
-    return LottieComposition.fromBytes(bytes);
   }
 
   @override
@@ -343,32 +334,17 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
               Debug(content(), label: "content"),
             ],
           ),
-        FutureBuilder<LottieComposition?>(
-          future: _composition,
-          builder: (context, snapshot) {
-            final composition = snapshot.data;
-            if (composition != null) {
-              _controller
-                ..duration = composition.duration
-                ..forward();
-              return GestureDetector(
-                onTap: () => _controller.forward(from: 0),
-                child: SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Lottie(
-                    composition: composition,
-                    controller: _controller,
-                    width: 120,
-                    height: 120,
-                    repeat: false,
-                  ),
-                ),
-              );
-            } else {
-              return const SizedBox(width: 120, height: 120);
-            }
-          },
+        GestureDetector(
+          onTap: () => isWeb ? _controller.forward(from: 0) : null,
+          child: SizedBox(
+            width: 120,
+            height: 120,
+            child: Ws.asset(
+              path,
+              controller: isWeb ? _controller : null,
+              repeat: !isWeb,
+            ),
+          ),
         ),
         Container(
           decoration: const BoxDecoration(borderRadius: mainBorder),
@@ -391,7 +367,7 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
 
     final shortName = Emoji.byChar(content).shortName;
 
-    return 'assets/emoji/$shortName.tgs';
+    return 'assets/emoji/$shortName.ws';
   }
 
   String shortname() {
@@ -412,22 +388,5 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
     } catch (_) {
       return "";
     }
-  }
-}
-
-class AnimationLocal extends StatelessWidget {
-  final String path;
-
-  const AnimationLocal({super.key, required this.path});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Lottie.file(
-        File(path),
-        width: 100,
-        height: 100,
-      ),
-    );
   }
 }

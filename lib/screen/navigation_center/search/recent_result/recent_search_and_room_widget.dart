@@ -45,7 +45,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
             children: [
               const Divider(),
               SizedBox(
-                height: 100,
+                height: 110,
                 child: ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
@@ -91,7 +91,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   return Positioned(
-                                    bottom: 37,
+                                    bottom: 45,
                                     right: 8,
                                     child: UnreadMessageCounterWidget(
                                       recentRooms.data![i].roomId,

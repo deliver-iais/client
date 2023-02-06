@@ -8,11 +8,11 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
@@ -56,7 +56,7 @@ class CallDetailPageState extends State<CallDetailPage> {
             Transform(
               alignment: Alignment.center,
               transform: Matrix4.rotationY(widget.isIncomingCall ? math.pi : 0),
-              child: Lottie.asset("assets/animations/arrow.json", height: 100),
+              child: const Ws.asset("assets/animations/arrow.ws", height: 100),
             ),
             const SizedBox(width: 26),
             CircleAvatarWidget(widget.caller, 24, isHeroEnabled: false),

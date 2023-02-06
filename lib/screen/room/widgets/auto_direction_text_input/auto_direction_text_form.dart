@@ -4,12 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AutoDirectionTextForm extends StatelessWidget {
-  static final direction =
-      BehaviorSubject<TextDirection>.seeded(TextDirection.ltr);
-  static final _i18n = GetIt.I.get<I18N>();
-  static final _controller = TextEditingController();
-
+class AutoDirectionTextForm extends StatefulWidget {
   final TextEditingController? controller;
 
   final FocusNode? focusNode;
@@ -173,69 +168,88 @@ class AutoDirectionTextForm extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<AutoDirectionTextForm> createState() => _AutoDirectionTextFormState();
+}
+
+class _AutoDirectionTextFormState extends State<AutoDirectionTextForm> {
+  static final direction = BehaviorSubject<TextDirection?>.seeded(null);
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    getController().addListener(() {
+      final value = getController().text;
+      if (value.isNotEmpty) {
+        direction.add(_i18n.getDirection(value));
+      } else {
+        direction.add(null);
+      }
+    });
+    super.initState();
+  }
+
+  TextEditingController getController() => widget.controller ?? _controller;
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<TextDirection>(
+    return StreamBuilder<TextDirection?>(
       stream: direction.distinct(),
       builder: (c, sn) {
-        final textDir = sn.data ?? TextDirection.ltr;
+        final textDir = sn.data ?? _i18n.defaultTextDirection;
         return TextFormField(
-          controller: controller ?? _controller,
-          focusNode: focusNode,
-          decoration: decoration,
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          textCapitalization: textCapitalization,
-          style: style,
-          strutStyle: strutStyle,
-          textAlign: textAlign,
-          textAlignVertical: textAlignVertical,
-          textDirection: textDirection ?? textDir,
-          readOnly: readOnly,
-          toolbarOptions: toolbarOptions,
-          showCursor: showCursor,
-          autofocus: autofocus,
-          obscuringCharacter: obscuringCharacter,
-          obscureText: obscureText,
-          autocorrect: autocorrect,
-          smartDashesType: smartDashesType,
-          smartQuotesType: smartQuotesType,
-          enableSuggestions: enableSuggestions,
-          maxLines: maxLines,
-          minLines: minLines,
-          maxLength: maxLength,
-          maxLengthEnforcement: maxLengthEnforcement,
-          onChanged: (value) {
-            if (value.isNotEmpty) {
-              direction.add(_i18n.getDirection(value));
-            }
-            onChanged?.call(value);
-          },
-          onEditingComplete: onEditingComplete,
-          inputFormatters: inputFormatters,
-          enabled: enabled,
-          cursorWidth: cursorWidth,
-          cursorHeight: cursorHeight,
-          cursorRadius: cursorRadius,
-          cursorColor: cursorColor,
-          keyboardAppearance: keyboardAppearance,
-          scrollPadding: scrollPadding,
-          enableInteractiveSelection: enableInteractiveSelection,
-          selectionControls: selectionControls,
-          scrollPhysics: scrollPhysics,
-          autofillHints: autofillHints,
-          restorationId: restorationId,
-          enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
-          autovalidateMode: autovalidateMode,
-          buildCounter: buildCounter,
-          expands: expands,
-          initialValue: initialValue,
-          mouseCursor: mouseCursor,
-          onFieldSubmitted: onFieldSubmitted,
-          onSaved: onSaved,
+          controller: widget.controller ?? _controller,
+          focusNode: widget.focusNode,
+          decoration: widget.decoration,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          textCapitalization: widget.textCapitalization,
+          style: widget.style,
+          strutStyle: widget.strutStyle,
+          textAlign: widget.textAlign,
+          textAlignVertical: widget.textAlignVertical,
+          textDirection: widget.textDirection ?? textDir,
+          readOnly: widget.readOnly,
+          toolbarOptions: widget.toolbarOptions,
+          showCursor: widget.showCursor,
+          autofocus: widget.autofocus,
+          obscuringCharacter: widget.obscuringCharacter,
+          obscureText: widget.obscureText,
+          autocorrect: widget.autocorrect,
+          smartDashesType: widget.smartDashesType,
+          smartQuotesType: widget.smartQuotesType,
+          enableSuggestions: widget.enableSuggestions,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          maxLength: widget.maxLength,
+          maxLengthEnforcement: widget.maxLengthEnforcement,
+          onChanged: widget.onChanged,
+          onEditingComplete: widget.onEditingComplete,
+          inputFormatters: widget.inputFormatters,
+          enabled: widget.enabled,
+          cursorWidth: widget.cursorWidth,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorColor: widget.cursorColor,
+          keyboardAppearance: widget.keyboardAppearance,
+          scrollPadding: widget.scrollPadding,
+          enableInteractiveSelection: widget.enableInteractiveSelection,
+          selectionControls: widget.selectionControls,
+          scrollPhysics: widget.scrollPhysics,
+          autofillHints: widget.autofillHints,
+          restorationId: widget.restorationId,
+          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
+          autovalidateMode: widget.autovalidateMode,
+          buildCounter: widget.buildCounter,
+          expands: widget.expands,
+          initialValue: widget.initialValue,
+          mouseCursor: widget.mouseCursor,
+          onFieldSubmitted: widget.onFieldSubmitted,
+          onSaved: widget.onSaved,
           onTap: () {
             // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
 
-            final localController = controller ?? _controller;
+            final localController = widget.controller ?? _controller;
             if (localController.selection ==
                 TextSelection.fromPosition(
                   TextPosition(
@@ -256,10 +270,10 @@ class AutoDirectionTextForm extends StatelessWidget {
                 ..selection = selection;
             }
 
-            onTap?.call();
+            widget.onTap?.call();
           },
-          scrollController: scrollController,
-          validator: validator,
+          scrollController: widget.scrollController,
+          validator: widget.validator,
         );
       },
     );

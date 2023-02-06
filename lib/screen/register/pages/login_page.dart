@@ -333,8 +333,6 @@ class LoginPageState extends State<LoginPage> {
                       Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: ShakeWidget(
-                          horizontalPadding: 10,
-                          animationRange: 10,
                           controller: _shakeWidgetController,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

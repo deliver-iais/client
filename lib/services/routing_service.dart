@@ -192,16 +192,18 @@ class RoutingService {
     bool isCallAccepted = false,
     bool isVideoCall = false,
   }) {
-    _push(
-      CallScreen(
-        key: const ValueKey("/call-screen"),
-        roomUid: roomUid,
-        isCallAccepted: isCallAccepted,
-        isCallInitialized: isCallInitialized,
-        isIncomingCall: isIncomingCall,
-        isVideoCall: isVideoCall,
-      ),
-    );
+    if (!isInCallRoom()) {
+      _push(
+        CallScreen(
+          key: const ValueKey("/call-screen"),
+          roomUid: roomUid,
+          isCallAccepted: isCallAccepted,
+          isCallInitialized: isCallInitialized,
+          isIncomingCall: isIncomingCall,
+          isVideoCall: isVideoCall,
+        ),
+      );
+    }
   }
 
   void openLocation(final Location location, Uid from, Message message) =>
@@ -353,6 +355,8 @@ class RoutingService {
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
+  bool isInCallRoom() => _path() == "/call-screen";
+
   String _path() => _navigatorObserver.currentRoute.value.nextRoute;
 
   // Routing Functions
@@ -401,10 +405,8 @@ class RoutingService {
         settings: setting,
         pageBuilder: builder,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeThroughTransition(
-            fillColor: Theme.of(context).scaffoldBackgroundColor,
+          return FadeScaleTransition(
             animation: animation,
-            secondaryAnimation: secondaryAnimation,
             child: child,
           );
         },

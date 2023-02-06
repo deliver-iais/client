@@ -51,8 +51,6 @@ class _RichFormattedTextFieldWidgetState
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: ShakeWidget(
-          horizontalPadding: 5,
-          animationRange: 5,
           controller: shakeWidgetController,
           child: FormValidator(
             label: widget.formField.id,
