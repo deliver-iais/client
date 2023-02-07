@@ -278,7 +278,9 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   @override
   void dispose() {
-    _roomRepo.updateRoomDraft(currentRoom.uid, widget.textController.text);
+    if (widget.editableMessage == null) {
+      _roomRepo.updateRoomDraft(currentRoom.uid, widget.textController.text);
+    }
     widget.textController.dispose();
     super.dispose();
   }
