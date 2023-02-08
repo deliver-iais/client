@@ -175,12 +175,9 @@ class DataStreamServices {
 
     final msg = (await saveMessageInMessagesDB(message))!;
 
-
     if (isOnlineMessage) {
       if (!msg.isHidden) {
-        if (await _seenDao.getRoomSeen(roomUid.asString()) == null) {
-          await _seenDao.addRoomSeen(roomUid.asString());
-        }
+        await _seenDao.addRoomSeen(roomUid.asString());
       }
 
       // Step 1 - Update Room Info

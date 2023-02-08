@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -30,6 +31,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
+import '../../shared/widgets/shake_widget.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
@@ -662,11 +665,11 @@ class NavigationCenterState extends State<NavigationCenter>
                                 ),
                               ),
                               if (_isShowCaseEnable)
-                              const Positioned(
-                                top: 3,
-                                right: 0,
-                                child: UnreadRoomCounterWidget(),
-                              ),
+                                Positioned(
+                                  top: 3,
+                                  right: 0,
+                                  child: UnreadRoomCounterWidget(),
+                                ),
                             ],
                           ),
                         ),
