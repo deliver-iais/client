@@ -625,8 +625,8 @@ class NavigationCenterState extends State<NavigationCenter>
                                   alignment: AlignmentDirectional.center,
                                   children: [
                                     Container(
-                                      width: 35,
-                                      height: 35,
+                                      width: 40,
+                                      height: 40,
                                       decoration: BoxDecoration(
                                         color: theme.colorScheme.primary,
                                         borderRadius: tertiaryBorder,
@@ -663,11 +663,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                 ),
                               ),
                               if (_isShowCaseEnable)
-                                const Positioned(
-                                  top: 3,
-                                  right: 0,
-                                  child: UnreadRoomCounterWidget(),
-                                ),
+                                const UnreadRoomCounterWidget(),
                             ],
                           ),
                         ),
