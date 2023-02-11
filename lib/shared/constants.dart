@@ -296,6 +296,7 @@ final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;
+const double BAR_HEIGHT = 50.0;
 const double FLUID_MAX_WIDTH = 500.0;
 const double FLUID_MAX_HEIGHT = 640.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
