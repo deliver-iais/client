@@ -299,6 +299,7 @@ class MessageRepo {
       final int lastSeenId =
           max(seen.messageId, roomMetadata.lastSeenId.toInt());
       if (roomSeen == null &&
+          roomMetadata.lastMessageId.toInt() != 0 &&
           roomMetadata.lastMessageId.toInt() -
                   max(
                     lastSeenId,
