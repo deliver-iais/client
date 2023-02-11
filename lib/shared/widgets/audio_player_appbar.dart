@@ -1,4 +1,5 @@
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
@@ -23,7 +24,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
 
         if (track != null) {
           return Container(
-            height: 45,
+            height: BAR_HEIGHT,
             decoration: BoxDecoration(
               color: theme.appBarTheme.backgroundColor,
               boxShadow: [

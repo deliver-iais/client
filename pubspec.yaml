@@ -128,6 +128,7 @@ dependencies:
       url: https://github.com/bdlukaa/just_audio
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
+  livekit_client: 1.1.12
   logger: 1.1.0
   lottie: 2.1.0
   map_launcher: 2.4.0

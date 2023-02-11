@@ -14,9 +14,11 @@
 #include <desktop_window/desktop_window_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
 #include <flutter_webrtc/flutter_web_r_t_c_plugin.h>
+#include <flutter_window_close/flutter_window_close_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
 #include <image_compression_flutter/image_compression_flutter_plugin.h>
 #include <just_audio_windows/just_audio_windows_plugin.h>
+#include <livekit_client/live_kit_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <record_windows/record_windows_plugin_c_api.h>
@@ -42,12 +44,16 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FileSelectorWindows"));
   FlutterWebRTCPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterWebRTCPlugin"));
+  FlutterWindowClosePluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterWindowClosePlugin"));
   GeolocatorWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
   ImageCompressionFlutterPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ImageCompressionFlutterPlugin"));
   JustAudioWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("JustAudioWindowsPlugin"));
+  LiveKitPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("LiveKitPlugin"));
   PasteboardPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PasteboardPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(

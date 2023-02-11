@@ -52,6 +52,7 @@
   "brightness": "Brightness",
   "busy": "Busy",
   "call_accepted": "Accepted",
+  "call_audio": "Audio Settings",
   "call_busy": "Busy",
   "call_calling": "Calling",
   "call_connected": "Connected",
