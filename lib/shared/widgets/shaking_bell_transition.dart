@@ -92,6 +92,7 @@ class BellAnimationState extends State<BellAnimation>
 
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context).colorScheme;
     return RotationTransition(
       turns: Tween(begin: 0.0, end: -.1)
           .chain(CurveTween(curve: Curves.elasticIn))
@@ -99,14 +100,14 @@ class BellAnimationState extends State<BellAnimation>
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
-          const Icon(
+           Icon(
             Icons.notifications,
-            color: Colors.white,
+            color: theme.surface,
             size: 29,
           ),
           Icon(
             Icons.notifications,
-            color: Theme.of(context).colorScheme.primary,
+            color: theme.primary,
             size: 25,
           ),
         ],
