@@ -299,7 +299,12 @@ class MessageRepo {
       final int lastSeenId =
           max(seen.messageId, roomMetadata.lastSeenId.toInt());
       if (roomSeen == null &&
-          roomMetadata.lastMessageId.toInt() - lastSeenId != 0) {
+          roomMetadata.lastMessageId.toInt() -
+                  max(
+                    lastSeenId,
+                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
+                  ) !=
+              0) {
         await _seenDao.addRoomSeen(roomMetadata.roomUid.asString());
       }
       if (lastSeenId > 0) {
