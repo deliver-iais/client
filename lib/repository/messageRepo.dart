@@ -1115,7 +1115,9 @@ class MessageRepo {
       final msg = _createMessage(
         room,
         forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
-            ? forwardedMessage.roomUid
+            ? forwardedMessage.roomUid.isGroup()
+                ? forwardedMessage.from
+                : forwardedMessage.roomUid
             : forwardedMessage.forwardedFrom,
       ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
