@@ -50,8 +50,8 @@ class MemberSelectionPage extends StatelessWidget {
                     else
                       Text(
                         isChannel
-                            ? _i18n.get("newChannel")
-                            : _i18n.get("newGroup"),
+                            ? _i18n.get("new_channel")
+                            : _i18n.get("new_group"),
                         style: theme.primaryTextTheme.bodyText2,
                       ),
                     StreamBuilder<int>(

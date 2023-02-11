@@ -144,6 +144,8 @@ abstract class Notifier {
 
   Future<void> cancel(String roomUid);
 
+  Future<void> editById(int id, String roomUid, String text);
+
   Future<void> cancelAll();
 
   Future<void> cancelById(int id, String roomUid);
@@ -194,6 +196,16 @@ class NotificationServices {
 
   void cancelNotificationById(int id, String roomUid) {
     _notifier.cancelById(id, roomUid);
+  }
+
+  Future<void> editNotificationById(
+    int id,
+    String roomUid,
+    pro.Message message,
+  ) async {
+    final mb = (await _messageExtractorServices
+        .extractMessageSimpleRepresentative(message));
+    return _notifier.editById(id, roomUid, mb.text);
   }
 
   void cancelAllNotifications() {
@@ -252,6 +264,9 @@ class FakeNotifier implements Notifier {
 
   @override
   Future<void> cancel(String roomUid) async {}
+
+  @override
+  Future<void> editById(int id, String roomUid, String text) async {}
 
   @override
   Future<void> cancelAll() async {}
@@ -408,6 +423,9 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
+  Future<void> editById(int id, String roomUid, String text) async {}
+
+  @override
   Future<void> cancelAll() async {}
 
   @override
@@ -417,6 +435,9 @@ class WindowsNotifier implements Notifier {
 class WebNotifier implements Notifier {
   @override
   Future<void> cancel(String roomUid) async {}
+
+  @override
+  Future<void> editById(int id, String roomUid, String text) async {}
 
   @override
   Future<void> cancelById(int id, String roomUid) async {}
@@ -538,6 +559,9 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
+  Future<void> editById(int id, String roomUid, String text) async {}
+
+  @override
   Future<void> cancelAll() async {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
@@ -576,7 +600,7 @@ class AndroidNotifier implements Notifier {
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_stat');
 
     _flutterLocalNotificationsPlugin.initialize(
       notificationSetting,
@@ -717,14 +741,79 @@ class AndroidNotifier implements Notifier {
     final lines = <String>[];
     for (final element in activeNotifications) {
       if (element.messageId != id) {
-        lines.add("${element.messageText}\n");
+        lines.add(element.messageText);
       }
     }
     if (lines.isNotEmpty) {
-      final text = lines.join("\n");
+      final text = activeNotifications.last.messageText;
       final inboxStyleInformation = _createInboxStyleInformation(
         lines,
         activeNotifications.last.roomName,
+        activeNotifications.where((element) => element.messageId != id).length,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        roomUid.hashCode,
+        activeNotifications.last.roomName,
+        text,
+        notificationDetails: await _createAndroidNotificationDetails(
+          roomUid,
+          activeNotifications.last.roomName,
+          inboxStyleInformation,
+        ),
+        payload: Notifier.genPayload(
+          roomUid,
+          activeNotifications.last.messageId,
+        ),
+      );
+    } else {
+      await cancel(roomUid);
+    }
+  }
+
+  @override
+  Future<void> editById(int id, String roomUid, String editedText) async {
+    //if we don't have that message in our active notification table
+    if ((await _activeNotificationDao.getActiveNotification(roomUid, id)) ==
+        null) {
+      return;
+    }
+
+    // if android(local notification) doesn't have any active notification for that room
+    if ((await _flutterLocalNotificationsPlugin.getActiveNotifications())
+        .where((element) => element.id == roomUid.hashCode)
+        .isEmpty) {
+      await _activeNotificationDao.removeRoomActiveNotification(roomUid);
+      return;
+    }
+
+    final activeNotifications =
+        await _activeNotificationDao.getRoomActiveNotification(roomUid);
+    await _activeNotificationDao.updateActiveNotification(
+      roomUid,
+      id,
+      editedText,
+    );
+
+    final lines = <String>[];
+    for (final element in activeNotifications) {
+      if (element.messageId != id) {
+        lines.add(element.messageText);
+      } else {
+        lines.add(editedText);
+      }
+    }
+    if (lines.isNotEmpty) {
+      final String text;
+      if (activeNotifications.last.messageId == id) {
+        text = editedText;
+      } else {
+        text = activeNotifications.last.messageText;
+      }
+      final inboxStyleInformation = _createInboxStyleInformation(
+        lines,
+        activeNotifications.last.roomName,
+        activeNotifications.where((element) => element.messageId != id).length,
       );
 
       await _flutterLocalNotificationsPlugin.show(
@@ -752,31 +841,29 @@ class AndroidNotifier implements Notifier {
 
     final lines = <String>[];
 
-    final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
-    final roomActiveNotification = res.lastWhereOrNull(
+    final resLocalNotification =
+        await _flutterLocalNotificationsPlugin.getActiveNotifications();
+    final roomActiveNotification = resLocalNotification.lastWhereOrNull(
       (element) => (element.groupKey == message.roomUid.asString() &&
           element.body != null &&
           element.body!.isNotEmpty),
     );
-    if (roomActiveNotification != null) {
-      lines.addAll(roomActiveNotification.body!.split("\n"));
-    } else {
+    if (roomActiveNotification == null) {
       await _activeNotificationDao
           .removeRoomActiveNotification(message.roomUid.asString());
     }
-    lines.add(createNotificationTextFromMessageBrief(message));
 
-    final text = lines.join("\n");
+    final res = await _activeNotificationDao
+        .getRoomActiveNotification(message.roomUid.asString());
 
-    final inboxStyleInformation =
-        _createInboxStyleInformation(lines, message.roomName);
-    final platformChannelSpecifics = await _createAndroidNotificationDetails(
-      message.roomUid.asString(),
-      message.roomName,
-      inboxStyleInformation,
-      shouldBeQuiet: message.shouldBeQuiet,
-    );
+    for (final element in res) {
+      lines.add(element.messageText);
+    }
 
+    final text = createNotificationTextFromMessageBrief(message);
+    lines.add(text);
+
+    final count = lines.length;
     await _activeNotificationDao.save(
       active_notificaton.ActiveNotification(
         roomUid: message.roomUid.asString(),
@@ -785,7 +872,17 @@ class AndroidNotifier implements Notifier {
         roomName: message.roomName,
       ),
     );
-
+    final inboxStyleInformation = _createInboxStyleInformation(
+      lines,
+      message.roomName,
+      count,
+    );
+    final platformChannelSpecifics = await _createAndroidNotificationDetails(
+      message.roomUid.asString(),
+      message.roomName,
+      inboxStyleInformation,
+      shouldBeQuiet: message.shouldBeQuiet,
+    );
     _flutterLocalNotificationsPlugin
         .show(
           message.roomUid.asString().hashCode,
@@ -797,16 +894,39 @@ class AndroidNotifier implements Notifier {
         .ignore();
   }
 
-  InboxStyleInformation _createInboxStyleInformation(
+  BigTextStyleInformation _createInboxStyleInformation(
     List<String> lines,
     String roomName,
+    int count,
   ) {
-    return InboxStyleInformation(
-      lines,
-      contentTitle:
-          lines.length > 1 ? '${lines.length} messages' : "New messages",
-      summaryText: roomName,
+    return BigTextStyleInformation(
+      _getCustomInboxStyleInformation(lines).join("\n"),
+      contentTitle: lines.length > 1
+          ? '$count ${_i18n.get("messages_from")} $roomName'
+          : _i18n.get("new_messages"),
+      summaryText: lines.length > 1
+          ? '$count ${_i18n.get("messages")}'
+          : _i18n.get("new_messages"),
     );
+  }
+
+  List<String> _getCustomInboxStyleInformation(List<String> lines) {
+    final newLines = lines.last.length > 100
+        ? [lines.last]
+        : lines.length > 8
+            ? lines.sublist(lines.length - 8, lines.length)
+            : lines;
+    Iterable<String> list = newLines;
+    if (newLines.length > 1) {
+      list = newLines.map((e) {
+        if (e.length > 100) {
+          return "${e.substring(0, 30)}...";
+        } else {
+          return e;
+        }
+      });
+    }
+    return list.toList();
   }
 
   Future<AndroidNotificationDetails> _createAndroidNotificationDetails(
@@ -1050,6 +1170,9 @@ class IOSNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id, String roomUid) async {}
+
+  @override
+  Future<void> editById(int id, String roomUid, String text) async {}
 }
 
 class MacOSNotifier implements Notifier {
@@ -1075,7 +1198,7 @@ class MacOSNotifier implements Notifier {
             MARK_AS_READ_ACTION_ID,
             _i18n.get("mark_as_read"),
             options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.destructive,
+              DarwinNotificationActionOption.foreground,
             },
           ),
         ],
@@ -1167,6 +1290,9 @@ class MacOSNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id, String roomUid) async {}
+
+  @override
+  Future<void> editById(int id, String roomUid, String text) async {}
 }
 
 String createNotificationTextFromMessageBrief(MessageSimpleRepresentative mb) {

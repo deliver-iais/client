@@ -484,10 +484,10 @@ class RoutingService {
 
   void selectChatMenu(String key) {
     switch (key) {
-      case "newGroup":
+      case "new_group":
         openMemberSelection(isChannel: false);
         break;
-      case "newChannel":
+      case "new_channel":
         openMemberSelection(isChannel: true);
         break;
     }
