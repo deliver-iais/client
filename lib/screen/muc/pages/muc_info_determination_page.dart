@@ -69,7 +69,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
       appBar: AppBar(
         leading: _routingService.backButtonLeading(),
         title: Text(
-          widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
+          widget.isChannel ? _i18n.get("new_channel") : _i18n.get("new_group"),
         ),
       ),
       body: SingleChildScrollView(
