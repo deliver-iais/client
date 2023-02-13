@@ -576,9 +576,7 @@ class DataStreamServices {
 
         if (msg != null) {
           if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            _roomDao
-                .updateRoom(uid: roomUid.asString(), deleted: true)
-                .ignore();
+            await _roomRepo.deleteRoom(roomUid);
             break;
           } else if (!msg.isHidden) {
             lastNotHiddenMessage = msg;
@@ -637,8 +635,8 @@ class DataStreamServices {
         );
 
         for (final msg in messages) {
-          if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
-            await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
+            await _roomRepo.deleteRoom(roomUid);
             return null;
           } else if (!msg.isHidden) {
             return msg;
