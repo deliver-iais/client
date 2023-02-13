@@ -478,9 +478,10 @@ class MessageRepo {
           ..wtf(roomUid)
           ..e(e);
         if (e.code == StatusCode.notFound) {
+          unawaited(sendSeen(lastCurrentUserSentMessageId, roomUid.asUid()));
           return _seenDao.updateMySeen(
             uid: roomUid,
-            messageId: 0,
+            messageId: lastCurrentUserSentMessageId,
           );
         }
       } catch (e) {
