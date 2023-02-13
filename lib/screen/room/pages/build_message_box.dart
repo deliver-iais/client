@@ -18,6 +18,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -544,6 +545,7 @@ class OperationOnMessageSelection {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
 
   final void Function()? onReply;
   final void Function()? onSelect;
@@ -602,7 +604,7 @@ class OperationOnMessageSelection {
         onResend();
         break;
       case OperationOnMessage.DELETE_PENDING_MESSAGE:
-        onDeletePendingMessage();
+        await onDeletePendingMessage();
         break;
       case OperationOnMessage.DELETE_PENDING_EDITED_MESSAGE:
         onDeletePendingEditedMessage();
@@ -778,8 +780,16 @@ class OperationOnMessageSelection {
     );
   }
 
-  void onDeletePendingMessage() {
+  Future<void> onDeletePendingMessage() async {
     _messageRepo.deletePendingMessage(message.packetId);
+    final room = (await _roomRepo.getRoom(message.roomUid));
+    if (room != null) {
+      await _dataStreamServices.fetchLastNotHiddenMessage(
+        room.uid.asUid(),
+        room.lastMessageId,
+        room.firstMessageId,
+      );
+    }
     if (message.type == MessageType.FILE) {
       _fileRepo.cancelUploadFile(message.json.toFile().uuid);
     }
