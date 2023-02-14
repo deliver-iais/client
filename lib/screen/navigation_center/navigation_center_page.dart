@@ -170,28 +170,28 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                         PopupMenuItem<String>(
-                          key: const Key("newGroup"),
-                          value: "newGroup",
+                          key: const Key("new_group"),
+                          value: "new_group",
                           child: Row(
                             children: [
                               const Icon(CupertinoIcons.group),
                               const SizedBox(width: 8),
                               Text(
-                                _i18n.get("newGroup"),
+                                _i18n.get("new_group"),
                                 style: theme.primaryTextTheme.bodyText2,
                               ),
                             ],
                           ),
                         ),
                         PopupMenuItem<String>(
-                          key: const Key("newChannel"),
-                          value: "newChannel",
+                          key: const Key("new_channel"),
+                          value: "new_channel",
                           child: Row(
                             children: [
                               const Icon(CupertinoIcons.news),
                               const SizedBox(width: 8),
                               Text(
-                                _i18n.get("newChannel"),
+                                _i18n.get("new_channel"),
                                 style: theme.primaryTextTheme.bodyText2,
                               )
                             ],
@@ -455,10 +455,10 @@ class NavigationCenterState extends State<NavigationCenter>
       case "contacts":
         _routingService.openContacts();
         break;
-      case "newGroup":
+      case "new_group":
         _routingService.openMemberSelection(isChannel: false);
         break;
-      case "newChannel":
+      case "new_channel":
         _routingService.openMemberSelection(isChannel: true);
         break;
     }

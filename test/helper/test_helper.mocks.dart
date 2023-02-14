@@ -6065,6 +6065,24 @@ class MockNotificationServices extends _i1.Mock
         returnValueForMissingStub: null,
       );
   @override
+  _i22.Future<void> editNotificationById(
+    int? id,
+    String? roomUid,
+    _i45.Message? message,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #editNotificationById,
+          [
+            id,
+            roomUid,
+            message,
+          ],
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
   void cancelAllNotifications() => super.noSuchMethod(
         Invocation.method(
           #cancelAllNotifications,
@@ -7626,6 +7644,19 @@ class MockCallRepo extends _i1.Mock implements _i83.CallRepo {
         returnValue: <int, String>{},
       ) as Map<int, String>);
   @override
+  List<_i15.MediaStreamTrack> get audioTracks => (super.noSuchMethod(
+        Invocation.getter(#audioTracks),
+        returnValue: <_i15.MediaStreamTrack>[],
+      ) as List<_i15.MediaStreamTrack>);
+  @override
+  set selectAudioTrackById(String? trackId) => super.noSuchMethod(
+        Invocation.setter(
+          #selectAudioTrackById,
+          trackId,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   _i22.Future<void> initCall({bool? isOffer = false}) => (super.noSuchMethod(
         Invocation.method(
           #initCall,
@@ -7677,18 +7708,12 @@ class MockCallRepo extends _i1.Mock implements _i83.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Future<void> shareScreen({
-    bool? isWindows = false,
-    _i15.DesktopCapturerSource? source,
-  }) =>
+  _i22.Future<void> shareScreen({_i15.DesktopCapturerSource? source}) =>
       (super.noSuchMethod(
         Invocation.method(
           #shareScreen,
           [],
-          {
-            #isWindows: isWindows,
-            #source: source,
-          },
+          {#source: source},
         ),
         returnValue: _i22.Future<void>.value(),
         returnValueForMissingStub: _i22.Future<void>.value(),
@@ -7697,6 +7722,14 @@ class MockCallRepo extends _i1.Mock implements _i83.CallRepo {
   bool muteMicrophone() => (super.noSuchMethod(
         Invocation.method(
           #muteMicrophone,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool enableMicrophone() => (super.noSuchMethod(
+        Invocation.method(
+          #enableMicrophone,
           [],
         ),
         returnValue: false,

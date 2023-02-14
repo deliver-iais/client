@@ -24,6 +24,8 @@ final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
 
 final isDesktop = (isLinux || isWindows || isMacOS) && !isWeb;
 
+final isDesktopOrWeb = (isLinux || isWindows || isMacOS || isWeb);
+
 final hasFirebaseCapability = isAndroid;
 
 final hasVibrationCapability = isAndroid || isIOS;

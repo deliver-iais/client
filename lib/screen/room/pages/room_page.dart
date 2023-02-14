@@ -281,7 +281,7 @@ class RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            const SizedBox(height: APPBAR_HEIGHT),
+            const SizedBox(height: BAR_HEIGHT),
             if (_featureFlags.showDeveloperDetails)
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),

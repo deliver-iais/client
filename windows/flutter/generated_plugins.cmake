@@ -11,9 +11,11 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_window
   file_selector_windows
   flutter_webrtc
+  flutter_window_close
   geolocator_windows
   image_compression_flutter
   just_audio_windows
+  livekit_client
   pasteboard
   permission_handler_windows
   record_windows
