@@ -720,7 +720,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 
@@ -730,7 +730,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("file_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 
@@ -740,7 +740,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("music_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 

@@ -79,7 +79,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     }
 
     if (emoji != null) {
-      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
+      textStyle = emojiFont(textStyle: textStyle);
     }
 
     if (searchTerm != null) {
@@ -152,7 +152,7 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
     }
 
     if (emoji != null) {
-      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
+      textStyle = emojiFont(textStyle: textStyle);
     }
 
     if (searchTerm != null) {
@@ -197,7 +197,7 @@ Transformer<TextSpan> emojiTransformer() {
     var textStyle = const TextStyle();
 
     if (emoji != null) {
-      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
+      textStyle = emojiFont(textStyle: textStyle);
     }
 
     return TextSpan(

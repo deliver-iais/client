@@ -104,7 +104,7 @@ class _TextUIState extends State<TextUI> {
         linkColor: theme.colorScheme.primary,
         onIdClick: widget.onUsernameClick,
         onBotCommandClick: widget.onBotCommandClick,
-        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );
 
