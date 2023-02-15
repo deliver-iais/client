@@ -155,7 +155,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
-
     _keyboardStatus.add(
       widget.currentRoom.replyKeyboardMarkup != null
           ? KeyboardStatus.REPLY_KEYBOARD
@@ -448,7 +447,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
               ),
             ),
-            if (hasVirtualKeyboardCapability)
+            if (hasVirtualKeyboardCapability ||
+                widget.currentRoom.replyKeyboardMarkup != null)
               StreamBuilder<KeyboardStatus>(
                 stream: _keyboardStatus,
                 builder: (context, back) {
@@ -478,7 +478,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       },
                     );
                   } else if (back.data == KeyboardStatus.REPLY_KEYBOARD) {
-                    ReplyKeyboardMarkupWidget(
+                    return ReplyKeyboardMarkupWidget(
                       replyKeyboardMarkup: widget
                           .currentRoom.replyKeyboardMarkup!
                           .toReplyKeyboardMarkup(),
@@ -779,7 +779,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                             .inputFieldPlaceholder,
                       )
                     : _i18n.defaultTextDirection,
-                hintStyle: theme.textTheme.bodyMedium,
+                hintStyle: TextStyle(color: theme.hintColor.withOpacity(0.4)),
               ),
               textInputAction: TextInputAction.newline,
               minLines: 1,

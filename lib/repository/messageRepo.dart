@@ -1120,7 +1120,11 @@ class MessageRepo {
                 ? forwardedMessage.roomUid
                 : forwardedMessage.from
             : forwardedMessage.forwardedFrom,
-      ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
+      ).copyWith(
+        type: forwardedMessage.type,
+        json: forwardedMessage.json,
+        markup: forwardedMessage.markup,
+      );
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 

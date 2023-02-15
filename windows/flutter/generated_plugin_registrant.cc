@@ -23,6 +23,7 @@
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <record_windows/record_windows_plugin_c_api.h>
 #include <rive_common/rive_plugin.h>
+#include <smart_auth/smart_auth_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <win_toast/win_toast_plugin.h>
 #include <window_size/window_size_plugin.h>
@@ -62,6 +63,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("RecordWindowsPluginCApi"));
   RivePluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("RivePlugin"));
+  SmartAuthPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SmartAuthPlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WinToastPluginRegisterWithRegistrar(
