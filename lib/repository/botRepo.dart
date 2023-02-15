@@ -6,6 +6,7 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -18,7 +19,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -27,6 +27,7 @@ class BotRepo {
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _botDao = GetIt.I.get<BotDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _autRepo = GetIt.I.get<AuthRepo>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     final result =
@@ -60,38 +61,50 @@ class BotRepo {
     return botInfo;
   }
 
-  Future<String?> sendCallbackQuery(
-    String data,
-    Message message,
-  ) async {
+  Future<CallbackQueryRes?> sendCallbackQuery({
+    String data = "",
+    int? id,
+    required Uid to,
+    String? pinCode,
+    String? packetId,
+  }) async {
     try {
-      final botUid = message.from.asUid();
-      final result = await _sdr.botServiceClient.callbackQuery(
+      final callBackQueryResult = await _sdr.botServiceClient.callbackQuery(
         CallbackQueryReq()
-          ..id = botUid.node
+          ..id = ""
           ..data = data
-          ..messageId = Int64(message.id ?? 0)
-          ..messagePacketId = message.packetId,
+          ..bot = to
+          ..pinCode = pinCode ?? ""
+          ..messageId = Int64(id ?? 0)
+          ..messagePacketId = packetId ?? "",
       );
-
-      if (result.text.isNotEmpty) {
-        if (result.showAlert) {
-          //show toast
-          return result.text;
+      if (callBackQueryResult.hasText()) {
+        if (callBackQueryResult.showAlert) {
+          ToastDisplay.showToast(
+            showWarningAnimation: callBackQueryResult.isError,
+            toastText: callBackQueryResult.text,
+          );
         } else {
           //show notification
           GetIt.I.get<NotificationServices>().notifyIncomingMessage(
                 message_pb.Message(
-                  text: (message_pb.Text()..text = result.text),
-                  id: Int64(message.id ?? 0),
-                  from: message.from.asUid(),
-                  to: message.to.asUid(),
+                  text: (message_pb.Text()..text = callBackQueryResult.text),
+                  id: Int64(id ?? 0),
+                  from: to,
+                  to: _autRepo.currentUserUid,
                 ),
-                botUid.asString(),
+                to.asString(),
               );
         }
+      } else if (callBackQueryResult.hasRedirectionUrl()) {
+        unawaited(
+          GetIt.I.get<UrlHandlerService>().onUrlTap(
+                callBackQueryResult.redirectionUrl,
+                sendDirectly: true,
+              ),
+        );
       }
-      return null;
+      return callBackQueryResult;
     } catch (e) {
       _logger.e(e);
     }
@@ -100,27 +113,20 @@ class BotRepo {
 
   Future<void> handleInlineMarkUpMessageCallBack(
     Message message,
-    BuildContext context,
     InlineKeyboardButton button,
   ) async {
     final urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
     if (button.hasUrl()) {
-      await urlHandlerService.onUrlTap(
-        button.url.url,
-        context,
-      );
+      await urlHandlerService.onUrlTap(button.url.url);
     } else if (button.hasCallback()) {
-      final result = await sendCallbackQuery(
-        button.callback.data,
-        message,
+      unawaited(
+        sendCallbackQuery(
+          data: button.callback.data,
+          id: message.id,
+          to: message.from.asUid(),
+        ),
       );
-      if (result != null) {
-        ToastDisplay.showToast(
-          toastContext: context,
-          toastText: result,
-        );
-      }
     }
   }
 

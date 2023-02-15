@@ -59,23 +59,25 @@ class ReceivedMessageBox extends StatelessWidget {
 
     return doNotNeedsWrapper()
         ? boxContent
-        : IntrinsicWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MessageWrapper(
-                  uid: message.from,
-                  isSender: false,
-                  isFirstMessageInGroupedMessages:
-                      isFirstMessageInGroupedMessages,
-                  child: boxContent,
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MessageWrapper(
+                uid: message.from,
+                isSender: false,
+                isFirstMessageInGroupedMessages:
+                    isFirstMessageInGroupedMessages,
+                child: boxContent,
+              ),
+              if (message.markup?.isNotEmpty ?? false)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: InlineMarkUpButtonWidget(
+                    message: message,
+                    isSender: false,
+                  ),
                 ),
-                InlineMarkUpButtonWidget(
-                  message: message,
-                  isSender: false,
-                ),
-              ],
-            ),
+            ],
           );
   }
 

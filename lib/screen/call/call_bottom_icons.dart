@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:livekit_client/livekit_client.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
@@ -26,10 +29,12 @@ class CallBottomRow extends StatefulWidget {
 }
 
 class CallBottomRowState extends State<CallBottomRow>
-    with SingleTickerProviderStateMixin {
+    with CustomPopupMenu, SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
   final _callRepo = GetIt.I.get<CallRepo>();
   final _iconsSize = isAndroid ? 20.0 : 30.0;
+
+  List<MediaDevice>? _audioInputs;
 
   late AnimationController animationController;
   late Animation<double> animation;
@@ -45,6 +50,8 @@ class CallBottomRowState extends State<CallBottomRow>
       parent: animationController,
       curve: Curves.easeIn,
     );
+
+    Hardware.instance.enumerateDevices().then(_loadDevices);
   }
 
   @override
@@ -123,6 +130,99 @@ class CallBottomRowState extends State<CallBottomRow>
         );
       },
     );
+  }
+
+  Widget buildShareScreenButton(ThemeData theme, BuildContext context) {
+    return StreamBuilder<bool>(
+      stream: _callRepo.sharing,
+      builder: (c, snapshot) {
+        final isEnable = snapshot.data ?? false;
+
+        return CircleAvatar(
+          radius: 25,
+          backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+          child: IconButton(
+            onPressed: () => _shareScreen(theme, context),
+            hoverColor: theme.primaryColor.withOpacity(0.6),
+            tooltip: _i18n.get("share_screen"),
+            icon: getEnableIcon(
+              isEnable: isEnable,
+              enableIcon: isDesktop
+                  ? Icons.screen_share_outlined
+                  : Icons.mobile_screen_share_outlined,
+              disableIcon: isDesktop
+                  ? Icons.stop_screen_share_outlined
+                  : Icons.mobile_screen_share_outlined,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildAudioInputSelectionButton(ThemeData theme) {
+    final isEnable = !_callRepo.isMicMuted;
+
+    return CircleAvatar(
+      radius: 25,
+      backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onPanDown: (e) => storePosition(e),
+        child: IconButton(
+          hoverColor: theme.primaryColor.withOpacity(0.6),
+          tooltip: _i18n.get("call_audio"),
+          icon: getEnableIcon(
+            isEnable: isEnable,
+            enableIcon: CupertinoIcons.mic,
+            disableIcon: CupertinoIcons.mic_off,
+          ),
+          onPressed: () => this.showMenu(
+            context: context,
+            items: [
+              PopupMenuItem<MediaDevice>(
+                child: ListTile(
+                  leading: const Icon(
+                    CupertinoIcons.mic_off,
+                    color: Colors.white,
+                  ),
+                  title: Text(
+                    _i18n.get("mute_call"),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                onTap: () => _muteMic(theme),
+              ),
+              if (_audioInputs != null)
+                ..._audioInputs!.map((device) {
+                  return PopupMenuItem<MediaDevice>(
+                    value: device,
+                    child: ListTile(
+                      leading: (device.deviceId ==
+                              Hardware.instance.selectedAudioInput?.deviceId)
+                          ? const Icon(
+                              CupertinoIcons.checkmark_circle,
+                              color: Colors.white,
+                            )
+                          : const Icon(
+                              CupertinoIcons.circle,
+                              color: Colors.white,
+                            ),
+                      title: Text(device.label),
+                    ),
+                  );
+                }).toList()
+            ],
+          ).then(
+            (device) => _selectAudioInput(device!),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void selectAudioTrack(String key) {
+    _callRepo.selectAudioTrackById = key;
   }
 
   Widget buildMicButton(ThemeData theme) {
@@ -235,19 +335,34 @@ class CallBottomRowState extends State<CallBottomRow>
                     ),
                   ],
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    buildMicButton(theme),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        _i18n.get("mute_call"),
-                        style: theme.textTheme.titleSmall,
+                if (!isDesktop)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      buildMicButton(theme),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          _i18n.get("mute_call"),
+                          style: theme.textTheme.titleSmall,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                if (isDesktopOrWeb)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      buildAudioInputSelectionButton(theme),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          _i18n.get("call_audio"),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -272,6 +387,7 @@ class CallBottomRowState extends State<CallBottomRow>
             children: <Widget>[
               buildSwitchingButton(theme),
               buildVideoingButton(theme),
+              if (isDesktopOrWeb) buildShareScreenButton(theme, context),
               buildEndCallButton(),
               buildMicButton(theme),
               if (isAndroid || isIOS) buildSpeakerButton(theme),
@@ -361,17 +477,17 @@ class CallBottomRowState extends State<CallBottomRow>
 
   // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
-    if (WebRTC.platformIsMacOS || WebRTC.platformIsWindows) {
+    if (isDesktop) {
       if (!_callRepo.isSharing) {
         final source = await showDialog<DesktopCapturerSource>(
           context: context,
           builder: (context) => ScreenSelectDialog(),
         );
         if (source != null) {
-          await _callRepo.shareScreen(isWindows: true, source: source);
+          await _callRepo.shareScreen(source: source);
         }
       } else {
-        await _callRepo.shareScreen(isWindows: true);
+        await _callRepo.shareScreen();
       }
     } else {
       await _callRepo.shareScreen();
@@ -395,5 +511,15 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void _declineCall() {
     _callRepo.declineCall();
+  }
+
+  Future<void> _loadDevices(List<MediaDevice> devices) async {
+    _audioInputs = devices.where((d) => d.kind == 'audioinput').toList();
+  }
+
+  Future<void> _selectAudioInput(MediaDevice device) async {
+    _callRepo.enableMicrophone();
+    await Hardware.instance.selectAudioInput(device);
+    setState(() {});
   }
 }

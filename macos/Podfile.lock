@@ -12,6 +12,8 @@ PODS:
     - FlutterMacOS
   - desktop_window (0.0.1):
     - FlutterMacOS
+  - device_info_plus (0.0.1):
+    - FlutterMacOS
   - file_selector_macos (0.0.1):
     - FlutterMacOS
   - Firebase/Analytics (10.3.0):
@@ -79,6 +81,8 @@ PODS:
   - flutter_webrtc (0.9.13):
     - FlutterMacOS
     - WebRTC-SDK (= 104.5112.06)
+  - flutter_window_close (0.0.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - geolocator_apple (1.2.0):
     - FlutterMacOS
@@ -129,6 +133,9 @@ PODS:
     - FlutterMacOS
   - just_audio (0.0.1):
     - FlutterMacOS
+  - livekit_client (1.1.1):
+    - FlutterMacOS
+    - WebRTC-SDK (~> 104.5112.06)
   - mobile_scanner (0.0.1):
     - FlutterMacOS
   - nanopb (2.30909.0):
@@ -151,6 +158,8 @@ PODS:
     - FlutterMacOS
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
+  - smart_auth (0.0.1):
+    - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
   - wakelock_macos (0.0.1):
@@ -166,16 +175,19 @@ DEPENDENCIES:
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
   - desktop_lifecycle (from `Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos`)
   - desktop_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_window/macos`)
+  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_analytics (from `Flutter/ephemeral/.symlinks/plugins/firebase_analytics/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
+  - flutter_window_close (from `Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
+  - livekit_client (from `Flutter/ephemeral/.symlinks/plugins/livekit_client/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
@@ -183,6 +195,7 @@ DEPENDENCIES:
   - record_macos (from `Flutter/ephemeral/.symlinks/plugins/record_macos/macos`)
   - rive_common (from `Flutter/ephemeral/.symlinks/plugins/rive_common/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
+  - smart_auth (from `Flutter/ephemeral/.symlinks/plugins/smart_auth/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
   - window_size (from `Flutter/ephemeral/.symlinks/plugins/window_size/macos`)
@@ -216,6 +229,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos
   desktop_window:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_window/macos
+  device_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   file_selector_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   firebase_analytics:
@@ -228,6 +243,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   flutter_webrtc:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
+  flutter_window_close:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   geolocator_apple:
@@ -236,6 +253,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
+  livekit_client:
+    :path: Flutter/ephemeral/.symlinks/plugins/livekit_client/macos
   mobile_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
   pasteboard:
@@ -250,6 +269,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/rive_common/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
+  smart_auth:
+    :path: Flutter/ephemeral/.symlinks/plugins/smart_auth/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
   wakelock_macos:
@@ -264,6 +285,7 @@ SPEC CHECKSUMS:
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   desktop_lifecycle: a600c10e12fe033c7be9078f2e929b8241f2c1e3
   desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
+  device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   file_selector_macos: f1b08a781e66103e3ba279fd5d4024a2478b3af6
   Firebase: f92fc551ead69c94168d36c2b26188263860acd9
   firebase_analytics: eabf460269aabf88e5641fe6542fef2a4070a17d
@@ -276,6 +298,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   flutter_webrtc: 4bb537cadddcfb5e5b24c96cbd6ff56f064b8faf
+  flutter_window_close: ee4a6b81ca6fafe93b7cba48b0a18976e3f48e39
   FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
   geolocator_apple: 72a78ae3f3e4ec0db62117bd93e34523f5011d58
   GoogleAppMeasurement: c7d6fff39bf2d829587d74088d582e32d75133c3
@@ -283,6 +306,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
+  livekit_client: b438747d15f01e3baaefa8036dd2feec5539387e
   mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
@@ -293,6 +317,7 @@ SPEC CHECKSUMS:
   record_macos: 937889e0f2a7a12b6fc14e97a3678e5a18943de6
   rive_common: 643f5c20ccd60c53136ab5c970eccf0d17e010fe
   shared_preferences_macos: 8b221d457159a85f478c0b9d2f19aeae9feff475
+  smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   url_launcher_macos: c04e4fa86382d4f94f6b38f14625708be3ae52e2
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
   WebRTC-SDK: 85ee61404eb5698cf23a69a27008271db07159fc

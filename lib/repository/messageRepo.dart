@@ -490,9 +490,10 @@ class MessageRepo {
           ..wtf(roomUid)
           ..e(e);
         if (e.code == StatusCode.notFound) {
+          unawaited(sendSeen(lastCurrentUserSentMessageId, roomUid.asUid()));
           return _seenDao.updateMySeen(
             uid: roomUid,
-            messageId: 0,
+            messageId: lastCurrentUserSentMessageId,
           );
         }
       } catch (e) {
@@ -1127,9 +1128,15 @@ class MessageRepo {
       final msg = _createMessage(
         room,
         forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
-            ? forwardedMessage.roomUid
+            ? forwardedMessage.roomUid.isChannel()
+                ? forwardedMessage.roomUid
+                : forwardedMessage.from
             : forwardedMessage.forwardedFrom,
-      ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
+      ).copyWith(
+        type: forwardedMessage.type,
+        json: forwardedMessage.json,
+        markup: forwardedMessage.markup,
+      );
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 

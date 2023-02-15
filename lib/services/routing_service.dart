@@ -484,10 +484,10 @@ class RoutingService {
 
   void selectChatMenu(String key) {
     switch (key) {
-      case "newGroup":
+      case "new_group":
         openMemberSelection(isChannel: false);
         break;
-      case "newChannel":
+      case "new_channel":
         openMemberSelection(isChannel: true);
         break;
     }
@@ -499,7 +499,7 @@ class RoutingService {
       GetIt.I.get<FireBaseServices>().deleteToken();
       GetIt.I.get<CoreServices>().closeConnection();
       await GetIt.I.get<AccountRepo>().logOut();
-      await authRepo.deleteTokens();
+      await authRepo.logout();
       await GetIt.I.get<DBManager>().deleteDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(

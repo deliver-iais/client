@@ -188,7 +188,6 @@ class PinMessageAppBar extends StatelessWidget {
       return TextButton(
         onPressed: () => _botRepo.handleInlineMarkUpMessageCallBack(
           mes,
-          context,
           inlineKeyboardButton,
         ),
         style: ButtonStyle(

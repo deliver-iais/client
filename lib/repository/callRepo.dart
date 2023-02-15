@@ -130,6 +130,13 @@ class CallRepo {
 
   Map<int, String> get callEvents => _callEvents;
 
+  List<MediaStreamTrack> get audioTracks => _localStream!.getAudioTracks();
+
+  set selectAudioTrackById(String trackId) {
+    final track = _localStream?.getTrackById(trackId);
+    _audioSender!.replaceTrack(track);
+  }
+
   Function(MediaStream stream)? onLocalStream;
   Function(MediaStream stream)? onAddRemoteStream;
   Function(MediaStream stream)? onRemoveRemoteStream;
@@ -896,11 +903,8 @@ class CallRepo {
     return stream;
   }
 
-  Future<MediaStream> _getUserDisplay(
-    bool isWindows,
-    DesktopCapturerSource? source,
-  ) async {
-    if (isWindows) {
+  Future<MediaStream> _getUserDisplay(DesktopCapturerSource? source) async {
+    if (isDesktop) {
       final stream =
           await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
         'video': source == null
@@ -928,7 +932,6 @@ class CallRepo {
 //https://github.com/flutter-webrtc/flutter-webrtc/issues/831 issue for Android
 //https://github.com/flutter-webrtc/flutter-webrtc/issues/799 issue for Windows
   Future<void> shareScreen({
-    bool isWindows = false,
     DesktopCapturerSource? source,
   }) async {
     if (!_isSharing) {
@@ -937,7 +940,7 @@ class CallRepo {
         muteCamera();
       }
 
-      _localStreamShare = await _getUserDisplay(isWindows, source);
+      _localStreamShare = await _getUserDisplay(source);
       final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
@@ -1041,6 +1044,22 @@ class CallRepo {
       }
       _localStream!.getAudioTracks()[0].enabled = !enabled;
       _isMicMuted = !_isMicMuted;
+      return enabled;
+    }
+    return false;
+  }
+
+  /*
+  * For Close Microphone
+  * */
+  bool enableMicrophone() {
+    if (_localStream != null) {
+      const enabled = true;
+      if (_isConnected) {
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_OPEN));
+      }
+      _localStream!.getAudioTracks()[0].enabled = enabled;
+      _isMicMuted = false;
       return enabled;
     }
     return false;
@@ -1523,16 +1542,18 @@ class CallRepo {
       candidateNumber = _reconnectTry
           ? 20
           : int.parse(
-        (await _sharedDao.get("ICECandidateNumbers")) ??
-            ICE_CANDIDATE_NUMBER.toInt().toString(),
-      );
+              (await _sharedDao.get("ICECandidateNumbers")) ??
+                  ICE_CANDIDATE_NUMBER.toInt().toString(),
+            );
       candidateTimeLimit = _reconnectTry
           ? 3000
           : int.parse(
-        (await _sharedDao.get("ICECandidateTimeLimit")) ??
-            ((_isVideo) ? "2000" : ICE_CANDIDATE_TIME_LIMIT.toInt().toString()),
-      ); // 0.5 sec for audio and 1.0 for video
-    } catch(e) {
+              (await _sharedDao.get("ICECandidateTimeLimit")) ??
+                  ((_isVideo)
+                      ? "2000"
+                      : ICE_CANDIDATE_TIME_LIMIT.toInt().toString()),
+            ); // 0.5 sec for audio and 1.0 for video
+    } catch (e) {
       _logger.e(e);
       candidateNumber = ICE_CANDIDATE_NUMBER.toInt();
       candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT.toInt();
@@ -1753,7 +1774,7 @@ class CallRepo {
           _routingService.pop();
         }
 
-        if(_isConnected){
+        if (_isConnected) {
           _audioService.playEndCallSound();
         }
 
@@ -1933,7 +1954,7 @@ class CallRepo {
   Future<void> _increaseCandidateAndWaitingTime() async {
     final candidateNumber = int.parse(
       await _sharedDao.get("ICECandidateNumbers") ??
-          ICE_CANDIDATE_NUMBER.toString(),
+          ICE_CANDIDATE_NUMBER.toInt().toString(),
     );
     if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
       _featureFlags
@@ -1949,7 +1970,7 @@ class CallRepo {
   Future<void> _decreaseCandidateAndWaitingTime() async {
     final candidateNumber = int.parse(
       await _sharedDao.get("ICECandidateNumbers") ??
-          ICE_CANDIDATE_NUMBER.toString(),
+          ICE_CANDIDATE_NUMBER.toInt().toString(),
     );
     if (candidateNumber >= 19) {
       _featureFlags

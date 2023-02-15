@@ -9,6 +9,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
@@ -35,7 +36,7 @@ class HomePageState extends State<HomePage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-
+  final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
@@ -117,7 +118,6 @@ class HomePageState extends State<HomePage> {
     if (value != null && value.isNotEmpty) {
       _urlHandlerService.handleApplicationUri(
         value,
-        context,
         shareTextMessage: true,
       );
     }
@@ -125,7 +125,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    FToast().init(context);
+    _uxService.updateHomeContext(context);
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {

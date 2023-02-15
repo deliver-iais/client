@@ -9,6 +9,7 @@ import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -173,28 +174,28 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                         PopupMenuItem<String>(
-                          key: const Key("newGroup"),
-                          value: "newGroup",
+                          key: const Key("new_group"),
+                          value: "new_group",
                           child: Row(
                             children: [
                               const Icon(CupertinoIcons.group),
                               const SizedBox(width: 8),
                               Text(
-                                _i18n.get("newGroup"),
+                                _i18n.get("new_group"),
                                 style: theme.primaryTextTheme.bodyText2,
                               ),
                             ],
                           ),
                         ),
                         PopupMenuItem<String>(
-                          key: const Key("newChannel"),
-                          value: "newChannel",
+                          key: const Key("new_channel"),
+                          value: "new_channel",
                           child: Row(
                             children: [
                               const Icon(CupertinoIcons.news),
                               const SizedBox(width: 8),
                               Text(
-                                _i18n.get("newChannel"),
+                                _i18n.get("new_channel"),
                                 style: theme.primaryTextTheme.bodyText2,
                               )
                             ],
@@ -393,7 +394,6 @@ class NavigationCenterState extends State<NavigationCenter>
                                 onPressed: () =>
                                     _urlHandlerService.handleNormalLink(
                                   downloadLink.url,
-                                  context,
                                 ),
                                 child: Text(
                                   downloadLink.label,
@@ -458,10 +458,10 @@ class NavigationCenterState extends State<NavigationCenter>
       case "contacts":
         _routingService.openContacts();
         break;
-      case "newGroup":
+      case "new_group":
         _routingService.openMemberSelection(isChannel: false);
         break;
-      case "newChannel":
+      case "new_channel":
         _routingService.openMemberSelection(isChannel: true);
         break;
     }
@@ -585,6 +585,30 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                       ),
+                    const SizedBox(width: 8),
+                    StreamBuilder<bool>(
+                      stream: _authRepo.isLocalLockEnabledStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && !(snapshot.data!)) {
+                          return const SizedBox.shrink();
+                        }
+                        return IconButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (c) {
+                                  return const SplashScreen();
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.lock,
+                          ),
+                        );
+                      },
+                    ),
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,

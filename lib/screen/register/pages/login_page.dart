@@ -519,7 +519,7 @@ class LoginPageState extends State<LoginPage> {
       inlineSpanTransformer(
         defaultColor: theme.colorScheme.primary,
         linkColor: theme.colorScheme.primary,
-        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );
   }

@@ -51,6 +51,12 @@ class ActivityStatus extends StatelessWidget {
         return _i18n.get("sending_file_activity");
       case ActivityType.TYPING:
         return _i18n.get("is_typing");
+      case ActivityType.SENDING_IMAGE:
+        return _i18n.get("sending_image_activity");
+      case ActivityType.SENDING_VIDEO:
+        return _i18n.get("sending_video_activity");
+      case ActivityType.SENDING_VOICE:
+        return _i18n.get("sending_voice_activity");
     }
     return "";
   }

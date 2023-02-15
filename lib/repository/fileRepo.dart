@@ -209,6 +209,9 @@ class FileRepo {
           filename,
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
         );
+        if (intiProgressbar) {
+          _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
+        }
         return downloadedFileUri;
       }
 
