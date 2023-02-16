@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ShakingBellTransition extends StatefulWidget {
@@ -17,7 +19,7 @@ class ShakingBellTransition extends StatefulWidget {
 class ShakingBellTransitionState extends State<ShakingBellTransition>
     with SingleTickerProviderStateMixin {
   final _isBellMode = BehaviorSubject.seeded(false);
-   DateTime? lastTimeBellAnimationPlay;
+  DateTime? lastTimeBellAnimationPlay;
 
   @override
   void initState() {
@@ -26,7 +28,8 @@ class ShakingBellTransitionState extends State<ShakingBellTransition>
 
   @override
   Widget build(BuildContext context) {
-    if (lastTimeBellAnimationPlay==null || DateTime.now().difference(lastTimeBellAnimationPlay!).inSeconds >= 10) {
+    if (lastTimeBellAnimationPlay == null ||
+        DateTime.now().difference(lastTimeBellAnimationPlay!).inSeconds >= 10) {
       Timer(const Duration(milliseconds: 200), () {
         lastTimeBellAnimationPlay = DateTime.now();
         _isBellMode.add(true);
@@ -41,21 +44,21 @@ class ShakingBellTransitionState extends State<ShakingBellTransition>
       builder: (context, snapshot) {
         final isBellMode = snapshot.data ?? false;
         return Positioned(
-          top: !isBellMode ? 3 : -1,
-          right: !isBellMode ? 0 : -6,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, anim) => RotationTransition(
-              turns: child.key == const ValueKey('icon1')
-                  ? Tween<double>(begin: 1, end: 0.75).animate(anim)
-                  : Tween<double>(begin: 0.75, end: 1).animate(anim),
-              child: ScaleTransition(scale: anim, child: child),
+          top: -3,
+          right: -4,
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, anim) => ScaleTransition(
+                scale: anim,
+                child: child,
+              ),
+              child: !isBellMode
+                  ? Container(child: widget.child)
+                  : const BellWs(key: ValueKey('icon2')),
             ),
-            child: !isBellMode
-                ? widget.child
-                : const BellAnimation(
-                    key: ValueKey('icon2'),
-                  ),
           ),
         );
       },
@@ -63,55 +66,53 @@ class ShakingBellTransitionState extends State<ShakingBellTransition>
   }
 }
 
-class BellAnimation extends StatefulWidget {
-  const BellAnimation({super.key});
-
-  @override
-  BellAnimationState createState() => BellAnimationState();
-}
-
-class BellAnimationState extends State<BellAnimation>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _controller.forward().then((value) => _controller.reset());
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class BellWs extends StatelessWidget {
+  const BellWs({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme=Theme.of(context).colorScheme;
-    return RotationTransition(
-      turns: Tween(begin: 0.0, end: -.1)
-          .chain(CurveTween(curve: Curves.elasticIn))
-          .animate(_controller),
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-           Icon(
-            Icons.notifications,
-            color: theme.surface,
-            size: 29,
+    final theme = Theme.of(context);
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          transform: Matrix4.translationValues(-1, 1, 0),
+          child: Ws.asset(
+            "assets/animations/silent_unmute.ws",
+            width: 29,
+            height: 29,
+            delegates: LottieDelegates(
+              values: [
+                ValueDelegate.color(
+                  const ['**'],
+                  value: theme.colorScheme.surface,
+                ),
+                ValueDelegate.strokeColor(
+                  const ['**'],
+                  value: theme.colorScheme.surface,
+                ),
+              ],
+            ),
           ),
-          Icon(
-            Icons.notifications,
-            color: theme.primary,
-            size: 25,
+        ),
+        Ws.asset(
+          "assets/animations/silent_unmute.ws",
+          width: 25,
+          height: 25,
+          delegates: LottieDelegates(
+            values: [
+              ValueDelegate.color(
+                const ['**'],
+                value: theme.colorScheme.error,
+              ),
+              ValueDelegate.strokeColor(
+                const ['**'],
+                value: theme.colorScheme.error,
+              ),
+            ],
           ),
-        ],
-      ),
+        )
+      ],
     );
   }
 }
