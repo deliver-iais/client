@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
@@ -21,6 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -43,6 +45,12 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    if (isMacOS) {
+      GetIt.I.get<SeenDao>().watchAllRoomSeen().listen((event) {
+        FlutterAppBadger.updateBadgeCount(event.length);
+      });
+    }
+
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
