@@ -21,7 +21,6 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -61,13 +60,6 @@ class SettingsPageState extends State<SettingsPage> {
     subscription = _accountRepo.getAccountAsStream().listen((event) {
       account.add(event);
     });
-    FirebaseAnalytics.instance.logEvent(
-      name: "settings_page",
-      parameters: {
-        "content_type": "image",
-        "item_id": 12,
-      },
-    );
     super.initState();
   }
 
@@ -222,31 +214,26 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("notification"),
                     leading: const Icon(CupertinoIcons.bell),
                     switchValue: !_uxService.isAllNotificationDisabled,
-                    onToggle: (value) =>
-                        setState(
-                              () =>
-                              _uxService.toggleIsAllNotificationDisabled(),
-                        ),
+                    onToggle: (value) => setState(
+                      () => _uxService.toggleIsAllNotificationDisabled(),
+                    ),
                   ),
                   if (isAndroid)
                     SettingsTile.switchTile(
                       title: _i18n.get("notification_advanced_mode"),
                       leading: const Icon(CupertinoIcons.bell_circle_fill),
                       switchValue:
-                      !_uxService.isNotificationAdvanceModeDisabled,
-                      onToggle: (value) =>
-                      value
+                          !_uxService.isNotificationAdvanceModeDisabled,
+                      onToggle: (value) => value
                           ? _showNotificationAdvanceModeDialog()
                           : setState(() {
-                        _uxService
-                            .toggleIsAdvanceNotificationModeDisabled();
-                      }),
+                              _uxService
+                                  .toggleIsAdvanceNotificationModeDisabled();
+                            }),
                     ),
                   SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.locale
-                        .language()
-                        .name,
+                    subtitle: _i18n.locale.language().name,
                     leading: const FaIcon(FontAwesomeIcons.globe),
                     onPressed: (context) {
                       _routingService.openLanguageSettings();
@@ -328,9 +315,7 @@ class SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: 'Developer Page',
                       subtitle: "Log Level: ${LogLevelHelper.levelToString(
-                        GetIt.I
-                            .get<DeliverLogFilter>()
-                            .level!,
+                        GetIt.I.get<DeliverLogFilter>().level!,
                       )}",
                       leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (context) {
@@ -351,12 +336,12 @@ class SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("version"),
                     leading:
-                    const Icon(CupertinoIcons.square_stack_3d_down_right),
+                        const Icon(CupertinoIcons.square_stack_3d_down_right),
                     trailing: UxService.showDeveloperPage
                         ? FutureBuilder<String?>(
-                      future: SmsAutoFill().getAppSignature,
-                      builder: (c, sms) => Text(sms.data ?? VERSION),
-                    )
+                            future: SmsAutoFill().getAppSignature,
+                            builder: (c, sms) => Text(sms.data ?? VERSION),
+                          )
                         : const Text(VERSION),
                     onPressed: (_) async {
                       _logger.d(developerModeCounterCountDown);
@@ -409,7 +394,8 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         );
-      },);
+      },
+    );
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
@@ -460,7 +446,7 @@ class NormalSettingsTitle extends SettingsTile {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor:
-      onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => onTap?.call(),

@@ -50,6 +50,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dismissible_page/dismissible_page.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
@@ -124,34 +125,128 @@ class RoutingService {
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
+      if (hasFirebaseCapability) {
+        FirebaseAnalytics.instance.logEvent(
+          name: "settingsPage_open",
+        );
+      }
     }
   }
 
-  void openLanguageSettings() => _push(_languageSettings);
+  void openLanguageSettings() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "languageSettingsPage_open",
+      );
+    }
+    _push(_languageSettings);
+  }
 
-  void openThemeSettings() => _push(_themeSettings);
+  void openThemeSettings() {
+    FirebaseAnalytics.instance.logEvent(
+      name: "themeSettingsPage_open",
+    );
+    _push(_themeSettings);
+  }
 
-  void openSecuritySettings() => _push(_securitySettings);
+  void openSecuritySettings() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "securitySettingsPage_open",
+      );
+    }
+    _push(_securitySettings);
+  }
 
-  void openDeveloperPage() => _push(_developerPage);
+  void openDeveloperPage() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "developerPage_open",
+      );
+    }
+    _push(_developerPage);
+  }
 
-  void openDevices() => _push(_devices);
+  void openDevices() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "devicesPage_open",
+      );
+    }
+    _push(_devices);
+  }
 
-  void openAutoDownload() => _push(_autoDownload);
+  void openAutoDownload() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "autoDownloadPage_open",
+      );
+    }
+    _push(_autoDownload);
+  }
 
-  void openLab() => _push(_lab);
+  void openLab() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "labPage_open",
+      );
+    }
+    _push(_lab);
+  }
 
-  void openContacts() => _push(_contacts);
+  void openContacts() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "contactsPage_open",
+      );
+    }
+    _push(_contacts);
+  }
 
-  void openNewContact() => _push(_newContact);
+  void openNewContact() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "newContactPage_open",
+      );
+    }
+    _push(_newContact);
+  }
 
-  void openScanQrCode() => _push(_scanQrCode);
+  void openScanQrCode() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "scanQrCodePage_open",
+      );
+    }
+    _push(_scanQrCode);
+  }
 
-  void openCallsList() => _push(_calls);
+  void openCallsList() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "callsListPage_open",
+      );
+    }
+    _push(_calls);
+  }
 
-  void openShowcase() => _push(_showcase);
+  void openShowcase() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "showcasePage_open",
+      );
+    }
+    _push(_showcase);
+  }
 
-  void openConnectionSettingPage() => _push(_connectionSettingsPage);
+  void openConnectionSettingPage() {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "connectionSettingPage_open",
+      );
+    }
+    _push(_connectionSettingsPage);
+  }
 
   String getCurrentRoomId() => _currentRoom;
 
@@ -288,27 +383,54 @@ class RoutingService {
         useTransparentRoute: true,
       );
 
-  void openCustomNotificationSoundSelection(String roomId) => _push(
-        CustomNotificationSoundSelection(
-          key: const ValueKey("/custom-notification-sound-selection"),
-          roomUid: roomId,
-        ),
+  void openCustomNotificationSoundSelection(String roomId) {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "customNotificationSoundSelectionPage_open",
       );
+    }
+    _push(
+      CustomNotificationSoundSelection(
+        key: const ValueKey("/custom-notification-sound-selection"),
+        roomUid: roomId,
+      ),
+    );
+  }
 
-  void openAccountSettings({bool forceToSetName = false}) => _push(
-        AccountSettings(
-          key: const ValueKey("/account-settings"),
-          forceToSetName: forceToSetName,
-        ),
+  void openAccountSettings({bool forceToSetName = false}) {
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "accountSettingsPage_open",
       );
+    }
+    _push(
+      AccountSettings(
+        key: const ValueKey("/account-settings"),
+        forceToSetName: forceToSetName,
+      ),
+    );
+  }
 
-  void openMemberSelection({required bool isChannel, Uid? mucUid}) => _push(
-        MemberSelectionPage(
-          key: const ValueKey("/member-selection-page"),
-          isChannel: isChannel,
-          mucUid: mucUid,
-        ),
-      );
+  void openMemberSelection({required bool isChannel, Uid? mucUid}) {
+    if (hasFirebaseCapability) {
+      if (isChannel) {
+        FirebaseAnalytics.instance.logEvent(
+          name: "newChannelPage_open",
+        );
+      } else {
+        FirebaseAnalytics.instance.logEvent(
+          name: "newGroupPage_open",
+        );
+      }
+    }
+    _push(
+      MemberSelectionPage(
+        key: const ValueKey("/member-selection-page"),
+        isChannel: isChannel,
+        mucUid: mucUid,
+      ),
+    );
+  }
 
   void openSelectForwardMessage({
     List<Message>? forwardedMessages,
