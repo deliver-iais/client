@@ -12,24 +12,28 @@ class UnreadRoomCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<String?>>(
-      stream: _seenDao.watchAllRoomSeen(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.data != null &&
-            snapshot.data!.isNotEmpty) {
-          final unreadCount = snapshot.data!.length;
-          return ShakingBellTransition(
-            child: CircularCounterWidget(
-              unreadCount: unreadCount,
-              bgColor: Theme.of(context).colorScheme.error,
-              needBorder: true,
-            ),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+    return Positioned(
+      top: -4,
+      right: -12,
+      child: StreamBuilder<List<String?>>(
+        stream: _seenDao.watchAllRoomSeen(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData &&
+              snapshot.data != null &&
+              snapshot.data!.isNotEmpty) {
+            final unreadCount = snapshot.data!.length;
+            return ShakingBellTransition(
+              child: CircularCounterWidget(
+                unreadCount: unreadCount,
+                bgColor: Theme.of(context).colorScheme.error,
+                needBorder: true,
+              ),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 }

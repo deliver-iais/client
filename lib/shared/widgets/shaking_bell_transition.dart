@@ -43,22 +43,18 @@ class ShakingBellTransitionState extends State<ShakingBellTransition>
       stream: _isBellMode,
       builder: (context, snapshot) {
         final isBellMode = snapshot.data ?? false;
-        return Positioned(
-          top: -3,
-          right: -4,
-          child: SizedBox(
-            height: 30,
-            width: 30,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, anim) => ScaleTransition(
-                scale: anim,
-                child: child,
-              ),
-              child: !isBellMode
-                  ? Container(child: widget.child)
-                  : const BellWs(key: ValueKey('icon2')),
+        return SizedBox(
+          height: 30,
+          width: 30,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: anim,
+              child: child,
             ),
+            child: !isBellMode
+                ? Container(child: widget.child)
+                : const BellWs(key: ValueKey('icon2')),
           ),
         );
       },

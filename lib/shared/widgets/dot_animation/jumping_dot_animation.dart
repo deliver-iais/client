@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class JumpingDotAnimation extends StatefulWidget {
@@ -24,17 +23,20 @@ class _JumpingDotAnimationState extends State<JumpingDotAnimation>
   void _initDotAnimation() {
     _dotAnimationControllers = List.generate(
       3,
-          (index) {
+      (index) {
         return AnimationController(
           vsync: this,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 175),
         );
       },
     ).toList();
 
     for (var i = 0; i < 3; i++) {
       _animations.add(
-        Tween<double>(begin: 0, end: -2).animate(_dotAnimationControllers[i]),
+        Tween<double>(begin: 0, end: -2).animate(
+          _dotAnimationControllers[i]
+              .drive(CurveTween(curve: Curves.bounceInOut)),
+        ),
       );
     }
 
@@ -85,19 +87,22 @@ class _JumpingDotAnimationState extends State<JumpingDotAnimation>
     }
     super.dispose();
   }
-
 }
-class DotWidget extends StatelessWidget {  final Color dotsColor;
 
-const DotWidget({
-  Key? key, required this.dotsColor,
-}) : super(key: key);
-@override
-Widget build(BuildContext context) {
-  return Container(
-    decoration: BoxDecoration(shape: BoxShape.circle, color: dotsColor),
-    height:3,
-    width: 3,
-  );
-}
+class DotWidget extends StatelessWidget {
+  final Color dotsColor;
+
+  const DotWidget({
+    Key? key,
+    required this.dotsColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(shape: BoxShape.circle, color: dotsColor),
+      height: 3,
+      width: 3,
+    );
+  }
 }

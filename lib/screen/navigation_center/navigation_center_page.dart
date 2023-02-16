@@ -29,9 +29,9 @@ import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
-
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
@@ -637,58 +637,59 @@ class NavigationCenterState extends State<NavigationCenter>
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
-                        child: GestureDetector(
-                          onTap: () => _sharedDao
-                              .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
-                          child: Stack(
-                            alignment: AlignmentDirectional.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Stack(
-                                  alignment: AlignmentDirectional.center,
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary,
-                                        borderRadius: tertiaryBorder,
-                                      ),
-                                      child: PageTransitionSwitcher(
-                                        transitionBuilder: (
-                                          child,
-                                          animation,
-                                          secondaryAnimation,
-                                        ) {
-                                          return FadeScaleTransition(
-                                            animation: animation,
-                                            child: child,
-                                          );
-                                        },
-                                        child: !_isShowCaseEnable
-                                            ? Icon(
-                                                Icons.storefront_outlined,
-                                                color:
-                                                    theme.colorScheme.surface,
-                                              )
-                                            : Icon(
-                                                CupertinoIcons.chat_bubble_fill,
-                                                color:
-                                                    theme.colorScheme.surface,
-                                              ),
-                                      ),
-                                    ),
-                                    if (_isShowCaseEnable)
-                                      JumpingDotAnimation(
-                                        dotsColor: theme.colorScheme.primary,
-                                      ),
-                                  ],
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () => _sharedDao
+                                .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                            child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              clipBehavior: Clip.none,
+                              children: [
+                                HoverContainer(
+                                  width: 40,
+                                  height: 40,
+                                  cursor: SystemMouseCursors.click,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.85),
+                                    borderRadius: tertiaryBorder,
+                                  ),
+                                  hoverDecoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: tertiaryBorder,
+                                  ),
+                                  child: PageTransitionSwitcher(
+                                    transitionBuilder: (
+                                      child,
+                                      animation,
+                                      secondaryAnimation,
+                                    ) {
+                                      return FadeScaleTransition(
+                                        animation: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    child: !_isShowCaseEnable
+                                        ? Icon(
+                                            Icons.storefront_outlined,
+                                            color: theme.colorScheme.surface,
+                                          )
+                                        : Icon(
+                                            CupertinoIcons.chat_bubble_fill,
+                                            color: theme.colorScheme.surface,
+                                          ),
+                                  ),
                                 ),
-                              ),
-                              if (_isShowCaseEnable)
-                                const UnreadRoomCounterWidget(),
-                            ],
+                                if (_isShowCaseEnable)
+                                  const UnreadRoomCounterWidget(),
+                                if (_isShowCaseEnable)
+                                  JumpingDotAnimation(
+                                    dotsColor: theme.colorScheme.primary,
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
