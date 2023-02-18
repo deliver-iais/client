@@ -45,16 +45,23 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                     _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (status.data == TitleStatusConditions.Disconnected) {
-                          _routingService.openConnectionSettingPage();
-                        }
-                      },
-                      child: Text(
-                        state,
-                        style: theme.textTheme.headline6!.copyWith(fontSize: 20),
-                        key: ValueKey(randomString(10)),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () {
+                          if (status.data ==
+                              TitleStatusConditions.Disconnected) {
+                            _routingService.openConnectionSettingPage();
+                          }
+                        },
+                        child: Text(
+                          state,
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: true,
+                          style:
+                              theme.textTheme.headline6!.copyWith(fontSize: 20),
+                          key: ValueKey(randomString(10)),
+                        ),
                       ),
                     ),
                     if (status.data != TitleStatusConditions.Connected)

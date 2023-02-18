@@ -9,7 +9,6 @@ import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -549,9 +548,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                   ),
                   titleSpacing: 8.0,
-                  title: ConnectionStatus(
-                    isShowCase: _isShowCaseEnable,
-                  ),
+                  title: ConnectionStatus(isShowCase: _isShowCaseEnable),
                   actions: [
                     if (!isDesktop)
                       DescribedFeatureOverlay(
@@ -585,30 +582,6 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
-                    StreamBuilder<bool>(
-                      stream: _authRepo.isLocalLockEnabledStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && !(snapshot.data!)) {
-                          return const SizedBox.shrink();
-                        }
-                        return IconButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (c) {
-                                  return const SplashScreen();
-                                },
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            CupertinoIcons.lock,
-                          ),
-                        );
-                      },
-                    ),
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:animate_do/animate_do.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';

@@ -16,13 +16,11 @@ import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,7 +45,13 @@ class HomePageState extends State<HomePage> {
   void initState() {
     if (isMacOS) {
       GetIt.I.get<SeenDao>().watchAllRoomSeen().listen((event) {
-        FlutterAppBadger.updateBadgeCount(event.length);
+        try {
+          if (event.isNotEmpty) {
+            FlutterAppBadger.updateBadgeCount(event.length);
+          } else {
+            FlutterAppBadger.removeBadge();
+          }
+        } catch (_) {}
       });
     }
 
