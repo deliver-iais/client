@@ -654,11 +654,11 @@ class NavigationCenterState extends State<NavigationCenter>
                                   decoration: BoxDecoration(
                                     color: theme.colorScheme.primary
                                         .withOpacity(0.85),
-                                    borderRadius: tertiaryBorder,
+                                    borderRadius: messageBorder,
                                   ),
                                   hoverDecoration: BoxDecoration(
                                     color: theme.colorScheme.primary,
-                                    borderRadius: tertiaryBorder,
+                                    borderRadius: messageBorder,
                                   ),
                                   child: PageTransitionSwitcher(
                                     transitionBuilder: (

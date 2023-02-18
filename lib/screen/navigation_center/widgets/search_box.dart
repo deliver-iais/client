@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
@@ -127,15 +129,14 @@ class SearchBoxState extends State<SearchBox> {
                 ),
               ),
             ),
-            if (
-                widget.animationValue != null)
+            if (widget.animationValue != null)
               SizedBox(
                 width: (widget.animationValue! - 40) * -1.7,
                 height: 40,
                 child: IconButton(
                   highlightColor: Colors.transparent,
                   splashColor: Colors.transparent,
-                  hoverColor:Colors.transparent,
+                  hoverColor: Colors.transparent,
                   onPressed: () {
                     widget.onSearchEnd?.call();
                     _hasText.add(false);
@@ -174,7 +175,7 @@ class SearchBoxState extends State<SearchBox> {
       onPressed: () {
         _hasText.add(false);
         _clearTextEditingController();
-       _getFocusNode().unfocus();
+        _getFocusNode().unfocus();
         widget.onCancel?.call();
       },
     );
