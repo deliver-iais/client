@@ -1,7 +1,14 @@
+import 'dart:async';
+
+import 'package:deliver/box/dao/registered_bot_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/input_pin.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -18,6 +25,8 @@ class SingleUrlWidget extends StatelessWidget {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
+  static final _registeredBotDao = GetIt.I.get<RegisteredBotDao>();
 
   const SingleUrlWidget({
     Key? key,
@@ -51,12 +60,79 @@ class SingleUrlWidget extends StatelessWidget {
             ),
           Center(
             child: InkWell(
-              onTap: () {
-                _urlHandlerService.onUrlTap(
-                  urlCase.url,
-                  context,
-                  openLinkImmediately: true,
-                );
+              onTap: () async {
+                if (urlCase.hasUrl()) {
+                  unawaited(
+                    _urlHandlerService.onUrlTap(
+                      urlCase.url.url,
+                      openLinkImmediately: true,
+                    ),
+                  );
+                } else if (urlCase.hasBotCallback()) {
+                  if (urlCase.botCallback.hasPinCodeSettings()) {
+                    if (!urlCase.botCallback.pinCodeSettings
+                            .isOutsideFirstRedirectionEnabled ||
+                        await _registeredBotDao.botIsRegistered(
+                          urlCase.botCallback.bot.asString(),
+                        )) {
+                      inputPin(
+                        context: context,
+                        pinCodeSettings: urlCase.botCallback.pinCodeSettings,
+                        data: urlCase.botCallback.data,
+                        botUid: urlCase.botCallback.bot.asString(),
+                      );
+                    } else if (urlCase.botCallback.pinCodeSettings
+                        .isOutsideFirstRedirectionEnabled) {
+                      ToastDisplay.showToast(
+                        toastContext: context,
+                        showWarningAnimation: true,
+                        toastText: urlCase.botCallback.pinCodeSettings
+                            .outsideFirstRedirectionAlert,
+                      );
+                      await (_registeredBotDao.saveRegisteredBot(
+                        urlCase.botCallback.bot.asString(),
+                      ));
+                      Timer(
+                        const Duration(seconds: 1),
+                        () => unawaited(
+                          _urlHandlerService.handleSendMsgToBot(
+                            urlCase.botCallback.bot.node,
+                            urlCase.botCallback.pinCodeSettings
+                                .outsideFirstRedirectionText,
+                            sendDirectly: true,
+                          ),
+                        ),
+                      );
+                    }
+                  } else {
+                    final dialogContextCompleter = Completer<BuildContext>();
+                    unawaited(
+                      _botRepo
+                          .sendCallbackQuery(
+                            data: urlCase.botCallback.data,
+                            to: urlCase.botCallback.bot,
+                          )
+                          .then(
+                            (value) => dialogContextCompleter.future
+                                .then((c) => Navigator.pop(c)),
+                          ),
+                    );
+                    unawaited(
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (c) {
+                          dialogContextCompleter.complete(c);
+                          return const SizedBox(
+                            height: 70,
+                            width: 70,
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                }
               },
               child: Container(
                 width: width,

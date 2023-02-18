@@ -28,6 +28,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/dao/recent_search_dao.dart';
+import 'package:deliver/box/dao/registered_bot_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -294,6 +295,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
+  registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
 }
 
 Future initializeFirebase() async {
@@ -416,6 +418,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _uxService.updateMainContext(context);
     return StreamBuilder(
       stream: MergeStream([
         _uxService.themeIndexStream,

@@ -44,7 +44,6 @@ class _ScanQrCode extends State<ScanQrCode> {
             if (barcode.rawValue != null) {
               _urlHandlerService.handleApplicationUri(
                 barcode.rawValue!,
-                context,
               );
             }
           },

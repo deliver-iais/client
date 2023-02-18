@@ -491,7 +491,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                   Center(
                     child: Text(
                       emojiList.elementAt(index).toString(),
-                      style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
+                      style: emojiFont(fontSize: 25),
                     ),
                   ),
                   if (_featureFlags.showDeveloperDetails)

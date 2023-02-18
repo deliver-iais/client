@@ -29,6 +29,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
       Theme.of(context).colorScheme.surface,
     );
     final widgetRows = <Widget>[];
+
     final rows = replyKeyboardMarkup.rows;
     var columns = <Widget>[];
     for (final row in rows) {
