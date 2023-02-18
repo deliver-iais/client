@@ -32,6 +32,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -675,6 +676,11 @@ class CallRepo {
         _selectedCandidate = stat;
       }
     }
+    if (hasFirebaseCapability) {
+      await FirebaseAnalytics.instance.logEvent(
+        name: "connectedCall",
+      );
+    }
     callingStatus.add(CallStatus.CONNECTED);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
@@ -705,10 +711,15 @@ class CallRepo {
       _reconnectTry = true;
       callingStatus.add(CallStatus.RECONNECTING);
       _reconnectingAfterFailedConnection();
-      timerDisconnected = Timer(const Duration(seconds: 15), () {
+      timerDisconnected = Timer(const Duration(seconds: 15), () async {
         if (callingStatus.value != CallStatus.CONNECTED) {
           callingStatus.add(CallStatus.FAILED);
           _logger.i("Disconnected and Call End!");
+          if (hasFirebaseCapability) {
+            await FirebaseAnalytics.instance.logEvent(
+              name: "failedCall",
+            );
+          }
           endCall();
         }
       });
@@ -1202,6 +1213,11 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (_callService.getUserCallState == UserCallState.NO_CALL) {
+        if (hasFirebaseCapability) {
+          await FirebaseAnalytics.instance.logEvent(
+            name: "startCall",
+          );
+        }
         //can't call another ppl or received any call notification
         _callService.setUserCallState = UserCallState.IN_USER_CALL;
         _isCaller = true;

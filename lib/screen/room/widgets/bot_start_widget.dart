@@ -1,6 +1,8 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -26,8 +28,13 @@ class BotStartWidget extends StatelessWidget {
               color: theme.colorScheme.primary,
             ),
           ),
-          onTap: () {
-            _messageRepo.sendTextMessage(botUid, "/start");
+          onTap: () async {
+            if (hasFirebaseCapability) {
+              await FirebaseAnalytics.instance.logEvent(
+                name: "startBot",
+              );
+            }
+            await _messageRepo.sendTextMessage(botUid, "/start");
           },
         ),
       ),

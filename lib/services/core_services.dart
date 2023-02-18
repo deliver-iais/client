@@ -16,6 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -285,11 +286,40 @@ class CoreServices {
     );
   }
 
-  void sendSeen(seen_pb.SeenByClient seen) {
+  Future<void> sendSeen(seen_pb.SeenByClient seen) async {
+    if (hasFirebaseCapability) {
+      await FirebaseAnalytics.instance.logEvent(
+        name: "sendSeen",
+      );
+    }
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendClientPacket(clientPacket);
+    await _sendClientPacket(clientPacket)
+        .onError(
+          (error, stackTrace) async => {
+            if (hasFirebaseCapability)
+              {
+                await FirebaseAnalytics.instance.logEvent(
+                  name: "failedSeen",
+                  parameters: {
+                    'error': error.toString(),
+                  },
+                )
+              }
+          },
+        )
+        .then(
+          (value) async => {
+            if (hasFirebaseCapability)
+              {
+                await FirebaseAnalytics.instance.logEvent(
+                  name: "SuccessSeen",
+                )
+              }
+          },
+        );
+    ;
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
