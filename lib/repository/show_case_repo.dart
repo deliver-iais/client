@@ -90,11 +90,13 @@ class ShowCaseRepo {
           botCallback: BotCallback(
             bot: Uid(category: Categories.BOT, node: "auth_bot"),
             data: _getData(
-                "JOIN_TO_GROUP", "d23e3f2f-9484-44da-a851-da1efa761f7c",),
+              "JOIN_TO_GROUP",
+              "d23e3f2f-9484-44da-a851-da1efa761f7c",
+            ),
           ),
           img: File(
-            uuid: "",
-            name: "",
+            uuid: "d369efa0-5159-463c-98e7-f96378ca8710",
+            name: "1676788382457.jpeg",
           ),
         ),
       ),
