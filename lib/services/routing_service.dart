@@ -143,9 +143,11 @@ class RoutingService {
   }
 
   void openThemeSettings() {
-    FirebaseAnalytics.instance.logEvent(
-      name: "themeSettingsPage_open",
-    );
+    if (hasFirebaseCapability) {
+      FirebaseAnalytics.instance.logEvent(
+        name: "themeSettingsPage_open",
+      );
+    }
     _push(_themeSettings);
   }
 

@@ -26,6 +26,7 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
@@ -36,6 +37,7 @@ import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -467,6 +469,15 @@ class DataStreamServices {
               messageId: messageDeliveryAck.id.toInt(),
             )
             .ignore();
+      }
+    } else {
+      if (hasFirebaseCapability) {
+        await FirebaseAnalytics.instance.logEvent(
+          name: "nullPendingMessageOnAck",
+          parameters: {
+            "packetId": messageDeliveryAck.packetId,
+          },
+        );
       }
     }
   }

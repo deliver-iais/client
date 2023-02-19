@@ -13,6 +13,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -157,7 +158,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 528,
+              height: 700,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
@@ -304,6 +305,11 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             leading: const Icon(CupertinoIcons.paintbrush),
                             switchValue: _uxService.showColorful,
                             onToggle: (value) {
+                              if (hasFirebaseCapability) {
+                                FirebaseAnalytics.instance.logEvent(
+                                  name: "themeColorfulMessageToggle",
+                                );
+                              }
                               setState(() {
                                 _uxService.toggleShowColorful();
                               });

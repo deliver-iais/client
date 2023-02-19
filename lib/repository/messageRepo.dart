@@ -56,6 +56,7 @@ import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart'
     as sticker_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -536,6 +537,7 @@ class MessageRepo {
     int replyId = 0,
     String? forwardedFrom,
     String? packetId,
+    bool fromNotification = false,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -570,6 +572,7 @@ class MessageRepo {
         replyId,
         forwardedFrom,
         packetId,
+        fromNotification: fromNotification,
       );
       i++;
     }
@@ -580,8 +583,9 @@ class MessageRepo {
     Uid room,
     int replyId,
     String? forwardedFrom,
-    String? packetId,
-  ) {
+    String? packetId, {
+    bool fromNotification = false,
+  }) {
     final json = (message_pb.Text()..text = text).writeToJson();
     final msg = _createMessage(
       room,
@@ -591,12 +595,47 @@ class MessageRepo {
     ).copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    _saveAndSend(pm, fromNotification: fromNotification);
   }
 
-  void _saveAndSend(PendingMessage pm) {
-    _savePendingMessage(pm);
-    _updateRoomLastMessage(pm);
+  Future<void> _saveAndSend(
+    PendingMessage pm, {
+    bool fromNotification = false,
+  }) async {
+    if (fromNotification) {
+      await _savePendingMessage(pm)
+          .then(
+            (value) => {
+              if (hasFirebaseCapability)
+                {
+                  FirebaseAnalytics.instance.logEvent(
+                    name: "replyToMessageFromNotificationSavePendingSuccess",
+                    parameters: {
+                      "packetId": pm.packetId,
+                      "roomUid": pm.roomUid,
+                    },
+                  )
+                }
+            },
+          )
+          .onError(
+            (error, stackTrace) => {
+              if (hasFirebaseCapability)
+                {
+                  FirebaseAnalytics.instance.logEvent(
+                    name: "replyToMessageFromNotificationSavePendingFailed",
+                    parameters: {
+                      "packetId": pm.packetId,
+                      "roomUid": pm.roomUid,
+                    },
+                  )
+                }
+            },
+          );
+    } else {
+      unawaited(_savePendingMessage(pm));
+    }
+    unawaited(_updateRoomLastMessage(pm));
     _sendMessageToServer(pm);
   }
 

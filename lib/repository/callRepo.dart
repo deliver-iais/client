@@ -377,6 +377,11 @@ class CallRepo {
     _phoneStateStream = PhoneState.phoneStateStream.listen((event) {
       if (event != null) {
         if (event == PhoneStateStatus.CALL_STARTED) {
+          if (hasFirebaseCapability) {
+            FirebaseAnalytics.instance.logEvent(
+              name: "callOnHold",
+            );
+          }
           _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
           if (_isConnected) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
@@ -584,6 +589,11 @@ class CallRepo {
             case STATUS_MIC_CLOSE:
               break;
             case STATUS_SHARE_SCREEN:
+              if (hasFirebaseCapability) {
+                FirebaseAnalytics.instance.logEvent(
+                  name: "shareScreenOnVideoCall",
+                );
+              }
               incomingSharing.add(true);
               break;
             case STATUS_CALL_ON_HOLD:
@@ -812,6 +822,11 @@ class CallRepo {
           incomingCallOnHold.add(false);
           break;
         case STATUS_SHARE_SCREEN:
+          if (hasFirebaseCapability) {
+            FirebaseAnalytics.instance.logEvent(
+              name: "shareScreenOnVideoCall",
+            );
+          }
           incomingSharing.add(true);
           break;
         case STATUS_SHARE_VIDEO:
@@ -1214,9 +1229,15 @@ class CallRepo {
     try {
       if (_callService.getUserCallState == UserCallState.NO_CALL) {
         if (hasFirebaseCapability) {
-          await FirebaseAnalytics.instance.logEvent(
-            name: "startCall",
-          );
+          if (isVideo) {
+            await FirebaseAnalytics.instance.logEvent(
+              name: "startVideoCall",
+            );
+          } else {
+            await FirebaseAnalytics.instance.logEvent(
+              name: "startAudioCall",
+            );
+          }
         }
         //can't call another ppl or received any call notification
         _callService.setUserCallState = UserCallState.IN_USER_CALL;

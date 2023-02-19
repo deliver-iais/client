@@ -14,6 +14,7 @@ import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -54,6 +55,11 @@ class FileRepo {
         sendActivity: sendActivity,
         isVoice: isVoice,
       );
+      if (hasFirebaseCapability) {
+        await FirebaseAnalytics.instance.logEvent(
+          name: "successFileUpload",
+        );
+      }
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
         ToastDisplay.showToast(
@@ -65,6 +71,15 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
+        if (hasFirebaseCapability) {
+          await FirebaseAnalytics.instance.logEvent(
+            name: "unSuccessFileUpload",
+            parameters: {
+              "errorCode": e.response?.statusCode,
+              "error": e.response!.data
+            },
+          );
+        }
       } else if (e.response == null && e.type != DioErrorType.cancel) {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
@@ -75,6 +90,21 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
+        if (hasFirebaseCapability) {
+          await FirebaseAnalytics.instance.logEvent(
+            name: "failedFileUpload",
+          );
+        }
+      } else{
+        if (hasFirebaseCapability) {
+          await FirebaseAnalytics.instance.logEvent(
+            name: "unknownFileUpload",
+            parameters: {
+              "errorCode": e.response?.statusCode,
+              "error": e.response!.data
+            },
+          );
+        }
       }
       _logger.e(e);
     }
