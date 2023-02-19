@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
@@ -7,12 +8,17 @@ import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 
 import 'package:deliver/services/firebase_services.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/input_pin.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:pinput/pinput.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -25,7 +31,10 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _uxService = GetIt.I.get<UxService>();
+  final _i18n = GetIt.I.get<I18N>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _textEditingController = TextEditingController();
   final _shakeController = ShakeWidgetController();
@@ -36,7 +45,7 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this);
+    _animationController = AnimationController(vsync: this, value: 1);
     tryInitAccountRepo();
     super.initState();
   }
@@ -127,55 +136,59 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   Widget desktopLock() {
-    final theme = Theme.of(context);
-    return FluidWidget(
+    final theme = getThemeScheme(_uxService.themeIndex).theme(isDark: true);
+
+    return Theme(
+      data: theme,
       child: Scaffold(
-        backgroundColor: const Color(0xffeefef7),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Spacer(),
               ShakeWidget(
                 controller: _shakeController,
-                child: Tgs.asset(
-                  "assets/animations/unlock.tgs",
+                child: Ws.asset(
+                  "assets/animations/passcode_lock_close.ws",
                   controller: _animationController,
-                  autoPlay: false,
+                  animate: false,
                   width: 60,
                   height: 60,
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                "Enter your local password",
-                style: theme.primaryTextTheme.subtitle1,
+              Pinput(
+                obscureText: true,
+                obscuringWidget: obscuringPinWidget(theme),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                controller: _textEditingController,
+                autofocus: true,
+                focusNode: _focusNode,
+                errorTextStyle:
+                    const TextStyle(fontSize: 12, color: Colors.red),
+                defaultPinTheme: defaultPinTheme(theme),
+                validator: (_) => _validatePin(_ ?? ""),
+                onChanged: (pass) {
+                  if (pass.isEmpty || pass.length == 1) {
+                    setState(() {});
+                  } else if (pass.length == 4) {
+                    checkPassword(_textEditingController.text);
+                  }
+                },
+                focusedPinTheme: focusedPinTheme(theme),
+                submittedPinTheme: submittedPinTheme(theme),
               ),
-              SizedBox(
-                width: 190,
-                child: TextField(
-                  obscureText: true,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _textEditingController,
-                  focusNode: _focusNode,
-                  onChanged: (pass) =>
-                      {if (pass.isEmpty || pass.length == 1) setState(() {})},
-                  onSubmitted: (pass) {
-                    checkPassword(pass);
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              Text(_i18n.get("insert_pin")),
+              const Spacer(),
               TextButton(
-                onPressed: _textEditingController.text == ""
-                    ? null
-                    : () => checkPassword(_textEditingController.text),
-                child: const SizedBox(
-                  height: 40,
-                  width: 180,
-                  child: Center(child: Text("Unlock")),
+                onPressed: () => _routingService.logout(),
+                style: TextButton.styleFrom(
+                  foregroundColor: theme.colorScheme.error,
                 ),
-              )
+                child: Text(_i18n.get("logout")),
+              ),const SizedBox(height: 10),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -183,10 +196,17 @@ class SplashScreenState extends State<SplashScreen>
     );
   }
 
+  String? _validatePin(String text) {
+    if (text.isEmpty || text.length < 4) {
+      return _i18n.get("not_valid_input");
+    }
+    return null;
+  }
+
   void checkPassword(String pass) {
     if (_authRepo.localPasswordIsCorrect(pass)) {
-      _animationController.forward(from: 0.23);
-      Timer(const Duration(milliseconds: 500), () {
+      _animationController.reverse(from: 1);
+      Timer(const Duration(milliseconds: 650), () {
         navigateToApp();
       });
     } else {

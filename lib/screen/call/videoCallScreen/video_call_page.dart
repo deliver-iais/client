@@ -118,7 +118,10 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                           child: RTCVideoView(
                                             _callService.getRemoteRenderer,
                                             mirror: !_callRepo
-                                                .incomingVideoSwitch.value,
+                                                    .incomingVideoSwitch
+                                                    .value &&
+                                                !_callRepo
+                                                    .incomingSharing.value,
                                           ),
                                         ),
                                       ),
@@ -217,7 +220,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         ),
                                         child: RTCVideoView(
                                           _callService.getLocalRenderer,
-                                          mirror: true,
                                         ),
                                       ),
                                     )
@@ -350,8 +352,16 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                                         .getRemoteRenderer,
                                                 objectFit: RTCVideoViewObjectFit
                                                     .RTCVideoViewObjectFitCover,
-                                                mirror: !(snapshot.data! &&
-                                                    _callRepo.switching.value),
+                                                mirror: !(_callRepo
+                                                            .switching.value ||
+                                                        _callRepo
+                                                            .incomingSharing
+                                                            .value ||
+                                                        _callRepo
+                                                            .sharing.value) ||
+                                                    _callRepo.videoing.value ||
+                                                    _callRepo
+                                                        .incomingVideo.value,
                                               ),
                                             );
                                           } else {
@@ -398,6 +408,10 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     ),
                                   if ((!snapshot.data! &&
                                           _callRepo.videoing.value) ||
+                                      (!snapshot.data! &&
+                                          _callRepo.sharing.value) ||
+                                      (!snapshot.data! &&
+                                          _callRepo.incomingSharing.value) ||
                                       (snapshot.data! &&
                                           _callRepo.incomingVideo.value))
                                     userVideoWidget(
@@ -405,8 +419,11 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                       y,
                                       width,
                                       height,
-                                      isMirror: (_callRepo.videoing.value &&
-                                          !snapshot.data!),
+                                      isMirror: ((_callRepo.videoing.value) ||
+                                              _callRepo.incomingVideo.value) &&
+                                          !((_callRepo.incomingSharing.value ||
+                                                  _callRepo.sharing.value) &&
+                                              snapshot.data!),
                                       inComingVideo:
                                           _callRepo.incomingVideo.value ||
                                               _callRepo.incomingSharing.value,
@@ -426,7 +443,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     : const EdgeInsets.only(top: 8),
                 child: Align(
                   alignment:
-                  isDesktop ? Alignment.bottomRight : Alignment.topCenter,
+                      isDesktop ? Alignment.bottomRight : Alignment.topCenter,
                   child: StreamBuilder<CallStatus>(
                     initialData: CallStatus.NO_CALL,
                     stream: _callRepo.callingStatus,
@@ -528,7 +545,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
                         ),
                       ),
                     ),
-                    // onDragStarted: () => print("drag Start"),
                     onDraggableCanceled: (velocity, offset) {
                       setState(() {
                         final horizontalMargin =
@@ -565,6 +581,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                       height,
                       isSwitching: snapshot.data ?? false,
                       inComingVideo: inComingVideo,
+                      isMirror: isMirror,
                     ),
                   );
                 } else {
@@ -573,6 +590,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     height,
                     isSwitching: snapshot.data ?? false,
                     inComingVideo: inComingVideo,
+                    isMirror: isMirror,
                   );
                 }
               } else {
@@ -607,6 +625,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
     double height, {
     required bool isSwitching,
     required bool inComingVideo,
+    required bool isMirror,
   }) {
     return SizedBox(
       width: width,
@@ -626,7 +645,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                       _callService.getLocalRenderer,
                       objectFit:
                           RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      mirror: !isSwitching,
+                      mirror: isMirror,
                     ),
                   )
                 : inComingVideo
@@ -638,7 +657,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                           _callService.getRemoteRenderer,
                           objectFit:
                               RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                          mirror: true,
+                          mirror: isMirror,
                         ),
                       )
                     : Container(

@@ -6,15 +6,19 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/input_pin.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pinput/pinput.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
   const SecuritySettingsPage({super.key});
@@ -85,7 +89,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   if (_authRepo.isLocalLockEnabled())
                     SettingsTile(
                       title: _i18n.get("edit_password"),
-                      leading: const Icon(CupertinoIcons.bandage),
+                      leading: const Icon(Icons.edit),
                       onPressed: (c) {
                         showDialog(
                           context: context,
@@ -172,7 +176,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                           return SettingsTile(
                             title: _i18n
                                 .get("edit_two_step_verification_password"),
-                            leading: const Icon(CupertinoIcons.bandage),
+                            leading: const Icon(Icons.edit),
                             onPressed: (c) {
                               showDialog(
                                 context: context,
@@ -202,47 +206,60 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
   Widget disableLocalPassword() {
     return StatefulBuilder(
-      builder: (context, setState2) => AlertDialog(
-        titlePadding: EdgeInsets.zero,
-        actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-        content: Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: TextField(
-            onChanged: (p) => setState2(() => _currentPass = p),
-            obscureText: true,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: _i18n.get("current_password"),
-            ),
+      builder: (context, setState2) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          titlePadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_i18n.get("current_password")),
+              Pinput(
+                obscureText: true,
+                obscuringWidget: obscuringPinWidget(theme),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                autofocus: true,
+                errorTextStyle:
+                    const TextStyle(fontSize: 12, color: Colors.red),
+                defaultPinTheme: defaultPinTheme(theme),
+                validator: (_) => _validatePin(_ ?? ""),
+                onChanged: (p) {
+                  setState2(() => _currentPass = p);
+                },
+                focusedPinTheme: focusedPinTheme(theme),
+                submittedPinTheme: submittedPinTheme(theme),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(_i18n.get("cancel")),
+          actions: [
+            SizedBox(
+              height: 40,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(_i18n.get("cancel")),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: _currentPass.isNotEmpty
-                  ? () {
-                      if (_authRepo.localPasswordIsCorrect(_currentPass)) {
-                        _authRepo.setLocalPassword("");
-                        setState(() {});
-                        Navigator.of(context).pop();
-                      } else {
-                        // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
+            SizedBox(
+              height: 40,
+              child: TextButton(
+                onPressed: _currentPass.isNotEmpty
+                    ? () {
+                        if (_authRepo.localPasswordIsCorrect(_currentPass)) {
+                          _authRepo.setLocalPassword("");
+                          setState(() {});
+                          Navigator.of(context).pop();
+                        } else {
+                          // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
+                        }
                       }
-                    }
-                  : null,
-              child: Text(_i18n.get("disable")),
+                    : null,
+                child: Text(_i18n.get("disable")),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -255,8 +272,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Lottie.asset(
-              "assets/animations/lock.json",
+            Ws.asset(
+              "assets/animations/lock.ws",
               width: 60,
               height: 60,
               delegates: LottieDelegates(
@@ -369,8 +386,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Lottie.asset(
-                "assets/animations/lock.json",
+              Ws.asset(
+                "assets/animations/lock.ws",
                 width: 60,
                 height: 60,
                 delegates: LottieDelegates(
@@ -490,95 +507,123 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
   Widget setLocalPassword() {
     final checkCurrentPassword = _authRepo.isLocalLockEnabled();
     return StatefulBuilder(
-      builder: (context, setState2) => AlertDialog(
-        titlePadding: EdgeInsets.zero,
-        actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (checkCurrentPassword)
-              Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: TextField(
-                  onChanged: (p) => setState2(() => _currentPass = p),
+      builder: (context, setState2) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          titlePadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (checkCurrentPassword) ...[
+                Text(_i18n.get("current_password")),
+                const SizedBox(height: 8),
+                Pinput(
                   obscureText: true,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: _i18n.get("current_password"),
-                  ),
+                  obscuringWidget: obscuringPinWidget(theme),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  autofocus: true,
+                  errorTextStyle:
+                      const TextStyle(fontSize: 12, color: Colors.red),
+                  defaultPinTheme: defaultPinTheme(theme),
+                  validator: (_) => _validatePin(_ ?? ""),
+                  onChanged: (p) {
+                    setState2(() => _currentPass = p);
+                  },
+                  focusedPinTheme: focusedPinTheme(theme),
+                  submittedPinTheme: submittedPinTheme(theme),
                 ),
-              ),
-            if (checkCurrentPassword) const SizedBox(height: 40),
-            Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: TextField(
-                onChanged: (p) => setState2(() => _pass = p),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 32),
+              ],
+              Text(_i18n.get("password")),
+              Pinput(
                 obscureText: true,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: _i18n.get("password"),
-                ),
+                obscuringWidget: obscuringPinWidget(theme),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                autofocus: true,
+                errorTextStyle:
+                    const TextStyle(fontSize: 12, color: Colors.red),
+                defaultPinTheme: defaultPinTheme(theme),
+                validator: (_) => _validatePin(_ ?? ""),
+                onChanged: (p) {
+                  setState2(() => _pass = p);
+                },
+                focusedPinTheme: focusedPinTheme(theme),
+                submittedPinTheme: submittedPinTheme(theme),
               ),
-            ),
-            const SizedBox(height: 10),
-            Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: TextField(
-                onChanged: (p) => setState2(() => _repeatedPass = p),
+              const SizedBox(height: 16),
+              Text(_i18n.get("repeat_password")),
+              Pinput(
                 obscureText: true,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: _i18n.get("repeat_password"),
-                ),
+                obscuringWidget: obscuringPinWidget(theme),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                autofocus: true,
+                errorTextStyle:
+                    const TextStyle(fontSize: 12, color: Colors.red),
+                defaultPinTheme: defaultPinTheme(theme),
+                validator: (_) => _validatePin(_ ?? ""),
+                onChanged: (p) {
+                  setState2(() => _repeatedPass = p);
+                },
+                focusedPinTheme: focusedPinTheme(theme),
+                submittedPinTheme: submittedPinTheme(theme),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(_i18n.get("cancel")),
-            ),
+            ],
           ),
-          if (!checkCurrentPassword)
+          actions: [
             SizedBox(
               height: 40,
               child: TextButton(
-                onPressed: _pass == _repeatedPass && _pass.isNotEmpty
-                    ? () {
-                        _authRepo.setLocalPassword(_pass);
-                        setState(() {});
-                        Navigator.of(context).pop();
-                      }
-                    : null,
-                child: Text(_i18n.get("save")),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(_i18n.get("cancel")),
               ),
             ),
-          if (checkCurrentPassword)
-            SizedBox(
-              height: 40,
-              child: TextButton(
-                onPressed: _pass == _repeatedPass &&
-                        _pass.isNotEmpty &&
-                        _currentPass.isNotEmpty
-                    ? () {
-                        if (_authRepo.localPasswordIsCorrect(_currentPass)) {
+            if (!checkCurrentPassword)
+              SizedBox(
+                height: 40,
+                child: TextButton(
+                  onPressed: _pass == _repeatedPass && _pass.isNotEmpty
+                      ? () {
                           _authRepo.setLocalPassword(_pass);
                           setState(() {});
                           Navigator.of(context).pop();
-                        } else {
-                          // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
                         }
-                      }
-                    : null,
-                child: Text(_i18n.get("change")),
+                      : null,
+                  child: Text(_i18n.get("save")),
+                ),
               ),
-            ),
-        ],
-      ),
+            if (checkCurrentPassword)
+              SizedBox(
+                height: 40,
+                child: TextButton(
+                  onPressed: _pass == _repeatedPass &&
+                          _pass.isNotEmpty &&
+                          _currentPass.isNotEmpty
+                      ? () {
+                          if (_authRepo.localPasswordIsCorrect(_currentPass)) {
+                            _authRepo.setLocalPassword(_pass);
+                            setState(() {});
+                            Navigator.of(context).pop();
+                          } else {
+                            // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
+                          }
+                        }
+                      : null,
+                  child: Text(_i18n.get("change")),
+                ),
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  String? _validatePin(String text) {
+    if (text.isEmpty || text.length < 4) {
+      return _i18n.get("not_valid_input");
+    }
+    return null;
   }
 }

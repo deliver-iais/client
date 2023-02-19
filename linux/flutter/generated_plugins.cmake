@@ -10,9 +10,11 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_window
   file_selector_linux
   flutter_webrtc
+  flutter_window_close
   image_compression_flutter
   pasteboard
   record_linux
+  smart_auth
   url_launcher_linux
   window_size
 )

@@ -11,7 +11,6 @@ void saveToClipboard(String str, {required BuildContext context}) {
 
   ToastDisplay.showToast(
     toastText: i18n.get("saved_to_clipboard"),
-    animateDone: true,
-    toastContext: context,
+    showDoneAnimation: true,
   );
 }

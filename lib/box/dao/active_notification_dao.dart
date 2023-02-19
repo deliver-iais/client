@@ -15,6 +15,12 @@ abstract class ActiveNotificationDao {
 
   Future<void> removeActiveNotification(String roomUid, int messageId);
 
+  Future<void> updateActiveNotification(
+    String roomUid,
+    int messageId,
+    String editedText,
+  );
+
   Future<void> removeRoomActiveNotification(String roomUid);
 
   Future<void> removeAllActiveNotification();
@@ -81,5 +87,17 @@ class ActiveNotificationDaoImpl extends ActiveNotificationDao {
   List<ActiveNotification> sorted(List<ActiveNotification> list) {
     list.sort((a, b) => (a.messageId) - (b.messageId));
     return list;
+  }
+
+  @override
+  Future<void> updateActiveNotification(
+    String roomUid,
+    int messageId,
+    String editedText,
+  ) async {
+    final activeNotification = await getActiveNotification(roomUid, messageId);
+    if (activeNotification == null) return;
+    activeNotification.messageText = editedText;
+    return save(activeNotification);
   }
 }

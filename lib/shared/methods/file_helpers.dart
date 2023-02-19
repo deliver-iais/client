@@ -247,3 +247,24 @@ extension ImagePath on String {
     );
   }
 }
+
+// TODO(bitbeter): Use these for later
+// const List<String> videoFormats = [
+//   '.mp4',
+//   '.mov',
+//   '.avi',
+//   '.wmv',
+//   '.3gp',
+//   '.3gpp',
+//   '.mkv',
+//   '.flv'
+// ];
+// const List<String> imageFormats = [
+//   '.jpeg',
+//   '.png',
+//   '.jpg',
+//   '.gif',
+//   '.webp',
+//   '.tif',
+//   '.heic'
+// ];

@@ -343,6 +343,12 @@ class DataStreamServices {
           lastMessage: msg,
         );
       }
+
+      await _notificationServices.editNotificationById(
+        id,
+        roomUid.asString(),
+        res.messages.first,
+      );
     }
 
     messageEventSubject.add(

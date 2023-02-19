@@ -89,17 +89,18 @@ class ContainerPatternPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Crosshatch(
+    HorizontalStripesThick(
       bgColor: Colors.transparent,
       fgColor: foreground,
-      featuresCount: 200,
+      featuresCount: size.height ~/ 3,
     ).paintOnWidget(
       canvas,
       size,
-      patternScaleBehavior: PatternScaleBehavior.canvas,
+      customRect: Rect.fromLTRB(0, 0, size.width, size.height),
+      patternScaleBehavior: PatternScaleBehavior.customRect,
     );
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -10,8 +10,8 @@ import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -285,8 +285,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: const Tgs.asset(
-            'assets/animations/call_permission.tgs',
+          title: const Ws.asset(
+            'assets/animations/call_permission.ws',
             width: 150,
             height: 150,
           ),

@@ -16,12 +16,9 @@ class BrandImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
-        color: theme.colorScheme.errorContainer,
         elevation: 1,
         clipBehavior: Clip.hardEdge,
         child: Container(

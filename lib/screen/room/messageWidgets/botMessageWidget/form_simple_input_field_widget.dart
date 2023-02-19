@@ -50,8 +50,6 @@ class FormSimpleInputFieldWidgetState
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
     return ShakeWidget(
-      horizontalPadding: 5,
-      animationRange: 5,
       controller: shakeWidgetController,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),

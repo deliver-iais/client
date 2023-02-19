@@ -153,7 +153,7 @@ class SkinToneOverlay {
           child: Center(
             child: Text(
               modifyEmoji,
-              style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
+              style: emojiFont(fontSize: 25),
             ),
           ),
         ),

@@ -17,6 +17,8 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:gallery_saver/files.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
@@ -293,18 +295,33 @@ class FileService {
     String directory,
   ) async {
     try {
+      // Insure there is no desktop function call here!
+      if (isDesktop || isWeb) {
+        return;
+      }
       if (await _checkPermission.checkStoragePermission()) {
-        final downloadDir =
-            await ExtStorage.getExternalStoragePublicDirectory(directory);
-        await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
-            .create(recursive: true);
-        File(
-          '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
-        ).writeAsBytesSync(
-          name.endsWith(".webp")
-              ? await convertImageToJpg(File(path))
-              : File(path).readAsBytesSync(),
-        );
+        if (isAndroid) {
+          final downloadDir =
+              await ExtStorage.getExternalStoragePublicDirectory(directory);
+          await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
+              .create(recursive: true);
+          File(
+            '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(
+              ".webp",
+              ".jpg",
+            )}',
+          ).writeAsBytesSync(
+            name.endsWith(".webp")
+                ? await convertImageToJpg(File(path))
+                : File(path).readAsBytesSync(),
+          );
+        } else {
+          if (isVideo(path)) {
+            await GallerySaver.saveVideo(path);
+          } else {
+            await GallerySaver.saveImage(path);
+          }
+        }
       }
     } catch (_) {
       _logger.e(_);
@@ -317,9 +334,7 @@ class FileService {
     String filePath,
   ) async {
     try {
-      final file = await _downloadedFileDir(
-        name.replaceAll(".webp", ".jpg"),
-      );
+      final file = await _downloadedFileDir(name.replaceAll(".webp", ".jpg"));
       file.writeAsBytesSync(
         name.endsWith(".webp")
             ? (await convertImageToJpg(File(filePath)))

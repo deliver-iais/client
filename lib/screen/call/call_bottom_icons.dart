@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
+import 'package:livekit_client/livekit_client.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
@@ -26,25 +29,12 @@ class CallBottomRow extends StatefulWidget {
 }
 
 class CallBottomRowState extends State<CallBottomRow>
-    with SingleTickerProviderStateMixin {
+    with CustomPopupMenu, SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
   final _callRepo = GetIt.I.get<CallRepo>();
   final _iconsSize = isAndroid ? 20.0 : 30.0;
 
-  Color? _switchCameraColor;
-  Color? _switchCameraBackgroundColor;
-
-  // ignore: unused_field
-  Color? _screenShareColor;
-  Color? _muteMicColor;
-
-  //Color? _screenShareBackgroundColor;
-  Color? _muteMicBackgroundColor;
-
-  // ignore: unused_field
-  IconData? _screenShareIcon;
-  IconData? _muteMicIcon;
-  IconData? _desktopDualVideoIcon;
+  List<MediaDevice>? _audioInputs;
 
   late AnimationController animationController;
   late Animation<double> animation;
@@ -60,17 +50,13 @@ class CallBottomRowState extends State<CallBottomRow>
       parent: animationController,
       curve: Curves.easeIn,
     );
-  }
 
-  @override
-  void dispose() {
-    super.dispose();
+    Hardware.instance.enumerateDevices().then(_loadDevices);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    initializeIcons();
 
     if (callBottomStatus(widget.callStatus)) {
       return _buildIncomingCallWidget(theme);
@@ -79,6 +65,223 @@ class CallBottomRowState extends State<CallBottomRow>
           ? _buildVideoCallWidget(theme, context)
           : _buildVoiceCallWidget(theme);
     }
+  }
+
+  Color getEnableColor({required bool isEnable}) =>
+      isEnable ? Colors.black : Colors.white;
+
+  Color getEnableBackgroundColor({required bool isEnable}) =>
+      isEnable ? Colors.white : grayColor;
+
+  Icon getEnableIcon({
+    required bool isEnable,
+    required IconData enableIcon,
+    required IconData disableIcon,
+  }) =>
+      Icon(
+        isEnable ? enableIcon : disableIcon,
+        size: _iconsSize,
+        color: getEnableColor(isEnable: isEnable),
+      );
+
+  Widget buildSpeakerButton(ThemeData theme) {
+    return StreamBuilder<bool>(
+      stream: _callRepo.isSpeaker,
+      builder: (context, snapshot) {
+        final isEnable = snapshot.data ?? false;
+
+        return CircleAvatar(
+          radius: 25,
+          backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+          child: IconButton(
+            onPressed: () => _enableSpeaker(theme),
+            hoverColor: theme.primaryColor.withOpacity(0.6),
+            tooltip: _i18n.get("speaker"),
+            icon: getEnableIcon(
+              isEnable: isEnable,
+              enableIcon: CupertinoIcons.speaker_3,
+              disableIcon: CupertinoIcons.speaker_1,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildVideoingButton(ThemeData theme) {
+    return StreamBuilder<bool>(
+      stream: _callRepo.videoing,
+      builder: (context, snapshot) {
+        final isEnable = snapshot.data ?? false;
+
+        return CircleAvatar(
+          radius: 25,
+          backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+          child: IconButton(
+            onPressed: () => _offVideoCam(theme),
+            hoverColor: theme.primaryColor.withOpacity(0.6),
+            tooltip: _i18n.get("camera"),
+            icon: getEnableIcon(
+              isEnable: isEnable,
+              enableIcon: Icons.videocam_outlined,
+              disableIcon: Icons.videocam_off_outlined,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildShareScreenButton(ThemeData theme, BuildContext context) {
+    return StreamBuilder<bool>(
+      stream: _callRepo.sharing,
+      builder: (c, snapshot) {
+        final isEnable = snapshot.data ?? false;
+
+        return CircleAvatar(
+          radius: 25,
+          backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+          child: IconButton(
+            onPressed: () => _shareScreen(theme, context),
+            hoverColor: theme.primaryColor.withOpacity(0.6),
+            tooltip: _i18n.get("share_screen"),
+            icon: getEnableIcon(
+              isEnable: isEnable,
+              enableIcon: isDesktop
+                  ? Icons.screen_share_outlined
+                  : Icons.mobile_screen_share_outlined,
+              disableIcon: isDesktop
+                  ? Icons.stop_screen_share_outlined
+                  : Icons.mobile_screen_share_outlined,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildAudioInputSelectionButton(ThemeData theme) {
+    final isEnable = !_callRepo.isMicMuted;
+
+    return CircleAvatar(
+      radius: 25,
+      backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onPanDown: (e) => storePosition(e),
+        child: IconButton(
+          hoverColor: theme.primaryColor.withOpacity(0.6),
+          tooltip: _i18n.get("call_audio"),
+          icon: getEnableIcon(
+            isEnable: isEnable,
+            enableIcon: CupertinoIcons.mic,
+            disableIcon: CupertinoIcons.mic_off,
+          ),
+          onPressed: () => this.showMenu(
+            context: context,
+            items: [
+              PopupMenuItem<MediaDevice>(
+                child: ListTile(
+                  leading: const Icon(
+                    CupertinoIcons.mic_off,
+                    color: Colors.white,
+                  ),
+                  title: Text(
+                    _i18n.get("mute_call"),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                onTap: () => _muteMic(theme),
+              ),
+              if (_audioInputs != null)
+                ..._audioInputs!.map((device) {
+                  return PopupMenuItem<MediaDevice>(
+                    value: device,
+                    child: ListTile(
+                      leading: (device.deviceId ==
+                              Hardware.instance.selectedAudioInput?.deviceId)
+                          ? const Icon(
+                              CupertinoIcons.checkmark_circle,
+                              color: Colors.white,
+                            )
+                          : const Icon(
+                              CupertinoIcons.circle,
+                              color: Colors.white,
+                            ),
+                      title: Text(device.label),
+                    ),
+                  );
+                }).toList()
+            ],
+          ).then(
+            (device) => _selectAudioInput(device!),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void selectAudioTrack(String key) {
+    _callRepo.selectAudioTrackById = key;
+  }
+
+  Widget buildMicButton(ThemeData theme) {
+    final isEnable = !_callRepo.isMicMuted;
+
+    return CircleAvatar(
+      radius: 25,
+      backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+      child: IconButton(
+        onPressed: () => _muteMic(theme),
+        hoverColor: theme.primaryColor.withOpacity(0.6),
+        tooltip: _i18n.get("mute_call"),
+        icon: getEnableIcon(
+          isEnable: isEnable,
+          enableIcon: CupertinoIcons.mic,
+          disableIcon: CupertinoIcons.mic_off,
+        ),
+      ),
+    );
+  }
+
+  Widget buildSwitchingButton(ThemeData theme) {
+    final desktopDualVideoIcon = _callRepo.desktopDualVideo.value
+        ? CupertinoIcons.square_line_vertical_square
+        : CupertinoIcons.rectangle;
+
+    return CircleAvatar(
+      radius: 25,
+      backgroundColor: getEnableBackgroundColor(isEnable: false),
+      child: IconButton(
+        onPressed: () => isDesktop ? _desktopDualVideo() : _switchCamera(theme),
+        tooltip: isDesktop ? _i18n.get("screen") : _i18n.get("camera_switch"),
+        hoverColor: theme.primaryColor.withOpacity(0.6),
+        icon: Icon(
+          isDesktop ? desktopDualVideoIcon : CupertinoIcons.switch_camera,
+          size: _iconsSize,
+          color: getEnableColor(isEnable: false),
+        ),
+      ),
+    );
+  }
+
+  Widget buildEndCallButton() {
+    return SizedBox(
+      width: 50,
+      height: 50,
+      child: CircleAvatar(
+        radius: 25,
+        backgroundColor: Colors.red,
+        child: IconButton(
+          icon: const Icon(
+            CupertinoIcons.phone_down_fill,
+            size: 30,
+            color: Colors.white,
+          ),
+          onPressed: () => widget.hangUp(),
+        ),
+      ),
+    );
   }
 
   Widget _buildVoiceCallWidget(ThemeData theme) {
@@ -109,29 +312,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    StreamBuilder<bool>(
-                      stream: _callRepo.isSpeaker,
-                      builder: (context, snapshot) {
-                        return CircleAvatar(
-                          radius: 25,
-                          backgroundColor: _callRepo.isSpeaker.value
-                              ? grayColor
-                              : Colors.white,
-                          child: IconButton(
-                            onPressed: () => _enableSpeaker(theme),
-                            icon: Icon(
-                              snapshot.data ?? false
-                                  ? CupertinoIcons.speaker_3
-                                  : CupertinoIcons.speaker_1,
-                              size: _iconsSize,
-                              color: snapshot.data ?? false
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    buildSpeakerButton(theme),
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
                       child: Text(
@@ -144,22 +325,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: CircleAvatar(
-                        radius: 25,
-                        backgroundColor: Colors.red,
-                        child: IconButton(
-                          icon: const Icon(
-                            CupertinoIcons.phone_down_fill,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => widget.hangUp(),
-                        ),
-                      ),
-                    ),
+                    buildEndCallButton(),
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
                       child: Text(
@@ -169,32 +335,34 @@ class CallBottomRowState extends State<CallBottomRow>
                     ),
                   ],
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: _muteMicBackgroundColor,
-                      child: IconButton(
-                        hoverColor: theme.primaryColor.withOpacity(0.6),
-                        onPressed: () => _muteMic(theme),
-                        tooltip: _i18n.get("mute_call"),
-                        icon: Icon(
-                          _muteMicIcon,
-                          size: _iconsSize,
-                          color: _muteMicColor,
+                if (!isDesktop)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      buildMicButton(theme),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          _i18n.get("mute_call"),
+                          style: theme.textTheme.titleSmall,
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        _i18n.get("mute_call"),
-                        style: theme.textTheme.titleSmall,
+                    ],
+                  ),
+                if (isDesktopOrWeb)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      buildAudioInputSelectionButton(theme),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          _i18n.get("call_audio"),
+                          style: theme.textTheme.titleSmall,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -217,113 +385,12 @@ class CallBottomRowState extends State<CallBottomRow>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: _switchCameraBackgroundColor,
-                child: IconButton(
-                  onPressed: () =>
-                      isDesktop ? _desktopDualVideo() : _switchCamera(theme),
-                  tooltip: isDesktop
-                      ? _i18n.get("screen")
-                      : _i18n.get("camera_switch"),
-                  icon: Icon(
-                    isDesktop
-                        ? _desktopDualVideoIcon
-                        : CupertinoIcons.switch_camera,
-                    size: _iconsSize,
-                    color: isDesktop ? theme.shadowColor : _switchCameraColor,
-                  ),
-                ),
-              ),
-              StreamBuilder<Object>(
-                stream: _callRepo.videoing,
-                builder: (context, snapshot) {
-                  return CircleAvatar(
-                    radius: 25,
-                    backgroundColor:
-                        _callRepo.videoing.value ? grayColor : Colors.white,
-                    child: IconButton(
-                      onPressed: () => _offVideoCam(theme),
-                      tooltip: _i18n.get("camera"),
-                      icon: Icon(
-                        _callRepo.videoing.value
-                            ? Icons.videocam_outlined
-                            : Icons.videocam_off_outlined,
-                        size: _iconsSize,
-                        color: _callRepo.videoing.value
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: CircleAvatar(
-                  radius: 25,
-                  backgroundColor: Colors.red,
-                  child: IconButton(
-                    icon: const Icon(
-                      CupertinoIcons.phone_down_fill,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => widget.hangUp(),
-                  ),
-                ),
-              ),
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: _muteMicBackgroundColor,
-                child: IconButton(
-                  hoverColor: theme.primaryColor.withOpacity(0.6),
-                  onPressed: () => _muteMic(theme),
-                  tooltip: _i18n.get("mute_call"),
-                  icon: Icon(
-                    _muteMicIcon,
-                    size: _iconsSize,
-                    color: _muteMicColor,
-                  ),
-                ),
-              ),
-              // CircleAvatar(
-              //   radius: 25,
-              //   backgroundColor: _screenShareBackgroundColor,
-              // IconButton(
-              //   onPressed: () => _shareScreen(theme, context),
-              //   tooltip: _i18n.get("share_screen"),
-              //   icon: Icon(
-              //     _screenShareIcon,
-              //     size: _iconsSize,
-              //     color: _screenShareColor,
-              //   ),
-              // ),
-              // ),
-              if (isAndroid || isIOS)
-                StreamBuilder<bool>(
-                  stream: _callRepo.isSpeaker,
-                  builder: (context, snapshot) {
-                    return CircleAvatar(
-                      radius: 25,
-                      backgroundColor:
-                          _callRepo.isSpeaker.value ? grayColor : Colors.white,
-                      child: IconButton(
-                        onPressed: () => _enableSpeaker(theme),
-                        icon: Icon(
-                          snapshot.data ?? false
-                              ? CupertinoIcons.speaker_3
-                              : CupertinoIcons.speaker_1,
-                          size: _iconsSize,
-                          color: snapshot.data ?? false
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+              buildSwitchingButton(theme),
+              buildVideoingButton(theme),
+              if (isDesktopOrWeb) buildShareScreenButton(theme, context),
+              buildEndCallButton(),
+              buildMicButton(theme),
+              if (isAndroid || isIOS) buildSpeakerButton(theme),
             ],
           ),
         ),
@@ -340,24 +407,10 @@ class CallBottomRowState extends State<CallBottomRow>
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             SizedBox(
-              width: 150,
-              height: 150,
+              width: 120,
+              height: 120,
               child: IconButton(
-                hoverColor: Colors.transparent,
-                icon: Lottie.asset(
-                  "assets/animations/accepting_call.json",
-                  width: 150,
-                  height: 150,
-                  delegates: LottieDelegates(
-                    values: [
-                      ValueDelegate.color(
-                        const ['**'],
-                        value:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ],
-                  ),
-                ),
+                icon: const Ws.asset("assets/animations/accepting_call.ws"),
                 onPressed: () => _acceptCall(),
               ),
             ),
@@ -407,33 +460,6 @@ class CallBottomRowState extends State<CallBottomRow>
     }
   }
 
-  void initializeIcons() {
-    _muteMicColor = _callRepo.isMicMuted ? Colors.black : Colors.white;
-    _switchCameraColor =
-        _callRepo.switching.value ? Colors.white : Colors.black;
-    _screenShareColor = _callRepo.isSharing ? Colors.black : Colors.white;
-
-    _muteMicBackgroundColor = _callRepo.isMicMuted ? Colors.white : grayColor;
-    _switchCameraBackgroundColor =
-        _callRepo.switching.value ? grayColor : Colors.white;
-    // _screenShareBackgroundColor =
-    //     _callRepo.isSharing ? grayColor : Colors.white;
-
-    _muteMicIcon =
-        _callRepo.isMicMuted ? CupertinoIcons.mic_off : CupertinoIcons.mic;
-    _screenShareIcon = _callRepo.isSharing
-        ? (isDesktop
-            ? Icons.screen_share_outlined
-            : Icons.mobile_screen_share_outlined)
-        : (isDesktop
-            ? Icons.stop_screen_share_outlined
-            : Icons.mobile_screen_share_outlined);
-
-    _desktopDualVideoIcon = _callRepo.desktopDualVideo.value
-        ? CupertinoIcons.square_line_vertical_square
-        : CupertinoIcons.rectangle;
-  }
-
   Future<void> _switchCamera(ThemeData theme) async {
     await _callRepo.switchCamera();
     setState(() {});
@@ -451,17 +477,17 @@ class CallBottomRowState extends State<CallBottomRow>
 
   // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
-    if (WebRTC.platformIsMacOS || WebRTC.platformIsWindows) {
+    if (isDesktop) {
       if (!_callRepo.isSharing) {
         final source = await showDialog<DesktopCapturerSource>(
           context: context,
           builder: (context) => ScreenSelectDialog(),
         );
         if (source != null) {
-          await _callRepo.shareScreen(isWindows: true, source: source);
+          await _callRepo.shareScreen(source: source);
         }
       } else {
-        await _callRepo.shareScreen(isWindows: true);
+        await _callRepo.shareScreen();
       }
     } else {
       await _callRepo.shareScreen();
@@ -485,5 +511,15 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void _declineCall() {
     _callRepo.declineCall();
+  }
+
+  Future<void> _loadDevices(List<MediaDevice> devices) async {
+    _audioInputs = devices.where((d) => d.kind == 'audioinput').toList();
+  }
+
+  Future<void> _selectAudioInput(MediaDevice device) async {
+    _callRepo.enableMicrophone();
+    await Hardware.instance.selectAudioInput(device);
+    setState(() {});
   }
 }

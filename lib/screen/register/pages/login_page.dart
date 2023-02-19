@@ -333,8 +333,6 @@ class LoginPageState extends State<LoginPage> {
                       Directionality(
                         textDirection: _i18n.defaultTextDirection,
                         child: ShakeWidget(
-                          horizontalPadding: 10,
-                          animationRange: 10,
                           controller: _shakeWidgetController,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -521,7 +519,7 @@ class LoginPageState extends State<LoginPage> {
       inlineSpanTransformer(
         defaultColor: theme.colorScheme.primary,
         linkColor: theme.colorScheme.primary,
-        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );
   }
