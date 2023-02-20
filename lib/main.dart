@@ -74,6 +74,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/background_service.dart';
@@ -150,8 +151,8 @@ Future<void> setupDI() async {
   registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
+  registerSingleton<RoutingService>(RoutingService());
   registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().init(retry: true);
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
@@ -223,6 +224,7 @@ Future<void> setupDI() async {
 }
 
 Future<void> dbSetupDI() async {
+  registerSingleton<AnalyticsService>(AnalyticsService());
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
