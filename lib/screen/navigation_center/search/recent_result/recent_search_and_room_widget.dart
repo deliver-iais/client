@@ -96,6 +96,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
                                     child: UnreadMessageCounterWidget(
                                       recentRooms.data![i].roomId,
                                       snapshot.data!.lastMessageId,
+                                      needBorder: true,
                                     ),
                                   );
                                 } else {

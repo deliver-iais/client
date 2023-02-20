@@ -4,11 +4,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -19,6 +19,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
+import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/ws.dart';
@@ -27,6 +28,7 @@ import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
@@ -546,9 +548,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                   ),
                   titleSpacing: 8.0,
-                  title: ConnectionStatus(
-                    isShowCase: _isShowCaseEnable,
-                  ),
+                  title: ConnectionStatus(isShowCase: _isShowCaseEnable),
                   actions: [
                     if (!isDesktop)
                       DescribedFeatureOverlay(
@@ -582,30 +582,6 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
-                    StreamBuilder<bool>(
-                      stream: _authRepo.isLocalLockEnabledStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && !(snapshot.data!)) {
-                          return const SizedBox.shrink();
-                        }
-                        return IconButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (c) {
-                                  return const SplashScreen();
-                                },
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            CupertinoIcons.lock,
-                          ),
-                        );
-                      },
-                    ),
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,
@@ -615,31 +591,79 @@ class NavigationCenterState extends State<NavigationCenter>
                                 color: theme.colorScheme.tertiaryContainer,
                               )
                             : Icon(
-                                CupertinoIcons.chat_bubble_text,
+                                CupertinoIcons.chat_bubble_fill,
                                 color: theme.colorScheme.tertiaryContainer,
                               ),
                         backgroundColor: theme.colorScheme.tertiaryContainer,
                         targetColor: theme.colorScheme.tertiary,
                         title: Text(
-                          _i18n.get("show_case_feature_discovery_title"),
+                          _i18n.get("chats_feature_discovery_title"),
                           textDirection: _i18n.defaultTextDirection,
                           style: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
                         description: FeatureDiscoveryDescriptionWidget(
-                          description: _i18n
-                              .get("show_case_feature_discovery_description"),
+                          description:
+                              _i18n.get("chats_feature_discovery_description"),
                           descriptionStyle: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
                         ),
-                        child: IconButton(
-                          onPressed: () => _sharedDao
-                              .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
-                          icon: !_isShowCaseEnable
-                              ? const Icon(Icons.storefront_outlined)
-                              : const Icon(CupertinoIcons.chat_bubble_text),
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () => _sharedDao
+                                .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                            child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              clipBehavior: Clip.none,
+                              children: [
+                                HoverContainer(
+                                  width: 40,
+                                  height: 40,
+                                  cursor: SystemMouseCursors.click,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.85),
+                                    borderRadius: messageBorder,
+                                  ),
+                                  hoverDecoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: messageBorder,
+                                  ),
+                                  child: PageTransitionSwitcher(
+                                    transitionBuilder: (
+                                      child,
+                                      animation,
+                                      secondaryAnimation,
+                                    ) {
+                                      return FadeScaleTransition(
+                                        animation: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    child: !_isShowCaseEnable
+                                        ? Icon(
+                                            Icons.storefront_outlined,
+                                            color: theme.colorScheme.surface,
+                                          )
+                                        : Icon(
+                                            CupertinoIcons.chat_bubble_fill,
+                                            color: theme.colorScheme.surface,
+                                          ),
+                                  ),
+                                ),
+                                if (_isShowCaseEnable)
+                                  const UnreadRoomCounterWidget(),
+                                if (_isShowCaseEnable)
+                                  JumpingDotAnimation(
+                                    dotsColor: theme.colorScheme.primary,
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     const SizedBox(
