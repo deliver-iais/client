@@ -296,8 +296,20 @@ class MessageRepo {
   Future<void> processSeen(RoomMetadata roomMetadata) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
+      final roomSeen =
+          await _seenDao.getRoomSeen(roomMetadata.roomUid.asString());
       final int lastSeenId =
           max(seen.messageId, roomMetadata.lastSeenId.toInt());
+      if (roomSeen == null &&
+          roomMetadata.lastMessageId.toInt() != 0 &&
+          roomMetadata.lastMessageId.toInt() -
+                  max(
+                    lastSeenId,
+                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
+                  ) !=
+              0) {
+        await _seenDao.addRoomSeen(roomMetadata.roomUid.asString());
+      }
       if (lastSeenId > 0) {
         await _updateCurrentUserLastSeen(
           max(
@@ -634,13 +646,13 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  Future<void> sendCallMessage(
+  void sendCallMessage(
     call_pb.CallEvent_CallStatus callStatus,
     Uid room,
     String callId,
     int callDuration,
     call_pb.CallEvent_CallType callType,
-  ) async {
+  ) {
     final json = (call_pb.CallEvent()
           ..callStatus = callStatus
           ..callId = callId
@@ -655,12 +667,12 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  Future<void> sendLocationMessage(
+  void sendLocationMessage(
     LatLng locationData,
     Uid room, {
     String? forwardedFrom,
     int replyId = 0,
-  }) async {
+  }) {
     final json = (location_pb.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
@@ -1128,7 +1140,8 @@ class MessageRepo {
   }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
-    _coreServices.sendSeen(
+    // it's look better if w8 for sending seen and make it safer
+    await _coreServices.sendSeen(
       seen_pb.SeenByClient()
         ..to = to
         ..id = Int64.parseInt(messageId.toString()),
@@ -1142,10 +1155,10 @@ class MessageRepo {
         deleted: false,
       );
 
-  Future<void> sendForwardedMessage(
+  void sendForwardedMessage(
     Uid room,
     List<Message> forwardedMessage,
-  ) async {
+  ) {
     for (final forwardedMessage in forwardedMessage) {
       final msg = _createMessage(
         room,
@@ -1287,11 +1300,11 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendFormResultMessage(
+  void sendFormResultMessage(
     String botUid,
     form_pb.FormResult formResult,
     int formMessageId,
-  ) async {
+  ) {
     final jsonString = (formResult).writeToJson();
     final msg = _createMessage(
       botUid.asUid(),
@@ -1303,10 +1316,10 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  Future<void> sendShareUidMessage(
+  void sendShareUidMessage(
     Uid uid,
     message_pb.ShareUid shareUid,
-  ) async {
+  ) {
     final json = shareUid.writeToJson();
 
     final msg =
@@ -1316,11 +1329,11 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  Future<void> sendPrivateDataAcceptanceMessage(
+  void sendPrivateDataAcceptanceMessage(
     Uid to,
     PrivateDataType privateDataType,
     String token,
-  ) async {
+  ) {
     final sharePrivateDataAcceptance = SharePrivateDataAcceptance()
       ..data = privateDataType
       ..token = token;
@@ -1361,7 +1374,7 @@ class MessageRepo {
 
   Future<void> resendMessage(Message msg) async {
     final pm = await _messageDao.getPendingMessage(msg.packetId);
-    _saveAndSend(pm!);
+    unawaited(_saveAndSend(pm!));
   }
 
   void deletePendingMessage(String packetId) {
@@ -1409,7 +1422,7 @@ class MessageRepo {
             .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    unawaited(_saveAndSend(pm));
     _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
   }
 

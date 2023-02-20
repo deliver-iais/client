@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
@@ -40,6 +41,7 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
@@ -1195,6 +1197,7 @@ class MacOSNotifier implements Notifier {
       MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _fileService = GetIt.I.get<FileService>();
   final _i18n = GetIt.I.get<I18N>();
 
   MacOSNotifier() {
@@ -1259,7 +1262,12 @@ class MacOSNotifier implements Notifier {
       );
 
       if (path != null && path.isNotEmpty) {
-        attachments.add(DarwinNotificationAttachment(path));
+        // Macos not accepting webp, so we convert them to jpeg
+        final file = File('${(await getTemporaryDirectory()).path}/avatar.jpg');
+        await file
+            .writeAsBytes(await _fileService.convertImageToJpg(File(path)));
+
+        attachments.add(DarwinNotificationAttachment(file.path));
       }
     }
     final darwinNotificationDetails = DarwinNotificationDetails(

@@ -415,7 +415,7 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
-                    await _messageRepo.sendPrivateDataAcceptanceMessage(
+                    _messageRepo.sendPrivateDataAcceptanceMessage(
                       Uid()
                         ..category = Categories.BOT
                         ..node = botId,

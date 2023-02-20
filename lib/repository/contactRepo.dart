@@ -30,7 +30,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

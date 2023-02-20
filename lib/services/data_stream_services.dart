@@ -27,7 +27,6 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
@@ -182,6 +181,10 @@ class DataStreamServices {
     final msg = (await saveMessageInMessagesDB(message))!;
 
     if (isOnlineMessage) {
+      if (!msg.isHidden) {
+        await _seenDao.addRoomSeen(roomUid.asString());
+      }
+
       // Step 1 - Update Room Info
 
       // Check if Mentioned.

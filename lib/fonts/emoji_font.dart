@@ -3,7 +3,6 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_fonts/src/google_fonts_base.dart';
 import 'package:google_fonts/src/google_fonts_descriptor.dart';
 import 'package:google_fonts/src/google_fonts_variant.dart';

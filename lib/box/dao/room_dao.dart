@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
 abstract class RoomDao {
@@ -40,6 +42,8 @@ abstract class RoomDao {
 }
 
 class RoomDaoImpl extends RoomDao {
+  final _seenDao = GetIt.I.get<SeenDao>();
+
   @override
   Future<List<Room>> getAllRooms() async {
     try {
@@ -128,6 +132,9 @@ class RoomDaoImpl extends RoomDao {
     final box = await _openRoom();
 
     final r = box.get(uid) ?? Room(uid: uid);
+    if (deleted ?? false) {
+      unawaited(_seenDao.deleteRoomSeen(uid));
+    }
 
     final clone = r.copyWith(
       lastMessage: lastMessage,
