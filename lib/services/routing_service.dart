@@ -109,6 +109,7 @@ class PreMaybePopScope {
 
 class RoutingService {
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
@@ -239,6 +240,11 @@ class RoutingService {
     _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _recentRoomsDao.addRecentRoom(roomId);
+      if (roomId == _authRepo.currentUserUid.asString()) {
+        _analyticsService.sendLogEvent(
+          "openSavedMessageRoom",
+        );
+      }
       _push(
         RoomPage(
           key: ValueKey("/room/$roomId"),

@@ -20,6 +20,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -37,7 +38,6 @@ import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -46,19 +46,23 @@ import 'package:logger/logger.dart';
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
   final _logger = GetIt.I.get<Logger>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
-  final _callService = GetIt.I.get<CallService>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _sdr = GetIt.I.get<MucDao>();
+
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
+
+  final _callService = GetIt.I.get<CallService>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
   Future<message_model.Message?> handleIncomingMessage(
@@ -471,14 +475,12 @@ class DataStreamServices {
             .ignore();
       }
     } else {
-      if (hasFirebaseCapability) {
-        await FirebaseAnalytics.instance.logEvent(
-          name: "nullPendingMessageOnAck",
-          parameters: {
-            "packetId": messageDeliveryAck.packetId,
-          },
-        );
-      }
+      await _analyticsService.sendLogEvent(
+        "nullPendingMessageOnAck",
+        parameters: {
+          "packetId": messageDeliveryAck.packetId,
+        },
+      );
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -16,7 +17,6 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -39,6 +39,7 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
 
   @visibleForTesting
@@ -287,39 +288,30 @@ class CoreServices {
   }
 
   Future<void> sendSeen(seen_pb.SeenByClient seen) async {
-    if (hasFirebaseCapability) {
-      await FirebaseAnalytics.instance.logEvent(
-        name: "sendSeen",
-      );
-    }
+    await _analyticsService.sendLogEvent(
+      "sendSeen",
+    );
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
     await _sendClientPacket(clientPacket)
         .onError(
           (error, stackTrace) async => {
-            if (hasFirebaseCapability)
-              {
-                await FirebaseAnalytics.instance.logEvent(
-                  name: "failedSeen",
-                  parameters: {
-                    'error': error.toString(),
-                  },
-                )
-              }
+            await _analyticsService.sendLogEvent(
+              "failedSeen",
+              parameters: {
+                'error': error.toString(),
+              },
+            )
           },
         )
         .then(
           (value) async => {
-            if (hasFirebaseCapability)
-              {
-                await FirebaseAnalytics.instance.logEvent(
-                  name: "SuccessSeen",
-                )
-              }
+            await _analyticsService.sendLogEvent(
+              "successSeen",
+            ),
           },
         );
-    ;
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {

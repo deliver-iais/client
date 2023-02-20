@@ -191,9 +191,6 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("saved_message"),
                     leading: const Icon(CupertinoIcons.bookmark),
                     onPressed: (context) async {
-                      await _analyticsService.sendLogEvent(
-                        "openSavedMessageRoom",
-                      );
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
                     },

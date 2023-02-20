@@ -317,14 +317,10 @@ void main() async {
 
   if (hasFirebaseCapability) {
     await initializeFirebase();
-
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     // Force enable crashlytics collection enabled if we're testing it.
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-    //this is for test
-    await FirebaseCrashlytics.instance.log('This is a log example');
-    await FirebaseCrashlytics.instance.setCustomKey('example', 'flutterfire');
   }
 
   logger.i("OS based setups done.");
