@@ -26,6 +26,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -56,7 +57,6 @@ import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart'
     as sticker_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -85,6 +85,7 @@ class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
 
   // migrate to room repo
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -606,30 +607,24 @@ class MessageRepo {
       await _savePendingMessage(pm)
           .then(
             (value) => {
-              if (hasFirebaseCapability)
-                {
-                  FirebaseAnalytics.instance.logEvent(
-                    name: "replyToMessageFromNotificationSavePendingSuccess",
-                    parameters: {
-                      "packetId": pm.packetId,
-                      "roomUid": pm.roomUid,
-                    },
-                  )
-                }
+              _analyticsService.sendLogEvent(
+                "replyToMessageFromNotificationSavePendingSuccess",
+                parameters: {
+                  "packetId": pm.packetId,
+                  "roomUid": pm.roomUid,
+                },
+              )
             },
           )
           .onError(
             (error, stackTrace) => {
-              if (hasFirebaseCapability)
-                {
-                  FirebaseAnalytics.instance.logEvent(
-                    name: "replyToMessageFromNotificationSavePendingFailed",
-                    parameters: {
-                      "packetId": pm.packetId,
-                      "roomUid": pm.roomUid,
-                    },
-                  )
-                }
+              _analyticsService.sendLogEvent(
+                "replyToMessageFromNotificationSavePendingFailed",
+                parameters: {
+                  "packetId": pm.packetId,
+                  "roomUid": pm.roomUid,
+                },
+              )
             },
           );
     } else {

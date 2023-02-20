@@ -8,13 +8,13 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +25,8 @@ class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
+
   final _i18N = GetIt.I.get<I18N>();
 
   Map<String, String> localUploadedFilePath = {};
@@ -55,11 +57,9 @@ class FileRepo {
         sendActivity: sendActivity,
         isVoice: isVoice,
       );
-      if (hasFirebaseCapability) {
-        await FirebaseAnalytics.instance.logEvent(
-          name: "successFileUpload",
-        );
-      }
+      await _analyticsService.sendLogEvent(
+        "successFileUpload",
+      );
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
         ToastDisplay.showToast(
@@ -71,15 +71,13 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
-        if (hasFirebaseCapability) {
-          await FirebaseAnalytics.instance.logEvent(
-            name: "unSuccessFileUpload",
-            parameters: {
-              "errorCode": e.response?.statusCode,
-              "error": e.response!.data
-            },
-          );
-        }
+        await _analyticsService.sendLogEvent(
+          "unSuccessFileUpload",
+          parameters: {
+            "errorCode": e.response?.statusCode,
+            "error": e.response!.data
+          },
+        );
       } else if (e.response == null && e.type != DioErrorType.cancel) {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
@@ -90,21 +88,17 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
-        if (hasFirebaseCapability) {
-          await FirebaseAnalytics.instance.logEvent(
-            name: "failedFileUpload",
-          );
-        }
-      } else{
-        if (hasFirebaseCapability) {
-          await FirebaseAnalytics.instance.logEvent(
-            name: "unknownFileUpload",
-            parameters: {
-              "errorCode": e.response?.statusCode,
-              "error": e.response!.data
-            },
-          );
-        }
+        await _analyticsService.sendLogEvent(
+          "failedFileUpload",
+        );
+      } else {
+        await _analyticsService.sendLogEvent(
+          "unknownFileUpload",
+          parameters: {
+            "errorCode": e.response?.statusCode,
+            "error": e.response!.data
+          },
+        );
       }
       _logger.e(e);
     }

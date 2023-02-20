@@ -17,6 +17,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -32,7 +33,6 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -63,18 +63,23 @@ enum CallStatus {
 
 class CallRepo {
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+
   final _logger = GetIt.I.get<Logger>();
+
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
-  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _callListDao = GetIt.I.get<CallInfoDao>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+
+  final _callListDao = GetIt.I.get<CallInfoDao>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+
   final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   bool get isMicMuted => _isMicMuted;
@@ -377,11 +382,9 @@ class CallRepo {
     _phoneStateStream = PhoneState.phoneStateStream.listen((event) {
       if (event != null) {
         if (event == PhoneStateStatus.CALL_STARTED) {
-          if (hasFirebaseCapability) {
-            FirebaseAnalytics.instance.logEvent(
-              name: "callOnHold",
-            );
-          }
+          _analyticsService.sendLogEvent(
+            "callOnHold",
+          );
           _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
           if (_isConnected) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
@@ -589,11 +592,9 @@ class CallRepo {
             case STATUS_MIC_CLOSE:
               break;
             case STATUS_SHARE_SCREEN:
-              if (hasFirebaseCapability) {
-                FirebaseAnalytics.instance.logEvent(
-                  name: "shareScreenOnVideoCall",
-                );
-              }
+              _analyticsService.sendLogEvent(
+                "shareScreenOnVideoCall",
+              );
               incomingSharing.add(true);
               break;
             case STATUS_CALL_ON_HOLD:
@@ -686,11 +687,9 @@ class CallRepo {
         _selectedCandidate = stat;
       }
     }
-    if (hasFirebaseCapability) {
-      await FirebaseAnalytics.instance.logEvent(
-        name: "connectedCall",
-      );
-    }
+    await _analyticsService.sendLogEvent(
+      "connectedCall",
+    );
     callingStatus.add(CallStatus.CONNECTED);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
@@ -725,11 +724,9 @@ class CallRepo {
         if (callingStatus.value != CallStatus.CONNECTED) {
           callingStatus.add(CallStatus.FAILED);
           _logger.i("Disconnected and Call End!");
-          if (hasFirebaseCapability) {
-            await FirebaseAnalytics.instance.logEvent(
-              name: "failedCall",
-            );
-          }
+          await _analyticsService.sendLogEvent(
+            "settingsPage_open",
+          );
           endCall();
         }
       });
@@ -822,11 +819,9 @@ class CallRepo {
           incomingCallOnHold.add(false);
           break;
         case STATUS_SHARE_SCREEN:
-          if (hasFirebaseCapability) {
-            FirebaseAnalytics.instance.logEvent(
-              name: "shareScreenOnVideoCall",
-            );
-          }
+          _analyticsService.sendLogEvent(
+            "shareScreenOnVideoCall",
+          );
           incomingSharing.add(true);
           break;
         case STATUS_SHARE_VIDEO:
@@ -1228,16 +1223,14 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (_callService.getUserCallState == UserCallState.NO_CALL) {
-        if (hasFirebaseCapability) {
-          if (isVideo) {
-            await FirebaseAnalytics.instance.logEvent(
-              name: "startVideoCall",
-            );
-          } else {
-            await FirebaseAnalytics.instance.logEvent(
-              name: "startAudioCall",
-            );
-          }
+        if (isVideo) {
+          await _analyticsService.sendLogEvent(
+            "startVideoCall",
+          );
+        } else {
+          await _analyticsService.sendLogEvent(
+            "startAudioCall",
+          );
         }
         //can't call another ppl or received any call notification
         _callService.setUserCallState = UserCallState.IN_USER_CALL;

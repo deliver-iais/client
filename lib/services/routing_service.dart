@@ -39,6 +39,7 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -50,7 +51,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dismissible_page/dismissible_page.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
@@ -114,6 +114,7 @@ class RoutingService {
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
@@ -125,128 +126,100 @@ class RoutingService {
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
-      if (hasFirebaseCapability) {
-        FirebaseAnalytics.instance.logEvent(
-          name: "settingsPage_open",
-        );
-      }
+      _analyticsService.sendLogEvent(
+        "settingsPage_open",
+      );
     }
   }
 
   void openLanguageSettings() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "languageSettingsPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "languageSettingsPage_open",
+    );
     _push(_languageSettings);
   }
 
   void openThemeSettings() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "themeSettingsPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "themeSettingsPage_open",
+    );
     _push(_themeSettings);
   }
 
   void openSecuritySettings() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "securitySettingsPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "securitySettingsPage_open",
+    );
     _push(_securitySettings);
   }
 
   void openDeveloperPage() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "developerPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "developerPage_open",
+    );
     _push(_developerPage);
   }
 
   void openDevices() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "devicesPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "devicesPage_open",
+    );
     _push(_devices);
   }
 
   void openAutoDownload() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "autoDownloadPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "autoDownloadPage_open",
+    );
     _push(_autoDownload);
   }
 
   void openLab() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "labPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "labPage_open",
+    );
     _push(_lab);
   }
 
   void openContacts() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "contactsPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "contactsPage_open",
+    );
     _push(_contacts);
   }
 
   void openNewContact() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "newContactPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "newContactPage_open",
+    );
     _push(_newContact);
   }
 
   void openScanQrCode() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "scanQrCodePage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "scanQrCodePage_open",
+    );
     _push(_scanQrCode);
   }
 
   void openCallsList() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "callsListPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "callsListPage_open",
+    );
     _push(_calls);
   }
 
   void openShowcase() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "showcasePage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "showcasePage_open",
+    );
     _push(_showcase);
   }
 
   void openConnectionSettingPage() {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "connectionSettingPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "connectionSettingPage_open",
+    );
     _push(_connectionSettingsPage);
   }
 
@@ -386,11 +359,9 @@ class RoutingService {
       );
 
   void openCustomNotificationSoundSelection(String roomId) {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "customNotificationSoundSelectionPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "customNotificationSoundSelectionPage_open",
+    );
     _push(
       CustomNotificationSoundSelection(
         key: const ValueKey("/custom-notification-sound-selection"),
@@ -400,11 +371,9 @@ class RoutingService {
   }
 
   void openAccountSettings({bool forceToSetName = false}) {
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "accountSettingsPage_open",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "accountSettingsPage_open",
+    );
     _push(
       AccountSettings(
         key: const ValueKey("/account-settings"),
@@ -414,16 +383,14 @@ class RoutingService {
   }
 
   void openMemberSelection({required bool isChannel, Uid? mucUid}) {
-    if (hasFirebaseCapability) {
-      if (isChannel) {
-        FirebaseAnalytics.instance.logEvent(
-          name: "newChannelPage_open",
-        );
-      } else {
-        FirebaseAnalytics.instance.logEvent(
-          name: "newGroupPage_open",
-        );
-      }
+    if (isChannel) {
+      _analyticsService.sendLogEvent(
+        "newChannelPage_open",
+      );
+    } else {
+      _analyticsService.sendLogEvent(
+        "newGroupPage_open",
+      );
     }
     _push(
       MemberSelectionPage(

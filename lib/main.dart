@@ -101,7 +101,6 @@ import 'package:deliver/shared/firebase_options.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -326,14 +325,6 @@ void main() async {
     //this is for test
     await FirebaseCrashlytics.instance.log('This is a log example');
     await FirebaseCrashlytics.instance.setCustomKey('example', 'flutterfire');
-
-    await FirebaseAnalytics.instance.logEvent(
-      name: "select_content",
-      parameters: {
-        "content_type": "image",
-        "item_id": 12,
-      },
-    );
   }
 
   logger.i("OS based setups done.");

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -31,6 +32,7 @@ const REFRESH_TOKEN_EXPIRATION_DELTA = Duration(days: 3);
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  static final _analyticsService = GetIt.I.get<AnalyticsService>();
   static final requestLock = Lock();
 
   late SharedPreferences _prefs;
@@ -209,11 +211,9 @@ class AuthRepo {
   void setLocalPassword(String pass) {
     _localPassword.add(pass);
     _prefs.setString(SHARED_DAO_LOCAL_PASSWORD, pass);
-    if (hasFirebaseCapability) {
-      FirebaseAnalytics.instance.logEvent(
-        name: "setLocalPassword",
-      );
-    }
+    _analyticsService.sendLogEvent(
+      "setLocalPassword",
+    );
   }
 
   bool isLoggedIn() => _hasValidRefreshToken();

@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -21,7 +22,6 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +48,7 @@ class SettingsPageState extends State<SettingsPage> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _backgroundService = GetIt.I.get<BackgroundService>();
+  static final _analyticsService = GetIt.I.get<AnalyticsService>();
   StreamSubscription<Account?>? subscription;
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
@@ -170,11 +171,9 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("qr_share"),
                     leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (context) async {
-                      if (hasFirebaseCapability) {
-                        await FirebaseAnalytics.instance.logEvent(
-                          name: "QRShare",
-                        );
-                      }
+                      await _analyticsService.sendLogEvent(
+                        "QRShare",
+                      );
                       final account = await _accountRepo.getAccount();
                       // ignore: use_build_context_synchronously
                       showQrCode(
@@ -192,11 +191,9 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("saved_message"),
                     leading: const Icon(CupertinoIcons.bookmark),
                     onPressed: (context) async {
-                      if (hasFirebaseCapability) {
-                        await FirebaseAnalytics.instance.logEvent(
-                          name: "openSavedMessageRoom",
-                        );
-                      }
+                      await _analyticsService.sendLogEvent(
+                        "openSavedMessageRoom",
+                      );
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
                     },
