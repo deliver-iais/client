@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -179,6 +180,28 @@ class SettingsPageState extends State<SettingsPage> {
                           account.firstname!,
                           account.lastname!,
                         ),
+                      );
+                    },
+                  ),
+                  StreamBuilder<bool>(
+                    stream: _authRepo.isLocalLockEnabledStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && !(snapshot.data!)) {
+                        return const SizedBox.shrink();
+                      }
+                      return SettingsTile(
+                        title: _i18n.get("lock_app"),
+                        leading: const Icon(CupertinoIcons.lock),
+                        onPressed: (context) {
+                          Navigator.pushReplacement(
+                            _uxService.appContext,
+                            MaterialPageRoute(
+                              builder: (c) {
+                                return const SplashScreen();
+                              },
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
