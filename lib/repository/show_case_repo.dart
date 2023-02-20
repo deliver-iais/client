@@ -70,11 +70,11 @@ class ShowCaseRepo {
             bot: Uid(category: Categories.BOT, node: "auth_bot"),
             data: _getData("REGISTER", "BOT_PLATFORM"),
             pinCodeSettings: PinCodeSettings(
-              length: 5,
+              length: 4,
               isOutsideFirstRedirectionEnabled: true,
               outsideFirstRedirectionAlert:
                   "با مراجعه به بات نشست خود را احراز کنید.",
-              outsideFirstRedirectionText: "/add_session",
+              outsideFirstRedirectionText: "/start",
             ),
           ),
           img: File(
@@ -85,16 +85,18 @@ class ShowCaseRepo {
       ),
       Showcase(
         singleUrl: UrlCase(
-          name: "گروه  توسعه",
-          description: "گروه توسعه",
+          name: "گروه تستی احراز هویت",
+          description: "گروه تستی احراز هویت",
           botCallback: BotCallback(
             bot: Uid(category: Categories.BOT, node: "auth_bot"),
             data: _getData(
-                "JOIN_TO_GROUP", "d23e3f2f-9484-44da-a851-da1efa761f7c",),
+              "JOIN_TO_GROUP",
+              "d23e3f2f-9484-44da-a851-da1efa761f7c",
+            ),
           ),
           img: File(
-            uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
-            name: "1667989130491.jpeg",
+            uuid: "d369efa0-5159-463c-98e7-f96378ca8710",
+            name: "1676788382457.jpeg",
           ),
         ),
       ),
