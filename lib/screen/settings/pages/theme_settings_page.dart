@@ -12,14 +12,13 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../../shared/widgets/settings_ui/box_ui.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
   const ThemeSettingsPage({super.key});
@@ -35,6 +34,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _idSubject = BehaviorSubject.seeded(0);
   final _controller = ScrollController();
+  double currentSliderValue = 2;
 
   List<Message> messages = [];
 
@@ -309,6 +309,69 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                               });
                             },
                           ),
+                        ],
+                      ),
+                      Section(
+                        title: _i18n.get("font"),
+                        children: [
+                          Column(
+                            children: [
+                              SettingsTile(
+                                title: _i18n.get("text_size"),
+                                leading:
+                                    const Icon(CupertinoIcons.textformat_size),
+                                trailing: const SizedBox.shrink(),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "A",
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    SizedBox(
+                                      width: 500,
+                                      child: Directionality(
+                                        textDirection:
+                                            _i18n.defaultTextDirection,
+                                        child: SliderTheme(
+                                          data:
+                                              SliderTheme.of(context).copyWith(
+                                            thumbShape:
+                                                const RoundSliderThumbShape(
+                                                    enabledThumbRadius: 8),
+                                          ),
+                                          child: Slider(
+                                            activeColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            inactiveColor: Colors.grey[700],
+                                            divisions: 5,
+                                            thumbColor: Colors.white,
+                                            value: currentSliderValue,
+                                            max: 2,
+                                            label:
+                                                currentSliderValue.toString(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                currentSliderValue = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      "A",
+                                      style: TextStyle(fontSize: 40),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ],
