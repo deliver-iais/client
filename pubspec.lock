@@ -447,11 +447,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.14"
-      resolved-ref: "5bc1669eba9d65fe5444160d264e7833a44844de"
+      ref: "tags/v1.12.21"
+      resolved-ref: "7767316ba2126b95fe660c49ce7ccb48e4ee7bcc"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.14"
+    version: "1.12.21"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -734,6 +734,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_app_badger:
+    dependency: "direct main"
+    description:
+      name: flutter_app_badger
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.5.0"
   flutter_audio_waveforms:
     dependency: "direct main"
     description:
@@ -1017,7 +1024,7 @@ packages:
       name: google_fonts
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.1"
+    version: "4.0.3"
   googleapis_auth:
     dependency: transitive
     description:
@@ -1561,6 +1568,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.2.0"
+  pinput:
+    dependency: "direct main"
+    description:
+      name: pinput
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.21"
   platform:
     dependency: transitive
     description:
@@ -1890,6 +1904,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smart_auth:
+    dependency: transitive
+    description:
+      name: smart_auth
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.8"
   sms_autofill:
     dependency: "direct main"
     description:

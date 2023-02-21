@@ -83,6 +83,7 @@ class Message {
     bool? encrypted,
     MessageType? type,
     String? json,
+    String? markup,
   }) =>
       Message(
         roomUid: roomUid ?? this.roomUid,
@@ -98,6 +99,7 @@ class Message {
         encrypted: encrypted ?? this.encrypted,
         type: type ?? this.type,
         json: json ?? this.json,
+        markup: markup ?? this.markup,
       );
 
   @override

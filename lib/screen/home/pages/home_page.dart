@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
@@ -9,17 +10,16 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,7 +35,7 @@ class HomePageState extends State<HomePage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-
+  final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
@@ -43,6 +43,18 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    if (isMacOS) {
+      GetIt.I.get<SeenDao>().watchAllRoomSeen().listen((event) {
+        try {
+          if (event.isNotEmpty) {
+            FlutterAppBadger.updateBadgeCount(event.length);
+          } else {
+            FlutterAppBadger.removeBadge();
+          }
+        } catch (_) {}
+      });
+    }
+
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
@@ -117,7 +129,6 @@ class HomePageState extends State<HomePage> {
     if (value != null && value.isNotEmpty) {
       _urlHandlerService.handleApplicationUri(
         value,
-        context,
         shareTextMessage: true,
       );
     }
@@ -125,7 +136,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    FToast().init(context);
+    _uxService.updateHomeContext(context);
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {

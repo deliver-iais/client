@@ -294,8 +294,20 @@ class MessageRepo {
   Future<void> processSeen(RoomMetadata roomMetadata) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
+      final roomSeen =
+          await _seenDao.getRoomSeen(roomMetadata.roomUid.asString());
       final int lastSeenId =
           max(seen.messageId, roomMetadata.lastSeenId.toInt());
+      if (roomSeen == null &&
+          roomMetadata.lastMessageId.toInt() != 0 &&
+          roomMetadata.lastMessageId.toInt() -
+                  max(
+                    lastSeenId,
+                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
+                  ) !=
+              0) {
+        await _seenDao.addRoomSeen(roomMetadata.roomUid.asString());
+      }
       if (lastSeenId > 0) {
         await _updateCurrentUserLastSeen(
           max(
@@ -478,9 +490,10 @@ class MessageRepo {
           ..wtf(roomUid)
           ..e(e);
         if (e.code == StatusCode.notFound) {
+          unawaited(sendSeen(lastCurrentUserSentMessageId, roomUid.asUid()));
           return _seenDao.updateMySeen(
             uid: roomUid,
-            messageId: 0,
+            messageId: lastCurrentUserSentMessageId,
           );
         }
       } catch (e) {
@@ -1115,11 +1128,15 @@ class MessageRepo {
       final msg = _createMessage(
         room,
         forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
-            ? forwardedMessage.roomUid.isGroup()
-                ? forwardedMessage.from
-                : forwardedMessage.roomUid
+            ? forwardedMessage.roomUid.isChannel()
+                ? forwardedMessage.roomUid
+                : forwardedMessage.from
             : forwardedMessage.forwardedFrom,
-      ).copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
+      ).copyWith(
+        type: forwardedMessage.type,
+        json: forwardedMessage.json,
+        markup: forwardedMessage.markup,
+      );
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
