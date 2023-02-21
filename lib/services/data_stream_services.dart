@@ -579,7 +579,11 @@ class DataStreamServices {
         final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
 
         if (msg != null) {
-          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
+          if (msg.id! <= firstMessageId || msg.isHidden) {
+            // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
+            // _roomDao
+            //     .updateRoom(uid: roomUid.asString(), deleted: true)
+            //     .ignore();
             await _roomRepo.deleteRoom(roomUid);
             break;
           } else if (!msg.isHidden) {
@@ -639,7 +643,9 @@ class DataStreamServices {
         );
 
         for (final msg in messages) {
-          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
+          if (msg.id! <= firstMessageId) {
+            // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
+            // await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
             await _roomRepo.deleteRoom(roomUid);
             return null;
           } else if (!msg.isHidden) {
