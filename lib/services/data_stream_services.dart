@@ -579,7 +579,7 @@ class DataStreamServices {
         final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
 
         if (msg != null) {
-          if (msg.id! <= firstMessageId || msg.isHidden) {
+          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == firstMessageId + 1)) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
             // _roomDao
             //     .updateRoom(uid: roomUid.asString(), deleted: true)
