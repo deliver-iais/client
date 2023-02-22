@@ -153,7 +153,6 @@ class MessageDaoImpl extends MessageDao {
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
     final box = await _openPendingMessages();
-
     return box.put(pm.packetId, pm);
   }
 
@@ -165,7 +164,10 @@ class MessageDaoImpl extends MessageDao {
 
   Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
-      DBManager.open(_keyMessages(uid.replaceAll(":", "-")), TableInfo.MESSAGE_TABLE_NAME);
+      DBManager.open(
+        _keyMessages(uid.replaceAll(":", "-")),
+        TableInfo.MESSAGE_TABLE_NAME,
+      );
       return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));

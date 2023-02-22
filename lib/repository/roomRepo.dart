@@ -318,6 +318,9 @@ class RoomRepo {
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
+  Future<int> getRoomLastMessageId(String roomUid) async =>
+      (await getRoom(roomUid))?.lastMessageId ?? -1;
+
   Future<void> updateMentionIds(String roomUid, List<int> mentionsId) =>
       _roomDao.updateRoom(
         uid: roomUid,
