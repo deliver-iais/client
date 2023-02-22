@@ -160,7 +160,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 700,
+              height: 600,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
