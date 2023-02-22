@@ -103,7 +103,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -320,9 +320,9 @@ void main() async {
   if (hasFirebaseCapability) {
     await initializeFirebase();
     // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     // Force enable crashlytics collection enabled if we're testing it.
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
 
   logger.i("OS based setups done.");
