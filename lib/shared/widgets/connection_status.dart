@@ -4,7 +4,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -65,7 +65,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                       ),
                     ),
                     if (status.data != TitleStatusConditions.Connected)
-                      DotAnimation(
+                      LoadingDotAnimation(
                         dotsColor: theme.textTheme.headline6?.color ??
                             theme.colorScheme.primary,
                       ),
