@@ -39,6 +39,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
@@ -626,6 +627,8 @@ class AndroidNotifier implements Notifier {
     NotificationResponse? notificationResponse,
   ) async {
     try {
+      // hive does not support multithreading
+      await Hive.close();
       await setupDI();
     } catch (e) {
       Logger().e(e);
