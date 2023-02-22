@@ -85,14 +85,14 @@ class SeenDaoImpl extends SeenDao {
     int? messageId,
     int? hiddenMessageCount,
   }) async {
-    final box = await _openMySeen();
+    final mySeenBox = await _openMySeen();
 
-    final seen = box.get(uid) ?? _defaultSeenValue(uid);
+    final seen = mySeenBox.get(uid) ?? _defaultSeenValue(uid);
 
     if ((messageId != null && seen.messageId < messageId) ||
         (hiddenMessageCount != null && hiddenMessageCount != 0)) {
-      final box2 = await _openRoomSeen();
-      final seenRoom = box2.get(uid);
+      final seenRoomBox = await _openRoomSeen();
+      final seenRoom = seenRoomBox.get(uid);
       final roomDao = GetIt.I.get<RoomDao>();
       final room = await roomDao.getRoom(uid);
       if (seenRoom != null) {
@@ -108,7 +108,7 @@ class SeenDaoImpl extends SeenDao {
           await addRoomSeen(uid);
         }
       }
-      return box.put(
+      return mySeenBox.put(
         uid,
         seen.copyWith(
           uid: uid,
