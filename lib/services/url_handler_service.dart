@@ -415,12 +415,14 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
-                    _messageRepo.sendPrivateDataAcceptanceMessage(
-                      Uid()
-                        ..category = Categories.BOT
-                        ..node = botId,
-                      privateDataType,
-                      token,
+                    unawaited(
+                      _messageRepo.sendPrivateDataAcceptanceMessage(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = botId,
+                        privateDataType,
+                        token,
+                      ),
                     );
                     navigatorState.pop();
                     _routingService.openRoom(

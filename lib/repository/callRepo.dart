@@ -1198,12 +1198,14 @@ class CallRepo {
     );
     callingStatus.add(CallStatus.CREATED);
     await _callService.initRenderer();
-    _messageRepo.sendCallMessage(
-      CallEvent_CallStatus.IS_RINGING,
-      roomId,
-      _callService.getCallId,
-      0,
-      _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+    unawaited(
+      _messageRepo.sendCallMessage(
+        CallEvent_CallStatus.IS_RINGING,
+        roomId,
+        _callService.getCallId,
+        0,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      ),
     );
     Timer(const Duration(milliseconds: 500), () async {
       if (isAndroid) {
@@ -1381,12 +1383,14 @@ class CallRepo {
       }
       _logger.i("declineCall");
       callingStatus.add(CallStatus.DECLINED);
-      _messageRepo.sendCallMessage(
-        CallEvent_CallStatus.DECLINED,
-        _roomUid!,
-        _callService.getCallId,
-        0,
-        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      unawaited(
+        _messageRepo.sendCallMessage(
+          CallEvent_CallStatus.DECLINED,
+          _roomUid!,
+          _callService.getCallId,
+          0,
+          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+        ),
       );
       await _dispose();
     }
@@ -1452,12 +1456,14 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): $_callDuration");
-        _messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callService.getCallId,
-          _callDuration!,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+        unawaited(
+          _messageRepo.sendCallMessage(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callService.getCallId,
+            _callDuration!,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+          ),
         );
       } else {
         if (timerEndCallDispose != null) {

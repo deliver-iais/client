@@ -618,7 +618,7 @@ class MessageRepo {
         .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm, fromNotification: fromNotification);
+    return _saveAndSend(pm, fromNotification: fromNotification);
   }
 
   Future<void> _saveAndSend(
@@ -656,7 +656,7 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  void sendCallMessage(
+  Future<void> sendCallMessage(
     call_pb.CallEvent_CallStatus callStatus,
     Uid room,
     String callId,
@@ -674,7 +674,7 @@ class MessageRepo {
         .copyWith(type: MessageType.CALL, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendLocationMessage(
@@ -696,7 +696,7 @@ class MessageRepo {
         .copyWith(type: MessageType.LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendMultipleFilesMessages(
@@ -1262,7 +1262,7 @@ class MessageRepo {
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-      _saveAndSend(pm);
+      return _saveAndSend(pm);
     }
   }
 
@@ -1279,7 +1279,7 @@ class MessageRepo {
           .copyWith(type: MessageType.FILE, json: media.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-      _saveAndSend(pm);
+      return _saveAndSend(pm);
     }
   }
 
@@ -1416,7 +1416,7 @@ class MessageRepo {
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendShareUidMessage(
@@ -1429,7 +1429,7 @@ class MessageRepo {
         .copyWith(type: MessageType.SHARE_UID, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendPrivateDataAcceptanceMessage(
@@ -1446,7 +1446,7 @@ class MessageRepo {
         .copyWith(type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<List<Message>> searchMessage(String str, String roomId) async => [];
