@@ -5,7 +5,7 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -137,7 +137,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
                       widget.callStatus == CallStatus.RECONNECTING ||
                       widget.callStatus == CallStatus.IS_RINGING ||
                       widget.callStatus == CallStatus.CREATED)
-                    const DotAnimation()
+                    const LoadingDotAnimation()
                 ],
               ),
             ),

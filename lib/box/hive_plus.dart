@@ -40,6 +40,11 @@ class BoxPlus<E> {
     return box.clear();
   }
 
+  Future<void> close() {
+    if (kDebugMode) _analyticsRepo.incDao("close/${box.name}");
+    return box.close();
+  }
+
   bool get isEmpty {
     if (kDebugMode) _analyticsRepo.incDao("isEmpty/${box.name}");
     return box.isEmpty;

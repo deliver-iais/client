@@ -1,6 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -81,7 +81,7 @@ class ActivityStatus extends StatelessWidget {
               status,
               style: textStyle(context),
             ),
-            DotAnimation(dotsColor: Theme.of(context).primaryColor),
+            LoadingDotAnimation(dotsColor: Theme.of(context).primaryColor),
           ],
         );
       }

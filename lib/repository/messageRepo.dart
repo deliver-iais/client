@@ -67,6 +67,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum TitleStatusConditions {
   Disconnected,
@@ -74,6 +75,12 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
+}
+
+enum PendingMessageReapetedStatus {
+  REPEATED_DETECTION_MESSAGE_OK,
+  REPEATED_DETECTION_MESSAGE_FAILED,
+  REPEATED_DETECTION_MESSAGE_REPEAT;
 }
 
 const EMPTY_MESSAGE = "{}";
@@ -108,12 +115,14 @@ class MessageRepo {
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+  SharedPreferences? _prefs;
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
   }
 
   Future<void> createConnectionStatusHandler() async {
+    _prefs = await SharedPreferences.getInstance();
     if (_authRepo.isLoggedIn()) {
       await update();
     }
@@ -574,7 +583,7 @@ class MessageRepo {
 
     var i = 0;
     while (i < (result.length / TEXT_MESSAGE_MAX_LINE).ceil()) {
-      _sendTextMessage(
+      await _sendTextMessage(
         result
             .sublist(
               i * TEXT_MESSAGE_MAX_LINE,
@@ -591,21 +600,22 @@ class MessageRepo {
     }
   }
 
-  void _sendTextMessage(
+  Future<void> _sendTextMessage(
     String text,
     Uid room,
     int replyId,
     String? forwardedFrom,
     String? packetId, {
     bool fromNotification = false,
-  }) {
+  }) async {
     final json = (message_pb.Text()..text = text).writeToJson();
-    final msg = _createMessage(
+    final msg = (await _createMessage(
       room,
       replyId: replyId,
       forwardedFrom: forwardedFrom,
       packetId: packetId,
-    ).copyWith(type: MessageType.TEXT, json: json);
+    ))
+        .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm, fromNotification: fromNotification);
@@ -652,7 +662,7 @@ class MessageRepo {
     String callId,
     int callDuration,
     call_pb.CallEvent_CallType callType,
-  ) {
+  ) async {
     final json = (call_pb.CallEvent()
           ..callStatus = callStatus
           ..callId = callId
@@ -660,27 +670,30 @@ class MessageRepo {
           ..callType = callType)
         .writeToJson();
 
-    final msg =
-        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
+    final msg = (await _createMessage(room))
+        .copyWith(type: MessageType.CALL, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
   }
 
-  void sendLocationMessage(
+  Future<void> sendLocationMessage(
     LatLng locationData,
     Uid room, {
     String? forwardedFrom,
     int replyId = 0,
-  }) {
+  }) async {
     final json = (location_pb.Location()
           ..longitude = locationData.longitude
           ..latitude = locationData.latitude)
         .writeToJson();
 
-    final msg =
-        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
-            .copyWith(type: MessageType.LOCATION, json: json);
+    final msg = (await _createMessage(
+      room,
+      replyId: replyId,
+      forwardedFrom: forwardedFrom,
+    ))
+        .copyWith(type: MessageType.LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -753,7 +766,7 @@ class MessageRepo {
     String? caption = "",
     int replyToId = 0,
   }) async {
-    final packetId = _getPacketId();
+    final packetId = await _getPacketIdWithLastMessageId(room.asString());
     final msg = await buildMessageFromFile(
       room,
       file,
@@ -798,9 +811,10 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final sendingFakeFile = await _createFakeSendFile(file, fileUuid, caption);
+    final packetId = await _getPacketIdWithLastMessageId(room.asString());
 
-    return _createMessage(room, replyId: replyToId).copyWith(
-      packetId: _getPacketId(),
+    return (await _createMessage(room, replyId: replyToId)).copyWith(
+      packetId: packetId,
       type: MessageType.FILE,
       json: sendingFakeFile.writeToJson(),
     );
@@ -972,7 +986,6 @@ class MessageRepo {
 
   void _sendMessageToServer(PendingMessage pm) {
     final byClient = _createMessageByClient(pm.msg);
-
     _coreServices.sendMessage(byClient);
   }
 
@@ -1034,18 +1047,35 @@ class MessageRepo {
   @visibleForTesting
   Future<void> sendPendingMessages() async {
     final pendingMessages = await _messageDao.getAllPendingMessages();
+    final pendingFailedByRoom = <String>{};
     for (final pendingMessage in pendingMessages) {
-      if (!pendingMessage.failed ||
-          pendingMessage.msg.type == MessageType.CALL) {
-        switch (pendingMessage.status) {
-          case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
+      if (pendingFailedByRoom.contains(pendingMessage.roomUid)) {
+        await _savePendingMessage(pendingMessage.copyWith(failed: true));
+      } else {
+        final status = await checkMessageRepeated(pendingMessage);
+        switch (status) {
+          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_OK:
+            if (!pendingMessage.failed ||
+                pendingMessage.msg.type == MessageType.CALL) {
+              switch (pendingMessage.status) {
+                case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
+                  break;
+                case SendingStatus.PENDING:
+                case SendingStatus.UPLOAD_FILE_COMPLETED:
+                  _sendMessageToServer(pendingMessage);
+                  break;
+                case SendingStatus.UPLOAD_FILE_FAIL:
+                  await resendFileMessage(pendingMessage);
+                  break;
+              }
+            }
             break;
-          case SendingStatus.PENDING:
-          case SendingStatus.UPLOAD_FILE_COMPLETED:
-            _sendMessageToServer(pendingMessage);
+          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT:
+            deletePendingMessage(pendingMessage.packetId);
             break;
-          case SendingStatus.UPLOAD_FILE_FAIL:
-            await resendFileMessage(pendingMessage);
+          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
+            pendingFailedByRoom.add(pendingMessage.roomUid);
+            await _savePendingMessage(pendingMessage.copyWith(failed: true));
             break;
         }
       }
@@ -1089,6 +1119,62 @@ class MessageRepo {
             break;
         }
       }
+    }
+  }
+
+  Future<PendingMessageReapetedStatus> checkMessageRepeated(
+    PendingMessage pm,
+  ) async {
+    try {
+      final lastDeliveryAckJson =
+          _prefs?.getString(SHARED_DAO_LAST_MESSAGE_DELIVERY_ACK);
+      if (lastDeliveryAckJson != null) {
+        final msg = pm.msg;
+        final lastDeliveryAck =
+            message_pb.MessageDeliveryAck.fromJson(lastDeliveryAckJson);
+        final lastDeliveryAckPacketId = lastDeliveryAck.packetId;
+        final lastDeliveryAckTo = lastDeliveryAck.to;
+        final lastDeliveryAckFrom = lastDeliveryAck.from;
+        if (lastDeliveryAckPacketId == pm.packetId &&
+            lastDeliveryAckTo.asString() == msg.to &&
+            lastDeliveryAckFrom.asString() == msg.from) {
+          return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
+        } else if (lastDeliveryAckTo.asString() == msg.to &&
+            lastDeliveryAckFrom.asString() == msg.from) {
+          final timeLastMessageDeliveryAck =
+              int.parse(lastDeliveryAckPacketId.split("-")[0]);
+          final lastMessageIdLastMessageDeliveryAck =
+              int.parse(lastDeliveryAckPacketId.split("-")[1]);
+          final timeMessage = int.parse(msg.packetId.split("-")[0]);
+          final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
+          if ((timeLastMessageDeliveryAck - timeMessage) >
+                  REPEATED_DETECTION_TIME ||
+              (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
+                  REPEATED_DETECTION_COUNT) {
+            return PendingMessageReapetedStatus
+                .REPEATED_DETECTION_MESSAGE_REPEAT;
+          }
+        } else {
+          final timeLastMessageDeliveryAck =
+              int.parse(lastDeliveryAckPacketId.split("-")[0]);
+          final lastMessageIdLastMessageDeliveryAck =
+              await _roomRepo.getRoomLastMessageId(pm.roomUid);
+          final timeMessage = int.parse(msg.packetId.split("-")[0]);
+          final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
+          if ((timeLastMessageDeliveryAck - timeMessage) >=
+                  REPEATED_DETECTION_TIME ||
+              (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
+                  REPEATED_DETECTION_COUNT) {
+            return PendingMessageReapetedStatus
+                .REPEATED_DETECTION_MESSAGE_FAILED;
+          }
+        }
+      }
+
+      return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_OK;
+    } catch (_) {
+      // fail message on parsing error in pending message or some other errors.
+      return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
     }
   }
 
@@ -1155,19 +1241,20 @@ class MessageRepo {
         deleted: false,
       );
 
-  void sendForwardedMessage(
+  Future<void> sendForwardedMessage(
     Uid room,
     List<Message> forwardedMessage,
-  ) {
+  ) async {
     for (final forwardedMessage in forwardedMessage) {
-      final msg = _createMessage(
+      final msg = (await _createMessage(
         room,
         forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
             ? forwardedMessage.roomUid.isChannel()
                 ? forwardedMessage.roomUid
                 : forwardedMessage.from
             : forwardedMessage.forwardedFrom,
-      ).copyWith(
+      ))
+          .copyWith(
         type: forwardedMessage.type,
         json: forwardedMessage.json,
         markup: forwardedMessage.markup,
@@ -1179,37 +1266,52 @@ class MessageRepo {
     }
   }
 
-  void sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
+  Future<void> sendForwardedMediaMessage(
+    Uid roomUid,
+    List<Media> forwardedMedias,
+  ) async {
     for (final media in forwardedMedias) {
-      final msg =
-          _createMessage(roomUid, replyId: -1, forwardedFrom: media.createdBy)
-              .copyWith(type: MessageType.FILE, json: media.json);
+      final msg = (await _createMessage(
+        roomUid,
+        replyId: -1,
+        forwardedFrom: media.createdBy,
+      ))
+          .copyWith(type: MessageType.FILE, json: media.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
       _saveAndSend(pm);
     }
   }
 
-  Message _createMessage(
+  Future<Message> _createMessage(
     Uid room, {
     int replyId = 0,
     String? forwardedFrom,
     String? packetId,
-  }) =>
-      Message(
-        roomUid: room.asString(),
-        packetId: packetId ?? _getPacketId(),
-        time: clock.now().millisecondsSinceEpoch,
-        from: _authRepo.currentUserUid.asString(),
-        to: room.asString(),
-        replyToId: replyId,
-        forwardedFrom: forwardedFrom,
-        json: EMPTY_MESSAGE,
-        isHidden: true,
-      );
+  }) async {
+    final packetId = await _getPacketIdWithLastMessageId(room.asString());
+    return Message(
+      roomUid: room.asString(),
+      packetId: packetId,
+      time: clock.now().millisecondsSinceEpoch,
+      from: _authRepo.currentUserUid.asString(),
+      to: room.asString(),
+      replyToId: replyId,
+      forwardedFrom: forwardedFrom,
+      json: EMPTY_MESSAGE,
+      isHidden: true,
+    );
+  }
 
   String _getPacketId() =>
       "${clock.now().millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
+
+  Future<String> _getPacketIdWithLastMessageId(String roomUid) async {
+    //get roomUid LastMessageId
+    final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid);
+
+    return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-${randomVM.nextInt(RANDOM_SIZE)}";
+  }
 
   Future<List<Message?>> getPage(
     int page,
@@ -1300,46 +1402,47 @@ class MessageRepo {
     }
   }
 
-  void sendFormResultMessage(
+  Future<void> sendFormResultMessage(
     String botUid,
     form_pb.FormResult formResult,
     int formMessageId,
-  ) {
+  ) async {
     final jsonString = (formResult).writeToJson();
-    final msg = _createMessage(
+    final msg = (await _createMessage(
       botUid.asUid(),
       replyId: formMessageId,
-    ).copyWith(type: MessageType.FORM_RESULT, json: jsonString);
+    ))
+        .copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
     _saveAndSend(pm);
   }
 
-  void sendShareUidMessage(
+  Future<void> sendShareUidMessage(
     Uid uid,
     message_pb.ShareUid shareUid,
-  ) {
+  ) async {
     final json = shareUid.writeToJson();
 
-    final msg =
-        _createMessage(uid).copyWith(type: MessageType.SHARE_UID, json: json);
+    final msg = (await _createMessage(uid))
+        .copyWith(type: MessageType.SHARE_UID, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
   }
 
-  void sendPrivateDataAcceptanceMessage(
+  Future<void> sendPrivateDataAcceptanceMessage(
     Uid to,
     PrivateDataType privateDataType,
     String token,
-  ) {
+  ) async {
     final sharePrivateDataAcceptance = SharePrivateDataAcceptance()
       ..data = privateDataType
       ..token = token;
     final json = sharePrivateDataAcceptance.writeToJson();
 
-    final msg = _createMessage(to)
+    final msg = (await _createMessage(to))
         .copyWith(type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
@@ -1417,9 +1520,12 @@ class MessageRepo {
           ..to = roomUid
           ..time = Int64(duration))
         .writeToJson();
-    final msg =
-        _createMessage(roomUid, replyId: replyId, forwardedFrom: forwardedFrom)
-            .copyWith(type: MessageType.LIVE_LOCATION, json: json);
+    final msg = (await _createMessage(
+      roomUid,
+      replyId: replyId,
+      forwardedFrom: forwardedFrom,
+    ))
+        .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     unawaited(_saveAndSend(pm));

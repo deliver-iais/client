@@ -1,16 +1,16 @@
-import 'package:deliver/shared/widgets/dot_animation/delay_tween.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/delay_tween.dart';
 import 'package:flutter/material.dart';
 
-class DotAnimation extends StatefulWidget {
+class LoadingDotAnimation extends StatefulWidget {
   final Color dotsColor;
 
-  const DotAnimation({super.key, this.dotsColor = Colors.white70});
+  const LoadingDotAnimation({super.key, this.dotsColor = Colors.white70});
 
   @override
-  State<DotAnimation> createState() => _DotAnimationState();
+  State<LoadingDotAnimation> createState() => _LoadingDotAnimationState();
 }
 
-class _DotAnimationState extends State<DotAnimation>
+class _LoadingDotAnimationState extends State<LoadingDotAnimation>
     with TickerProviderStateMixin {
   late AnimationController _controller;
 
