@@ -8,6 +8,7 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -41,6 +42,7 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   SharedPreferences? _prefs;
 
@@ -302,11 +304,31 @@ class CoreServices {
     );
   }
 
-  void sendSeen(seen_pb.SeenByClient seen) {
+  Future<void> sendSeen(seen_pb.SeenByClient seen) async {
+    await _analyticsService.sendLogEvent(
+      "sendSeen",
+    );
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendClientPacket(clientPacket);
+    await _sendClientPacket(clientPacket)
+        .onError(
+          (error, stackTrace) async => {
+            await _analyticsService.sendLogEvent(
+              "failedSeen",
+              parameters: {
+                'error': error.toString(),
+              },
+            )
+          },
+        )
+        .then(
+          (value) async => {
+            await _analyticsService.sendLogEvent(
+              "successSeen",
+            ),
+          },
+        );
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {

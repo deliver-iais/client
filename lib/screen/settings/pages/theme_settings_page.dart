@@ -4,6 +4,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -31,6 +32,8 @@ class ThemeSettingsPage extends StatefulWidget {
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   static final _uxService = GetIt.I.get<UxService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
+
   final _i18n = GetIt.I.get<I18N>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _idSubject = BehaviorSubject.seeded(0);
@@ -157,7 +160,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 528,
+              height: 600,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
@@ -304,6 +307,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             leading: const Icon(CupertinoIcons.paintbrush),
                             switchValue: _uxService.showColorful,
                             onToggle: (value) {
+                              _analyticsService.sendLogEvent(
+                                "themeColorfulMessageToggle",
+                              );
                               setState(() {
                                 _uxService.toggleShowColorful();
                               });

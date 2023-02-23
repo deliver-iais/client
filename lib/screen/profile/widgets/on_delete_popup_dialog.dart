@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -28,6 +29,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _i18n = GetIt.I.get<I18N>();
 
   @override
@@ -131,17 +133,28 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   Future<void> _leftMuc() async {
     final result = await _mucRepo.leaveMuc(widget.roomUid);
-    if (result) _navigateHomePage();
+    if (result) {
+      await _analyticsService.sendLogEvent(
+        "leftMuc",
+      );
+      _navigateHomePage();
+    }
   }
 
   Future<void> _deleteRoom() async {
     final res = await _roomRepo.deleteRoom(widget.roomUid);
-    if (res) _navigateHomePage();
+    if (res) {
+      await _analyticsService.sendLogEvent(
+        "deleteRoom",
+      );
+      _navigateHomePage();
+    }
   }
 
   Future<void> _deleteMuc() async {
     final result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) {
+      await _analyticsService.sendLogEvent("deleteMuc");
       _navigateHomePage();
     }
   }

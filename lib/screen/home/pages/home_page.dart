@@ -4,6 +4,7 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -14,7 +15,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -31,15 +31,18 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
+
   final _routingService = GetIt.I.get<RoutingService>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _backgroundService = GetIt.I.get<BackgroundService>();
+
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   @override
   void initState() {
@@ -56,10 +59,9 @@ class HomePageState extends State<HomePage> {
     }
 
     //this means user login successfully
-    if (hasFirebaseCapability) {
-      //its work property without VPN
-      FirebaseAnalytics.instance.logEvent(name: "user_starts_app");
-    }
+    _analyticsService.sendLogEvent(
+      "user_starts_app",
+    );
 
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {

@@ -629,7 +629,7 @@ void main() {
             withRandomVM(RandomVM.fixed(13418), () async {
               final messageDao = getAndRegisterMessageDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-              await MessageRepo().sendLocationMessage(
+              MessageRepo().sendLocationMessage(
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
@@ -645,7 +645,7 @@ void main() {
             withRandomVM(RandomVM.fixed(13418), () async {
               final roomDao = getAndRegisterRoomDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-              await MessageRepo().sendLocationMessage(
+              MessageRepo().sendLocationMessage(
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
@@ -668,7 +668,7 @@ void main() {
             withRandomVM(RandomVM.fixed(13418), () async {
               final coreServices = getAndRegisterCoreServices();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-              await MessageRepo().sendLocationMessage(
+              MessageRepo().sendLocationMessage(
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
