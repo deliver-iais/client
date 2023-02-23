@@ -75,7 +75,7 @@ class FileRepo {
           "unSuccessFileUpload",
           parameters: {
             "errorCode": e.response?.statusCode,
-            "error": e.response!.data
+            "error": e.response?.data
           },
         );
       } else if (e.response == null && e.type != DioErrorType.cancel) {
@@ -96,7 +96,7 @@ class FileRepo {
           "unknownFileUpload",
           parameters: {
             "errorCode": e.response?.statusCode,
-            "error": e.response!.data
+            "error": e.response?.data
           },
         );
       }
