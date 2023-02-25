@@ -25,11 +25,11 @@ environment:
 
 dependencies:
   all_sensors: 0.4.2
-  android_intent_plus: 3.1.5
+  android_intent_plus: 3.1.6
   animate_do: 3.0.2
   animations: 2.0.7
-  audioplayers: 3.0.0
-  badges: 2.0.3
+  audioplayers: 3.0.1
+  badges: 3.0.2
   brotli: 0.5.0
   camera:
     git:
@@ -37,11 +37,11 @@ dependencies:
       path: packages/camera/camera
       ref: e1a4dba770da9bc3cf9f858bac6837083f8b9059
   card_swiper: 2.0.4
-  chewie: 1.3.6
+  chewie: 1.4.0
   circular_countdown_timer: 0.2.3
   clock: 1.1.1
   collection: 1.17.0
-  connectivity_plus: 3.0.2
+  connectivity_plus: 3.0.3
   connectycube_flutter_call_kit:
     git:
       ref: 49be185aefaf6ae910f7359306ec12423d443efa
@@ -54,52 +54,52 @@ dependencies:
     git:
       ref: tags/v1.12.21
       url: https://github.com/deliver-iais/pub-dart-artifactory
-  desktop_drop: 0.4.0
+  desktop_drop: 0.4.1
   desktop_lifecycle: 0.1.0
   desktop_window:
     git:
       ref: main
       url: https://github.com/deliveriais/desktop_window
   device_info: 2.0.3
-  dio: 4.0.6
-  dismissible_page: 0.7.3
+  dio: 5.0.1
+  dismissible_page: 1.0.1
   expandable: 5.0.1
-  extended_image: 6.3.4
-  fast_contacts: 1.2.0
+  extended_image: 7.0.2
+  fast_contacts: 3.0.3
   feature_discovery:
     git:
       ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
       url: https://github.com/deliveriais/feature_discovery
-  file_picker: 5.2.4
-  file_selector: 0.9.2+2
-  file_selector_linux: 0.9.0+1
-  firebase_analytics: 10.1.1
-  firebase_core: 2.5.0
+  file_picker: 5.2.5
+  file_selector: 0.9.2+3
+  file_selector_linux: 0.9.1+1
+  firebase_analytics: 10.1.4
+  firebase_core: 2.7.0
 #  firebase_crashlytics: 3.0.12
-  firebase_messaging: 14.2.2
-  fixnum: 1.0.1
+  firebase_messaging: 14.2.5
+  fixnum: 1.1.0
   flutter:
     sdk: flutter
   flutter_app_badger: 1.5.0
-  flutter_audio_waveforms: 1.2.1+7
+  flutter_audio_waveforms: 1.2.1+8
   flutter_blurhash: 0.7.0
   flutter_dropzone: 3.0.5
-  flutter_foreground_task: 3.10.0
+  flutter_foreground_task: 4.1.0
   flutter_image_compress: 1.1.3
   flutter_keyboard_visibility: 5.4.0
   flutter_local_notifications: 13.0.0
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.1.0
-  flutter_webrtc: 0.9.19
-  fluttertoast: 8.1.2
-  font_awesome_flutter: 10.3.0
+  flutter_webrtc: 0.9.23
+  fluttertoast: 8.2.1
+  font_awesome_flutter: 10.4.0
   fuzzy: 0.4.0-nullsafety.0
   gallery_saver: 2.3.2
   geolocator: 9.0.2
   get_it: 7.2.0
   google_fonts: 4.0.3
-  great_list_view: 0.2.2
+  great_list_view: 0.2.3
   grpc:
     git:
       ref: master
@@ -109,7 +109,7 @@ dependencies:
   hovering: 1.0.4
   http: 0.13.5
   http_parser: 4.0.2
-  image: 3.2.2
+  image: 3.3.0
   image_compression_flutter: 1.0.2
   image_cropper: 3.0.1
   image_size_getter: 2.1.2
@@ -118,22 +118,22 @@ dependencies:
   just_audio: 0.9.31
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
-  livekit_client: 1.1.12
-  logger: 1.1.0
-  lottie: 2.1.0
-  map_launcher: 2.4.0
+  livekit_client: 1.2.0
+  logger: 1.2.2
+  lottie: 2.2.0
+  map_launcher: 2.5.0+1
   marquee: 2.2.3
   material_color_utilities: 0.2.0
   meta: 1.8.0
   metadata_fetch: 0.4.1
-  mime: 1.0.3
-  mobile_scanner: 2.1.0
+  mime: 1.0.4
+  mobile_scanner: 3.0.0
   modal_bottom_sheet: 3.0.0-pre
   open_filex: 4.3.2
   pasteboard: 0.2.0
   path: 1.8.2
-  path_provider: 2.0.11
-  path_provider_android: 2.0.22
+  path_provider: 2.0.13
+  path_provider_android: 2.0.23
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.2
   permission_handler: 10.2.0
@@ -143,39 +143,39 @@ dependencies:
   photo_view: 0.14.0
   pinput: 2.2.31
   platform_detect: 2.0.7
-  process_run: 0.12.3+2
+  process_run: 0.12.5+2
   provider: 6.0.5
   qr_flutter: 4.0.0
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
   record: 4.4.4
-  rive: 0.9.0
+  rive: 0.10.2
   rxdart: 0.27.7
-  screenshot: 1.2.3
+  screenshot: 1.3.0
   scrollable_positioned_list:
     git:
       path: packages/scrollable_positioned_list
       ref: 775e1a365637f4e625cf042be383e0d601ab13be
       url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
-  sensors_plus: 2.0.1
+  sensors_plus: 2.0.2
   service_worker: 0.3.0
   share: 2.0.4
-  shared_preferences: 2.0.15
+  shared_preferences: 2.0.18
   shimmer: 2.0.0
   simple_animations: 5.0.0+3
-  sms_autofill: 2.2.0
-  synchronized: 3.0.0+3
+  sms_autofill: 2.3.0
+  synchronized: 3.0.1
   telephony:
     git:
       ref: fdf93b3dc72ff7a911de0ce187949338486753e7
       url: https://github.com/EsmaeilDansi/Telephony.git
   tuple: 2.0.1
-  universal_html: 2.0.8
-  url_launcher: 6.1.7
+  universal_html: 2.0.9
+  url_launcher: 6.1.10
   uuid: 3.0.7
   vibration: 1.7.6
-  video_player: 2.4.10
+  video_player: 2.5.2
   wakelock: 0.6.2
   win_toast:
     git:

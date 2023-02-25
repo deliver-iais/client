@@ -178,7 +178,9 @@ class ProfilePageState extends State<ProfilePage>
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         badges.Badge(
-                                          badgeColor: theme.primaryColor,
+                                          badgeStyle: badges.BadgeStyle(
+                                            badgeColor: theme.primaryColor,
+                                          ),
                                           badgeContent: Text(
                                             _selectedMedia.length.toString(),
                                             style: TextStyle(
