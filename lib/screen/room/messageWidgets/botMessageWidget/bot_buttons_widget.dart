@@ -151,7 +151,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
     );
 
     return RichText(
-      text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
+      text: TextSpan(children: spans, style: theme.textTheme.bodyMedium),
       textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
     );
   }

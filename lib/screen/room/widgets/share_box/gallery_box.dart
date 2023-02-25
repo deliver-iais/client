@@ -59,9 +59,7 @@ class GalleryBoxState extends State<GalleryBox> {
   }
 
   Future<void> _initFolders() async {
-    if (await _checkPermissionServices.checkAccessMediaLocationPermission(
-      context: context,
-    )) {
+    if (await checkAccessMediaLocationPermission()) {
       final folders =
           await PhotoManager.getAssetPathList(type: RequestType.image);
       final finalFolders = <AssetPathEntity>[];
@@ -92,6 +90,12 @@ class GalleryBoxState extends State<GalleryBox> {
         }
       }
     } catch (_) {}
+  }
+
+  Future<bool> checkAccessMediaLocationPermission() async {
+    return _checkPermissionServices.checkAccessMediaLocationPermission(
+      context: context,
+    );
   }
 
   void didChangeAppLifecycleState(AppLifecycleState state) {

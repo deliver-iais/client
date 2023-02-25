@@ -298,7 +298,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                   "alert_window_permission",
                 ),
                 textDirection: _i18n.defaultTextDirection,
-                style: theme.textTheme.bodyText1!
+                style: theme.textTheme.bodyMedium!
                     .copyWith(color: theme.primaryColor),
               ),
               Padding(
@@ -308,8 +308,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                     "alert_window_permission_attention",
                   ),
                   textDirection: _i18n.defaultTextDirection,
-                  style: theme.textTheme.bodyText1!
-                      .copyWith(color: theme.errorColor),
+                  style: theme.textTheme.bodyMedium!
+                      .copyWith(color: theme.colorScheme.error),
                 ),
               )
             ],
@@ -322,7 +322,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).errorColor,
+                foregroundColor: Theme.of(context).colorScheme.error,
               ),
               child: Text(
                 _i18n.get(
@@ -336,7 +336,9 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
               ),
               onPressed: () async {
                 if (await Permission.systemAlertWindow.request().isGranted) {
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 }
               },
             ),

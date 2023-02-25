@@ -58,11 +58,11 @@ class UserAppbarTitle extends StatelessWidget {
                         RoomName(
                           uid: userUid,
                           name: (snapshot.data)!.trim(),
-                          style: theme.textTheme.subtitle1,
+                          style: theme.textTheme.titleMedium,
                         ),
                         TitleStatus(
                           currentRoomUid: userUid,
-                          style: theme.textTheme.caption!,
+                          style: theme.textTheme.bodySmall!,
                           normalConditionWidget:
                               userUid.category == Categories.SYSTEM
                                   ? Text(
@@ -70,7 +70,7 @@ class UserAppbarTitle extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.fade,
                                       softWrap: false,
-                                      style: theme.textTheme.caption,
+                                      style: theme.textTheme.bodySmall,
                                     )
                                   : const SizedBox(),
                         )

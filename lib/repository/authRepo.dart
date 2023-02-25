@@ -65,7 +65,6 @@ class AuthRepo {
       }
     } catch (e) {
       try {
-        //todo add delete shared pref file for other platform
         //delete shared pref file
         if (isWindows || isLinux) {
           final path =

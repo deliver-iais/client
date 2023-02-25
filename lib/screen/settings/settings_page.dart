@@ -133,12 +133,12 @@ class SettingsPageState extends State<SettingsPage> {
                                       // maxLines: 1,
                                       textDirection: TextDirection.rtl,
                                       // softWrap: false,
-                                      style: theme.textTheme.headline6,
+                                      style: theme.textTheme.titleLarge,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       snapshot.data!.username ?? "",
-                                      style: theme.primaryTextTheme.subtitle1,
+                                      style: theme.primaryTextTheme.titleMedium,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -146,7 +146,7 @@ class SettingsPageState extends State<SettingsPage> {
                                         snapshot.data!.countryCode!,
                                         snapshot.data!.nationalNumber!,
                                       ),
-                                      style: theme.textTheme.subtitle1,
+                                      style: theme.textTheme.titleMedium,
                                     )
                                   ],
                                 );

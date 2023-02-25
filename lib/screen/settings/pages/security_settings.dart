@@ -313,12 +313,16 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 if (await _accountRepo
                     .disableTwoStepVerification(textController.text)) {
                   setState(() {});
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 } else {
-                  ToastDisplay.showToast(
-                    toastContext: context,
-                    toastText: _i18n.get("incorrect_password"),
-                  );
+                  if (context.mounted) {
+                    ToastDisplay.showToast(
+                      toastContext: context,
+                      toastText: _i18n.get("incorrect_password"),
+                    );
+                  }
                 }
               },
               child: Text(_i18n.get("disable")),
@@ -362,20 +366,24 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     passwordHint: hintPasController.text,
                   );
                   if (isSet) {
-                    ToastDisplay.showToast(
-                      toastContext: c,
-                      toastText: updatePassword
-                          ? _i18n.get("your_password_update")
-                          : _i18n.get("two_step_verification_active"),
-                    );
+                    if (context.mounted) {
+                      ToastDisplay.showToast(
+                        toastContext: c,
+                        toastText: updatePassword
+                            ? _i18n.get("your_password_update")
+                            : _i18n.get("two_step_verification_active"),
+                      );
+                    }
 
                     setState(() {});
                     navigatorState.pop();
                   } else {
-                    ToastDisplay.showToast(
-                      toastContext: c,
-                      toastText: _i18n.get("error_occurred"),
-                    );
+                    if (context.mounted) {
+                      ToastDisplay.showToast(
+                        toastContext: c,
+                        toastText: _i18n.get("error_occurred"),
+                      );
+                    }
                   }
                 }
               },
@@ -481,7 +489,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               ),
               Text(
                 _i18n.get("two_step_verification_des"),
-                style: Theme.of(context).textTheme.caption,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(
                 height: 20,

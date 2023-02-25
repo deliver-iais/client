@@ -199,7 +199,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                             Text(
                                               _i18n.get("add_contact"),
                                               style: theme
-                                                  .primaryTextTheme.bodyText2,
+                                                  .primaryTextTheme.bodyMedium,
                                             ),
                                           ],
                                         ),
@@ -216,7 +216,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                             Text(
                                               _i18n.get("import_contact"),
                                               style: theme
-                                                  .primaryTextTheme.bodyText2,
+                                                  .primaryTextTheme.bodyMedium,
                                             )
                                           ],
                                         ),

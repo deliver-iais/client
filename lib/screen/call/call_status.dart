@@ -209,7 +209,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
   }
 
   String callStatusOnScreen(CallStatus callStatus) {
-    _logger.i("callStatussss : ${callStatus.toString()}");
+    _logger.i("callStatus : $callStatus");
     switch (callStatus) {
       case CallStatus.CONNECTED:
         return _i18n.get("call_connected");

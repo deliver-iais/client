@@ -42,7 +42,7 @@ class AnimatedLottie extends StatefulWidget {
   _AnimatedLottieState createState() => _AnimatedLottieState();
 }
 
-// todo edit solve animation bug  !!!!
+// TODO(any): edit solve animation bug  !!!!
 class _AnimatedLottieState extends State<AnimatedLottie> {
   late final Future<LottieComposition> composition;
 

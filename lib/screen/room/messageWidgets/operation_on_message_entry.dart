@@ -91,7 +91,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 8),
                         Text(
                           _i18n.get("reply"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -112,7 +112,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             const SizedBox(width: 8),
                             Text(
                               _i18n.get("pin"),
-                              style: theme.primaryTextTheme.bodyText2,
+                              style: theme.primaryTextTheme.bodyMedium,
                             ),
                           ],
                         ),
@@ -126,7 +126,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             const SizedBox(width: 8),
                             Text(
                               _i18n.get("unpin"),
-                              style: theme.primaryTextTheme.bodyText2,
+                              style: theme.primaryTextTheme.bodyMedium,
                             ),
                           ],
                         ),
@@ -147,7 +147,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 10),
                         Text(
                           _i18n.get("copy"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -166,7 +166,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 10),
                         Text(
                           _i18n.get("select"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -200,28 +200,28 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               if (isWeb)
                                 Text(
                                   _i18n.get("save"),
-                                  style: theme.primaryTextTheme.bodyText2,
+                                  style: theme.primaryTextTheme.bodyMedium,
                                 )
                               else if (isDesktop)
                                 Text(
                                   _i18n.get("save_to_downloads"),
-                                  style: theme.primaryTextTheme.bodyText2,
+                                  style: theme.primaryTextTheme.bodyMedium,
                                 )
                               else if (f.isImageFileProto() ||
                                   f.isVideoFileProto())
                                 Text(
                                   _i18n.get("save_to_gallery"),
-                                  style: theme.primaryTextTheme.bodyText2,
+                                  style: theme.primaryTextTheme.bodyMedium,
                                 )
                               else if (f.isAudioFileProto())
                                 Text(
                                   _i18n.get("save_in_music"),
-                                  style: theme.primaryTextTheme.bodyText2,
+                                  style: theme.primaryTextTheme.bodyMedium,
                                 )
                               else
                                 Text(
                                   _i18n.get("save_to_downloads"),
-                                  style: theme.primaryTextTheme.bodyText2,
+                                  style: theme.primaryTextTheme.bodyMedium,
                                 ),
                             ],
                           ),
@@ -245,7 +245,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("share"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -264,7 +264,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 8),
                         Text(
                           _i18n.get("share"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -285,7 +285,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               const SizedBox(width: 10),
                               Text(
                                 _i18n.get("save_as"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -304,7 +304,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 8),
                         Text(
                           _i18n.get("report"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -319,7 +319,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 8),
                         Text(
                           _i18n.get("forward"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -340,7 +340,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("resend"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -388,7 +388,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const SizedBox(width: 10),
                         Text(
                           _i18n.get("edit"),
-                          style: theme.primaryTextTheme.bodyText2,
+                          style: theme.primaryTextTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -409,7 +409,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("show_in_folder"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -453,7 +453,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             isPendingEditedMessage
                 ? _i18n.get("cancel_sending")
                 : _i18n.get("delete"),
-            style: theme.primaryTextTheme.bodyText2,
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ],
       ),
@@ -490,7 +490,7 @@ void showDeleteMsgDialog(
         ),
         actions: [
           TextButton(
-            child: Text(i18n.get("cancel"), style: theme.textTheme.bodyText2),
+            child: Text(i18n.get("cancel"), style: theme.textTheme.bodyMedium),
             onPressed: () {
               onDelete();
               Navigator.pop(c);

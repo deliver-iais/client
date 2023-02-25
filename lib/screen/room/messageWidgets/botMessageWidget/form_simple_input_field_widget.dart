@@ -109,7 +109,7 @@ class FormSimpleInputFieldWidgetState
               padding: const EdgeInsets.only(top: 20, left: 25),
               child: Text(
                 "*",
-                style: TextStyle(color: Theme.of(context).errorColor),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
       labelText: widget.formField.id,

@@ -386,9 +386,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       MaterialState.focused,
     };
     if (states.any(interactiveStates.contains)) {
-      return (Theme.of(context)).toggleableActiveColor;
+      // TODO(bitbeter): check later what was this
+      return (Theme.of(context)).colorScheme.primary;
     }
-    return (Theme.of(context)).primaryColor;
+    return (Theme.of(context)).colorScheme.primaryContainer;
   }
 
   @override
@@ -514,17 +515,18 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (selectedValue == null) {
       return;
     }
-
-    return OperationOnMessageSelection(
-      message: widget.message,
-      context: context,
-      onDelete: widget.onDelete,
-      onEdit: widget.onEdit,
-      onPin: widget.onPin,
-      onReply: widget.onReply,
-      onUnPin: widget.onUnPin,
-      onSelect: selectMessage,
-    ).selectOperation(selectedValue);
+    if (context.mounted) {
+      return OperationOnMessageSelection(
+        message: widget.message,
+        context: context,
+        onDelete: widget.onDelete,
+        onEdit: widget.onEdit,
+        onPin: widget.onPin,
+        onReply: widget.onReply,
+        onUnPin: widget.onUnPin,
+        onSelect: selectMessage,
+      ).selectOperation(selectedValue);
+    }
   }
 
   Future<void> onUsernameClick(String username) async {

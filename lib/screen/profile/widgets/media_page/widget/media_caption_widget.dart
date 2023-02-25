@@ -23,7 +23,7 @@ class MediaCaptionWidget extends StatelessWidget {
             textDirection: _i18n.getDirection(caption),
             child: Text(
               caption,
-              style: theme.textTheme.bodyText2!.copyWith(
+              style: theme.textTheme.bodyMedium!.copyWith(
                 color: Colors.white,
               ),
             ),

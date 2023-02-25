@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
@@ -177,7 +177,7 @@ class ProfilePageState extends State<ProfilePage>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Badge(
+                                        badges.Badge(
                                           badgeColor: theme.primaryColor,
                                           badgeContent: Text(
                                             _selectedMedia.length.toString(),
@@ -439,7 +439,7 @@ class ProfilePageState extends State<ProfilePage>
                     const Divider(color: Colors.transparent, height: 5),
                     TitleStatus(
                       currentRoomUid: widget.roomUid,
-                      style: theme.textTheme.caption!,
+                      style: theme.textTheme.bodySmall!,
                     )
                   ],
                 ),
@@ -638,7 +638,7 @@ class ProfilePageState extends State<ProfilePage>
                         : widget.roomUid.isGroup()
                             ? _i18n.get("left_group")
                             : _i18n.get("left_channel"),
-                    style: theme.primaryTextTheme.bodyText2,
+                    style: theme.primaryTextTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -657,7 +657,7 @@ class ProfilePageState extends State<ProfilePage>
                   widget.roomUid.isGroup()
                       ? _i18n.get("delete_group")
                       : _i18n.get("delete_channel"),
-                  style: theme.primaryTextTheme.bodyText2,
+                  style: theme.primaryTextTheme.bodyMedium,
                 )
               ],
             ),
@@ -674,7 +674,7 @@ class ProfilePageState extends State<ProfilePage>
                 const SizedBox(width: 8),
                 Text(
                   _i18n.get("add_to_group"),
-                  style: theme.primaryTextTheme.bodyText2,
+                  style: theme.primaryTextTheme.bodyMedium,
                 ),
               ],
             ),
@@ -690,7 +690,7 @@ class ProfilePageState extends State<ProfilePage>
               const SizedBox(width: 8),
               Text(
                 _i18n.get("report"),
-                style: theme.primaryTextTheme.bodyText2,
+                style: theme.primaryTextTheme.bodyMedium,
               ),
             ],
           ),
@@ -714,7 +714,7 @@ class ProfilePageState extends State<ProfilePage>
                         s.data == null || !s.data!
                             ? _i18n.get("blockRoom")
                             : _i18n.get("unblock_room"),
-                        style: theme.primaryTextTheme.bodyText2,
+                        style: theme.primaryTextTheme.bodyMedium,
                       ),
                     ],
                   ),
@@ -1063,10 +1063,12 @@ class ProfilePageState extends State<ProfilePage>
                     message = _i18n.get("permission_denied");
                   }
                   c1NavigatorState.pop();
-                  ToastDisplay.showToast(
-                    toastContext: context,
-                    toastText: message,
-                  );
+                  if (context.mounted) {
+                    ToastDisplay.showToast(
+                      toastContext: context,
+                      toastText: message,
+                    );
+                  }
                 }
               },
               child: Text(_i18n.get("add")),

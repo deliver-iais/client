@@ -273,7 +273,7 @@ class MucRepo {
               )
               .ignore();
         } else if (cType == MucType.Private) {
-          //ToDO do somethings relevent like remove channel if does'nt joined
+          // TODO(any): do somethings relevant like remove channel if doesn't joined
         }
 
         unawaited(
@@ -525,7 +525,7 @@ class MucRepo {
       ..uid = groupMember.memberUid.asUid()
       ..role = getRole(groupMember.role);
     await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
-    //todo change database
+    // TODO(any): change database
   }
 
   Future<void> unBanChannelMember(Member channelMember) async {
@@ -533,7 +533,7 @@ class MucRepo {
       ..uid = channelMember.memberUid.asUid()
       ..role = getRole(channelMember.role);
     await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
-    //todo change database
+    // TODO(any): change database
   }
 
   Future<Muc?> joinGroup(Uid groupUid, String token) async {

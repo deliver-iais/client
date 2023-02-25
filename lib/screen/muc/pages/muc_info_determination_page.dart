@@ -129,7 +129,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   decoration: InputDecoration(
                                     disabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: Theme.of(context).errorColor,
+                                        color: Theme.of(context).colorScheme.error,
                                       ),
                                       borderRadius: mainBorder,
                                     ),
@@ -152,8 +152,8 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           if (e.hasData && e.data!) {
                             return Text(
                               _i18n.get("channel_id_is_exist"),
-                              style: theme.textTheme.overline!.copyWith(
-                                color: Theme.of(context).errorColor,
+                              style: theme.textTheme.labelSmall!.copyWith(
+                                color: Theme.of(context).colorScheme.error,
                               ),
                             );
                           } else {
@@ -215,7 +215,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           }
                           return Text(
                             '${snapshot.data} ${_i18n.get("members")}',
-                            style: theme.primaryTextTheme.subtitle2,
+                            style: theme.primaryTextTheme.titleSmall,
                           );
                         },
                       ),
@@ -319,10 +319,12 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   popAllBeforePush: true,
                                 );
                               } else {
-                                ToastDisplay.showToast(
+                                if(context.mounted) {
+                                  ToastDisplay.showToast(
                                   toastText: _i18n.get("error_occurred"),
                                   toastContext: context,
                                 );
+                                }
                                 setState(() {
                                   _showIcon = true;
                                 });
@@ -353,7 +355,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     return InputDecoration(
       disabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: Theme.of(context).errorColor,
+          color: Theme.of(context).colorScheme.error,
         ),
         borderRadius: mainBorder,
       ),

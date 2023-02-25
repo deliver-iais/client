@@ -236,7 +236,7 @@ class RoutingService {
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
   }) {
-    //todo forwardMedia
+    // TODO(any): forwardMedia
     _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _recentRoomsDao.addRecentRoom(roomId);
@@ -559,7 +559,7 @@ class RoutingService {
                   ),
                   _navigatorObserver
                 ],
-                onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
+                onGenerateRoute: (r) => customPageRoute(RouteSettings(arguments:r.arguments,name: "/" ),
                     (c, animation, secondaryAnimation) {
                   try {
                     if (isLarge(c)) {
