@@ -21,7 +21,9 @@ import 'package:gallery_saver/files.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
-import 'package:image_compression_flutter/image_compression_flutter.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart'
+    as compress2;
+import 'package:image_compression/image_compression.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -405,7 +407,7 @@ class FileService {
     return encodeJpg(image);
   }
 
-  Future<String> compressImageInDesktop(File file) async {
+  Future<String> compressImageInWindows(File file) async {
     try {
       final bytes = await file.readAsBytes();
       final input = ImageFile(
@@ -413,11 +415,38 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        quality: 30,
+        jpgQuality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compressWebpThenJpg(param);
+      final output = await compressInQueue(param);
+      final name = clock.now().millisecondsSinceEpoch.toString();
+      final extension = getExtensionFromContentType(output.contentType)!;
+      final outPutFile = await localFile(name, extension);
+      outPutFile.writeAsBytesSync(output.rawBytes);
+      return outPutFile.path;
+    } catch (_) {
+      return file.path;
+    }
+  }
+
+  Future<String> compressImageInMacOrLinux(
+    File file, {
+    int quality = 30,
+  }) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final input = ImageFile(
+        filePath: file.path,
+        rawBytes: bytes,
+      ); // set the input image file
+      final config = compress2.Configuration(
+        quality: quality,
+      );
+
+      final param =
+          compress2.ImageFileConfiguration(input: input, config: config);
+      final output = await compress2.compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
       final extension = getExtensionFromContentType(output.contentType)!;
       final outPutFile = await localFile(name, extension);
@@ -518,21 +547,6 @@ class FileService {
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
     if (result.statusCode! == 200) {
       try {
-        if (!isWeb) {
-          try {
-            final mediaType = filePath.getMediaType();
-            if (mediaType.type.contains("image") &&
-                !mediaType.subtype.contains("gif")) {
-              if (isAndroid || isIOS) {
-                filePath = await compressImageInMobile(File(filePath));
-              } else {
-                filePath = await compressImageInDesktop(File(filePath));
-              }
-            }
-          } catch (_) {
-            _logger.e(_);
-          }
-        }
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
         //concurrent save file in local directory
