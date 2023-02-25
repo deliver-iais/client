@@ -56,16 +56,16 @@ class BotAppbarTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RoomName(uid: botUid, name: name, style: theme.textTheme.subtitle1),
+        RoomName(uid: botUid, name: name, style: theme.textTheme.titleMedium),
         TitleStatus(
           currentRoomUid: botUid,
-          style: theme.textTheme.caption!,
+          style: theme.textTheme.bodySmall!,
           normalConditionWidget: Text(
             i18n.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,
-            style: theme.textTheme.caption,
+            style: theme.textTheme.bodySmall,
           ),
         )
       ],

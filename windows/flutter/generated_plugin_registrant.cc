@@ -17,12 +17,10 @@
 #include <flutter_window_close/flutter_window_close_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
 #include <image_compression_flutter/image_compression_flutter_plugin.h>
-#include <just_audio_windows/just_audio_windows_plugin.h>
 #include <livekit_client/live_kit_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <record_windows/record_windows_plugin_c_api.h>
-#include <rive_common/rive_plugin.h>
 #include <smart_auth/smart_auth_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <win_toast/win_toast_plugin.h>
@@ -51,8 +49,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
   ImageCompressionFlutterPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ImageCompressionFlutterPlugin"));
-  JustAudioWindowsPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("JustAudioWindowsPlugin"));
   LiveKitPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LiveKitPlugin"));
   PasteboardPluginRegisterWithRegistrar(
@@ -61,8 +57,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("PermissionHandlerWindowsPlugin"));
   RecordWindowsPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("RecordWindowsPluginCApi"));
-  RivePluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("RivePlugin"));
   SmartAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("SmartAuthPlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(

@@ -51,7 +51,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                                     PrivateDataType.EMAIL
                                 ? _i18n.get("email_granted")
                                 : _i18n.get("private_data_granted"),
-                style: theme.textTheme.bodyText2!.copyWith(
+                style: theme.textTheme.bodyMedium!.copyWith(
                   color: colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.w400,
                 ),

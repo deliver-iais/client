@@ -94,13 +94,16 @@ class FilesBoxState extends State<FilesBox> {
                             if (mounted) {
                               Navigator.pop(context);
                             }
-                            showCaptionDialog(
-                              resetRoomPageDetails: widget.resetRoomPageDetails,
-                              replyMessageId: widget.replyMessageId,
-                              roomUid: widget.roomUid,
-                              context: context,
-                              files: files.toList(),
-                            );
+                            if (context.mounted) {
+                              showCaptionDialog(
+                                resetRoomPageDetails:
+                                    widget.resetRoomPageDetails,
+                                replyMessageId: widget.replyMessageId,
+                                roomUid: widget.roomUid,
+                                context: context,
+                                files: files.toList(),
+                              );
+                            }
                           }
                         },
                         icon: Icon(

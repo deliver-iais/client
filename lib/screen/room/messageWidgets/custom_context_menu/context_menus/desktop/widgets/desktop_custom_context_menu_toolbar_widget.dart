@@ -1,167 +1,20 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection/methods/custom_text_selection_methods.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/widgets/blur_widget/blur_menu_card.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 
 const double _kToolbarScreenPadding = 8.0;
 const double _kToolbarWidth = 180.0;
 
-class CustomDesktopTextSelectionControls extends TextSelectionControls {
-  TextEditingController? textController;
-  BuildContext? buildContext;
-  Uid? roomUid;
-
-  CustomDesktopTextSelectionControls({
-    this.buildContext,
-    this.textController,
-    this.roomUid,
-  });
-
-  /// Desktop has no text selection handles.
-  @override
-  Size getHandleSize(double textLineHeight) {
-    return Size.zero;
-  }
-
-  /// Builder for the Material-style desktop copy/paste text selection toolbar.
-  @override
-  Widget buildToolbar(
-    BuildContext context,
-    Rect globalEditableRegion,
-    double textLineHeight,
-    Offset selectionMidpoint,
-    List<TextSelectionPoint> endpoints,
-    TextSelectionDelegate delegate,
-    ClipboardStatusNotifier? clipboardStatus,
-    Offset? lastSecondaryTapDownPosition,
-  ) {
-    return _DesktopTextSelectionControlsToolbar(
-      clipboardStatus: clipboardStatus,
-      endpoints: endpoints,
-      globalEditableRegion: globalEditableRegion,
-      handleCut: canCut(delegate) ? () => handleCut(delegate) : null,
-      handleCopy: canCopy(delegate) ? () => handleCopy(delegate) : null,
-      handleSelectAll:
-          canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
-      selectionMidpoint: selectionMidpoint,
-      lastSecondaryTapDownPosition: lastSecondaryTapDownPosition,
-      textLineHeight: textLineHeight,
-      handlePaste: canPaste(delegate)
-          ? () {
-              if (!isDesktop || roomUid == null) {
-                handlePaste(delegate);
-              } else {
-                CustomTextSelectionMethods.desktopPastHandle(
-                  delegate,
-                  textController!,
-                  roomUid!,
-                  buildContext!,
-                );
-              }
-            }
-          : null,
-      handleUnderline: textController != null
-          ? () => CustomTextSelectionMethods.handleFormatting(
-                delegate,
-                UnderlineFeature.specialChar,
-                textController!,
-              )
-          : null,
-      handleSpoiler: textController != null
-          ? () => CustomTextSelectionMethods.handleFormatting(
-                delegate,
-                SpoilerFeature.specialChar,
-                textController!,
-              )
-          : null,
-      handleBold: textController != null
-          ? () => CustomTextSelectionMethods.handleFormatting(
-                delegate,
-                BoldFeature.specialChar,
-                textController!,
-              )
-          : null,
-      handleItalic: textController != null
-          ? () => CustomTextSelectionMethods.handleFormatting(
-                delegate,
-                ItalicFeature.specialChar,
-                textController!,
-              )
-          : null,
-      handleStrikethrough: textController != null
-          ? () => CustomTextSelectionMethods.handleFormatting(
-                delegate,
-                StrikethroughFeature.specialChar,
-                textController!,
-              )
-          : null,
-      isAnyThingSelected: textController != null
-          ? () => CustomTextSelectionMethods.isAnyThingSelected(textController!)
-          : null,
-      handleCreateLink: textController != null
-          ? () => CustomTextSelectionMethods.handleCreateLink(
-                delegate,
-                buildContext!,
-                textController!,
-              )
-          : null,
-    );
-  }
-
-  /// Builds the text selection handles, but desktop has none.
-  @override
-  Widget buildHandle(
-    BuildContext context,
-    TextSelectionHandleType type,
-    double textLineHeight, [
-    VoidCallback? onTap,
-  ]) {
-    return const SizedBox.shrink();
-  }
-
-  /// Gets the position for the text selection handles, but desktop has none.
-  @override
-  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) {
-    return Offset.zero;
-  }
-
-  @override
-  bool canSelectAll(TextSelectionDelegate delegate) {
-    // Allow SelectAll when selection is not collapsed, unless everything has
-    // already been selected. Same behavior as Android.
-    final value = delegate.textEditingValue;
-    return delegate.selectAllEnabled &&
-        value.text.isNotEmpty &&
-        !(value.selection.start == 0 &&
-            value.selection.end == value.text.length);
-  }
-
-  @override
-  void handleSelectAll(TextSelectionDelegate delegate) {
-    super.handleSelectAll(delegate);
-    delegate.hideToolbar();
-  }
-}
-
 // Generates the child that's passed into DesktopTextSelectionToolbar.
-class _DesktopTextSelectionControlsToolbar extends StatefulWidget {
-  const _DesktopTextSelectionControlsToolbar({
-    required this.clipboardStatus,
-    required this.endpoints,
-    required this.globalEditableRegion,
+class DesktopCustomContextMenuToolbar extends StatefulWidget {
+  const DesktopCustomContextMenuToolbar({
+    super.key,
+     this.clipboardStatus,
     required this.handleCopy,
-    required this.handleCut,
-    required this.handlePaste,
+     this.handleCut,
+     this.handlePaste,
     required this.handleSelectAll,
-    required this.selectionMidpoint,
-    required this.textLineHeight,
-    required this.lastSecondaryTapDownPosition,
     this.handleBold,
     this.handleItalic,
     this.handleStrikethrough,
@@ -169,18 +22,15 @@ class _DesktopTextSelectionControlsToolbar extends StatefulWidget {
     this.handleUnderline,
     this.handleCreateLink,
     this.isAnyThingSelected,
+    required this.textSelectionToolbarAnchors,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
-  final List<TextSelectionPoint> endpoints;
-  final Rect globalEditableRegion;
   final VoidCallback? handleCopy;
   final VoidCallback? handleCut;
   final VoidCallback? handlePaste;
   final VoidCallback? handleSelectAll;
-  final Offset? lastSecondaryTapDownPosition;
-  final Offset selectionMidpoint;
-  final double textLineHeight;
+  final TextSelectionToolbarAnchors textSelectionToolbarAnchors;
   final VoidCallback? handleBold;
   final VoidCallback? handleItalic;
   final VoidCallback? handleStrikethrough;
@@ -190,12 +40,12 @@ class _DesktopTextSelectionControlsToolbar extends StatefulWidget {
   final bool Function()? isAnyThingSelected;
 
   @override
-  _DesktopTextSelectionControlsToolbarState createState() =>
-      _DesktopTextSelectionControlsToolbarState();
+  DesktopCustomContextMenuToolbarState createState() =>
+      DesktopCustomContextMenuToolbarState();
 }
 
-class _DesktopTextSelectionControlsToolbarState
-    extends State<_DesktopTextSelectionControlsToolbar> {
+class DesktopCustomContextMenuToolbarState
+    extends State<DesktopCustomContextMenuToolbar> {
   final _i18n = GetIt.I.get<I18N>();
 
   void _onChangedClipboardStatus() {
@@ -211,7 +61,7 @@ class _DesktopTextSelectionControlsToolbarState
   }
 
   @override
-  void didUpdateWidget(_DesktopTextSelectionControlsToolbar oldWidget) {
+  void didUpdateWidget(DesktopCustomContextMenuToolbar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.clipboardStatus != widget.clipboardStatus) {
       oldWidget.clipboardStatus?.removeListener(_onChangedClipboardStatus);
@@ -234,16 +84,6 @@ class _DesktopTextSelectionControlsToolbarState
     }
 
     assert(debugCheckHasMediaQuery(context));
-    final mediaQuery = MediaQuery.of(context);
-
-    final midpointAnchor = Offset(
-      clampDouble(
-        widget.selectionMidpoint.dx - widget.globalEditableRegion.left,
-        mediaQuery.padding.left,
-        mediaQuery.size.width - mediaQuery.padding.right,
-      ),
-      widget.selectionMidpoint.dy - widget.globalEditableRegion.top,
-    );
 
     assert(debugCheckHasMaterialLocalizations(context));
     final localizations = MaterialLocalizations.of(context);
@@ -371,7 +211,8 @@ class _DesktopTextSelectionControlsToolbarState
     return Directionality(
       textDirection: _i18n.defaultTextDirection,
       child: _DesktopTextSelectionToolbar(
-        anchor: widget.lastSecondaryTapDownPosition ?? midpointAnchor,
+        anchor: widget.textSelectionToolbarAnchors.secondaryAnchor ??
+            widget.textSelectionToolbarAnchors.primaryAnchor,
         children: items,
       ),
     );

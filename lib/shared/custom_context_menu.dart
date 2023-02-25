@@ -26,7 +26,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     final screenSize = MediaQuery.of(context).size;
 
     final overlaySize =
-        Overlay.of(context)!.context.findRenderObject()!.semanticBounds.size;
+        Overlay.of(context).context.findRenderObject()!.semanticBounds.size;
 
     final dx = screenSize.width - overlaySize.width;
     final dy = screenSize.height - overlaySize.height;
@@ -41,6 +41,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     return material.showMenu<T>(
       context: context,
       position: position,
+      elevation: 0,
       items: <PopupMenuEntry<T>>[
         BlurPopupMenuCard(
           items: items,

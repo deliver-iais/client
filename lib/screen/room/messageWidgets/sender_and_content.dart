@@ -51,7 +51,7 @@ class SenderAndContent extends StatelessWidget {
       future: messageSRF,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
+          return Container(height: theme.textTheme.bodyMedium!.fontSize! + 7);
         }
 
         final messageColorScheme =

@@ -338,7 +338,7 @@ class AccountRepo {
     required String currentPassword,
     required String newPassword,
   }) async {
-    //todo
+    // TODO(dansi): implement later if server side completed
     return true;
   }
 }

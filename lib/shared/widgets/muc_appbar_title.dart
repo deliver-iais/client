@@ -43,16 +43,16 @@ class MucAppbarTitle extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.fade,
                           softWrap: false,
-                          style: theme.textTheme.subtitle1,
+                          style: theme.textTheme.titleMedium,
                         ),
                         TitleStatus(
-                          style: theme.textTheme.caption!,
+                          style: theme.textTheme.bodySmall!,
                           normalConditionWidget: Text(
                             "${snapshot.data!.population} ${_i18n.get("members")}",
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,
-                            style: theme.textTheme.caption,
+                            style: theme.textTheme.bodySmall,
                           ),
                           currentRoomUid: mucUid.asUid(),
                         )

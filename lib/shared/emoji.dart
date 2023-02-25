@@ -11432,56 +11432,7 @@ class Emoji {
     return _runes ??= char.runes.toList();
   }
 
-  /// Returns current Emoji with New requested [skinTone] if modifiable, else Returns current Emoji
-  Emoji newSkin(fitzpatrick skinTone) {
-    if (modifiable) {
-      switch (skinTone) {
-        case fitzpatrick.light:
-          return Emoji(
-            name: '$name, tone1',
-            char: modify(char, skinTone),
-            shortName: '${shortName}_tone1',
-            emojiGroup: emojiGroup,
-            modifiable: true,
-          );
-        case fitzpatrick.mediumLight:
-          return Emoji(
-            name: '$name, tone2',
-            char: modify(char, skinTone),
-            shortName: '${shortName}_tone2',
-            emojiGroup: emojiGroup,
-            modifiable: true,
-          );
-        case fitzpatrick.medium:
-          return Emoji(
-            name: '$name, tone3',
-            char: modify(char, skinTone),
-            shortName: '${shortName}_tone3',
-            emojiGroup: emojiGroup,
-            modifiable: true,
-          );
-        case fitzpatrick.mediumDark:
-          return Emoji(
-            name: '$name, tone4',
-            char: modify(char, skinTone),
-            shortName: '${shortName}_tone4',
-            emojiGroup: emojiGroup,
-            modifiable: true,
-          );
-        case fitzpatrick.dark:
-          return Emoji(
-            name: '$name, tone5',
-            char: modify(char, skinTone),
-            shortName: '${shortName}_tone5',
-            emojiGroup: emojiGroup,
-            modifiable: true,
-          );
-        case fitzpatrick.None:
-          return Emoji.byChar(stabilize(char));
-      }
-    }
-    return this;
-  }
+
 
   /// Get all Emojis
   static List<Emoji> all() => List.unmodifiable(_emojis + _recentEmojis);
@@ -11663,7 +11614,7 @@ class Emoji {
     }
   }
 
-  // todo: support unspecified gender for "... holding hands", "kiss", "couple with heart" and "family".
+  // TODO(any): support unspecified gender for "... holding hands", "kiss", "couple with heart" and "family".
   /// stabilize [skin] and [gender] of [emoji], if `true`.
   static String stabilize(
     String emoji, {

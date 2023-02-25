@@ -37,7 +37,7 @@ class ActivityStatus extends StatelessWidget {
   }
 
   String _getStatus(ActivityType typeOfActivity) {
-    //todo add empty activities
+    // TODO(any): add empty activities
     switch (typeOfActivity) {
       case ActivityType.CHOOSING_STICKER:
         return "";

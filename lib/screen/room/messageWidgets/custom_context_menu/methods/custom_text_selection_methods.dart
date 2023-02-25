@@ -6,23 +6,21 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class CustomTextSelectionMethods {
+class CustomContextMenuMethods {
   static final _i18n = GetIt.I.get<I18N>();
   static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
   static void moveCursor(
-    TextSelectionDelegate delegate,
     int offset,
     TextEditingController textController,
   ) {
-    delegate.hideToolbar();
+    ContextMenuController.removeAny();
     textController.selection = TextSelection.collapsed(
       offset: offset,
     );
   }
 
   static void desktopPastHandle(
-    TextSelectionDelegate delegate,
     TextEditingController textController,
     Uid roomUid,
     BuildContext buildContext,
@@ -32,11 +30,10 @@ class CustomTextSelectionMethods {
       buildContext,
       roomUid,
     );
-    delegate.hideToolbar();
+    ContextMenuController.removeAny();
   }
 
   static void handleFormatting(
-    TextSelectionDelegate delegate,
     String specialChar,
     TextEditingController textController,
   ) {
@@ -44,7 +41,6 @@ class CustomTextSelectionMethods {
       final end = textController.selection.end;
       textController.text = createFormattedText(specialChar, textController);
       moveCursor(
-        delegate,
         end + specialChar.length * 2,
         textController,
       );
@@ -63,7 +59,6 @@ class CustomTextSelectionMethods {
   }
 
   static void handleCreateLink(
-    TextSelectionDelegate delegate,
     BuildContext buildContext,
     TextEditingController textController,
   ) {

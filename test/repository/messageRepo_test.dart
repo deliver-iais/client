@@ -1128,7 +1128,7 @@ void main() {
         expect(messages.first, testMessage.copyWith(id: 0));
         verify(messageDao.getMessagePage(testUid.asString(), 0));
       });
-      //todo add test after adding test for getMessages
+      // TODO(any): add test after adding test for getMessages
       // test('When called if element!.id == containsId should return message',
       //     () async {
       //   final messageDao = getAndRegisterMessageDao();

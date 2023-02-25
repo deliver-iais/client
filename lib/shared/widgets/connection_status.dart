@@ -59,14 +59,14 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                           maxLines: 1,
                           softWrap: true,
                           style:
-                              theme.textTheme.headline6!.copyWith(fontSize: 20),
+                              theme.textTheme.titleLarge!.copyWith(fontSize: 20),
                           key: ValueKey(randomString(10)),
                         ),
                       ),
                     ),
                     if (status.data != TitleStatusConditions.Connected)
                       LoadingDotAnimation(
-                        dotsColor: theme.textTheme.headline6?.color ??
+                        dotsColor: theme.textTheme.titleLarge?.color ??
                             theme.colorScheme.primary,
                       ),
                     if (status.data == TitleStatusConditions.Disconnected)

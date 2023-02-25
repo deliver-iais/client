@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -91,7 +91,7 @@ Future<T?> showTitledDialog<T>(
           child: Text(
             i18n.get(titleKey),
             textDirection: i18n.defaultTextDirection,
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
         ),
@@ -102,13 +102,5 @@ Future<T?> showTitledDialog<T>(
 }
 
 BuildContext? _checkAndGetBuildContext(BuildContext? context) {
-  final routingService = GetIt.I.get<RoutingService>();
-
-  // Assert in debug mode!
-  assert(
-    (context ?? routingService.mainNavigatorState.currentContext) != null,
-    "at least one of `context` or `routingService.mainNavigatorState.currentContext` should be defined",
-  );
-
-  return context ?? routingService.mainNavigatorState.currentContext;
+  return context ?? GetIt.I.get<UxService>().appContext;
 }

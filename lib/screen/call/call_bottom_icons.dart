@@ -426,7 +426,7 @@ class CallBottomRowState extends State<CallBottomRow>
                     icon: Icon(
                       CupertinoIcons.phone_down_fill,
                       size: 35,
-                      color: theme.errorColor,
+                      color: theme.colorScheme.error,
                     ),
                     onPressed: () => _declineCall(),
                   ),

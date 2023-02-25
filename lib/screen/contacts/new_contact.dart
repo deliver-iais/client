@@ -52,7 +52,7 @@ class NewContactState extends State<NewContact> {
                         _firstName = firstName;
                       },
                       controller: TextEditingController(),
-                      style: theme.textTheme.bodyText1,
+                      style: theme.textTheme.bodyLarge,
                       decoration:
                           InputDecoration(labelText: _i18n.get("firstName")),
                     ),
@@ -62,7 +62,7 @@ class NewContactState extends State<NewContact> {
                         _lastName = lastName;
                       },
                       controller: TextEditingController(),
-                      style: theme.textTheme.bodyText1,
+                      style: theme.textTheme.bodyLarge,
                       decoration:
                           InputDecoration(labelText: _i18n.get("lastName")),
                     ),
@@ -78,7 +78,7 @@ class NewContactState extends State<NewContact> {
                                         (value.isNotEmpty && value[0] == '0'))
                                 ? _i18n.get("invalid_mobile_number")
                                 : null,
-                        style: theme.textTheme.bodyText1,
+                        style: theme.textTheme.bodyLarge,
                         onChanged: (ph) {
                           _phoneNumber = ph;
                         },

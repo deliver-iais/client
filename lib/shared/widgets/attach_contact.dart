@@ -143,7 +143,7 @@ class _AttachContactState extends State<AttachContact> {
                   overflow: TextOverflow.fade,
                   maxLines: 1,
                   softWrap: false,
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

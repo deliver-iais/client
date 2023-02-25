@@ -79,7 +79,7 @@ class HasCallRowState extends State<HasCallRow> {
                                         maxLines: 1,
                                         softWrap: false,
                                         overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.subtitle2!
+                                        style: theme.textTheme.titleSmall!
                                             .copyWith(color: Colors.white),
                                       ),
                                       width: 120,
