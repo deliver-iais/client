@@ -463,24 +463,24 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () {
-          _uxService.selectPattern(index);
-        },
-        child: Container(
+        onTap: () => _uxService.selectPattern(index),
+        child: AnimatedContainer(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.all(8),
+          margin:
+              isSelected ? const EdgeInsets.all(6) : const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
             border: isSelected
                 ? Border.all(
                     color: Theme.of(context).colorScheme.primary,
-                    width: 2,
+                    width: 4,
                   )
                 : Border.all(
                     color: Theme.of(context).colorScheme.outline,
                     width: 2,
                   ),
           ),
+          duration: MOTION_STANDARD_ANIMATION_DURATION,
           child: SizedBox(
             width: 80,
             height: 100,
