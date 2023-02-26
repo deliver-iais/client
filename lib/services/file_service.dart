@@ -13,7 +13,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -152,13 +151,6 @@ class FileService {
   }
 
   FileService() {
-    if (!isWeb) {
-      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (client) {
-        client.badCertificateCallback = (cert, host, port) => true;
-        return client;
-      };
-    }
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

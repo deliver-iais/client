@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -13,24 +14,20 @@ class BlurMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: DEFAULT_BOX_SHADOWS,
-        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.5),
-        ),
-      ),
+    return Material(
+      elevation: 10,
+      borderRadius: messageBorder,
+      type: MaterialType.button,
+      color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
       child: ClipRRect(
         clipBehavior: Clip.hardEdge,
-        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        borderRadius: messageBorder,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
           child: Material(
-            color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
             clipBehavior: Clip.hardEdge,
-            elevation: 1.0,
-            type: MaterialType.card,
+            borderRadius: messageBorder,
             child: child,
           ),
         ),

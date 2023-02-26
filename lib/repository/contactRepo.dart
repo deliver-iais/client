@@ -64,19 +64,24 @@ class ContactRepo {
         if (hasContactCapability) {
           _syncedContacts = [];
           hasContactPermission = true;
-          final phoneContacts = await fast_contact.FastContacts.allContacts;
+          final phoneContacts = await fast_contact.FastContacts.getAllContacts(
+            fields: [
+              fast_contact.ContactField.displayName,
+              fast_contact.ContactField.phoneNumbers
+            ],
+            batchSize: 100,
+          );
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
                 .map(
-                  (p) => (p.phones)
+                  (p) => (p.phones.map((e) => e.number))
                       .toSet()
-                      .map((phone) => phone)
-                      .map((e) => _getPhoneNumber(e, p.displayName))
-                      .where((element) => element != null)
+                      .map((phone) => _getPhoneNumber(phone))
+                      .whereNotNull()
                       .map(
                         (e) => Contact()
                           ..firstName = p.displayName
-                          ..phoneNumber = e!,
+                          ..phoneNumber = e,
                       ),
                 )
                 .expand((e) => e)
@@ -186,7 +191,7 @@ class ContactRepo {
     return input;
   }
 
-  PhoneNumber? _getPhoneNumber(String phone, String name) {
+  PhoneNumber? _getPhoneNumber(String phone) {
     final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
     if (regex.hasMatch(phone)) {
       phone = _replaceFarsiNumber(phone);
@@ -488,7 +493,7 @@ class ContactRepo {
             } catch (_) {}
           }
           if (tags.isNotEmpty && tags["TEL"] != null && tags["NAME"] != null) {
-            final phone = _getPhoneNumber(tags["TEL"], tags["NAME"]);
+            final phone = _getPhoneNumber(tags["TEL"]);
             if (phone != null) {
               phoneContacts.add(
                 Contact()

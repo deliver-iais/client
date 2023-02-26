@@ -166,7 +166,7 @@ class VerificationPageState extends State<VerificationPage> {
                       autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
-                      cursor: Cursor(color: theme.focusColor, enabled: true),
+                      cursor: Cursor(color: theme.focusColor, enabled: true, width: 1, height: 32),
                       decoration: UnderlineDecoration(
                         colorBuilder: PinListenColorBuilder(
                           theme.primaryColor,

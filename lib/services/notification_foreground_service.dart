@@ -158,7 +158,7 @@ class NotificationForegroundService {
     }
 
     if (reqResult) {
-      receivePort = await FlutterForegroundTask.receivePort;
+      receivePort = FlutterForegroundTask.receivePort;
     }
 
     if (receivePort != null) {
