@@ -7,11 +7,13 @@ import Foundation
 
 import audio_session
 import audioplayers_darwin
+import camera_macos
 import connectivity_plus
 import desktop_drop
 import desktop_lifecycle
 import desktop_window
 import device_info_plus
+import ffmpeg_kit_flutter_min_gpl
 import file_selector_macos
 import firebase_analytics
 import firebase_core
@@ -26,7 +28,7 @@ import just_audio
 import livekit_client
 import mobile_scanner
 import pasteboard
-import path_provider_macos
+import path_provider_foundation
 import photo_manager
 import record_macos
 import rive_common
@@ -39,11 +41,13 @@ import window_size
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AudioSessionPlugin.register(with: registry.registrar(forPlugin: "AudioSessionPlugin"))
   AudioplayersDarwinPlugin.register(with: registry.registrar(forPlugin: "AudioplayersDarwinPlugin"))
+  CameraMacosPlugin.register(with: registry.registrar(forPlugin: "CameraMacosPlugin"))
   ConnectivityPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlugin"))
   DesktopDropPlugin.register(with: registry.registrar(forPlugin: "DesktopDropPlugin"))
   DesktopLifecyclePlugin.register(with: registry.registrar(forPlugin: "DesktopLifecyclePlugin"))
   DesktopWindowPlugin.register(with: registry.registrar(forPlugin: "DesktopWindowPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
+  FFmpegKitFlutterPlugin.register(with: registry.registrar(forPlugin: "FFmpegKitFlutterPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FLTFirebaseAnalyticsPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAnalyticsPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
