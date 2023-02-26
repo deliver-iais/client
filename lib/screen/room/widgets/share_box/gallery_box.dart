@@ -56,9 +56,7 @@ class GalleryBoxState extends State<GalleryBox> {
   }
 
   Future<void> _initFolders() async {
-    if (await _checkPermissionServices.checkAccessMediaLocationPermission(
-      context: context,
-    )) {
+    if (await checkAccessMediaLocationPermission()) {
       final folders =
           await PhotoManager.getAssetPathList(type: RequestType.image);
       final finalFolders = <AssetPathEntity>[];
@@ -92,14 +90,20 @@ class GalleryBoxState extends State<GalleryBox> {
     // } catch (_) {}
   }
 
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (!(_controller?.value.isInitialized ?? false)) {
-  //     return;
-  //   }
-  //   if (state == AppLifecycleState.inactive) {
-  //     _controller?.dispose();
-  //   } else if (state == AppLifecycleState.resumed) {}
-  // }
+  Future<bool> checkAccessMediaLocationPermission() async {
+    return _checkPermissionServices.checkAccessMediaLocationPermission(
+      context: context,
+    );
+  }
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!(_controller?.value.isInitialized ?? false)) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      _controller?.dispose();
+    } else if (state == AppLifecycleState.resumed) {}
+  }
 
   @override
   void dispose() {
