@@ -52,14 +52,14 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         2,
         cUser,
         FAKE_USER_UID.asString(),
-        "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟ اگر نمیای که یه خبری بی زحمت بده",
+        "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟ اگر نمیای که یه خبری بی زحمت بده [لینک محل ورزشگاه](https://nshn.ir/68sbvXhTWxVYuZ) ",
       ),
       cm(3, FAKE_USER_UID.asString(), cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
       cm(
         4,
         cUser,
         FAKE_USER_UID.asString(),
-        "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم",
+        "ایول\\n \\n ساعت ۹ شب، ورزشگاه. منتظرتیم",
         replyId: 3,
       ),
     ];
