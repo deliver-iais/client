@@ -109,6 +109,7 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildLastMessageWidget() {
     final theme = Theme.of(context);
+    final chatItemHeight = theme.primaryTextTheme.displayLarge!.height;
 
     final isPinnedRoom = widget.room.pinned;
 
@@ -255,7 +256,7 @@ class ChatItemState extends State<ChatItem> {
                     ),
                 ],
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: theme.textTheme.titleMedium!.fontSize! / 4),
               StreamBuilder<Activity>(
                 stream: _roomRepo.activityObject[widget.room.uid.asUid().node],
                 builder: (c, s) {

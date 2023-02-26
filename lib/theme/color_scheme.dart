@@ -1,6 +1,8 @@
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/blend/blend.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
@@ -247,8 +249,10 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       bodyColor: colorScheme.onBackground,
     ),
   );
-  const scale = 1;
 
+  final _uxService = GetIt.I.get<UxService>();
+
+  final scale = _uxService.sliderValue;
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
@@ -257,14 +261,19 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     colorScheme: getColorScheme(colorScheme),
     primaryColor: colorScheme.primary,
     primaryTextTheme: primaryTextTheme.copyWith(
-      displayLarge:
-          primaryTextTheme.displayLarge?.copyWith(fontSize: scale * 57),
-      displayMedium:
-          primaryTextTheme.displayMedium?.copyWith(fontSize: scale * 45),
-      displaySmall:
-          primaryTextTheme.displaySmall?.copyWith(fontSize: scale * 36),
+      displayLarge: primaryTextTheme.displayLarge
+          ?.copyWith(fontSize: scale * 57, height: scale * 64),
+      displayMedium: primaryTextTheme.displayMedium
+          ?.copyWith(fontSize: scale * 45, height: scale * 52),
+      displaySmall: primaryTextTheme.displaySmall?.copyWith(
+        fontSize: scale * 36,
+        // height: scale * 44
+      ),
       bodyLarge: primaryTextTheme.bodyLarge?.copyWith(fontSize: scale * 16),
-      bodyMedium: primaryTextTheme.bodyMedium?.copyWith(fontSize: scale * 14),
+      bodyMedium: primaryTextTheme.bodyMedium?.copyWith(
+        fontSize: scale * 14,
+        // height: scale *20
+      ),
       bodySmall: primaryTextTheme.bodySmall?.copyWith(fontSize: scale * 12),
       headlineLarge:
           primaryTextTheme.headlineLarge?.copyWith(fontSize: scale * 32),
@@ -272,26 +281,27 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
           primaryTextTheme.headlineMedium?.copyWith(fontSize: scale * 28),
       headlineSmall:
           primaryTextTheme.headlineSmall?.copyWith(fontSize: scale * 24),
-      titleLarge: primaryTextTheme.titleLarge?.copyWith(fontSize: scale * 22),
+      titleLarge: primaryTextTheme.titleLarge?.copyWith(
+        fontSize: scale * 22,
+      ),
       titleMedium: primaryTextTheme.titleMedium?.copyWith(fontSize: scale * 16),
       titleSmall: primaryTextTheme.titleSmall?.copyWith(fontSize: scale * 14),
-      labelLarge: primaryTextTheme.titleSmall?.copyWith(fontSize: scale * 14),
+      labelLarge: primaryTextTheme.labelLarge?.copyWith(fontSize: scale * 14),
       labelMedium: primaryTextTheme.labelMedium?.copyWith(fontSize: scale * 12),
       labelSmall: primaryTextTheme.labelSmall?.copyWith(fontSize: scale * 11),
-      // bodyText1: primaryTextTheme.bodyText1?.copyWith(fontSize: scale * 16),
-      // bodyText2: primaryTextTheme.bodyText2?.copyWith(fontSize: scale * 14),
-      // subtitle1: primaryTextTheme.subtitle1?.copyWith(fontSize: scale * 16),
-      // subtitle2: primaryTextTheme.subtitle2?.copyWith(fontSize: scale * 14),
-      // button: primaryTextTheme.button?.copyWith(fontSize: scale * 14),
-      // caption: primaryTextTheme.caption?.copyWith(fontSize: scale * 12),
-      // overline: primaryTextTheme.overline?.copyWith(fontSize: scale * 10),
     ),
     textTheme: textTheme.copyWith(
-      displayLarge: textTheme.displayLarge?.copyWith(fontSize: scale * 57),
-      displayMedium: textTheme.displayMedium?.copyWith(fontSize: scale * 45),
-      displaySmall: textTheme.displaySmall?.copyWith(fontSize: scale * 36),
+      displayLarge: textTheme.displayLarge
+          ?.copyWith(fontSize: scale * 57, height: scale * 110),
+      displayMedium: textTheme.displayMedium
+          ?.copyWith(fontSize: scale * 45, height: scale * 52),
+      displaySmall: textTheme.displaySmall?.copyWith(
+        fontSize: scale * 36,
+      ),
       bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: scale * 16),
-      bodyMedium: textTheme.bodyMedium?.copyWith(fontSize: scale * 14),
+      bodyMedium: textTheme.bodyMedium?.copyWith(
+        fontSize: scale * 14,
+      ),
       bodySmall: textTheme.bodySmall?.copyWith(fontSize: scale * 12),
       headlineLarge: textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
       headlineMedium: textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
@@ -299,16 +309,11 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       titleLarge: textTheme.titleLarge?.copyWith(fontSize: scale * 22),
       titleMedium: textTheme.titleMedium?.copyWith(fontSize: scale * 16),
       titleSmall: textTheme.titleSmall?.copyWith(fontSize: scale * 14),
-      labelLarge: textTheme.titleSmall?.copyWith(fontSize: scale * 14),
+      labelLarge: textTheme.labelLarge?.copyWith(
+        fontSize: scale * 14,
+      ),
       labelMedium: textTheme.labelMedium?.copyWith(fontSize: scale * 12),
       labelSmall: textTheme.labelSmall?.copyWith(fontSize: scale * 11),
-      // bodyText1: textTheme.bodyText1?.copyWith(fontSize: scale * 16),
-      // bodyText2: textTheme.bodyText2?.copyWith(fontSize: scale * 14),
-      // subtitle1: textTheme.subtitle1?.copyWith(fontSize: scale * 16),
-      // subtitle2: textTheme.subtitle2?.copyWith(fontSize: scale * 14),
-      // button: textTheme.button?.copyWith(fontSize: scale * 14),
-      // caption: textTheme.caption?.copyWith(fontSize: scale * 12),
-      // overline: textTheme.overline?.copyWith(fontSize: scale * 10),
     ),
   );
 

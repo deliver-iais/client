@@ -53,7 +53,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                       },
                       child: Text(
                         state,
-                        style: theme.textTheme.headline6!.copyWith(fontSize: 20),
+                        style: theme.textTheme.titleMedium,
                         key: ValueKey(randomString(10)),
                       ),
                     ),

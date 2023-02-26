@@ -404,6 +404,7 @@ class MyApp extends StatelessWidget {
         _uxService.patternIndexStream,
         _uxService.themeIsDarkStream,
         _uxService.showColorfulStream,
+        _uxService.sliderValueStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {

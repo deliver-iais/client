@@ -21,6 +21,7 @@ class UxService {
 
   final _themeIndex = BehaviorSubject.seeded(0);
   final _patternIndex = BehaviorSubject.seeded(0);
+  final _sliderValue = BehaviorSubject<double>.seeded(0);
   final _themeIsDark = BehaviorSubject.seeded(false);
   final _showColorful = BehaviorSubject.seeded(false);
 
@@ -107,6 +108,15 @@ class UxService {
       }
     });
 
+    _sharedDao.get("textSize").then((event) {
+      if (event != null) {
+        try {
+          final textSize = double.parse(event);
+          _sliderValue.add(textSize);
+        } catch (_) {}
+      }
+    });
+
     _sharedDao.get(SHARED_DAO_THEME_PATTERN).then((event) {
       if (event != null) {
         try {
@@ -138,6 +148,8 @@ class UxService {
 
   Stream<int> get patternIndexStream => _patternIndex.distinct();
 
+  Stream<double> get sliderValueStream => _sliderValue.distinct();
+
   Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
   Stream<bool> get showColorfulStream => _showColorful.distinct();
@@ -158,6 +170,8 @@ class UxService {
   int get themeIndex => _themeIndex.value;
 
   int get patternIndex => _patternIndex.value;
+
+  double get sliderValue => _sliderValue.value ;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
@@ -251,6 +265,11 @@ class UxService {
     _patternIndex.add(index);
   }
 
+  void selectTextSize(double index) {
+    _sharedDao.put("textSize", index.toString());
+    _sliderValue.add(index);
+  }
+
   void toggleSendByEnter() {
     if (sendByEnter == false) {
       _sharedDao.putBoolean(SHARED_DAO_SEND_BY_ENTER, true);
@@ -329,6 +348,13 @@ class FeatureFlags {
   bool isVoiceCallAvailable() {
     return _voiceCallFeatureIsPossible();
   }
+
+  // void setSliderValue(double sliderValue) {
+  //   _sharedDao.put(
+  //     "sliderValue",
+  //     sliderValue.toString(),
+  //   );
+  // }
 
   void setICECandidateNumber(double ICECandidateNumbers) {
     _sharedDao.put(

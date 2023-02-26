@@ -34,7 +34,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _idSubject = BehaviorSubject.seeded(0);
   final _controller = ScrollController();
-  double currentSliderValue = 2;
+  static double currentSliderValue = 1;
 
   List<Message> messages = [];
 
@@ -143,6 +143,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   @override
   Widget build(BuildContext context) {
     createMessages();
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -157,7 +158,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 528,
+              height:theme.textTheme.displayLarge!.height! * 4 ,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
@@ -336,31 +337,42 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                       child: Directionality(
                                         textDirection:
                                             _i18n.defaultTextDirection,
-                                        child: SliderTheme(
-                                          data:
-                                              SliderTheme.of(context).copyWith(
-                                            thumbShape:
-                                                const RoundSliderThumbShape(
-                                                    enabledThumbRadius: 8),
-                                          ),
-                                          child: Slider(
-                                            activeColor: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            inactiveColor: Colors.grey[700],
-                                            divisions: 5,
-                                            thumbColor: Colors.white,
-                                            value: currentSliderValue,
-                                            max: 2,
-                                            label:
-                                                currentSliderValue.toString(),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                currentSliderValue = value;
-                                              });
-                                            },
-                                          ),
-                                        ),
+                                        child: StreamBuilder<double>(
+                                            stream:
+                                                _uxService.sliderValueStream,
+                                            builder: (context, snapshot) {
+                                              return SliderTheme(
+                                                data: SliderTheme.of(context)
+                                                    .copyWith(
+                                                  thumbShape:
+                                                      const RoundSliderThumbShape(
+                                                          enabledThumbRadius:
+                                                              8),
+                                                ),
+                                                child: Slider(
+                                                  activeColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  inactiveColor:
+                                                      Colors.grey[700],
+                                                  divisions: 5,
+                                                  thumbColor: Colors.white,
+                                                  value: currentSliderValue,
+                                                  max: 2,
+                                                  min: 1,
+                                                  label: currentSliderValue
+                                                      .toString(),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _uxService.selectTextSize(
+                                                          value);
+                                                      currentSliderValue =
+                                                          value;
+                                                    });
+                                                  },
+                                                ),
+                                              );
+                                            }),
                                       ),
                                     ),
                                     const Text(
