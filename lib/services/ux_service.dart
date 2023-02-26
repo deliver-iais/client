@@ -21,7 +21,7 @@ class UxService {
 
   final _themeIndex = BehaviorSubject.seeded(0);
   final _patternIndex = BehaviorSubject.seeded(0);
-  final _sliderValue = BehaviorSubject<double>.seeded(0);
+  final _sliderValue = BehaviorSubject<double>.seeded(1);
   final _themeIsDark = BehaviorSubject.seeded(false);
   final _showColorful = BehaviorSubject.seeded(false);
 

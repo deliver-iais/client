@@ -41,8 +41,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
             stream: _i18n.localeStream,
             builder: (context, snapshot) {
               return Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: Row(
                   children: [
                     Flexible(
