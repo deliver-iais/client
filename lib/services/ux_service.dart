@@ -184,7 +184,7 @@ class UxService {
 
   int get patternIndex => _patternIndex.value;
 
-  double get sliderValue => _sliderValue.value ;
+  double get sliderValue => _sliderValue.value;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 

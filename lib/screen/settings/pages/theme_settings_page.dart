@@ -161,7 +161,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height:theme.textTheme.displayLarge!.height! * 4 ,
+              height: theme.textTheme.displayLarge!.height! * 4,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
@@ -618,7 +618,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       border: Border.all(
                         color: selectedBorderColor,
                         width: 2,
-                        strokeAlign:BorderSide.strokeAlignOutside,
+                        strokeAlign: BorderSide.strokeAlignOutside,
                       ),
                     )
                   : null,

@@ -329,7 +329,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       textStyle: TextStyle(color: colorScheme.primary, fontSize: 15),
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
-    dividerTheme:  DividerThemeData(space: 1.0, thickness: 1.0,color: theme.dividerColor.withOpacity(0.4)),
+    dividerTheme: DividerThemeData(
+        space: 1.0, thickness: 1.0, color: theme.dividerColor.withOpacity(0.4)),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
