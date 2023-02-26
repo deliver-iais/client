@@ -258,61 +258,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     fontFamily: GoogleFonts.vazirmatn().fontFamily,
     colorScheme: getColorScheme(colorScheme),
     primaryColor: colorScheme.primary,
-    primaryTextTheme: primaryTextTheme.copyWith(
-      displayLarge: primaryTextTheme.displayLarge
-          ?.copyWith(fontSize: scale * 57, height: scale * 64),
-      displayMedium: primaryTextTheme.displayMedium
-          ?.copyWith(fontSize: scale * 45, height: scale * 52),
-      displaySmall: primaryTextTheme.displaySmall?.copyWith(
-        fontSize: scale * 36,
-        // height: scale * 44
-      ),
-      bodyLarge: primaryTextTheme.bodyLarge?.copyWith(fontSize: scale * 16),
-      bodyMedium: primaryTextTheme.bodyMedium?.copyWith(
-        fontSize: scale * 14,
-        // height: scale *20
-      ),
-      bodySmall: primaryTextTheme.bodySmall?.copyWith(fontSize: scale * 12),
-      headlineLarge:
-          primaryTextTheme.headlineLarge?.copyWith(fontSize: scale * 32),
-      headlineMedium:
-          primaryTextTheme.headlineMedium?.copyWith(fontSize: scale * 28),
-      headlineSmall:
-          primaryTextTheme.headlineSmall?.copyWith(fontSize: scale * 24),
-      titleLarge: primaryTextTheme.titleLarge?.copyWith(
-        fontSize: scale * 22,
-      ),
-      titleMedium: primaryTextTheme.titleMedium?.copyWith(fontSize: scale * 16),
-      titleSmall: primaryTextTheme.titleSmall?.copyWith(fontSize: scale * 14),
-      labelLarge: primaryTextTheme.labelLarge?.copyWith(fontSize: scale * 14),
-      labelMedium: primaryTextTheme.labelMedium?.copyWith(fontSize: scale * 12),
-      labelSmall: primaryTextTheme.labelSmall?.copyWith(fontSize: scale * 11),
-    ),
-    textTheme: textTheme.copyWith(
-      displayLarge: textTheme.displayLarge
-          ?.copyWith(fontSize: scale * 57, height: scale * 110),
-      displayMedium: textTheme.displayMedium
-          ?.copyWith(fontSize: scale * 45, height: scale * 52),
-      displaySmall: textTheme.displaySmall?.copyWith(
-        fontSize: scale * 36,
-      ),
-      bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: scale * 16),
-      bodyMedium: textTheme.bodyMedium?.copyWith(
-        fontSize: scale * 14,
-      ),
-      bodySmall: textTheme.bodySmall?.copyWith(fontSize: scale * 12),
-      headlineLarge: textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
-      headlineMedium: textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
-      headlineSmall: textTheme.headlineSmall?.copyWith(fontSize: scale * 24),
-      titleLarge: textTheme.titleLarge?.copyWith(fontSize: scale * 22),
-      titleMedium: textTheme.titleMedium?.copyWith(fontSize: scale * 16),
-      titleSmall: textTheme.titleSmall?.copyWith(fontSize: scale * 14),
-      labelLarge: textTheme.labelLarge?.copyWith(
-        fontSize: scale * 14,
-      ),
-      labelMedium: textTheme.labelMedium?.copyWith(fontSize: scale * 12),
-      labelSmall: textTheme.labelSmall?.copyWith(fontSize: scale * 11),
-    ),
+    primaryTextTheme: setupTextTheme(primaryTextTheme, scale),
+    textTheme: setupTextTheme(textTheme, scale),
   );
 
   return theme.copyWith(
@@ -350,6 +297,39 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
+  );
+}
+
+TextTheme setupTextTheme(TextTheme textTheme, double scale) {
+  return textTheme.copyWith(
+    displayLarge: textTheme.displayLarge
+        ?.copyWith(fontSize: scale * 57, height: scale * 64),
+    displayMedium: textTheme.displayMedium
+        ?.copyWith(fontSize: scale * 45, height: scale * 52),
+    displaySmall: textTheme.displaySmall?.copyWith(
+      fontSize: scale * 36,
+      // height: scale * 44
+    ),
+    bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: scale * 16),
+    bodyMedium: textTheme.bodyMedium?.copyWith(
+      fontSize: scale * 14,
+      // height: scale *20
+    ),
+    bodySmall: textTheme.bodySmall?.copyWith(fontSize: scale * 12),
+    headlineLarge:
+        textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
+    headlineMedium:
+        textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
+    headlineSmall:
+        textTheme.headlineSmall?.copyWith(fontSize: scale * 24),
+    titleLarge: textTheme.titleLarge?.copyWith(
+      fontSize: scale * 22,
+    ),
+    titleMedium: textTheme.titleMedium?.copyWith(fontSize: scale * 16),
+    titleSmall: textTheme.titleSmall?.copyWith(fontSize: scale * 14),
+    labelLarge: textTheme.labelLarge?.copyWith(fontSize: scale * 14),
+    labelMedium: textTheme.labelMedium?.copyWith(fontSize: scale * 12),
+    labelSmall: textTheme.labelSmall?.copyWith(fontSize: scale * 11),
   );
 }
 
