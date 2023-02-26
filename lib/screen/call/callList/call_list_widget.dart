@@ -51,7 +51,7 @@ class CallListWidget extends StatelessWidget {
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: false,
-                        style: Theme.of(context).textTheme.subtitle1,
+                        style: Theme.of(context).textTheme.titleMedium,
                       );
                     }
                     return const SizedBox.shrink();

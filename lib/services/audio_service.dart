@@ -136,7 +136,7 @@ AudioPlayerModule getAudioPlayerModule() {
     return AudioPlayersAudioPlayer();
   } else if (isMacOS) {
     return JustAudioAudioPlayer();
-  } else if (isWindows || isLinux) {
+  } else if (isWindows) {
     return VlcAudioAudioPlayer();
   } else {
     return FakeAudioPlayer();
@@ -170,7 +170,7 @@ class AudioService {
   AudioService() {
     try {
       _mainPlayer.completedStream.listen((_) async {
-        //todo check to see if message has been edited or deleted
+        // TODO(any): check to see if message has been edited or deleted
         stopAudio();
         if (autoPlayMediaList.isNotEmpty &&
             autoPlayMediaIndex != autoPlayMediaList.length) {

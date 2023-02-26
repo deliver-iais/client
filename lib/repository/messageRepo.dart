@@ -27,6 +27,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -100,6 +101,7 @@ class MessageRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
 
   final _audioService = GetIt.I.get<AudioService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _coreServices = GetIt.I.get<CoreServices>();
@@ -563,6 +565,7 @@ class MessageRepo {
     int replyId = 0,
     String? forwardedFrom,
     String? packetId,
+    bool fromNotification = false,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -597,6 +600,7 @@ class MessageRepo {
         replyId,
         forwardedFrom,
         packetId,
+        fromNotification: fromNotification,
       );
       i++;
     }
@@ -607,8 +611,9 @@ class MessageRepo {
     Uid room,
     int replyId,
     String? forwardedFrom,
-    String? packetId,
-  ) async {
+    String? packetId, {
+    bool fromNotification = false,
+  }) async {
     final json = (message_pb.Text()..text = text).writeToJson();
     final msg = (await _createMessage(
       room,
@@ -619,12 +624,41 @@ class MessageRepo {
         .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm, fromNotification: fromNotification);
   }
 
-  void _saveAndSend(PendingMessage pm) {
-    _savePendingMessage(pm);
-    _updateRoomLastMessage(pm);
+  Future<void> _saveAndSend(
+    PendingMessage pm, {
+    bool fromNotification = false,
+  }) async {
+    if (fromNotification) {
+      await _savePendingMessage(pm)
+          .then(
+            (value) => {
+              _analyticsService.sendLogEvent(
+                "replyToMessageFromNotificationSavePendingSuccess",
+                parameters: {
+                  "packetId": pm.packetId,
+                  "roomUid": pm.roomUid,
+                },
+              )
+            },
+          )
+          .onError(
+            (error, stackTrace) => {
+              _analyticsService.sendLogEvent(
+                "replyToMessageFromNotificationSavePendingFailed",
+                parameters: {
+                  "packetId": pm.packetId,
+                  "roomUid": pm.roomUid,
+                },
+              )
+            },
+          );
+    } else {
+      unawaited(_savePendingMessage(pm));
+    }
+    unawaited(_updateRoomLastMessage(pm));
     _sendMessageToServer(pm);
   }
 
@@ -646,7 +680,7 @@ class MessageRepo {
         .copyWith(type: MessageType.CALL, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendLocationMessage(
@@ -668,7 +702,7 @@ class MessageRepo {
         .copyWith(type: MessageType.LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendMultipleFilesMessages(
@@ -1233,7 +1267,8 @@ class MessageRepo {
   }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
-    _coreServices.sendSeen(
+    // it's look better if w8 for sending seen and make it safer
+    await _coreServices.sendSeen(
       seen_pb.SeenByClient()
         ..to = to
         ..id = Int64.parseInt(messageId.toString()),
@@ -1268,7 +1303,7 @@ class MessageRepo {
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-      _saveAndSend(pm);
+      return _saveAndSend(pm);
     }
   }
 
@@ -1285,7 +1320,7 @@ class MessageRepo {
           .copyWith(type: MessageType.FILE, json: media.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-      _saveAndSend(pm);
+      return _saveAndSend(pm);
     }
   }
 
@@ -1422,7 +1457,7 @@ class MessageRepo {
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendShareUidMessage(
@@ -1435,7 +1470,7 @@ class MessageRepo {
         .copyWith(type: MessageType.SHARE_UID, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<void> sendPrivateDataAcceptanceMessage(
@@ -1452,7 +1487,7 @@ class MessageRepo {
         .copyWith(type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    return _saveAndSend(pm);
   }
 
   Future<List<Message>> searchMessage(String str, String roomId) async => [];
@@ -1483,7 +1518,7 @@ class MessageRepo {
 
   Future<void> resendMessage(Message msg) async {
     final pm = await _messageDao.getPendingMessage(msg.packetId);
-    _saveAndSend(pm!);
+    unawaited(_saveAndSend(pm!));
   }
 
   void deletePendingMessage(String packetId) {
@@ -1534,7 +1569,7 @@ class MessageRepo {
         .copyWith(type: MessageType.LIVE_LOCATION, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    unawaited(_saveAndSend(pm));
     _liveLocationRepo.sendLiveLocationAsStream(res.uuid, duration, location);
   }
 

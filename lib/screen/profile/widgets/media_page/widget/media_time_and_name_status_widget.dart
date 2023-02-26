@@ -33,7 +33,7 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
               return Text(
                 name.data!,
                 overflow: TextOverflow.fade,
-                style: theme.textTheme.bodyText2!.copyWith(color: Colors.white),
+                style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
               );
             } else {
               return const SizedBox.shrink();
@@ -47,7 +47,7 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
           DateTime.fromMillisecondsSinceEpoch(
             createdOn,
           ).toString().substring(0, 19),
-          style: theme.textTheme.bodyText2!
+          style: theme.textTheme.bodyMedium!
               .copyWith(height: 1, color: Colors.white),
         )
       ],

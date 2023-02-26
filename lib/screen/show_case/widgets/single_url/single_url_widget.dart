@@ -75,20 +75,24 @@ class SingleUrlWidget extends StatelessWidget {
                         await _registeredBotDao.botIsRegistered(
                           urlCase.botCallback.bot.asString(),
                         )) {
-                      inputPin(
-                        context: context,
-                        pinCodeSettings: urlCase.botCallback.pinCodeSettings,
-                        data: urlCase.botCallback.data,
-                        botUid: urlCase.botCallback.bot.asString(),
-                      );
+                      if (context.mounted) {
+                        inputPin(
+                          context: context,
+                          pinCodeSettings: urlCase.botCallback.pinCodeSettings,
+                          data: urlCase.botCallback.data,
+                          botUid: urlCase.botCallback.bot.asString(),
+                        );
+                      }
                     } else if (urlCase.botCallback.pinCodeSettings
                         .isOutsideFirstRedirectionEnabled) {
-                      ToastDisplay.showToast(
-                        toastContext: context,
-                        showWarningAnimation: true,
-                        toastText: urlCase.botCallback.pinCodeSettings
-                            .outsideFirstRedirectionAlert,
-                      );
+                      if (context.mounted) {
+                        ToastDisplay.showToast(
+                          toastContext: context,
+                          showWarningAnimation: true,
+                          toastText: urlCase.botCallback.pinCodeSettings
+                              .outsideFirstRedirectionAlert,
+                        );
+                      }
                       await (_registeredBotDao.saveRegisteredBot(
                         urlCase.botCallback.bot.asString(),
                       ));

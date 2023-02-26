@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection/text_selections/custom_desktop_text_selection_controls.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_context_menu/context_menus/desktop/custom_desktop_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class AutoDirectionTextField extends StatefulWidget {
 
   final bool readOnly;
 
-  final ToolbarOptions? toolbarOptions;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
 
   final bool? showCursor;
 
@@ -175,9 +175,9 @@ class AutoDirectionTextField extends StatefulWidget {
     this.keyboardType,
     this.smartDashesType,
     this.smartQuotesType,
-    this.toolbarOptions,
     this.enableInteractiveSelection,
     this.needEndingSpace = false,
+    this.contextMenuBuilder,
   }) : super(key: key);
 
   @override
@@ -225,7 +225,14 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
           textAlignVertical: widget.textAlignVertical,
           textDirection: widget.textDirection ?? textDir,
           readOnly: widget.readOnly,
-          toolbarOptions: widget.toolbarOptions,
+          contextMenuBuilder: widget.contextMenuBuilder ??
+              ((isDesktop)
+                  ? (context, editableTextState) {
+                      return CustomDesktopContextMenu(
+                        editableTextState: editableTextState,
+                      ).buildToolbar();
+                    }
+                  : null),
           showCursor: widget.showCursor,
           autofocus: widget.autofocus,
           obscuringCharacter: widget.obscuringCharacter,
@@ -281,8 +288,6 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
           scrollPadding: widget.scrollPadding,
           dragStartBehavior: widget.dragStartBehavior,
           enableInteractiveSelection: widget.enableInteractiveSelection,
-          selectionControls: widget.selectionControls ??
-              ((isDesktop) ? CustomDesktopTextSelectionControls() : null),
           scrollPhysics: widget.scrollPhysics,
           autofillHints: widget.autofillHints,
           clipBehavior: widget.clipBehavior,

@@ -38,7 +38,7 @@ class CountDownTimer extends StatelessWidget {
         ),
         ringColor: Colors.black26,
         fillColor: Colors.amber,
-        textStyle: Theme.of(context).textTheme.bodyText2,
+        textStyle: Theme.of(context).textTheme.bodyMedium,
         textFormat: CountdownTextFormat.S,
         isReverse: true,
         // autoStart: !lockData.data!,

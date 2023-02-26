@@ -6,6 +6,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -48,6 +49,7 @@ class SettingsPageState extends State<SettingsPage> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _backgroundService = GetIt.I.get<BackgroundService>();
+  static final _analyticsService = GetIt.I.get<AnalyticsService>();
   StreamSubscription<Account?>? subscription;
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
@@ -131,12 +133,12 @@ class SettingsPageState extends State<SettingsPage> {
                                       // maxLines: 1,
                                       textDirection: TextDirection.rtl,
                                       // softWrap: false,
-                                      style: theme.textTheme.headline6,
+                                      style: theme.textTheme.titleLarge,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       snapshot.data!.username ?? "",
-                                      style: theme.primaryTextTheme.subtitle1,
+                                      style: theme.primaryTextTheme.titleMedium,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -144,7 +146,7 @@ class SettingsPageState extends State<SettingsPage> {
                                         snapshot.data!.countryCode!,
                                         snapshot.data!.nationalNumber!,
                                       ),
-                                      style: theme.textTheme.subtitle1,
+                                      style: theme.textTheme.titleMedium,
                                     )
                                   ],
                                 );
@@ -170,6 +172,9 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("qr_share"),
                     leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (context) async {
+                      await _analyticsService.sendLogEvent(
+                        "QRShare",
+                      );
                       final account = await _accountRepo.getAccount();
                       // ignore: use_build_context_synchronously
                       showQrCode(
@@ -208,7 +213,7 @@ class SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("saved_message"),
                     leading: const Icon(CupertinoIcons.bookmark),
-                    onPressed: (context) {
+                    onPressed: (context) async {
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
                     },
@@ -237,31 +242,26 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("notification"),
                     leading: const Icon(CupertinoIcons.bell),
                     switchValue: !_uxService.isAllNotificationDisabled,
-                    onToggle: (value) =>
-                        setState(
-                              () =>
-                              _uxService.toggleIsAllNotificationDisabled(),
-                        ),
+                    onToggle: (value) => setState(
+                      () => _uxService.toggleIsAllNotificationDisabled(),
+                    ),
                   ),
                   if (isAndroid)
                     SettingsTile.switchTile(
                       title: _i18n.get("notification_advanced_mode"),
                       leading: const Icon(CupertinoIcons.bell_circle_fill),
                       switchValue:
-                      !_uxService.isNotificationAdvanceModeDisabled,
-                      onToggle: (value) =>
-                      value
+                          !_uxService.isNotificationAdvanceModeDisabled,
+                      onToggle: (value) => value
                           ? _showNotificationAdvanceModeDialog()
                           : setState(() {
-                        _uxService
-                            .toggleIsAdvanceNotificationModeDisabled();
-                      }),
+                              _uxService
+                                  .toggleIsAdvanceNotificationModeDisabled();
+                            }),
                     ),
                   SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.locale
-                        .language()
-                        .name,
+                    subtitle: _i18n.locale.language().name,
                     leading: const FaIcon(FontAwesomeIcons.globe),
                     onPressed: (context) {
                       _routingService.openLanguageSettings();
@@ -343,9 +343,7 @@ class SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: 'Developer Page',
                       subtitle: "Log Level: ${LogLevelHelper.levelToString(
-                        GetIt.I
-                            .get<DeliverLogFilter>()
-                            .level!,
+                        GetIt.I.get<DeliverLogFilter>().level!,
                       )}",
                       leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (context) {
@@ -366,12 +364,12 @@ class SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("version"),
                     leading:
-                    const Icon(CupertinoIcons.square_stack_3d_down_right),
+                        const Icon(CupertinoIcons.square_stack_3d_down_right),
                     trailing: UxService.showDeveloperPage
                         ? FutureBuilder<String?>(
-                      future: SmsAutoFill().getAppSignature,
-                      builder: (c, sms) => Text(sms.data ?? VERSION),
-                    )
+                            future: SmsAutoFill().getAppSignature,
+                            builder: (c, sms) => Text(sms.data ?? VERSION),
+                          )
                         : const Text(VERSION),
                     onPressed: (_) async {
                       _logger.d(developerModeCounterCountDown);
@@ -424,7 +422,8 @@ class SettingsPageState extends State<SettingsPage> {
             ),
           ],
         );
-      },);
+      },
+    );
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
@@ -475,7 +474,7 @@ class NormalSettingsTitle extends SettingsTile {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor:
-      onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => onTap?.call(),

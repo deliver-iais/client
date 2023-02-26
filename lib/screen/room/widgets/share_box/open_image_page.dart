@@ -119,7 +119,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                         AndroidUiSettings(
                           toolbarTitle: _i18n.get("cropper"),
                           cropFrameColor: theme.primaryColorDark,
-                          toolbarColor: theme.bottomAppBarColor,
+                          toolbarColor: theme.bottomAppBarTheme.color,
                           toolbarWidgetColor: theme.colorScheme.onSurface,
                           activeControlsWidgetColor: theme.primaryColor,
                           initAspectRatio: CropAspectRatioPreset.original,

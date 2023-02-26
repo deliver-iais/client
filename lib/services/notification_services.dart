@@ -17,6 +17,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -46,6 +47,8 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
+  static final _analyticsService = GetIt.I.get<AnalyticsService>();
+
   static void onCallNotificationAction(
     String roomUid, {
     bool isVideoCall = false,
@@ -70,6 +73,9 @@ abstract class Notifier {
       return;
     }
 
+    _analyticsService.sendLogEvent(
+      "replyToMessageFromNotification",
+    );
     GetIt.I.get<MessageRepo>().sendTextMessage(
           payload.item1.asUid(),
           notificationResponse.input!,
@@ -83,6 +89,10 @@ abstract class Notifier {
     if (payload == null) {
       return;
     }
+
+    _analyticsService.sendLogEvent(
+      "markAsReadMessageFromNotification",
+    );
 
     GetIt.I.get<MessageRepo>().sendSeen(payload.item2, payload.item1.asUid());
     GetIt.I.get<RoomRepo>().updateMySeen(
@@ -104,6 +114,10 @@ abstract class Notifier {
     if (payload == null) {
       return;
     }
+
+    _analyticsService.sendLogEvent(
+      "openChatFromNotification",
+    );
 
     if (isDesktop) {
       DesktopWindow.focus();

@@ -57,7 +57,7 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
                 snapshot.data!,
                 style: Theme.of(context)
                     .textTheme
-                    .headline6!
+                    .titleLarge!
                     .copyWith(color: Colors.white),
               );
             } else {

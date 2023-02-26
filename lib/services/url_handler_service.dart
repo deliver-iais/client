@@ -167,10 +167,8 @@ class UrlHandlerService {
           roomUid,
         );
       } else {
-        ToastDisplay.showToast(
-          toastContext: _uxService.appContext,
-          toastText: "permission denied",
-        );
+        // TODO(any): use i18n
+        ToastDisplay.showToast(toastText: "permission denied");
       }
     }
   }
@@ -217,13 +215,13 @@ class UrlHandlerService {
       ToastDisplay.showToast(
         toastText:
             "${buildName(firstName, lastName)} ${_i18n.get("contact_exist")}",
-        toastContext: _uxService.appContext,
       );
     } else {
       unawaited(
+        // ignore: use_build_context_synchronously
         showFloatingModalBottomSheet(
           context: _uxService.appContext,
-          builder: (context) => Padding(
+          builder: (ctx) => Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -253,12 +251,12 @@ class UrlHandlerService {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(ctx).pop(),
                       child: Text(_i18n.get("skip")),
                     ),
                     TextButton(
                       onPressed: () async {
-                        final navigatorState = Navigator.of(context);
+                        final navigatorState = Navigator.of(ctx);
                         final contactUid = await _contactRepo.sendNewContact(
                           Contact()
                             ..firstName = firstName!
@@ -273,7 +271,6 @@ class UrlHandlerService {
                             toastText: "$firstName$lastName ${_i18n.get(
                               "contact_add",
                             )}",
-                            toastContext: context,
                           );
                           navigatorState.pop();
                         }
@@ -415,12 +412,14 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
-                    await _messageRepo.sendPrivateDataAcceptanceMessage(
-                      Uid()
-                        ..category = Categories.BOT
-                        ..node = botId,
-                      privateDataType,
-                      token,
+                    unawaited(
+                      _messageRepo.sendPrivateDataAcceptanceMessage(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = botId,
+                        privateDataType,
+                        token,
+                      ),
                     );
                     navigatorState.pop();
                     _routingService.openRoom(
@@ -467,7 +466,7 @@ class UrlHandlerService {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       name,
-                      style: Theme.of(context).textTheme.headline6,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                 const SizedBox(height: 10),
@@ -477,7 +476,7 @@ class UrlHandlerService {
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).errorColor,
+                        foregroundColor: Theme.of(context).colorScheme.error,
                       ),
                       child: Text(_i18n.get("skip")),
                     ),
