@@ -5,6 +5,7 @@ import 'package:deliver/screen/room/messageWidgets/custom_context_menu/context_m
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -66,6 +67,7 @@ class TextUI extends StatefulWidget {
 
 class _TextUIState extends State<TextUI> {
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _uxService = GetIt.I.get<UxService>();
   final _textBoxKey = GlobalKey();
 
   final _textBoxWidth = BehaviorSubject.seeded(0.0);
@@ -109,7 +111,8 @@ class _TextUIState extends State<TextUI> {
     );
 
     final text = Text.rich(
-      textAlign: TextAlign.justify,
+      textAlign:
+          _uxService.showTextsJustified ? TextAlign.justify : TextAlign.start,
       TextSpan(children: spans, style: theme.textTheme.bodyMedium),
       textDirection:
           widget.text.isPersian() ? TextDirection.rtl : TextDirection.ltr,

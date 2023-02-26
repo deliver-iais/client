@@ -506,6 +506,8 @@
   "terminate_all_other_sessions": "Terminate all other sessions",
   "text": "Text",
   "text_empty": "Text should not be empty",
+  "text_size": "Text Size",
+  "text_justification": "Text justification",
   "theme": "Theme",
   "select_theme": "Theme selection",
   "these_feature_arent_stable_yet": "These feature aren't stable yet and there are some bugs and API changes in them, so may cause some problems",
@@ -555,7 +557,5 @@
   "you_have_not_contacts": "You have not contacts on messenger yet",
   "your_password_update": "Your password updated",
   "your_session_is_has_a_problem": "Your session has a problem, please login again",
-  "your_session_is_expired_please_login_again": "Your session is expired, please login again",
-  "text_size": "Text Size",
-  "font": "Font"
+  "your_session_is_expired_please_login_again": "Your session is expired, please login again"
 }

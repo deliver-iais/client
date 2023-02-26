@@ -509,6 +509,8 @@
   "terminate_all_other_sessions": "حذف دیگر حساب های فعال",
   "text": "متن",
   "text_empty": "متن نمیتواند خلی باشد",
+  "text_size": "اندازه متن",
+  "text_justification": "کشیدگی متن",
   "theme": "تم",
   "select_theme": "انتخاب تم",
   "these_feature_arent_stable_yet": "این قابلیت ها هنوز پایدار نیستن و ممکن است مشکلاتی داشته باشند، در نتیجه ممکن است در عملکرد سیستم اختلال ایجاد نمایند",
@@ -559,7 +561,5 @@
   "you_have_not_contacts": "مخاطبی پیدا نشد",
   "your_password_update": "رمز شما بروز شد",
   "your_session_is_has_a_problem": "مشکلی در برنامه ایجاد شده، لطفا دوباره وارد برنامه شوید",
-  "your_session_is_expired_please_login_again": "سشن شما منقضی شده است، لطفا دوباره وارد برنامه شوید",
-  "text_size": "اندازه متن",
-  "font": "فونت"
+  "your_session_is_expired_please_login_again": "سشن شما منقضی شده است، لطفا دوباره وارد برنامه شوید"
 }

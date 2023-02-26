@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'colors.dart';
@@ -10,9 +11,9 @@ const defaultTitlePadding = EdgeInsets.only(
 );
 
 const defaultTitleMargin = EdgeInsets.only(
-  left: 4.0,
-  right: 4.0,
-  bottom: 4.0,
+  left: MAIN_BORDER_RADIUS_SIZE / 28,
+  right: MAIN_BORDER_RADIUS_SIZE / 28,
+  bottom: 5.0,
 );
 
 const defaultCupertinoForwardIcon = Icon(

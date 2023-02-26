@@ -23,6 +23,7 @@ class UxService {
   final _patternIndex = BehaviorSubject.seeded(0);
   final _sliderValue = BehaviorSubject<double>.seeded(1);
   final _themeIsDark = BehaviorSubject.seeded(false);
+  final _showTextsJustified = BehaviorSubject.seeded(false);
   final _showColorful = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
@@ -85,6 +86,11 @@ class UxService {
         .getBooleanStream(SHARED_DAO_THEME_SHOW_COLORFUL)
         .distinct()
         .listen((isEnable) => _showColorful.add(isEnable));
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED)
+        .distinct()
+        .listen((isEnable) => _showTextsJustified.add(isEnable));
 
     init();
 
@@ -167,6 +173,8 @@ class UxService {
 
   Stream<bool> get showColorfulStream => _showColorful.distinct();
 
+  Stream<bool> get showTextsJustifiedStream => _showTextsJustified.distinct();
+
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
 
@@ -179,6 +187,8 @@ class UxService {
   bool get themeIsDark => _themeIsDark.value;
 
   bool get showColorful => _showColorful.value;
+
+  bool get showTextsJustified => _showTextsJustified.value;
 
   int get themeIndex => _themeIndex.value;
 
@@ -265,6 +275,16 @@ class UxService {
     } else {
       _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL, true);
       _showColorful.add(true);
+    }
+  }
+
+  void toggleShowTextsJustified() {
+    if (_showTextsJustified.value) {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED, false);
+      _showTextsJustified.add(false);
+    } else {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED, true);
+      _showTextsJustified.add(true);
     }
   }
 

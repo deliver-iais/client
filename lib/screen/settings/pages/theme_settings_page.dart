@@ -52,7 +52,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         2,
         cUser,
         FAKE_USER_UID.asString(),
-        "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟",
+        "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟ اگر نمیای که یه خبری بی زحمت بده",
       ),
       cm(3, FAKE_USER_UID.asString(), cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
       cm(
@@ -239,52 +239,63 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             ),
                           ),
                         ],
-                      )
+                      ),
+                      SettingsTile.switchTile(
+                        title: _i18n.get("text_justification"),
+                        leading: const Icon(CupertinoIcons.text_append),
+                        switchValue: _uxService.showTextsJustified,
+                        onToggle: (value) {
+                          _analyticsService.sendLogEvent(
+                            "themeColorfulMessageToggle",
+                          );
+                          setState(() {
+                            _uxService.toggleShowTextsJustified();
+                          });
+                        },
+                      ),
                     ],
                   ),
                   SizedBox(
-                    child: ClipRRect(
-                      child: Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    width: 2.5,
-                                  ),
-                                  borderRadius: mainBorder,
+                    child: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Stack(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  width: 4,
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                ),
-                                child: Column(
-                                  children: [
-                                    ...createFakeMessages(),
-                                    const SizedBox(height: 8)
-                                  ],
-                                ),
+                                borderRadius: mainBorder,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0,
+                                vertical: 8.0
+                              ),
+                              child: Column(
+                                children: [
+                                  ...createFakeMessages(),
+                                ],
                               ),
                             ),
-                            Positioned.fill(
-                              bottom: 16,
-                              left: 40,
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: FloatingActionButton(
-                                  onPressed: () =>
-                                      _idSubject.add(_idSubject.value + 1),
-                                  child: const Icon(Icons.rotate_right),
-                                ),
+                          ),
+                          Positioned.fill(
+                            bottom: 16,
+                            left: 40,
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: FloatingActionButton(
+                                onPressed: () =>
+                                    _idSubject.add(_idSubject.value + 1),
+                                child: const Icon(Icons.rotate_right),
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   ),
@@ -418,41 +429,42 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         onTap: () {
           _uxService.selectTheme(index);
         },
-        child: Stack(
-          alignment: AlignmentDirectional.center,
-          children: [
-            AnimatedContainer(
-              duration: ANIMATION_DURATION,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: isSelected
-                    ? Border.all(
-                        color: theme.primaryColor,
-                        width: 2,
-                      )
-                    : null,
-              ),
-              padding: const EdgeInsets.all(4),
-              child: AnimatedContainer(
-                duration: ANIMATION_DURATION,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              AnimatedContainer(
+                duration: MOTION_STANDARD_ANIMATION_DURATION,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color,
+                  border: isSelected
+                      ? Border.all(
+                          color: theme.primaryColor,
+                          width: 3,
+                        )
+                      : null,
                 ),
-                width: isSelected ? 30 : 35,
-                height: isSelected ? 30 : 35,
+                width: 48,
+                height: 48,
+                padding: const EdgeInsets.all(4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                  ),
+                ),
               ),
-            ),
-            AnimatedContainer(
-              duration: ANIMATION_DURATION,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: BackgroundPalettes[index],
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: BackgroundPalettes[index],
+                ),
+                width: 15,
+                height: 15,
               ),
-              width: 15,
-              height: 15,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
