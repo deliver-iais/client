@@ -110,7 +110,7 @@ class UxService {
       }
     });
 
-    _sharedDao.get("textSize").then((event) {
+    _sharedDao.get(SHARED_DAO_THEME_FONT_SIZE).then((event) {
       if (event != null) {
         try {
           final textSize = double.parse(event);
@@ -279,7 +279,7 @@ class UxService {
   }
 
   void selectTextSize(double index) {
-    _sharedDao.put("textSize", index.toString());
+    _sharedDao.put(SHARED_DAO_THEME_FONT_SIZE, index.toString());
     _sliderValue.add(index);
   }
 
@@ -361,13 +361,6 @@ class FeatureFlags {
   bool isVoiceCallAvailable() {
     return _voiceCallFeatureIsPossible();
   }
-
-  // void setSliderValue(double sliderValue) {
-  //   _sharedDao.put(
-  //     "sliderValue",
-  //     sliderValue.toString(),
-  //   );
-  // }
 
   void setICECandidateNumber(double ICECandidateNumbers) {
     _sharedDao.put(

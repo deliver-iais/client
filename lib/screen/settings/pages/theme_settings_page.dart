@@ -28,6 +28,10 @@ class ThemeSettingsPage extends StatefulWidget {
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
 }
 
+const DEFAULT_FONT_SIZE = 20;
+const MIN_FONT_SIZE = 0.85;
+const MAX_FONT_SIZE = 1.45;
+
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   static final _uxService = GetIt.I.get<UxService>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -194,7 +198,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                               children: [
                                 const Text(
                                   "A",
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(
+                                    fontSize: DEFAULT_FONT_SIZE * MIN_FONT_SIZE,
+                                  ),
                                 ),
                                 Expanded(
                                   child: Directionality(
@@ -202,16 +208,22 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                     child: StreamBuilder<double>(
                                       stream: _uxService.sliderValueStream,
                                       builder: (context, snapshot) {
-                                        return Slider(
-                                          divisions: 5,
-                                          value: snapshot.data ?? 1,
-                                          max: 2,
-                                          min: 1,
-                                          label:
-                                              (snapshot.data ?? 1).toString(),
-                                          onChanged: (value) {
-                                            _uxService.selectTextSize(value);
-                                          },
+                                        return SliderTheme(
+                                          data: const SliderThemeData(
+                                            showValueIndicator:
+                                                ShowValueIndicator.never,
+                                          ),
+                                          child: Slider(
+                                            divisions: 4,
+                                            value: snapshot.data ?? 1,
+                                            max: MAX_FONT_SIZE,
+                                            min: MIN_FONT_SIZE,
+                                            label:
+                                                (snapshot.data ?? 1).toString(),
+                                            onChanged: (value) {
+                                              _uxService.selectTextSize(value);
+                                            },
+                                          ),
                                         );
                                       },
                                     ),
@@ -219,7 +231,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                 ),
                                 const Text(
                                   "A",
-                                  style: TextStyle(fontSize: 40),
+                                  style: TextStyle(
+                                    fontSize: DEFAULT_FONT_SIZE * MAX_FONT_SIZE,
+                                  ),
                                 )
                               ],
                             ),
@@ -234,21 +248,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                         textDirection: TextDirection.ltr,
                         child: Stack(
                           children: [
-                            // Positioned.fill(
-                            //   child: StreamBuilder<int>(
-                            //     stream: _idSubject,
-                            //     builder: (context, snapshot) {
-                            //       return StreamBuilder<int>(
-                            //         stream: _uxService.patternIndexStream,
-                            //         builder: (ctx, s) {
-                            //           return Background(
-                            //             id: snapshot.data ?? 0,
-                            //           );
-                            //         },
-                            //       );
-                            //     },
-                            //   ),
-                            // ),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 24.0),
