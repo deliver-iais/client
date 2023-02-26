@@ -250,9 +250,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
   );
 
-  final _uxService = GetIt.I.get<UxService>();
-
-  final scale = _uxService.sliderValue;
+  final scale = GetIt.I.get<UxService>().sliderValue;
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
@@ -330,7 +328,10 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
     dividerTheme: DividerThemeData(
-        space: 1.0, thickness: 1.0, color: theme.dividerColor.withOpacity(0.4)),
+      space: 1.0,
+      thickness: 1.0,
+      color: theme.dividerColor.withOpacity(0.4),
+    ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),

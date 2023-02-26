@@ -344,41 +344,40 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                         textDirection:
                                             _i18n.defaultTextDirection,
                                         child: StreamBuilder<double>(
-                                            stream:
-                                                _uxService.sliderValueStream,
-                                            builder: (context, snapshot) {
-                                              return SliderTheme(
-                                                data: SliderTheme.of(context)
-                                                    .copyWith(
-                                                  thumbShape:
-                                                      const RoundSliderThumbShape(
-                                                          enabledThumbRadius:
-                                                              8),
+                                          stream: _uxService.sliderValueStream,
+                                          builder: (context, snapshot) {
+                                            return SliderTheme(
+                                              data: SliderTheme.of(context)
+                                                  .copyWith(
+                                                thumbShape:
+                                                    const RoundSliderThumbShape(
+                                                  enabledThumbRadius: 8,
                                                 ),
-                                                child: Slider(
-                                                  activeColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  inactiveColor:
-                                                      Colors.grey[700],
-                                                  divisions: 5,
-                                                  thumbColor: Colors.white,
-                                                  value: currentSliderValue,
-                                                  max: 2,
-                                                  min: 1,
-                                                  label: currentSliderValue
-                                                      .toString(),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      _uxService.selectTextSize(
-                                                          value);
-                                                      currentSliderValue =
-                                                          value;
-                                                    });
-                                                  },
-                                                ),
-                                              );
-                                            }),
+                                              ),
+                                              child: Slider(
+                                                activeColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                inactiveColor: Colors.grey[700],
+                                                divisions: 5,
+                                                thumbColor: Colors.white,
+                                                value: currentSliderValue,
+                                                max: 2,
+                                                min: 1,
+                                                label: currentSliderValue
+                                                    .toString(),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _uxService.selectTextSize(
+                                                      value,
+                                                    );
+                                                    currentSliderValue = value;
+                                                  });
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                     const Text(
