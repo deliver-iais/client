@@ -37,7 +37,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _idSubject = BehaviorSubject.seeded(0);
   final _controller = ScrollController();
-  static double currentSliderValue = 1;
 
   List<Message> messages = [];
 
@@ -156,237 +155,257 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           leading: _routingService.backButtonLeading(),
         ),
       ),
-      body: FluidContainerWidget(
-        child: ListView(
-          children: [
-            SizedBox(
-              child: Stack(
+      body: Stack(
+        children: [
+          StreamBuilder<int>(
+            stream: _idSubject,
+            builder: (context, snapshot) {
+              return StreamBuilder<int>(
+                stream: _uxService.patternIndexStream,
+                builder: (ctx, s) {
+                  return Background(
+                    id: snapshot.data ?? 0,
+                  );
+                },
+              );
+            },
+          ),
+          FluidContainerWidget(
+            // showStandardContainer: true,
+            // backGroundColor: Theme.of(context).colorScheme.surfaceVariant,
+            child: Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: ListView(
                 children: [
-                  Positioned.fill(
-                    child: StreamBuilder<int>(
-                      stream: _idSubject,
-                      builder: (context, snapshot) {
-                        return StreamBuilder<int>(
-                          stream: _uxService.patternIndexStream,
-                          builder: (ctx, s) {
-                            return Background(
-                              id: snapshot.data ?? 0,
-                            );
-                          },
-                        );
-                      },
+                  Section(
+                    children: [
+                      Column(
+                        children: [
+                          SettingsTile(
+                            title: _i18n.get("text_size"),
+                            leading: const Icon(CupertinoIcons.textformat_size),
+                            trailing: const SizedBox.shrink(),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "A",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                Expanded(
+                                  child: Directionality(
+                                    textDirection: _i18n.defaultTextDirection,
+                                    child: StreamBuilder<double>(
+                                      stream: _uxService.sliderValueStream,
+                                      builder: (context, snapshot) {
+                                        return Slider(
+                                          divisions: 5,
+                                          value: snapshot.data ?? 1,
+                                          max: 2,
+                                          min: 1,
+                                          label:
+                                              (snapshot.data ?? 1).toString(),
+                                          onChanged: (value) {
+                                            _uxService.selectTextSize(value);
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                const Text(
+                                  "A",
+                                  style: TextStyle(fontSize: 40),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    child: ClipRRect(
+                      child: Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Stack(
+                          children: [
+                            // Positioned.fill(
+                            //   child: StreamBuilder<int>(
+                            //     stream: _idSubject,
+                            //     builder: (context, snapshot) {
+                            //       return StreamBuilder<int>(
+                            //         stream: _uxService.patternIndexStream,
+                            //         builder: (ctx, s) {
+                            //           return Background(
+                            //             id: snapshot.data ?? 0,
+                            //           );
+                            //         },
+                            //       );
+                            //     },
+                            //   ),
+                            // ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    width: 2.5,
+                                  ),
+                                  borderRadius: mainBorder,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
+                                child: Column(
+                                  children: [
+                                    ...createFakeMessages(),
+                                    const SizedBox(height: 8)
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              bottom: 16,
+                              left: 40,
+                              child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: FloatingActionButton(
+                                  onPressed: () =>
+                                      _idSubject.add(_idSubject.value + 1),
+                                  child: const Icon(Icons.rotate_right),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 12, top: 4),
                     child: Column(
                       children: [
-                        ...createFakeMessages(),
+                        Section(
+                          title: _i18n.get("advanced_settings"),
+                          children: [
+                            Column(
+                              children: [
+                                SettingsTile(
+                                  title: _i18n.get("main_color"),
+                                  leading:
+                                      const Icon(CupertinoIcons.color_filter),
+                                  trailing: const SizedBox.shrink(),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        for (var i = 0;
+                                            i < palettes.length;
+                                            i++)
+                                          color(palettes[i], i)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            StreamBuilder<int>(
+                              stream: _uxService.patternIndexStream,
+                              builder: (context, snapshot) {
+                                return Column(
+                                  children: [
+                                    SettingsTile(
+                                      title: _i18n.get("pattern"),
+                                      leading: const Icon(CupertinoIcons.photo),
+                                      trailing: const SizedBox.shrink(),
+                                    ),
+                                    Row(
+                                      children: [
+                                        if (isDesktop)
+                                          IconButton(
+                                            onPressed: () =>
+                                                _controller.animateTo(
+                                              _controller.position.pixels - 200,
+                                              duration:
+                                                  SUPER_SLOW_ANIMATION_DURATION,
+                                              curve: Curves.ease,
+                                            ),
+                                            icon: const Icon(
+                                              Icons.arrow_back_ios,
+                                            ),
+                                          ),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            controller: _controller,
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              children: [
+                                                for (var i = 0;
+                                                    i < patterns.length;
+                                                    i++)
+                                                  pattern(patterns[i], i),
+                                                pattern(null, patterns.length)
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        if (isDesktop)
+                                          IconButton(
+                                            onPressed: () =>
+                                                _controller.animateTo(
+                                              _controller.position.pixels + 200,
+                                              duration:
+                                                  SUPER_SLOW_ANIMATION_DURATION,
+                                              curve: Curves.ease,
+                                            ),
+                                            icon: const Icon(
+                                              Icons.arrow_forward_ios,
+                                            ),
+                                          ),
+                                      ],
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                            SettingsTile.switchTile(
+                              title: _i18n.get("colorful_messages"),
+                              leading: const Icon(CupertinoIcons.paintbrush),
+                              switchValue: _uxService.showColorful,
+                              onToggle: (value) {
+                                _analyticsService.sendLogEvent(
+                                  "themeColorfulMessageToggle",
+                                );
+                                setState(() {
+                                  _uxService.toggleShowColorful();
+                                });
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _buildThemeSelection(),
+                            )
+                          ],
+                        ),
                       ],
-                    ),
-                  ),
-                  Positioned.fill(
-                    bottom: 16,
-                    left: 16,
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: FloatingActionButton(
-                        onPressed: () => _idSubject.add(_idSubject.value + 1),
-                        child: const Icon(Icons.rotate_right),
-                      ),
                     ),
                   )
                 ],
               ),
             ),
-            Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 12, top: 4),
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                child: Column(
-                  children: [
-                    Section(
-                      title: _i18n.get("theme"),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: _buildThemeSelection(),
-                        )
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("advanced_settings"),
-                      children: [
-                        Column(
-                          children: [
-                            SettingsTile(
-                              title: _i18n.get("main_color"),
-                              leading: const Icon(CupertinoIcons.color_filter),
-                              trailing: const SizedBox.shrink(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    for (var i = 0; i < palettes.length; i++)
-                                      color(palettes[i], i)
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        StreamBuilder<int>(
-                          stream: _uxService.patternIndexStream,
-                          builder: (context, snapshot) {
-                            return Column(
-                              children: [
-                                SettingsTile(
-                                  title: _i18n.get("pattern"),
-                                  leading: const Icon(CupertinoIcons.photo),
-                                  trailing: const SizedBox.shrink(),
-                                ),
-                                Row(
-                                  children: [
-                                    if (isDesktop)
-                                      IconButton(
-                                        onPressed: () => _controller.animateTo(
-                                          _controller.position.pixels - 200,
-                                          duration:
-                                              SUPER_SLOW_ANIMATION_DURATION,
-                                          curve: Curves.ease,
-                                        ),
-                                        icon: const Icon(Icons.arrow_back_ios),
-                                      ),
-                                    Expanded(
-                                      child: SingleChildScrollView(
-                                        controller: _controller,
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          children: [
-                                            for (var i = 0;
-                                                i < patterns.length;
-                                                i++)
-                                              pattern(patterns[i], i),
-                                            pattern(null, patterns.length)
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    if (isDesktop)
-                                      IconButton(
-                                        onPressed: () => _controller.animateTo(
-                                          _controller.position.pixels + 200,
-                                          duration:
-                                              SUPER_SLOW_ANIMATION_DURATION,
-                                          curve: Curves.ease,
-                                        ),
-                                        icon: const Icon(
-                                          Icons.arrow_forward_ios,
-                                        ),
-                                      ),
-                                  ],
-                                )
-                              ],
-                            );
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: _i18n.get("colorful_messages"),
-                          leading: const Icon(CupertinoIcons.paintbrush),
-                          switchValue: _uxService.showColorful,
-                          onToggle: (value) {
-                            _analyticsService.sendLogEvent(
-                              "themeColorfulMessageToggle",
-                            );
-                            setState(() {
-                              _uxService.toggleShowColorful();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("font"),
-                      children: [
-                        Column(
-                          children: [
-                            SettingsTile(
-                              title: _i18n.get("text_size"),
-                              leading:
-                                  const Icon(CupertinoIcons.textformat_size),
-                              trailing: const SizedBox.shrink(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    "A",
-                                    style: TextStyle(fontSize: 18),
-                                  ),
-                                  SizedBox(
-                                    width: 500,
-                                    child: Directionality(
-                                      textDirection: _i18n.defaultTextDirection,
-                                      child: StreamBuilder<double>(
-                                        stream: _uxService.sliderValueStream,
-                                        builder: (context, snapshot) {
-                                          return SliderTheme(
-                                            data: SliderTheme.of(context)
-                                                .copyWith(
-                                              thumbShape:
-                                                  const RoundSliderThumbShape(
-                                                enabledThumbRadius: 8,
-                                              ),
-                                            ),
-                                            child: Slider(
-                                              activeColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              inactiveColor: Colors.grey[700],
-                                              divisions: 5,
-                                              thumbColor: Colors.white,
-                                              value: currentSliderValue,
-                                              max: 2,
-                                              min: 1,
-                                              label:
-                                                  currentSliderValue.toString(),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  _uxService.selectTextSize(
-                                                    value,
-                                                  );
-                                                  currentSliderValue = value;
-                                                });
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  const Text(
-                                    "A",
-                                    style: TextStyle(fontSize: 40),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -666,18 +685,19 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       ),
       child: Stack(
         children: [
-          Positioned(
-            top: 0,
-            child: Image(
-              width: 260,
-              image: AssetImage(
-                "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+          if (patterns.length < _uxService.patternIndex)
+            Positioned(
+              top: 0,
+              child: Image(
+                width: 260,
+                image: AssetImage(
+                  "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                ),
+                color: patternColor,
+                fit: BoxFit.fill,
+                repeat: ImageRepeat.repeat,
               ),
-              color: patternColor,
-              fit: BoxFit.fill,
-              repeat: ImageRepeat.repeat,
             ),
-          ),
           Positioned(
             top: 10,
             right: 5,

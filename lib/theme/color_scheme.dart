@@ -286,13 +286,6 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       color: colorScheme.background.withOpacity(0.7),
       scrolledUnderElevation: 2,
     ),
-    sliderTheme: SliderThemeData(
-      thumbColor: colorScheme.primary,
-      trackHeight: 2.25,
-      activeTrackColor: colorScheme.primary,
-      inactiveTrackColor: colorScheme.surface,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
-    ),
     chipTheme: theme.chipTheme.copyWith(
       backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
@@ -316,12 +309,9 @@ TextTheme setupTextTheme(TextTheme textTheme, double scale) {
       // height: scale *20
     ),
     bodySmall: textTheme.bodySmall?.copyWith(fontSize: scale * 12),
-    headlineLarge:
-        textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
-    headlineMedium:
-        textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
-    headlineSmall:
-        textTheme.headlineSmall?.copyWith(fontSize: scale * 24),
+    headlineLarge: textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
+    headlineMedium: textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
+    headlineSmall: textTheme.headlineSmall?.copyWith(fontSize: scale * 24),
     titleLarge: textTheme.titleLarge?.copyWith(
       fontSize: scale * 22,
     ),
