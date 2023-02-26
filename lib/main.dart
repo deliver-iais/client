@@ -28,6 +28,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/dao/recent_search_dao.dart';
+import 'package:deliver/box/dao/registered_bot_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -73,6 +74,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/background_service.dart';
@@ -101,6 +103,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -148,8 +151,8 @@ Future<void> setupDI() async {
   registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
+  registerSingleton<RoutingService>(RoutingService());
   registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().init(retry: true);
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
@@ -221,6 +224,7 @@ Future<void> setupDI() async {
 }
 
 Future<void> dbSetupDI() async {
+  registerSingleton<AnalyticsService>(AnalyticsService());
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
@@ -292,6 +296,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
+  registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
 }
 
 Future initializeFirebase() async {
@@ -314,6 +319,10 @@ void main() async {
 
   if (hasFirebaseCapability) {
     await initializeFirebase();
+    // Pass all uncaught errors from the framework to Crashlytics.
+    // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // Force enable crashlytics collection enabled if we're testing it.
+    // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
 
   logger.i("OS based setups done.");
@@ -398,6 +407,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _uxService.updateMainContext(context);
     return StreamBuilder(
       stream: MergeStream([
         _uxService.themeIndexStream,

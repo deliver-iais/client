@@ -9,7 +9,7 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_context_menu/custom_context_menue.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
@@ -109,7 +109,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   TextEditingController captionTextController = TextEditingController();
-  late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
@@ -155,7 +154,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
-
     _keyboardStatus.add(
       widget.currentRoom.replyKeyboardMarkup != null
           ? KeyboardStatus.REPLY_KEYBOARD
@@ -268,11 +266,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         _mentionQuery.add(null);
       }
     });
-    selectionControls = CustomTextSelectionController(
-      buildContext: context,
-      textController: widget.textController,
-      roomUid: currentRoom.uid.asUid(),
-    ).getCustomTextSelectionController();
     super.initState();
   }
 
@@ -448,7 +441,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
               ),
             ),
-            if (hasVirtualKeyboardCapability)
+            if (hasVirtualKeyboardCapability ||
+                widget.currentRoom.replyKeyboardMarkup != null)
               StreamBuilder<KeyboardStatus>(
                 stream: _keyboardStatus,
                 builder: (context, back) {
@@ -478,7 +472,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       },
                     );
                   } else if (back.data == KeyboardStatus.REPLY_KEYBOARD) {
-                    ReplyKeyboardMarkupWidget(
+                    return ReplyKeyboardMarkupWidget(
                       replyKeyboardMarkup: widget
                           .currentRoom.replyKeyboardMarkup!
                           .toReplyKeyboardMarkup(),
@@ -641,7 +635,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         );
       },
     );
-    Overlay.of(context)!.insert(_desktopEmojiKeyboardOverlayEntry!);
+    Overlay.of(context).insert(_desktopEmojiKeyboardOverlayEntry!);
   }
 
   StreamBuilder<bool> buildDefaultActions() {
@@ -754,7 +748,14 @@ class InputMessageWidgetState extends State<InputMessage> {
             child: AutoDirectionTextField(
               needEndingSpace: true,
               textFieldKey: _inputTextKey,
-              selectionControls: selectionControls,
+              contextMenuBuilder: (context, editableTextState) {
+                return CustomContextMenu(
+                  editableTextState: editableTextState,
+                  buildContext: context,
+                  textController: widget.textController,
+                  roomUid: currentRoom.uid.asUid(),
+                ).getCustomTextSelectionController();
+              },
               focusNode: widget.focusNode,
               autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
               controller: widget.textController,
@@ -779,7 +780,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                             .inputFieldPlaceholder,
                       )
                     : _i18n.defaultTextDirection,
-                hintStyle: theme.textTheme.bodyMedium,
+                hintStyle: TextStyle(color: theme.hintColor.withOpacity(0.4)),
               ),
               textInputAction: TextInputAction.newline,
               minLines: 1,

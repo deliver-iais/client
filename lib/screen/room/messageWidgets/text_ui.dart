@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection/text_selections/custom_desktop_text_selection_controls.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_context_menu/context_menus/desktop/custom_desktop_selectable_region_context_menu.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -104,13 +104,13 @@ class _TextUIState extends State<TextUI> {
         linkColor: theme.colorScheme.primary,
         onIdClick: widget.onUsernameClick,
         onBotCommandClick: widget.onBotCommandClick,
-        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );
 
     final text = Text.rich(
       textAlign: TextAlign.justify,
-      TextSpan(children: spans, style: theme.textTheme.bodyText2),
+      TextSpan(children: spans, style: theme.textTheme.bodyMedium),
       textDirection:
           widget.text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
     );
@@ -129,9 +129,13 @@ class _TextUIState extends State<TextUI> {
               key: _textBoxKey,
               child: isDesktop
                   ? SelectionArea(
-                      selectionControls: (isDesktop)
-                          ? CustomDesktopTextSelectionControls()
-                          : null,
+                      contextMenuBuilder: ((isDesktop)
+                          ? (context, editableTextState) {
+                              return CustomDesktopSelectableRegionContextMenu(
+                                editableTextState: editableTextState,
+                              ).buildToolbar();
+                            }
+                          : null),
                       child: text,
                     )
                   : text,

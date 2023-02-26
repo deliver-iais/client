@@ -31,6 +31,8 @@ class UxService {
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
   final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
   final _keyBoardSizeLandscape = BehaviorSubject<double?>.seeded(null);
+  final _homeContext = BehaviorSubject<BuildContext?>.seeded(null);
+  final _mainContext = BehaviorSubject<BuildContext?>.seeded(null);
   double maxKeyboardSizePortrait = 0;
   double maxKeyboardSizeLandscape = 0;
 
@@ -135,6 +137,17 @@ class UxService {
       _isNotificationAdvanceModeDisabled.add(event);
     });
   }
+
+  void updateMainContext(BuildContext context) {
+    _mainContext.add(context);
+  }
+
+  void updateHomeContext(BuildContext context) {
+    _homeContext.add(context);
+  }
+
+  BuildContext get appContext =>
+      _homeContext.valueOrNull ?? _mainContext.valueOrNull!;
 
   void checkPlatformBrightness() {
     if (isAutoNightModeEnable) {

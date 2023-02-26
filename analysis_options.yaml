@@ -36,7 +36,6 @@ linter:
     control_flow_in_finally: true
     empty_statements: true
     hash_and_equals: true
-    invariant_booleans: true
     literal_only_boolean_expressions: true
     prefer_void_to_null: true
     test_types_in_equals: true
@@ -133,15 +132,11 @@ linter:
     use_function_type_syntax_for_parameters: true
     use_rethrow_when_possible: true
     void_checks: true
-    lowercase_with_underscores: true
     secure_pubspec_urls: true
     sort_pub_dependencies: true
     cancel_subscriptions: true
-    #TODO
     #close_sinks: true
-    #TODO
     #prefer_expression_function_bodies: true
-    #TODO
     #diagnostic_describe_all_properties: true
 
 # Additional information about this file can be found at

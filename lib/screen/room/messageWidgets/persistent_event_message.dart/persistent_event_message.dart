@@ -78,7 +78,7 @@ class PersistentEventMessage extends StatelessWidget {
                     Text(
                       persistentEventMessage
                           .botSpecificPersistentEvent.errorMessage,
-                      style: theme.textTheme.caption,
+                      style: theme.textTheme.bodySmall,
                     )
                 ],
               ),

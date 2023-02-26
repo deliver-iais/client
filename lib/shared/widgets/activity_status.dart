@@ -1,6 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -37,7 +37,7 @@ class ActivityStatus extends StatelessWidget {
   }
 
   String _getStatus(ActivityType typeOfActivity) {
-    //todo add empty activities
+    // TODO(any): add empty activities
     switch (typeOfActivity) {
       case ActivityType.CHOOSING_STICKER:
         return "";
@@ -51,6 +51,12 @@ class ActivityStatus extends StatelessWidget {
         return _i18n.get("sending_file_activity");
       case ActivityType.TYPING:
         return _i18n.get("is_typing");
+      case ActivityType.SENDING_IMAGE:
+        return _i18n.get("sending_image_activity");
+      case ActivityType.SENDING_VIDEO:
+        return _i18n.get("sending_video_activity");
+      case ActivityType.SENDING_VOICE:
+        return _i18n.get("sending_voice_activity");
     }
     return "";
   }
@@ -75,7 +81,7 @@ class ActivityStatus extends StatelessWidget {
               status,
               style: textStyle(context),
             ),
-            DotAnimation(dotsColor: Theme.of(context).primaryColor),
+            LoadingDotAnimation(dotsColor: Theme.of(context).primaryColor),
           ],
         );
       }

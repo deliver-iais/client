@@ -34,7 +34,7 @@ class FormResultWidgetState extends State<FormResultWidget> {
     final formResult = widget.message.json.toFormResult();
 
     return PageStorage(
-      bucket: PageStorage.of(context)!,
+      bucket: PageStorage.of(context),
       child: SizedBox(
         width: 250,
         child: Column(

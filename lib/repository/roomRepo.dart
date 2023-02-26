@@ -65,10 +65,12 @@ class RoomRepo {
   }
 
   bool fastForwardIsVerified(Uid uid) =>
-      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+      uid.isSystem() ||
+      (uid.isBot() && (uid.node == "father_bot" || uid.node == "auth_bot"));
 
   Future<bool> isVerified(Uid uid) async =>
-      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+      uid.isSystem() ||
+      (uid.isBot() && uid.node == "father_bot" || uid.node == "auth_bot");
 
   String? fastForwardName(Uid uid) {
     final name = roomNameCache.get(uid.asString());
@@ -315,6 +317,9 @@ class RoomRepo {
   Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
 
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
+
+  Future<int> getRoomLastMessageId(String roomUid) async =>
+      (await getRoom(roomUid))?.lastMessageId ?? -1;
 
   Future<void> updateMentionIds(String roomUid, List<int> mentionsId) =>
       _roomDao.updateRoom(

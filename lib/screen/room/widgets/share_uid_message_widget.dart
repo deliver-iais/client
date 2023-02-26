@@ -88,9 +88,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                 if (room != null && !room.deleted) {
                   _routingServices.openRoom(shareUid.uid.asString());
                 } else {
-                  // ignore: use_build_context_synchronously
                   await _urlHandlerService.handleJoin(
-                    context,
                     shareUid.uid,
                     shareUid.joinToken,
                     name: shareUid.name,

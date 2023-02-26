@@ -1,97 +1,79 @@
-import 'dart:math';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/custom_text_selection/methods/custom_text_selection_methods.dart';
-import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/screen/room/messageWidgets/custom_context_menu/methods/custom_text_selection_methods.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 
-const double _kHandleSize = 22.0;
-
-// Padding between the toolbar and the anchor.
-const double _kToolbarContentDistanceBelow = _kHandleSize - 2.0;
-const double _kToolbarContentDistance = 8.0;
-
-class CustomMaterialTextSelectionControls
-    extends MaterialTextSelectionControls {
+class CustomMaterialContextMenu {
   TextEditingController textController;
   BuildContext buildContext;
   Uid roomUid;
+  EditableTextState editableTextState;
 
-  CustomMaterialTextSelectionControls({
+  CustomMaterialContextMenu({
     required this.buildContext,
     required this.textController,
     required this.roomUid,
+    required this.editableTextState,
   });
 
-  @override
-  Widget buildToolbar(
-    BuildContext context,
-    Rect globalEditableRegion,
-    double textLineHeight,
-    Offset selectionMidpoint,
-    List<TextSelectionPoint> endpoints,
-    TextSelectionDelegate delegate,
-    ClipboardStatusNotifier? clipboardStatus,
-    Offset? lastSecondaryTapDownPosition,
-  ) {
+  Widget buildToolbar() {
     return _TextSelectionControlsToolbar(
-      globalEditableRegion: globalEditableRegion,
-      textLineHeight: textLineHeight,
-      selectionMidpoint: selectionMidpoint,
-      endpoints: endpoints,
-      delegate: delegate,
-      clipboardStatus: clipboardStatus,
-      handleCut: canCut(delegate) ? () => handleCut(delegate) : null,
-      handleCopy: canCopy(delegate) ? () => handleCopy(delegate) : null,
-      handlePaste: canPaste(delegate)
-          ? () {
-              if (!isDesktop) {
-                handlePaste(delegate);
-              } else {
-                CustomTextSelectionMethods.desktopPastHandle(
-                  delegate,
-                  textController,
-                  roomUid,
-                  buildContext,
-                );
-              }
-            }
+      textSelectionToolbarAnchors: editableTextState.contextMenuAnchors,
+      clipboardStatus: editableTextState.clipboardStatus,
+      handleCut: editableTextState.cutEnabled
+          ? () => editableTextState.contextMenuButtonItems
+              .firstWhere(
+                (element) => element.type == ContextMenuButtonType.cut,
+              )
+              .onPressed
           : null,
-      handleSelectAll:
-          canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
-      handleUnderline: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
+      handleCopy: editableTextState.copyEnabled
+          ? () => editableTextState.contextMenuButtonItems
+              .firstWhere(
+                (element) => element.type == ContextMenuButtonType.copy,
+              )
+              .onPressed
+          : null,
+      handleSelectAll: editableTextState.selectAllEnabled
+          ? () => editableTextState.contextMenuButtonItems
+              .firstWhere(
+                (element) => element.type == ContextMenuButtonType.selectAll,
+              )
+              .onPressed
+          : null,
+      handlePaste: editableTextState.pasteEnabled
+          ? editableTextState.contextMenuButtonItems
+              .firstWhere(
+                (element) => element.type == ContextMenuButtonType.paste,
+              )
+              .onPressed
+          : null,
+      handleUnderline: () => CustomContextMenuMethods.handleFormatting(
         UnderlineFeature.specialChar,
         textController,
       ),
-      handleSpoiler: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
+      handleSpoiler: () => CustomContextMenuMethods.handleFormatting(
         SpoilerFeature.specialChar,
         textController,
       ),
-      handleBold: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
+      handleBold: () => CustomContextMenuMethods.handleFormatting(
         BoldFeature.specialChar,
         textController,
       ),
-      handleItalic: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
+      handleItalic: () => CustomContextMenuMethods.handleFormatting(
         ItalicFeature.specialChar,
         textController,
       ),
-      handleStrikethrough: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
+      handleStrikethrough: () => CustomContextMenuMethods.handleFormatting(
         StrikethroughFeature.specialChar,
         textController,
       ),
       isAnyThingSelected: () =>
-          CustomTextSelectionMethods.isAnyThingSelected(textController),
-      handleCreateLink: () => CustomTextSelectionMethods.handleCreateLink(
-        delegate,
+          CustomContextMenuMethods.isAnyThingSelected(textController),
+      handleCreateLink: () => CustomContextMenuMethods.handleCreateLink(
         buildContext,
         textController,
       ),
@@ -103,34 +85,27 @@ class CustomMaterialTextSelectionControls
 class _TextSelectionControlsToolbar extends StatefulWidget {
   const _TextSelectionControlsToolbar({
     required this.clipboardStatus,
-    required this.delegate,
-    required this.endpoints,
-    required this.globalEditableRegion,
+
     required this.handleCut,
     required this.handleCopy,
     required this.handlePaste,
     required this.handleSelectAll,
-    required this.selectionMidpoint,
-    required this.textLineHeight,
+
     required this.handleBold,
     required this.handleItalic,
     required this.handleStrikethrough,
     required this.handleSpoiler,
     required this.handleUnderline,
     required this.handleCreateLink,
-    required this.isAnyThingSelected,
+    required this.isAnyThingSelected, required this.textSelectionToolbarAnchors,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
-  final TextSelectionDelegate delegate;
-  final List<TextSelectionPoint> endpoints;
-  final Rect globalEditableRegion;
   final VoidCallback? handleCut;
   final VoidCallback? handleCopy;
   final VoidCallback? handlePaste;
   final VoidCallback? handleSelectAll;
-  final Offset selectionMidpoint;
-  final double textLineHeight;
+  final TextSelectionToolbarAnchors textSelectionToolbarAnchors;
   final VoidCallback handleBold;
   final VoidCallback handleItalic;
   final VoidCallback handleStrikethrough;
@@ -191,27 +166,6 @@ class _TextSelectionControlsToolbarState
       return const SizedBox.shrink();
     }
 
-    // Calculate the positioning of the menu. It is placed above the selection
-    // if there is enough room, or otherwise below.
-    final startTextSelectionPoint = widget.endpoints[0];
-    final endTextSelectionPoint =
-        widget.endpoints.length > 1 ? widget.endpoints[1] : widget.endpoints[0];
-    final topAmountInEditableRegion =
-        startTextSelectionPoint.point.dy - widget.textLineHeight;
-    final anchorTop = max(topAmountInEditableRegion, 0) +
-        widget.globalEditableRegion.top -
-        _kToolbarContentDistance;
-
-    final anchorAbove = Offset(
-      widget.globalEditableRegion.left + widget.selectionMidpoint.dx,
-      anchorTop,
-    );
-    final anchorBelow = Offset(
-      widget.globalEditableRegion.left + widget.selectionMidpoint.dx,
-      widget.globalEditableRegion.top +
-          endTextSelectionPoint.point.dy +
-          _kToolbarContentDistanceBelow,
-    );
 
     // Determine which buttons will appear so that the order and total number is
     // known. A button's position in the menu can slightly affect its
@@ -274,8 +228,8 @@ class _TextSelectionControlsToolbarState
     }
 
     return TextSelectionToolbar(
-      anchorAbove: anchorAbove,
-      anchorBelow: anchorBelow,
+      anchorAbove: widget.textSelectionToolbarAnchors.primaryAnchor,
+      anchorBelow: widget.textSelectionToolbarAnchors.primaryAnchor,
       children: itemDatas.asMap().entries.map((entry) {
         return TextSelectionToolbarTextButton(
           padding: TextSelectionToolbarTextButton.getPadding(

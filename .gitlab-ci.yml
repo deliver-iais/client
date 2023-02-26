@@ -10,8 +10,8 @@ stages:
 variables:
   PROJECT_NAME: deliver-web
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
-  PROJECT_BUILD_NAME: "2.0.1"
-  PROJECT_BUILD_NUMBER: "74"
+  PROJECT_BUILD_NAME: "2.0.2"
+  PROJECT_BUILD_NUMBER: "75"
 
 test:
   needs: [ ]

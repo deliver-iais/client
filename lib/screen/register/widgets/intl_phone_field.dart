@@ -128,7 +128,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                           ListTile(
                             leading: Text(
                               filteredCountries[index]["flag"]!,
-                              style: EmojiFont.notoColorEmojiCompat(),
+                              style: emojiFont(),
                             ),
                             title: Text(
                               filteredCountries[index]['label']!,
@@ -285,13 +285,13 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
             ],
             Text(
               _selectedCountry['flag'],
-              style: EmojiFont.notoColorEmojiCompat(),
+              style: emojiFont(),
             ),
             const SizedBox(width: 8),
             FittedBox(
               child: Text(
                 _selectedCountry['code'],
-                style: EmojiFont.notoColorEmojiCompat(),
+                style: emojiFont(),
               ),
             ),
             const SizedBox(width: 8),

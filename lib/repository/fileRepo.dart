@@ -8,6 +8,7 @@ import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -24,6 +25,8 @@ class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
+
   final _i18N = GetIt.I.get<I18N>();
 
   Map<String, String> localUploadedFilePath = {};
@@ -54,6 +57,9 @@ class FileRepo {
         sendActivity: sendActivity,
         isVoice: isVoice,
       );
+      await _analyticsService.sendLogEvent(
+        "successFileUpload",
+      );
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
         ToastDisplay.showToast(
@@ -65,6 +71,13 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
+        await _analyticsService.sendLogEvent(
+          "unSuccessFileUpload",
+          parameters: {
+            "errorCode": e.response?.statusCode,
+            "error": e.response?.data
+          },
+        );
       } else if (e.response == null && e.type != DioErrorType.cancel) {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
@@ -75,6 +88,17 @@ class FileRepo {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
         }
         cancelUploadFile(uploadKey);
+        await _analyticsService.sendLogEvent(
+          "failedFileUpload",
+        );
+      } else {
+        await _analyticsService.sendLogEvent(
+          "unknownFileUpload",
+          parameters: {
+            "errorCode": e.response?.statusCode,
+            "error": e.response?.data
+          },
+        );
       }
       _logger.e(e);
     }

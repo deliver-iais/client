@@ -49,7 +49,7 @@ class AutoDirectionTextForm extends StatefulWidget {
 
   final bool readOnly;
 
-  final ToolbarOptions? toolbarOptions;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
 
   final bool? showCursor;
 
@@ -154,7 +154,7 @@ class AutoDirectionTextForm extends StatefulWidget {
     this.keyboardType,
     this.smartDashesType,
     this.smartQuotesType,
-    this.toolbarOptions,
+    this.contextMenuBuilder,
     this.enableInteractiveSelection,
     this.autovalidateMode,
     this.buildCounter,
@@ -210,7 +210,7 @@ class _AutoDirectionTextFormState extends State<AutoDirectionTextForm> {
           textAlignVertical: widget.textAlignVertical,
           textDirection: widget.textDirection ?? textDir,
           readOnly: widget.readOnly,
-          toolbarOptions: widget.toolbarOptions,
+          contextMenuBuilder: widget.contextMenuBuilder,
           showCursor: widget.showCursor,
           autofocus: widget.autofocus,
           obscuringCharacter: widget.obscuringCharacter,

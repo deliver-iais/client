@@ -17,6 +17,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -62,18 +63,23 @@ enum CallStatus {
 
 class CallRepo {
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+
   final _logger = GetIt.I.get<Logger>();
+
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
-  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _callListDao = GetIt.I.get<CallInfoDao>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+
+  final _callListDao = GetIt.I.get<CallInfoDao>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+
   final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   bool get isMicMuted => _isMicMuted;
@@ -376,6 +382,9 @@ class CallRepo {
     _phoneStateStream = PhoneState.phoneStateStream.listen((event) {
       if (event != null) {
         if (event == PhoneStateStatus.CALL_STARTED) {
+          _analyticsService.sendLogEvent(
+            "callOnHold",
+          );
           _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
           if (_isConnected) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
@@ -583,6 +592,9 @@ class CallRepo {
             case STATUS_MIC_CLOSE:
               break;
             case STATUS_SHARE_SCREEN:
+              _analyticsService.sendLogEvent(
+                "shareScreenOnVideoCall",
+              );
               incomingSharing.add(true);
               break;
             case STATUS_CALL_ON_HOLD:
@@ -675,6 +687,9 @@ class CallRepo {
         _selectedCandidate = stat;
       }
     }
+    await _analyticsService.sendLogEvent(
+      "connectedCall",
+    );
     callingStatus.add(CallStatus.CONNECTED);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
@@ -705,10 +720,13 @@ class CallRepo {
       _reconnectTry = true;
       callingStatus.add(CallStatus.RECONNECTING);
       _reconnectingAfterFailedConnection();
-      timerDisconnected = Timer(const Duration(seconds: 15), () {
+      timerDisconnected = Timer(const Duration(seconds: 15), () async {
         if (callingStatus.value != CallStatus.CONNECTED) {
           callingStatus.add(CallStatus.FAILED);
           _logger.i("Disconnected and Call End!");
+          await _analyticsService.sendLogEvent(
+            "settingsPage_open",
+          );
           endCall();
         }
       });
@@ -801,6 +819,9 @@ class CallRepo {
           incomingCallOnHold.add(false);
           break;
         case STATUS_SHARE_SCREEN:
+          _analyticsService.sendLogEvent(
+            "shareScreenOnVideoCall",
+          );
           incomingSharing.add(true);
           break;
         case STATUS_SHARE_VIDEO:
@@ -1177,12 +1198,14 @@ class CallRepo {
     );
     callingStatus.add(CallStatus.CREATED);
     await _callService.initRenderer();
-    await _messageRepo.sendCallMessage(
-      CallEvent_CallStatus.IS_RINGING,
-      roomId,
-      _callService.getCallId,
-      0,
-      _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+    unawaited(
+      _messageRepo.sendCallMessage(
+        CallEvent_CallStatus.IS_RINGING,
+        roomId,
+        _callService.getCallId,
+        0,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      ),
     );
     Timer(const Duration(milliseconds: 500), () async {
       if (isAndroid) {
@@ -1202,6 +1225,15 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (_callService.getUserCallState == UserCallState.NO_CALL) {
+        if (isVideo) {
+          await _analyticsService.sendLogEvent(
+            "startVideoCall",
+          );
+        } else {
+          await _analyticsService.sendLogEvent(
+            "startAudioCall",
+          );
+        }
         //can't call another ppl or received any call notification
         _callService.setUserCallState = UserCallState.IN_USER_CALL;
         _isCaller = true;
@@ -1351,12 +1383,14 @@ class CallRepo {
       }
       _logger.i("declineCall");
       callingStatus.add(CallStatus.DECLINED);
-      await _messageRepo.sendCallMessage(
-        CallEvent_CallStatus.DECLINED,
-        _roomUid!,
-        _callService.getCallId,
-        0,
-        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      unawaited(
+        _messageRepo.sendCallMessage(
+          CallEvent_CallStatus.DECLINED,
+          _roomUid!,
+          _callService.getCallId,
+          0,
+          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+        ),
       );
       await _dispose();
     }
@@ -1422,12 +1456,14 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): $_callDuration");
-        await _messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callService.getCallId,
-          _callDuration!,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+        unawaited(
+          _messageRepo.sendCallMessage(
+            CallEvent_CallStatus.ENDED,
+            _roomUid!,
+            _callService.getCallId,
+            _callDuration!,
+            _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+          ),
         );
       } else {
         if (timerEndCallDispose != null) {

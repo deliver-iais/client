@@ -8,6 +8,7 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -23,6 +24,9 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../shared/constants.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
@@ -38,7 +42,9 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  SharedPreferences? _prefs;
 
   @visibleForTesting
   bool responseChecked = false;
@@ -63,6 +69,10 @@ class CoreServices {
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+
+  CoreServices() {
+    SharedPreferences.getInstance().then((p) => _prefs = p);
+  }
 
   void retryConnection({bool forced = false}) {
     if (!forced && _connectionStatus.value != ConnectionStatus.Disconnected) {
@@ -193,6 +203,15 @@ class CoreServices {
               break;
             case ServerPacket_Type.pong:
               _lastPongTime = serverPacket.pong.serverTime.toInt();
+              //update last message delivery ack on sharedPref
+              final latMessageDeliveryAck =
+                  serverPacket.pong.lastMessageDeliveryAck;
+              final lastMessageDeliveryAckStringJson =
+                  latMessageDeliveryAck.writeToJson();
+              _prefs?.setString(
+                SHARED_DAO_LAST_MESSAGE_DELIVERY_ACK,
+                lastMessageDeliveryAckStringJson,
+              );
               break;
             case ServerPacket_Type.liveLocationStatusChanged:
             case ServerPacket_Type.error:
@@ -285,11 +304,31 @@ class CoreServices {
     );
   }
 
-  void sendSeen(seen_pb.SeenByClient seen) {
+  Future<void> sendSeen(seen_pb.SeenByClient seen) async {
+    await _analyticsService.sendLogEvent(
+      "sendSeen",
+    );
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendClientPacket(clientPacket);
+    await _sendClientPacket(clientPacket)
+        .onError(
+          (error, stackTrace) async => {
+            await _analyticsService.sendLogEvent(
+              "failedSeen",
+              parameters: {
+                'error': error.toString(),
+              },
+            )
+          },
+        )
+        .then(
+          (value) async => {
+            await _analyticsService.sendLogEvent(
+              "successSeen",
+            ),
+          },
+        );
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {

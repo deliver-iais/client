@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
@@ -16,6 +17,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -38,11 +40,15 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
+  static final _analyticsService = GetIt.I.get<AnalyticsService>();
+
   static void onCallNotificationAction(
     String roomUid, {
     bool isVideoCall = false,
@@ -67,6 +73,9 @@ abstract class Notifier {
       return;
     }
 
+    _analyticsService.sendLogEvent(
+      "replyToMessageFromNotification",
+    );
     GetIt.I.get<MessageRepo>().sendTextMessage(
           payload.item1.asUid(),
           notificationResponse.input!,
@@ -80,6 +89,10 @@ abstract class Notifier {
     if (payload == null) {
       return;
     }
+
+    _analyticsService.sendLogEvent(
+      "markAsReadMessageFromNotification",
+    );
 
     GetIt.I.get<MessageRepo>().sendSeen(payload.item2, payload.item1.asUid());
     GetIt.I.get<RoomRepo>().updateMySeen(
@@ -101,6 +114,10 @@ abstract class Notifier {
     if (payload == null) {
       return;
     }
+
+    _analyticsService.sendLogEvent(
+      "openChatFromNotification",
+    );
 
     if (isDesktop) {
       DesktopWindow.focus();
@@ -624,6 +641,8 @@ class AndroidNotifier implements Notifier {
     NotificationResponse? notificationResponse,
   ) async {
     try {
+      // hive does not support multithreading
+      await Hive.close();
       await setupDI();
     } catch (e) {
       Logger().e(e);
@@ -1181,6 +1200,7 @@ class MacOSNotifier implements Notifier {
       MacOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _fileService = GetIt.I.get<FileService>();
   final _i18n = GetIt.I.get<I18N>();
 
   MacOSNotifier() {
@@ -1245,7 +1265,12 @@ class MacOSNotifier implements Notifier {
       );
 
       if (path != null && path.isNotEmpty) {
-        attachments.add(DarwinNotificationAttachment(path));
+        // Macos not accepting webp, so we convert them to jpeg
+        final file = File('${(await getTemporaryDirectory()).path}/avatar.jpg');
+        await file
+            .writeAsBytes(await _fileService.convertImageToJpg(File(path)));
+
+        attachments.add(DarwinNotificationAttachment(file.path));
       }
     }
     final darwinNotificationDetails = DarwinNotificationDetails(

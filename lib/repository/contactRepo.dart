@@ -13,6 +13,7 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -44,6 +45,7 @@ class ContactRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _requestLock = Lock();
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
@@ -55,8 +57,9 @@ class ContactRepo {
       return;
     }
     return _requestLock.synchronized(() async {
-      final hasPermission =
-          !hasContactCapability || isIOS || await _checkPermission.checkContactPermission(context: context);
+      final hasPermission = !hasContactCapability ||
+          isIOS ||
+          await _checkPermission.checkContactPermission(context: context);
       if (hasPermission) {
         if (hasContactCapability) {
           _syncedContacts = [];
@@ -333,6 +336,10 @@ class ContactRepo {
   }
 
   Future<List<Uid>> searchUser(String query) async {
+    await _analyticsService.sendLogEvent(
+      "globalSearchUser",
+      parameters: {"term": query},
+    );
     if (query.isEmpty) {
       return [];
     }

@@ -1,7 +1,7 @@
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +46,7 @@ class RoomName extends StatelessWidget {
               child: TextLoader(
                 text: Text(
                   name.replaceAll('', '\u200B'),
-                  style: (style ?? theme.textTheme.subtitle2)!
+                  style: (style ?? theme.textTheme.titleSmall)!
                       .copyWith(height: 1.5),
                   maxLines: maxLines,
                   softWrap: false,
@@ -61,7 +61,7 @@ class RoomName extends StatelessWidget {
                  " $status",
                 style: style,
               ),
-              DotAnimation(dotsColor: Theme.of(context).primaryColor)
+              LoadingDotAnimation(dotsColor: Theme.of(context).primaryColor)
             ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),
@@ -72,7 +72,7 @@ class RoomName extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Icon(
                       CupertinoIcons.checkmark_seal,
-                      size: ((style ?? theme.textTheme.subtitle2)?.fontSize ??
+                      size: ((style ?? theme.textTheme.titleSmall)?.fontSize ??
                           14),
                       color: ACTIVE_COLOR,
                     ),

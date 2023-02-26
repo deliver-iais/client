@@ -39,6 +39,7 @@ import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -108,11 +109,13 @@ class PreMaybePopScope {
 
 class RoutingService {
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
+  final _analyticsService = GetIt.I.get<AnalyticsService>();
   var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
@@ -124,34 +127,102 @@ class RoutingService {
   void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
+      _analyticsService.sendLogEvent(
+        "settingsPage_open",
+      );
     }
   }
 
-  void openLanguageSettings() => _push(_languageSettings);
+  void openLanguageSettings() {
+    _analyticsService.sendLogEvent(
+      "languageSettingsPage_open",
+    );
+    _push(_languageSettings);
+  }
 
-  void openThemeSettings() => _push(_themeSettings);
+  void openThemeSettings() {
+    _analyticsService.sendLogEvent(
+      "themeSettingsPage_open",
+    );
+    _push(_themeSettings);
+  }
 
-  void openSecuritySettings() => _push(_securitySettings);
+  void openSecuritySettings() {
+    _analyticsService.sendLogEvent(
+      "securitySettingsPage_open",
+    );
+    _push(_securitySettings);
+  }
 
-  void openDeveloperPage() => _push(_developerPage);
+  void openDeveloperPage() {
+    _analyticsService.sendLogEvent(
+      "developerPage_open",
+    );
+    _push(_developerPage);
+  }
 
-  void openDevices() => _push(_devices);
+  void openDevices() {
+    _analyticsService.sendLogEvent(
+      "devicesPage_open",
+    );
+    _push(_devices);
+  }
 
-  void openAutoDownload() => _push(_autoDownload);
+  void openAutoDownload() {
+    _analyticsService.sendLogEvent(
+      "autoDownloadPage_open",
+    );
+    _push(_autoDownload);
+  }
 
-  void openLab() => _push(_lab);
+  void openLab() {
+    _analyticsService.sendLogEvent(
+      "labPage_open",
+    );
+    _push(_lab);
+  }
 
-  void openContacts() => _push(_contacts);
+  void openContacts() {
+    _analyticsService.sendLogEvent(
+      "contactsPage_open",
+    );
+    _push(_contacts);
+  }
 
-  void openNewContact() => _push(_newContact);
+  void openNewContact() {
+    _analyticsService.sendLogEvent(
+      "newContactPage_open",
+    );
+    _push(_newContact);
+  }
 
-  void openScanQrCode() => _push(_scanQrCode);
+  void openScanQrCode() {
+    _analyticsService.sendLogEvent(
+      "scanQrCodePage_open",
+    );
+    _push(_scanQrCode);
+  }
 
-  void openCallsList() => _push(_calls);
+  void openCallsList() {
+    _analyticsService.sendLogEvent(
+      "callsListPage_open",
+    );
+    _push(_calls);
+  }
 
-  void openShowcase() => _push(_showcase);
+  void openShowcase() {
+    _analyticsService.sendLogEvent(
+      "showcasePage_open",
+    );
+    _push(_showcase);
+  }
 
-  void openConnectionSettingPage() => _push(_connectionSettingsPage);
+  void openConnectionSettingPage() {
+    _analyticsService.sendLogEvent(
+      "connectionSettingPage_open",
+    );
+    _push(_connectionSettingsPage);
+  }
 
   String getCurrentRoomId() => _currentRoom;
 
@@ -165,10 +236,15 @@ class RoutingService {
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
   }) {
-    //todo forwardMedia
+    // TODO(any): forwardMedia
     _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _recentRoomsDao.addRecentRoom(roomId);
+      if (roomId == _authRepo.currentUserUid.asString()) {
+        _analyticsService.sendLogEvent(
+          "openSavedMessageRoom",
+        );
+      }
       _push(
         RoomPage(
           key: ValueKey("/room/$roomId"),
@@ -288,27 +364,48 @@ class RoutingService {
         useTransparentRoute: true,
       );
 
-  void openCustomNotificationSoundSelection(String roomId) => _push(
-        CustomNotificationSoundSelection(
-          key: const ValueKey("/custom-notification-sound-selection"),
-          roomUid: roomId,
-        ),
-      );
+  void openCustomNotificationSoundSelection(String roomId) {
+    _analyticsService.sendLogEvent(
+      "customNotificationSoundSelectionPage_open",
+    );
+    _push(
+      CustomNotificationSoundSelection(
+        key: const ValueKey("/custom-notification-sound-selection"),
+        roomUid: roomId,
+      ),
+    );
+  }
 
-  void openAccountSettings({bool forceToSetName = false}) => _push(
-        AccountSettings(
-          key: const ValueKey("/account-settings"),
-          forceToSetName: forceToSetName,
-        ),
-      );
+  void openAccountSettings({bool forceToSetName = false}) {
+    _analyticsService.sendLogEvent(
+      "accountSettingsPage_open",
+    );
+    _push(
+      AccountSettings(
+        key: const ValueKey("/account-settings"),
+        forceToSetName: forceToSetName,
+      ),
+    );
+  }
 
-  void openMemberSelection({required bool isChannel, Uid? mucUid}) => _push(
-        MemberSelectionPage(
-          key: const ValueKey("/member-selection-page"),
-          isChannel: isChannel,
-          mucUid: mucUid,
-        ),
+  void openMemberSelection({required bool isChannel, Uid? mucUid}) {
+    if (isChannel) {
+      _analyticsService.sendLogEvent(
+        "newChannelPage_open",
       );
+    } else {
+      _analyticsService.sendLogEvent(
+        "newGroupPage_open",
+      );
+    }
+    _push(
+      MemberSelectionPage(
+        key: const ValueKey("/member-selection-page"),
+        isChannel: isChannel,
+        mucUid: mucUid,
+      ),
+    );
+  }
 
   void openSelectForwardMessage({
     List<Message>? forwardedMessages,
@@ -462,7 +559,7 @@ class RoutingService {
                   ),
                   _navigatorObserver
                 ],
-                onGenerateRoute: (r) => customPageRoute(r.copyWith(name: "/"),
+                onGenerateRoute: (r) => customPageRoute(RouteSettings(arguments:r.arguments,name: "/" ),
                     (c, animation, secondaryAnimation) {
                   try {
                     if (isLarge(c)) {
@@ -499,7 +596,7 @@ class RoutingService {
       GetIt.I.get<FireBaseServices>().deleteToken();
       GetIt.I.get<CoreServices>().closeConnection();
       await GetIt.I.get<AccountRepo>().logOut();
-      await authRepo.deleteTokens();
+      await authRepo.logout();
       await GetIt.I.get<DBManager>().deleteDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(

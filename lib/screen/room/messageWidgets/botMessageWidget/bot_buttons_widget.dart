@@ -146,12 +146,12 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
         linkColor: theme.colorScheme.primary,
         onIdClick: widget.onUsernameClick,
         onBotCommandClick: widget.onBotCommandClick,
-        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );
 
     return RichText(
-      text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
+      text: TextSpan(children: spans, style: theme.textTheme.bodyMedium),
       textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
     );
   }

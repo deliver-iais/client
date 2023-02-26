@@ -9,6 +9,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
@@ -39,6 +40,9 @@ String buildShareUserUrl(
 String buildInviteLinkForBot(String botId) =>
     "https://$APPLICATION_DOMAIN/text?botId=$botId&text=/start";
 
+// TODO(bitbeter): check all possibilities
+// TODO(bitbeter): change all links to application domain
+
 //https://wemessenger.ir/text?botId="bdff_bot" & text="/start"
 class UrlHandlerService {
   final _mucDao = GetIt.I.get<MucDao>();
@@ -49,12 +53,13 @@ class UrlHandlerService {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _uxService = GetIt.I.get<UxService>();
   final _logger = GetIt.I.get<Logger>();
 
   Future<void> onUrlTap(
-    String uri,
-    BuildContext context, {
+    String uri, {
     bool openLinkImmediately = false,
+    bool sendDirectly = false,
   }) async {
     //add prefix if needed
     final applicationUrlRegex = RegExp(
@@ -64,16 +69,23 @@ class UrlHandlerService {
       if (uri.startsWith("we://")) {
         uri = "https://wemessenger.ir${uri.substring(4)}";
       }
-      handleApplicationUri(uri, context);
+      handleApplicationUri(
+        uri,
+        sendDirectly: sendDirectly,
+      );
     } else {
-      handleNormalLink(uri, context, openLinkImmediately: openLinkImmediately);
+      handleNormalLink(
+        uri,
+        openLinkImmediately: openLinkImmediately,
+        sendDirectly: sendDirectly,
+      );
     }
   }
 
   void handleApplicationUri(
-    String url,
-    BuildContext context, {
+    String url, {
     bool shareTextMessage = false,
+    bool sendDirectly = false,
   }) {
     if (shareTextMessage && !url.contains(APPLICATION_DOMAIN)) {
       _routingService.openShareInput(text: url);
@@ -89,7 +101,6 @@ class UrlHandlerService {
 
       if (segments.first == ADD_CONTACT_URL) {
         handleAddContact(
-          context: context,
           countryCode: int.parse(uri.queryParameters["cc"]!),
           nationalNumber: int.parse(uri.queryParameters["nn"]!),
           firstName: uri.queryParameters["fn"],
@@ -97,21 +108,18 @@ class UrlHandlerService {
         );
       } else if (segments.first == SHARE_PRIVATE_DATA_ACCEPTANCE_URL) {
         handleSendPrivateDateAcceptance(
-          context,
           uri.queryParameters["type"]!,
           uri.queryParameters["botId"]!,
           uri.queryParameters["token"]!,
         );
       } else if (segments.first == SEND_TEXT_URL) {
         handleSendMsgToBot(
-          context,
           uri.queryParameters["botId"]!,
           uri.queryParameters["text"]!,
         );
       } else if (segments.first == JOIN_URL) {
         if (segments[1] == "GROUP") {
           handleJoin(
-            context,
             Uid.create()
               ..node = segments[2]
               ..category = Categories.GROUP,
@@ -119,7 +127,6 @@ class UrlHandlerService {
           );
         } else if (segments[1] == "CHANNEL") {
           handleJoin(
-            context,
             Uid.create()
               ..node = segments[2]
               ..category = Categories.CHANNEL,
@@ -127,7 +134,7 @@ class UrlHandlerService {
           );
         }
       } else if (segments.first == LOGIN_URL) {
-        handleLogin(context, uri.queryParameters["token"]!);
+        handleLogin(uri.queryParameters["token"]!);
       } else if (segments.first == USER_URL) {
         if (uri.queryParameters["id"] != null) {
           _routingService.openRoom(
@@ -138,15 +145,14 @@ class UrlHandlerService {
           );
         }
       } else if (segments.first == GROUP_URL) {
-        handleIdLink(context, uri.queryParameters["id"], Categories.GROUP);
+        handleIdLink(uri.queryParameters["id"], Categories.GROUP);
       } else if (segments.first == CHANNEL_URL) {
-        handleIdLink(context, uri.queryParameters["id"], Categories.CHANNEL);
+        handleIdLink(uri.queryParameters["id"], Categories.CHANNEL);
       }
     }
   }
 
   Future<void> handleIdLink(
-    BuildContext context,
     String? node,
     Categories category,
   ) async {
@@ -161,25 +167,20 @@ class UrlHandlerService {
           roomUid,
         );
       } else {
-        ToastDisplay.showToast(
-          toastContext: context,
-          toastText: "permission denied",
-        );
+        // TODO(any): use i18n
+        ToastDisplay.showToast(toastText: "permission denied");
       }
     }
   }
 
-  Future<void> handleLogin(
-    BuildContext context,
-    String token,
-  ) async {
+  Future<void> handleLogin(String token) async {
     _logger.wtf(token);
     final verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
         showFloatingModalBottomSheet(
-          context: context,
+          context: _uxService.appContext,
           isDismissible: false,
           builder: (ctx) {
             return Container(
@@ -195,7 +196,7 @@ class UrlHandlerService {
         );
       });
       Timer(const Duration(seconds: 5), () {
-        Navigator.of(context).pop();
+        Navigator.of(_uxService.appContext).pop();
         _routingService.pop();
       });
     }
@@ -206,22 +207,21 @@ class UrlHandlerService {
     String? lastName,
     int? countryCode,
     int? nationalNumber,
-    required BuildContext context,
   }) async {
-    final theme = Theme.of(context);
+    final theme = Theme.of(_uxService.appContext);
     final res =
         await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
         toastText:
             "${buildName(firstName, lastName)} ${_i18n.get("contact_exist")}",
-        toastContext: context,
       );
     } else {
       unawaited(
+        // ignore: use_build_context_synchronously
         showFloatingModalBottomSheet(
-          context: context,
-          builder: (context) => Padding(
+          context: _uxService.appContext,
+          builder: (ctx) => Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -251,12 +251,12 @@ class UrlHandlerService {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(ctx).pop(),
                       child: Text(_i18n.get("skip")),
                     ),
                     TextButton(
                       onPressed: () async {
-                        final navigatorState = Navigator.of(context);
+                        final navigatorState = Navigator.of(ctx);
                         final contactUid = await _contactRepo.sendNewContact(
                           Contact()
                             ..firstName = firstName!
@@ -268,9 +268,9 @@ class UrlHandlerService {
                         );
                         if (contactUid != null) {
                           ToastDisplay.showToast(
-                            toastText:
-                                "$firstName$lastName ${_i18n.get("contact_add")}",
-                            toastContext: context,
+                            toastText: "$firstName$lastName ${_i18n.get(
+                              "contact_add",
+                            )}",
                           );
                           navigatorState.pop();
                         }
@@ -288,74 +288,80 @@ class UrlHandlerService {
   }
 
   Future<void> handleSendMsgToBot(
-    BuildContext context,
     String botId,
-    String text,
-  ) async {
-    final theme = Theme.of(context);
-
-    showFloatingModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              "${_i18n.get("send_msg_to")} $botId",
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 20,
+    String text, {
+    bool sendDirectly = false,
+  }) async {
+    final theme = Theme.of(_uxService.appContext);
+    if (sendDirectly) {
+      _sendMessageToBot(botId, text);
+    } else {
+      showFloatingModalBottomSheet(
+        context: _uxService.appContext,
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                "${_i18n.get("send_msg_to")} $botId",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            Text(
-              text,
-              style: TextStyle(color: theme.primaryColor, fontSize: 25),
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(_i18n.get("skip")),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final navigatorState = Navigator.of(context);
-                    await _messageRepo.sendTextMessage(
-                      Uid()
-                        ..category = Categories.BOT
-                        ..node = botId,
-                      text,
-                    );
-                    navigatorState.pop();
-                    _routingService.openRoom(
-                      (Uid.create()
-                            ..node = botId
-                            ..category = Categories.BOT)
-                          .asString(),
-                    );
-                  },
-                  child: Text(_i18n.get("send")),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(
+                height: 30,
+              ),
+              Text(
+                text,
+                style: TextStyle(color: theme.primaryColor, fontSize: 25),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(_i18n.get("skip")),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final navigatorState = Navigator.of(context);
+                      _sendMessageToBot(botId, text);
+                      navigatorState.pop();
+                    },
+                    child: Text(_i18n.get("send")),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    ).ignore();
+      ).ignore();
+    }
+  }
+
+  void _sendMessageToBot(String botId, String text) {
+    _messageRepo.sendTextMessage(
+      Uid()
+        ..category = Categories.BOT
+        ..node = botId,
+      text,
+    );
+    _routingService.openRoom(
+      (Uid.create()
+            ..node = botId
+            ..category = Categories.BOT)
+          .asString(),
+    );
   }
 
   Future<void> handleSendPrivateDateAcceptance(
-    BuildContext context,
     String pdType,
     String botId,
     String token,
@@ -371,7 +377,7 @@ class UrlHandlerService {
                 : privateDataType = PrivateDataType.NAME;
 
     showFloatingModalBottomSheet(
-      context: context,
+      context: _uxService.appContext,
       builder: (context) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -406,12 +412,14 @@ class UrlHandlerService {
                 TextButton(
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
-                    await _messageRepo.sendPrivateDataAcceptanceMessage(
-                      Uid()
-                        ..category = Categories.BOT
-                        ..node = botId,
-                      privateDataType,
-                      token,
+                    unawaited(
+                      _messageRepo.sendPrivateDataAcceptanceMessage(
+                        Uid()
+                          ..category = Categories.BOT
+                          ..node = botId,
+                        privateDataType,
+                        token,
+                      ),
                     );
                     navigatorState.pop();
                     _routingService.openRoom(
@@ -432,7 +440,6 @@ class UrlHandlerService {
   }
 
   Future<void> handleJoin(
-    BuildContext context,
     Uid roomUid,
     String token, {
     String? name,
@@ -443,7 +450,7 @@ class UrlHandlerService {
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
-          context: context,
+          context: _uxService.appContext,
           builder: (context) => Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -459,7 +466,7 @@ class UrlHandlerService {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       name,
-                      style: Theme.of(context).textTheme.headline6,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                 const SizedBox(height: 10),
@@ -469,7 +476,7 @@ class UrlHandlerService {
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).errorColor,
+                        foregroundColor: Theme.of(context).colorScheme.error,
                       ),
                       child: Text(_i18n.get("skip")),
                     ),
@@ -503,24 +510,24 @@ class UrlHandlerService {
               ],
             ),
           ),
-        ).ignore();
+        );
       });
     }
   }
 
   void handleNormalLink(
-    String uri,
-    BuildContext context, {
+    String uri, {
     bool openLinkImmediately = false,
+    bool sendDirectly = false,
   }) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(_uxService.appContext);
 
-    if (openLinkImmediately) {
+    if (openLinkImmediately || sendDirectly) {
       launchUrl(Uri.parse(uri));
     } else {
       Future.delayed(Duration.zero, () {
         showDialog(
-          context: context,
+          context: _uxService.appContext,
           builder: (c) {
             return Directionality(
               textDirection: _i18n.defaultTextDirection,

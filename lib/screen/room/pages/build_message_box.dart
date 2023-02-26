@@ -18,6 +18,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -385,9 +386,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       MaterialState.focused,
     };
     if (states.any(interactiveStates.contains)) {
-      return (Theme.of(context)).toggleableActiveColor;
+      // TODO(bitbeter): check later what was this
+      return (Theme.of(context)).colorScheme.primary;
     }
-    return (Theme.of(context)).primaryColor;
+    return (Theme.of(context)).colorScheme.primaryContainer;
   }
 
   @override
@@ -513,17 +515,18 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (selectedValue == null) {
       return;
     }
-
-    return OperationOnMessageSelection(
-      message: widget.message,
-      context: context,
-      onDelete: widget.onDelete,
-      onEdit: widget.onEdit,
-      onPin: widget.onPin,
-      onReply: widget.onReply,
-      onUnPin: widget.onUnPin,
-      onSelect: selectMessage,
-    ).selectOperation(selectedValue);
+    if (context.mounted) {
+      return OperationOnMessageSelection(
+        message: widget.message,
+        context: context,
+        onDelete: widget.onDelete,
+        onEdit: widget.onEdit,
+        onPin: widget.onPin,
+        onReply: widget.onReply,
+        onUnPin: widget.onUnPin,
+        onSelect: selectMessage,
+      ).selectOperation(selectedValue);
+    }
   }
 
   Future<void> onUsernameClick(String username) async {
@@ -544,6 +547,7 @@ class OperationOnMessageSelection {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
 
   final void Function()? onReply;
   final void Function()? onSelect;
@@ -602,7 +606,7 @@ class OperationOnMessageSelection {
         onResend();
         break;
       case OperationOnMessage.DELETE_PENDING_MESSAGE:
-        onDeletePendingMessage();
+        await onDeletePendingMessage();
         break;
       case OperationOnMessage.DELETE_PENDING_EDITED_MESSAGE:
         onDeletePendingEditedMessage();
@@ -720,7 +724,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 
@@ -730,7 +734,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("file_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 
@@ -740,7 +744,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("music_saved"),
-      animateDone: true,
+      showDoneAnimation: true,
     );
   }
 
@@ -778,8 +782,16 @@ class OperationOnMessageSelection {
     );
   }
 
-  void onDeletePendingMessage() {
+  Future<void> onDeletePendingMessage() async {
     _messageRepo.deletePendingMessage(message.packetId);
+    final room = (await _roomRepo.getRoom(message.roomUid));
+    if (room != null) {
+      await _dataStreamServices.fetchLastNotHiddenMessage(
+        room.uid.asUid(),
+        room.lastMessageId,
+        room.firstMessageId,
+      );
+    }
     if (message.type == MessageType.FILE) {
       _fileRepo.cancelUploadFile(message.json.toFile().uuid);
     }

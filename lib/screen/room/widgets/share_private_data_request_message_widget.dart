@@ -179,12 +179,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
 
       res.addAll((result?.files ?? []).map(filePickerPlatformFileToFileModel));
     }
-
-    showCaptionDialog(
-      roomUid: message.roomUid.asUid(),
-      context: context,
-      files: res,
-    );
+    if (context.mounted) {
+      showCaptionDialog(
+        roomUid: message.roomUid.asUid(),
+        context: context,
+        files: res,
+      );
+    }
   }
 
   void _showGetAccessPrivateData(

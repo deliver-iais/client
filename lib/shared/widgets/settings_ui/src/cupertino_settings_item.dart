@@ -178,9 +178,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         rowChildren.add(
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 11.0),
-            child: CupertinoSwitch(
+            child: Switch(
               value: widget.switchValue!,
-              activeColor: theme.primaryColor,
               onChanged:
                   !widget.enabled ? null : (value) => widget.onToggle!(value),
             ),

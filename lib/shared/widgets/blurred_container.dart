@@ -12,11 +12,13 @@ class BlurContainer extends StatelessWidget {
   final Decoration? decoration;
   final double skew;
   final bool blurIsEnabled;
+  final Color? color;
 
   const BlurContainer({
     super.key,
     required this.child,
     this.width,
+    this.color,
     this.height,
     this.padding,
     this.margin,
@@ -47,7 +49,7 @@ class BlurContainer extends StatelessWidget {
           margin: margin,
           decoration: decoration ??
               BoxDecoration(
-                color: theme.dividerColor.withOpacity(0.15),
+                color: color ?? theme.dividerColor.withOpacity(0.15),
               ),
           child: child,
         ),

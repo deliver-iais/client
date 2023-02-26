@@ -14,6 +14,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   image_compression_flutter
   pasteboard
   record_linux
+  smart_auth
   url_launcher_linux
   window_size
 )

@@ -4,7 +4,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
-import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -45,6 +45,23 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                     _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 child: Row(
                   children: [
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () {
+                          if (status.data ==
+                              TitleStatusConditions.Disconnected) {
+                            _routingService.openConnectionSettingPage();
+                          }
+                        },
+                        child: Text(
+                          state,
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: true,
+                          style:
+                              theme.textTheme.titleLarge!.copyWith(fontSize: 20),
+                          key: ValueKey(randomString(10)),
+                        ),
                     GestureDetector(
                       onTap: () {
                         if (status.data == TitleStatusConditions.Disconnected) {
@@ -58,8 +75,8 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                       ),
                     ),
                     if (status.data != TitleStatusConditions.Connected)
-                      DotAnimation(
-                        dotsColor: theme.textTheme.headline6?.color ??
+                      LoadingDotAnimation(
+                        dotsColor: theme.textTheme.titleLarge?.color ??
                             theme.colorScheme.primary,
                       ),
                     if (status.data == TitleStatusConditions.Disconnected)

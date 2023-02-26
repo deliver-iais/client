@@ -376,11 +376,11 @@ class ChatItemState extends State<ChatItem> {
               children: [
                 TextSpan(
                   text: "${i18n.get("draft")}: ",
-                  style: theme.primaryTextTheme.bodyText2,
+                  style: theme.primaryTextTheme.bodyMedium,
                 ),
                 TextSpan(
                   text: widget.room.draft,
-                  style: theme.textTheme.bodyText2,
+                  style: theme.textTheme.bodyMedium,
                 )
               ],
             ),

@@ -117,7 +117,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                         return GestureDetector(
                           child: Icon(
                             Icons.location_pin,
-                            color: Theme.of(context).errorColor,
+                            color: Theme.of(context).colorScheme.error,
                             size: 28,
                           ),
                         );
@@ -297,7 +297,7 @@ class AttachLocation {
               ),
               builder: (ctx) => Icon(
                 Icons.location_pin,
-                color: Theme.of(context).errorColor,
+                color: Theme.of(context).colorScheme.error,
                 size: 28,
               ),
             ),
@@ -310,100 +310,106 @@ class AttachLocation {
   Future<void> attachLocationInWindows() async {
     final geoLocatorWindows = GeolocatorPlatform.instance;
     if (!await geoLocatorWindows.isLocationServiceEnabled()) {
-      showDialog(
-        context: context,
-        builder: (c) {
-          return AlertDialog(
-            title: Text(
-              _i18n.get("enable_location_services"),
-            ),
-            content: Text(
-              _i18n.get(
-                "enable_location_services_in_windows_helper",
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (c) {
+            return AlertDialog(
+              title: Text(
+                _i18n.get("enable_location_services"),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(c),
-                child: Text(_i18n.get("i_realized")),
-              )
-            ],
-          );
-        },
-      ).ignore();
+              content: Text(
+                _i18n.get(
+                  "enable_location_services_in_windows_helper",
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(c),
+                  child: Text(_i18n.get("i_realized")),
+                )
+              ],
+            );
+          },
+        ).ignore();
+      }
     } else {
       if ((await geoLocatorWindows.checkPermission()) ==
           LocationPermission.denied) {
         final res = await geoLocatorWindows.requestPermission();
         if (res == LocationPermission.denied ||
             res == LocationPermission.deniedForever) {
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (c) {
+                return AlertDialog(
+                  title: Text(
+                    _i18n.get("enable_location_services"),
+                  ),
+                  content: Text(
+                    _i18n.get(
+                      "enable_location_services_in_windows_helper",
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(c),
+                      child: Text(_i18n.get("i_realized")),
+                    )
+                  ],
+                );
+              },
+            ).ignore();
+          }
+        }
+      } else {
+        final position = await geoLocatorWindows.getCurrentPosition();
+        if (context.mounted) {
           showDialog(
             context: context,
             builder: (c) {
               return AlertDialog(
-                title: Text(
-                  _i18n.get("enable_location_services"),
-                ),
-                content: Text(
-                  _i18n.get(
-                    "enable_location_services_in_windows_helper",
-                  ),
+                title: Text(_i18n.get("send_location")),
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width / 2,
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: _buildFlutterMap(position),
                 ),
                 actions: [
-                  TextButton(
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: tertiaryBorder,
+                      ),
+                    ),
                     onPressed: () => Navigator.pop(c),
-                    child: Text(_i18n.get("i_realized")),
-                  )
+                    child: Text(_i18n.get("cancel")),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: tertiaryBorder,
+                      ),
+                    ),
+                    onPressed: () {
+                      _messageRepo.sendLocationMessage(
+                        LatLng(position.latitude, position.longitude),
+                        roomUid,
+                      );
+                      Navigator.pop(c);
+                    },
+                    child: Text(_i18n.get("send")),
+                  ),
                 ],
               );
             },
           ).ignore();
         }
-      } else {
-        final position = await geoLocatorWindows.getCurrentPosition();
-        showDialog(
-          context: context,
-          builder: (c) {
-            return AlertDialog(
-              title: Text(_i18n.get("send_location")),
-              content: SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.height / 2,
-                child: _buildFlutterMap(position),
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: tertiaryBorder,
-                    ),
-                  ),
-                  onPressed: () => Navigator.pop(c),
-                  child: Text(_i18n.get("cancel")),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: tertiaryBorder,
-                    ),
-                  ),
-                  onPressed: () {
-                    _messageRepo.sendLocationMessage(
-                      LatLng(position.latitude, position.longitude),
-                      roomUid,
-                    );
-                    Navigator.pop(c);
-                  },
-                  child: Text(_i18n.get("send")),
-                ),
-              ],
-            );
-          },
-        ).ignore();
       }
     }
   }
@@ -475,7 +481,7 @@ class AttachLocation {
                             i18n.get("share"),
                             style: TextStyle(
                               fontSize: 20,
-                              color: Theme.of(context).errorColor,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                           ),
                           onTap: () {
