@@ -146,7 +146,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   @override
   Widget build(BuildContext context) {
     createMessages();
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -161,33 +160,34 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: theme.textTheme.displayLarge!.height! * 4,
               child: Stack(
                 children: [
-                  StreamBuilder<int>(
-                    stream: _idSubject,
-                    builder: (context, snapshot) {
-                      return StreamBuilder<int>(
-                        stream: _uxService.patternIndexStream,
-                        builder: (ctx, s) {
-                          return Background(
-                            id: snapshot.data ?? 0,
-                          );
-                        },
-                      );
-                    },
+                  Positioned.fill(
+                    child: StreamBuilder<int>(
+                      stream: _idSubject,
+                      builder: (context, snapshot) {
+                        return StreamBuilder<int>(
+                          stream: _uxService.patternIndexStream,
+                          builder: (ctx, s) {
+                            return Background(
+                              id: snapshot.data ?? 0,
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
                         ...createFakeMessages(),
-                        const Spacer(),
                       ],
                     ),
                   ),
-                  Transform.translate(
-                    offset: Offset(8, -(mainBorder.topLeft.x) - 8),
+                  Positioned.fill(
+                    bottom: 16,
+                    left: 16,
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: FloatingActionButton(
@@ -201,198 +201,187 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             ),
             Directionality(
               textDirection: _i18n.defaultTextDirection,
-              child: Transform.translate(
-                offset: Offset(0, -(mainBorder.topLeft.x)),
-                child: Container(
-                  padding: const EdgeInsets.only(bottom: 12, top: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: mainBorder,
-                    color: Theme.of(context).colorScheme.background,
-                  ),
-                  child: Column(
-                    children: [
-                      Section(
-                        title: _i18n.get("theme"),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: _buildThemeSelection(),
-                          )
-                        ],
-                      ),
-                      Section(
-                        title: _i18n.get("advanced_settings"),
-                        children: [
-                          Column(
-                            children: [
-                              SettingsTile(
-                                title: _i18n.get("main_color"),
-                                leading:
-                                    const Icon(CupertinoIcons.color_filter),
-                                trailing: const SizedBox.shrink(),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      for (var i = 0; i < palettes.length; i++)
-                                        color(palettes[i], i)
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          StreamBuilder<int>(
-                            stream: _uxService.patternIndexStream,
-                            builder: (context, snapshot) {
-                              return Column(
-                                children: [
-                                  SettingsTile(
-                                    title: _i18n.get("pattern"),
-                                    leading: const Icon(CupertinoIcons.photo),
-                                    trailing: const SizedBox.shrink(),
-                                  ),
-                                  Row(
-                                    children: [
-                                      if (isDesktop)
-                                        IconButton(
-                                          onPressed: () =>
-                                              _controller.animateTo(
-                                            _controller.position.pixels - 200,
-                                            duration:
-                                                SUPER_SLOW_ANIMATION_DURATION,
-                                            curve: Curves.ease,
-                                          ),
-                                          icon:
-                                              const Icon(Icons.arrow_back_ios),
-                                        ),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          controller: _controller,
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            children: [
-                                              for (var i = 0;
-                                                  i < patterns.length;
-                                                  i++)
-                                                pattern(patterns[i], i),
-                                              pattern(null, patterns.length)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      if (isDesktop)
-                                        IconButton(
-                                          onPressed: () =>
-                                              _controller.animateTo(
-                                            _controller.position.pixels + 200,
-                                            duration:
-                                                SUPER_SLOW_ANIMATION_DURATION,
-                                            curve: Curves.ease,
-                                          ),
-                                          icon: const Icon(
-                                            Icons.arrow_forward_ios,
-                                          ),
-                                        ),
-                                    ],
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                          SettingsTile.switchTile(
-                            title: _i18n.get("colorful_messages"),
-                            leading: const Icon(CupertinoIcons.paintbrush),
-                            switchValue: _uxService.showColorful,
-                            onToggle: (value) {
-                              _analyticsService.sendLogEvent(
-                                "themeColorfulMessageToggle",
-                              );
-                              setState(() {
-                                _uxService.toggleShowColorful();
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      Section(
-                        title: _i18n.get("font"),
-                        children: [
-                          Column(
-                            children: [
-                              SettingsTile(
-                                title: _i18n.get("text_size"),
-                                leading:
-                                    const Icon(CupertinoIcons.textformat_size),
-                                trailing: const SizedBox.shrink(),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(2.0),
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 12, top: 4),
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Column(
+                  children: [
+                    Section(
+                      title: _i18n.get("theme"),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildThemeSelection(),
+                        )
+                      ],
+                    ),
+                    Section(
+                      title: _i18n.get("advanced_settings"),
+                      children: [
+                        Column(
+                          children: [
+                            SettingsTile(
+                              title: _i18n.get("main_color"),
+                              leading: const Icon(CupertinoIcons.color_filter),
+                              trailing: const SizedBox.shrink(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text(
-                                      "A",
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                    SizedBox(
-                                      width: 500,
-                                      child: Directionality(
-                                        textDirection:
-                                            _i18n.defaultTextDirection,
-                                        child: StreamBuilder<double>(
-                                          stream: _uxService.sliderValueStream,
-                                          builder: (context, snapshot) {
-                                            return SliderTheme(
-                                              data: SliderTheme.of(context)
-                                                  .copyWith(
-                                                thumbShape:
-                                                    const RoundSliderThumbShape(
-                                                  enabledThumbRadius: 8,
-                                                ),
-                                              ),
-                                              child: Slider(
-                                                activeColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                inactiveColor: Colors.grey[700],
-                                                divisions: 5,
-                                                thumbColor: Colors.white,
-                                                value: currentSliderValue,
-                                                max: 2,
-                                                min: 1,
-                                                label: currentSliderValue
-                                                    .toString(),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _uxService.selectTextSize(
-                                                      value,
-                                                    );
-                                                    currentSliderValue = value;
-                                                  });
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    const Text(
-                                      "A",
-                                      style: TextStyle(fontSize: 40),
-                                    )
+                                    for (var i = 0; i < palettes.length; i++)
+                                      color(palettes[i], i)
                                   ],
                                 ),
                               ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+                            ),
+                          ],
+                        ),
+                        StreamBuilder<int>(
+                          stream: _uxService.patternIndexStream,
+                          builder: (context, snapshot) {
+                            return Column(
+                              children: [
+                                SettingsTile(
+                                  title: _i18n.get("pattern"),
+                                  leading: const Icon(CupertinoIcons.photo),
+                                  trailing: const SizedBox.shrink(),
+                                ),
+                                Row(
+                                  children: [
+                                    if (isDesktop)
+                                      IconButton(
+                                        onPressed: () => _controller.animateTo(
+                                          _controller.position.pixels - 200,
+                                          duration:
+                                              SUPER_SLOW_ANIMATION_DURATION,
+                                          curve: Curves.ease,
+                                        ),
+                                        icon: const Icon(Icons.arrow_back_ios),
+                                      ),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        controller: _controller,
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: [
+                                            for (var i = 0;
+                                                i < patterns.length;
+                                                i++)
+                                              pattern(patterns[i], i),
+                                            pattern(null, patterns.length)
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    if (isDesktop)
+                                      IconButton(
+                                        onPressed: () => _controller.animateTo(
+                                          _controller.position.pixels + 200,
+                                          duration:
+                                              SUPER_SLOW_ANIMATION_DURATION,
+                                          curve: Curves.ease,
+                                        ),
+                                        icon: const Icon(
+                                          Icons.arrow_forward_ios,
+                                        ),
+                                      ),
+                                  ],
+                                )
+                              ],
+                            );
+                          },
+                        ),
+                        SettingsTile.switchTile(
+                          title: _i18n.get("colorful_messages"),
+                          leading: const Icon(CupertinoIcons.paintbrush),
+                          switchValue: _uxService.showColorful,
+                          onToggle: (value) {
+                            _analyticsService.sendLogEvent(
+                              "themeColorfulMessageToggle",
+                            );
+                            setState(() {
+                              _uxService.toggleShowColorful();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    Section(
+                      title: _i18n.get("font"),
+                      children: [
+                        Column(
+                          children: [
+                            SettingsTile(
+                              title: _i18n.get("text_size"),
+                              leading:
+                                  const Icon(CupertinoIcons.textformat_size),
+                              trailing: const SizedBox.shrink(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "A",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  SizedBox(
+                                    width: 500,
+                                    child: Directionality(
+                                      textDirection: _i18n.defaultTextDirection,
+                                      child: StreamBuilder<double>(
+                                        stream: _uxService.sliderValueStream,
+                                        builder: (context, snapshot) {
+                                          return SliderTheme(
+                                            data: SliderTheme.of(context)
+                                                .copyWith(
+                                              thumbShape:
+                                                  const RoundSliderThumbShape(
+                                                enabledThumbRadius: 8,
+                                              ),
+                                            ),
+                                            child: Slider(
+                                              activeColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              inactiveColor: Colors.grey[700],
+                                              divisions: 5,
+                                              thumbColor: Colors.white,
+                                              value: currentSliderValue,
+                                              max: 2,
+                                              min: 1,
+                                              label:
+                                                  currentSliderValue.toString(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _uxService.selectTextSize(
+                                                    value,
+                                                  );
+                                                  currentSliderValue = value;
+                                                });
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  const Text(
+                                    "A",
+                                    style: TextStyle(fontSize: 40),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
                 ),
               ),
             )
