@@ -101,7 +101,7 @@ class LocationMessageWidget extends StatelessWidget {
                           return GestureDetector(
                             child: Icon(
                               Icons.location_pin,
-                              color: Theme.of(context).errorColor,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                           );
                         },
@@ -366,7 +366,7 @@ class _LocationPageState extends State<LocationPage> {
                           return GestureDetector(
                             child: Icon(
                               Icons.location_on_sharp,
-                              color: Theme.of(context).errorColor,
+                              color: Theme.of(context).colorScheme.error,
                               size: 28,
                             ),
                           );

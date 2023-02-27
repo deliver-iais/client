@@ -22,7 +22,7 @@ class SelectionItems extends StatelessWidget {
           data!.label!,
           style: Theme.of(context)
               .textTheme
-              .subtitle1!
+              .titleMedium!
               .copyWith(color: isSelected! ? Colors.white : null),
         ),
         onTap: onTap,

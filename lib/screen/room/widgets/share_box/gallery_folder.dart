@@ -18,8 +18,9 @@ class GalleryFolder extends StatefulWidget {
   final AssetPathEntity folder;
   final Uid roomUid;
   final void Function() pop;
-  final void Function(String)? setAvatar;
+  final void Function(String)? onAvatarSelected;
   final int replyMessageId;
+  final bool selectAsAvatar;
   final void Function()? resetRoomPageDetails;
 
   const GalleryFolder(
@@ -27,9 +28,10 @@ class GalleryFolder extends StatefulWidget {
     this.roomUid,
     this.pop, {
     super.key,
-    this.setAvatar,
+    this.onAvatarSelected,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
+    this.selectAsAvatar = false,
   });
 
   @override
@@ -43,7 +45,6 @@ class _GalleryFolderState extends State<GalleryFolder> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final List<String> _selectedImage = [];
-  final TextEditingController _textEditingController = TextEditingController();
   final Map<String, AssetEntity> _imageFiles = {};
 
   @override
@@ -103,7 +104,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
         appBar: AppBar(
           centerTitle: true,
           actions: [
-            if (widget.setAvatar == null && _selectedImage.isNotEmpty)
+            if (!widget.selectAsAvatar && _selectedImage.isNotEmpty)
               IconButton(
                 onPressed: () {
                   _selectedImage.clear();
@@ -112,7 +113,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                 icon: const Icon(Icons.clear),
               )
           ],
-          title: widget.setAvatar == null
+          title: !widget.selectAsAvatar
               ? AnimatedSwitchWidget(
                   child: Text(
                     key: ValueKey(_selectedImage.length),
@@ -149,34 +150,24 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                 final isSelected =
                                     _selectedImage.contains(imagePath);
                                 return GestureDetector(
-                                  onTap: () {
-                                    if (widget.setAvatar != null) {
-                                      widget.pop();
-                                      Navigator.pop(context);
-                                      widget.setAvatar!(imagePath);
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (c) {
-                                            return OpenImagePage(
-                                              imagePath: imagePath,
-                                              onEditEnd: (path) {
-                                                imagePath = path;
-                                              },
-                                              sendSingleImage: true,
-                                              onTap: onTap,
-                                              selectedImage: _selectedImage,
-                                              send: _send,
-                                              pop: widget.pop,
-                                              textEditingController:
-                                                  _textEditingController,
-                                            );
-                                          },
+                                  onTap: () => widget.selectAsAvatar
+                                      ? widget.onAvatarSelected!(imagePath)
+                                      : Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (c) {
+                                              return OpenImagePage(
+                                                imagePath: imagePath,
+                                                onEditEnd: (path) =>
+                                                    imagePath = path,
+                                                sendSingleImage: true,
+                                                onTap: onTap,
+                                                selectedImage: _selectedImage,
+                                                send: _sendMessage,
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      );
-                                    }
-                                  },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     margin: const EdgeInsets.all(4.0),
@@ -205,7 +196,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                             fit: BoxFit.cover,
                                           ),
                                         ),
-                                        child: widget.setAvatar != null
+                                        child: widget.selectAsAvatar
                                             ? const SizedBox.shrink()
                                             : Align(
                                                 alignment:
@@ -253,11 +244,10 @@ class _GalleryFolderState extends State<GalleryFolder> {
                   curve: Curves.easeInOut,
                   opacity: _selectedImage.isNotEmpty ? 1 : 0,
                   child: ShareBoxInputCaption(
-                    captionEditingController: _textEditingController,
                     count: _selectedImage.length,
-                    send: () {
+                    onSend: (caption) {
                       widget.pop();
-                      _send();
+                      _sendMessage(caption);
                     },
                   ),
                 ),
@@ -269,27 +259,24 @@ class _GalleryFolderState extends State<GalleryFolder> {
     );
   }
 
-  void _send() {
+  void _sendMessage(String caption) {
+    widget.pop();
     _messageRepo.sendMultipleFilesMessages(
       widget.roomUid,
       _selectedImage.map(pathToFileModel).toList(),
       replyToId: widget.replyMessageId,
-      caption: _textEditingController.text,
+      caption: caption,
     );
     widget.resetRoomPageDetails?.call();
   }
 
   void onTap(String imagePath) {
-    if (widget.setAvatar != null) {
-      widget.setAvatar!(imagePath);
+    if (_selectedImage.contains(imagePath)) {
+      _selectedImage.remove(imagePath);
     } else {
-      if (_selectedImage.contains(imagePath)) {
-        _selectedImage.remove(imagePath);
-      } else {
-        _logger.i("imagePath: $imagePath");
-        _selectedImage.add(imagePath);
-      }
-      setState(() {});
+      _logger.i("imagePath: $imagePath");
+      _selectedImage.add(imagePath);
     }
+    setState(() {});
   }
 }

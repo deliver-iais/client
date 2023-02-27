@@ -166,13 +166,13 @@ class VerificationPageState extends State<VerificationPage> {
                       autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
-                      cursor: Cursor(color: theme.focusColor, enabled: true),
+                      cursor: Cursor(color: theme.focusColor, enabled: true, width: 1, height: 32),
                       decoration: UnderlineDecoration(
                         colorBuilder: PinListenColorBuilder(
                           theme.primaryColor,
                           theme.colorScheme.secondary,
                         ),
-                        textStyle: theme.primaryTextTheme.headline5!
+                        textStyle: theme.primaryTextTheme.headlineSmall!
                             .copyWith(color: theme.primaryColor),
                       ),
                       currentCode: _verificationCode,
@@ -195,8 +195,8 @@ class VerificationPageState extends State<VerificationPage> {
                   if (_showError)
                     Text(
                       _i18n.get("wrong_code"),
-                      style: theme.primaryTextTheme.subtitle1!
-                          .copyWith(color: theme.errorColor),
+                      style: theme.primaryTextTheme.titleMedium!
+                          .copyWith(color: theme.colorScheme.error),
                     ),
                 ],
               ),

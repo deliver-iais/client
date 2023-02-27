@@ -104,7 +104,7 @@ class CallScreenState extends State<CallScreen> {
                   "alert_window_permission",
                 ),
                 textDirection: _i18n.defaultTextDirection,
-                style: theme.textTheme.bodyText1!
+                style: theme.textTheme.bodyLarge!
                     .copyWith(color: theme.primaryColor),
               ),
               Padding(
@@ -114,8 +114,8 @@ class CallScreenState extends State<CallScreen> {
                     "alert_window_permission_attention",
                   ),
                   textDirection: _i18n.defaultTextDirection,
-                  style: theme.textTheme.bodyText1!
-                      .copyWith(color: theme.errorColor),
+                  style: theme.textTheme.bodyLarge!
+                      .copyWith(color: theme.colorScheme.error),
                 ),
               )
             ],
@@ -128,7 +128,7 @@ class CallScreenState extends State<CallScreen> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).errorColor,
+                foregroundColor: Theme.of(context).colorScheme.error,
               ),
               child: Text(
                 _i18n.get(
@@ -142,7 +142,9 @@ class CallScreenState extends State<CallScreen> {
               ),
               onPressed: () async {
                 if (await Permission.systemAlertWindow.request().isGranted) {
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 }
               },
             ),

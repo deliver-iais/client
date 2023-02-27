@@ -114,7 +114,7 @@ class PinMessageAppBar extends StatelessWidget {
                                   Text(
                                     _i18n.get("pinned_message"),
                                     textDirection: TextDirection.ltr,
-                                    style: theme.primaryTextTheme.subtitle2
+                                    style: theme.primaryTextTheme.titleSmall
                                         ?.copyWith(
                                       color: theme.colorScheme.primary,
                                     ),
@@ -122,7 +122,7 @@ class PinMessageAppBar extends StatelessWidget {
                                   Text(
                                     " #${index != null ? index + 1 : ""}",
                                     textDirection: TextDirection.ltr,
-                                    style: theme.primaryTextTheme.subtitle2
+                                    style: theme.primaryTextTheme.titleSmall
                                         ?.copyWith(
                                       color: theme.colorScheme.primary,
                                     ),

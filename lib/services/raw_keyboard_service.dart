@@ -53,18 +53,20 @@ class RawKeyboardService {
         fileList.add(fileToFileModel(file));
       }
 
-      showCaptionDialog(
-        context: context,
-        files: fileList,
-        caption: controller.text.isNotEmpty
-            ? !isLinux
-                ? controller.text
-                : null
-            : null,
-        roomUid: roomUid,
-      );
+      if (context.mounted) {
+        showCaptionDialog(
+          context: context,
+          files: fileList,
+          caption: controller.text.isNotEmpty
+              ? !isLinux
+                  ? controller.text
+                  : null
+              : null,
+          roomUid: roomUid,
+        );
+      }
 
-      // TODO(bitbeter): why duration, and why not copying controller data in caption text for better experience
+      // TODO(any): why duration, and why not copying controller data in caption text for better experience
       Timer(Duration.zero, () {
         controller.clear();
       });

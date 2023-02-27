@@ -42,7 +42,7 @@ class AsyncLastMessage extends StatelessWidget {
       future: messageSRF,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
+          return Container(height: theme.textTheme.bodyMedium!.fontSize! + 7);
         }
 
         return LastMessage(
@@ -100,7 +100,7 @@ class LastMessage extends StatelessWidget {
                   textAlign: TextAlign.end,
                   textDirection: TextDirection.rtl,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.primaryTextTheme.caption?.copyWith(
+                  style: theme.primaryTextTheme.bodySmall?.copyWith(
                     color: highlightColor,
                   ),
                 ),
@@ -131,17 +131,17 @@ class LastMessage extends StatelessWidget {
                     if (mb.typeDetails.isNotEmpty)
                       TextSpan(
                         text: mb.typeDetails,
-                        style: theme.primaryTextTheme.caption,
+                        style: theme.primaryTextTheme.bodySmall,
                       ),
                     if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
                       TextSpan(
                         text: ", ",
-                        style: theme.primaryTextTheme.caption,
+                        style: theme.primaryTextTheme.bodySmall,
                       ),
                     if (mb.text.isNotEmpty)
                       TextSpan(
                         children: buildText(mb, context),
-                        style: theme.textTheme.caption
+                        style: theme.textTheme.bodySmall
                             ?.copyWith(color: highlightColor),
                       ),
                   ],

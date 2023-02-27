@@ -220,11 +220,12 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                   StatusCode.permissionDenied) {
                                 message = _i18n.get("permission_denied");
                               }
-
+                            if(context.mounted) {
                               ToastDisplay.showToast(
                                 toastText: message,
                                 toastContext: context,
                               );
+                            }
                               // _routingService.pop();
                             }
                           },

@@ -153,10 +153,12 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                       if (path != null) {
                         paths.add(path);
                       } else {
-                        ToastDisplay.showToast(
-                          toastText: _i18n.get("download_file_to_share"),
-                          toastContext: context,
-                        );
+                        if (context.mounted) {
+                          ToastDisplay.showToast(
+                            toastText: _i18n.get("download_file_to_share"),
+                            toastContext: context,
+                          );
+                        }
                       }
                     }
 
@@ -190,10 +192,12 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                     )}\n";
                   }
                 }
-                saveToClipboard(
-                  copyText,
-                  context: context,
-                );
+                if (context.mounted) {
+                  saveToClipboard(
+                    copyText,
+                    context: context,
+                  );
+                }
                 onClose();
               },
             ),

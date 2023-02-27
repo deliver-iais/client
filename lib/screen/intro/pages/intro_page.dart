@@ -101,7 +101,7 @@ class IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Text(
                         APPLICATION_NAME,
-                        style: theme.primaryTextTheme.headline5,
+                        style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -110,7 +110,7 @@ class IntroPageState extends State<IntroPage> {
                           child: Text(
                             textDirection: _i18n.defaultTextDirection,
                             _i18n.get("login_page_start"),
-                            style: theme.primaryTextTheme.subtitle1,
+                            style: theme.primaryTextTheme.titleMedium,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -123,7 +123,7 @@ class IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Text(
                         _i18n.get("login_page_fast_title"),
-                        style: theme.primaryTextTheme.headline5,
+                        style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -132,7 +132,7 @@ class IntroPageState extends State<IntroPage> {
                           child: Text(
                             textDirection: _i18n.defaultTextDirection,
                             _i18n.get("login_page_fast_body"),
-                            style: theme.primaryTextTheme.subtitle1,
+                            style: theme.primaryTextTheme.titleMedium,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -145,7 +145,7 @@ class IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Text(
                         _i18n.get("login_page_powerful_title"),
-                        style: theme.primaryTextTheme.headline5,
+                        style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -154,7 +154,7 @@ class IntroPageState extends State<IntroPage> {
                           child: Text(
                             textDirection: _i18n.defaultTextDirection,
                             _i18n.get("login_page_powerful_body"),
-                            style: theme.primaryTextTheme.subtitle1,
+                            style: theme.primaryTextTheme.titleMedium,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -167,7 +167,7 @@ class IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       Text(
                         _i18n.get("login_page_secure_title"),
-                        style: theme.primaryTextTheme.headline5,
+                        style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -176,7 +176,7 @@ class IntroPageState extends State<IntroPage> {
                           child: Text(
                             textDirection: _i18n.defaultTextDirection,
                             _i18n.get("login_page_secure_body"),
-                            style: theme.primaryTextTheme.subtitle1,
+                            style: theme.primaryTextTheme.titleMedium,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -192,9 +192,9 @@ class IntroPageState extends State<IntroPage> {
               onDonePress: navigateToLoginPage,
               // backgroundColorAllSlides:
               //     theme.colorScheme.background.withOpacity(0.5),
-              styleNameSkipBtn: theme.primaryTextTheme.button,
-              styleNameDoneBtn: theme.primaryTextTheme.button,
-              styleNamePrevBtn: theme.primaryTextTheme.button,
+              styleNameSkipBtn: theme.primaryTextTheme.labelLarge,
+              styleNameDoneBtn: theme.primaryTextTheme.labelLarge,
+              styleNamePrevBtn: theme.primaryTextTheme.labelLarge,
               colorDot: const Color(0xFFBCE0FD),
               colorActiveDot: theme.primaryColor,
               onSkipPress: navigateToLoginPage,

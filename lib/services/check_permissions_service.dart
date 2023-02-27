@@ -61,11 +61,18 @@ class CheckPermissionsService {
       permanentlyDeniedPermissions.add(permission.value);
     }
     if (permanentlyDeniedPermissions.contains(permission.value)) {
-      await showPermanentlyDeniedDialog(
-        permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
-        onceOptions: onceOptions,
-        context: context,
-      );
+      if (context != null && context.mounted) {
+        await showPermanentlyDeniedDialog(
+          permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
+          onceOptions: onceOptions,
+          context: context,
+        );
+      } else {
+        await showPermanentlyDeniedDialog(
+          permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
+          onceOptions: onceOptions,
+        );
+      }
 
       return false;
     }
@@ -84,6 +91,7 @@ class CheckPermissionsService {
       if (s.isPermanentlyDenied) {
         permanentlyDeniedPermissions.add(permission.value);
 
+        // ignore: use_build_context_synchronously
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
           onceOptions: onceOptions,
@@ -129,6 +137,8 @@ class CheckPermissionsService {
         shouldShowRationalDialog: true,
         onceOption: ONCE_SHOW_CONTACT_DIALOG,
       );
+
+  Future<bool> checkMicrophonePermissionIsGranted() => Permission.microphone.isGranted;
 
   Future<bool> checkAudioRecorderPermission({BuildContext? context}) =>
       _checkAndGetPermission(
@@ -193,6 +203,7 @@ class CheckPermissionsService {
 
   Future<bool> checkStoragePermission({BuildContext? context}) async {
     if (isAndroid && await getAndroidVersion() < 33) {
+      // ignore: use_build_context_synchronously
       return _checkAndGetPermission(
         Permission.storage,
         context: context,

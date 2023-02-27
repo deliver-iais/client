@@ -128,7 +128,7 @@ class DeveloperPageState extends State<DeveloperPage> {
                             setState(() {});
                           },
                           style: TextButton.styleFrom(
-                            foregroundColor: theme.errorColor,
+                            foregroundColor: theme.colorScheme.error,
                           ),
                           child: const Text("Logs Reset"),
                         ),

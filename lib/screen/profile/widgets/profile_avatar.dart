@@ -105,10 +105,12 @@ class ProfileAvatar extends StatelessWidget {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(roomUid, avatarPath);
     if (_fileService.getFileStatus(roomUid.node) != FileStatus.COMPLETED) {
-      ToastDisplay.showToast(
-        toastContext: context,
-        toastText: _i18n.get("error_in_uploading"),
-      );
+      if (context.mounted) {
+        ToastDisplay.showToast(
+          toastContext: context,
+          toastText: _i18n.get("error_in_uploading"),
+        );
+      }
     }
     _newAvatarPath.add("");
   }
@@ -175,7 +177,8 @@ class ProfileAvatar extends StatelessWidget {
                       child: GalleryBox(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
-                        setAvatar: openCropAvatar,
+                        onAvatarSelected: openCropAvatar,
+                        selectAsAvatar: true,
                         roomUid: roomUid,
                       ),
                     ),

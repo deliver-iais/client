@@ -130,7 +130,7 @@ class LinkPreview extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
-              style: theme.primaryTextTheme.bodyText2
+              style: theme.primaryTextTheme.bodyMedium
                   ?.copyWith(color: foregroundColor),
             ),
           ),
@@ -148,7 +148,7 @@ class LinkPreview extends StatelessWidget {
                     textDirection: data.description!.isPersian()
                         ? TextDirection.rtl
                         : TextDirection.ltr,
-                    style: theme.textTheme.bodyText2,
+                    style: theme.textTheme.bodyMedium,
                     overflow: TextOverflow.fade,
                   ),
                 ),

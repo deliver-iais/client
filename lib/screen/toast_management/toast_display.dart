@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
+  // TODO(bitbeter): remove context and implement it as higher order function instead of static function
   static void showToast({
     IconData? toastIcon,
     bool showDoneAnimation = false,

@@ -1,7 +1,8 @@
-import 'dart:async';
-
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/widgets/share_box/video_editor.dart';
+import 'package:deliver/models/file.dart';
+import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -11,8 +12,15 @@ import 'package:get_it/get_it.dart';
 
 class CameraBox extends StatefulWidget {
   final Uid roomUid;
+  final Function(String)? onAvatarSelected;
+  final bool selectAsAvatar;
 
-  const CameraBox({super.key, required this.roomUid});
+  const CameraBox({
+    super.key,
+    required this.roomUid,
+    this.onAvatarSelected,
+    this.selectAsAvatar = false,
+  });
 
   @override
   State<CameraBox> createState() => _CameraBoxState();
@@ -21,6 +29,7 @@ class CameraBox extends StatefulWidget {
 class _CameraBoxState extends State<CameraBox> {
   final _cameraService = GetIt.I.get<CameraService>();
   final _i18n = GetIt.I.get<I18N>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void initState() {
@@ -32,7 +41,7 @@ class _CameraBoxState extends State<CameraBox> {
     return Stack(
       children: [
         StreamBuilder<bool>(
-          stream: _cameraService.changeCamera(),
+          stream: _cameraService.onCameraChanged(),
           builder: (context, snapshot) {
             var scale = MediaQuery.of(context).size.aspectRatio *
                 _cameraService.getAspectRatio();
@@ -53,28 +62,29 @@ class _CameraBoxState extends State<CameraBox> {
                 duration.data! > 0) {
               return Align(
                 alignment: Alignment.topCenter,
-                child: BlurContainer(
-                  skew: 4,
-                  // padding: const EdgeInsets.only(
-                  //     top: 6, bottom: 3, left: 12, right: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        CupertinoIcons.video_camera,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                      DefaultTextStyle(
-                        style: const TextStyle(
-                          decoration: TextDecoration.none,
-                          fontSize: 16,
+                child: SizedBox(
+                  width: 100,
+                  child: BlurContainer(
+                    skew: 4,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.video_camera,
+                          color: Colors.red,
+                          size: 40,
                         ),
-                        child: Text(
-                          _getDuration(Duration(seconds: duration.data!)),
+                        DefaultTextStyle(
+                          style: const TextStyle(
+                            decoration: TextDecoration.none,
+                            fontSize: 16,
+                          ),
+                          child: Text(
+                            _getDuration(Duration(seconds: duration.data!)),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -85,50 +95,43 @@ class _CameraBoxState extends State<CameraBox> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
-              padding: const EdgeInsets.only(bottom: 30),
-              child: GestureDetector(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      CupertinoIcons.circle,
-                      color: Colors.white,
-                      size: 80,
-                    ),
+            padding: const EdgeInsets.only(bottom: 30),
+            child: GestureDetector(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    CupertinoIcons.circle,
+                    size: 80,
+                  ),
+                  if (!widget.selectAsAvatar)
                     DefaultTextStyle(
                       style: const TextStyle(decoration: TextDecoration.none),
-                      child: Text(_i18n.get("camera_helper")),
+                      child: Text(
+                        _i18n.get("take_picture_and_video_helper"),
+                      ),
                     ),
-                  ],
-                ),
-                onTap: () {
-                  // // final navigatorState = Navigator.of(context);
-                  //                   // final file = await _controller!.takePicture();
-                  //                   // if (widget.setAvatar != null) {
-                  //                   //   widget.pop();
-                  //                   //   navigatorState.pop();
-                  //                   //   widget.setAvatar!(file.path);
-                  //                   // } else {
-                  //                   //   openImage(file, pop);
-                  //                   // }
-                  var file = _cameraService.takePicture();
-                },
-                onLongPressStart: (f) {
-                  _cameraService.startVideoRecorder();
-                },
-                onLongPressEnd: (d) async {
-                  var file = await _cameraService.stopVideoRecorder();
-                  unawaited(
-                      Navigator.push(context, MaterialPageRoute(builder: (c) {
-                    return VideoEditor(
-                      path: file.path,
-                      roomUid: widget.roomUid,
-                    );
-                  })));
-                },
-              )),
+                ],
+              ),
+              onTap: () => _cameraService.takePicture().then((file) {
+                if (widget.selectAsAvatar) {
+                  Navigator.pop(context);
+                  widget.onAvatarSelected!(file.path);
+                } else {
+                  openImage(file);
+                }
+              }),
+              onLongPressStart: (_) => !widget.selectAsAvatar
+                  ? _cameraService.recordAudioEnabled()
+                      ? _cameraService.startVideoRecorder()
+                      : _cameraService.enableRecordAudio()
+                  : null,
+              onLongPressEnd: (d) =>
+                  !widget.selectAsAvatar ? _onRouteToVideoViewer() : null,
+            ),
+          ),
         ),
-        if (_cameraService.switchToCameraOIsAvailable())
+        if (_cameraService.hasMultiCamera())
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -149,5 +152,47 @@ class _CameraBoxState extends State<CameraBox> {
 
   String _getDuration(Duration duration) {
     return "${duration.inMinutes < 10 ? "0${duration.inMinutes}" : duration.inMinutes}:${duration.inSeconds < 10 ? "0${duration.inSeconds}" : duration.inSeconds}";
+  }
+
+  void _sendMessage(File file, String caption, BuildContext ww) {
+    Navigator.pop(context);
+    _messageRepo.sendFileMessage(widget.roomUid, file, caption: caption);
+  }
+
+  void _onRouteToVideoViewer() {
+    _cameraService.stopVideoRecorder().then(
+          (file) => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (c) => VideoViewerPage(
+                file: file,
+                onSend: (caption) => _sendMessage(file, caption, c),
+              ),
+            ),
+          ),
+        );
+  }
+
+  void openImage(File file) {
+    var imagePath = file.path;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return OpenImagePage(
+            forceToShowCaptionTextField: true,
+            send: (caption) => _sendMessage(file, caption, c),
+            onEditEnd: (path) {
+              imagePath = path;
+              if (widget.selectAsAvatar) {
+                widget.onAvatarSelected!(imagePath);
+              }
+              Navigator.pop(context);
+            },
+            imagePath: imagePath,
+          );
+        },
+      ),
+    );
   }
 }

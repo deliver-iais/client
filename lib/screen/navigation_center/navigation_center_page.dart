@@ -167,7 +167,7 @@ class NavigationCenterState extends State<NavigationCenter>
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("contacts"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               )
                             ],
                           ),
@@ -181,7 +181,7 @@ class NavigationCenterState extends State<NavigationCenter>
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("new_group"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -195,7 +195,7 @@ class NavigationCenterState extends State<NavigationCenter>
                               const SizedBox(width: 8),
                               Text(
                                 _i18n.get("new_channel"),
-                                style: theme.primaryTextTheme.bodyText2,
+                                style: theme.primaryTextTheme.bodyMedium,
                               )
                             ],
                           ),
@@ -337,88 +337,91 @@ class NavigationCenterState extends State<NavigationCenter>
             ONCE_SHOW_NEW_VERSION_INFORMATION,
             () async {
               await Future.delayed(Duration.zero);
-              showFloatingModalBottomSheet(
-                context: context,
-                enableDrag: false,
-                isDismissible: false,
-                builder: (c) {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 8,
-                      left: 24,
-                      right: 24,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Ws.asset(
-                          "assets/animations/new_version.ws",
-                          height: 230,
-                          width: 300,
-                        ),
-                        Text(
-                          "${_i18n.get("update")} $APPLICATION_NAME",
-                          style: const TextStyle(fontSize: 25),
-                        ),
-                        Text(
-                          "${_i18n.get(
-                            "version",
-                          )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          snapshot.data!.description,
-                          maxLines: 5,
-                          style: const TextStyle(fontSize: 19),
-                        ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: [
-                            for (var downloadLink
-                                in snapshot.data!.downloadLinks)
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
+              if (context.mounted) {
+                showFloatingModalBottomSheet(
+                  context: context,
+                  enableDrag: false,
+                  isDismissible: false,
+                  builder: (c) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 8,
+                        left: 24,
+                        right: 24,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Ws.asset(
+                            "assets/animations/new_version.ws",
+                            height: 230,
+                            width: 300,
+                          ),
+                          Text(
+                            "${_i18n.get("update")} $APPLICATION_NAME",
+                            style: const TextStyle(fontSize: 25),
+                          ),
+                          Text(
+                            "${_i18n.get(
+                              "version",
+                            )} ${snapshot.data!.version} - Size ${snapshot.data!
+                                .size}",
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            snapshot.data!.description,
+                            maxLines: 5,
+                            style: const TextStyle(fontSize: 19),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              for (var downloadLink
+                              in snapshot.data!.downloadLinks)
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _urlHandlerService.handleNormalLink(
+                                        downloadLink.url,
+                                      ),
+                                  child: Text(
+                                    downloadLink.label,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              TextButton(
+                                style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                     vertical: 8,
                                   ),
                                 ),
-                                onPressed: () =>
-                                    _urlHandlerService.handleNormalLink(
-                                  downloadLink.url,
-                                ),
                                 child: Text(
-                                  downloadLink.label,
+                                  _i18n.get("remind_me_later"),
                                   style: const TextStyle(fontSize: 16),
                                 ),
-                              ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                              ),
-                              child: Text(
-                                _i18n.get("remind_me_later"),
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              onPressed: () => Navigator.pop(c),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ).ignore();
+                                onPressed: () => Navigator.pop(c),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                ).ignore();
+              }
             },
           );
         }

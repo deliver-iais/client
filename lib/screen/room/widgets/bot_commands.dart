@@ -70,7 +70,7 @@ class BotCommandsState extends State<BotCommands> {
                             children: [
                               Text(
                                 "/${botCommands.keys.toList()[index]}",
-                                style: theme.textTheme.subtitle1,
+                                style: theme.textTheme.titleMedium,
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -78,7 +78,7 @@ class BotCommandsState extends State<BotCommands> {
                                   opacity: 0.6,
                                   child: Text(
                                     botCommands.values.toList()[index],
-                                    style: theme.textTheme.bodyText2,
+                                    style: theme.textTheme.bodyMedium,
                                   ),
                                 ),
                               ),

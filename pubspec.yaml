@@ -79,7 +79,7 @@ dependencies:
   file_selector_linux: 0.9.1+1
   firebase_analytics: 10.1.4
   firebase_core: 2.7.0
-#  firebase_crashlytics: 3.0.12
+  #  firebase_crashlytics: 3.0.12
   firebase_messaging: 14.2.5
   fixnum: 1.1.0
   fraction: 4.1.4
@@ -132,11 +132,11 @@ dependencies:
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime: 1.0.4
-  mobile_scanner: 3.0.0
+  mobile_scanner: 2.1.0
   modal_bottom_sheet: 3.0.0-pre
   open_filex: 4.3.2
   pasteboard: 0.2.0
-  path: 1.8.3
+  path: 1.8.2
   path_provider: 2.0.13
   path_provider_android: 2.0.23
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
@@ -181,8 +181,6 @@ dependencies:
   uuid: 3.0.7
   vibration: 1.7.6
   video_player: 2.5.2
-  video_trimmer: 2.1.0
-  video_editor: 2.3.0
   wakelock: 0.6.2
   win_toast:
     git:

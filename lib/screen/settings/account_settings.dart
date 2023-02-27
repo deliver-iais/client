@@ -100,7 +100,8 @@ class AccountSettingsState extends State<AccountSettings> {
                         child: GalleryBox(
                           pop: () => Navigator.pop(context),
                           scrollController: scrollController,
-                          setAvatar: cropAvatar,
+                          selectAsAvatar: true,
+                          onAvatarSelected: cropAvatar,
                           roomUid: _authRepo.currentUserUid,
                         ),
                       ),
@@ -123,6 +124,7 @@ class AccountSettingsState extends State<AccountSettings> {
           return OpenImagePage(
             onEditEnd: (path) {
               imagePath = path;
+              Navigator.pop(c);
               Navigator.pop(context);
               setAvatar(imagePath);
             },
@@ -179,7 +181,7 @@ class AccountSettingsState extends State<AccountSettings> {
                 if (widget.forceToSetName)
                   Text(
                     _i18n.get("should_set_username_and_name"),
-                    style: theme.textTheme.headline6!.copyWith(fontSize: 10),
+                    style: theme.textTheme.titleLarge!.copyWith(fontSize: 10),
                   )
               ],
             ),
@@ -596,17 +598,22 @@ class AccountSettingsState extends State<AccountSettings> {
             final res =
                 await _accountRepo.updateEmail(_emailTextController.text);
             if (!res) {
-              ToastDisplay.showToast(
-                toastContext: context,
-                toastText: _i18n.get("email_not_verified"),
-              );
+              if (context.mounted) {
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("email_not_verified"),
+                );
+              }
+
               setPrivateInfo = false;
             }
           } catch (e) {
-            ToastDisplay.showToast(
-              toastContext: context,
-              toastText: _i18n.get("error_occurred_in_save_email"),
-            );
+            if (context.mounted) {
+              ToastDisplay.showToast(
+                toastContext: context,
+                toastText: _i18n.get("error_occurred_in_save_email"),
+              );
+            }
             setPrivateInfo = false;
           }
         }

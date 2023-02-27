@@ -655,12 +655,14 @@ class _AllMediaPageState extends State<AllMediaPage>
                 tooltip: _i18n.get("share"),
                 onPressed: () async {
                   final message = await getMessage();
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SHARE,
-                  );
+                  if (context.mounted) {
+                    return OperationOnMessageSelection(
+                      message: message!,
+                      context: context,
+                    ).selectOperation(
+                      OperationOnMessage.SHARE,
+                    );
+                  }
                 },
                 icon: const Icon(
                   Icons.share_rounded,
@@ -689,10 +691,12 @@ class _AllMediaPageState extends State<AllMediaPage>
           tooltip: _i18n.get("forward"),
           onPressed: () async {
             final message = await getMessage();
-            return OperationOnMessageSelection(
-              message: message!,
-              context: context,
-            ).selectOperation(OperationOnMessage.FORWARD);
+            if (context.mounted) {
+              return OperationOnMessageSelection(
+                message: message!,
+                context: context,
+              ).selectOperation(OperationOnMessage.FORWARD);
+            }
           },
         ),
         const SizedBox(
@@ -708,10 +712,12 @@ class _AllMediaPageState extends State<AllMediaPage>
             ),
             onPressed: () async {
               final message = await getMessage();
-              await OperationOnMessageSelection(
-                message: message!,
-                context: context,
-              ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+              if (context.mounted) {
+                await OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+              }
             },
             tooltip: _i18n.get("save_to_gallery"),
           ),

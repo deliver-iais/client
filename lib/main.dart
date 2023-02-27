@@ -104,6 +104,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -222,7 +223,9 @@ Future<void> setupDI() async {
     PersistentEventHandlerService(),
   );
   registerSingleton<BackgroundService>(BackgroundService());
-  registerSingleton<CameraService>(AndroidAndWebCameraService());
+  if (isAndroid || isIOS) {
+    registerSingleton<CameraService>(MobileCameraCameraService());
+  }
 }
 
 Future<void> dbSetupDI() async {

@@ -41,12 +41,14 @@ class OperationOnImageState extends State<OperationOnMedia> {
               CupertinoIcons.folder_open,
               () async {
                 final message = await (widget.getMessage());
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  OperationOnMessage.SHOW_IN_FOLDER,
-                );
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SHOW_IN_FOLDER,
+                  );
+                }
               },
             ),
             _buildPopupMenuItem(
@@ -54,12 +56,14 @@ class OperationOnImageState extends State<OperationOnMedia> {
               CupertinoIcons.down_arrow,
               () async {
                 final message = await (widget.getMessage());
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  OperationOnMessage.SAVE_TO_DOWNLOADS,
-                );
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SAVE_TO_DOWNLOADS,
+                  );
+                }
               },
             ),
             _buildPopupMenuItem(
@@ -67,12 +71,14 @@ class OperationOnImageState extends State<OperationOnMedia> {
               Icons.save_alt_rounded,
               () async {
                 final message = await (widget.getMessage());
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  OperationOnMessage.SAVE_AS,
-                );
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SAVE_AS,
+                  );
+                }
               },
             ),
           ],
@@ -82,12 +88,14 @@ class OperationOnImageState extends State<OperationOnMedia> {
               Icons.share_rounded,
               () async {
                 final message = await (widget.getMessage());
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  OperationOnMessage.SHARE,
-                );
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SHARE,
+                  );
+                }
               },
             ),
           if (isAndroid || isIOS)
@@ -96,12 +104,14 @@ class OperationOnImageState extends State<OperationOnMedia> {
               CupertinoIcons.down_arrow,
               () async {
                 final message = await (widget.getMessage());
-                return OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(
-                  OperationOnMessage.SAVE_TO_GALLERY,
-                );
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SAVE_TO_GALLERY,
+                  );
+                }
               },
             ),
         ],

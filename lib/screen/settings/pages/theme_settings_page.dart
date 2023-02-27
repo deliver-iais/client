@@ -543,7 +543,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       border: Border.all(
                         color: selectedBorderColor,
                         width: 2,
-                        strokeAlign: StrokeAlign.outside,
+                        strokeAlign:BorderSide.strokeAlignOutside,
                       ),
                     )
                   : null,

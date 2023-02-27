@@ -90,7 +90,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
               ),
               Text(
                 title,
-                style: theme.textTheme.headline6,
+                style: theme.textTheme.titleLarge,
               )
             ],
           ),

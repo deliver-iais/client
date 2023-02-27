@@ -93,7 +93,7 @@ class HomePageState extends State<HomePage> {
       try {
         // final bool isDeferredNotNull =
         //     js.context.callMethod("isDeferredNotNull", []) as bool;
-        //todo add to home web
+        // TODO(any): add to home web
         // if (isDeferredNotNull != nnulisDeferredNotNull) {
         //   //   ujs.context.callMethod("presentAddToHome");
         //   // return true;
@@ -162,8 +162,10 @@ class HomePageState extends State<HomePage> {
 
   Future<void> checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
-      showDialog(builder: (context) => NewFeatureDialog(), context: context)
+      if(context.mounted) {
+        showDialog(builder: (context) => NewFeatureDialog(), context: context)
           .ignore();
+      }
       unawaited(_accountRepo.updatePlatformVersion());
     }
   }

@@ -20,10 +20,8 @@ class OpenImagePage extends StatefulWidget {
   final List<String>? selectedImage;
   final Function(String)? onTap;
   final Function(String) onEditEnd;
-  final Function()? send;
+  final Function(String)? send;
   final bool forceToShowCaptionTextField;
-  final Function()? pop;
-  final TextEditingController? textEditingController;
   final bool sendSingleImage;
 
   const OpenImagePage({
@@ -31,9 +29,7 @@ class OpenImagePage extends StatefulWidget {
     this.selectedImage,
     this.onTap,
     this.send,
-    this.textEditingController,
     required this.imagePath,
-    this.pop,
     this.sendSingleImage = false,
     required this.onEditEnd,
     this.forceToShowCaptionTextField = false,
@@ -119,7 +115,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                         AndroidUiSettings(
                           toolbarTitle: _i18n.get("cropper"),
                           cropFrameColor: theme.primaryColorDark,
-                          toolbarColor: theme.bottomAppBarColor,
+                          toolbarColor: theme.bottomAppBarTheme.color,
                           toolbarWidgetColor: theme.colorScheme.onSurface,
                           activeControlsWidgetColor: theme.primaryColor,
                           initAspectRatio: CropAspectRatioPreset.original,
@@ -243,12 +239,10 @@ class _OpenImagePageState extends State<OpenImagePage> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: ShareBoxInputCaption(
-                    captionEditingController: widget.textEditingController!,
                     count: widget.selectedImage != null
                         ? widget.selectedImage!.length
                         : 0,
-                    send: () {
-                      widget.pop!();
+                    onSend: (caption) {
                       Navigator.pop(context);
                       setState(() {
                         widget.onEditEnd(imagePath);
@@ -258,7 +252,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                               widget.selectedImage!.isEmpty)) {
                         widget.selectedImage!.add(imagePath);
                       }
-                      widget.send!();
+                      widget.send!(caption);
                     },
                   ),
                 )

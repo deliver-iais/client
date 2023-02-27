@@ -252,13 +252,13 @@ class BotFormMessageState extends State<BotFormMessage> {
                           children: [
                             Text(
                               _i18n.get("form"),
-                              style: theme.textTheme.bodyText1?.copyWith(
+                              style: theme.textTheme.bodyLarge?.copyWith(
                                 color: widget.colorScheme.onPrimaryContainer,
                               ),
                             ),
                             Text(
                               form.title,
-                              style: theme.textTheme.bodyText2?.copyWith(
+                              style: theme.textTheme.bodyMedium?.copyWith(
                                 color: widget.colorScheme.onPrimaryContainer,
                               ),
                             ),
@@ -296,7 +296,7 @@ class BotFormMessageState extends State<BotFormMessage> {
             children: [
               Text(
                 form.title.titleCase,
-                style: theme.textTheme.subtitle2
+                style: theme.textTheme.titleSmall
                     ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
               ),
               StreamBuilder<String>(
@@ -363,7 +363,7 @@ class BotFormMessageState extends State<BotFormMessage> {
           child: Text(
             _i18n.get("submit"),
             style:
-                snapshot.data! ? Theme.of(context).textTheme.bodyText1 : null,
+                snapshot.data! ? Theme.of(context).textTheme.bodyLarge : null,
           ),
         );
       },

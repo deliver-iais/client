@@ -76,10 +76,12 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                   AccessTokenRes_Status.PASSWORD_PROTECTED) {
                 _showPasswordHint.add(true);
                 _passwordController.clear();
-                ToastDisplay.showToast(
-                  toastContext: context,
-                  toastText: _i18n.get("password_not_correct"),
-                );
+                if (context.mounted) {
+                  ToastDisplay.showToast(
+                    toastContext: context,
+                    toastText: _i18n.get("password_not_correct"),
+                  );
+                }
               }
             } on GrpcError catch (e) {
               if (e.code == StatusCode.permissionDenied) {
@@ -224,7 +226,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                                     value.length > _maxLength ||
                                                     value.length < _minLength
                                                 ? _i18n.get(
-                                                    "invalid_mobile_number",)
+                                                    "invalid_mobile_number",
+                                                  )
                                                 : null,
                                             onChanged: (p) {
                                               phoneNumber = p;
@@ -244,7 +247,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                             },
                         ),
                       ],
-                      style: theme.textTheme.bodyText2,
+                      style: theme.textTheme.bodyMedium,
                     ),
                     textDirection: TextDirection.rtl,
                   ),
@@ -261,11 +264,13 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
     if (_formKey.currentState!.validate()) {
       try {
         await _autRepo.sendForgetPasswordEmail(phoneNumber!);
-        ToastDisplay.showToast(
-          toastContext: context,
-          toastText:
-              "${_i18n.get("forget_password_send_link")} ${widget.accessTokenRes.forgotEmailHint}",
-        );
+        if (context.mounted) {
+          ToastDisplay.showToast(
+            toastContext: context,
+            toastText:
+                "${_i18n.get("forget_password_send_link")} ${widget.accessTokenRes.forgotEmailHint}",
+          );
+        }
       } catch (e) {
         ToastDisplay.showToast(
           toastContext: context,
