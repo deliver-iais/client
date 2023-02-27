@@ -23,6 +23,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -175,6 +176,7 @@ class NotificationServices {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
+  final _uxService = GetIt.I.get<UxService>();
 
   void notifyOutgoingMessage(String roomUid) {
     if (_routingService.isInRoom(roomUid)) {
@@ -260,11 +262,15 @@ class NotificationServices {
   }
 
   void _playSoundIn() {
-    _audioService.playSoundIn();
+    if (_uxService.playInChatSounds) {
+      _audioService.playSoundIn();
+    }
   }
 
   void _playSoundOut() {
-    _audioService.playSoundOut();
+    if (_uxService.playInChatSounds) {
+      _audioService.playSoundOut();
+    }
   }
 }
 

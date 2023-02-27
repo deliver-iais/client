@@ -143,18 +143,19 @@ class _TextUIState extends State<TextUI> {
                     )
                   : text,
             ),
-            StreamBuilder<double>(
-              stream: _textBoxWidth,
-              builder: (context, snapshot) {
-                return LinkPreview(
-                  link: _link,
-                  maxWidth: snapshot.data ?? 0,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                  foregroundColor: widget.colorScheme.primary,
-                );
-              },
-            ),
+            if (_uxService.showLinkPreview)
+              StreamBuilder<double>(
+                stream: _textBoxWidth,
+                builder: (context, snapshot) {
+                  return LinkPreview(
+                    link: _link,
+                    maxWidth: snapshot.data ?? 0,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                    foregroundColor: widget.colorScheme.primary,
+                  );
+                },
+              ),
             Align(
               alignment: Alignment.bottomRight,
               child: TimeAndSeenStatus(

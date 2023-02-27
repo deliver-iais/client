@@ -21,10 +21,12 @@ class UxService {
 
   final _themeIndex = BehaviorSubject.seeded(0);
   final _patternIndex = BehaviorSubject.seeded(0);
-  final _sliderValue = BehaviorSubject<double>.seeded(1);
+  final _textScaleValue = BehaviorSubject<double>.seeded(1);
   final _themeIsDark = BehaviorSubject.seeded(false);
   final _showTextsJustified = BehaviorSubject.seeded(false);
-  final _showColorful = BehaviorSubject.seeded(false);
+  final _showColorfulMessages = BehaviorSubject.seeded(false);
+  final _showLinkPreview = BehaviorSubject.seeded(true);
+  final _playInChatSounds = BehaviorSubject.seeded(true);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isNotificationAdvanceModeDisabled = BehaviorSubject.seeded(true);
@@ -83,14 +85,30 @@ class UxService {
       checkPlatformBrightness();
     };
     _sharedDao
-        .getBooleanStream(SHARED_DAO_THEME_SHOW_COLORFUL)
+        .getBooleanStream(SHARED_DAO_THEME_SHOW_COLORFUL_MESSAGES)
         .distinct()
-        .listen((isEnable) => _showColorful.add(isEnable));
+        .listen((isEnable) => _showColorfulMessages.add(isEnable));
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED)
         .distinct()
         .listen((isEnable) => _showTextsJustified.add(isEnable));
+
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_THEME_SHOW_LINK_PREVIEW,
+          defaultValue: true,
+        )
+        .distinct()
+        .listen((isEnable) => _showLinkPreview.add(isEnable));
+
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_THEME_PLAY_IN_CHAT_SOUNDS,
+          defaultValue: true,
+        )
+        .distinct()
+        .listen((isEnable) => _playInChatSounds.add(isEnable));
 
     init();
 
@@ -120,7 +138,7 @@ class UxService {
       if (event != null) {
         try {
           final textSize = double.parse(event);
-          _sliderValue.add(textSize);
+          _textScaleValue.add(textSize);
         } catch (_) {}
       }
     });
@@ -167,13 +185,18 @@ class UxService {
 
   Stream<int> get patternIndexStream => _patternIndex.distinct();
 
-  Stream<double> get sliderValueStream => _sliderValue.distinct();
+  Stream<double> get sliderValueStream => _textScaleValue.distinct();
 
   Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
-  Stream<bool> get showColorfulStream => _showColorful.distinct();
+  Stream<bool> get showColorfulMessagesStream =>
+      _showColorfulMessages.distinct();
 
   Stream<bool> get showTextsJustifiedStream => _showTextsJustified.distinct();
+
+  Stream<bool> get showLinkPreviewStream => _showLinkPreview.distinct();
+
+  Stream<bool> get playInChatSoundsStream => _playInChatSounds.distinct();
 
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
@@ -186,15 +209,19 @@ class UxService {
 
   bool get themeIsDark => _themeIsDark.value;
 
-  bool get showColorful => _showColorful.value;
+  bool get showColorfulMessages => _showColorfulMessages.value;
 
   bool get showTextsJustified => _showTextsJustified.value;
+
+  bool get showLinkPreview => _showLinkPreview.value;
+
+  bool get playInChatSounds => _playInChatSounds.value;
 
   int get themeIndex => _themeIndex.value;
 
   int get patternIndex => _patternIndex.value;
 
-  double get sliderValue => _sliderValue.value;
+  double get sliderValue => _textScaleValue.value;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
@@ -268,13 +295,13 @@ class UxService {
     _themeIsDark.add(true);
   }
 
-  void toggleShowColorful() {
-    if (_showColorful.value) {
-      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL, false);
-      _showColorful.add(false);
+  void toggleShowColorfulMessages() {
+    if (_showColorfulMessages.value) {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL_MESSAGES, false);
+      _showColorfulMessages.add(false);
     } else {
-      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL, true);
-      _showColorful.add(true);
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL_MESSAGES, true);
+      _showColorfulMessages.add(true);
     }
   }
 
@@ -285,6 +312,26 @@ class UxService {
     } else {
       _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED, true);
       _showTextsJustified.add(true);
+    }
+  }
+
+  void toggleShowLinkPreview() {
+    if (_showLinkPreview.value) {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_LINK_PREVIEW, false);
+      _showLinkPreview.add(false);
+    } else {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_LINK_PREVIEW, true);
+      _showLinkPreview.add(true);
+    }
+  }
+
+  void togglePlayInChatSounds() {
+    if (_playInChatSounds.value) {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_PLAY_IN_CHAT_SOUNDS, false);
+      _playInChatSounds.add(false);
+    } else {
+      _sharedDao.putBoolean(SHARED_DAO_THEME_PLAY_IN_CHAT_SOUNDS, true);
+      _playInChatSounds.add(true);
     }
   }
 
@@ -300,7 +347,7 @@ class UxService {
 
   void selectTextSize(double index) {
     _sharedDao.put(SHARED_DAO_THEME_FONT_SIZE, index.toString());
-    _sliderValue.add(index);
+    _textScaleValue.add(index);
   }
 
   void toggleSendByEnter() {

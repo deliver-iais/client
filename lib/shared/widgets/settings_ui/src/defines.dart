@@ -10,11 +10,7 @@ const defaultTitlePadding = EdgeInsets.only(
   top: 4.0,
 );
 
-const defaultTitleMargin = EdgeInsets.only(
-  left: MAIN_BORDER_RADIUS_SIZE / 28,
-  right: MAIN_BORDER_RADIUS_SIZE / 28,
-  bottom: 5.0,
-);
+const defaultTitleMargin = EdgeInsets.only(bottom: 6);
 
 const defaultCupertinoForwardIcon = Icon(
   CupertinoIcons.forward,

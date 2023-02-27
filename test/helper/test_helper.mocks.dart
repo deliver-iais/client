@@ -6835,7 +6835,7 @@ class MockUxService extends _i1.Mock implements _i89.UxService {
       ) as _i22.Stream<bool>);
 
   @override
-  _i22.Stream<bool> get showColorfulStream => (super.noSuchMethod(
+  _i22.Stream<bool> get showColorfulMessagesStream => (super.noSuchMethod(
         Invocation.getter(#showColorfulStream),
         returnValue: _i22.Stream<bool>.empty(),
       ) as _i22.Stream<bool>);
@@ -6865,7 +6865,7 @@ class MockUxService extends _i1.Mock implements _i89.UxService {
       ) as bool);
 
   @override
-  bool get showColorful => (super.noSuchMethod(
+  bool get showColorfulMessages => (super.noSuchMethod(
         Invocation.getter(#showColorful),
         returnValue: false,
       ) as bool);
@@ -7026,7 +7026,7 @@ class MockUxService extends _i1.Mock implements _i89.UxService {
       );
 
   @override
-  void toggleShowColorful() => super.noSuchMethod(
+  void toggleShowColorfulMessages() => super.noSuchMethod(
         Invocation.method(
           #toggleShowColorful,
           [],

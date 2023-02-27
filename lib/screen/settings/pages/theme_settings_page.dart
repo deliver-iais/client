@@ -246,10 +246,23 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                         switchValue: _uxService.showTextsJustified,
                         onToggle: (value) {
                           _analyticsService.sendLogEvent(
-                            "themeColorfulMessageToggle",
+                            "toggleShowTextsJustified",
                           );
                           setState(() {
                             _uxService.toggleShowTextsJustified();
+                          });
+                        },
+                      ),
+                      SettingsTile.switchTile(
+                        title: _i18n.get("show_link_preview"),
+                        leading: const Icon(CupertinoIcons.link),
+                        switchValue: _uxService.showLinkPreview,
+                        onToggle: (value) {
+                          _analyticsService.sendLogEvent(
+                            "toggleShowLinkPreview",
+                          );
+                          setState(() {
+                            _uxService.toggleShowLinkPreview();
                           });
                         },
                       ),
@@ -392,20 +405,33 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             SettingsTile.switchTile(
                               title: _i18n.get("colorful_messages"),
                               leading: const Icon(CupertinoIcons.paintbrush),
-                              switchValue: _uxService.showColorful,
+                              switchValue: _uxService.showColorfulMessages,
                               onToggle: (value) {
                                 _analyticsService.sendLogEvent(
                                   "themeColorfulMessageToggle",
                                 );
                                 setState(() {
-                                  _uxService.toggleShowColorful();
+                                  _uxService.toggleShowColorfulMessages();
                                 });
                               },
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: _buildThemeSelection(),
-                            )
+                            ),
+                            SettingsTile.switchTile(
+                              title: _i18n.get("play_in_chat_sounds"),
+                              leading: const Icon(CupertinoIcons.bell),
+                              switchValue: _uxService.playInChatSounds,
+                              onToggle: (value) {
+                                _analyticsService.sendLogEvent(
+                                  "togglePlayInChatSounds",
+                                );
+                                setState(() {
+                                  _uxService.togglePlayInChatSounds();
+                                });
+                              },
+                            ),
                           ],
                         ),
                       ],
