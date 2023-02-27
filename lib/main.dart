@@ -224,7 +224,7 @@ Future<void> setupDI() async {
   );
   registerSingleton<BackgroundService>(BackgroundService());
   if (isAndroid || isIOS) {
-    registerSingleton<CameraService>(MobileCameraCameraService());
+    registerSingleton<CameraService>(MobileCameraService());
   }
 }
 

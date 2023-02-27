@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:deliver/screen/room/widgets/share_box/cemara_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_folder.dart';
 import 'package:deliver/services/camera_service.dart';
@@ -45,6 +44,7 @@ class GalleryBoxState extends State<GalleryBox> {
 
   final BehaviorSubject<List<AssetPathEntity>> _folders =
       BehaviorSubject.seeded([]);
+  final BehaviorSubject<bool> _canInitCamera = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -53,19 +53,24 @@ class GalleryBoxState extends State<GalleryBox> {
   }
 
   Future<void> _initFolders() async {
-    if (await checkAccessMediaLocationPermission()) {
-      final folders =
-          await PhotoManager.getAssetPathList(type: RequestType.image);
-      final finalFolders = <AssetPathEntity>[];
+    try {
+      await _checkPermissionServices.checkCameraRecorderPermission();
+      await _cameraService
+          .initCamera()
+          .then((value) => _canInitCamera.add(value));
+      if (await checkAccessMediaLocationPermission()) {
+        final folders =
+            await PhotoManager.getAssetPathList(type: RequestType.image);
+        final finalFolders = <AssetPathEntity>[];
 
-      for (final f in folders) {
-        if ((await f.assetCountAsync) > 0) {
-          finalFolders.add(f);
+        for (final f in folders) {
+          if ((await f.assetCountAsync) > 0) {
+            finalFolders.add(f);
+          }
         }
+        _folders.add(finalFolders);
       }
-      _folders.add(finalFolders);
-    }
-    await _checkPermissionServices.checkCameraRecorderPermission();
+    } catch (_) {}
   }
 
   Future<bool> checkAccessMediaLocationPermission() async {
@@ -87,114 +92,104 @@ class GalleryBoxState extends State<GalleryBox> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.colorScheme.surfaceVariant,
-      body: FutureBuilder<bool>(
-        initialData: false,
-        future: _cameraService.initCamera(),
-        builder: (c, hasCameraSnapshot) {
-          final hasCamera = hasCameraSnapshot.hasData &&
-              hasCameraSnapshot.data != null &&
-              hasCameraSnapshot.data!;
-          return StreamBuilder<List<AssetPathEntity>?>(
-            stream: _folders,
-            builder: (context, snap) {
-              if (snap.hasData && snap.data != null) {
-                final folders = snap.data!;
-                return GridView.builder(
-                  controller: widget.scrollController,
-                  itemCount: hasCamera ? folders.length + 1 : folders.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                  ),
-                  itemBuilder: (co, index) {
-                    if (hasCamera && index == 0) {
-                      return Container(
-                        clipBehavior: Clip.hardEdge,
-                        margin: const EdgeInsets.all(20.0),
-                        decoration: BoxDecoration(
-                          color: Theme.of(co).primaryColor,
-                          borderRadius: secondaryBorder,
-                          boxShadow: [
-                            BoxShadow(
-                              color: theme.colorScheme.shadow.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 3,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+      body: StreamBuilder(
+        stream: MergeStream([_folders, _canInitCamera]),
+        builder: (context, snap) {
+          final hasCamera = _canInitCamera.value;
+          if (snap.hasData && snap.data != null) {
+            return GridView.builder(
+              controller: widget.scrollController,
+              itemCount:
+                  hasCamera ? _folders.value.length + 1 : _folders.value.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
+              itemBuilder: (co, index) {
+                if (hasCamera && index == 0) {
+                  return Container(
+                    clipBehavior: Clip.hardEdge,
+                    margin: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(co).primaryColor,
+                      borderRadius: secondaryBorder,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset: const Offset(0, 3),
                         ),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CameraBox(
-                                onAvatarSelected: widget.onAvatarSelected,
-                                selectAsAvatar: widget.selectAsAvatar,
-                                roomUid: widget.roomUid,
+                      ],
+                    ),
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CameraBox(
+                            onAvatarSelected: widget.onAvatarSelected,
+                            selectAsAvatar: widget.selectAsAvatar,
+                            roomUid: widget.roomUid,
+                          ),
+                        ),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          _cameraService.buildPreview(),
+                          const Center(
+                            child: Icon(
+                              CupertinoIcons.camera,
+                              size: 40,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                } else {
+                  final folder = _folders.value[hasCamera ? index - 1 : index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        co,
+                        MaterialPageRoute(
+                          builder: (c) {
+                            return GalleryFolder(
+                              folder,
+                              widget.roomUid,
+                              () => Navigator.pop(context),
+                              onAvatarSelected: widget.onAvatarSelected,
+                              selectAsAvatar: widget.selectAsAvatar,
+                              replyMessageId: widget.replyMessageId,
+                              resetRoomPageDetails: widget.resetRoomPageDetails,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: FutureBuilder<List<AssetEntity>>(
+                        future: folder.getAssetListPaged(page: 0, size: 2),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                            return Stack(
+                              children: buildGallery(
+                                snapshot.data!,
+                                folder.name,
                               ),
-                            ),
-                          ),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              _cameraService.buildPreview(),
-                              const Center(
-                                child: Icon(
-                                  CupertinoIcons.camera,
-                                  size: 40,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      final folder = folders[hasCamera ? index - 1 : index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            co,
-                            MaterialPageRoute(
-                              builder: (c) {
-                                return GalleryFolder(
-                                  folder,
-                                  widget.roomUid,
-                                  () => Navigator.pop(context),
-                                  onAvatarSelected: widget.onAvatarSelected,
-                                  selectAsAvatar: widget.selectAsAvatar,
-                                  replyMessageId: widget.replyMessageId,
-                                  resetRoomPageDetails:
-                                      widget.resetRoomPageDetails,
-                                );
-                              },
-                            ),
-                          );
+                            );
+                          }
+                          return const SizedBox.shrink();
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: FutureBuilder<List<AssetEntity>>(
-                            future: folder.getAssetListPaged(page: 0, size: 2),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData &&
-                                  snapshot.data!.isNotEmpty) {
-                                return Stack(
-                                  children: buildGallery(
-                                    snapshot.data!,
-                                    folder.name,
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          );
+                      ),
+                    ),
+                  );
+                }
+              },
+            );
+          }
+          return const SizedBox.shrink();
         },
       ),
     );

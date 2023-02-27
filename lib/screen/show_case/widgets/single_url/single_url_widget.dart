@@ -81,6 +81,7 @@ class SingleUrlWidget extends StatelessWidget {
                           pinCodeSettings: urlCase.botCallback.pinCodeSettings,
                           data: urlCase.botCallback.data,
                           botUid: urlCase.botCallback.bot.asString(),
+                          showHelper: true,
                         );
                       }
                     } else if (urlCase.botCallback.pinCodeSettings

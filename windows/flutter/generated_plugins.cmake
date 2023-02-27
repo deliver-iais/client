@@ -4,7 +4,6 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
-  camera_windows
   connectivity_plus
   dart_vlc
   desktop_drop

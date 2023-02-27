@@ -10,8 +10,6 @@ import 'package:rxdart/rxdart.dart';
 abstract class CameraService {
   Logger logger = GetIt.I.get<Logger>();
 
-  bool cameraIsAvailable();
-
   bool hasMultiCamera();
 
   Future<void> switchToAnotherCamera();
@@ -32,27 +30,22 @@ abstract class CameraService {
 
   Stream<int> getDuration();
 
-  Future<void> enableRecordAudio();
+  Future<void> changeRecordAudioState();
 
-  bool recordAudioEnabled();
+  bool enableAudio();
 
   void dispose();
 }
 
-class MobileCameraCameraService extends CameraService {
+class MobileCameraService extends CameraService {
   Timer? timer;
   late CameraController _controller;
   List<CameraDescription> _cameras = [];
-  BehaviorSubject<int> duration = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _duration = BehaviorSubject.seeded(0);
 
   final _checkPermissionService = GetIt.I.get<CheckPermissionsService>();
 
-  BehaviorSubject<bool> switchTo = BehaviorSubject.seeded(true);
-
-  @override
-  bool cameraIsAvailable() {
-    return false;
-  }
+  final BehaviorSubject<bool> _onChanged = BehaviorSubject.seeded(true);
 
   @override
   Future<bool> initCamera() async {
@@ -67,7 +60,6 @@ class MobileCameraCameraService extends CameraService {
           enableAudio: microphonePermissionIsGranted,
         );
         await _controller.initialize();
-
         return true;
       }
     } catch (e) {
@@ -89,7 +81,7 @@ class MobileCameraCameraService extends CameraService {
       enableAudio: _controller.enableAudio,
     );
     await _controller.initialize();
-    switchTo.add(!switchTo.value);
+    _onChanged.add(!_onChanged.value);
   }
 
   @override
@@ -101,14 +93,14 @@ class MobileCameraCameraService extends CameraService {
   @override
   Future<void> startVideoRecorder() async {
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      duration.add(duration.value + 1);
+      _duration.add(_duration.value + 1);
     });
     await _controller.startVideoRecording();
   }
 
   @override
   Future<File> stopVideoRecorder() async {
-    duration.add(0);
+    _duration.add(0);
     timer?.cancel();
     final file = await _controller.stopVideoRecording();
     return File(file.path, file.name, extension: file.mimeType);
@@ -120,7 +112,7 @@ class MobileCameraCameraService extends CameraService {
       );
 
   @override
-  Stream<bool> onCameraChanged() => switchTo.stream;
+  Stream<bool> onCameraChanged() => _onChanged.stream;
 
   @override
   double getAspectRatio() => _controller.value.aspectRatio;
@@ -130,18 +122,19 @@ class MobileCameraCameraService extends CameraService {
 
   @override
   Stream<int> getDuration() {
-    return duration.stream;
+    return _duration.stream;
   }
 
   @override
-  Future<void> enableRecordAudio() async {
-    _controller = _controller = CameraController(
-      _cameras[0],
+  Future<void> changeRecordAudioState() async {
+    _controller = CameraController(
+      _controller.description,
       ResolutionPreset.max,
+      enableAudio: !_controller.enableAudio,
     );
     await _controller.initialize();
   }
 
   @override
-  bool recordAudioEnabled() => _controller.enableAudio;
+  bool enableAudio() => _controller.enableAudio;
 }

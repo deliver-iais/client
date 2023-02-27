@@ -7,7 +7,6 @@
 #include "generated_plugin_registrant.h"
 
 #include <audioplayers_windows/audioplayers_windows_plugin.h>
-#include <camera_windows/camera_windows.h>
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
 #include <dart_vlc/dart_vlc_plugin.h>
 #include <desktop_drop/desktop_drop_plugin.h>
@@ -31,8 +30,6 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AudioplayersWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("AudioplayersWindowsPlugin"));
-  CameraWindowsRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("CameraWindows"));
   ConnectivityPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   DartVlcPluginRegisterWithRegistrar(

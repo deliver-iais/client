@@ -122,12 +122,29 @@ class _CameraBoxState extends State<CameraBox> {
                 }
               }),
               onLongPressStart: (_) => !widget.selectAsAvatar
-                  ? _cameraService.recordAudioEnabled()
-                      ? _cameraService.startVideoRecorder()
-                      : _cameraService.enableRecordAudio()
+                  ? _cameraService.startVideoRecorder()
                   : null,
               onLongPressEnd: (d) =>
                   !widget.selectAsAvatar ? _onRouteToVideoViewer() : null,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 30, left: 10),
+            child: IconButton(
+              onPressed: () async {
+                await _cameraService.changeRecordAudioState();
+                setState(() {});
+              },
+              icon: Icon(
+                _cameraService.enableAudio()
+                    ? CupertinoIcons.volume_mute
+                    : CupertinoIcons.volume_up,
+              ),
+              color: Colors.white70,
+              iconSize: 35,
             ),
           ),
         ),
@@ -154,7 +171,7 @@ class _CameraBoxState extends State<CameraBox> {
     return "${duration.inMinutes < 10 ? "0${duration.inMinutes}" : duration.inMinutes}:${duration.inSeconds < 10 ? "0${duration.inSeconds}" : duration.inSeconds}";
   }
 
-  void _sendMessage(File file, String caption, BuildContext ww) {
+  void _sendMessage(File file, String caption) {
     Navigator.pop(context);
     _messageRepo.sendFileMessage(widget.roomUid, file, caption: caption);
   }
@@ -166,7 +183,7 @@ class _CameraBoxState extends State<CameraBox> {
             MaterialPageRoute(
               builder: (c) => VideoViewerPage(
                 file: file,
-                onSend: (caption) => _sendMessage(file, caption, c),
+                onSend: (caption) => _sendMessage(file, caption),
               ),
             ),
           ),
@@ -181,7 +198,7 @@ class _CameraBoxState extends State<CameraBox> {
         builder: (c) {
           return OpenImagePage(
             forceToShowCaptionTextField: true,
-            send: (caption) => _sendMessage(file, caption, c),
+            send: (caption) => _sendMessage(file, caption),
             onEditEnd: (path) {
               imagePath = path;
               if (widget.selectAsAvatar) {

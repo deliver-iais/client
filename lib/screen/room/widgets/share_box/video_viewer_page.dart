@@ -28,7 +28,10 @@ class VideoViewerPage extends StatelessWidget {
             alignment: AlignmentDirectional.bottomCenter,
             child: ShareBoxInputCaption(
               count: 1,
-              onSend: onSend,
+              onSend: (path) {
+                onSend(path);
+                Navigator.pop(context);
+              },
             ),
           )
         ],
