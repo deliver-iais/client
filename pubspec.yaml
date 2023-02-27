@@ -123,7 +123,7 @@ dependencies:
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime: 1.0.4
-  mobile_scanner: 2.1.0
+  mobile_scanner: 3.0.0
   modal_bottom_sheet: 3.0.0-pre
   open_filex: 4.3.2
   pasteboard: 0.2.0
