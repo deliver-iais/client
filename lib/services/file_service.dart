@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -167,6 +168,19 @@ class FileService {
       ),
     );
     _cancelUploadFile();
+  }
+
+  _addFileUploadTokenHeader(String fileUploadToken) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          options.baseUrl =
+              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
+          options.headers["UploadFileToken"] = fileUploadToken;
+          return handler.next(options); //continue
+        },
+      ),
+    );
   }
 
   Future<String?> getFile(
@@ -536,9 +550,13 @@ class FileService {
     } else {
       size = (File(filePath).lengthSync()).toString();
     }
+    print("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
+    final decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
+      //add fileUploadToken to header
+      _addFileUploadTokenHeader(decoded["token"]);
       try {
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
@@ -570,6 +588,7 @@ class FileService {
             "file": MultipartFile.fromFileSync(
               filePath,
               contentType: filePath.getMediaType(),
+              filename: filename,
               headers: {
                 Headers.contentLengthHeader: [size], // set content-length
               },
@@ -594,9 +613,9 @@ class FileService {
               };
               handler.next(options);
             },
-          ),
+          )
         );
-        final uploadUri = !isVoice ? "/upload" : "/upload?isVoice=true";
+        final uploadUri = !isVoice ? "/uploadWithFileToken" : "/uploadWithFileToken?isVoice=true";
         return _dio.post(uploadUri, data: formData, cancelToken: cancelToken);
       } catch (e) {
         updateFileStatus(uploadKey, FileStatus.CANCELED);
@@ -625,10 +644,12 @@ class FileService {
               filePath = await compressImageInMacOrLinux(File(file.path));
             }
             _logger.i(
-                "compressTime : ${clock.now().millisecondsSinceEpoch - time}");
+              "compressTime : ${clock.now().millisecondsSinceEpoch - time}",
+            );
           }
         }
         file = file.copyWith(
+            name: getFileName(filePath),
             path: filePath,
             size: File(filePath).lengthSync(),
             extension: getFileExtension(filePath));

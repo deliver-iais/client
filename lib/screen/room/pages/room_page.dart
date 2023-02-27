@@ -45,6 +45,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -95,22 +96,27 @@ class RoomPage extends StatefulWidget {
 
 class RoomPageState extends State<RoomPage> {
   static final _logger = GetIt.I.get<Logger>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
+  static final _i18n = GetIt.I.get<I18N>();
+
+  static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _mucDao = GetIt.I.get<MucDao>();
+
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _routingService = GetIt.I.get<RoutingService>();
-  static final _notificationServices = GetIt.I.get<NotificationServices>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _botRepo = GetIt.I.get<BotRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
-  static final _sharedDao = GetIt.I.get<SharedDao>();
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
-  static final _mucDao = GetIt.I.get<MucDao>();
-  static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
-  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
+
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _notificationServices = GetIt.I.get<NotificationServices>();
+  static final _callService = GetIt.I.get<CallService>();
+  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -430,15 +436,13 @@ class RoomPageState extends State<RoomPage> {
   @override
   void initState() {
     _roomRepo.updateUserInfo(widget.roomId.asUid());
-    if (isDesktop) {
-      _appLifecycleService.watchAppAppLifecycle().listen((event) {
-        _appIsActive = event == AppLifecycle.ACTIVE;
-        if (_appIsActive) {
-          _sendSeenMessage(_backgroundMessages);
-          _backgroundMessages.clear();
-        }
-      });
-    }
+    _appLifecycleService.watchAppAppLifecycle().listen((event) {
+      _appIsActive = event == AppLifecycle.ACTIVE;
+      if (_appIsActive) {
+        _sendSeenMessage(_backgroundMessages);
+        _backgroundMessages.clear();
+      }
+    });
 
     initRoomStream();
     initPendingMessages();
@@ -736,6 +740,12 @@ class RoomPageState extends State<RoomPage> {
       if (_appIsActive) {
         _sendSeenMessage([msg]);
       } else {
+        final roomName = await _roomRepo.getName(msg.roomUid.asUid());
+        _notificationServices.notifyIncomingMessage(
+          _messageExtractorServices.extractProtocolBufferMessage(msg),
+          msg.roomUid,
+          roomName: roomName,
+        );
         _backgroundMessages.add(msg);
       }
     });
