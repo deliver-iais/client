@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -20,9 +21,9 @@ import 'package:gallery_saver/files.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
+import 'package:image_compression/image_compression.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart'
     as compress2;
-import 'package:image_compression/image_compression.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -605,5 +606,36 @@ class FileService {
     } else {
       return result;
     }
+  }
+
+  Future<model.File> compressFile(model.File file) async {
+    if (!isWeb) {
+      try {
+        final mediaType = file.path.getMediaType();
+        var filePath = file.path;
+        if (mediaType.type.contains("image") &&
+            !mediaType.subtype.contains("gif")) {
+          if (isAndroid || isIOS) {
+            filePath = await compressImageInMobile(File(file.path));
+          } else {
+            final time = clock.now().millisecondsSinceEpoch;
+            if (isWindows) {
+              filePath = await compressImageInWindows(File(file.path));
+            } else {
+              filePath = await compressImageInMacOrLinux(File(file.path));
+            }
+            _logger.i(
+                "compressTime : ${clock.now().millisecondsSinceEpoch - time}");
+          }
+        }
+        file = file.copyWith(
+            path: filePath,
+            size: File(filePath).lengthSync(),
+            extension: getFileExtension(filePath));
+      } catch (_) {
+        _logger.e(_);
+      }
+    }
+    return file;
   }
 }

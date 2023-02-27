@@ -777,36 +777,7 @@ class MessageRepo {
     final packetId = await _getPacketIdWithLastMessageId(room.asString());
 
     //first we compress the file if possible
-    if (!isWeb) {
-      try {
-        final mediaType = file.path.getMediaType();
-        var filePath = file.path;
-        if (mediaType.type.contains("image") &&
-            !mediaType.subtype.contains("gif")) {
-          if (isAndroid || isIOS) {
-            filePath =
-                await _fileService.compressImageInMobile(File(file.path));
-          } else {
-            final time = clock.now().millisecondsSinceEpoch;
-            if (isWindows) {
-              filePath =
-                  await _fileService.compressImageInWindows(File(file.path));
-            } else {
-              filePath =
-                  await _fileService.compressImageInMacOrLinux(File(file.path));
-            }
-            print(
-                "compressTime : ${clock.now().millisecondsSinceEpoch - time}");
-          }
-        }
-        file = file.copyWith(
-            path: filePath,
-            size: File(filePath).lengthSync(),
-            extension: getFileExtension(filePath));
-      } catch (_) {
-        _logger.e(_);
-      }
-    }
+    file = await _fileService.compressFile(file);
 
     final msg = await buildMessageFromFile(
       room,
