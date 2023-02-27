@@ -40,8 +40,8 @@ class _ScanQrCode extends State<ScanQrCode> {
       children: [
         MobileScanner(
           controller: _mobileScannerController,
-          onDetect: (barcode, args) {
-            if (barcode.rawValue != null) {
+          onDetect: (b) {
+            for (final barcode in b.barcodes) {
               _urlHandlerService.handleApplicationUri(
                 barcode.rawValue!,
               );

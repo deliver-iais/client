@@ -26,10 +26,11 @@ import just_audio
 import livekit_client
 import mobile_scanner
 import pasteboard
-import path_provider_macos
+import path_provider_foundation
 import photo_manager
 import record_macos
-import shared_preferences_macos
+import rive_common
+import shared_preferences_foundation
 import smart_auth
 import url_launcher_macos
 import wakelock_macos
@@ -60,6 +61,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   PhotoManagerPlugin.register(with: registry.registrar(forPlugin: "PhotoManagerPlugin"))
   RecordMacosPlugin.register(with: registry.registrar(forPlugin: "RecordMacosPlugin"))
+  RivePlugin.register(with: registry.registrar(forPlugin: "RivePlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
   SmartAuthPlugin.register(with: registry.registrar(forPlugin: "SmartAuthPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
