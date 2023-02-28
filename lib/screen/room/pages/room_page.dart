@@ -390,7 +390,10 @@ class RoomPageState extends State<RoomPage> {
             stream: _isScrolling,
             builder: (context, snapshot) {
               final showArrow =
-                  (isDesktop && _messageReplyHistory.isNotEmpty) ||
+                  (!(snapshot.data?.isMouseExitFromScrollWidget ?? false) &&
+                          !(snapshot.data?.isScrolling ?? false) &&
+                          !(snapshot.data?.isInNearToEndOfPage ?? false)) ||
+                      (isDesktop && _messageReplyHistory.isNotEmpty) ||
                       ((snapshot.data?.isScrolling ?? false) &&
                           (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
                           (snapshot.data?.scrollingDirection ==
@@ -652,8 +655,14 @@ class RoomPageState extends State<RoomPage> {
     _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
       if (event.lastMessageId != room.lastMessageId &&
           _isScrolling.valueOrNull != null) {
-        _fireScrollEvent(_isScrolling.valueOrNull!.pixel);
-        _calmScrollEvent(_isScrolling.valueOrNull!.pixel);
+        _fireScrollEvent(
+          _isScrolling.valueOrNull!.pixel,
+          isInNearToEndOfPage: _isScrolling.valueOrNull!.isInNearToEndOfPage,
+        );
+        _calmScrollEvent(
+          _isScrolling.valueOrNull!.pixel,
+          isInNearToEndOfPage: _isScrolling.valueOrNull!.isInNearToEndOfPage,
+        );
       }
       _room.add(event);
       if (!event.synced) {
@@ -984,7 +993,12 @@ class RoomPageState extends State<RoomPage> {
         _isArrowIconFocused = false;
         scrollEndNotificationTimer = Timer(
             const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-          _isScrolling.add(_isScrolling.value.copyWith(isScrolling: false));
+          _isScrolling.add(
+            _isScrolling.value.copyWith(
+              isMouseExitFromScrollWidget: true,
+              isScrolling: false,
+            ),
+          );
         });
       },
       child: GestureDetector(
@@ -1864,6 +1878,7 @@ class ScrollingState {
   final bool isScrolling;
   final bool isInNearToStartOfPage;
   final bool isInNearToEndOfPage;
+  final bool isMouseExitFromScrollWidget;
 
   ScrollingState(
     this.pixel,
@@ -1871,6 +1886,7 @@ class ScrollingState {
     required this.isScrolling,
     this.isInNearToStartOfPage = false,
     this.isInNearToEndOfPage = false,
+    this.isMouseExitFromScrollWidget = false,
   });
 
   ScrollingState copyWith({
@@ -1879,6 +1895,7 @@ class ScrollingState {
     bool? isScrolling,
     bool? isInNearToStartOfPage,
     bool? isInNearToEndOfPage,
+    bool? isMouseExitFromScrollWidget,
   }) =>
       ScrollingState(
         pixel ?? this.pixel,
@@ -1887,6 +1904,8 @@ class ScrollingState {
         isInNearToStartOfPage:
             isInNearToStartOfPage ?? this.isInNearToStartOfPage,
         isInNearToEndOfPage: isInNearToEndOfPage ?? this.isInNearToEndOfPage,
+        isMouseExitFromScrollWidget:
+            isMouseExitFromScrollWidget ?? this.isMouseExitFromScrollWidget,
       );
 
   @override
@@ -1894,15 +1913,30 @@ class ScrollingState {
       identical(this, other) ||
       (other.runtimeType == runtimeType &&
           other is ScrollingState &&
-          const DeepCollectionEquality().equals(other.pixel, pixel) &&
-          const DeepCollectionEquality()
-              .equals(other.scrollingDirection, scrollingDirection) &&
-          const DeepCollectionEquality()
-              .equals(other.isScrolling, isScrolling) &&
-          const DeepCollectionEquality()
-              .equals(other.isInNearToStartOfPage, isInNearToStartOfPage) &&
-          const DeepCollectionEquality()
-              .equals(other.isInNearToEndOfPage, isInNearToEndOfPage));
+          const DeepCollectionEquality().equals(
+            other.pixel,
+            pixel,
+          ) &&
+          const DeepCollectionEquality().equals(
+            other.scrollingDirection,
+            scrollingDirection,
+          ) &&
+          const DeepCollectionEquality().equals(
+            other.isScrolling,
+            isScrolling,
+          ) &&
+          const DeepCollectionEquality().equals(
+            other.isInNearToStartOfPage,
+            isInNearToStartOfPage,
+          ) &&
+          const DeepCollectionEquality().equals(
+            other.isInNearToEndOfPage,
+            isInNearToEndOfPage,
+          ) &&
+          const DeepCollectionEquality().equals(
+            other.isMouseExitFromScrollWidget,
+            isMouseExitFromScrollWidget,
+          ));
 
   @override
   int get hashCode => Object.hash(
@@ -1912,10 +1946,11 @@ class ScrollingState {
         const DeepCollectionEquality().hash(isScrolling),
         const DeepCollectionEquality().hash(isInNearToStartOfPage),
         const DeepCollectionEquality().hash(isInNearToEndOfPage),
+        const DeepCollectionEquality().hash(isMouseExitFromScrollWidget),
       );
 
   @override
   String toString() {
-    return "ScrollingState([pixel:$pixel] [scrollingDirection:$scrollingDirection] [isScrolling:$isScrolling] [isInNearToStartOfPage: $isInNearToStartOfPage] [isInNearToEndOfPage:$isInNearToEndOfPage])";
+    return "ScrollingState([pixel:$pixel] [scrollingDirection:$scrollingDirection] [isScrolling:$isScrolling] [isInNearToStartOfPage: $isInNearToStartOfPage] [isInNearToEndOfPage:$isInNearToEndOfPage] [isMouseExitFromScrollWidget:$isMouseExitFromScrollWidget])";
   }
 }

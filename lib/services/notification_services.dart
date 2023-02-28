@@ -260,11 +260,11 @@ class NotificationServices {
   }
 
   void _playSoundIn() {
-    _audioService.playSoundIn();
+    //_audioService.playSoundIn();
   }
 
   void _playSoundOut() {
-    _audioService.playSoundOut();
+    //_audioService.playSoundOut();
   }
 }
 
