@@ -21,7 +21,7 @@ class UxService {
 
   final _themeIndex = BehaviorSubject.seeded(0);
   final _patternIndex = BehaviorSubject.seeded(0);
-  final _textScaleValue = BehaviorSubject<double>.seeded(1);
+  final _textScale = BehaviorSubject<double>.seeded(1);
   final _themeIsDark = BehaviorSubject.seeded(false);
   final _showTextsJustified = BehaviorSubject.seeded(false);
   final _showColorfulMessages = BehaviorSubject.seeded(false);
@@ -138,7 +138,7 @@ class UxService {
       if (event != null) {
         try {
           final textSize = double.parse(event);
-          _textScaleValue.add(textSize);
+          _textScale.add(textSize);
         } catch (_) {}
       }
     });
@@ -185,7 +185,7 @@ class UxService {
 
   Stream<int> get patternIndexStream => _patternIndex.distinct();
 
-  Stream<double> get textScaleStream => _textScaleValue.distinct();
+  Stream<double> get textScaleStream => _textScale.distinct();
 
   Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
@@ -221,7 +221,7 @@ class UxService {
 
   int get patternIndex => _patternIndex.value;
 
-  double get textScaleValue => _textScaleValue.value;
+  double get textScaleValue => _textScale.value;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
@@ -347,7 +347,7 @@ class UxService {
 
   void selectTextSize(double index) {
     _sharedDao.put(SHARED_DAO_THEME_FONT_SIZE, index.toString());
-    _textScaleValue.add(index);
+    _textScale.add(index);
   }
 
   void toggleSendByEnter() {
