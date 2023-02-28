@@ -112,7 +112,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         overflow: TextOverflow.ellipsis,
         style: widget.labelTextStyle ??
             TextStyle(
-              fontSize: 16,
+              fontSize: theme.textTheme.bodyLarge!.fontSize,
               color: widget.enabled ? null : CupertinoColors.inactiveGray,
             ),
       );

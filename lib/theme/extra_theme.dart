@@ -48,7 +48,7 @@ class ExtraThemeData {
   }
 
   Color messageBackgroundColor(String uid) {
-    if (_authRepo.isCurrentUser(uid) || _usServices.showColorful) {
+    if (_authRepo.isCurrentUser(uid) || _usServices.showColorfulMessages) {
       return messageColorScheme(uid).primaryContainer;
     } else {
       return colorScheme.surface;
@@ -56,7 +56,7 @@ class ExtraThemeData {
   }
 
   Color messageForegroundColor(String uid) {
-    if (_authRepo.isCurrentUser(uid) || _usServices.showColorful) {
+    if (_authRepo.isCurrentUser(uid) || _usServices.showColorfulMessages) {
       return messageColorScheme(uid).onPrimaryContainerLowlight();
     } else {
       return colorScheme.onSurface;
