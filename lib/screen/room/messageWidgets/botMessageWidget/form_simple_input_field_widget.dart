@@ -86,7 +86,6 @@ class FormSimpleInputFieldWidgetState
           validator: validateFormTextField,
           controller: _textEditingController,
           textDirection: value,
-          readOnly: true,
           onChanged: (str) {
             if (str.isNotEmpty) {
               final dir = _i18n.getDirection(str);
