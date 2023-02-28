@@ -749,12 +749,6 @@ class RoomPageState extends State<RoomPage> {
       if (_appIsActive) {
         _sendSeenMessage([msg]);
       } else {
-        final roomName = await _roomRepo.getName(msg.roomUid.asUid());
-        _notificationServices.notifyIncomingMessage(
-          _messageExtractorServices.extractProtocolBufferMessage(msg),
-          msg.roomUid,
-          roomName: roomName,
-        );
         _backgroundMessages.add(msg);
       }
     });
