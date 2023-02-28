@@ -287,7 +287,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                               ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 4.0,
-                                vertical: 8.0
+                                vertical: 8.0,
                               ),
                               child: Column(
                                 children: [
