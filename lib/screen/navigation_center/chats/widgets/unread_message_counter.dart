@@ -73,7 +73,6 @@ class _UnreadMessageCounterWidgetState
 
   @override
   Widget build(BuildContext context) {
-    print(widget.roomUid);
     getAndAddLastSeenToHandler();
     return StreamBuilder<int>(
       stream: watchSeen,

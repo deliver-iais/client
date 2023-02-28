@@ -153,8 +153,6 @@ class ChatItemState extends State<ChatItem> {
               final name = _authRepo.isCurrentUser(widget.room.uid)
                   ? _i18n.get("saved_message")
                   : nameSnapshot.data ?? "";
-              print("nameSnapshot: ${nameSnapshot}");
-
               return buildChatItemWidget(name);
             },
           ),
