@@ -72,9 +72,11 @@ class LinkPreview extends StatelessWidget {
       initialData: cache.get(link),
       future: _fetchMetadata(link),
       builder: (context, snapshot) {
+        final show = (!snapshot.hasData || snapshot.data?.description == null);
+
         Widget widget;
 
-        if (!snapshot.hasData || snapshot.data?.description == null) {
+        if (show) {
           widget = const SizedBox.shrink();
         } else {
           widget = MouseRegion(
@@ -90,7 +92,7 @@ class LinkPreview extends StatelessWidget {
 
         return AnimatedOpacity(
           duration: MOTION_STANDARD_ANIMATION_DURATION,
-          opacity: (!snapshot.hasData || snapshot.data?.description == null) ? 0 : 1,
+          opacity: show ? 0 : 1,
           curve: Curves.easeInOut,
           child: AnimatedSize(
             duration: MOTION_STANDARD_ANIMATION_DURATION,

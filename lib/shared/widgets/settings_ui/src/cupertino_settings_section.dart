@@ -29,18 +29,17 @@ class CupertinoSection extends StatelessWidget {
     final columnChildren = <Widget>[];
     if (header != null) {
       columnChildren.add(
-        DefaultTextStyle(
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
-            fontSize: 13.5,
-            letterSpacing: -0.5,
-          ),
-          child: Container(
-            margin: defaultTitleMargin,
-            child: BlurContainer(
+        Padding(
+          padding: defaultTitleMargin,
+          child: Material(
+            elevation: 1,
+            borderRadius: mainBorder,
+            color: theme.colorScheme.tertiaryContainer,
+            clipBehavior: Clip.hardEdge,
+            child: Container(
               padding: headerPadding,
-              child: header!,
+              constraints: const BoxConstraints(minWidth: 80),
+              child: header,
             ),
           ),
         ),

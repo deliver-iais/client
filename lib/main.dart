@@ -103,6 +103,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -413,7 +414,8 @@ class MyApp extends StatelessWidget {
         _uxService.themeIndexStream,
         _uxService.patternIndexStream,
         _uxService.themeIsDarkStream,
-        _uxService.showColorfulStream,
+        _uxService.showColorfulMessagesStream,
+        _uxService.textScaleStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
