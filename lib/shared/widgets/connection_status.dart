@@ -41,8 +41,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
             stream: _i18n.localeStream,
             builder: (context, snapshot) {
               return Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: Row(
                   children: [
                     Flexible(
@@ -58,8 +57,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                           overflow: TextOverflow.fade,
                           maxLines: 1,
                           softWrap: true,
-                          style:
-                              theme.textTheme.titleLarge!.copyWith(fontSize: 20),
+                          style: theme.textTheme.titleLarge,
                           key: ValueKey(randomString(10)),
                         ),
                       ),

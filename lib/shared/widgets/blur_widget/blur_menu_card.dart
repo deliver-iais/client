@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class BlurMenuCard extends StatelessWidget {

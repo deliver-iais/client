@@ -418,7 +418,8 @@ class MyApp extends StatelessWidget {
         _uxService.themeIndexStream,
         _uxService.patternIndexStream,
         _uxService.themeIsDarkStream,
-        _uxService.showColorfulStream,
+        _uxService.showColorfulMessagesStream,
+        _uxService.textScaleStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
