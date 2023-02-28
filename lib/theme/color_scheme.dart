@@ -250,7 +250,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
   );
 
-  final scale = GetIt.I.get<UxService>().sliderValue;
+  final scale = GetIt.I.get<UxService>().textScaleValue;
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,

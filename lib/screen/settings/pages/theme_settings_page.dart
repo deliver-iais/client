@@ -206,7 +206,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                   child: Directionality(
                                     textDirection: _i18n.defaultTextDirection,
                                     child: StreamBuilder<double>(
-                                      stream: _uxService.sliderValueStream,
+                                      stream: _uxService.textScaleStream,
                                       builder: (context, snapshot) {
                                         return SliderTheme(
                                           data: const SliderThemeData(

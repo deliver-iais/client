@@ -185,7 +185,7 @@ class UxService {
 
   Stream<int> get patternIndexStream => _patternIndex.distinct();
 
-  Stream<double> get sliderValueStream => _textScaleValue.distinct();
+  Stream<double> get textScaleStream => _textScaleValue.distinct();
 
   Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
@@ -221,7 +221,7 @@ class UxService {
 
   int get patternIndex => _patternIndex.value;
 
-  double get sliderValue => _textScaleValue.value;
+  double get textScaleValue => _textScaleValue.value;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
