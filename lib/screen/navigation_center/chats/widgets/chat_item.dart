@@ -25,8 +25,6 @@ import 'package:hovering/hovering.dart';
 import 'contact_pic.dart';
 import 'last_message.dart';
 
-const chatItemHeight = 78.0;
-
 class RoomWrapper {
   final Room room;
   final bool isInRoom;
@@ -111,6 +109,7 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildLastMessageWidget() {
     final theme = Theme.of(context);
+    final chatItemHeight = theme.primaryTextTheme.displayLarge!.height! + 12;
 
     final isPinnedRoom = widget.room.pinned;
 
@@ -255,7 +254,9 @@ class ChatItemState extends State<ChatItem> {
                     ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(
+                height: 6,
+              ),
               Row(
                 children: [
                   StreamBuilder<Activity>(

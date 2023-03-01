@@ -28,15 +28,14 @@ class Section extends AbstractSection {
       children!,
       header: (title != null || subtitle != null)
           ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title != null)
                   Text(
                     title!,
+                    textAlign: TextAlign.center,
                     maxLines: maxLines,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.primaryTextTheme.bodyMedium,
+                    style: theme.textTheme.titleMedium,
                   ),
                 if (subtitle != null)
                   Padding(

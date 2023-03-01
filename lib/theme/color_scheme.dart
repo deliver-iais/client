@@ -1,6 +1,8 @@
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/blend/blend.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
@@ -248,6 +250,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
   );
 
+  final scale = GetIt.I.get<UxService>().textScaleValue;
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
@@ -255,8 +258,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     fontFamily: GoogleFonts.vazirmatn().fontFamily,
     colorScheme: getColorScheme(colorScheme),
     primaryColor: colorScheme.primary,
-    primaryTextTheme: primaryTextTheme,
-    textTheme: textTheme,
+    primaryTextTheme: setupTextTheme(primaryTextTheme, scale),
+    textTheme: setupTextTheme(textTheme, scale),
   );
 
   return theme.copyWith(
@@ -271,7 +274,11 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       textStyle: TextStyle(color: colorScheme.primary, fontSize: 15),
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
-    dividerTheme:  DividerThemeData(space: 1.0, thickness: 1.0,color: theme.dividerColor.withOpacity(0.4)),
+    dividerTheme: DividerThemeData(
+      space: 1.0,
+      thickness: 1.0,
+      color: theme.dividerColor.withOpacity(0.4),
+    ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
@@ -279,17 +286,40 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       color: colorScheme.background.withOpacity(0.7),
       scrolledUnderElevation: 2,
     ),
-    sliderTheme: SliderThemeData(
-      thumbColor: colorScheme.primary,
-      trackHeight: 2.25,
-      activeTrackColor: colorScheme.primary,
-      inactiveTrackColor: colorScheme.surface,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
-    ),
     chipTheme: theme.chipTheme.copyWith(
       backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
+  );
+}
+
+TextTheme setupTextTheme(TextTheme textTheme, double scale) {
+  return textTheme.copyWith(
+    displayLarge: textTheme.displayLarge
+        ?.copyWith(fontSize: scale * 57, height: scale * 64),
+    displayMedium: textTheme.displayMedium
+        ?.copyWith(fontSize: scale * 45, height: scale * 52),
+    displaySmall: textTheme.displaySmall?.copyWith(
+      fontSize: scale * 36,
+      // height: scale * 44
+    ),
+    bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: scale * 16),
+    bodyMedium: textTheme.bodyMedium?.copyWith(
+      fontSize: scale * 14,
+      // height: scale *20
+    ),
+    bodySmall: textTheme.bodySmall?.copyWith(fontSize: scale * 12),
+    headlineLarge: textTheme.headlineLarge?.copyWith(fontSize: scale * 32),
+    headlineMedium: textTheme.headlineMedium?.copyWith(fontSize: scale * 28),
+    headlineSmall: textTheme.headlineSmall?.copyWith(fontSize: scale * 24),
+    titleLarge: textTheme.titleLarge?.copyWith(
+      fontSize: scale * 22,
+    ),
+    titleMedium: textTheme.titleMedium?.copyWith(fontSize: scale * 16),
+    titleSmall: textTheme.titleSmall?.copyWith(fontSize: scale * 14),
+    labelLarge: textTheme.labelLarge?.copyWith(fontSize: scale * 14),
+    labelMedium: textTheme.labelMedium?.copyWith(fontSize: scale * 12),
+    labelSmall: textTheme.labelSmall?.copyWith(fontSize: scale * 11),
   );
 }
 
