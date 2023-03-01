@@ -201,6 +201,12 @@ class CallRepo {
       if (event.roomUid == null) {
         return;
       }
+      if (_callService.checkIncomingCallIsRepeated(
+        event.callId,
+        event.roomUid!.asString(),
+      )) {
+        return;
+      }
       final from = event.roomUid!.asString();
       final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
@@ -245,8 +251,7 @@ class CallRepo {
                 _dispose();
               } else {
                 if (_callService.getUserCallState == UserCallState.NO_CALL &&
-                    ((event.time - clock.now().millisecondsSinceEpoch).abs()) <
-                        60000) {
+                    checkCallExpireTimeValidation(event)) {
                   // final callStatus =
                   //     await FlutterForegroundTask.getData(key: "callStatus");
                   _roomUid = event.roomUid;
@@ -301,40 +306,30 @@ class CallRepo {
                       _callService.writeCallEventsToJson(event),
                     );
                   }
-                } else if (event.roomUid != null && event.roomUid == _roomUid) {
-                  _incomingCall(
-                    _roomUid!,
-                    true,
-                    _callService.writeCallEventsToJson(event),
-                  );
-                } else if (callEvent.callId != _callService.getCallId) {
-                  _messageRepo.sendCallMessage(
-                    CallEvent_CallStatus.BUSY,
-                    event.roomUid!,
-                    callEvent.callId,
-                    0,
-                    _isVideo
-                        ? CallEvent_CallType.VIDEO
-                        : CallEvent_CallType.AUDIO,
-                  );
+                } else if (callEvent.callId != _callService.getCallId &&
+                    checkCallExpireTimeValidation(event)) {
+                  _busyCall(event, callEvent);
                 }
               }
               break;
             case CallEvent_CallStatus.BUSY:
               _callEvents[event.time] = "Busy";
-              if (_callService.getCallId == callEvent.callId) {
+              if (_callService.getCallId == callEvent.callId &&
+                  checkCallExpireTimeValidation(event)) {
                 receivedBusyCall();
               }
               break;
             case CallEvent_CallStatus.DECLINED:
               _callEvents[event.time] = "Declined";
-              if (_callService.getCallId == callEvent.callId) {
+              if (_callService.getCallId == callEvent.callId &&
+                  checkCallExpireTimeValidation(event)) {
                 receivedDeclinedCall();
               }
               break;
             case CallEvent_CallStatus.ENDED:
               _callEvents[event.time] = "Ended";
-              if (_callService.getCallId == callEvent.callId) {
+              if (_callService.getCallId == callEvent.callId &&
+                  checkCallExpireTimeValidation(event)) {
                 receivedEndCall(callEvent.callDuration.toInt());
               }
               break;
@@ -344,6 +339,23 @@ class CallRepo {
           break;
       }
     });
+  }
+
+  void _busyCall(CallEvents event, call_pb.CallEvent callEvent) {
+    final callData =
+        CallData(event.callId, event.roomUid!.asString(), event.time + 100000);
+    _callService.saveLastCallStatusOnSharedPrefCallSlot(callData);
+    _messageRepo.sendCallMessage(
+      CallEvent_CallStatus.BUSY,
+      event.roomUid!,
+      callEvent.callId,
+      0,
+      _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+    );
+  }
+
+  bool checkCallExpireTimeValidation(CallEvents event) {
+    return ((event.time - clock.now().millisecondsSinceEpoch).abs()) < 60000;
   }
 
 /*
@@ -1292,7 +1304,6 @@ class CallRepo {
   }
 
   void _sendStartCallEvent() {
-    // TODO(AmirHossein): handle recivied Created on fetchMessage when User offline then go online
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.CREATED,
       _roomUid!,
@@ -1494,17 +1505,11 @@ class CallRepo {
           _notificationServices.cancelRoomNotifications(roomUid!.node);
         }
         if (_callService.getUserCallState != CallStatus.NO_CALL) {
+          if (_isDCReceived) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          }
           if (_isCaller) {
-            if (_isDCReceived) {
-              _dataChannel!
-                  .send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
-            }
             receivedEndCall(0);
-          } else {
-            if (_isDCReceived) {
-              _dataChannel!
-                  .send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
-            }
           }
         }
       } catch (e) {
@@ -1796,7 +1801,12 @@ class CallRepo {
       isSpeaker.add(false);
 
       try {
-        await _callService.clearCallData(forceToClearData: true);
+        await _callService.clearCallData(
+          forceToClearData: true,
+          isSaveCallData: true,
+        );
+        await _callService.disposeCallData(forceToClearData: true);
+
         if (isAndroid) {
           await Wakelock.disable();
         }

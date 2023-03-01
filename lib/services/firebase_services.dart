@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/main.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/js.dart'
     if (dart.library.html) 'package:js/js.dart' as js;
@@ -182,12 +185,22 @@ Future<void> _backgroundRemoteMessageHandler(
         roomName = null;
       }
 
-      await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
-            msg,
-            roomName: roomName,
-            isOnlineMessage: true,
-            isFirebaseMessage: true,
-          );
+      final roomUid = getRoomUid(GetIt.I.get<AuthRepo>(), msg);
+
+      //check is call repeated or not
+      final lastRoomMessageId =
+          (await GetIt.I.get<RoomDao>().getRoom(roomUid.asString()))
+                  ?.lastMessageId ??
+              0;
+
+      if (lastRoomMessageId < msg.id.toInt()) {
+        await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
+              msg,
+              roomName: roomName,
+              isOnlineMessage: true,
+              isFirebaseMessage: true,
+            );
+      }
 
       return;
     } catch (e) {
