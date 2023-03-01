@@ -8,7 +8,6 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UnreadMessageCounterWidget extends StatefulWidget {
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
   final String roomUid;
   final int lastMessageId;
   final bool needBorder;
@@ -27,6 +26,7 @@ class UnreadMessageCounterWidget extends StatefulWidget {
 
 class _UnreadMessageCounterWidgetState
     extends State<UnreadMessageCounterWidget> {
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   final watchSeen = BehaviorSubject.seeded(0);
   late BehaviorSubject<Seen> seenHandler = BehaviorSubject.seeded(
     Seen(
@@ -39,28 +39,21 @@ class _UnreadMessageCounterWidgetState
 
   @override
   void initState() {
-    UnreadMessageCounterWidget._roomRepo
-        .watchMySeen(widget.roomUid)
-        .listen((e) {
-      seenHandler.add(e);
-    });
+    watchAndAddSeen();
     seenHandler
         .map((seen) {
           if (seen.messageId < 0) {
             return 0;
           }
           final lastSeen = seen.messageId;
-          var unreadCount = widget.lastMessageId - lastSeen;
+          final unreadCount = widget.lastMessageId - lastSeen;
 
-          if (seen.hiddenMessageCount != null) {
-            unreadCount = unreadCount - seen.hiddenMessageCount;
-          }
-          return unreadCount;
+          return unreadCount - seen.hiddenMessageCount;
         })
         .distinct()
         .listen((event) {
           if (event == 1) {
-            timer = Timer(Duration(milliseconds: 100), () {
+            timer = Timer(const Duration(milliseconds: 100), () {
               watchSeen.add(event);
             });
           } else {
@@ -90,14 +83,14 @@ class _UnreadMessageCounterWidgetState
   }
 
   void watchAndAddSeen() {
-    UnreadMessageCounterWidget._roomRepo.watchMySeen(widget.roomUid).map((e) {
+    _roomRepo.watchMySeen(widget.roomUid).listen((e) {
       seenHandler.add(e);
     });
   }
 
   Future<void> getAndAddLastSeenToHandler() async {
     seenHandler.add(
-      (await UnreadMessageCounterWidget._roomRepo.getMySeen(widget.roomUid)),
+      (await _roomRepo.getMySeen(widget.roomUid)),
     );
   }
 }

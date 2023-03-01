@@ -1270,7 +1270,7 @@ packages:
     source: hosted
     version: "3.3.0"
   image_compression:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image_compression
       sha256: "911ae4a59196ebcc33c70a38bbc1fa0e2d07243589803dd616120e1a6125bfe9"

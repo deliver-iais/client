@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -170,7 +170,7 @@ class FileService {
     _cancelUploadFile();
   }
 
-  _addFileUploadTokenHeader(String fileUploadToken) {
+  void _addFileUploadTokenHeader(String fileUploadToken) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -550,13 +550,13 @@ class FileService {
     } else {
       size = (File(filePath).lengthSync()).toString();
     }
-    print("/checkUpload?fileName=$filename&fileSize=$size");
+    _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
-    final decoded = jsonDecode(result.data);
+    final Map<String, String> decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
       //add fileUploadToken to header
-      _addFileUploadTokenHeader(decoded["token"]);
+      _addFileUploadTokenHeader(decoded["token"] ?? "");
       try {
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
@@ -613,9 +613,11 @@ class FileService {
               };
               handler.next(options);
             },
-          )
+          ),
         );
-        final uploadUri = !isVoice ? "/uploadWithFileToken" : "/uploadWithFileToken?isVoice=true";
+        final uploadUri = !isVoice
+            ? "/uploadWithFileToken"
+            : "/uploadWithFileToken?isVoice=true";
         return _dio.post(uploadUri, data: formData, cancelToken: cancelToken);
       } catch (e) {
         updateFileStatus(uploadKey, FileStatus.CANCELED);
@@ -649,10 +651,11 @@ class FileService {
           }
         }
         file = file.copyWith(
-            name: getFileName(filePath),
-            path: filePath,
-            size: File(filePath).lengthSync(),
-            extension: getFileExtension(filePath));
+          name: getFileName(filePath),
+          path: filePath,
+          size: File(filePath).lengthSync(),
+          extension: getFileExtension(filePath),
+        );
       } catch (_) {
         _logger.e(_);
       }

@@ -45,7 +45,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
-import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -115,8 +114,6 @@ class RoomPageState extends State<RoomPage> {
   static final _callService = GetIt.I.get<CallService>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  static final _messageExtractorServices =
-      GetIt.I.get<MessageExtractorServices>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -389,15 +386,7 @@ class RoomPageState extends State<RoomPage> {
           StreamBuilder<ScrollingState>(
             stream: _isScrolling,
             builder: (context, snapshot) {
-              final showArrow =
-                  (!(snapshot.data?.isMouseExitFromScrollWidget ?? false) &&
-                          !(snapshot.data?.isScrolling ?? false) &&
-                          !(snapshot.data?.isInNearToEndOfPage ?? false)) ||
-                      (isDesktop && _messageReplyHistory.isNotEmpty) ||
-                      ((snapshot.data?.isScrolling ?? false) &&
-                          (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
-                          (snapshot.data?.scrollingDirection ==
-                              ScrollingDirection.DOWN));
+              final showArrow = checkShowArrowDown(snapshot);
 
               return Positioned(
                 right: 16,
@@ -416,6 +405,28 @@ class RoomPageState extends State<RoomPage> {
         ],
       ),
     );
+  }
+
+  bool checkShowArrowDown(AsyncSnapshot<ScrollingState> snapshot) {
+    return dontShowCursorNearToEndOfPage(snapshot) ||
+        backToReplyMessage() ||
+        showOnScrollDownAndNotNearToEndOfPage(snapshot);
+  }
+
+  bool showOnScrollDownAndNotNearToEndOfPage(
+    AsyncSnapshot<ScrollingState> snapshot,
+  ) {
+    return ((snapshot.data?.isScrolling ?? false) &&
+        (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
+        (snapshot.data?.scrollingDirection == ScrollingDirection.DOWN));
+  }
+
+  bool backToReplyMessage() => (_messageReplyHistory.isNotEmpty);
+
+  bool dontShowCursorNearToEndOfPage(AsyncSnapshot<ScrollingState> snapshot) {
+    return (!(snapshot.data?.isMouseExitFromScrollWidget ?? false) &&
+        !(snapshot.data?.isScrolling ?? false) &&
+        !(snapshot.data?.isInNearToEndOfPage ?? false));
   }
 
   Future<void> _getScrollPosition() async {
