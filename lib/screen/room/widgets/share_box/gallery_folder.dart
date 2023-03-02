@@ -159,7 +159,10 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                           sendSingleImage: true,
                                           onTap: onTap,
                                           selectedImage: _selectedImage,
-                                          onSend: _sendMessage,
+                                          onSend: (path) {
+                                            Navigator.pop(context);
+                                            _sendMessage(path);
+                                          },
                                         ),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
