@@ -25,11 +25,20 @@ class GalleryBox extends StatefulWidget {
     required this.scrollController,
     required this.pop,
     required this.roomUid,
+    this.replyMessageId = 0,
+    this.resetRoomPageDetails,
+  })  : selectAsAvatar = false,
+        onAvatarSelected = null;
+
+  const GalleryBox.setAvatar({
+    super.key,
+    required this.scrollController,
+    required this.pop,
+    required this.roomUid,
     this.onAvatarSelected,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-    this.selectAsAvatar = false,
-  });
+  }) : selectAsAvatar = false;
 
   @override
   GalleryBoxState createState() => GalleryBoxState();

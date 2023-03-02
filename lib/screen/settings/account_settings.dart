@@ -97,10 +97,9 @@ class AccountSettingsState extends State<AccountSettings> {
                     children: <Widget>[
                       Container(
                         padding: const EdgeInsets.all(0),
-                        child: GalleryBox(
+                        child: GalleryBox.setAvatar(
                           pop: () => Navigator.pop(context),
                           scrollController: scrollController,
-                          selectAsAvatar: true,
                           onAvatarSelected: cropAvatar,
                           roomUid: _authRepo.currentUserUid,
                         ),

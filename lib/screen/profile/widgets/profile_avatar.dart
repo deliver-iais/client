@@ -174,11 +174,10 @@ class ProfileAvatar extends StatelessWidget {
                   children: <Widget>[
                     Container(
                       padding: const EdgeInsets.all(0),
-                      child: GalleryBox(
+                      child: GalleryBox.setAvatar(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
                         onAvatarSelected: openCropAvatar,
-                        selectAsAvatar: true,
                         roomUid: roomUid,
                       ),
                     ),
