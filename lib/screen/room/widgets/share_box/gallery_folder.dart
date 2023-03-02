@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
-import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -43,6 +43,7 @@ const int FETCH_IMAGE_PAGE_SIZE = 40;
 class _GalleryFolderState extends State<GalleryFolder> {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   final List<String> _selectedImage = [];
   final Map<String, AssetEntity> _imageFiles = {};
@@ -152,21 +153,13 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                 return GestureDetector(
                                   onTap: () => widget.selectAsAvatar
                                       ? widget.onAvatarSelected!(imagePath)
-                                      : Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (c) {
-                                              return ViewImagePage(
-                                                imagePath: imagePath,
-                                                onEditEnd: (path) =>
-                                                    imagePath = path,
-                                                sendSingleImage: true,
-                                                onTap: onTap,
-                                                selectedImage: _selectedImage,
-                                                onSend: _sendMessage,
-                                              );
-                                            },
-                                          ),
+                                      : _routingService.openViewImagePage(
+                                          imagePath: imagePath,
+                                          onEditEnd: (path) => imagePath = path,
+                                          sendSingleImage: true,
+                                          onTap: onTap,
+                                          selectedImage: _selectedImage,
+                                          onSend: _sendMessage,
                                         ),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),

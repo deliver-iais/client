@@ -118,7 +118,7 @@ class ProfileAvatar extends StatelessWidget {
     void openCropAvatar(String imagePath) {
       _routingService.openViewImagePage(
         imagePath: imagePath,
-        onEdited: (path) {
+        onEditEnd: (path) {
           imagePath = path;
           Navigator.pop(context);
           _setAvatar(imagePath, context);

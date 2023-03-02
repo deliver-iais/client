@@ -38,7 +38,7 @@ class GalleryBox extends StatefulWidget {
     this.onAvatarSelected,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-  }) : selectAsAvatar = false;
+  }) : selectAsAvatar = true;
 
   @override
   GalleryBoxState createState() => GalleryBoxState();

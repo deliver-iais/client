@@ -151,13 +151,11 @@ class _CameraBoxState extends State<CameraBox> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color:
-                                    isRecording ? Colors.red : Colors.white,
+                                color: isRecording ? Colors.red : Colors.white,
                                 width: 6,
                               ),
-                              color: isRecording
-                                  ? Colors.red
-                                  : Colors.transparent,
+                              color:
+                                  isRecording ? Colors.red : Colors.transparent,
                             ),
                           ),
                           if (!widget.selectAsAvatar) ...[
@@ -166,8 +164,7 @@ class _CameraBoxState extends State<CameraBox> {
                               style: TextStyle(
                                 decoration: TextDecoration.none,
                                 fontSize: isRecording ? 0 : null,
-                                color:
-                                    isRecording ? Colors.transparent : null,
+                                color: isRecording ? Colors.transparent : null,
                               ),
                               child: Text(
                                 _i18n.get("take_picture_and_video_helper"),
@@ -183,7 +180,7 @@ class _CameraBoxState extends State<CameraBox> {
                         } else {
                           _routingService.openViewImagePage(
                             imagePath: file.path,
-                            onEdited: (path) {
+                            onEditEnd: (path) {
                               if (widget.selectAsAvatar) {
                                 widget.onAvatarSelected!(path);
                               }
@@ -201,11 +198,12 @@ class _CameraBoxState extends State<CameraBox> {
                         if (!widget.selectAsAvatar) {
                           _cameraService.stopVideoRecorder().then(
                                 (file) => _routingService.openVideoViewerPage(
-                              file: file,
-                              onSend: (caption) =>
-                                  _sendMessage(file, caption),
-                            ),
-                          );
+                                    file: file,
+                                    onSend: (caption) {
+                                      Navigator.pop(context);
+                                      _sendMessage(file, caption);
+                                    },),
+                              );
                         }
                       },
                     );
@@ -214,8 +212,7 @@ class _CameraBoxState extends State<CameraBox> {
                 if (_cameraService.hasMultiCamera())
                   CircleAvatar(
                     radius: 25,
-                    backgroundColor:
-                        getEnableBackgroundColor(isEnable: false),
+                    backgroundColor: getEnableBackgroundColor(isEnable: false),
                     child: IconButton(
                       onPressed: () => _cameraService.switchToAnotherCamera(),
                       icon: const Icon(

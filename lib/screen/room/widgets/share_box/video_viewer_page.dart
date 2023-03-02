@@ -29,8 +29,9 @@ class VideoViewerPage extends StatelessWidget {
             child: ShareBoxInputCaption(
               count: 1,
               onSend: (path) {
-                onSend(path);
                 Navigator.pop(context);
+                onSend(path);
+
               },
             ),
           )
