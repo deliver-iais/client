@@ -28,7 +28,7 @@ class ChatsPage extends StatefulWidget {
 }
 
 const Duration kDismissOrIncomingAnimationDuration =
-Duration(milliseconds: 200);
+    Duration(milliseconds: 200);
 
 /// Default duration of a resizing animation.
 const Duration kResizeAnimationDuration = Duration(milliseconds: 200);
@@ -127,9 +127,11 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     return _pinRoomsList.length < 5;
   }
 
-  Widget itemBuilder(BuildContext ctx,
-      RoomWrapper rw,
-      AnimatedWidgetBuilderData data,) {
+  Widget itemBuilder(
+    BuildContext ctx,
+    RoomWrapper rw,
+    AnimatedWidgetBuilderData data,
+  ) {
     if (data.measuring) {
       return const SizedBox(height: 85, width: double.infinity);
     }
@@ -154,11 +156,11 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       onSecondaryTap: !isDesktop
           ? null
           : () {
-        _showCustomMenu(
-          context,
-          rw.room,
-        );
-      },
+              _showCustomMenu(
+                context,
+                rw.room,
+              );
+            },
       child: ChatItem(
         key: ValueKey("chatItem/${rw.room.uid}"),
         roomWrapper: rw,
@@ -184,25 +186,24 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
-      _pinRoomsList.clear();
-      if (roomsList.isNotEmpty && roomsList.first.pinned) {
-        _pinRoomsList.addAll(
-          roomsList.sublist(0, 5).where((element) => element.pinned),
-        );
-      }
+          _pinRoomsList.clear();
+          if (roomsList.isNotEmpty && roomsList.first.pinned) {
+            _pinRoomsList.addAll(
+              roomsList.sublist(0, 5).where((element) => element.pinned),
+            );
+          }
 
-      return _routingService.currentRouteStream.distinct().map((route) {
-        return roomsList
-            .map(
-              (r) =>
-              RoomWrapper(
-                room: r,
-                isInRoom: _routingService.isInRoom(r.uid),
-              ),
-        )
-            .toList();
-      });
-    })
+          return _routingService.currentRouteStream.distinct().map((route) {
+            return roomsList
+                .map(
+                  (r) => RoomWrapper(
+                    room: r,
+                    isInRoom: _routingService.isInRoom(r.uid),
+                  ),
+                )
+                .toList();
+          });
+        })
         .distinct(const ListEquality().equals)
         .listen(_dispatcher.dispatchNewList);
   }
