@@ -81,7 +81,6 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                 ),
                 // width: maxWidth,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (buttons.text.isNotEmpty)
                       Container(

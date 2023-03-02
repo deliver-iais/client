@@ -30,7 +30,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
   static final _i18n = GetIt.I.get<I18N>();
 
   final _selectedRooms = <Uid>[];
-  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +57,14 @@ class _ShareInputFileState extends State<ShareInputFile> {
               Align(
                 alignment: AlignmentDirectional.bottomCenter,
                 child: ShareBoxInputCaption(
-                  captionEditingController: _textEditingController,
                   count: _selectedRooms.length,
-                  send: () {
+                  onSend: (caption) {
                     for (final path in widget.inputSharedFilePath) {
                       _messageRepo.sendFileToChats(
                         _selectedRooms,
                         pathToFileModel(path),
                         caption: widget.inputSharedFilePath.last == path
-                            ? _textEditingController.text
+                            ? caption
                             : "",
                       );
                     }

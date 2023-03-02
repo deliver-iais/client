@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class ColorUtils {
@@ -28,6 +29,24 @@ class ColorUtils {
 
   ColorUtils._(); // private constructor
 }
+
+Color getEnableColor({required bool isEnable}) =>
+    isEnable ? Colors.black : Colors.white;
+
+Color getEnableBackgroundColor({required bool isEnable}) =>
+    isEnable ? Colors.white : grayColor;
+
+Icon getEnableIcon({
+  required bool isEnable,
+  required IconData enableIcon,
+  required IconData disableIcon,
+  required double size,
+}) =>
+    Icon(
+      isEnable ? enableIcon : disableIcon,
+      size: size,
+      color: getEnableColor(isEnable: isEnable),
+    );
 
 /// Darken a color by [percent] amount (100 = black)
 // ........................................................

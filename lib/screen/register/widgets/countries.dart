@@ -310,7 +310,8 @@ const List<Map<String, dynamic>> countries = [
     "code": "DE",
     "label": "Germany",
     "phone": "+49",
-    "length": 10,
+    "min": 10,
+    "max": 11,
     "flag": "🇩🇪"
   },
   {

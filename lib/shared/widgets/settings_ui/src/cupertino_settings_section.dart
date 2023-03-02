@@ -1,5 +1,4 @@
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/theme.dart';

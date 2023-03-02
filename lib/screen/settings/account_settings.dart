@@ -7,7 +7,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -76,7 +75,7 @@ class AccountSettingsState extends State<AccountSettings> {
       }
 
       if (path != null) {
-        cropAvatar(path);
+        viewSelectedImage(path);
       }
     } else {
       unawaited(
@@ -97,10 +96,9 @@ class AccountSettingsState extends State<AccountSettings> {
                     children: <Widget>[
                       Container(
                         padding: const EdgeInsets.all(0),
-                        child: GalleryBox(
-                          pop: () => Navigator.pop(context),
+                        child: GalleryBox.setAvatar(
                           scrollController: scrollController,
-                          setAvatar: cropAvatar,
+                          onAvatarSelected: (path) => viewSelectedImage(path),
                           roomUid: _authRepo.currentUserUid,
                         ),
                       ),
@@ -115,23 +113,13 @@ class AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  void cropAvatar(String imagePath) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (c) {
-          return OpenImagePage(
-            onEditEnd: (path) {
-              imagePath = path;
-              Navigator.pop(context);
-              setAvatar(imagePath);
-            },
-            imagePath: imagePath,
-          );
+  void viewSelectedImage(String imagePath) => _routingService.openViewImagePage(
+        imagePath: imagePath,
+        onEditEnd: (path) {
+          Navigator.pop(context);
+          setAvatar(path);
         },
-      ),
-    );
-  }
+      );
 
   Future<void> setAvatar(String path) async {
     _newAvatarPath.add(path);

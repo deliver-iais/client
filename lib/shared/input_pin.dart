@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
@@ -23,6 +24,7 @@ void inputPin({
   required PinCodeSettings pinCodeSettings,
   required String data,
   required String botUid,
+  bool showHelper = false,
 }) {
   final pinController = TextEditingController();
   final pinFormKey = GlobalKey<FormState>();
@@ -51,6 +53,7 @@ void inputPin({
               pinController: pinController,
               onChanged: (p) => pin.add(p),
               pinFormKey: pinFormKey,
+              showHelper: showHelper,
               confirmPinFormKey: confirmPinFormKey,
             ),
             titlePadding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -117,6 +120,7 @@ void inputPin({
                 onChanged: (p) => pin.add(p),
                 pinFormKey: pinFormKey,
                 confirmPinFormKey: confirmPinFormKey,
+                showHelper: showHelper,
               ),
               floatingActionButton: buildSubmit(
                 () => _submit(
@@ -194,6 +198,7 @@ Widget buildContent(
   required String data,
   required String botUid,
   required GlobalKey<FormState> confirmPinFormKey,
+  bool showHelper = false,
 }) {
   final theme = Theme.of(context);
   final i18n = GetIt.I.get<I18N>();
@@ -309,7 +314,21 @@ Widget buildContent(
               ),
               const SizedBox(height: 42),
             ],
-          )
+          ),
+        if (showHelper)
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(i18n.get("not_complete_authentication")),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  GetIt.I.get<RoutingService>().openRoom(botUid);
+                },
+                child: Text(i18n.get("authentication_completion")),
+              )
+            ],
+          ),
       ],
     ),
   );
