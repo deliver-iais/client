@@ -711,13 +711,11 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     for (final file in files) {
-      unawaited(
-        sendFileMessage(
-          room,
-          file,
-          caption: files.last.path == file.path ? caption : "",
-          replyToId: replyToId,
-        ),
+      await sendFileMessage(
+        room,
+        file,
+        caption: files.last.path == file.path ? caption : "",
+        replyToId: replyToId,
       );
     }
   }
