@@ -174,9 +174,6 @@ class ShareBoxState extends State<ShareBox> {
             w = GalleryBox(
               replyMessageId: widget.replyMessageId,
               scrollController: scrollController,
-              pop: () {
-                Navigator.pop(context);
-              },
               roomUid: widget.currentRoomUid,
               resetRoomPageDetails: widget.resetRoomPageDetails,
             );

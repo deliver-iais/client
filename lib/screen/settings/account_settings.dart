@@ -97,7 +97,6 @@ class AccountSettingsState extends State<AccountSettings> {
                       Container(
                         padding: const EdgeInsets.all(0),
                         child: GalleryBox.setAvatar(
-                          pop: () => Navigator.pop(context),
                           scrollController: scrollController,
                           onAvatarSelected: (path) => viewSelectedImage(path),
                           roomUid: _authRepo.currentUserUid,
