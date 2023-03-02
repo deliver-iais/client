@@ -75,7 +75,7 @@ dependencies:
   file_selector_linux: 0.9.1+1
   firebase_analytics: 10.1.4
   firebase_core: 2.7.0
-#  firebase_crashlytics: 3.0.12
+  #  firebase_crashlytics: 3.0.12
   firebase_messaging: 14.2.5
   fixnum: 1.1.0
   flutter:
@@ -115,6 +115,8 @@ dependencies:
   image_size_getter: 2.1.2
   intl: 0.17.0
   js: 0.6.5
+  json_annotation: 4.8.0
+  json_serializable: 6.6.1
   just_audio: 0.9.31
   jwt_decoder: 2.0.1
   latlong2: 0.8.1

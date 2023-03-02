@@ -27,6 +27,7 @@ class HasCallRowState extends State<HasCallRow> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<CallStatus>(
+      initialData: CallStatus.NO_CALL,
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
         Widget renderer;
@@ -57,7 +58,8 @@ class HasCallRowState extends State<HasCallRow> {
                         gradient: LinearGradient(
                           colors: [
                             detectBackGroundColor(snapshot.data!),
-                            detectBackGroundColor(snapshot.data!).withAlpha(100),
+                            detectBackGroundColor(snapshot.data!)
+                                .withAlpha(100),
                           ],
                         ),
                       ),
@@ -114,7 +116,10 @@ class HasCallRowState extends State<HasCallRow> {
         return AnimatedContainer(
           curve: Curves.easeInOut,
           duration: MOTION_STANDARD_ANIMATION_DURATION,
-          height: snapshot.data == CallStatus.NO_CALL || _callService.getUserCallState == UserCallState.NO_CALL ? 0 : APPBAR_HEIGHT,
+          height: snapshot.data == CallStatus.NO_CALL ||
+                  _callService.getUserCallState == UserCallState.NO_CALL
+              ? 0
+              : APPBAR_HEIGHT,
           child: PageTransitionSwitcher(
             transitionBuilder: (
               child,

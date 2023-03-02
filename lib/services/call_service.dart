@@ -6,6 +6,7 @@ import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
+import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;
 import 'package:deliver/shared/constants.dart';
@@ -204,13 +205,18 @@ class CallService {
     bool forceToClearData = false,
     bool isSaveCallData = false,
   }) async {
-    if (isSaveCallData) {
-      final callData = CallData(
-        _callId,
-        _roomUid.asString(),
-        clock.now().millisecondsSinceEpoch + 10000,
-      );
-      saveLastCallStatusOnSharedPrefCallSlot(callData);
+    try {
+      if (isSaveCallData) {
+        final callData = CallData(
+          callId: _callId,
+          roomUid: _roomUid.asString(),
+          expireTime: clock.now().millisecondsSinceEpoch + 10000,
+        );
+        saveLastCallStatusOnSharedPrefCallSlot(callData);
+      }
+      await removeCallFromDb();
+    } catch (e) {
+      _logger.e(e);
     }
     if (shouldRemoveData || forceToClearData) {
       _logger.i("Clearing Call Data");
@@ -220,7 +226,6 @@ class CallService {
       _isHangedUp = false;
       isHole = false;
       _roomUid = Uid.getDefault();
-      await removeCallFromDb();
     }
   }
 
@@ -261,7 +266,7 @@ class CallService {
   bool _isCallDataInSharedPref(String callId, String roomUid, String slot) {
     final callDataSlot = _prefs.getString(slot);
     if (callDataSlot != null) {
-      final CallData callData = jsonDecode(callDataSlot);
+      final callData = CallData.fromJson(jsonDecode(callDataSlot));
       if (callData.callId == callId && callData.roomUid == roomUid) {
         return true;
       } else {
@@ -309,7 +314,7 @@ class CallService {
   int _checkSlotAndSaveIfPossible(CallData data, String slot) {
     final callDataSlot = _prefs.getString(slot);
     if (callDataSlot != null) {
-      final CallData callData = jsonDecode(callDataSlot);
+      final callData = CallData.fromJson(jsonDecode(callDataSlot));
       if (((callData.expireTime - clock.now().millisecondsSinceEpoch).abs()) >
           100000) {
         // 100 sec ExpireTime
@@ -323,12 +328,4 @@ class CallService {
       return data.expireTime;
     }
   }
-}
-
-class CallData {
-  final String callId;
-  final String roomUid;
-  final int expireTime;
-
-  const CallData(this.callId, this.roomUid, this.expireTime);
 }
