@@ -6,6 +6,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/services/camera_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
@@ -35,6 +36,7 @@ class _CameraBoxState extends State<CameraBox> {
   final _cameraService = GetIt.I.get<CameraService>();
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {

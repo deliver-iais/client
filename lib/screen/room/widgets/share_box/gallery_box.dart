@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:deliver/screen/room/widgets/share_box/cemara_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_folder.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,6 +54,8 @@ class GalleryBoxState extends State<GalleryBox> {
   final BehaviorSubject<List<AssetPathEntity>> _folders =
       BehaviorSubject.seeded([]);
   final BehaviorSubject<bool> _canInitCamera = BehaviorSubject.seeded(false);
+
+  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -131,15 +133,10 @@ class GalleryBoxState extends State<GalleryBox> {
                       ],
                     ),
                     child: GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CameraBox(
-                            onAvatarSelected: widget.onAvatarSelected,
-                            selectAsAvatar: widget.selectAsAvatar,
-                            roomUid: widget.roomUid,
-                          ),
-                        ),
+                      onTap: () => _routingService.openCameraBox(
+                        selectAsAvatar: widget.selectAsAvatar,
+                        roomUid: widget.roomUid,
+                        onAvatarSelected: widget.onAvatarSelected,
                       ),
                       child: Stack(
                         fit: StackFit.expand,
