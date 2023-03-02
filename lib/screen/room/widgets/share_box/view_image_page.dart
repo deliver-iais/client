@@ -15,20 +15,20 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-class OpenImagePage extends StatefulWidget {
+class ViewImagePage extends StatefulWidget {
   final String imagePath;
   final List<String>? selectedImage;
   final Function(String)? onTap;
   final Function(String) onEditEnd;
-  final Function(String)? send;
+  final Function(String)? onSend;
   final bool forceToShowCaptionTextField;
   final bool sendSingleImage;
 
-  const OpenImagePage({
+  const ViewImagePage({
     super.key,
     this.selectedImage,
     this.onTap,
-    this.send,
+    this.onSend,
     required this.imagePath,
     this.sendSingleImage = false,
     required this.onEditEnd,
@@ -36,10 +36,10 @@ class OpenImagePage extends StatefulWidget {
   });
 
   @override
-  State<OpenImagePage> createState() => _OpenImagePageState();
+  State<ViewImagePage> createState() => _ViewImagePageState();
 }
 
-class _OpenImagePageState extends State<OpenImagePage> {
+class _ViewImagePageState extends State<ViewImagePage> {
   static final _i18n = GetIt.I.get<I18N>();
 
   late String imagePath;
@@ -204,7 +204,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                       : const CircularCheckMarkWidget(),
                   iconSize: 30,
                 ),
-              if (widget.send == null)
+              if (widget.onSend == null)
                 IconButton(
                   icon: const Icon(Icons.done),
                   color: Colors.white,
@@ -252,7 +252,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                               widget.selectedImage!.isEmpty)) {
                         widget.selectedImage!.add(imagePath);
                       }
-                      widget.send!(caption);
+                      widget.onSend!(caption);
                     },
                   ),
                 )
