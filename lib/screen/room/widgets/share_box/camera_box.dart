@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
-import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -184,15 +182,33 @@ class _CameraBoxState extends State<CameraBox> {
                             Navigator.pop(context);
                             widget.onAvatarSelected!(file.path);
                           } else {
-                            openImage(file);
+                            _routingService.openViewImagePage(
+                              imagePath: file.path,
+                              onEdited: (path) {
+                                if (widget.selectAsAvatar) {
+                                  widget.onAvatarSelected!(path);
+                                }
+                                Navigator.pop(context);
+                              },
+                              onSend: (caption) => _sendMessage(file, caption),
+                              forceToShowCaptionTextField: true,
+                            );
                           }
                         }),
                         onLongPressStart: (_) => !widget.selectAsAvatar
                             ? _cameraService.startVideoRecorder()
                             : null,
-                        onLongPressEnd: (d) => !widget.selectAsAvatar
-                            ? _onRouteToVideoViewer()
-                            : null,
+                        onLongPressEnd: (d) {
+                          if (!widget.selectAsAvatar) {
+                            _cameraService.stopVideoRecorder().then(
+                                  (file) => _routingService.openVideoViewerPage(
+                                    file: file,
+                                    onSend: (caption) =>
+                                        _sendMessage(file, caption),
+                                  ),
+                                );
+                          }
+                        },
                       );
                     },
                   ),
@@ -227,42 +243,5 @@ class _CameraBoxState extends State<CameraBox> {
   void _sendMessage(File file, String caption) {
     Navigator.pop(context);
     _messageRepo.sendFileMessage(widget.roomUid, file, caption: caption);
-  }
-
-  void _onRouteToVideoViewer() {
-    _cameraService.stopVideoRecorder().then(
-          (file) => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (c) => VideoViewerPage(
-                file: file,
-                onSend: (caption) => _sendMessage(file, caption),
-              ),
-            ),
-          ),
-        );
-  }
-
-  void openImage(File file) {
-    var imagePath = file.path;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (c) {
-          return OpenImagePage(
-            forceToShowCaptionTextField: true,
-            send: (caption) => _sendMessage(file, caption),
-            onEditEnd: (path) {
-              imagePath = path;
-              if (widget.selectAsAvatar) {
-                widget.onAvatarSelected!(imagePath);
-              }
-              Navigator.pop(context);
-            },
-            imagePath: imagePath,
-          );
-        },
-      ),
-    );
   }
 }

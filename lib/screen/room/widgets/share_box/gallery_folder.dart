@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -156,14 +156,14 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (c) {
-                                              return OpenImagePage(
+                                              return ViewImagePage(
                                                 imagePath: imagePath,
                                                 onEditEnd: (path) =>
                                                     imagePath = path,
                                                 sendSingleImage: true,
                                                 onTap: onTap,
                                                 selectedImage: _selectedImage,
-                                                send: _sendMessage,
+                                                onSend: _sendMessage,
                                               );
                                             },
                                           ),

@@ -7,7 +7,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -120,7 +120,7 @@ class AccountSettingsState extends State<AccountSettings> {
       context,
       MaterialPageRoute(
         builder: (c) {
-          return OpenImagePage(
+          return ViewImagePage(
             onEditEnd: (path) {
               imagePath = path;
               Navigator.pop(c);

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -117,20 +116,13 @@ class ProfileAvatar extends StatelessWidget {
 
   Future<void> selectAvatar(BuildContext context) async {
     void openCropAvatar(String imagePath) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (c) {
-            return OpenImagePage(
-              onEditEnd: (path) {
-                imagePath = path;
-                Navigator.pop(context);
-                _setAvatar(imagePath, context);
-              },
-              imagePath: imagePath,
-            );
-          },
-        ),
+      _routingService.openViewImagePage(
+        imagePath: imagePath,
+        onEdited: (path) {
+          imagePath = path;
+          Navigator.pop(context);
+          _setAvatar(imagePath, context);
+        },
       );
     }
 
