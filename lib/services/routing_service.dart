@@ -265,6 +265,7 @@ class RoutingService {
     required Uid roomUid,}) =>
       _push(
         CameraBox(
+          key: const ValueKey("/camera-box"),
           onAvatarSelected: onAvatarSelected,
           selectAsAvatar: selectAsAvatar,
           roomUid: roomUid,
