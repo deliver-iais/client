@@ -6,6 +6,7 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -21,11 +22,13 @@ import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
 import 'package:deliver/screen/profile/widgets/all_avatar_page.dart';
 import 'package:deliver/screen/profile/widgets/media_page/all_media_page.dart';
-
 import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/camera_box.dart';
+import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
@@ -260,6 +263,55 @@ class RoutingService {
       shouldScrollToLastMessageInRoom.add(true);
     }
   }
+
+  void openCameraBox({
+    Function(String)? onAvatarSelected,
+    required bool selectAsAvatar,
+    required Uid roomUid,
+  }) =>
+      _push(
+        CameraBox(
+          key: const ValueKey("/camera-box"),
+          onAvatarSelected: onAvatarSelected,
+          selectAsAvatar: selectAsAvatar,
+          roomUid: roomUid,
+        ),
+      );
+
+  void openVideoViewerPage({
+    required File file,
+    required Function(String) onSend,
+  }) =>
+      _push(
+        VideoViewerPage(
+          key: const ValueKey("/video_viewer_page"),
+          file: file,
+          onSend: onSend,
+        ),
+      );
+
+  void openViewImagePage({
+    required String imagePath,
+    String caption = "",
+    required Function(String) onEditEnd,
+    Function(String)? onSend,
+    Function(String)? onTap,
+    bool sendSingleImage = false,
+    List<String>? selectedImage,
+    bool forceToShowCaptionTextField = false,
+  }) =>
+      _push(
+        ViewImagePage(
+          key: const ValueKey("/view_image_page"),
+          imagePath: imagePath,
+          onEditEnd: onEditEnd,
+          onSend: onSend,
+          onTap: onTap,
+          selectedImage: selectedImage,
+          sendSingleImage: sendSingleImage,
+          forceToShowCaptionTextField: forceToShowCaptionTextField,
+        ),
+      );
 
   void openCallScreen(
     Uid roomUid, {
@@ -559,7 +611,8 @@ class RoutingService {
                   ),
                   _navigatorObserver
                 ],
-                onGenerateRoute: (r) => customPageRoute(RouteSettings(arguments:r.arguments,name: "/" ),
+                onGenerateRoute: (r) => customPageRoute(
+                    RouteSettings(arguments: r.arguments, name: "/"),
                     (c, animation, secondaryAnimation) {
                   try {
                     if (isLarge(c)) {

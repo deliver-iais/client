@@ -59,7 +59,6 @@ class ShareBoxState extends State<ShareBox> {
   final _i18n = GetIt.I.get<I18N>();
   final _audioPlayer = AudioPlayer();
   final _remainingPixelsStream = BehaviorSubject.seeded(APPBAR_HEIGHT * 2);
-  final _captionEditingController = TextEditingController();
   final _draggableScrollableController = DraggableScrollableController();
 
   final selectedImagesMap = <int, bool>{};
@@ -97,7 +96,6 @@ class ShareBoxState extends State<ShareBox> {
   void dispose() {
     _audioPlayer.stop();
     _draggableScrollableController.dispose();
-    _captionEditingController.dispose();
     super.dispose();
   }
 
@@ -176,9 +174,6 @@ class ShareBoxState extends State<ShareBox> {
             w = GalleryBox(
               replyMessageId: widget.replyMessageId,
               scrollController: scrollController,
-              pop: () {
-                Navigator.pop(context);
-              },
               roomUid: widget.currentRoomUid,
               resetRoomPageDetails: widget.resetRoomPageDetails,
             );
@@ -365,7 +360,7 @@ class ShareBoxState extends State<ShareBox> {
                         opacity: isAnyFileSelected ? 1 : 0,
                         child: ShareBoxInputCaption(
                           count: finalSelected.length,
-                          send: () {
+                          onSend: (caption) {
                             _audioPlayer.stop();
                             Navigator.pop(co);
 
@@ -373,7 +368,7 @@ class ShareBoxState extends State<ShareBox> {
                               widget.currentRoomUid,
                               finalSelected.values.toList(),
                               replyToId: widget.replyMessageId,
-                              caption: _captionEditingController.text,
+                              caption: caption,
                             );
 
                             setState(() {
@@ -383,7 +378,6 @@ class ShareBoxState extends State<ShareBox> {
                               selectedFilesMap.clear();
                             });
                           },
-                          captionEditingController: _captionEditingController,
                         ),
                       ),
                     ),

@@ -10,20 +10,21 @@ import 'package:get_it/get_it.dart';
 
 class ShareBoxInputCaption extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
-  final TextEditingController captionEditingController;
-  final void Function() send;
+  final void Function(String) onSend;
   final int count;
 
   ShareBoxInputCaption({
     Key? key,
-    required this.captionEditingController,
-    required this.send,
+    required this.onSend,
     required this.count,
   }) : super(key: key);
+
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Container(
       height: BOTTOM_BUTTONS_HEIGHT,
       decoration: BoxDecoration(
@@ -50,7 +51,7 @@ class ShareBoxInputCaption extends StatelessWidget {
           textInputAction: TextInputAction.newline,
           minLines: 1,
           maxLines: 15,
-          controller: captionEditingController,
+          controller: _controller,
         ),
       ),
     );
@@ -69,7 +70,7 @@ class ShareBoxInputCaption extends StatelessWidget {
               CupertinoIcons.arrow_up,
               color: theme.colorScheme.primary,
             ),
-            onPressed: send,
+            onPressed: () => onSend(_controller.text),
           ),
         ),
         Positioned(

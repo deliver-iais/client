@@ -138,6 +138,8 @@ class CheckPermissionsService {
         onceOption: ONCE_SHOW_CONTACT_DIALOG,
       );
 
+  Future<bool> checkMicrophonePermissionIsGranted() => Permission.microphone.isGranted;
+
   Future<bool> checkAudioRecorderPermission({BuildContext? context}) =>
       _checkAndGetPermission(
         Permission.microphone,
