@@ -4,6 +4,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
@@ -67,21 +68,16 @@ class CallBottomRowState extends State<CallBottomRow>
     }
   }
 
-  Color getEnableColor({required bool isEnable}) =>
-      isEnable ? Colors.black : Colors.white;
-
-  Color getEnableBackgroundColor({required bool isEnable}) =>
-      isEnable ? Colors.white : grayColor;
-
-  Icon getEnableIcon({
+  Icon getEnableIconWithSize({
     required bool isEnable,
     required IconData enableIcon,
     required IconData disableIcon,
   }) =>
-      Icon(
-        isEnable ? enableIcon : disableIcon,
+      getEnableIcon(
+        isEnable: isEnable,
+        enableIcon: enableIcon,
+        disableIcon: disableIcon,
         size: _iconsSize,
-        color: getEnableColor(isEnable: isEnable),
       );
 
   Widget buildSpeakerButton(ThemeData theme) {
@@ -97,7 +93,7 @@ class CallBottomRowState extends State<CallBottomRow>
             onPressed: () => _enableSpeaker(theme),
             hoverColor: theme.primaryColor.withOpacity(0.6),
             tooltip: _i18n.get("speaker"),
-            icon: getEnableIcon(
+            icon: getEnableIconWithSize(
               isEnable: isEnable,
               enableIcon: CupertinoIcons.speaker_3,
               disableIcon: CupertinoIcons.speaker_1,
@@ -121,7 +117,7 @@ class CallBottomRowState extends State<CallBottomRow>
             onPressed: () => _offVideoCam(theme),
             hoverColor: theme.primaryColor.withOpacity(0.6),
             tooltip: _i18n.get("camera"),
-            icon: getEnableIcon(
+            icon: getEnableIconWithSize(
               isEnable: isEnable,
               enableIcon: Icons.videocam_outlined,
               disableIcon: Icons.videocam_off_outlined,
@@ -145,7 +141,7 @@ class CallBottomRowState extends State<CallBottomRow>
             onPressed: () => _shareScreen(theme, context),
             hoverColor: theme.primaryColor.withOpacity(0.6),
             tooltip: _i18n.get("share_screen"),
-            icon: getEnableIcon(
+            icon: getEnableIconWithSize(
               isEnable: isEnable,
               enableIcon: isDesktop
                   ? Icons.screen_share_outlined
@@ -172,7 +168,7 @@ class CallBottomRowState extends State<CallBottomRow>
         child: IconButton(
           hoverColor: theme.primaryColor.withOpacity(0.6),
           tooltip: _i18n.get("call_audio"),
-          icon: getEnableIcon(
+          icon: getEnableIconWithSize(
             isEnable: isEnable,
             enableIcon: CupertinoIcons.mic,
             disableIcon: CupertinoIcons.mic_off,
@@ -235,7 +231,7 @@ class CallBottomRowState extends State<CallBottomRow>
         onPressed: () => _muteMic(theme),
         hoverColor: theme.primaryColor.withOpacity(0.6),
         tooltip: _i18n.get("mute_call"),
-        icon: getEnableIcon(
+        icon: getEnableIconWithSize(
           isEnable: isEnable,
           enableIcon: CupertinoIcons.mic,
           disableIcon: CupertinoIcons.mic_off,

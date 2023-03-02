@@ -7,7 +7,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
-import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -326,7 +326,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     navigatorState.push(
       MaterialPageRoute(
         builder: (c) {
-          return OpenImagePage(
+          return ViewImagePage(
             onEditEnd: (path) {
               if (isEditing()) {
                 _editedFile = pathToFileModel(path);

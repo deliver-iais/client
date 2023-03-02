@@ -6,7 +6,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
-
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
