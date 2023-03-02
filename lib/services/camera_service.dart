@@ -22,7 +22,7 @@ abstract class CameraService {
 
   Future<bool> initCamera();
 
-  Stream<bool> onCameraChanged();
+  Stream<double> onCameraChanged();
 
   double getAspectRatio();
 
@@ -31,6 +31,8 @@ abstract class CameraService {
   Stream<int> getDuration();
 
   Future<void> changeRecordAudioState();
+
+  Stream<bool> isRecordingVideo();
 
   bool enableAudio();
 
@@ -43,9 +45,11 @@ class MobileCameraService extends CameraService {
   List<CameraDescription> _cameras = [];
   final BehaviorSubject<int> _duration = BehaviorSubject.seeded(0);
 
+  final BehaviorSubject<bool> _isRecordingVideo = BehaviorSubject.seeded(false);
+
   final _checkPermissionService = GetIt.I.get<CheckPermissionsService>();
 
-  final BehaviorSubject<bool> _onChanged = BehaviorSubject.seeded(true);
+  final BehaviorSubject<double> _onChanged = BehaviorSubject.seeded(0);
 
   @override
   Future<bool> initCamera() async {
@@ -81,7 +85,7 @@ class MobileCameraService extends CameraService {
       enableAudio: _controller.enableAudio,
     );
     await _controller.initialize();
-    _onChanged.add(!_onChanged.value);
+    _onChanged.add(double.parse(_controller.description.name));
   }
 
   @override
@@ -96,6 +100,7 @@ class MobileCameraService extends CameraService {
       _duration.add(_duration.value + 1);
     });
     await _controller.startVideoRecording();
+    _isRecordingVideo.add(_controller.value.isRecordingVideo);
   }
 
   @override
@@ -103,6 +108,7 @@ class MobileCameraService extends CameraService {
     _duration.add(0);
     timer?.cancel();
     final file = await _controller.stopVideoRecording();
+    _isRecordingVideo.add(_controller.value.isRecordingVideo);
     return File(file.path, file.name, extension: file.mimeType);
   }
 
@@ -112,7 +118,7 @@ class MobileCameraService extends CameraService {
       );
 
   @override
-  Stream<bool> onCameraChanged() => _onChanged.stream;
+  Stream<double> onCameraChanged() => _onChanged.stream;
 
   @override
   double getAspectRatio() => _controller.value.aspectRatio;
@@ -137,4 +143,7 @@ class MobileCameraService extends CameraService {
 
   @override
   bool enableAudio() => _controller.enableAudio;
+
+  @override
+  Stream<bool> isRecordingVideo() => _isRecordingVideo.stream;
 }

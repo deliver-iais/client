@@ -261,6 +261,10 @@ class RoutingService {
     }
   }
 
+  void openCameraBox(){
+
+  }
+
   void openCallScreen(
     Uid roomUid, {
     bool isIncomingCall = false,
@@ -298,7 +302,6 @@ class RoutingService {
           key: ValueKey("/room/$roomId/profile"),
         ),
       );
-
   Future<dynamic>? openManageMuc(String roomId) => _push(
         MucManagePage(
           roomId.asUid(),

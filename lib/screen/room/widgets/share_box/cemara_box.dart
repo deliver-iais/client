@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -40,7 +42,7 @@ class _CameraBoxState extends State<CameraBox> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        StreamBuilder<bool>(
+        StreamBuilder<double>(
           stream: _cameraService.onCameraChanged(),
           builder: (context, snapshot) {
             var scale = MediaQuery.of(context).size.aspectRatio *
@@ -49,7 +51,11 @@ class _CameraBoxState extends State<CameraBox> {
             return Center(
               child: Transform.scale(
                 scale: scale,
-                child: _cameraService.buildPreview(),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(((snapshot.data ?? 0)) * pi),
+                  child: _cameraService.buildPreview(),
+                ),
               ),
             );
           },
