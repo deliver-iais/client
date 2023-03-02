@@ -22,7 +22,7 @@ abstract class CameraService {
 
   Future<bool> initCamera();
 
-  Stream<double> onCameraChanged();
+  Stream<int> onCameraChanged();
 
   double getAspectRatio();
 
@@ -49,7 +49,7 @@ class MobileCameraService extends CameraService {
 
   final _checkPermissionService = GetIt.I.get<CheckPermissionsService>();
 
-  final BehaviorSubject<double> _onChanged = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _onChanged = BehaviorSubject.seeded(0);
 
   @override
   Future<bool> initCamera() async {
@@ -85,7 +85,7 @@ class MobileCameraService extends CameraService {
       enableAudio: _controller.enableAudio,
     );
     await _controller.initialize();
-    _onChanged.add(double.parse(_controller.description.name));
+    _onChanged.add(int.parse(_controller.description.name));
   }
 
   @override
@@ -118,7 +118,7 @@ class MobileCameraService extends CameraService {
       );
 
   @override
-  Stream<double> onCameraChanged() => _onChanged.stream;
+  Stream<int> onCameraChanged() => _onChanged.stream;
 
   @override
   double getAspectRatio() => _controller.value.aspectRatio;

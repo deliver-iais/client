@@ -68,12 +68,12 @@ const _empty = Empty(key: ValueKey("empty"));
 const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
-    LanguageSettingsPage(key: ValueKey("/language-settings"));
+LanguageSettingsPage(key: ValueKey("/language-settings"));
 
 const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
 const _securitySettings =
-    SecuritySettingsPage(key: ValueKey("/security-settings"));
+SecuritySettingsPage(key: ValueKey("/security-settings"));
 
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
@@ -124,7 +124,7 @@ class RoutingService {
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
-      BehaviorSubject.seeded(false);
+  BehaviorSubject.seeded(false);
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
@@ -231,8 +231,7 @@ class RoutingService {
 
   void resetCurrentRoom() => _currentRoom = "";
 
-  void openRoom(
-    String roomId, {
+  void openRoom(String roomId, {
     List<Message> forwardedMessages = const [],
     List<Media> forwardedMedia = const [],
     bool popAllBeforePush = false,
@@ -271,7 +270,7 @@ class RoutingService {
   }) =>
       _push(
         CameraBox(
-          key: ValueKey("/room/$roomUid"),
+          key: const ValueKey("/camera-box"),
           onAvatarSelected: onAvatarSelected,
           selectAsAvatar: selectAsAvatar,
           roomUid: roomUid,
@@ -344,14 +343,16 @@ class RoutingService {
         ),
       );
 
-  void openProfile(String roomId) => _push(
+  void openProfile(String roomId) =>
+      _push(
         ProfilePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/profile"),
         ),
       );
 
-  Future<dynamic>? openManageMuc(String roomId) => _push(
+  Future<dynamic>? openManageMuc(String roomId) =>
+      _push(
         MucManagePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/manage"),
@@ -381,17 +382,17 @@ class RoutingService {
   }) =>
       !isMacOS
           ? _push(
-              AllMediaPage(
-                key: const ValueKey("/media-details"),
-                roomUid: roomUid,
-                messageId: messageId,
-                filePath: filePath,
-                initIndex: initIndex,
-                message: message,
-                mediaType: MediaType.VIDEO,
-              ),
-              useTransparentRoute: true,
-            )
+        AllMediaPage(
+          key: const ValueKey("/media-details"),
+          roomUid: roomUid,
+          messageId: messageId,
+          filePath: filePath,
+          initIndex: initIndex,
+          message: message,
+          mediaType: MediaType.VIDEO,
+        ),
+        useTransparentRoute: true,
+      )
           : OpenFilex.open(filePath);
 
   void openShowAllImage({
@@ -483,7 +484,8 @@ class RoutingService {
         ),
       );
 
-  void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
+  void openGroupInfoDeterminationPage({required bool isChannel}) =>
+      _push(
         MucInfoDeterminationPage(
           key: const ValueKey("/group-info-determination-page"),
           isChannel: isChannel,
@@ -514,8 +516,7 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  Future<dynamic>? _push(
-    Widget widget, {
+  Future<dynamic>? _push(Widget widget, {
     bool popAllBeforePush = false,
     bool useTransparentRoute = false,
   }) {
@@ -524,20 +525,20 @@ class RoutingService {
     _analyticsRepo.incPVF(path);
     final route = useTransparentRoute
         ? TransparentRoute(
-            backgroundColor: Colors.transparent,
-            transitionDuration: SLOW_ANIMATION_DURATION,
-            reverseTransitionDuration: SLOW_ANIMATION_DURATION,
-            builder: (c) => widget,
-            settings: RouteSettings(name: path),
-          )
+      backgroundColor: Colors.transparent,
+      transitionDuration: SLOW_ANIMATION_DURATION,
+      reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+      builder: (c) => widget,
+      settings: RouteSettings(name: path),
+    )
         : customPageRoute(
-            RouteSettings(name: path),
-            (c, animation, secondaryAnimation) => widget,
-          );
+      RouteSettings(name: path),
+          (c, animation, secondaryAnimation) => widget,
+    );
     if (popAllBeforePush) {
       return _homeNavigatorState.currentState?.pushAndRemoveUntil(
         route,
-        (r) => r.isFirst,
+            (r) => r.isFirst,
       );
     } else {
       return _homeNavigatorState.currentState?.push(
@@ -546,10 +547,8 @@ class RoutingService {
     }
   }
 
-  PageRouteBuilder customPageRoute(
-    RouteSettings setting,
-    RoutePageBuilder builder,
-  ) =>
+  PageRouteBuilder customPageRoute(RouteSettings setting,
+      RoutePageBuilder builder,) =>
       PageRouteBuilder(
         settings: setting,
         pageBuilder: builder,
@@ -611,19 +610,20 @@ class RoutingService {
                   ),
                   _navigatorObserver
                 ],
-                onGenerateRoute: (r) => customPageRoute(
-                    RouteSettings(arguments: r.arguments, name: "/"),
-                    (c, animation, secondaryAnimation) {
-                  try {
-                    if (isLarge(c)) {
-                      return _empty;
-                    } else {
-                      return _navigationCenter;
-                    }
-                  } catch (_) {
-                    return _empty;
-                  }
-                }),
+                onGenerateRoute: (r) =>
+                    customPageRoute(
+                        RouteSettings(arguments: r.arguments, name: "/"),
+                            (c, animation, secondaryAnimation) {
+                          try {
+                            if (isLarge(c)) {
+                              return _empty;
+                            } else {
+                              return _navigationCenter;
+                            }
+                          } catch (_) {
+                            return _empty;
+                          }
+                        }),
               ),
             ),
           ),
@@ -656,12 +656,13 @@ class RoutingService {
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),
-        (route) => false,
+            (route) => false,
       );
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(
+  Widget backButtonLeading({Color? color}) =>
+      BackButton(
         onPressed: pop,
         color: color,
       );
@@ -676,13 +677,16 @@ class RouteEvent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other.runtimeType == runtimeType &&
-          other is RouteEvent &&
-          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
-          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+          (other.runtimeType == runtimeType &&
+              other is RouteEvent &&
+              const DeepCollectionEquality().equals(
+                  other.prevRoute, prevRoute) &&
+              const DeepCollectionEquality().equals(
+                  other.nextRoute, nextRoute));
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode =>
+      Object.hash(
         runtimeType,
         const DeepCollectionEquality().hash(prevRoute),
         const DeepCollectionEquality().hash(nextRoute),
@@ -691,7 +695,7 @@ class RouteEvent {
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
   final currentRoute =
-      BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
+  BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
   RoutingServiceNavigatorObserver();
 
@@ -732,7 +736,7 @@ class Empty extends StatelessWidget {
             borderRadius: secondaryBorder,
           ),
           padding:
-              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+          const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
           child: Text(
             _i18n.get("please_select_a_chat_to_start_messaging"),
             style: theme.primaryTextTheme.bodyMedium,
