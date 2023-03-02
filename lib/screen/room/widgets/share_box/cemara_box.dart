@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/services/camera_service.dart';
+import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -80,7 +81,7 @@ class _CameraBoxState extends State<CameraBox> {
                             fontSize: 16,
                           ),
                           child: Text(
-                            _getDuration(Duration(seconds: duration.data!)),
+                            formatDuration(Duration(seconds: duration.data!)),
                           ),
                         ),
                       ],
@@ -165,10 +166,6 @@ class _CameraBoxState extends State<CameraBox> {
           )
       ],
     );
-  }
-
-  String _getDuration(Duration duration) {
-    return "${duration.inMinutes < 10 ? "0${duration.inMinutes}" : duration.inMinutes}:${duration.inSeconds < 10 ? "0${duration.inSeconds}" : duration.inSeconds}";
   }
 
   void _sendMessage(File file, String caption) {
