@@ -35,7 +35,8 @@ class Section extends AbstractSection {
                     textAlign: TextAlign.center,
                     maxLines: maxLines,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(color: theme.colorScheme.surfaceTint),
                   ),
                 if (subtitle != null)
                   Padding(

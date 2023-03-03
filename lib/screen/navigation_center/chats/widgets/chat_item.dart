@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'contact_pic.dart';
 import 'last_message.dart';
@@ -190,6 +191,7 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildChatItemWidget(String name) {
     final theme = Theme.of(context);
+    final detailsHeight = theme.primaryTextTheme.bodyLarge!.fontSize! * 2 + 4;
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
@@ -264,54 +266,59 @@ class ChatItemState extends State<ChatItem> {
                         _roomRepo.activityObject[widget.room.uid.asUid().node],
                     builder: (c, roomActivityStream) {
                       return Expanded(
-                        child: AnimatedSwitcher(
-                          duration: SLOW_ANIMATION_DURATION,
-                          child: (roomActivityStream.hasData &&
-                                  roomActivityStream.data != null &&
-                                  roomActivityStream.data!.typeOfActivity !=
-                                      ActivityType.NO_ACTIVITY)
-                              ? ActivityStatus(
-                                  key: ValueKey(
-                                    "activity-status${widget.room.uid}",
-                                  ),
-                                  activity: roomActivityStream.data!,
-                                  roomUid: widget.room.uid.asUid(),
-                                )
-                              : FutureBuilder<Seen>(
-                                  future: _roomRepo.getMySeen(widget.room.uid),
-                                  key: ValueKey(
-                                    "future-builder${widget.room.uid}-${widget.room.lastMessageId}",
-                                  ),
-                                  builder: (context, snapshot) {
-                                    var unreadCount = 0;
-                                    if (snapshot.hasData &&
-                                        snapshot.data != null &&
-                                        snapshot.data!.messageId > -1) {
-                                      unreadCount = widget.room.lastMessageId -
-                                          snapshot.data!.messageId;
-                                      if (snapshot.data?.hiddenMessageCount !=
-                                          null) {
-                                        unreadCount = unreadCount -
-                                            snapshot.data!.hiddenMessageCount;
+                        child: SizedBox(
+                          height: detailsHeight,
+                          child: AnimatedSwitcher(
+                            duration: SLOW_ANIMATION_DURATION,
+                            child: (roomActivityStream.hasData &&
+                                    roomActivityStream.data != null &&
+                                    roomActivityStream.data!.typeOfActivity !=
+                                        ActivityType.NO_ACTIVITY)
+                                ? ActivityStatus(
+                                    key: ValueKey(
+                                      "activity-status${widget.room.uid}",
+                                    ),
+                                    activity: roomActivityStream.data!,
+                                    roomUid: widget.room.uid.asUid(),
+                                  )
+                                : FutureBuilder<Seen>(
+                                    future:
+                                        _roomRepo.getMySeen(widget.room.uid),
+                                    key: ValueKey(
+                                      "future-builder${widget.room.uid}-${widget.room.lastMessageId}",
+                                    ),
+                                    builder: (context, snapshot) {
+                                      var unreadCount = 0;
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null &&
+                                          snapshot.data!.messageId > -1) {
+                                        unreadCount =
+                                            widget.room.lastMessageId -
+                                                snapshot.data!.messageId;
+                                        if (snapshot.data?.hiddenMessageCount !=
+                                            null) {
+                                          unreadCount = unreadCount -
+                                              snapshot.data!.hiddenMessageCount;
+                                        }
                                       }
-                                    }
-                                    return widget.room.draft != null &&
-                                            widget.room.draft!.isNotEmpty &&
-                                            unreadCount == 0
-                                        ? buildDraftMessageWidget(
-                                            _i18n,
-                                            context,
-                                          )
-                                        : widget.room.lastMessage != null
-                                            ? buildLastMessage(
-                                                widget.room.lastMessage!,
-                                              )
-                                            : const SizedBox(
-                                                height: 3,
-                                                width: 5,
-                                              );
-                                  },
-                                ),
+                                      return widget.room.draft != null &&
+                                              widget.room.draft!.isNotEmpty &&
+                                              unreadCount == 0
+                                          ? buildDraftMessageWidget(
+                                              _i18n,
+                                              context,
+                                            )
+                                          : widget.room.lastMessage != null
+                                              ? buildLastMessage(
+                                                  widget.room.lastMessage!,
+                                                )
+                                              : const SizedBox(
+                                                  height: 3,
+                                                  width: 5,
+                                                );
+                                    },
+                                  ),
+                          ),
                         ),
                       );
                     },
