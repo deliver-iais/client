@@ -204,10 +204,9 @@ Future<void> setupDI() async {
   } else {
     registerSingleton<Notifier>(FakeNotifier());
   }
-
+  registerSingleton<AppLifecycleService>(AppLifecycleService());
   registerSingleton<MessageExtractorServices>(MessageExtractorServices());
   registerSingleton<NotificationServices>(NotificationServices());
-  registerSingleton<AppLifecycleService>(AppLifecycleService());
   registerSingleton<DataStreamServices>(DataStreamServices());
   registerSingleton<CoreServices>(CoreServices());
   registerSingleton<FireBaseServices>(FireBaseServices());

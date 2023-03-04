@@ -31,9 +31,8 @@ class CupertinoSection extends StatelessWidget {
         Padding(
           padding: defaultTitleMargin,
           child: Material(
-            elevation: 1,
             borderRadius: mainBorder,
-            color: theme.colorScheme.tertiaryContainer,
+            color: theme.colorScheme.surfaceVariant,
             clipBehavior: Clip.hardEdge,
             child: Container(
               padding: headerPadding,

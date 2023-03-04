@@ -47,4 +47,5 @@ class Seen {
         const DeepCollectionEquality().hash(messageId),
         const DeepCollectionEquality().hash(hiddenMessageCount),
       );
+
 }

@@ -244,11 +244,12 @@ packages:
   camera:
     dependency: "direct main"
     description:
-      name: camera
-      sha256: "0e0a7c190810a1d3be75de882a666ac86b36c8d763e203e23c76508ebe1ea5d1"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.10.3+1"
+      path: "packages/camera/camera"
+      ref: e1a4dba770da9bc3cf9f858bac6837083f8b9059
+      resolved-ref: e1a4dba770da9bc3cf9f858bac6837083f8b9059
+      url: "https://github.com/bottlepay/plugins.git"
+    source: git
+    version: "0.10.0+1"
   camera_android:
     dependency: transitive
     description:
@@ -261,10 +262,10 @@ packages:
     dependency: transitive
     description:
       name: camera_avfoundation
-      sha256: a1ebce7132e2c1ffd3138e672538f6f2360715e181cf5b7eb5a073f1a735235e
+      sha256: c328d477e5af88b3edcf277183c3b68f6e73b0f4e4e1053a22026e1c175e5bdb
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.12"
+    version: "0.9.11+1"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -1269,7 +1270,7 @@ packages:
     source: hosted
     version: "3.3.0"
   image_compression:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image_compression
       sha256: "911ae4a59196ebcc33c70a38bbc1fa0e2d07243589803dd616120e1a6125bfe9"
