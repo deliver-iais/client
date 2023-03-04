@@ -60,18 +60,16 @@ class PinMessageAppBar extends StatelessWidget {
               onTap: () {
                 onTap.call();
               },
-              child: Container(
-                margin: const EdgeInsets.all(8),
+              child: Material(
+                elevation: 10,
+                color: theme.colorScheme.surface,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: secondaryBorder,
-                    boxShadow: DEFAULT_BOX_SHADOWS,
-                  ),
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                  height: 70,
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 8,
+                    top: 12,
+                    bottom: 4,
                   ),
                   child: Row(
                     children: [

@@ -25,7 +25,6 @@ import 'package:hovering/hovering.dart';
 import 'contact_pic.dart';
 import 'last_message.dart';
 
-
 class RoomWrapper {
   final Room room;
   final bool isInRoom;
@@ -67,6 +66,8 @@ class ChatItemState extends State<ChatItem> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  late final Future<String> nameFuture;
+
   StreamSubscription<Room>? _roomSubscription;
 
   @override
@@ -79,6 +80,7 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
+    nameFuture = _roomRepo.getName(widget.room.uid.asUid());
     if (!widget.room.synced) {
       _fetchRoomLastMessage();
     }
