@@ -170,19 +170,6 @@ class FileService {
     _cancelUploadFile();
   }
 
-  void _addFileUploadTokenHeader(String fileUploadToken) {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          options.baseUrl =
-              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
-          options.headers["UploadFileToken"] = fileUploadToken;
-          return handler.next(options); //continue
-        },
-      ),
-    );
-  }
-
   Future<String?> getFile(
     String uuid,
     String filename, {
