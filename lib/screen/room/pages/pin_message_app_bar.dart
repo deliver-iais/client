@@ -6,7 +6,6 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
