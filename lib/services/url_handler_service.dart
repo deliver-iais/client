@@ -62,15 +62,9 @@ class UrlHandlerService {
     bool sendDirectly = false,
   }) async {
     //add prefix if needed
-    final applicationUrlRegex = RegExp(
-      r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
-    );
-    if (applicationUrlRegex.hasMatch(uri)) {
-      if (uri.startsWith("we://")) {
-        uri = "https://wemessenger.ir${uri.substring(4)}";
-      }
+    if (isApplicationUrl(uri)) {
       handleApplicationUri(
-        uri,
+        normalizeApplicationUrl(uri),
         sendDirectly: sendDirectly,
       );
     } else {
@@ -149,6 +143,23 @@ class UrlHandlerService {
       } else if (segments.first == CHANNEL_URL) {
         handleIdLink(uri.queryParameters["id"], Categories.CHANNEL);
       }
+    }
+  }
+
+  bool isApplicationUrl(String uri) {
+    final applicationUrlRegex = RegExp(
+      r"^"
+      "(https://$APPLICATION_DOMAIN|we:/|$APPLICATION_DOMAIN)"
+      r"/(login|spda|text|join|user|channel|group|ac).+$",
+    );
+    return applicationUrlRegex.hasMatch(uri);
+  }
+
+  String normalizeApplicationUrl(String uri) {
+    if (uri.startsWith("we://")) {
+      return "https://$APPLICATION_DOMAIN${uri.substring(4)}";
+    } else {
+      return uri;
     }
   }
 
