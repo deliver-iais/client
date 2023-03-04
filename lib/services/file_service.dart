@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -20,7 +22,9 @@ import 'package:gallery_saver/files.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
-import 'package:image_compression_flutter/image_compression_flutter.dart';
+import 'package:image_compression/image_compression.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart'
+    as compress2;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -397,7 +401,7 @@ class FileService {
     return encodeJpg(image);
   }
 
-  Future<String> compressImageInDesktop(File file) async {
+  Future<String> compressImageInWindows(File file) async {
     try {
       final bytes = await file.readAsBytes();
       final input = ImageFile(
@@ -405,11 +409,38 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        quality: 30,
+        jpgQuality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compressWebpThenJpg(param);
+      final output = await compressInQueue(param);
+      final name = clock.now().millisecondsSinceEpoch.toString();
+      final extension = getExtensionFromContentType(output.contentType)!;
+      final outPutFile = await localFile(name, extension);
+      outPutFile.writeAsBytesSync(output.rawBytes);
+      return outPutFile.path;
+    } catch (_) {
+      return file.path;
+    }
+  }
+
+  Future<String> compressImageInMacOrLinux(
+    File file, {
+    int quality = 30,
+  }) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final input = ImageFile(
+        filePath: file.path,
+        rawBytes: bytes,
+      ); // set the input image file
+      final config = compress2.Configuration(
+        quality: quality,
+      );
+
+      final param =
+          compress2.ImageFileConfiguration(input: input, config: config);
+      final output = await compress2.compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
       final extension = getExtensionFromContentType(output.contentType)!;
       final outPutFile = await localFile(name, extension);
@@ -506,25 +537,16 @@ class FileService {
     } else {
       size = (File(filePath).lengthSync()).toString();
     }
+    _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
+    final decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
+      //add fileUploadToken to header
+      final headers = _dio.options.headers;
+      headers["UploadFileToken"] = decoded["token"] ?? "";
+      _dio.options.headers = headers;
       try {
-        if (!isWeb) {
-          try {
-            final mediaType = filePath.getMediaType();
-            if (mediaType.type.contains("image") &&
-                !mediaType.subtype.contains("gif")) {
-              if (isAndroid || isIOS) {
-                filePath = await compressImageInMobile(File(filePath));
-              } else {
-                filePath = await compressImageInDesktop(File(filePath));
-              }
-            }
-          } catch (_) {
-            _logger.e(_);
-          }
-        }
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
         //concurrent save file in local directory
@@ -555,6 +577,7 @@ class FileService {
             "file": MultipartFile.fromFileSync(
               filePath,
               contentType: filePath.getMediaType(),
+              filename: filename,
               headers: {
                 Headers.contentLengthHeader: [size], // set content-length
               },
@@ -581,7 +604,9 @@ class FileService {
             },
           ),
         );
-        final uploadUri = !isVoice ? "/upload" : "/upload?isVoice=true";
+        final uploadUri = !isVoice
+            ? "/uploadWithFileToken"
+            : "/uploadWithFileToken?isVoice=true";
         return _dio.post(uploadUri, data: formData, cancelToken: cancelToken);
       } catch (e) {
         updateFileStatus(uploadKey, FileStatus.CANCELED);
@@ -591,5 +616,39 @@ class FileService {
     } else {
       return result;
     }
+  }
+
+  Future<model.File> compressFile(model.File file) async {
+    if (!isWeb) {
+      try {
+        final mediaType = file.path.getMediaType();
+        var filePath = file.path;
+        if (mediaType.type.contains("image") &&
+            !mediaType.subtype.contains("gif")) {
+          if (isAndroid || isIOS) {
+            filePath = await compressImageInMobile(File(file.path));
+          } else {
+            final time = clock.now().millisecondsSinceEpoch;
+            if (isWindows) {
+              filePath = await compressImageInWindows(File(file.path));
+            } else {
+              filePath = await compressImageInMacOrLinux(File(file.path));
+            }
+            _logger.i(
+              "compressTime : ${clock.now().millisecondsSinceEpoch - time}",
+            );
+          }
+        }
+        file = file.copyWith(
+          name: getFileName(filePath),
+          path: filePath,
+          size: File(filePath).lengthSync(),
+          extension: getFileExtension(filePath),
+        );
+      } catch (_) {
+        _logger.e(_);
+      }
+    }
+    return file;
   }
 }

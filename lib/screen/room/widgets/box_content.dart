@@ -85,9 +85,11 @@ class BoxContentState extends State<BoxContent> {
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
   final messageBoxWidth = BehaviorSubject.seeded(0.0);
+  late final Future<String>? forwarderName;
 
   @override
   void initState() {
+    forwarderName = isForwarded() ? _roomRepo.getName(widget.message.forwardedFrom!.asUid()) : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.message.id != null &&
@@ -216,7 +218,7 @@ class BoxContentState extends State<BoxContent> {
         color: colorScheme.primary,
       ),
       child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
+        future: forwarderName,
         builder: (context, snapshot) {
           return MouseRegion(
             cursor: SystemMouseCursors.click,

@@ -31,6 +31,7 @@ import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -90,26 +91,30 @@ BehaviorSubject<MessageEvent?> messageEventSubject =
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
+
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
+  final _seenDao = GetIt.I.get<SeenDao>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
+
   final _audioService = GetIt.I.get<AudioService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
+  final _mucServices = GetIt.I.get<MucServices>();
+  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  final _coreServices = GetIt.I.get<CoreServices>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _fileService = GetIt.I.get<FileService>();
 
   // migrate to room repo
-  final _roomDao = GetIt.I.get<RoomDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
-  final _seenDao = GetIt.I.get<SeenDao>();
-  final _mucServices = GetIt.I.get<MucServices>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
-  final _coreServices = GetIt.I.get<CoreServices>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
-  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
-  final _i18n = GetIt.I.get<I18N>();
+
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
@@ -767,6 +772,10 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final packetId = await _getPacketIdWithLastMessageId(room.asString());
+
+    //first we compress the file if possible
+    file = await _fileService.compressFile(file);
+
     final msg = await buildMessageFromFile(
       room,
       file,

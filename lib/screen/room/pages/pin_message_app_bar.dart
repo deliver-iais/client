@@ -6,7 +6,6 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -60,18 +59,16 @@ class PinMessageAppBar extends StatelessWidget {
               onTap: () {
                 onTap.call();
               },
-              child: Container(
-                margin: const EdgeInsets.all(8),
+              child: Material(
+                elevation: 1,
+                color: theme.colorScheme.surface,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: secondaryBorder,
-                    boxShadow: DEFAULT_BOX_SHADOWS,
-                  ),
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                  height: 70,
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 8,
+                    top: 12,
+                    bottom: 4,
                   ),
                   child: Row(
                     children: [

@@ -21,10 +21,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'contact_pic.dart';
 import 'last_message.dart';
-
 
 class RoomWrapper {
   final Room room;
@@ -67,7 +67,10 @@ class ChatItemState extends State<ChatItem> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  late final Future<String> nameFuture;
+
   StreamSubscription<Room>? _roomSubscription;
+  late final Future<String> futureRoomName;
 
   @override
   void didUpdateWidget(ChatItem oldWidget) {
@@ -79,12 +82,14 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
+    nameFuture = _roomRepo.getName(widget.room.uid.asUid());
     if (!widget.room.synced) {
       _fetchRoomLastMessage();
     }
     if (widget.room.uid.asUid().category == Categories.USER) {
       _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
     }
+    futureRoomName = _roomRepo.getName(widget.room.uid.asUid());
     super.initState();
   }
 
@@ -124,7 +129,6 @@ class ChatItemState extends State<ChatItem> {
     );
 
     final hoverColor = theme.hoverColor;
-
     return Column(
       children: [
         HoverContainer(
@@ -147,12 +151,11 @@ class ChatItemState extends State<ChatItem> {
           height: chatItemHeight,
           child: FutureBuilder<String>(
             initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
-            future: _roomRepo.getName(widget.room.uid.asUid()),
+            future: futureRoomName,
             builder: (c, nameSnapshot) {
               final name = _authRepo.isCurrentUser(widget.room.uid)
                   ? _i18n.get("saved_message")
                   : nameSnapshot.data ?? "";
-
               return buildChatItemWidget(name);
             },
           ),
@@ -191,6 +194,7 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildChatItemWidget(String name) {
     final theme = Theme.of(context);
+    final detailsHeight = theme.primaryTextTheme.bodyLarge!.fontSize! * 2 + 4;
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
@@ -255,25 +259,29 @@ class ChatItemState extends State<ChatItem> {
                     ),
                 ],
               ),
-              const SizedBox(height: 6),
-              StreamBuilder<Activity>(
-                stream: _roomRepo.activityObject[widget.room.uid.asUid().node],
-                builder: (c, s) {
-                  {
-                    return Row(
-                      children: [
-                        Expanded(
+              const SizedBox(
+                height: 6,
+              ),
+              Row(
+                children: [
+                  StreamBuilder<Activity>(
+                    stream:
+                        _roomRepo.activityObject[widget.room.uid.asUid().node],
+                    builder: (c, roomActivityStream) {
+                      return Expanded(
+                        child: SizedBox(
+                          height: detailsHeight,
                           child: AnimatedSwitcher(
                             duration: SLOW_ANIMATION_DURATION,
-                            child: (s.hasData &&
-                                    s.data != null &&
-                                    s.data!.typeOfActivity !=
+                            child: (roomActivityStream.hasData &&
+                                    roomActivityStream.data != null &&
+                                    roomActivityStream.data!.typeOfActivity !=
                                         ActivityType.NO_ACTIVITY)
                                 ? ActivityStatus(
                                     key: ValueKey(
                                       "activity-status${widget.room.uid}",
                                     ),
-                                    activity: s.data!,
+                                    activity: roomActivityStream.data!,
                                     roomUid: widget.room.uid.asUid(),
                                   )
                                 : FutureBuilder<Seen>(
@@ -315,44 +323,46 @@ class ChatItemState extends State<ChatItem> {
                                   ),
                           ),
                         ),
-                        if (widget.room.mentionsId != null &&
-                            widget.room.mentionsId!.isNotEmpty)
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              CupertinoIcons.at,
-                              size: 12,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                          ),
-                        if (widget.room.lastMessage != null &&
-                            !_authRepo
-                                .isCurrentUser(widget.room.lastMessage!.from))
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4.0),
-                            child: UnreadMessageCounterWidget(
-                              widget.room.lastMessage!.roomUid,
-                              widget.room.lastMessageId,
-                            ),
-                          ),
-                        if (widget.room.pinned)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4.0),
-                            child: Icon(
-                              CupertinoIcons.pin,
-                              size: 16,
-                              color: theme.colorScheme.onSurface.withAlpha(120),
-                            ),
-                          ),
-                      ],
-                    );
-                  }
-                },
+                      );
+                    },
+                  ),
+                  if (widget.room.mentionsId != null &&
+                      widget.room.mentionsId!.isNotEmpty)
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        CupertinoIcons.at,
+                        size: 12,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                  if (widget.room.lastMessage != null &&
+                      !_authRepo.isCurrentUser(widget.room.lastMessage!.from))
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: UnreadMessageCounterWidget(
+                        widget.room.lastMessage!.roomUid,
+                        widget.room.lastMessageId,
+                        key: ValueKey(
+                          "unread-count${widget.room.uid}",
+                        ),
+                      ),
+                    ),
+                  if (widget.room.pinned)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Icon(
+                        CupertinoIcons.pin,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withAlpha(120),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),

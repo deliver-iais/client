@@ -47,6 +47,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
+import 'app_lifecycle_service.dart';
+
 abstract class Notifier {
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
 
@@ -170,13 +172,25 @@ abstract class Notifier {
 }
 
 class NotificationServices {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _notifier = GetIt.I.get<Notifier>();
+
+  final _roomRepo = GetIt.I.get<RoomRepo>();
+
+  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
+
+  final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _uxService = GetIt.I.get<UxService>();
+
+  bool _appIsActive = true;
+
+  NotificationServices() {
+    _appLifecycleService.watchAppAppLifecycle().listen((event) {
+      _appIsActive = event == AppLifecycle.ACTIVE;
+    });
+  }
 
   void notifyOutgoingMessage(String roomUid) {
     if (_routingService.isInRoom(roomUid)) {
@@ -189,7 +203,7 @@ class NotificationServices {
     String roomUid, {
     String? roomName,
   }) {
-    if (_routingService.isInRoom(roomUid)) {
+    if (_routingService.isInRoom(roomUid) && _appIsActive) {
       _playSoundIn();
     } else {
       _showTextNotification(message, roomUid, roomName: roomName);
@@ -596,15 +610,18 @@ class LinuxNotifier implements Notifier {
 
 class AndroidNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
-  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
+  final _i18n = GetIt.I.get<I18N>();
+
   final _flutterLocalNotificationsPlugin =
       AndroidFlutterLocalNotificationsPlugin();
+  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
+
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _callService = GetIt.I.get<CallService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+
+  final _callService = GetIt.I.get<CallService>();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id
@@ -619,7 +636,6 @@ class AndroidNotifier implements Notifier {
       onCallRejected: onCallRejected,
       onNotificationTap: onCallNotificationTap,
     );
-
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
