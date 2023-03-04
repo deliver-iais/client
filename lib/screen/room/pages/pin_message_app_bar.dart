@@ -61,7 +61,7 @@ class PinMessageAppBar extends StatelessWidget {
                 onTap.call();
               },
               child: Material(
-                elevation: 10,
+                elevation: 1,
                 color: theme.colorScheme.surface,
                 child: Container(
                   height: 70,
