@@ -163,6 +163,7 @@ Widget buildTitle(BuildContext context) {
               return Text(
                 "${i18n.get("hi")}, ${snapshot.data}",
                 style: theme.textTheme.titleLarge,
+                textDirection: i18n.defaultTextDirection,
               );
             },
           ),
@@ -308,6 +309,7 @@ Widget buildContent(
               const SizedBox(height: 8),
               Text(
                 i18n.get("confirm_pin"),
+                textDirection: i18n.defaultTextDirection,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onBackground.withOpacity(0.6),
                 ),
@@ -319,13 +321,19 @@ Widget buildContent(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(i18n.get("not_complete_authentication")),
+              Text(
+                i18n.get("not_complete_authentication"),
+                textDirection: i18n.defaultTextDirection,
+              ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                   GetIt.I.get<RoutingService>().openRoom(botUid);
                 },
-                child: Text(i18n.get("authentication_completion")),
+                child: Text(
+                  i18n.get("authentication_completion"),
+                  textDirection: i18n.defaultTextDirection,
+                ),
               )
             ],
           ),

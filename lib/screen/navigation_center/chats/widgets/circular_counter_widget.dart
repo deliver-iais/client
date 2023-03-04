@@ -1,6 +1,5 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class CircularCounterWidget extends StatelessWidget {
@@ -25,13 +24,13 @@ class CircularCounterWidget extends StatelessWidget {
         opacity: unreadCount > 0 ? 1 : 0,
         duration: ANIMATION_DURATION,
         child: Container(
-          constraints: const BoxConstraints(minWidth: 18),
-          height: 18,
+          constraints: const BoxConstraints(minWidth: 20),
+          height: 20,
           padding: unreadCount < 10
-              ? const EdgeInsets.all(1.0)
+              ? const EdgeInsets.all(2.0)
               : const EdgeInsets.symmetric(
                   vertical: 2.0,
-                  horizontal: 5.5,
+                  horizontal: 6,
                 ),
           decoration: BoxDecoration(
             color: bgColor ?? theme.colorScheme.primary,
@@ -43,7 +42,6 @@ class CircularCounterWidget extends StatelessWidget {
                     strokeAlign: BorderSide.strokeAlignOutside,
                   )
                 : null,
-            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: AnimatedSwitchWidget(
             child: Text(

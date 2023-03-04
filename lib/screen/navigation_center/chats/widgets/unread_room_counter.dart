@@ -13,8 +13,8 @@ class UnreadRoomCounterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: -4,
-      right: -12,
+      top: -10,
+      left: -16,
       child: StreamBuilder<List<String?>>(
         stream: _seenDao.watchAllRoomSeen(),
         builder: (context, snapshot) {

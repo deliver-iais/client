@@ -67,6 +67,8 @@ class ChatItemState extends State<ChatItem> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
+  late final Future<String> nameFuture;
+
   StreamSubscription<Room>? _roomSubscription;
   late final Future<String> futureRoomName;
 
@@ -80,6 +82,7 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
+    nameFuture = _roomRepo.getName(widget.room.uid.asUid());
     if (!widget.room.synced) {
       _fetchRoomLastMessage();
     }

@@ -45,7 +45,7 @@ class ShakingBellTransitionState extends State<ShakingBellTransition>
         final isBellMode = snapshot.data ?? false;
         return SizedBox(
           height: 30,
-          width: 30,
+          width: 40,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (child, anim) => ScaleTransition(
@@ -72,10 +72,10 @@ class BellWs extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Container(
-          transform: Matrix4.translationValues(-1, 1, 0),
+          transform: Matrix4.translationValues(1.5, 1, 0),
           child: Ws.asset(
             "assets/animations/silent_unmute.ws",
-            width: 29,
+            width: 30,
             height: 29,
             delegates: LottieDelegates(
               values: [
