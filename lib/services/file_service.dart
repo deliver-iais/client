@@ -553,10 +553,12 @@ class FileService {
     _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
-    final Map<String, String> decoded = jsonDecode(result.data);
+    final decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
       //add fileUploadToken to header
-      _addFileUploadTokenHeader(decoded["token"] ?? "");
+      final headers = _dio.options.headers;
+      headers["UploadFileToken"] = decoded["token"] ?? "";
+      _dio.options.headers = headers;
       try {
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
