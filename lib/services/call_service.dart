@@ -1,9 +1,16 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:clock/clock.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
+import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -11,6 +18,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -35,6 +43,7 @@ class CallService {
 
   late RTCVideoRenderer _localRenderer;
   late RTCVideoRenderer _remoteRenderer;
+  late SharedPreferences _prefs;
 
   bool shouldRemoveData = false;
 
@@ -45,6 +54,7 @@ class CallService {
   bool isHole = false;
 
   CallService() {
+    SharedPreferences.getInstance().then((p) => _prefs = p);
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
@@ -191,7 +201,23 @@ class CallService {
         .writeToJson();
   }
 
-  Future<void> clearCallData({bool forceToClearData = false}) async {
+  Future<void> clearCallData({
+    bool forceToClearData = false,
+    bool isSaveCallData = false,
+  }) async {
+    try {
+      if (isSaveCallData) {
+        final callData = CallData(
+          callId: _callId,
+          roomUid: _roomUid.asString(),
+          expireTime: clock.now().millisecondsSinceEpoch + 10000,
+        );
+        saveLastCallStatusOnSharedPrefCallSlot(callData);
+      }
+      await removeCallFromDb();
+    } catch (e) {
+      _logger.e(e);
+    }
     if (shouldRemoveData || forceToClearData) {
       _logger.i("Clearing Call Data");
       _callId = "";
@@ -199,13 +225,107 @@ class CallService {
       isInitRenderer = false;
       _isHangedUp = false;
       isHole = false;
+      _roomUid = Uid.getDefault();
+    }
+  }
+
+  Future<void> disposeCallData({bool forceToClearData = false}) async {
+    if (shouldRemoveData || forceToClearData) {
       await FlutterForegroundTask.clearAllData();
-      await removeCallFromDb();
       await _disposeRenderer();
     }
   }
 
   bool isHiddenCallBottomRow(call_status.CallStatus callStatus) {
     return callStatus == call_status.CallStatus.CONNECTED;
+  }
+
+  bool checkIncomingCallIsRepeated(String callId, String roomUid) {
+    if (!_isCallDataInSharedPref(
+      callId,
+      roomUid,
+      SHARED_DAO_LAST_CALL_DATA_SLOT_1,
+    )) {
+      if (!_isCallDataInSharedPref(
+        callId,
+        roomUid,
+        SHARED_DAO_LAST_CALL_DATA_SLOT_2,
+      )) {
+        if (!_isCallDataInSharedPref(
+          callId,
+          roomUid,
+          SHARED_DAO_LAST_CALL_DATA_SLOT_3,
+        )) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  bool _isCallDataInSharedPref(String callId, String roomUid, String slot) {
+    final callDataSlot = _prefs.getString(slot);
+    if (callDataSlot != null) {
+      final callData = CallData.fromJson(jsonDecode(callDataSlot));
+      if (callData.callId == callId && callData.roomUid == roomUid) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  void saveLastCallStatusOnSharedPrefCallSlot(CallData data) {
+    var replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_1;
+    var minExpireTime =
+        _checkSlotAndSaveIfPossible(data, SHARED_DAO_LAST_CALL_DATA_SLOT_1);
+    if (minExpireTime != 0) {
+      final tempExpireTime = _checkSlotAndSaveIfPossible(
+        data,
+        SHARED_DAO_LAST_CALL_DATA_SLOT_2,
+      );
+      if (minExpireTime > tempExpireTime) {
+        replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_2;
+        minExpireTime = tempExpireTime;
+      }
+    } else {
+      return;
+    }
+    if (minExpireTime != 0) {
+      final tempExpireTime = _checkSlotAndSaveIfPossible(
+        data,
+        SHARED_DAO_LAST_CALL_DATA_SLOT_3,
+      );
+      if (minExpireTime > tempExpireTime) {
+        replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_3;
+        minExpireTime = tempExpireTime;
+      }
+    } else {
+      return;
+    }
+    if (minExpireTime != 0) {
+      _prefs.setString(replacedSlot, jsonEncode(data));
+    } else {
+      return;
+    }
+  }
+
+  int _checkSlotAndSaveIfPossible(CallData data, String slot) {
+    final callDataSlot = _prefs.getString(slot);
+    if (callDataSlot != null) {
+      final callData = CallData.fromJson(jsonDecode(callDataSlot));
+      if (((callData.expireTime - clock.now().millisecondsSinceEpoch).abs()) >
+          100000) {
+        // 100 sec ExpireTime
+        _prefs.setString(slot, jsonEncode(data));
+        return data.expireTime;
+      } else {
+        return 0;
+      }
+    } else {
+      _prefs.setString(slot, jsonEncode(data));
+      return data.expireTime;
+    }
   }
 }

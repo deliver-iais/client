@@ -16,17 +16,17 @@ import 'package:deliver/box/contact.dart' as _i60;
 import 'package:deliver/box/current_call_info.dart' as _i81;
 import 'package:deliver/box/dao/block_dao.dart' as _i52;
 import 'package:deliver/box/dao/custom_notification_dao.dart' as _i71;
-import 'package:deliver/box/dao/last_activity_dao.dart' as _i86;
+import 'package:deliver/box/dao/last_activity_dao.dart' as _i87;
 import 'package:deliver/box/dao/media_dao.dart' as _i72;
 import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i78;
 import 'package:deliver/box/dao/message_dao.dart' as _i24;
-import 'package:deliver/box/dao/muc_dao.dart' as _i88;
+import 'package:deliver/box/dao/muc_dao.dart' as _i89;
 import 'package:deliver/box/dao/mute_dao.dart' as _i55;
 import 'package:deliver/box/dao/room_dao.dart' as _i27;
 import 'package:deliver/box/dao/seen_dao.dart' as _i42;
 import 'package:deliver/box/dao/shared_dao.dart' as _i49;
 import 'package:deliver/box/dao/uid_id_name_dao.dart' as _i56;
-import 'package:deliver/box/last_activity.dart' as _i87;
+import 'package:deliver/box/last_activity.dart' as _i88;
 import 'package:deliver/box/livelocation.dart' as _i40;
 import 'package:deliver/box/media.dart' as _i73;
 import 'package:deliver/box/media_meta_data.dart' as _i76;
@@ -41,8 +41,9 @@ import 'package:deliver/box/room.dart' as _i28;
 import 'package:deliver/box/seen.dart' as _i2;
 import 'package:deliver/box/uid_id_name.dart' as _i57;
 import 'package:deliver/localization/i18n.dart' as _i53;
+import 'package:deliver/models/call_data.dart' as _i85;
 import 'package:deliver/models/call_event_type.dart' as _i80;
-import 'package:deliver/models/call_timer.dart' as _i94;
+import 'package:deliver/models/call_timer.dart' as _i95;
 import 'package:deliver/repository/accountRepo.dart' as _i62;
 import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i31;
@@ -55,17 +56,17 @@ import 'package:deliver/repository/liveLocationRepo.dart' as _i39;
 import 'package:deliver/repository/mediaRepo.dart' as _i75;
 import 'package:deliver/repository/mucRepo.dart' as _i64;
 import 'package:deliver/repository/roomRepo.dart' as _i29;
-import 'package:deliver/services/app_lifecycle_service.dart' as _i95;
+import 'package:deliver/services/app_lifecycle_service.dart' as _i96;
 import 'package:deliver/services/call_service.dart' as _i79;
 import 'package:deliver/services/core_services.dart' as _i48;
 import 'package:deliver/services/data_stream_services.dart' as _i44;
 import 'package:deliver/services/file_service.dart' as _i38;
 import 'package:deliver/services/firebase_services.dart' as _i34;
 import 'package:deliver/services/muc_services.dart' as _i43;
-import 'package:deliver/services/notification_services.dart' as _i85;
-import 'package:deliver/services/routing_service.dart' as _i92;
-import 'package:deliver/services/url_handler_service.dart' as _i90;
-import 'package:deliver/services/ux_service.dart' as _i89;
+import 'package:deliver/services/notification_services.dart' as _i86;
+import 'package:deliver/services/routing_service.dart' as _i93;
+import 'package:deliver/services/url_handler_service.dart' as _i91;
+import 'package:deliver/services/ux_service.dart' as _i90;
 import 'package:deliver/shared/language.dart' as _i54;
 import 'package:deliver/theme/extra_theme.dart' as _i19;
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart' as _i69;
@@ -77,7 +78,7 @@ import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart'
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart' as _i30;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as _i16;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart'
-    as _i91;
+    as _i92;
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as _i59;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as _i37;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as _i41;
@@ -88,7 +89,7 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i11;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i32;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as _i46;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart' as _i33;
-import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i93;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i94;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart' as _i3;
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart' as _i5;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as _i14;
@@ -6083,10 +6084,27 @@ class MockCallService extends _i1.Mock implements _i79.CallService {
         returnValue: '',
       ) as String);
   @override
-  _i22.Future<void> clearCallData({bool? forceToClearData = false}) =>
+  _i22.Future<void> clearCallData({
+    bool? forceToClearData = false,
+    bool? isSaveCallData = false,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #clearCallData,
+          [],
+          {
+            #forceToClearData: forceToClearData,
+            #isSaveCallData: isSaveCallData,
+          },
+        ),
+        returnValue: _i22.Future<void>.value(),
+        returnValueForMissingStub: _i22.Future<void>.value(),
+      ) as _i22.Future<void>);
+  @override
+  _i22.Future<void> disposeCallData({bool? forceToClearData = false}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #disposeCallData,
           [],
           {#forceToClearData: forceToClearData},
         ),
@@ -6102,13 +6120,37 @@ class MockCallService extends _i1.Mock implements _i79.CallService {
         ),
         returnValue: false,
       ) as bool);
+  @override
+  bool checkIncomingCallIsRepeated(
+    String? callId,
+    String? roomUid,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #checkIncomingCallIsRepeated,
+          [
+            callId,
+            roomUid,
+          ],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  void saveLastCallStatusOnSharedPrefCallSlot(_i85.CallData? data) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #saveLastCallStatusOnSharedPrefCallSlot,
+          [data],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [NotificationServices].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNotificationServices extends _i1.Mock
-    implements _i85.NotificationServices {
+    implements _i86.NotificationServices {
   MockNotificationServices() {
     _i1.throwOnMissingStub(this);
   }
@@ -6210,29 +6252,29 @@ class MockNotificationServices extends _i1.Mock
 /// A class which mocks [LastActivityDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLastActivityDao extends _i1.Mock implements _i86.LastActivityDao {
+class MockLastActivityDao extends _i1.Mock implements _i87.LastActivityDao {
   MockLastActivityDao() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i22.Future<_i87.LastActivity?> get(String? uid) => (super.noSuchMethod(
+  _i22.Future<_i88.LastActivity?> get(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #get,
           [uid],
         ),
-        returnValue: _i22.Future<_i87.LastActivity?>.value(),
-      ) as _i22.Future<_i87.LastActivity?>);
+        returnValue: _i22.Future<_i88.LastActivity?>.value(),
+      ) as _i22.Future<_i88.LastActivity?>);
   @override
-  _i22.Stream<_i87.LastActivity?> watch(String? uid) => (super.noSuchMethod(
+  _i22.Stream<_i88.LastActivity?> watch(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [uid],
         ),
-        returnValue: _i22.Stream<_i87.LastActivity?>.empty(),
-      ) as _i22.Stream<_i87.LastActivity?>);
+        returnValue: _i22.Stream<_i88.LastActivity?>.empty(),
+      ) as _i22.Stream<_i88.LastActivity?>);
   @override
-  _i22.Future<void> save(_i87.LastActivity? lastActivity) =>
+  _i22.Future<void> save(_i88.LastActivity? lastActivity) =>
       (super.noSuchMethod(
         Invocation.method(
           #save,
@@ -6246,7 +6288,7 @@ class MockLastActivityDao extends _i1.Mock implements _i86.LastActivityDao {
 /// A class which mocks [MucDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMucDao extends _i1.Mock implements _i88.MucDao {
+class MockMucDao extends _i1.Mock implements _i89.MucDao {
   MockMucDao() {
     _i1.throwOnMissingStub(this);
   }
@@ -6381,7 +6423,7 @@ class MockMucDao extends _i1.Mock implements _i88.MucDao {
 /// A class which mocks [UxService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUxService extends _i1.Mock implements _i89.UxService {
+class MockUxService extends _i1.Mock implements _i90.UxService {
   MockUxService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6754,7 +6796,7 @@ class MockUxService extends _i1.Mock implements _i89.UxService {
 /// A class which mocks [UrlHandlerService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUrlHandlerService extends _i1.Mock implements _i90.UrlHandlerService {
+class MockUrlHandlerService extends _i1.Mock implements _i91.UrlHandlerService {
   MockUrlHandlerService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6797,7 +6839,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i90.UrlHandlerService {
   @override
   _i22.Future<void> handleIdLink(
     String? node,
-    _i91.Categories? category,
+    _i92.Categories? category,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -6916,7 +6958,7 @@ class MockUrlHandlerService extends _i1.Mock implements _i90.UrlHandlerService {
 /// A class which mocks [RoutingService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoutingService extends _i1.Mock implements _i92.RoutingService {
+class MockRoutingService extends _i1.Mock implements _i93.RoutingService {
   MockRoutingService() {
     _i1.throwOnMissingStub(this);
   }
@@ -6950,10 +6992,10 @@ class MockRoutingService extends _i1.Mock implements _i92.RoutingService {
         returnValueForMissingStub: null,
       );
   @override
-  _i22.Stream<_i92.RouteEvent> get currentRouteStream => (super.noSuchMethod(
+  _i22.Stream<_i93.RouteEvent> get currentRouteStream => (super.noSuchMethod(
         Invocation.getter(#currentRouteStream),
-        returnValue: _i22.Stream<_i92.RouteEvent>.empty(),
-      ) as _i22.Stream<_i92.RouteEvent>);
+        returnValue: _i22.Stream<_i93.RouteEvent>.empty(),
+      ) as _i22.Stream<_i93.RouteEvent>);
   @override
   void openSettings({bool? popAllBeforePush = false}) => super.noSuchMethod(
         Invocation.method(
@@ -7277,7 +7319,7 @@ class MockRoutingService extends _i1.Mock implements _i92.RoutingService {
       );
   @override
   void openAllGroupedRoomsGridPage(
-          {required _i93.GroupedRooms? groupedRooms}) =>
+          {required _i94.GroupedRooms? groupedRooms}) =>
       super.noSuchMethod(
         Invocation.method(
           #openAllGroupedRoomsGridPage,
@@ -7568,15 +7610,15 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i4.BehaviorSubject<_i94.CallTimer> get callTimer => (super.noSuchMethod(
+  _i4.BehaviorSubject<_i95.CallTimer> get callTimer => (super.noSuchMethod(
         Invocation.getter(#callTimer),
-        returnValue: _FakeBehaviorSubject_2<_i94.CallTimer>(
+        returnValue: _FakeBehaviorSubject_2<_i95.CallTimer>(
           this,
           Invocation.getter(#callTimer),
         ),
-      ) as _i4.BehaviorSubject<_i94.CallTimer>);
+      ) as _i4.BehaviorSubject<_i95.CallTimer>);
   @override
-  set callTimer(_i4.BehaviorSubject<_i94.CallTimer>? _callTimer) =>
+  set callTimer(_i4.BehaviorSubject<_i95.CallTimer>? _callTimer) =>
       super.noSuchMethod(
         Invocation.setter(
           #callTimer,
@@ -7853,6 +7895,15 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
+  bool checkCallExpireTimeFailed(_i80.CallEvents? event) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #checkCallExpireTimeValidation,
+          [event],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
   _i22.Future<void> initCall({bool? isOffer = false}) => (super.noSuchMethod(
         Invocation.method(
           #initCall,
@@ -8078,19 +8129,19 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAppLifecycleService extends _i1.Mock
-    implements _i95.AppLifecycleService {
+    implements _i96.AppLifecycleService {
   MockAppLifecycleService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i95.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
+  _i96.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
         Invocation.method(
           #getAppLiveCycle,
           [],
         ),
-        returnValue: _i95.AppLifecycle.ACTIVE,
-      ) as _i95.AppLifecycle);
+        returnValue: _i96.AppLifecycle.ACTIVE,
+      ) as _i96.AppLifecycle);
   @override
   void updateAppStateToPause() => super.noSuchMethod(
         Invocation.method(
@@ -8108,13 +8159,13 @@ class MockAppLifecycleService extends _i1.Mock
         returnValue: false,
       ) as bool);
   @override
-  _i22.Stream<_i95.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
+  _i22.Stream<_i96.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
         Invocation.method(
           #watchAppAppLifecycle,
           [],
         ),
-        returnValue: _i22.Stream<_i95.AppLifecycle>.empty(),
-      ) as _i22.Stream<_i95.AppLifecycle>);
+        returnValue: _i22.Stream<_i96.AppLifecycle>.empty(),
+      ) as _i22.Stream<_i96.AppLifecycle>);
   @override
   void startLifeCycListener() => super.noSuchMethod(
         Invocation.method(

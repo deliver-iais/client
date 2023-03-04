@@ -703,6 +703,7 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallNotificationTap(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
+    await GetIt.I.get<CallService>().disposeCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await _callService.saveCallOnDb(
       getCallInfo(
@@ -715,6 +716,7 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
+    await GetIt.I.get<CallService>().disposeCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await _callService.saveCallOnDb(
       getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),
