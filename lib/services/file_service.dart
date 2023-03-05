@@ -530,7 +530,7 @@ class FileService {
     _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
-    final Map<String, String> decoded = jsonDecode(result.data);
+    final Map<String, dynamic> decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
       //add fileUploadToken to header
       final headers = _dio.options.headers;
