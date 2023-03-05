@@ -140,7 +140,7 @@ class BoxContentState extends State<BoxContent> {
               ],
             ),
           ),
-          if (!widget.showMenuDisable && (isDesktop | isWeb))
+          if (!widget.showMenuDisable && (isDesktopDevice))
             StreamBuilder<bool>(
               initialData: false,
               stream: showMenuBehavior.distinct(),

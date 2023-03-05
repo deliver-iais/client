@@ -42,7 +42,7 @@ class ShareBoxInputCaption extends StatelessWidget {
             // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
             contentPadding: EdgeInsets.only(
               top: 12,
-              bottom: isDesktop ? 9 : 16,
+              bottom: isDesktopDevice ? 9 : 16,
               left: 16,
               right: 8,
             ),

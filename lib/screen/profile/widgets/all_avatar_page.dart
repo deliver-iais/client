@@ -80,7 +80,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                   color: theme.shadowColor,
                   child: Row(
                     children: [
-                      if (isDesktop)
+                      if (isDesktopDevice)
                         StreamBuilder<int>(
                           stream: _swipePositionSubject,
                           builder: (context, indexSnapShot) {
@@ -157,7 +157,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                           },
                         ),
                       ),
-                      if (isDesktop)
+                      if (isDesktopDevice)
                         StreamBuilder<int>(
                           stream: _swipePositionSubject,
                           builder: (context, indexSnapShot) {
@@ -234,7 +234,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                     ),
                     actions: [
                       if (widget.hasPermissionToDeletePic ||
-                          (!isWeb && !isIOS && _filePath != null))
+                          (_filePath != null))
                         _buildPopupMenuButton(totalLength),
                     ],
                   )
@@ -254,7 +254,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
         color: Colors.white,
       ),
       itemBuilder: (cc) => [
-        if ((isDesktop || isAndroid) && _filePath != null)
+        if (_filePath != null)
           PopupMenuItem(
             child: Directionality(
               textDirection: _i18n.defaultTextDirection,
@@ -265,15 +265,17 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                     width: 8,
                   ),
                   Text(
-                    isDesktop
-                        ? _i18n.get("save_as")
-                        : _i18n.get("save_to_gallery"),
+                    isWeb
+                        ? _i18n.get("save")
+                        : isDesktopNative
+                            ? _i18n.get("save_as")
+                            : _i18n.get("save_to_gallery"),
                   ),
                 ],
               ),
             ),
             onTap: () {
-              if (isDesktop) {
+              if (isDesktopNative) {
                 Future.delayed(const Duration(milliseconds: 350)).then((value) {
                   FilePicker.platform
                       .saveFile(
@@ -291,7 +293,12 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                     }
                   });
                 });
-              } else if (isAndroid) {
+              } else if (isWeb) {
+                _fileRepo.saveDownloadedFileInWeb(
+                  _avatars[_swipePositionSubject.value]!.fileId!,
+                  _avatars[_swipePositionSubject.value]!.fileName!,
+                );
+              } else {
                 _fileRepo.saveFileInDownloadDir(
                   _avatars[_swipePositionSubject.value]!.fileId!,
                   _avatars[_swipePositionSubject.value]!.fileName!,
@@ -305,7 +312,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
               }
             },
           ),
-        if (isDesktop && _filePath != null)
+        if (isDesktopNative && _filePath != null)
           PopupMenuItem(
             child: Directionality(
               textDirection: _i18n.defaultTextDirection,

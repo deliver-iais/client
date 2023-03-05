@@ -97,7 +97,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                     _attachFile(sharePrivateDataRequest, context);
                   } else if (sharePrivateDataRequest.data ==
                       PrivateDataType.LOCATION) {
-                    if (isAndroid || isIOS) {
+                    if (isMobileNative) {
                       showModalBottomSheet(
                         context: context,
                         builder: (c) {
@@ -113,7 +113,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                         },
                       );
                     } else {
-                      if (isWindows || isMacOS) {
+                      if (isWindowsNative || isMacOSNative) {
                         AttachLocation(context, message.roomUid.asUid())
                             .attachLocationInWindows();
                       } else {
@@ -153,7 +153,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   ) async {
     final res = <File>[];
     final types = sharePrivateDataRequest.fileMemeTypeFilters;
-    if (isLinux) {
+    if (isLinuxNative) {
       final typeGroup = <XTypeGroup>[];
       for (final type in types) {
         typeGroup

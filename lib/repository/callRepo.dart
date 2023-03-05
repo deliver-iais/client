@@ -172,7 +172,7 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null && !isDesktop) {
+      if (call != null && !isDesktopNative) {
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NO_CALL) {
           _isNotificationSelected = call.notificationSelected;
@@ -274,7 +274,7 @@ class CallRepo {
                       ),
                     );
                   } else {
-                    if (!isDesktop && !_isCallFromDb) {
+                    if (!isDesktopNative && !_isCallFromDb) {
                       //get call Info and Save on DB
                       final currentCallEvent = call_event.CallEvent(
                         callDuration: callEvent.callDuration.toInt(),
@@ -337,9 +337,10 @@ class CallRepo {
 
   void _busyCall(CallEvents event, call_pb.CallEvent callEvent) {
     final callData = CallData(
-        callId: event.callId,
-        roomUid: event.roomUid!.asString(),
-        expireTime: event.time + 100000);
+      callId: event.callId,
+      roomUid: event.roomUid!.asString(),
+      expireTime: event.time + 100000,
+    );
     _callService.saveLastCallStatusOnSharedPrefCallSlot(callData);
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.BUSY,
@@ -366,7 +367,7 @@ class CallRepo {
       _peerConnection = pc;
     });
 
-    if (isAndroid && await requestPhoneStatePermission()) {
+    if (isMobileNative && await requestPhoneStatePermission()) {
       startListenToPhoneCallState();
     }
 
@@ -468,7 +469,7 @@ class CallRepo {
     final pc = await createPeerConnection(iceServers, config);
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
-    if (!isDesktop) {
+    if (!isDesktopNative) {
       _audioService.turnDownTheCallVolume();
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
@@ -709,12 +710,12 @@ class CallRepo {
       await vibrate(duration: 50);
 
       if (_isVideo) {
-        if (isAndroid) {
+        if (hasSpeakerCapability) {
           await Wakelock.enable();
           _localStream!.getAudioTracks()[0].enableSpeakerphone(true);
           isSpeaker.add(true);
         }
-      } else if (isAndroid) {
+      } else if (hasSpeakerCapability) {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(isSpeaker.value);
       }
 
@@ -782,7 +783,7 @@ class CallRepo {
     _isConnected = true;
     isConnectedSubject.add(true);
     await _ShareCameraStatusFromDataChannel();
-    if (!isDesktop) {
+    if (!isDesktopNative) {
       _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
     }
   }
@@ -891,7 +892,7 @@ class CallRepo {
   Future<MediaStream> _getUserMedia() async {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
-    if (isDesktop) {
+    if (isDesktopNative) {
       mediaConstraints = {
         'video': _isVideo
             ? {
@@ -946,7 +947,7 @@ class CallRepo {
   }
 
   Future<MediaStream> _getUserDisplay(DesktopCapturerSource? source) async {
-    if (isDesktop) {
+    if (isDesktopNative) {
       final stream =
           await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
         'video': source == null
@@ -1108,7 +1109,7 @@ class CallRepo {
   }
 
   bool enableSpeakerVoice() {
-    if (_localStream != null && !isDesktop) {
+    if (_localStream != null && !isDesktopNative) {
       final camAudioTrack = _localStream!.getAudioTracks()[0];
       final speaker = isSpeaker.value;
       if (speaker) {
@@ -1208,7 +1209,7 @@ class CallRepo {
             roomId.asString(),
             callEventJson: callEventJson,
           );
-          if (!isAndroid) {
+          if (!isAndroidNative) {
             _audioService.playIncomingCallSound();
           }
         }
@@ -1230,7 +1231,7 @@ class CallRepo {
         ),
       );
       Timer(const Duration(milliseconds: 500), () async {
-        if (isAndroid) {
+        if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
             if (await getDeviceVersion() >= 31) {
               _isCallInitiated = true;
@@ -1286,7 +1287,7 @@ class CallRepo {
         });
         _callIdGenerator();
         _sendStartCallEvent();
-        if (isAndroid) {
+        if (hasForegroundServiceCapability) {
           final foregroundStatus =
               await _notificationForegroundService.callForegroundServiceStart();
           if (foregroundStatus) {
@@ -1337,11 +1338,11 @@ class CallRepo {
 
   Future<void> acceptCall(Uid roomId) async {
     try {
-      if (isAndroid) {
+      if (hasVibrationCapability) {
         cancelVibration().ignore();
       }
       isAccepted = true;
-      if (isDesktop) {
+      if (isDesktopNative) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
 
@@ -1379,7 +1380,7 @@ class CallRepo {
       onLocalStream?.call(_localStream!);
       _callService.setCallStart(callStart: true);
       unawaited(_sendOffer());
-      if (isAndroid) {
+      if (hasForegroundServiceCapability) {
         final foregroundStatus =
             await _notificationForegroundService.callForegroundServiceStart();
         if (foregroundStatus) {
@@ -1403,7 +1404,7 @@ class CallRepo {
 
   Future<void> declineCall() async {
     if (_callService.getUserCallState == UserCallState.IN_USER_CALL) {
-      if (isDesktop) {
+      if (isDesktopNative) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       _logger.i("declineCall");
@@ -1475,7 +1476,7 @@ class CallRepo {
     if (!_isEnded) {
       _isEnded = true;
       _logger.i("Call Duration Received: $callDuration");
-      if (isDesktop) {
+      if (isDesktopNative) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       if (_isCaller) {
@@ -1501,11 +1502,11 @@ class CallRepo {
   }
 
   Future<void> cancelCallNotification() async {
-    if (isAndroid && !_isCaller) {
+    if (isMobileNative && !_isCaller) {
       cancelVibration().ignore();
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-    } else if (isDesktop) {
+    } else if (isDesktopNative) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
   }
@@ -1515,7 +1516,7 @@ class CallRepo {
     try {
       if (callingStatus.value != CallStatus.ENDED ||
           callingStatus.value != CallStatus.NO_CALL) {
-        if (isDesktop) {
+        if (isDesktopNative) {
           _notificationServices.cancelRoomNotifications(roomUid!.node);
         }
         if (_callService.getUserCallState != CallStatus.NO_CALL) {
@@ -1739,12 +1740,16 @@ class CallRepo {
     _logger.i("!!!!Disposeeeee!!!!");
     try {
       await cancelCallNotification();
-      if (isAndroid) {
+      if (hasSpeakerCapability) {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
+      }
+      if (hasForegroundServiceCapability) {
+        await _notificationForegroundService.callForegroundServiceStop();
+      }
+      if (isAndroidNative) {
         _isNotificationSelected = false;
         modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(null);
         _receivePort?.close();
-        await _notificationForegroundService.callForegroundServiceStop();
         if (!_isCaller) {
           await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
             isVisible: false,
@@ -1821,7 +1826,7 @@ class CallRepo {
         );
         await _callService.disposeCallData(forceToClearData: true);
 
-        if (isAndroid) {
+        if (isMobileDevice) {
           await Wakelock.disable();
         }
       } catch (e) {

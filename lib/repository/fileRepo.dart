@@ -12,14 +12,15 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
+import 'package:universal_html/html.dart' as html;
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -193,7 +194,7 @@ class FileRepo {
     );
     if (fileInfo != null) {
       if (isWeb) {
-        return Uri.parse(fileInfo.path).toString();
+        return _convertDataByteToBlobUrl(fileInfo.path,filename.getMimeString());
       } else {
         final file = io.File(fileInfo.path);
         if (file.existsSync()) {
@@ -214,7 +215,7 @@ class FileRepo {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
-      return isWeb ? Uri.parse(path).toString() : path;
+        return path;
     }
     final downloadedFileUri = await _fileService.getFile(
       uuid,
@@ -225,18 +226,16 @@ class FileRepo {
     );
     if (downloadedFileUri != null) {
       if (isWeb) {
-        final res = await http.get(Uri.parse(downloadedFileUri));
-        final bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
         await _saveFileInfo(
           uuid,
-          bytes,
+          downloadedFileUri,
           filename,
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
         );
         if (intiProgressbar) {
           _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
         }
-        return downloadedFileUri;
+        return _convertDataByteToBlobUrl(downloadedFileUri,filename.getMimeString());
       }
 
       await _saveFileInfo(
@@ -253,6 +252,15 @@ class FileRepo {
     } else {
       return null;
     }
+  }
+
+  String _convertDataByteToBlobUrl(String dataByte, String type) {
+    final blob = html.Blob(
+      <Object>[UriData.parse(dataByte).contentAsBytes()],
+      "application/$type}",
+    );
+
+    return html.Url.createObjectUrlFromBlob(blob);
   }
 
   Future<FileInfo> _saveFileInfo(
@@ -291,7 +299,7 @@ class FileRepo {
   Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
       _fileDao.get(uuid, enumToString(size));
 
-  void saveDownloadedFileInWeb(String uuid, String name, String type) {
+  void saveDownloadedFileInWeb(String uuid, String name) {
     getFileIfExist(uuid, name).then((url) {
       if (url != null) {
         _fileService.saveDownloadedFile(url, name);
@@ -305,7 +313,7 @@ class FileRepo {
     String dir,
   ) {
     getFileIfExist(uuid, name).then(
-      (path) => isDesktop
+      (path) => isDesktopNative
           ? _fileService.saveFileInDesktopDownloadFolder(uuid, name, path!)
           : _fileService.saveFileInMobileDownloadFolder(path!, name, dir),
     );

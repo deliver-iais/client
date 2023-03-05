@@ -128,7 +128,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       _audioService.recordingRoom == widget.currentRoom.uid;
 
   void _attachFile() {
-    if (isWeb || isDesktop) {
+    if (isDesktopNativeOrWeb) {
       _attachFileInDesktopMode();
     } else {
       FocusScope.of(context).unfocus();
@@ -151,9 +151,11 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   @override
   void initState() {
-    widget.focusNode.onKey = (node, evt) {
-      return handleKeyPress(evt);
-    };
+    if (isDesktopDevice) {
+      widget.focusNode.onKey = (node, evt) {
+        return handleKeyPress(evt);
+      };
+    }
     _keyboardStatus.add(
       widget.currentRoom.replyKeyboardMarkup != null
           ? KeyboardStatus.REPLY_KEYBOARD
@@ -167,8 +169,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           _hideDesktopEmojiKeyboardOverlay();
         }
       });
-    }
-    if (!isDesktop) {
+    } else {
       keyboardVisibilityController.onChange.listen((visible) {
         if (visible) {
           if (_keyboardStatus.value != KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
@@ -293,7 +294,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
-    if (isAndroid) {
+    if (hasVirtualKeyboardCapability) {
       setKeyBoardSize(bottomOffset, mq);
     }
     final theme = Theme.of(context);
@@ -697,7 +698,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                 },
               ),
-            if ((isWindows) && !showSendButton && !widget.waitingForForward)
+            if ((isWindowsNative) && !showSendButton && !widget.waitingForForward)
               IconButton(
                 icon: const Icon(
                   CupertinoIcons.location,
@@ -757,14 +758,14 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ).getCustomTextSelectionController();
               },
               focusNode: widget.focusNode,
-              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktopDevice,
               controller: widget.textController,
               decoration: InputDecoration(
                 isCollapsed: true,
                 // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
                 contentPadding: EdgeInsets.only(
                   top: 9,
-                  bottom: isDesktop || isWeb ? 9 : 16,
+                  bottom: isDesktopNativeOrWeb ? 9 : 16,
                 ),
                 border: InputBorder.none,
                 counterText: "",
@@ -784,7 +785,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
               textInputAction: TextInputAction.newline,
               minLines: 1,
-              maxLines: isAndroid ? 10 : 15,
+              maxLines: isMobileNative ? 10 : 15,
               maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
               inputFormatters: [
                 MaxLinesTextInputFormatter(
@@ -827,7 +828,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
     _mentionQuery.add(null);
     isMentionSelected = true;
-    if (isDesktop) {
+    if (isDesktopDevice) {
       widget.focusNode.requestFocus();
     }
   }
@@ -1093,7 +1094,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   Future<void> _attachFileInDesktopMode() async {
     try {
       final res = <File>[];
-      if (isLinux) {
+      if (isLinuxNative) {
         final result = await openFiles();
         for (final file in result) {
           res.add(await xFileToFileModel(file));

@@ -33,7 +33,7 @@ class CallBottomRowState extends State<CallBottomRow>
     with CustomPopupMenu, SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
   final _callRepo = GetIt.I.get<CallRepo>();
-  final _iconsSize = isAndroid ? 20.0 : 30.0;
+  final _iconsSize = isMobileDevice ? 20.0 : 30.0;
 
   List<MediaDevice>? _audioInputs;
 
@@ -143,10 +143,10 @@ class CallBottomRowState extends State<CallBottomRow>
             tooltip: _i18n.get("share_screen"),
             icon: getEnableIconWithSize(
               isEnable: isEnable,
-              enableIcon: isDesktop
+              enableIcon: isDesktopDevice
                   ? Icons.screen_share_outlined
                   : Icons.mobile_screen_share_outlined,
-              disableIcon: isDesktop
+              disableIcon: isDesktopDevice
                   ? Icons.stop_screen_share_outlined
                   : Icons.mobile_screen_share_outlined,
             ),
@@ -249,11 +249,13 @@ class CallBottomRowState extends State<CallBottomRow>
       radius: 25,
       backgroundColor: getEnableBackgroundColor(isEnable: false),
       child: IconButton(
-        onPressed: () => isDesktop ? _desktopDualVideo() : _switchCamera(theme),
-        tooltip: isDesktop ? _i18n.get("screen") : _i18n.get("camera_switch"),
+        onPressed: () =>
+            isDesktopDevice ? _desktopDualVideo() : _switchCamera(theme),
+        tooltip:
+            isDesktopDevice ? _i18n.get("screen") : _i18n.get("camera_switch"),
         hoverColor: theme.primaryColor.withOpacity(0.6),
         icon: Icon(
-          isDesktop ? desktopDualVideoIcon : CupertinoIcons.switch_camera,
+          isDesktopDevice ? desktopDualVideoIcon : CupertinoIcons.switch_camera,
           size: _iconsSize,
           color: getEnableColor(isEnable: false),
         ),
@@ -331,7 +333,7 @@ class CallBottomRowState extends State<CallBottomRow>
                     ),
                   ],
                 ),
-                if (!isDesktop)
+                if (isMobileDevice)
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -345,7 +347,7 @@ class CallBottomRowState extends State<CallBottomRow>
                       ),
                     ],
                   ),
-                if (isDesktopOrWeb)
+                if (isDesktopDevice)
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -383,10 +385,10 @@ class CallBottomRowState extends State<CallBottomRow>
             children: <Widget>[
               buildSwitchingButton(theme),
               buildVideoingButton(theme),
-              if (isDesktopOrWeb) buildShareScreenButton(theme, context),
+              if (isDesktopNativeOrWeb) buildShareScreenButton(theme, context),
               buildEndCallButton(),
               buildMicButton(theme),
-              if (isAndroid || isIOS) buildSpeakerButton(theme),
+              if (hasSpeakerCapability) buildSpeakerButton(theme),
             ],
           ),
         ),
@@ -473,7 +475,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
-    if (isDesktop) {
+    if (isDesktopNative) {
       if (!_callRepo.isSharing) {
         final source = await showDialog<DesktopCapturerSource>(
           context: context,

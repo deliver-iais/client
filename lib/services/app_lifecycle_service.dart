@@ -24,7 +24,7 @@ class AppLifecycleService {
   Stream<AppLifecycle> watchAppAppLifecycle() => _state.stream;
 
   void startLifeCycListener() {
-    if (isDesktop) {
+    if (isDesktopNative) {
       DesktopLifecycle.instance.isActive.addListener(() {
         if (DesktopLifecycle.instance.isActive.value) {
           _state.add(AppLifecycle.ACTIVE);

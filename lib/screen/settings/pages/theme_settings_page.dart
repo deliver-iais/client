@@ -355,7 +355,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                     ),
                                     Row(
                                       children: [
-                                        if (isDesktop)
+                                        if (isDesktopDevice)
                                           IconButton(
                                             onPressed: () =>
                                                 _controller.animateTo(
@@ -383,7 +383,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                             ),
                                           ),
                                         ),
-                                        if (isDesktop)
+                                        if (isDesktopDevice)
                                           IconButton(
                                             onPressed: () =>
                                                 _controller.animateTo(

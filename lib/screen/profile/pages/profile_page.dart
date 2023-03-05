@@ -203,7 +203,7 @@ class ProfilePageState extends State<ProfilePage>
                                             },
                                           ),
                                         ),
-                                        if (isAndroid)
+                                        if (isAndroidNative)
                                           Tooltip(
                                             message: _i18n.get("share"),
                                             child: IconButton(

@@ -304,7 +304,7 @@ class NavigationCenterState extends State<NavigationCenter>
   }
 
   bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
-    if (isDesktop && !isWeb) {
+    if (isDesktopNative) {
       getWindowInfo().then((size) {
         _sharedDao.put(
           SHARED_DAO_WINDOWS_SIZE,
@@ -510,7 +510,7 @@ class NavigationCenterState extends State<NavigationCenter>
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: (!isDesktop)
+                        permissionWidget: (hasContactCapability)
                             ? TextButton(
                                 onPressed: () {
                                   FeatureDiscovery.dismissAll(context);
@@ -553,7 +553,7 @@ class NavigationCenterState extends State<NavigationCenter>
                   titleSpacing: 8.0,
                   title: ConnectionStatus(isShowCase: _isShowCaseEnable),
                   actions: [
-                    if (!isDesktop)
+                    if (isMobileNative)
                       DescribedFeatureOverlay(
                         featureId: QRCODE_FEATURE,
                         tapTarget: Icon(

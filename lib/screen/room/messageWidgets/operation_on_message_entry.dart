@@ -179,7 +179,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       return PopupMenuItem(
                         value: isWeb
                             ? OperationOnMessage.SAVE
-                            : isDesktop
+                            : isDesktopNative
                                 ? OperationOnMessage.SAVE_TO_DOWNLOADS
                                 : (f.isImageFileProto() ||
                                         f.isVideoFileProto())
@@ -197,7 +197,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                                 _i18n.get("save"),
                                 style: theme.primaryTextTheme.bodyMedium,
                               )
-                            else if (isDesktop)
+                            else if (isDesktopNative)
                               Text(
                                 _i18n.get("save_to_downloads"),
                                 style: theme.primaryTextTheme.bodyMedium,
@@ -226,7 +226,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     }
                   },
                 ),
-              if (widget.message.type == MessageType.FILE && isAndroid)
+              if (widget.message.type == MessageType.FILE && isAndroidNative)
                 StreamBuilder<bool>(
                   stream: _fileIsExist,
                   builder: (c, s) {
@@ -250,7 +250,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     }
                   },
                 ),
-              if (widget.message.type == MessageType.TEXT && isAndroid)
+              if (widget.message.type == MessageType.TEXT && isAndroidNative)
                 PopupMenuItem(
                   value: OperationOnMessage.SHARE,
                   child: Row(
@@ -264,7 +264,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ],
                   ),
                 ),
-              if (widget.message.type == MessageType.FILE && isDesktop)
+              if (widget.message.type == MessageType.FILE && isDesktopNative)
                 StreamBuilder<bool>(
                   stream: _fileIsExist,
                   builder: (c, s) {
@@ -388,7 +388,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ],
                   ),
                 ),
-              if (isDesktop && widget.message.type == MessageType.FILE)
+              if (isDesktopNative && widget.message.type == MessageType.FILE)
                 FutureBuilder<String?>(
                   future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,

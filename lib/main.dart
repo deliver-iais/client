@@ -191,15 +191,15 @@ Future<void> setupDI() async {
 
   if (isWeb) {
     registerSingleton<Notifier>(WebNotifier());
-  } else if (isMacOS) {
+  } else if (isMacOSNative) {
     registerSingleton<Notifier>(MacOSNotifier());
-  } else if (isAndroid) {
+  } else if (isAndroidNative) {
     registerSingleton<Notifier>(AndroidNotifier());
-  } else if (isIOS) {
+  } else if (isIOSNative) {
     registerSingleton<Notifier>(IOSNotifier());
-  } else if (isLinux) {
+  } else if (isLinuxNative) {
     registerSingleton<Notifier>(LinuxNotifier());
-  } else if (isWindows) {
+  } else if (isWindowsNative) {
     registerSingleton<Notifier>(WindowsNotifier());
   } else {
     registerSingleton<Notifier>(FakeNotifier());
@@ -222,7 +222,7 @@ Future<void> setupDI() async {
     PersistentEventHandlerService(),
   );
   registerSingleton<BackgroundService>(BackgroundService());
-  if (isAndroid || isIOS) {
+  if (isMobileNative) {
     registerSingleton<CameraService>(MobileCameraService());
   }
 }
@@ -305,14 +305,14 @@ Future<void> dbSetupDI() async {
 
 Future initializeFirebase() async {
   await Firebase.initializeApp(
-    name: APPLICATION_NAME,
+    name: isAndroidNative ? APPLICATION_NAME : null,
     options: DefaultFirebaseOptions.currentPlatform,
   );
 }
 
 // ignore: avoid_void_async
 void main() async {
-  if (isWindows || isLinux) {
+  if (isWindowsNative || isLinuxNative) {
     DartVLC.initialize();
   }
   final logger = Logger();
@@ -339,7 +339,7 @@ void main() async {
 
   logger.i("Dependency Injection setup done.");
 
-  if (isDesktop && !isWeb) {
+  if (isDesktopNative) {
     try {
       await _setWindowSize();
 

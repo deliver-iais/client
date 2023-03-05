@@ -68,7 +68,7 @@ class LocationMessageWidget extends StatelessWidget {
                   zoom: DEFAULT_ZOOM_LEVEL,
                   enableScrollWheel: false,
                   onTap: (_, point) async {
-                    isWeb || isDesktop
+                    isDesktopDevice
                         ? await showDialog(
                             context: context,
                             builder: (_) => LocationDialog(
@@ -128,7 +128,7 @@ class LocationMessageWidget extends StatelessWidget {
 class LocationDialog extends StatelessWidget {
   final Location location;
   final Uid from;
-  final double size = isDesktop ? 500 : 350;
+  final double size = isDesktopDevice ? 500 : 350;
   static final _i18n = GetIt.I.get<I18N>();
   final _uxService = GetIt.I.get<UxService>();
 
@@ -271,7 +271,7 @@ class _LocationPageState extends State<LocationPage> {
                     const SizedBox(width: 6),
                     TextButton(
                       onPressed: () async {
-                        isIOS
+                        isIOSNative
                             ? await MapLauncher.showMarker(
                                 mapType: MapType.apple,
                                 coords: map.Coords(
@@ -523,7 +523,7 @@ class _LocationPageState extends State<LocationPage> {
                                 ),
                               ),
                               onPressed: () async {
-                                isIOS
+                                isIOSNative
                                     ? await MapLauncher.showDirections(
                                         mapType: MapType.apple,
                                         destination: map.Coords(

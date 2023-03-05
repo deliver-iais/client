@@ -51,7 +51,7 @@ class BotCommandsState extends State<BotCommands> {
                   var botCommandItemColor = Colors.transparent;
                   if (widget.botCommandSelectedIndex == index &&
                       widget.botCommandSelectedIndex != -1 &&
-                      isDesktop) {
+                      isDesktopDevice) {
                     botCommandItemColor = theme.focusColor;
                   }
                   return Container(

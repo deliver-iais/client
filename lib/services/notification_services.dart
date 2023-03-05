@@ -122,7 +122,7 @@ abstract class Notifier {
       "openChatFromNotification",
     );
 
-    if (isDesktop) {
+    if (isDesktopNative) {
       DesktopWindow.focus();
     }
 
@@ -222,7 +222,7 @@ class NotificationServices {
 
   void cancelRoomNotifications(String roomUid) {
     _notifier.cancel(roomUid);
-    if (isAndroid) {
+    if (isAndroidNative) {
       _activeNotificationDao.removeRoomActiveNotification(roomUid);
     }
   }
@@ -243,7 +243,7 @@ class NotificationServices {
 
   void cancelAllNotifications() {
     _notifier.cancelAll();
-    if (isAndroid) {
+    if (isAndroidNative) {
       _activeNotificationDao.removeAllActiveNotification();
     }
   }

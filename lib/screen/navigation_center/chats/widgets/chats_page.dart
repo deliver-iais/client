@@ -153,14 +153,14 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       },
       onTapDown: storePosition,
       onSecondaryTapDown: storePosition,
-      onSecondaryTap: !isDesktop
-          ? null
-          : () {
+      onSecondaryTap: isDesktopDevice
+          ? () {
               _showCustomMenu(
                 context,
                 rw.room,
               );
-            },
+            }
+          : null,
       child: ChatItem(
         key: ValueKey("chatItem/${rw.room.uid}"),
         roomWrapper: rw,

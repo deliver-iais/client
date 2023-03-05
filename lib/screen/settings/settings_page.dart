@@ -246,7 +246,7 @@ class SettingsPageState extends State<SettingsPage> {
                       () => _uxService.toggleIsAllNotificationDisabled(),
                     ),
                   ),
-                  if (isAndroid)
+                  if (isAndroidNative)
                     SettingsTile.switchTile(
                       title: _i18n.get("notification_advanced_mode"),
                       leading: const Icon(CupertinoIcons.bell_circle_fill),
@@ -281,7 +281,7 @@ class SettingsPageState extends State<SettingsPage> {
                       _routingService.openDevices();
                     },
                   ),
-                  if (isDesktop)
+                  if (isDesktopDevice)
                     SettingsTile.switchTile(
                       title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(CupertinoIcons.keyboard),

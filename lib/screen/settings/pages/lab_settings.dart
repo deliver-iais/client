@@ -81,7 +81,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
   }
 
   Future<void> checkForSystemAlertWindowPermission() async {
-    if (isAndroid &&
+    if (isAndroidNative &&
         await getDeviceVersion() >= 31 &&
         !await Permission.systemAlertWindow.status.isGranted) {
       showPermissionDialog();
@@ -109,7 +109,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                 imagePath: "assets/images/experiment.webp",
                 alignment: Alignment.topCenter,
               ),
-              if (isAndroid)
+              if (hasForegroundServiceCapability)
                 Section(
                   title: 'Foreground Service',
                   children: [

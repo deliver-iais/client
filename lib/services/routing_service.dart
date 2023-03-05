@@ -379,7 +379,7 @@ class RoutingService {
     Message? message,
     String? filePath,
   }) =>
-      !isMacOS
+      !isMacOSNative
           ? _push(
               AllMediaPage(
                 key: const ValueKey("/media-details"),

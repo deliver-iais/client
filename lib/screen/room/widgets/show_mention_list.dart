@@ -48,7 +48,7 @@ class ShowMentionList extends StatelessWidget {
                         var mucMemberMentionColor = Colors.transparent;
                         if (mentionSelectedIndex == i &&
                             mentionSelectedIndex != -1 &&
-                            isDesktop) {
+                            isDesktopDevice) {
                           mucMemberMentionColor = theme.focusColor;
                         }
                         return Container(

@@ -186,19 +186,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onTap: () {
             if (widget.selectMultiMessageSubject.value) {
               widget.addForwardMessage();
-            } else if (!isDesktop) {
+            } else if (!isDesktopDevice) {
               FocusScope.of(context).unfocus();
               _showCustomMenu(context, msg);
             }
           },
-          onSecondaryTap: !isDesktop
+          onSecondaryTap: !isDesktopDevice
               ? null
               : () {
                   if (!widget.selectMultiMessageSubject.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
-          onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+          onDoubleTap: !isDesktopDevice || widget.selectMultiMessageSubject.value
               ? null
               : widget.onReply,
           onLongPress: () async {
@@ -277,19 +277,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onTap: () {
         if (widget.selectMultiMessageSubject.value) {
           widget.addForwardMessage();
-        } else if (!isDesktop) {
+        } else if (!isDesktopDevice) {
           FocusScope.of(context).unfocus();
           _showCustomMenu(context, message);
         }
       },
-      onSecondaryTap: !isDesktop
+      onSecondaryTap: !isDesktopDevice
           ? null
           : () {
               if (!widget.selectMultiMessageSubject.value) {
                 _showCustomMenu(context, message);
               }
             },
-      onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+      onDoubleTap: !isDesktopDevice || widget.selectMultiMessageSubject.value
           ? null
           : widget.onReply,
       onLongPress: () async {
@@ -750,7 +750,7 @@ class OperationOnMessageSelection {
 
   void onSave() {
     final file = message.json.toFile();
-    _fileRepo.saveDownloadedFileInWeb(file.uuid, file.name, file.type);
+    _fileRepo.saveDownloadedFileInWeb(file.uuid, file.name,);
   }
 
   void onSaveAs() {
@@ -813,11 +813,11 @@ class OperationOnMessageSelection {
 
   void onShowInFolder(String path) {
     final shell = Shell();
-    if (isWindows) {
+    if (isWindowsNative) {
       shell.run('explorer.exe /select,"${path.replaceAll("/", "\\")}"');
-    } else if (isLinux) {
+    } else if (isLinuxNative) {
       shell.run('nautilus "$path"');
-    } else if (isMacOS) {
+    } else if (isMacOSNative) {
       shell.run('open $path');
     }
   }

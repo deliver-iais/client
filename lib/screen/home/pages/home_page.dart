@@ -46,7 +46,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    if (isMacOS) {
+    if (isMacOSNative) {
       GetIt.I.get<SeenDao>().watchAllRoomSeen().listen((event) {
         try {
           if (event.isNotEmpty) {
@@ -64,7 +64,7 @@ class HomePageState extends State<HomePage> {
     );
 
     _coreServices.initStreamConnection();
-    if (isAndroid || isIOS) {
+    if (isMobileNative) {
       checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();
     }
@@ -83,7 +83,7 @@ class HomePageState extends State<HomePage> {
       });
 
     _contactRepo.sendNotSyncedContactInStartTime();
-    if (isAndroid) _backgroundService.startBackgroundService();
+    if (isAndroidNative) _backgroundService.startBackgroundService();
 
     super.initState();
   }
