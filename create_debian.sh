@@ -1,0 +1,2 @@
+flutter build linux
+flutter_to_debian
