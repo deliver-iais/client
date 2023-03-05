@@ -253,19 +253,20 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                           });
                         },
                       ),
-                      SettingsTile.switchTile(
-                        title: _i18n.get("show_link_preview"),
-                        leading: const Icon(CupertinoIcons.link),
-                        switchValue: _uxService.showLinkPreview,
-                        onToggle: (value) {
-                          _analyticsService.sendLogEvent(
-                            "toggleShowLinkPreview",
-                          );
-                          setState(() {
-                            _uxService.toggleShowLinkPreview();
-                          });
-                        },
-                      ),
+                      if (!isWeb)
+                        SettingsTile.switchTile(
+                          title: _i18n.get("show_link_preview"),
+                          leading: const Icon(CupertinoIcons.link),
+                          switchValue: _uxService.showLinkPreview,
+                          onToggle: (value) {
+                            _analyticsService.sendLogEvent(
+                              "toggleShowLinkPreview",
+                            );
+                            setState(() {
+                              _uxService.toggleShowLinkPreview();
+                            });
+                          },
+                        ),
                     ],
                   ),
                   SizedBox(
