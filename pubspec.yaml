@@ -229,6 +229,7 @@ flutter:
     - assets/images/connection.webp
     - lib/lang/en.json
     - lib/lang/fa.json
+    - lib/lang/ar.json
     - assets/audios/end_call.mp3
     - assets/duck_animation/
   # An image asset can refer to one or more resolution-specific "variants", see

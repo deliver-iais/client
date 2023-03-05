@@ -211,7 +211,7 @@ MockI18N getAndRegisterI18N() {
   _removeRegistrationIfExists<I18N>();
   final service = MockI18N();
   GetIt.I.registerSingleton<I18N>(service);
-  when(service.isRtl()).thenAnswer((realInvocation) => true);
+  when(service.isRtl).thenAnswer((realInvocation) => true);
   when(service.locale).thenReturn(const Locale("en"));
   when(service.get(any)).thenReturn("d");
   when(service.get("you")).thenReturn("you");

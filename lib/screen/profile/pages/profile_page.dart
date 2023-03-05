@@ -885,10 +885,7 @@ class ProfilePageState extends State<ProfilePage>
                 left: 10,
                 right: 10,
               ),
-              title: Text(
-                _i18n.get("add_bot_to_group"),
-                textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
-              ),
+              title: Text(_i18n.get("add_bot_to_group")),
               content: SizedBox(
                 width: 350,
                 height: MediaQuery.of(context).size.height / 2,

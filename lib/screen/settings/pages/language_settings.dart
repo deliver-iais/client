@@ -49,31 +49,17 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
                 Section(
                   title: _i18n.get("languages"),
                   children: [
-                    SettingsTile(
-                      title: 'English',
-                      leading: const Icon(Icons.language),
-                      trailing:
-                          _i18n.locale.languageCode == english.languageCode
-                              ? const Icon(Icons.done)
-                              : const SizedBox.shrink(),
-                      onPressed: (context) {
-                        setState(() {
-                          _i18n.changeLanguage(english);
-                        });
-                      },
-                    ),
-                    SettingsTile(
-                      title: 'فارسی',
-                      leading: const Icon(Icons.language),
-                      trailing: _i18n.locale.languageCode == farsi.languageCode
-                          ? const Icon(Icons.done)
-                          : const SizedBox.shrink(),
-                      onPressed: (context) {
-                        setState(() {
-                          _i18n.changeLanguage(farsi);
-                        });
-                      },
-                    ),
+                    for (final lang in supportedLanguages)
+                      SettingsTile(
+                        title: lang.name,
+                        leading: const Icon(Icons.language),
+                        trailing: _i18n.locale.languageCode == lang.languageCode
+                            ? const Icon(Icons.done)
+                            : const SizedBox.shrink(),
+                        onPressed: (context) => setState(
+                          () => _i18n.changeLanguage(lang),
+                        ),
+                      )
                   ],
                 ),
               ],
