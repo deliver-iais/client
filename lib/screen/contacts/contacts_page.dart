@@ -179,7 +179,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                           child: FloatingActionButton(
                             heroTag: "add_contact-fab",
                             onPressed: () async {
-                              if (isAndroid &&
+                              if (isAndroidNative &&
                                   _contactRepo.hasContactPermission) {
                                 _routingService.openNewContact();
                               } else {

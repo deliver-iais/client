@@ -21,7 +21,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'contact_pic.dart';
 import 'last_message.dart';

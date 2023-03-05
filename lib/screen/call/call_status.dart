@@ -31,7 +31,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
   final _callRepo = GetIt.I.get<CallRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  final fontSize = isAndroid ? 14.0 : 16.0;
+  final fontSize = isMobileDevice ? 14.0 : 16.0;
 
   late AnimationController _repeatEndCallAnimationController;
 
@@ -68,7 +68,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
       duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
       width: widget.callStatus == CallStatus.CONNECTED
           ? 120
-          : (isAndroid ? 150 : 170),
+          : (isMobileDevice ? 150 : 170),
       height: 30,
       child: (widget.callStatus == CallStatus.CONNECTED)
           ? StreamBuilder<CallTimer>(

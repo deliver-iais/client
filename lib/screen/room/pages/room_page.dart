@@ -1151,7 +1151,7 @@ class RoomPageState extends State<RoomPage> {
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: isAndroid
+                        permissionWidget: isAndroidNative
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
@@ -1444,7 +1444,7 @@ class RoomPageState extends State<RoomPage> {
       child: ScrollablePositionedList.separated(
         itemCount: _itemCount + 1,
         initialScrollIndex: initialScrollIndex + 1,
-        extraScrollSpeed: isWindows ? 40 : null,
+        extraScrollSpeed: isWindowsNative ? 40 : null,
         key: _scrollablePositionedListKey,
         initialAlignment: initialAlignment,
         physics: const ClampingScrollPhysics(),
@@ -1518,7 +1518,7 @@ class RoomPageState extends State<RoomPage> {
   }) {
     scrollEndNotificationTimer =
         Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-      if (!_isArrowIconFocused || !isDesktop) {
+      if (!_isArrowIconFocused || !isDesktopDevice) {
         final direction = getScrollingDirection(pixel);
 
         _isScrolling.add(

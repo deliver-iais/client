@@ -371,7 +371,7 @@ class _AllMediaPageState extends State<AllMediaPage>
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isDesktop)
+            if (isDesktopDevice)
               StreamBuilder<int?>(
                 stream: _allMediaCount,
                 builder: (c, allImageCount) {
@@ -433,7 +433,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                                           index,
                                           filePath.data!,
                                         );
-                                        return isDesktop
+                                        return isDesktopDevice
                                             ? InteractiveViewer(
                                                 child: buildMediaUi(
                                                   filePath.data!,
@@ -484,7 +484,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                 }
               },
             ),
-            if (isDesktop)
+            if (isDesktopDevice)
               StreamBuilder<int>(
                 stream: _currentIndex,
                 builder: (context, indexSnapShot) {
@@ -650,7 +650,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                 color: Colors.white,
               ),
             ),
-            if (isAndroid)
+            if (isAndroidNative)
               IconButton(
                 tooltip: _i18n.get("share"),
                 onPressed: () async {
@@ -669,7 +669,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                   color: Colors.white,
                 ),
               ),
-            if (isDesktop) _buildPopupMenuButton(),
+            if (isDesktopNative) _buildPopupMenuButton(),
           ],
         ),
       ),
@@ -704,7 +704,7 @@ class _AllMediaPageState extends State<AllMediaPage>
         ),
         if (widget.mediaType == MediaType.VIDEO)
           _buildPopupMenuButton()
-        else if (!isDesktop)
+        else if (isMobileNative || isWeb)
           IconButton(
             icon: const Icon(
               CupertinoIcons.down_arrow,
@@ -713,13 +713,18 @@ class _AllMediaPageState extends State<AllMediaPage>
             onPressed: () async {
               final message = await getMessage();
               if (context.mounted) {
-                await OperationOnMessageSelection(
-                  message: message!,
-                  context: context,
-                ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+                isWeb
+                    ? await OperationOnMessageSelection(
+                        message: message!,
+                        context: context,
+                      ).selectOperation(OperationOnMessage.SAVE)
+                    : await OperationOnMessageSelection(
+                        message: message!,
+                        context: context,
+                      ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
               }
             },
-            tooltip: _i18n.get("save_to_gallery"),
+            tooltip: _i18n.get(isWeb ? "save" : "save_to_gallery"),
           ),
       ],
       title: MediaAppBarCounterWidget(

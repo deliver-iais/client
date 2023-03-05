@@ -58,7 +58,7 @@ class ContactRepo {
     }
     return _requestLock.synchronized(() async {
       final hasPermission = !hasContactCapability ||
-          isIOS ||
+          isIOSNative ||
           await _checkPermission.checkContactPermission(context: context);
       if (hasPermission) {
         if (hasContactCapability) {
@@ -434,7 +434,7 @@ class ContactRepo {
 
   Future<void> importContactsFormVcard() async {
     try {
-      if (isLinux) {
+      if (isLinuxNative) {
         final typeGroup = <XTypeGroup>[
           const XTypeGroup(mimeTypes: ["vcf"])
         ];

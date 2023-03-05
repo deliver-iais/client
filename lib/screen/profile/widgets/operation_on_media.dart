@@ -35,7 +35,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
       textDirection: _i18n.defaultTextDirection,
       child: Column(
         children: [
-          if (isDesktop) ...[
+          if (isDesktopNative) ...[
             _buildPopupMenuItem(
               _i18n.get("show_in_folder"),
               CupertinoIcons.folder_open,
@@ -82,7 +82,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
               },
             ),
           ],
-          if (isAndroid)
+          if (isAndroidNative)
             _buildPopupMenuItem(
               _i18n.get("share"),
               Icons.share_rounded,
@@ -98,7 +98,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
                 }
               },
             ),
-          if (isAndroid || isIOS)
+          if (isMobileNative)
             _buildPopupMenuItem(
               _i18n.get("save_to_gallery"),
               CupertinoIcons.down_arrow,

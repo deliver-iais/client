@@ -58,7 +58,7 @@ class RawKeyboardService {
           context: context,
           files: fileList,
           caption: controller.text.isNotEmpty
-              ? !isLinux
+              ? !isLinuxNative
                   ? controller.text
                   : null
               : null,

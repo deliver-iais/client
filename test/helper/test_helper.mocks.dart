@@ -43,7 +43,8 @@ import 'package:deliver/box/uid_id_name.dart' as _i57;
 import 'package:deliver/localization/i18n.dart' as _i53;
 import 'package:deliver/models/call_data.dart' as _i85;
 import 'package:deliver/models/call_event_type.dart' as _i80;
-import 'package:deliver/models/call_timer.dart' as _i95;
+import 'package:deliver/models/call_timer.dart' as _i96;
+import 'package:deliver/models/file.dart' as _i94;
 import 'package:deliver/repository/accountRepo.dart' as _i62;
 import 'package:deliver/repository/analytics_repo.dart' as _i21;
 import 'package:deliver/repository/authRepo.dart' as _i31;
@@ -56,7 +57,7 @@ import 'package:deliver/repository/liveLocationRepo.dart' as _i39;
 import 'package:deliver/repository/mediaRepo.dart' as _i75;
 import 'package:deliver/repository/mucRepo.dart' as _i64;
 import 'package:deliver/repository/roomRepo.dart' as _i29;
-import 'package:deliver/services/app_lifecycle_service.dart' as _i96;
+import 'package:deliver/services/app_lifecycle_service.dart' as _i97;
 import 'package:deliver/services/call_service.dart' as _i79;
 import 'package:deliver/services/core_services.dart' as _i48;
 import 'package:deliver/services/data_stream_services.dart' as _i44;
@@ -89,7 +90,7 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i11;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i32;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as _i46;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart' as _i33;
-import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i94;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart' as _i95;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart' as _i3;
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart' as _i5;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as _i14;
@@ -1792,7 +1793,6 @@ class MockFileRepo extends _i1.Mock implements _i35.FileRepo {
   void saveDownloadedFileInWeb(
     String? uuid,
     String? name,
-    String? type,
   ) =>
       super.noSuchMethod(
         Invocation.method(
@@ -1800,7 +1800,6 @@ class MockFileRepo extends _i1.Mock implements _i35.FileRepo {
           [
             uuid,
             name,
-            type,
           ],
         ),
         returnValueForMissingStub: null,
@@ -6837,6 +6836,22 @@ class MockUrlHandlerService extends _i1.Mock implements _i91.UrlHandlerService {
         returnValueForMissingStub: null,
       );
   @override
+  bool isApplicationUrl(String? uri) => (super.noSuchMethod(
+        Invocation.method(
+          #isApplicationUrl,
+          [uri],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  String normalizeApplicationUrl(String? uri) => (super.noSuchMethod(
+        Invocation.method(
+          #normalizeApplicationUrl,
+          [uri],
+        ),
+        returnValue: '',
+      ) as String);
+  @override
   _i22.Future<void> handleIdLink(
     String? node,
     _i92.Categories? category,
@@ -7149,6 +7164,68 @@ class MockRoutingService extends _i1.Mock implements _i93.RoutingService {
         returnValueForMissingStub: null,
       );
   @override
+  void openCameraBox({
+    dynamic Function(String)? onAvatarSelected,
+    required bool? selectAsAvatar,
+    required _i3.Uid? roomUid,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #openCameraBox,
+          [],
+          {
+            #onAvatarSelected: onAvatarSelected,
+            #selectAsAvatar: selectAsAvatar,
+            #roomUid: roomUid,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void openVideoViewerPage({
+    required _i94.File? file,
+    required dynamic Function(String)? onSend,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #openVideoViewerPage,
+          [],
+          {
+            #file: file,
+            #onSend: onSend,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void openViewImagePage({
+    required String? imagePath,
+    String? caption = r'',
+    required dynamic Function(String)? onEditEnd,
+    dynamic Function(String)? onSend,
+    dynamic Function(String)? onTap,
+    bool? sendSingleImage = false,
+    List<String>? selectedImage,
+    bool? forceToShowCaptionTextField = false,
+  }) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #openViewImagePage,
+          [],
+          {
+            #imagePath: imagePath,
+            #caption: caption,
+            #onEditEnd: onEditEnd,
+            #onSend: onSend,
+            #onTap: onTap,
+            #sendSingleImage: sendSingleImage,
+            #selectedImage: selectedImage,
+            #forceToShowCaptionTextField: forceToShowCaptionTextField,
+          },
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   void openCallScreen(
     _i3.Uid? roomUid, {
     bool? isIncomingCall = false,
@@ -7319,7 +7396,7 @@ class MockRoutingService extends _i1.Mock implements _i93.RoutingService {
       );
   @override
   void openAllGroupedRoomsGridPage(
-          {required _i94.GroupedRooms? groupedRooms}) =>
+          {required _i95.GroupedRooms? groupedRooms}) =>
       super.noSuchMethod(
         Invocation.method(
           #openAllGroupedRoomsGridPage,
@@ -7610,15 +7687,15 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i4.BehaviorSubject<_i95.CallTimer> get callTimer => (super.noSuchMethod(
+  _i4.BehaviorSubject<_i96.CallTimer> get callTimer => (super.noSuchMethod(
         Invocation.getter(#callTimer),
-        returnValue: _FakeBehaviorSubject_2<_i95.CallTimer>(
+        returnValue: _FakeBehaviorSubject_2<_i96.CallTimer>(
           this,
           Invocation.getter(#callTimer),
         ),
-      ) as _i4.BehaviorSubject<_i95.CallTimer>);
+      ) as _i4.BehaviorSubject<_i96.CallTimer>);
   @override
-  set callTimer(_i4.BehaviorSubject<_i95.CallTimer>? _callTimer) =>
+  set callTimer(_i4.BehaviorSubject<_i96.CallTimer>? _callTimer) =>
       super.noSuchMethod(
         Invocation.setter(
           #callTimer,
@@ -7895,10 +7972,9 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  bool checkCallExpireTimeFailed(_i80.CallEvents? event) =>
-      (super.noSuchMethod(
+  bool checkCallExpireTimeFailed(_i80.CallEvents? event) => (super.noSuchMethod(
         Invocation.method(
-          #checkCallExpireTimeValidation,
+          #checkCallExpireTimeFailed,
           [event],
         ),
         returnValue: false,
@@ -8129,19 +8205,19 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAppLifecycleService extends _i1.Mock
-    implements _i96.AppLifecycleService {
+    implements _i97.AppLifecycleService {
   MockAppLifecycleService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i96.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
+  _i97.AppLifecycle getAppLiveCycle() => (super.noSuchMethod(
         Invocation.method(
           #getAppLiveCycle,
           [],
         ),
-        returnValue: _i96.AppLifecycle.ACTIVE,
-      ) as _i96.AppLifecycle);
+        returnValue: _i97.AppLifecycle.ACTIVE,
+      ) as _i97.AppLifecycle);
   @override
   void updateAppStateToPause() => super.noSuchMethod(
         Invocation.method(
@@ -8159,13 +8235,13 @@ class MockAppLifecycleService extends _i1.Mock
         returnValue: false,
       ) as bool);
   @override
-  _i22.Stream<_i96.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
+  _i22.Stream<_i97.AppLifecycle> watchAppAppLifecycle() => (super.noSuchMethod(
         Invocation.method(
           #watchAppAppLifecycle,
           [],
         ),
-        returnValue: _i22.Stream<_i96.AppLifecycle>.empty(),
-      ) as _i22.Stream<_i96.AppLifecycle>);
+        returnValue: _i22.Stream<_i97.AppLifecycle>.empty(),
+      ) as _i22.Stream<_i97.AppLifecycle>);
   @override
   void startLifeCycListener() => super.noSuchMethod(
         Invocation.method(

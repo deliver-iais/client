@@ -100,8 +100,8 @@ class FileService {
   }
 
   Future<String> get _localPath async {
-    if (isDesktop ||
-        isIOS ||
+    if (isDesktopNative ||
+        isIOSNative ||
         await _checkPermission.checkMediaLibraryPermission()) {
       final directory = await getApplicationDocumentsDirectory();
       if (!Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
@@ -109,7 +109,7 @@ class FileService {
         await Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
             .create(recursive: true);
       }
-      if (isWindows) {
+      if (isWindowsNative) {
         return "${directory.path}\\$APPLICATION_FOLDER_NAME";
       }
       return "${directory.path}/$APPLICATION_FOLDER_NAME";
@@ -119,7 +119,7 @@ class FileService {
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
-    if (isWindows) {
+    if (isWindowsNative) {
       return '$path\\$fileUuid.$fileType';
     }
     return '$path/$fileUuid.$fileType';
@@ -223,12 +223,7 @@ class FileService {
         cancelToken: cancelToken,
       );
       if (isWeb) {
-        final blob = html.Blob(
-          <Object>[res.data],
-          "application/${filename.split(".").last}",
-        );
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        return url;
+        return Uri.dataFromBytes(res.data).toString();
       } else {
         final file = await localFile(
           uuid,
@@ -292,11 +287,11 @@ class FileService {
   ) async {
     try {
       // Insure there is no desktop function call here!
-      if (isDesktop || isWeb) {
+      if (!isMobileNative) {
         return;
       }
       if (await _checkPermission.checkStoragePermission()) {
-        if (isAndroid) {
+        if (isAndroidNative) {
           final downloadDir =
               await ExtStorage.getExternalStoragePublicDirectory(directory);
           await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
@@ -375,12 +370,7 @@ class FileService {
       );
 
       if (isWeb) {
-        final blob = html.Blob(
-          <Object>[res.data],
-          "application/${filename.split(".").last}",
-        );
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        return url;
+        return Uri.dataFromBytes(res.data).toString();
       } else {
         final file =
             await localThumbnailFile(uuid, filename.split(".").last, size);
@@ -540,7 +530,7 @@ class FileService {
     _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
         await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
-    final decoded = jsonDecode(result.data);
+    final Map<String, String> decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
       //add fileUploadToken to header
       final headers = _dio.options.headers;
@@ -550,7 +540,7 @@ class FileService {
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
         //concurrent save file in local directory
-        if (isDesktop) {
+        if (isDesktopNative) {
           unawaited(
             _concurrentCloneFileInLocalDirectory(
               File(filePath),
@@ -625,11 +615,11 @@ class FileService {
         var filePath = file.path;
         if (mediaType.type.contains("image") &&
             !mediaType.subtype.contains("gif")) {
-          if (isAndroid || isIOS) {
+          if (isMobileNative) {
             filePath = await compressImageInMobile(File(file.path));
           } else {
             final time = clock.now().millisecondsSinceEpoch;
-            if (isWindows) {
+            if (isWindowsNative) {
               filePath = await compressImageInWindows(File(file.path));
             } else {
               filePath = await compressImageInMacOrLinux(File(file.path));

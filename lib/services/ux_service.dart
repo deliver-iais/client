@@ -31,7 +31,7 @@ class UxService {
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isNotificationAdvanceModeDisabled = BehaviorSubject.seeded(true);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
-  final _sendByEnter = BehaviorSubject.seeded(isDesktop);
+  final _sendByEnter = BehaviorSubject.seeded(isDesktopDevice);
   final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
   final _keyBoardSizeLandscape = BehaviorSubject<double?>.seeded(null);
   final _homeContext = BehaviorSubject<BuildContext?>.seeded(null);
@@ -113,7 +113,10 @@ class UxService {
     init();
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop)
+        .getBooleanStream(
+          SHARED_DAO_SEND_BY_ENTER,
+          defaultValue: isDesktopDevice,
+        )
         .distinct()
         .listen((sbn) => _sendByEnter.add(sbn));
 
@@ -223,7 +226,7 @@ class UxService {
 
   double get textScaleValue => _textScale.value;
 
-  bool get sendByEnter => isDesktop && _sendByEnter.value;
+   bool get sendByEnter => isDesktopDevice && _sendByEnter.value;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
@@ -404,7 +407,7 @@ class FeatureFlags {
 
   bool labIsAvailable() => _voiceCallFeatureIsPossible();
 
-  bool _voiceCallFeatureIsPossible() => !isLinux;
+  bool _voiceCallFeatureIsPossible() => !isLinuxDevice;
 
   // ignore: unused_element
   bool _isBetaUser() =>

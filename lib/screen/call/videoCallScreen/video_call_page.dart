@@ -43,7 +43,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> showButtonRow = BehaviorSubject.seeded(true);
 
-  Offset position = isDesktop
+  Offset position = isDesktopDevice
       ? const Offset(20, 80)
       : const Offset(20, androidSmallCallWidgetVerticalMargin);
 
@@ -61,7 +61,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: isDesktop ? grayColor : Colors.black,
+      backgroundColor: isDesktopDevice ? grayColor : Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => showButtonRow.add(!showButtonRow.value),
@@ -79,7 +79,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 _callRepo.incomingVideoSwitch,
               ]),
               builder: (c, s) {
-                return isDesktop && _callRepo.desktopDualVideo.value
+                return isDesktopDevice && _callRepo.desktopDualVideo.value
                     ? OrientationBuilder(
                         builder: (context, orientation) {
                           return Padding(
@@ -313,9 +313,9 @@ class VideoCallScreenState extends State<VideoCallScreen>
                           final x = MediaQuery.of(context).size.width;
                           final y = MediaQuery.of(context).size.height;
                           final width =
-                              (isAndroid || x < 600) ? 150.0 : x * 0.15;
+                              (isMobileDevice || x < 600) ? 150.0 : x * 0.15;
                           final height =
-                              (isAndroid || x < 600) ? 200.0 : y * 0.35;
+                              (isMobileDevice || x < 600) ? 200.0 : y * 0.35;
                           return StreamBuilder<bool>(
                             initialData: false,
                             stream: switching,
@@ -438,12 +438,13 @@ class VideoCallScreenState extends State<VideoCallScreen>
             ),
             SafeArea(
               child: Padding(
-                padding: isDesktop
+                padding: isDesktopDevice
                     ? const EdgeInsets.only(bottom: 40, right: 50, left: 50)
                     : const EdgeInsets.only(top: 8),
                 child: Align(
-                  alignment:
-                      isDesktop ? Alignment.bottomRight : Alignment.topCenter,
+                  alignment: isDesktopDevice
+                      ? Alignment.bottomRight
+                      : Alignment.topCenter,
                   child: StreamBuilder<CallStatus>(
                     initialData: CallStatus.NO_CALL,
                     stream: _callRepo.callingStatus,
@@ -478,7 +479,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 return Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
-                    height: (isAndroid && _callRepo.isAccepted) ? 100 : 200,
+                    height:
+                        (isMobileDevice && _callRepo.isAccepted) ? 100 : 200,
                     child: PageTransitionSwitcher(
                       duration: ULTRA_SLOW_ANIMATION_DURATION,
                       transitionBuilder: (
@@ -520,14 +522,14 @@ class VideoCallScreenState extends State<VideoCallScreen>
       builder: (context, snapshot) {
         return Positioned(
           left: position.dx,
-          top: position.dy - (isAndroid ? 80 : 50),
+          top: position.dy - (isMobileDevice ? 80 : 50),
           child: StreamBuilder<bool>(
             initialData: false,
             stream: _callService.isCallStart,
             builder: (context, snapshot2) {
               Widget renderer;
               if (snapshot2.hasData && snapshot2.data!) {
-                if (isAndroid) {
+                if (isMobileDevice) {
                   renderer = Draggable(
                     feedback: SizedBox(
                       width: width,
@@ -548,8 +550,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     onDraggableCanceled: (velocity, offset) {
                       setState(() {
                         final horizontalMargin =
-                            (isAndroid || x < 600) ? 20 : x * 0.22;
-                        final verticalMargin = isAndroid ? 65 : 80;
+                            (isMobileDevice || x < 600) ? 20 : x * 0.22;
+                        final verticalMargin = isMobileDevice ? 65 : 80;
                         if (offset.dx > x / 2 && offset.dy > y / 2) {
                           position = Offset(
                             x - width - horizontalMargin,
@@ -566,7 +568,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                           );
                         }
                         if (offset.dx < x / 2 && offset.dy < y / 2) {
-                          position = isDesktop
+                          position = isDesktopDevice
                               ? const Offset(20, 80)
                               : const Offset(
                                   20,

@@ -90,7 +90,7 @@ class _ViewImagePageState extends State<ViewImagePage> {
             actions: [
               IconButton(
                 onPressed: () async {
-                  if (isDesktop || isWeb) {
+                  if (isDesktopNative) {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(

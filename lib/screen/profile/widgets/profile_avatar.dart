@@ -126,8 +126,8 @@ class ProfileAvatar extends StatelessWidget {
       );
     }
 
-    if (isWeb || isDesktop) {
-      if (isLinux) {
+    if (isDesktopNativeOrWeb) {
+      if (isLinuxNative) {
         const typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(

@@ -53,7 +53,7 @@ class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _acceptPrivacyKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
-  bool loginWithQrCode = isDesktop;
+  bool loginWithQrCode = isDesktopDevice;
   bool _acceptPrivacy = false;
   final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
@@ -71,7 +71,7 @@ class LoginPageState extends State<LoginPage> {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
 
-    if (isDesktop) {
+    if (isDesktopDevice) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         await _loginByQrCode();
       });
@@ -459,7 +459,7 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 Row(
                   children: [
-                    if (isDesktop)
+                    if (isDesktopDevice)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Align(

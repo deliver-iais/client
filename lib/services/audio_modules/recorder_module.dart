@@ -60,7 +60,7 @@ class RecorderModule {
 
     tickerStream.throttleTime(const Duration(microseconds: 500)).listen(
       (tickTime) async {
-        if (!isWindows) {
+        if (!isWindowsNative) {
           try {
             final amplitude = await _recorder.getAmplitude();
             recordingAmplitudeStream.add(
@@ -103,7 +103,7 @@ class RecorderModule {
     required String roomUid,
   }) async {
     await _requestLock.synchronized(() async {
-      if (isAndroid || isIOS) {
+      if (isMobileNative) {
         if (!(await _checkPermission.checkAudioRecorderPermission())) {
           _logger.wtf("There is no permission for recording voice");
           return;

@@ -45,7 +45,7 @@ class CustomDesktopInputBoxContextMenu {
           : null,
       handlePaste: editableTextState.pasteEnabled
           ? () {
-              if (!isDesktop) {
+              if (!isDesktopNative) {
                 editableTextState.contextMenuButtonItems
                     .firstWhere(
                       (element) => element.type == ContextMenuButtonType.paste,

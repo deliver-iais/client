@@ -54,8 +54,8 @@ class AccountSettingsState extends State<AccountSettings> {
 
   Future<void> attachFile() async {
     String? path;
-    if (isWeb || isDesktop) {
-      if (isLinux) {
+    if (isDesktopNativeOrWeb) {
+      if (isLinuxNative) {
         const typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(

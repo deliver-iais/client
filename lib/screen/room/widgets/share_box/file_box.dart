@@ -40,7 +40,7 @@ class FilesBox extends StatefulWidget {
 class FilesBoxState extends State<FilesBox> {
   Future<List<io.FileSystemEntity>> getRecentFile() async {
     final files = <io.FileSystemEntity>[];
-    final d = isIOS
+    final d = isIOSNative
         ? await getLibraryDirectory()
         : io.Directory(
             (await ExtStorage.getExternalStoragePublicDirectory(
@@ -120,7 +120,7 @@ class FilesBoxState extends State<FilesBox> {
                         ),
                       ),
                     ),
-                    if (!isIOS)
+                    if (!isIOSNative)
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(

@@ -132,11 +132,11 @@ abstract class TemporaryAudioPlayerModule {
 }
 
 AudioPlayerModule getAudioPlayerModule() {
-  if (isAndroid || isIOS || isWeb) {
+  if (isMobileNative || isWeb) {
     return AudioPlayersAudioPlayer();
-  } else if (isMacOS) {
+  } else if (isMacOSNative) {
     return JustAudioAudioPlayer();
-  } else if (isWindows) {
+  } else if (isWindowsNative) {
     return VlcAudioAudioPlayer();
   } else {
     return FakeAudioPlayer();
@@ -144,7 +144,7 @@ AudioPlayerModule getAudioPlayerModule() {
 }
 
 IntermediatePlayerModule getIntermediatePlayerModule() {
-  if (isAndroid || isIOS || isWindows || isMacOS) {
+  if (isMobileNative || isWindowsNative || isMacOSNative || isWeb) {
     return AudioPlayersIntermediatePlayer();
   } else {
     return FakeIntermediatePlayer();
@@ -500,7 +500,7 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
     _audioPlayer
       ..play(
         isWeb
-            ? UrlSource(UriData.parse(path).uri.path)
+            ? UrlSource(path)
             : DeviceFileSource(path),
       )
       ..setPlaybackRate(playbackRate);

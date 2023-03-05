@@ -46,7 +46,7 @@ class NotificationForegroundService {
   }
 
   Future<void> foregroundService({required bool foregroundNotification}) async {
-    if (isAndroid) {
+    if (hasForegroundServiceCapability) {
       if (foregroundNotification) {
         await _foregroundTaskInitializing();
       } else {
@@ -73,7 +73,7 @@ class NotificationForegroundService {
   }
 
   Future<bool> _foregroundTaskInitializing() async {
-    if (isAndroid) {
+    if (hasForegroundServiceCapability) {
       await _initForegroundTask();
       if (await _startForegroundTask()) {
         return true;
@@ -126,7 +126,7 @@ class NotificationForegroundService {
   }
 
   Future<bool> foregroundTaskInitializing() async {
-    if (isAndroid) {
+    if (hasForegroundServiceCapability) {
       await _initForegroundTask();
       if (await _startForegroundTask()) {
         return true;

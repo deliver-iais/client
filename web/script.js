@@ -15,10 +15,7 @@ function showNotification(roomName, message) {
     // Let's check whether notification permissions have already been granted
     else if (Notification.permission === "granted") {
         // If it's okay let's create a notification
-        var notification = new Notification(roomName, {
-            body: message,
-            icon: "icons/ic_launcher.png"
-        });
+       showingNotification(roomName, message);
     }
 
     // Otherwise, we need to ask the user for permission
@@ -26,10 +23,7 @@ function showNotification(roomName, message) {
         Notification.requestPermission().then(function (permission) {
             // If the user accepts, let's create a notification
             if (permission === "granted") {
-                var notification = new Notification(roomName, {
-                    body: message,
-                    icon: "icons/ic_launcher.png"
-                });
+               showingNotification(roomName, message);
             }
         });
     }
@@ -62,6 +56,12 @@ function isDeferredNotNull() {
     return deferredPrompt != null;
 }
 
+function showingNotification(roomName, message) {
+       navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.ready.then(function(registration) {
+                  registration.showNotification(roomName, {body: message,  icon: "icons/ic_launcher.png" });
+                });
+}
 function presentAddToHome() {
     if (deferredPrompt != null) {
         // Update UI to notify the user they can add to home screen

@@ -16,7 +16,7 @@ class VideoMediaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktop) {
+    if (isDesktopNative) {
       return DesktopVideoPlayer(
         videoFilePath: videoFilePath,
       );

@@ -12,27 +12,47 @@ import 'package:flutter/foundation.dart';
 
 const bool isWeb = kIsWeb;
 
-final bool isAndroid = defaultTargetPlatform == TargetPlatform.android;
+final isAndroidNative = isAndroidDevice && !isWeb;
 
-final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+final isIOSNative = isIOSDevice && !isWeb;
 
-final isWindows = defaultTargetPlatform == TargetPlatform.windows;
+final isWindowsNative = isWindowsDevice && !isWeb;
 
-final isLinux = defaultTargetPlatform == TargetPlatform.linux;
+final isLinuxNative = isLinuxDevice && !isWeb;
 
-final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
+final isMacOSNative = isMacOSDevice && !isWeb;
 
-final isDesktop = (isLinux || isWindows || isMacOS) && !isWeb;
+final bool isAndroidDevice = defaultTargetPlatform == TargetPlatform.android;
 
-final isDesktopOrWeb = (isLinux || isWindows || isMacOS || isWeb);
+final isIOSDevice = defaultTargetPlatform == TargetPlatform.iOS;
 
-final hasFirebaseCapability = isAndroid;
+final isWindowsDevice = defaultTargetPlatform == TargetPlatform.windows;
 
-final hasVibrationCapability = isAndroid || isIOS;
+final isLinuxDevice = defaultTargetPlatform == TargetPlatform.linux;
 
-final hasVirtualKeyboardCapability = isAndroid || isIOS;
+final isMacOSDevice = defaultTargetPlatform == TargetPlatform.macOS;
 
-final hasContactCapability = isAndroid || isIOS;
+final isDesktopNative = (isLinuxNative || isWindowsNative || isMacOSNative);
+
+final isDesktopDevice = (isLinuxDevice || isWindowsDevice || isMacOSDevice);
+
+final isDesktopNativeOrWeb = (isLinuxNative || isWindowsNative || isMacOSNative || isWeb);
+
+final isMobileNative = isAndroidNative || isIOSNative;
+
+final isMobileDevice = isAndroidDevice || isIOSDevice;
+
+final hasFirebaseCapability = isAndroidNative || isWeb;
+
+final hasVibrationCapability = isAndroidNative || isIOSNative;
+
+final hasVirtualKeyboardCapability = isMobileNative;
+
+final hasContactCapability = isMobileNative;
+
+final hasSpeakerCapability = isMobileDevice;
+
+final hasForegroundServiceCapability = isAndroidNative;
 
 Future<int> getAndroidVersion() async =>
     (await DeviceInfoPlugin().androidInfo).version.sdkInt;
@@ -45,26 +65,26 @@ Future<platform_pb.Platform> getPlatformPB() async {
     platform
       ..platformType = platform_pb.PlatformsType.WEB
       ..osVersion = platform_detector.browser.version.major.toString();
-  } else if (isAndroid) {
+  } else if (isAndroidNative) {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     platform
       ..platformType = platform_pb.PlatformsType.ANDROID
       ..osVersion = androidInfo.version.release;
-  } else if (isIOS) {
+  } else if (isIOSNative) {
     final iosInfo = await DeviceInfoPlugin().iosInfo;
 
     platform
       ..platformType = platform_pb.PlatformsType.IOS
       ..osVersion = iosInfo.systemVersion;
-  } else if (isLinux) {
+  } else if (isLinuxNative) {
     platform
       ..platformType = platform_pb.PlatformsType.LINUX
       ..osVersion = Platform.operatingSystemVersion;
-  } else if (isMacOS) {
+  } else if (isMacOSNative) {
     platform
       ..platformType = platform_pb.PlatformsType.MAC_OS
       ..osVersion = Platform.operatingSystemVersion;
-  } else if (isWindows) {
+  } else if (isWindowsNative) {
     platform
       ..platformType = platform_pb.PlatformsType.WINDOWS
       ..osVersion = Platform.operatingSystemVersion;

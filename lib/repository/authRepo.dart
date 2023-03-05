@@ -66,7 +66,7 @@ class AuthRepo {
     } catch (e) {
       try {
         //delete shared pref file
-        if (isWindows || isLinux) {
+        if (isWindowsNative || isLinuxNative) {
           final path =
               "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
           if (File(path).existsSync()) {

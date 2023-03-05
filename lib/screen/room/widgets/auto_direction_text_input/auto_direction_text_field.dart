@@ -226,7 +226,7 @@ class _AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
           textDirection: widget.textDirection ?? textDir,
           readOnly: widget.readOnly,
           contextMenuBuilder: widget.contextMenuBuilder ??
-              ((isDesktop)
+              ((isDesktopDevice)
                   ? (context, editableTextState) {
                       return CustomDesktopContextMenu(
                         editableTextState: editableTextState,

@@ -106,7 +106,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                 },
               ),
             ),
-          if (canShareMessage && isAndroid)
+          if (canShareMessage && isAndroidNative)
             Tooltip(
               message: _i18n.get("share"),
               child: IconButton(

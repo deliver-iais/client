@@ -20,7 +20,7 @@ class CustomContextMenu {
   });
 
   Widget getCustomTextSelectionController() {
-    if (isAndroid || isIOS) {
+    if (isMobileDevice) {
       return CustomMaterialContextMenu(
         roomUid: roomUid,
         buildContext: buildContext,

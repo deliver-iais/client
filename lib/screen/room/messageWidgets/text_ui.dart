@@ -130,15 +130,13 @@ class _TextUIState extends State<TextUI> {
           children: [
             Container(
               key: _textBoxKey,
-              child: isDesktop
+              child: isDesktopDevice
                   ? SelectionArea(
-                      contextMenuBuilder: ((isDesktop)
-                          ? (context, editableTextState) {
+                      contextMenuBuilder: (context, editableTextState) {
                               return CustomDesktopSelectableRegionContextMenu(
                                 editableTextState: editableTextState,
                               ).buildToolbar();
-                            }
-                          : null),
+                            },
                       child: text,
                     )
                   : text,

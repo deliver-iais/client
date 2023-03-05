@@ -164,12 +164,12 @@ class CheckPermissionsService {
   Future<bool> checkAccessMediaLocationPermission({
     BuildContext? context,
   }) async {
-    if (isAndroid) {
+    if (isAndroidNative) {
       return _checkAndGetPermission(
         Permission.accessMediaLocation,
         context: context,
       );
-    } else if (isIOS) {
+    } else if (isIOSNative) {
       return _checkAndGetPermission(
         Permission.photos,
         context: context,
@@ -202,7 +202,7 @@ class CheckPermissionsService {
   }
 
   Future<bool> checkStoragePermission({BuildContext? context}) async {
-    if (isAndroid && await getAndroidVersion() < 33) {
+    if (isAndroidNative && await getAndroidVersion() < 33) {
       // ignore: use_build_context_synchronously
       return _checkAndGetPermission(
         Permission.storage,
@@ -213,7 +213,7 @@ class CheckPermissionsService {
   }
 
   Future<Position> getCurrentPosition() async {
-    if (isAndroid) {
+    if (isAndroidNative) {
       if (!await Geolocator.isLocationServiceEnabled()) {
         const intent = AndroidIntent(
           action: 'android.settings.LOCATION_SOURCE_SETTINGS',

@@ -64,7 +64,7 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    if (isDesktop) {
+    if (isDesktopNative) {
       setWindowMinSize(
         const Size(2 * FLUID_MAX_WIDTH, 1.5 * FLUID_MAX_HEIGHT),
       );
@@ -77,7 +77,7 @@ class CallScreenState extends State<CallScreen> {
       if (!widget.isCallInitialized) {
         startCall();
         checkForSystemAlertWindowPermission();
-        if (isAndroid) {
+        if (isAndroidNative) {
           _listenSensor();
         }
       }
@@ -155,7 +155,7 @@ class CallScreenState extends State<CallScreen> {
   }
 
   Future<void> checkForSystemAlertWindowPermission() async {
-    if (isAndroid &&
+    if (isAndroidNative &&
         await getDeviceVersion() >= 31 &&
         !await Permission.systemAlertWindow.status.isGranted) {
       showPermissionDialog();
@@ -166,12 +166,12 @@ class CallScreenState extends State<CallScreen> {
   void dispose() {
     super.dispose();
     endCallTimer?.cancel();
-    if (isDesktop) {
+    if (isDesktopNative) {
       setWindowMinSize(
         const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
       );
     }
-    if (isAndroid) {
+    if (isAndroidNative) {
       // for (final subscription in _accelerometerEvents) {
       //   subscription?.cancel();
       // }

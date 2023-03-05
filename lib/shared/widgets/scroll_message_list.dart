@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -70,7 +69,7 @@ class ScrollMessageListState extends State<ScrollMessageList> {
 
   @override
   Widget build(BuildContext context) {
-    return (isDesktop || kIsWeb) && widget.itemCount > 40
+    return (isDesktopDevice) && widget.itemCount > 40
         ? Stack(
             children: <Widget>[
               ScrollConfiguration(

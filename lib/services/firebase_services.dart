@@ -50,7 +50,7 @@ class FireBaseServices {
   late FirebaseMessaging _firebaseMessaging;
 
   Future<void> sendFireBaseToken() async {
-    if (!isDesktop || isWeb) {
+    if (hasFirebaseCapability) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
@@ -107,7 +107,6 @@ class FireBaseServices {
       try {
         await _services.firebaseServiceClient
             .registration(RegistrationReq()..tokenId = fireBaseToken);
-
         return _sharedDao.putBoolean(
           SHARED_DAO_FIREBASE_SETTING_IS_SET,
           true,
@@ -127,7 +126,7 @@ class FireBaseServices {
         // in here we just set decoder function interop.
         _decodeMessageForCallFromJs =
             js.allowInterop(_decodeMessageForWebNotification);
-      } else if (isAndroid) {
+      } else if (isAndroidNative) {
         FirebaseMessaging.onBackgroundMessage(_backgroundRemoteMessageHandler);
         await _firebaseMessaging.setForegroundNotificationPresentationOptions(
           alert: true,

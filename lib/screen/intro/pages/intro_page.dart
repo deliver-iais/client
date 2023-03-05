@@ -56,7 +56,7 @@ class IntroPageState extends State<IntroPage> {
         SHOW_CASE_FEATURE,
       );
     }
-    if (!isDesktop) {
+    if (isMobileNative) {
       featureDiscoverySteps.add(
         QRCODE_FEATURE,
       );
