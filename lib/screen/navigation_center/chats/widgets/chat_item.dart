@@ -193,7 +193,7 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildChatItemWidget(String name) {
     final theme = Theme.of(context);
-    final detailsHeight = theme.primaryTextTheme.bodyLarge!.fontSize! * 2 + 4;
+    final detailsHeight = (theme.primaryTextTheme.bodyLarge!.fontSize! + 3) * 2;
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
