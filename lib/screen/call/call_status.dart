@@ -102,7 +102,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
             )
           : Directionality(
               textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  _i18n.defaultTextDirection,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

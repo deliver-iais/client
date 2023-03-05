@@ -300,7 +300,7 @@ class CoreServices {
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
     FlutterForegroundTask.saveData(
       key: "Language",
-      value: GetIt.I.get<I18N>().isPersian,
+      value: GetIt.I.get<I18N>().locale.languageCode,
     );
   }
 

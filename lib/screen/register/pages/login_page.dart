@@ -14,7 +14,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
@@ -379,7 +378,7 @@ class LoginPageState extends State<LoginPage> {
                                   child: RichText(
                                     text: TextSpan(
                                       children: buildText(
-                                        "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                        "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
                                         context,
                                       ),
                                       style: theme.textTheme.bodyMedium,
@@ -402,7 +401,7 @@ class LoginPageState extends State<LoginPage> {
                   margin: const EdgeInsets.only(top: 8, bottom: 8),
                   child: SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.locale.language().name,
+                    subtitle: _i18n.language.name,
                     leading: const FaIcon(FontAwesomeIcons.globe),
                     onPressed: (context) {
                       Navigator.push(

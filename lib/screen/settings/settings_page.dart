@@ -15,7 +15,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -261,7 +260,7 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.locale.language().name,
+                    subtitle: _i18n.language.name,
                     leading: const FaIcon(FontAwesomeIcons.globe),
                     onPressed: (context) {
                       _routingService.openLanguageSettings();

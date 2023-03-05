@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/changelog.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -55,7 +54,7 @@ class NewFeatureDialog extends StatelessWidget {
                         child: Divider(),
                       );
                     },
-                    itemCount: ENGLISH_FEATURE_LIST.length,
+                    itemCount: _i18n.changelogs.length,
                     itemBuilder: (context, index) {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,9 +72,7 @@ class NewFeatureDialog extends StatelessWidget {
                           ),
                           Expanded(
                             child: Text(
-                              _i18n.isPersian
-                                  ? FARSI_FEATURE_LIST[index]
-                                  : ENGLISH_FEATURE_LIST[index],
+                              _i18n.changelogs[index],
                               textDirection: _i18n.defaultTextDirection,
                             ),
                           ),

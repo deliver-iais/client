@@ -25,10 +25,10 @@ class I18N {
           defaultValue: defaultLanguage.countryCode,
         )
         .map((code) {
-          if (code != null && code.contains(farsi.countryCode)) {
-            return farsi;
-          }
-          return english;
+          return supportedLanguages.firstWhere(
+            (e) => e.countryCode == code,
+            orElse: () => english,
+          );
         })
         .distinct()
         .listen((lang) async {
@@ -37,7 +37,9 @@ class I18N {
         });
   }
 
-  bool isRtl() => _language.value.countryCode.contains(farsi.countryCode);
+  bool get isRtl => _language.value.isRtl;
+
+  List<String> get changelogs => _language.value.changelogs;
 
   Future<void> _loadLanguageResource(Language language) async {
     final jsonValues =
@@ -51,11 +53,13 @@ class I18N {
   bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
 
   TextDirection get defaultTextDirection =>
-      isPersian ? TextDirection.rtl : TextDirection.ltr;
+      isRtl ? TextDirection.rtl : TextDirection.ltr;
 
   Stream get localeStream => _language.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;
+
+  Language get language => _language.value;
 
   String get(String key) {
     return _values != null && _values!.isNotEmpty
@@ -82,15 +86,11 @@ class I18N {
   TextDirection getDirection(String v) {
     final string = v.trim();
     if (string.isEmpty) return TextDirection.ltr;
+    // TODO(any): add arabic detection
     if (string.isPersian()) {
       return TextDirection.rtl;
     }
     return TextDirection.ltr;
-  }
-
-  @Deprecated("Use GetIt version instead. final _i18n = GetIt.I.get<I18N>();")
-  static I18N? of(BuildContext context) {
-    return Localizations.of<I18N>(context, I18N);
   }
 
   static LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
@@ -101,7 +101,9 @@ class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
   @override
   bool isSupported(Locale locale) {
-    return ['en', 'fa'].contains(locale.languageCode);
+    return supportedLanguages
+        .map((e) => e.languageCode)
+        .contains(locale.languageCode);
   }
 
   @override
