@@ -198,12 +198,27 @@ extension MimeTypeOfFileName on String? {
 bool isImageFileType(String fileType) {
   final lt = fileType.toLowerCase();
 
-  return lt.contains('image') ||
+  return _isImageFileType(lt) &&
+      !lt.contains("svg") &&
+      !lt.contains("photoshop");
+}
+
+bool isCompressibleImageFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+
+  return _isImageFileType(lt) &&
+      !lt.contains("svg") &&
+      !lt.contains("gif") &&
+      !lt.contains("photoshop");
+}
+
+bool _isImageFileType(String lt) {
+  return (lt.contains('image') ||
       lt.contains("png") ||
       lt.contains("jfif") ||
       lt.contains("webp") ||
       lt.contains("jpeg") ||
-      lt.contains("jpg");
+      lt.contains("jpg"));
 }
 
 bool isVideoFileType(String fileType) {

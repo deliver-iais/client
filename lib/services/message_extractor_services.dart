@@ -12,6 +12,7 @@ import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart'
@@ -142,11 +143,17 @@ class MessageExtractorServices {
         text = msg.text.text;
         break;
       case message_pb.Message_Type.file:
-        final type = msg.file.type.split("/").first;
-        if (type == "application") {
-          typeDetails = msg.file.name;
+        final type = msg.file.type;
+        final superType = type.split("/").first;
+
+        if (isImageFileType(type)) {
+          typeDetails = _i18n.get("image");
+        } else if (superType == "image") {
+          typeDetails = _i18n.get("file");
+        } else if (superType == "application") {
+          typeDetails = _i18n.get("file");
         } else {
-          typeDetails = _i18n.get(type);
+          typeDetails = _i18n.get(superType);
         }
         text = msg.file.caption;
         break;
