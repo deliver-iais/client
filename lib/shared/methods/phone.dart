@@ -4,6 +4,9 @@ import 'package:fixnum/fixnum.dart';
 String buildPhoneNumber(int countryCode, int nationalNumber) =>
     "+$countryCode-$nationalNumber";
 
+String buildPhoneNumberSimpleText(int countryCode, int nationalNumber) =>
+    "+$countryCode$nationalNumber";
+
 PhoneNumber? getPhoneNumber(String pStr) {
   try{
     final phone = pStr

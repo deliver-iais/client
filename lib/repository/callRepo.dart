@@ -11,6 +11,7 @@ import 'package:deliver/box/call_info.dart' as call_info;
 import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
@@ -35,6 +36,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -66,6 +68,7 @@ class CallRepo {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final _logger = GetIt.I.get<Logger>();
 
@@ -2045,6 +2048,40 @@ class CallRepo {
       _featureFlags
         ..setICECandidateTimeLimit(ICE_CANDIDATE_TIME_LIMIT)
         ..setICECandidateNumber(ICE_CANDIDATE_NUMBER);
+    }
+  }
+
+  void openCallScreen(BuildContext context, Uid room,  {bool isVideoCall = false}) {
+    if (_callService.getUserCallState == UserCallState.NO_CALL) {
+      _routingService.openCallScreen(
+        room,
+        isVideoCall: isVideoCall,
+      );
+    } else {
+      if (room == roomUid) {
+        _routingService.openCallScreen(
+          room,
+          isCallInitialized: true,
+          isVideoCall: isVideoCall,
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(
+              _i18n.get("you_already_in_call"),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text(_i18n.get("ok")),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+        );
+      }
     }
   }
 }
