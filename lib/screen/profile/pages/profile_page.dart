@@ -67,7 +67,7 @@ class ProfilePageState extends State<ProfilePage>
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _featureFlags = GetIt.I.get<FeatureFlags>();
-  final I18N _i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
