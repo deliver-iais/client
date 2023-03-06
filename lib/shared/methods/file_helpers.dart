@@ -262,8 +262,11 @@ extension ImagePath on String {
 }
 
 String lookupMimeTypeFromPath(String path, {List<int>? headerBytes}) =>
-    lookupMimeType(path, headerBytes: headerBytes) ??
-    (path.contains("jfif") ? "image/jpeg" : DEFAULT_FILE_TYPE);
+    _deliverMimeTypeResolver.lookup(path, headerBytes: headerBytes) ??
+    DEFAULT_FILE_TYPE;
+
+final _deliverMimeTypeResolver = MimeTypeResolver()
+  ..addExtension("jfif", "image/jpeg");
 
 // TODO(bitbeter): Use these for later
 // const List<String> videoFormats = [
