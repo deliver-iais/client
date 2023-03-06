@@ -9,6 +9,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -27,9 +28,11 @@ import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -63,17 +66,18 @@ class ProfilePageState extends State<ProfilePage>
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
+  final _i18n = GetIt.I.get<I18N>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _callRepo = GetIt.I.get<CallRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
   late int _tabsCount;
-
-  final I18N _i18n = GetIt.I.get<I18N>();
 
   bool _isMucAdminOrOwner = false;
   bool _isBotOwner = false;
@@ -472,22 +476,129 @@ class ProfilePageState extends State<ProfilePage>
                 builder: (context, snapshot) {
                   if (snapshot.data != null &&
                       snapshot.data!.countryCode != 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: SettingsTile(
-                        title: _i18n.get("phone"),
-                        subtitle: buildPhoneNumber(
-                          snapshot.data!.countryCode,
-                          snapshot.data!.nationalNumber,
-                        ),
-                        subtitleDirection: TextDirection.ltr,
-                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                        leading: const Icon(Icons.phone),
-                        trailing: const SizedBox.shrink(),
-                        onPressed: (_) => launchUrl(
-                          Uri.parse(
-                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                    return GestureDetector(
+                      onPanDown: (e) => storePosition(e),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: SettingsTile(
+                          title: _i18n.get("phone"),
+                          subtitle: buildPhoneNumber(
+                            snapshot.data!.countryCode,
+                            snapshot.data!.nationalNumber,
                           ),
+                          subtitleDirection: TextDirection.ltr,
+                          subtitleTextStyle:
+                              TextStyle(color: theme.primaryColor),
+                          leading: const Icon(Icons.phone),
+                          trailing: const SizedBox.shrink(),
+                          onPressed: (_) {
+                            this.showMenu(
+                              context: context,
+                              items: [
+                                if (_featureFlags.hasVoiceCallPermission(
+                                  widget.roomUid.asString(),
+                                )) ...[
+                                  PopupMenuItem<String>(
+                                    value: "audio_call_in_messenger",
+                                    child: Directionality(
+                                      textDirection: _i18n.defaultTextDirection,
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.call),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _i18n.get("call_in_messenger"),
+                                            style: theme
+                                                .primaryTextTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: "video_call_in_messenger",
+                                    child: Directionality(
+                                      textDirection: _i18n.defaultTextDirection,
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.videocam_rounded),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _i18n.get("call_in_messenger"),
+                                            style: theme
+                                                .primaryTextTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                PopupMenuItem<String>(
+                                  value: "call",
+                                  child: Directionality(
+                                    textDirection: _i18n.defaultTextDirection,
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.call),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          _i18n.get("call"),
+                                          style:
+                                              theme.primaryTextTheme.bodyMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                PopupMenuItem<String>(
+                                  value: "copy",
+                                  child: Directionality(
+                                    textDirection: _i18n.defaultTextDirection,
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.copy),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          _i18n.get("copy"),
+                                          style:
+                                              theme.primaryTextTheme.bodyMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ).then((selectedString) {
+                              if (selectedString == "call") {
+                                launchUrl(
+                                  Uri.parse(
+                                    "tel:${buildPhoneNumberSimpleText(snapshot.data!.countryCode, snapshot.data!.nationalNumber)}",
+                                  ),
+                                );
+                              } else if (selectedString ==
+                                  "video_call_in_messenger") {
+                                _callRepo.openCallScreen(
+                                  context,
+                                  widget.roomUid,
+                                  isVideoCall: true,
+                                );
+                              } else if (selectedString ==
+                                  "audio_call_in_messenger") {
+                                _callRepo.openCallScreen(
+                                  context,
+                                  widget.roomUid,
+                                );
+                              } else if (selectedString == "copy") {
+                                saveToClipboard(
+                                  buildPhoneNumberSimpleText(
+                                    snapshot.data!.countryCode,
+                                    snapshot.data!.nationalNumber,
+                                  ),
+                                  context: context,
+                                );
+                              }
+                            });
+                          },
                         ),
                       ),
                     );

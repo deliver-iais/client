@@ -1248,11 +1248,16 @@ class RoomPageState extends State<RoomPage> {
                       child: Row(
                         children: [
                           IconButton(
-                            onPressed: () => openCallScreen(isVideoCall: true),
+                            onPressed: () => _callRepo.openCallScreen(
+                                context, room.uid.asUid(),
+                                isVideoCall: true),
                             icon: const Icon(Icons.videocam_rounded),
                           ),
                           IconButton(
-                            onPressed: () => openCallScreen(),
+                            onPressed: () => _callRepo.openCallScreen(
+                              context,
+                              room.uid.asUid(),
+                            ),
                             icon: const Icon(Icons.local_phone_rounded),
                           ),
                         ],
@@ -1838,40 +1843,6 @@ class RoomPageState extends State<RoomPage> {
 
   void openRoomSearchBox() {
     _searchMode.add(true);
-  }
-
-  void openCallScreen({bool isVideoCall = false}) {
-    if (_callService.getUserCallState == UserCallState.NO_CALL) {
-      _routingService.openCallScreen(
-        room.uid.asUid(),
-        isVideoCall: isVideoCall,
-      );
-    } else {
-      if (room.uid.asUid() == _callRepo.roomUid) {
-        _routingService.openCallScreen(
-          room.uid.asUid(),
-          isCallInitialized: true,
-          isVideoCall: isVideoCall,
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: Text(
-              _i18n.get("you_already_in_call"),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text(_i18n.get("ok")),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ),
-        );
-      }
-    }
   }
 }
 

@@ -53,6 +53,8 @@
   "bots": "Bots",
   "brightness": "Brightness",
   "busy": "Busy",
+  "call": "Call",
+  "call_in_messenger": "Call in Messenger",
   "call_accepted": "Accepted",
   "call_audio": "Audio",
   "call_busy": "Busy",

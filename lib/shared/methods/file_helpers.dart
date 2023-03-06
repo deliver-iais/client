@@ -99,11 +99,10 @@ String _detectFileMimeByFilePathForWeb(String? fileName, String? filePath) {
 file_model.MimeByNameAndContent _detectFileTypeByNameAndContent(
   String? filePath,
 ) {
-  final typeByContent = lookupMimeType(
-        "no-file",
-        headerBytes: File(filePath ?? "").readAsBytesSync(),
-      ) ??
-      DEFAULT_FILE_TYPE;
+  final typeByContent = lookupMimeTypeFromPath(
+    "no-file",
+    headerBytes: File(filePath ?? "").readAsBytesSync(),
+  );
 
   return file_model.MimeByNameAndContent(
     filePath.getMimeString(),
@@ -115,11 +114,10 @@ file_model.MimeByNameAndContent _detectFileTypeByNameAndContentForWeb(
   String? fileName,
   String? filePath,
 ) {
-  final typeByContent = lookupMimeType(
-        "no-file",
-        headerBytes: _getWebFileData(filePath!),
-      ) ??
-      DEFAULT_FILE_TYPE;
+  final typeByContent = lookupMimeTypeFromPath(
+    "no-file",
+    headerBytes: _getWebFileData(filePath!),
+  );
 
   return file_model.MimeByNameAndContent(
     fileName.getMimeString(),
@@ -186,7 +184,7 @@ extension MimeTypeOfFileName on String? {
     if (this == null || this!.trim().isEmpty) {
       return DEFAULT_FILE_TYPE;
     } else {
-      return lookupMimeType(this!) ?? DEFAULT_FILE_TYPE;
+      return lookupMimeTypeFromPath(this!);
     }
   }
 
@@ -198,12 +196,27 @@ extension MimeTypeOfFileName on String? {
 bool isImageFileType(String fileType) {
   final lt = fileType.toLowerCase();
 
-  return lt.contains('image') ||
+  return _isImageFileType(lt) &&
+      !lt.contains("svg") &&
+      !lt.contains("photoshop");
+}
+
+bool isCompressibleImageFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+
+  return _isImageFileType(lt) &&
+      !lt.contains("svg") &&
+      !lt.contains("gif") &&
+      !lt.contains("photoshop");
+}
+
+bool _isImageFileType(String lt) {
+  return (lt.contains('image') ||
       lt.contains("png") ||
       lt.contains("jfif") ||
       lt.contains("webp") ||
       lt.contains("jpeg") ||
-      lt.contains("jpg");
+      lt.contains("jpg"));
 }
 
 bool isVideoFileType(String fileType) {
@@ -247,6 +260,13 @@ extension ImagePath on String {
     );
   }
 }
+
+String lookupMimeTypeFromPath(String path, {List<int>? headerBytes}) =>
+    _deliverMimeTypeResolver.lookup(path, headerBytes: headerBytes) ??
+    DEFAULT_FILE_TYPE;
+
+final _deliverMimeTypeResolver = MimeTypeResolver()
+  ..addExtension("jfif", "image/jpeg");
 
 // TODO(bitbeter): Use these for later
 // const List<String> videoFormats = [

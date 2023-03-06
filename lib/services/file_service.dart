@@ -611,10 +611,8 @@ class FileService {
   Future<model.File> compressFile(model.File file) async {
     if (!isWeb) {
       try {
-        final mediaType = file.path.getMediaType();
         var filePath = file.path;
-        if (mediaType.type.contains("image") &&
-            !mediaType.subtype.contains("gif")) {
+        if (isCompressibleImageFileType(file.path.getMimeString())) {
           if (isMobileNative) {
             filePath = await compressImageInMobile(File(file.path));
           } else {
