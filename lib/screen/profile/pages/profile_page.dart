@@ -28,6 +28,7 @@ import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -65,6 +66,8 @@ class ProfilePageState extends State<ProfilePage>
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
+  final I18N _i18n = GetIt.I.get<I18N>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -75,8 +78,6 @@ class ProfilePageState extends State<ProfilePage>
 
   late TabController _tabController;
   late int _tabsCount;
-
-  final I18N _i18n = GetIt.I.get<I18N>();
 
   bool _isMucAdminOrOwner = false;
   bool _isBotOwner = false;
@@ -494,40 +495,44 @@ class ProfilePageState extends State<ProfilePage>
                             this.showMenu(
                               context: context,
                               items: [
-                                PopupMenuItem<String>(
-                                  value: "audio_call_in_messenger",
-                                  child: Directionality(
-                                    textDirection: _i18n.defaultTextDirection,
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.call),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _i18n.get("call_in_messenger"),
-                                          style:
-                                              theme.primaryTextTheme.bodyMedium,
-                                        ),
-                                      ],
+                                if (_featureFlags.hasVoiceCallPermission(
+                                  widget.roomUid.asString(),
+                                )) ...[
+                                  PopupMenuItem<String>(
+                                    value: "audio_call_in_messenger",
+                                    child: Directionality(
+                                      textDirection: _i18n.defaultTextDirection,
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.call),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _i18n.get("call_in_messenger"),
+                                            style: theme
+                                                .primaryTextTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: "video_call_in_messenger",
-                                  child: Directionality(
-                                    textDirection: _i18n.defaultTextDirection,
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.videocam_rounded),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _i18n.get("call_in_messenger"),
-                                          style:
-                                              theme.primaryTextTheme.bodyMedium,
-                                        ),
-                                      ],
+                                  PopupMenuItem<String>(
+                                    value: "video_call_in_messenger",
+                                    child: Directionality(
+                                      textDirection: _i18n.defaultTextDirection,
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.videocam_rounded),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _i18n.get("call_in_messenger"),
+                                            style: theme
+                                                .primaryTextTheme.bodyMedium,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                                 PopupMenuItem<String>(
                                   value: "call",
                                   child: Directionality(
