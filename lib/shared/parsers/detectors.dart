@@ -9,8 +9,8 @@ List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       emojiDetector(),
       botCommandDetector(),
       boldDetector(),
-      italicDetector(),
       underlineDetector(),
+      italicDetector(),
       strikethroughDetector(),
       spoilerDetector(),
       if (searchTerm.isNotEmpty) searchTermDetector(searchTerm),
@@ -23,8 +23,8 @@ List<Detector> inputTextDetectors() => grayOutDetector([
       emojiDetector(),
       botCommandDetector(),
       boldDetector(),
-      italicDetector(),
       underlineDetector(),
+      italicDetector(),
       strikethroughDetector(),
       spoilerDetector(),
       ignoreCharacterDetector(),
@@ -37,8 +37,8 @@ final List<Detector> detectors = [
   emojiDetector(),
   botCommandDetector(),
   boldDetector(),
-  italicDetector(),
   underlineDetector(),
+  italicDetector(),
   strikethroughDetector(),
   spoilerDetector(),
 ];
@@ -166,32 +166,32 @@ Detector ignoreCharacterDetector() => (block) {
       return partitions;
     };
 
-Detector boldDetector() => simpleStyleDetector(
-      BoldFeature.specialChar,
+Detector boldDetector() => simpleStyleDetectorTwoCharacter(
+      BoldFeature.specialSingleChar,
       {BoldFeature()},
-      replacer: (match) => match.substring(1, match.length - 1),
+      replacer: (match) => match.substring(2, match.length - 2),
     );
 
 Detector italicDetector() => simpleStyleDetectorTwoCharacter(
-      "_",
+      ItalicFeature.specialSingleChar,
       {ItalicFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );
 
-Detector underlineDetector() => simpleStyleDetector(
-      UnderlineFeature.specialChar,
+Detector underlineDetector() => simpleStyleDetectorThreeCharacter(
+      UnderlineFeature.specialSingleChar,
       {UnderlineFeature()},
-      replacer: (match) => match.substring(1, match.length - 1),
+      replacer: (match) => match.substring(3, match.length - 3),
     );
 
 Detector strikethroughDetector() => simpleStyleDetector(
-      StrikethroughFeature.specialChar,
+      StrikethroughFeature.specialSingleChar,
       {StrikethroughFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
 
 Detector spoilerDetector() => simpleStyleDetectorTwoCharacter(
-      "|",
+      SpoilerFeature.specialSingleChar,
       {SpoilerFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );
@@ -340,6 +340,56 @@ Detector simpleStyleDetectorTwoCharacter(
                   features,
                   replacedText: replacer?.call(
                     block.text.substring(start, idx + 2),
+                  ),
+                ),
+              );
+              start = null;
+            }
+          }
+
+          idx += 1;
+          continue;
+        }
+      }
+
+      return partitions;
+    };
+
+Detector simpleStyleDetectorThreeCharacter(
+  String specialChar,
+  Set<Feature> features, {
+  String Function(String)? replacer,
+}) =>
+    (block) {
+      final text = block.text;
+
+      var idx = 0;
+      int? start;
+
+      final partitions = <Partition>[];
+
+      while (idx < text.length - 2) {
+        final char = text[idx];
+        final nextChar = text[idx + 1];
+        final nextNextChar = text[idx + 2];
+
+        if (char == '\\') {
+          idx += 3;
+          continue;
+        } else {
+          if (char == specialChar &&
+              nextChar == specialChar &&
+              nextNextChar == specialChar) {
+            if (start == null) {
+              start = idx;
+            } else if (start + 3 < idx) {
+              partitions.add(
+                Partition(
+                  start,
+                  idx + 3,
+                  features,
+                  replacedText: replacer?.call(
+                    block.text.substring(start, idx + 3),
                   ),
                 ),
               );

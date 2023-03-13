@@ -82,7 +82,8 @@ class SearchTermFeature extends Feature {
 }
 
 class BoldFeature extends Feature {
-  static const specialChar = "*";
+  static const specialSingleChar = "*";
+  static const specialChar = "**";
 
   @override
   bool operator ==(Object other) =>
@@ -94,6 +95,7 @@ class BoldFeature extends Feature {
 }
 
 class ItalicFeature extends Feature {
+  static const specialSingleChar = "_";
   static const specialChar = "__";
 
   @override
@@ -106,7 +108,8 @@ class ItalicFeature extends Feature {
 }
 
 class UnderlineFeature extends Feature {
-  static const specialChar = "_";
+  static const specialSingleChar = "_";
+  static const specialChar = "___";
 
   @override
   bool operator ==(Object other) =>
@@ -118,6 +121,7 @@ class UnderlineFeature extends Feature {
 }
 
 class StrikethroughFeature extends Feature {
+  static const specialSingleChar = "~";
   static const specialChar = "~";
 
   @override
@@ -130,6 +134,7 @@ class StrikethroughFeature extends Feature {
 }
 
 class SpoilerFeature extends Feature {
+  static const specialSingleChar = "|";
   static const specialChar = "||";
 
   @override
