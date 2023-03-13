@@ -3,6 +3,7 @@ library intl_phone_field;
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -183,11 +184,11 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                 },
                 controller: widget.controller,
                 focusNode: widget.focusNode,
-                onFieldSubmitted: (s) {
+                onFieldSubmitted: (phoneNumber) {
                   widget.onSubmitted(
                     PhoneNumber()
                       ..countryCode = int.parse(_selectedCountry['phone']!)
-                      ..nationalNumber = Int64.parseInt(s),
+                      ..nationalNumber = Int64.parseInt(phoneNumber),
                   );
                 },
                 decoration: InputDecoration(
@@ -221,7 +222,6 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                         ..nationalNumber = Int64.parseInt(value),
                     );
                   }
-
                   setState(() {
                     if (value.length == 1) {
                       if (value == "0") {
@@ -236,7 +236,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                 },
                 validator: widget.validator,
                 keyboardType: widget.keyboardType,
-                inputFormatters: widget.inputFormatters,
+                inputFormatters: [NumberInputFormatter],
                 enabled: widget.enabled,
                 maxLength: _maxLength,
                 autofocus: true,

@@ -10,12 +10,11 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/input_pin.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
 import 'package:rxdart/rxdart.dart';
@@ -159,7 +158,7 @@ class SplashScreenState extends State<SplashScreen>
               Pinput(
                 obscureText: true,
                 obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [NumberInputFormatter],
                 controller: _textEditingController,
                 autofocus: true,
                 focusNode: _focusNode,
@@ -186,7 +185,8 @@ class SplashScreenState extends State<SplashScreen>
                   foregroundColor: theme.colorScheme.error,
                 ),
                 child: Text(_i18n.get("logout")),
-              ),const SizedBox(height: 10),
+              ),
+              const SizedBox(height: 10),
               const SizedBox(height: 10),
             ],
           ),

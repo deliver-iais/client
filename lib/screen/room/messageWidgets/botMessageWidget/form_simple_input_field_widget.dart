@@ -1,8 +1,8 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class FormSimpleInputFieldWidget extends StatefulWidget {
@@ -80,12 +80,11 @@ class FormSimpleInputFieldWidgetState
           minLines: 1,
           maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
           inputFormatters: [
-            if (keyboardType == TextInputType.number)
-              FilteringTextInputFormatter.digitsOnly
+            NumberInputFormatter
           ],
-          validator: validateFormTextField,
           controller: _textEditingController,
           textDirection: value,
+          validator: validateFormTextField,
           onChanged: (str) {
             if (str.isNotEmpty) {
               final dir = _i18n.getDirection(str);

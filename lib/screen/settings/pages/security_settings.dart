@@ -1,5 +1,4 @@
 import 'package:deliver/box/account.dart';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -7,15 +6,13 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/input_pin.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
-
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pinput/pinput.dart';
@@ -218,7 +215,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Pinput(
                 obscureText: true,
                 obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [NumberInputFormatter],
                 autofocus: true,
                 errorTextStyle:
                     const TextStyle(fontSize: 12, color: Colors.red),
@@ -529,7 +526,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 Pinput(
                   obscureText: true,
                   obscuringWidget: obscuringPinWidget(theme),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [NumberInputFormatter],
                   autofocus: true,
                   errorTextStyle:
                       const TextStyle(fontSize: 12, color: Colors.red),
@@ -549,7 +546,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Pinput(
                 obscureText: true,
                 obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [NumberInputFormatter],
                 autofocus: true,
                 errorTextStyle:
                     const TextStyle(fontSize: 12, color: Colors.red),
@@ -566,7 +563,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Pinput(
                 obscureText: true,
                 obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [NumberInputFormatter],
                 autofocus: true,
                 errorTextStyle:
                     const TextStyle(fontSize: 12, color: Colors.red),

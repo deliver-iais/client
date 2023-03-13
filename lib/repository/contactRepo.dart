@@ -16,6 +16,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/string_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
@@ -181,20 +182,10 @@ class ContactRepo {
     }
   }
 
-  String _replaceFarsiNumber(String input) {
-    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-
-    for (var i = 0; i < english.length; i++) {
-      input = input.replaceAll(farsi[i], english[i]);
-    }
-    return input;
-  }
-
   PhoneNumber? _getPhoneNumber(String phone) {
     final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
     if (regex.hasMatch(phone)) {
-      phone = _replaceFarsiNumber(phone);
+      phone = phone.replaceFarsiNumber();
     }
     final p = getPhoneNumber(phone);
 
