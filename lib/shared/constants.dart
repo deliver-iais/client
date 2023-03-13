@@ -337,7 +337,8 @@ bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
-  if (isDesktopDevice || MediaQuery.of(context).orientation == Orientation.portrait) {
+  if (isDesktopDevice ||
+      MediaQuery.of(context).orientation == Orientation.portrait) {
     return isLargeWidth(
       MediaQuery.of(context).size.width,
     );

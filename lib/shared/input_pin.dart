@@ -6,12 +6,12 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/pin_code_settings.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
 import 'package:rxdart/rxdart.dart';
@@ -245,7 +245,7 @@ Widget buildContent(
               validator: (_) => _validatePin(_ ?? "", pinCodeSettings),
               obscuringWidget: obscuringPinWidget(theme),
               defaultPinTheme: defaultPinTheme(theme),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [NumberInputFormatter],
               focusedPinTheme: focusedPinTheme(theme),
               submittedPinTheme: submittedPinTheme(theme),
               // onSubmitted: (),
@@ -293,7 +293,7 @@ Widget buildContent(
                     );
                   },
                   obscuringWidget: obscuringPinWidget(theme),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [NumberInputFormatter],
                   errorTextStyle:
                       const TextStyle(fontSize: 12, color: Colors.red),
                   defaultPinTheme: defaultPinTheme(theme),

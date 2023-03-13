@@ -9,6 +9,8 @@ import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/extensions/string_extension.dart';
+import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +44,9 @@ class VerificationPageState extends State<VerificationPage> {
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    final result = _authRepo.sendVerificationCode(_verificationCode!);
+    final result = _authRepo.sendVerificationCode(_verificationCode!
+        .replaceFarsiNumber(),
+    );
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
@@ -166,6 +170,7 @@ class VerificationPageState extends State<VerificationPage> {
                       autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
+                      inputFormatters: [NumberInputFormatter],
                       cursor: Cursor(color: theme.focusColor, enabled: true, width: 1, height: 32),
                       decoration: UnderlineDecoration(
                         colorBuilder: PinListenColorBuilder(

@@ -43,7 +43,6 @@ import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -111,7 +110,6 @@ class RoomPageState extends State<RoomPage> {
 
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _notificationServices = GetIt.I.get<NotificationServices>();
-  static final _callService = GetIt.I.get<CallService>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
@@ -1249,8 +1247,10 @@ class RoomPageState extends State<RoomPage> {
                         children: [
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
-                                context, room.uid.asUid(),
-                                isVideoCall: true),
+                              context,
+                              room.uid.asUid(),
+                              isVideoCall: true,
+                            ),
                             icon: const Icon(Icons.videocam_rounded),
                           ),
                           IconButton(
