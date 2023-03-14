@@ -24,6 +24,24 @@ class UrlFeature extends Feature {
       );
 }
 
+class NoFormattingRegion extends Feature {
+  final String value;
+  static const regex = r"```(.|\n)*```";
+
+  NoFormattingRegion(this.value);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType && other is NoFormattingRegion);
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(value),
+      );
+}
+
 class IdFeature extends Feature {
   static const regex = r"@[a-zA-Z](\w){4,19}";
 

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/recent_emoji.dart';
-import 'package:deliver/fonts/emoji_font.dart';
+import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';

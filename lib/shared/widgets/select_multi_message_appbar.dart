@@ -193,10 +193,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                   }
                 }
                 if (context.mounted) {
-                  saveToClipboard(
-                    copyText,
-                    context: context,
-                  );
+                  saveToClipboard(copyText);
                 }
                 onClose();
               },

@@ -1,6 +1,6 @@
 library intl_phone_field;
 
-import 'package:deliver/fonts/emoji_font.dart';
+import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/methods/number_input_formatter.dart';

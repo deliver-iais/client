@@ -24,7 +24,6 @@ class RawKeyboardService {
   void controlCHandle(TextEditingController controller, BuildContext context) {
     saveToClipboard(
       controller.selection.textInside(controller.text),
-      context: context,
     );
   }
 

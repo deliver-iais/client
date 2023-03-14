@@ -16,6 +16,7 @@ class ToastDisplay {
     IconData? toastIcon,
     bool showDoneAnimation = false,
     bool showWarningAnimation = false,
+    bool showCopyAnimation = false,
     BuildContext? toastContext,
     double maxWidth = 1000.0,
     Duration duration = SUPER_SLOW_ANIMATION_DURATION,
@@ -44,6 +45,7 @@ class ToastDisplay {
         textDirection: i18n.defaultTextDirection,
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (toastIcon != null) Icon(toastIcon),
             if (toastIcon != null)
@@ -55,6 +57,33 @@ class ToastDisplay {
                 "assets/animations/data.ws",
                 width: 60,
                 height: 40,
+              ),
+            if (showCopyAnimation)
+              Ws.asset(
+                "assets/animations/copy.ws",
+                width: 60,
+                height: 40,
+                repeat: false,
+                delegates: LottieDelegates(
+                  values: [
+                    ValueDelegate.color(
+                      const ['Oval', '**'],
+                      value: theme.colorScheme.onInverseSurface,
+                    ),
+                    ValueDelegate.strokeColor(
+                      const ['**'],
+                      value: theme.colorScheme.onInverseSurface,
+                    ),
+                    ValueDelegate.strokeColor(
+                      const ["info1", '**'],
+                      value: theme.colorScheme.inverseSurface,
+                    ),
+                    ValueDelegate.color(
+                      const ["info2", '**'],
+                      value: theme.colorScheme.inverseSurface,
+                    ),
+                  ],
+                ),
               ),
             if (showWarningAnimation)
               Ws.asset(

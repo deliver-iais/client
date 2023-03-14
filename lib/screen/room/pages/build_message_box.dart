@@ -640,18 +640,15 @@ class OperationOnMessageSelection {
     if (message.type == MessageType.TEXT) {
       saveToClipboard(
         synthesizeToOriginalWord(message.json.toText().text),
-        context: context,
       );
     } else if (message.type == MessageType.SHARE_UID) {
       final shareUid = message.json.toShareUid();
       saveToClipboard(
         buildMucInviteLink(shareUid.uid, shareUid.joinToken),
-        context: context,
       );
     } else {
       saveToClipboard(
         synthesizeToOriginalWord(message.json.toFile().caption),
-        context: context,
       );
     }
   }

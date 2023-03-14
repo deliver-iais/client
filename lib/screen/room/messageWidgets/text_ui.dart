@@ -102,8 +102,11 @@ class _TextUIState extends State<TextUI> {
     final spans = onePathTransform(
       widget.blocks,
       inlineSpanTransformer(
+        codeBackgroundColor: theme.colorScheme.secondaryContainer,
+        codeForegroundColor: theme.colorScheme.onSecondaryContainer,
         defaultColor: widget.colorScheme.onPrimaryContainer,
         linkColor: theme.colorScheme.primary,
+        colorScheme: theme.colorScheme,
         onIdClick: widget.onUsernameClick,
         onBotCommandClick: widget.onBotCommandClick,
         onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
@@ -133,10 +136,10 @@ class _TextUIState extends State<TextUI> {
               child: isDesktopDevice
                   ? SelectionArea(
                       contextMenuBuilder: (context, editableTextState) {
-                              return CustomDesktopSelectableRegionContextMenu(
-                                editableTextState: editableTextState,
-                              ).buildToolbar();
-                            },
+                        return CustomDesktopSelectableRegionContextMenu(
+                          editableTextState: editableTextState,
+                        ).buildToolbar();
+                      },
                       child: text,
                     )
                   : text,

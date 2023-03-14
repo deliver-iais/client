@@ -41,10 +41,7 @@ class ProfileIdSettingsTileState extends State<ProfileIdSettingsTile> {
                 leading: const Icon(Icons.alternate_email),
                 trailing: const Icon(Icons.copy),
                 subtitleTextStyle: TextStyle(color: widget.theme.primaryColor),
-                onPressed: (_) => saveToClipboard(
-                  "@${snapshot.data}",
-                  context: context,
-                ),
+                onPressed: (_) => saveToClipboard("@${snapshot.data}"),
               ),
             );
           } else {
@@ -66,10 +63,7 @@ class ProfileIdSettingsTileState extends State<ProfileIdSettingsTile> {
                 leading: const Icon(Icons.alternate_email),
                 trailing: const Icon(Icons.copy),
                 subtitleTextStyle: TextStyle(color: widget.theme.primaryColor),
-                onPressed: (_) => saveToClipboard(
-                  "@${snapshot.data}",
-                  context: context,
-                ),
+                onPressed: (_) => saveToClipboard("@${snapshot.data}"),
               ),
             );
           } else {

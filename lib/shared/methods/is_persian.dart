@@ -16,6 +16,7 @@ extension IsPersian on String {
           temp[i] == ')' ||
           temp[i] == '_' ||
           temp[i] == '=' ||
+          temp[i] == '\n' ||
           temp[i] == '[' ||
           temp[i] == ']' ||
           temp[i] == '\\' ||
@@ -33,6 +34,7 @@ extension IsPersian on String {
           temp[i] == '{' ||
           temp[i] == ' ' ||
           temp[i] == '}' ||
+          temp[i] == '`' ||
           temp[i] == '0' ||
           temp[i] == '1' ||
           temp[i] == '2' ||

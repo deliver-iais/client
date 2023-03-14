@@ -3,6 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
+      noFormattingRegionDetector(),
       inlineUrlDetector(),
       urlDetector(),
       idDetector(),
@@ -17,6 +18,7 @@ List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
     ];
 
 List<Detector> inputTextDetectors() => grayOutDetector([
+      noFormattingRegionDetector(),
       inlineUrlDetector(),
       urlDetector(),
       idDetector(),
@@ -31,6 +33,7 @@ List<Detector> inputTextDetectors() => grayOutDetector([
     ]);
 
 final List<Detector> detectors = [
+  noFormattingRegionDetector(),
   urlDetector(),
   inlineUrlDetector(),
   idDetector(),
@@ -113,6 +116,13 @@ List<Partition> _grayOutDetector(
 Detector urlDetector() => simpleRegexDetectorWithGenerator(
       UrlFeature.urlRegex,
       (match) => {UrlFeature(match)},
+      lockToMoreParsing: true,
+    );
+
+Detector noFormattingRegionDetector() => simpleRegexDetectorWithGenerator(
+      NoFormattingRegion.regex,
+      (match) => {NoFormattingRegion(match.substring(3, match.length - 3))},
+      replacer: (match) => match.substring(3, match.length - 3),
       lockToMoreParsing: true,
     );
 

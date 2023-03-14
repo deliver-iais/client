@@ -516,8 +516,11 @@ class LoginPageState extends State<LoginPage> {
       [Block(text: text, features: {})],
       detectorsWithSearchTermDetector(),
       inlineSpanTransformer(
-        defaultColor: theme.colorScheme.primary,
+        defaultColor: theme.colorScheme.error,
         linkColor: theme.colorScheme.primary,
+        codeBackgroundColor: theme.colorScheme.secondaryContainer,
+        codeForegroundColor: theme.colorScheme.onSecondaryContainer,
+        colorScheme: theme.colorScheme,
         onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),
     );

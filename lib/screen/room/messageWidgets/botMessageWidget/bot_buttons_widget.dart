@@ -143,7 +143,10 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
       inlineSpanTransformer(
         defaultColor: widget.colorScheme.onPrimaryContainer,
         linkColor: theme.colorScheme.primary,
+        codeBackgroundColor: theme.colorScheme.secondaryContainer,
+        codeForegroundColor: theme.colorScheme.onSecondaryContainer,
         onIdClick: widget.onUsernameClick,
+        colorScheme: theme.colorScheme,
         onBotCommandClick: widget.onBotCommandClick,
         onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
       ),

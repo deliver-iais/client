@@ -17,7 +17,7 @@ class Debug extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          saveToClipboard(text, context: context);
+          saveToClipboard(text);
         },
         child: Container(
           constraints: const BoxConstraints(maxWidth: 350),

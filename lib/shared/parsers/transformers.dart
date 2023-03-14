@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:deliver/fonts/emoji_font.dart';
+import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/loaders/spoiler_loader.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,17 @@ typedef OnUrlClick = void Function(String);
 Transformer<InlineSpan> inlineSpanTransformer({
   required Color defaultColor,
   required Color linkColor,
+  required Color codeBackgroundColor,
+  required Color codeForegroundColor,
+  required ColorScheme colorScheme,
   OnUsernameClick? onIdClick,
   OnBotCommandClick? onBotCommandClick,
   OnUrlClick? onUrlClick,
   bool justHighlightSpoilers = false,
 }) {
   return (b) {
+    final noFormattingRegion =
+        b.features.whereType<NoFormattingRegion>().firstOrNull;
     final url = b.features.whereType<UrlFeature>().firstOrNull;
     final id = b.features.whereType<IdFeature>().firstOrNull;
     final botCommand = b.features.whereType<BotCommandFeature>().firstOrNull;
@@ -33,7 +39,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final italic = b.features.whereType<ItalicFeature>().firstOrNull;
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
-    final specialChar = b.features.whereType<GrayOutFeature>().firstOrNull;
+    final grayOut = b.features.whereType<GrayOutFeature>().firstOrNull;
 
     final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
@@ -41,22 +47,32 @@ Transformer<InlineSpan> inlineSpanTransformer({
 
     GestureRecognizer? gestureRecognizer;
 
+    if (noFormattingRegion != null) {
+      textStyle = codeFont().copyWith(
+        color: colorScheme.onTertiaryContainer,
+        backgroundColor: colorScheme.tertiaryContainer.withOpacity(0.7),
+      );
+      if (onUrlClick != null) {
+        gestureRecognizer = TapGestureRecognizer()
+          ..onTap = () => saveToClipboard(noFormattingRegion.value);
+      }
+    }
+
     if (spoiler != null) {
       if (!justHighlightSpoilers) {
         return WidgetSpan(
           baseline: TextBaseline.ideographic,
           alignment: PlaceholderAlignment.middle,
-          child: SpoilerLoader(
-            b.text,
-            foreground: defaultColor,
-          ),
+          child: SpoilerLoader(b.text),
         );
       } else {
         textStyle = textStyle.copyWith(
-          backgroundColor: defaultColor.withOpacity(0.4),
+          backgroundColor: colorScheme.tertiaryContainer.withOpacity(0.5),
         );
       }
     }
+
+    final linkColor = colorScheme.primary;
 
     if (url != null) {
       textStyle = textStyle.copyWith(color: linkColor);
@@ -85,7 +101,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     if (searchTerm != null) {
       textStyle = textStyle.copyWith(backgroundColor: Colors.yellow.shade500);
     }
-    if (specialChar != null) {
+    if (grayOut != null) {
       textStyle = textStyle.copyWith(color: Colors.grey);
     }
 

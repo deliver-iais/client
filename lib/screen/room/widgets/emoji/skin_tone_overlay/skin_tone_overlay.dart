@@ -1,7 +1,7 @@
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/emoji_skin_tone.dart';
-import 'package:deliver/fonts/emoji_font.dart';
+import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/methods/platform.dart';

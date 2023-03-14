@@ -588,7 +588,7 @@ class UrlHandlerService {
                                     child: Icon(Icons.copy),
                                   ),
                                   onTap: () {
-                                    saveToClipboard(uri, context: c);
+                                    saveToClipboard(uri);
                                     Navigator.pop(c);
                                   },
                                 )

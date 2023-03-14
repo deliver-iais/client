@@ -75,7 +75,6 @@ class MucManagePageState extends State<MucManagePage>
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -351,10 +350,7 @@ class MucManagePageState extends State<MucManagePage>
                                     ),
                                   ),
                                   onPressed: () {
-                                    saveToClipboard(
-                                      changingInviteLink,
-                                      context: context,
-                                    );
+                                    saveToClipboard(changingInviteLink);
                                   },
                                   child: Text(
                                     _i18n.get("copy"),
