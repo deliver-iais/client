@@ -169,7 +169,7 @@ class _CountDownTimerState extends State<CountDownTimer>
         Column(
           children: [
             Text(
-              'ثانیه',
+              'روز',
               style: theme.textTheme.titleLarge!.copyWith(
                 color: Colors.white,
                 fontStyle: FontStyle.italic,
@@ -178,8 +178,8 @@ class _CountDownTimerState extends State<CountDownTimer>
             ),
             AnimatedSwitchWidget(
               child: Text(
-                seconds,
-                key: ValueKey(countTimer.seconds),
+                days,
+                key: ValueKey(countTimer.days),
                 style: theme.textTheme.titleLarge!.copyWith(
                   color: Colors.white,
                   fontStyle: FontStyle.italic,
@@ -198,47 +198,6 @@ class _CountDownTimerState extends State<CountDownTimer>
               ),
               Text(
                 "  :",
-                style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Column(
-          children: [
-            Text(
-              'دقیقه',
-              style: theme.textTheme.titleLarge!.copyWith(
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize,
-              ),
-            ),
-            AnimatedSwitchWidget(
-              child: Text(
-                minutes,
-                key: ValueKey(countTimer.minutes),
-                style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          width: 11,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 13,
-              ),
-              Text(
-                ":",
                 style: theme.textTheme.titleLarge!.copyWith(
                   color: Colors.white,
                   fontStyle: FontStyle.italic,
@@ -292,7 +251,7 @@ class _CountDownTimerState extends State<CountDownTimer>
         Column(
           children: [
             Text(
-              'روز',
+              'دقیقه',
               style: theme.textTheme.titleLarge!.copyWith(
                 color: Colors.white,
                 fontStyle: FontStyle.italic,
@@ -301,8 +260,49 @@ class _CountDownTimerState extends State<CountDownTimer>
             ),
             AnimatedSwitchWidget(
               child: Text(
-                days,
-                key: ValueKey(countTimer.days),
+                minutes,
+                key: ValueKey(countTimer.minutes),
+                style: theme.textTheme.titleLarge!.copyWith(
+                  color: Colors.white,
+                  fontStyle: FontStyle.italic,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          width: 11,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 13,
+              ),
+              Text(
+                ":",
+                style: theme.textTheme.titleLarge!.copyWith(
+                  color: Colors.white,
+                  fontStyle: FontStyle.italic,
+                  fontSize: fontSize,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Column(
+          children: [
+            Text(
+              'ثانیه',
+              style: theme.textTheme.titleLarge!.copyWith(
+                color: Colors.white,
+                fontStyle: FontStyle.italic,
+                fontSize: fontSize,
+              ),
+            ),
+            AnimatedSwitchWidget(
+              child: Text(
+                seconds,
+                key: ValueKey(countTimer.seconds),
                 style: theme.textTheme.titleLarge!.copyWith(
                   color: Colors.white,
                   fontStyle: FontStyle.italic,

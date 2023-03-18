@@ -63,6 +63,7 @@ class HasEventsRowState extends State<HasEventsRow> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: false,
       stream: timeStampFired.stream,
@@ -71,7 +72,7 @@ class HasEventsRowState extends State<HasEventsRow> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primaryContainer,
               borderRadius: smallBorder,
               boxShadow: [
                 BoxShadow(
@@ -107,7 +108,11 @@ class HasEventsRowState extends State<HasEventsRow> {
                                 ),
                               ),
                             ),
-                            Text(widget.textAfterTimeStamp),
+                            Text(
+                              widget.textAfterTimeStamp,
+                              style: theme.textTheme.titleSmall!
+                                  .copyWith(height: 1.5),
+                            ),
                             SizedBox(
                               height: 40,
                               width: 40,
@@ -148,10 +153,15 @@ class HasEventsRowState extends State<HasEventsRow> {
                                 width: 30,
                                 height: 30,
                               ),
-                              Text(widget.textBeforeTimeStamp),
+                              Text(
+                                widget.textBeforeTimeStamp,
+                                style: theme.textTheme.titleSmall!
+                                    .copyWith(height: 1.5),
+                              ),
                               CountDownTimer(
-                                  timeStamp: widget.timeStamp,
-                                  timeStampFired: timeStampFired,),
+                                timeStamp: widget.timeStamp,
+                                timeStampFired: timeStampFired,
+                              ),
                             ],
                           ),
                           StreamBuilder<CountTimer>(
