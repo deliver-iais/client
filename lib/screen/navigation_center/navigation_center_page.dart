@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:confetti/confetti.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -31,6 +32,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
+import 'events/has_event_row.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
@@ -68,12 +71,14 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   final TextEditingController _searchBoxController = TextEditingController();
   void Function()? _onNavigationCenterBackPressed;
   final ScrollController _scrollController = ScrollController();
   late AnimationController _searchBoxAnimationController;
   late final Animation<double> _searchBoxAnimation;
+  late final ConfettiController _controllerCenter;
   bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
 
   @override
@@ -123,6 +128,8 @@ class NavigationCenterState extends State<NavigationCenter>
       checkSearchBoxIsOpenOrNot,
     );
 
+    _controllerCenter =
+        ConfettiController(duration: const Duration(seconds: 5));
     super.initState();
   }
 
@@ -131,6 +138,7 @@ class NavigationCenterState extends State<NavigationCenter>
     _searchBoxController.dispose();
     _scrollController.dispose();
     _searchMode.close();
+    _controllerCenter.dispose();
     super.dispose();
   }
 
@@ -211,7 +219,43 @@ class NavigationCenterState extends State<NavigationCenter>
           body: RepaintBoundary(
             child: Column(
               children: <Widget>[
+                StreamBuilder<bool>(
+                  stream: _sharedDao.getBooleanStream(
+                    SHARED_DAO_SHOW_EVENTS_ENABLES,
+                    defaultValue: true,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!) {
+                      return HasEventsRow(
+                        timeStamp: DateTime(2023, 3, 21, 0, 54, 29)
+                            .millisecondsSinceEpoch, //(2023, 3, 21, 0, 54, 29)
+                        textBeforeTimeStamp: "تا تحویل سال نو",
+                        textAfterTimeStamp: 'سال نو مبارک',
+                        controllerCenter: _controllerCenter,
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
                 const HasCallRow(),
+                Align(
+                  child: ConfettiWidget(
+                    confettiController: _controllerCenter,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    // start again as soon as the animation is finished
+                    colors: const [
+                      Colors.greenAccent,
+                      Colors.lightBlue,
+                      Colors.pinkAccent,
+                      Colors.deepOrange,
+                      Colors.purple,
+                      Colors.white
+                    ],
+                    // manually specify the colors to be used
+                    createParticlePath: drawStar, // define a custom shape/path.
+                  ),
+                ),
                 RepaintBoundary(
                   child: AnimatedBuilder(
                     animation: _searchBoxAnimation,
@@ -364,8 +408,7 @@ class NavigationCenterState extends State<NavigationCenter>
                           Text(
                             "${_i18n.get(
                               "version",
-                            )} ${snapshot.data!.version} - Size ${snapshot.data!
-                                .size}",
+                            )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
                           ),
                           const SizedBox(
                             height: 10,
@@ -384,7 +427,7 @@ class NavigationCenterState extends State<NavigationCenter>
                             runSpacing: 4,
                             children: [
                               for (var downloadLink
-                              in snapshot.data!.downloadLinks)
+                                  in snapshot.data!.downloadLinks)
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -394,8 +437,8 @@ class NavigationCenterState extends State<NavigationCenter>
                                   ),
                                   onPressed: () =>
                                       _urlHandlerService.handleNormalLink(
-                                        downloadLink.url,
-                                      ),
+                                    downloadLink.url,
+                                  ),
                                   child: Text(
                                     downloadLink.label,
                                     style: const TextStyle(fontSize: 16),

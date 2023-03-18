@@ -245,6 +245,14 @@ class SettingsPageState extends State<SettingsPage> {
                       () => _uxService.toggleIsAllNotificationDisabled(),
                     ),
                   ),
+                  SettingsTile.switchTile(
+                    title: _i18n.get("events"),
+                    leading: const Icon(CupertinoIcons.calendar),
+                    switchValue: _uxService.isShowEventsEnabled,
+                    onToggle: (value) => setState(() {
+                      _uxService.toggleIsShowEventsEnabled();
+                    }),
+                  ),
                   if (isAndroidNative)
                     SettingsTile.switchTile(
                       title: _i18n.get("notification_advanced_mode"),

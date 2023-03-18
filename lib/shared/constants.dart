@@ -157,6 +157,7 @@ const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
 const SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED =
     "SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED";
+const SHARED_DAO_SHOW_EVENTS_ENABLES = "SHARED_DAO_SHOW_EVENTS_ENABLES";
 const SHARED_DAO_VERSION = "SHARED_DAO_VERSION";
 const SHARED_DAO_DB_VERSION = "SHARED_DAO_DB_VERSION";
 const SHARED_DAO_IS_SHOWCASE_ENABLE = "SHARED_DAO_IS_SHOWCASE_ENABLE";
@@ -326,6 +327,7 @@ const MAIN_BORDER_RADIUS_SIZE = 28.0;
 const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
+const smallBorder = BorderRadius.all(Radius.circular(3));
 const messageBorder = BorderRadius.all(Radius.circular(14));
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 
@@ -373,3 +375,34 @@ double maxWidthOfMessage(BuildContext context) => min(
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200 - SELECTED_MESSAGE_CHECKBOX_WIDTH);
+
+/// A custom Path to paint stars.
+Path drawStar(Size size) {
+  // Method to convert degree to radians
+  double degToRad(double deg) => deg * (pi / 180.0);
+
+  const numberOfPoints = 5;
+  final halfWidth = size.width / 2;
+  final externalRadius = halfWidth;
+  final internalRadius = halfWidth / 2.5;
+  final degreesPerStep = degToRad(360 / numberOfPoints);
+  final halfDegreesPerStep = degreesPerStep / 2;
+  final path = Path();
+  final fullAngle = degToRad(360);
+  path.moveTo(size.width, halfWidth);
+
+  // ignore: omit_local_variable_types
+  for (double step = 0; step < fullAngle; step += degreesPerStep) {
+    path
+      ..lineTo(
+        halfWidth + externalRadius * cos(step),
+        halfWidth + externalRadius * sin(step),
+      )
+      ..lineTo(
+        halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+        halfWidth + internalRadius * sin(step + halfDegreesPerStep),
+      );
+  }
+  path.close();
+  return path;
+}

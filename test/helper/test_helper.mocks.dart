@@ -7707,15 +7707,15 @@ class MockCallRepo extends _i1.Mock implements _i84.CallRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i4.BehaviorSubject<_i96.CallTimer> get callTimer => (super.noSuchMethod(
+  _i4.BehaviorSubject<_i96.CountTimer> get callTimer => (super.noSuchMethod(
         Invocation.getter(#callTimer),
-        returnValue: _FakeBehaviorSubject_2<_i96.CallTimer>(
+        returnValue: _FakeBehaviorSubject_2<_i96.CountTimer>(
           this,
           Invocation.getter(#callTimer),
         ),
-      ) as _i4.BehaviorSubject<_i96.CallTimer>);
+      ) as _i4.BehaviorSubject<_i96.CountTimer>);
   @override
-  set callTimer(_i4.BehaviorSubject<_i96.CallTimer>? _callTimer) =>
+  set callTimer(_i4.BehaviorSubject<_i96.CountTimer>? _callTimer) =>
       super.noSuchMethod(
         Invocation.setter(
           #callTimer,

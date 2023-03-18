@@ -3,17 +3,19 @@ import 'package:flutter/cupertino.dart';
 
 class AnimatedSwitchWidget extends StatelessWidget {
   final Widget child;
+  final Duration duration;
 
   // TODO(bitbeter): add duration settings for better api
   const AnimatedSwitchWidget({
     super.key,
     required this.child,
+    this.duration = VERY_SLOW_ANIMATION_DURATION,
   });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: VERY_SLOW_ANIMATION_DURATION,
+      duration: duration,
       switchInCurve: Curves.easeInOut,
       switchOutCurve: Curves.easeInOut,
       transitionBuilder: (child, animation) {

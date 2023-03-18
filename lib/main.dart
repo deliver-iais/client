@@ -85,6 +85,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
+import 'package:deliver/services/event_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/log.dart';
@@ -162,6 +163,7 @@ Future<void> setupDI() async {
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
+  registerSingleton<EventService>(EventService());
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
