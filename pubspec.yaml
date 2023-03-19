@@ -88,7 +88,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.1.0
-  flutter_svg: 2.0.4
   flutter_webrtc: 0.9.23
   fluttertoast: 8.2.1
   font_awesome_flutter: 10.4.0
@@ -230,7 +229,7 @@ flutter:
     - assets/images/experiment.webp
     - assets/images/language.webp
     - assets/images/connection.webp
-    - assets/images/norouz.svg
+    - assets/images/norouz.webp
     - lib/lang/en.json
     - lib/lang/fa.json
     - lib/lang/ar.json

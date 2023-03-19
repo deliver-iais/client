@@ -13,6 +13,7 @@ class BlurContainer extends StatelessWidget {
   final double skew;
   final bool blurIsEnabled;
   final Color? color;
+  final BorderRadius borderRadius;
 
   const BlurContainer({
     super.key,
@@ -25,6 +26,7 @@ class BlurContainer extends StatelessWidget {
     this.decoration,
     this.skew = 1.0,
     this.blurIsEnabled = true,
+    this.borderRadius = mainBorder,
   });
 
   @override
@@ -40,7 +42,7 @@ class BlurContainer extends StatelessWidget {
       );
     }
     return ClipRRect(
-      borderRadius: mainBorder,
+      borderRadius: borderRadius,
       clipBehavior: Clip.hardEdge,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),

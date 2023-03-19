@@ -327,7 +327,6 @@ const MAIN_BORDER_RADIUS_SIZE = 28.0;
 const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
-const smallBorder = BorderRadius.all(Radius.circular(3));
 const messageBorder = BorderRadius.all(Radius.circular(14));
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 

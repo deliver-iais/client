@@ -7,25 +7,13 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:rive/rive.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HasEventsRow extends StatefulWidget {
-  final int timeStamp;
-  final String textBeforeTimeStamp;
-  final String textAfterTimeStamp;
-  final ConfettiController? controllerCenter;
-
-  const HasEventsRow({
-    super.key,
-    required this.timeStamp,
-    required this.textBeforeTimeStamp,
-    required this.textAfterTimeStamp,
-    this.controllerCenter,
-  });
+  const HasEventsRow({super.key});
 
   @override
   HasEventsRowState createState() => HasEventsRowState();
@@ -38,21 +26,28 @@ class HasEventsRowState extends State<HasEventsRow> {
   late final ExpandableController _expandableController = ExpandableController(
     initialExpanded: _isOpened,
   );
+  late final ConfettiController _controllerCenter;
+  final _eventTime = DateTime(2023, 3, 19, 16, 23, 29).millisecondsSinceEpoch;
+  // final _eventTime = DateTime(2023, 3, 21, 0, 54, 29).millisecondsSinceEpoch;
+  final _finalDay = DateTime(2023, 4, 3, 0, 0, 0).millisecondsSinceEpoch;
 
   @override
   void initState() {
-    if (widget.timeStamp < clock.now().millisecondsSinceEpoch) {
+    _controllerCenter =
+        ConfettiController(duration: const Duration(seconds: 5));
+    if (_eventTime < clock.now().millisecondsSinceEpoch) {
       timeStampFired.add(true);
     }
     _expandableController.addListener(() {
       _isOpened = !_isOpened;
-      if (_isOpened) widget.controllerCenter?.play();
+      if (_isOpened) _controllerCenter.play();
     });
     super.initState();
   }
 
   @override
   void dispose() {
+    _controllerCenter.dispose();
     super.dispose();
   }
 
@@ -63,133 +58,155 @@ class HasEventsRowState extends State<HasEventsRow> {
 
   @override
   Widget build(BuildContext context) {
+    if (_finalDay < clock.now().millisecondsSinceEpoch) {
+      return const SizedBox();
+    }
+
     final theme = Theme.of(context);
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: timeStampFired.stream,
-      builder: (context, snapshot) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: smallBorder,
-              boxShadow: [
-                BoxShadow(
-                  offset: const Offset(0, 1),
-                  blurRadius: 5,
-                  color: Colors.black.withOpacity(0.3),
-                ),
-              ],
-            ),
-            child: ExpandableNotifier(
+    return Stack(
+      children: [
+        Align(
+          child: ConfettiWidget(
+            confettiController: _controllerCenter,
+            blastDirectionality: BlastDirectionality.explosive,
+            // start again as soon as the animation is finished
+            colors: const [
+              Colors.greenAccent,
+              Colors.lightBlue,
+              Colors.pinkAccent,
+              Colors.deepOrange,
+              Colors.purple,
+              Colors.white
+            ],
+            // manually specify the colors to be used
+            createParticlePath: drawStar, // define a custom shape/path.
+          ),
+        ),
+        StreamBuilder<bool>(
+          initialData: false,
+          stream: timeStampFired.stream,
+          builder: (context, snapshot) {
+            return ExpandableNotifier(
               controller: _expandableController,
               child: snapshot.data!
                   ? Expandable(
-                      collapsed: ExpandableButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/images/norouz.svg',
-                              semanticsLabel: "norouz",
-                              width: 40,
-                              height: 40,
-                            ),
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
+                      collapsed: Container(
+                        color: Theme.of(context).dividerColor.withOpacity(0.2),
+                        child: ExpandableButton(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Spacer(),
+                              Container(
+                                transform: Matrix4.translationValues(0, -5, 0),
+                                height: 40,
+                                width: 40,
                                 child: RiveAnimation.asset(
                                   'assets/animations/happy.riv',
+                                  fit: BoxFit.fitWidth,
                                   // Update the play state when the widget's initialized
                                   onInit: _onRiveInit,
                                 ),
                               ),
-                            ),
-                            Text(
-                              widget.textAfterTimeStamp,
-                              style: theme.textTheme.titleSmall!
-                                  .copyWith(height: 1.5),
-                            ),
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
+                              const Spacer(),
+                              Image.asset(
+                                'assets/images/norouz.webp',
+                                width: 60,
+                              ),
+                              Text(
+                                'سال نو مبارک',
+                                style: theme.textTheme.titleSmall!
+                                    .copyWith(height: 1.5),
+                              ),
+                              const Spacer(),
+                              Container(
+                                transform: Matrix4.translationValues(0, -5, 0),
+                                height: 40,
+                                width: 40,
                                 child: RiveAnimation.asset(
                                   'assets/animations/happy.riv',
+                                  fit: BoxFit.fitWidth,
                                   // Update the play state when the widget's initialized
                                   onInit: _onRiveInit,
                                 ),
                               ),
-                            ),
-                          ],
+                              const Spacer(),
+                            ],
+                          ),
                         ),
                       ),
                       expanded: ExpandableButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Ws.asset(
-                              'assets/animations/norouz.ws',
-                              width: 180,
-                              height: 150,
-                            ),
-                          ],
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceVariant
+                              .withOpacity(0.4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Ws.asset(
+                                'assets/animations/norouz.ws',
+                                width: 190,
+                                // height: 150,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
                   : Expandable(
-                      collapsed: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/images/norouz.svg',
-                                semanticsLabel: "norouz",
-                                width: 30,
-                                height: 30,
-                              ),
-                              Text(
-                                widget.textBeforeTimeStamp,
-                                style: theme.textTheme.titleSmall!
-                                    .copyWith(height: 1.5),
-                              ),
-                              CountDownTimer(
-                                timeStamp: widget.timeStamp,
-                                timeStampFired: timeStampFired,
-                              ),
-                            ],
-                          ),
-                          StreamBuilder<CountTimer>(
-                            stream: _eventService.getEventTimerStream(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.days > 0 ||
-                                  snapshot.data!.hours > 0) {
-                                return const SizedBox.shrink();
-                              }
-                              return LinearPercentIndicator(
-                                percent: ((60 - snapshot.data!.minutes) / 60),
-                                backgroundColor: Colors.grey,
-                                padding: const EdgeInsets.all(0),
-                                progressColor: detectBackGroundColorProgressBar(
-                                  snapshot.data!.minutes,
+                      collapsed: Container(
+                        color: Theme.of(context).dividerColor.withOpacity(0.2),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Image.asset(
+                                  'assets/images/norouz.webp',
+                                  width: 60,
                                 ),
-                              );
-                            },
-                          )
-                        ],
+                                Text(
+                                  "تا تحویل سال نو",
+                                  style: theme.textTheme.titleSmall!
+                                      .copyWith(height: 1.5),
+                                ),
+                                CountDownTimer(
+                                  timeStamp: _eventTime,
+                                  timeStampFired: timeStampFired,
+                                ),
+                              ],
+                            ),
+                            StreamBuilder<CountTimer>(
+                              stream: _eventService.getEventTimerStream(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData ||
+                                    snapshot.data!.days > 0 ||
+                                    snapshot.data!.hours > 0) {
+                                  return const SizedBox(height: 3);
+                                }
+                                return LinearPercentIndicator(
+                                  lineHeight: 3,
+                                  percent: ((60 - snapshot.data!.minutes) / 60),
+                                  backgroundColor: Colors.grey,
+                                  padding: const EdgeInsets.all(0),
+                                  progressColor:
+                                      detectBackGroundColorProgressBar(
+                                    snapshot.data!.minutes,
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        ),
                       ),
                       expanded: const SizedBox.shrink(),
                     ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ],
     );
   }
 

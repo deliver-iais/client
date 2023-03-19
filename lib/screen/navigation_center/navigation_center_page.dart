@@ -1,5 +1,4 @@
 import 'package:animations/animations.dart';
-import 'package:confetti/confetti.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -78,7 +77,6 @@ class NavigationCenterState extends State<NavigationCenter>
   final ScrollController _scrollController = ScrollController();
   late AnimationController _searchBoxAnimationController;
   late final Animation<double> _searchBoxAnimation;
-  late final ConfettiController _controllerCenter;
   bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
 
   @override
@@ -127,9 +125,6 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
-
-    _controllerCenter =
-        ConfettiController(duration: const Duration(seconds: 5));
     super.initState();
   }
 
@@ -138,7 +133,6 @@ class NavigationCenterState extends State<NavigationCenter>
     _searchBoxController.dispose();
     _scrollController.dispose();
     _searchMode.close();
-    _controllerCenter.dispose();
     super.dispose();
   }
 
@@ -226,36 +220,13 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!) {
-                      return HasEventsRow(
-                        timeStamp: DateTime(2023, 3, 21, 0, 54, 29)
-                            .millisecondsSinceEpoch, //(2023, 3, 21, 0, 54, 29)
-                        textBeforeTimeStamp: "تا تحویل سال نو",
-                        textAfterTimeStamp: 'سال نو مبارک',
-                        controllerCenter: _controllerCenter,
-                      );
+                      return const HasEventsRow();
                     } else {
                       return const SizedBox.shrink();
                     }
                   },
                 ),
                 const HasCallRow(),
-                Align(
-                  child: ConfettiWidget(
-                    confettiController: _controllerCenter,
-                    blastDirectionality: BlastDirectionality.explosive,
-                    // start again as soon as the animation is finished
-                    colors: const [
-                      Colors.greenAccent,
-                      Colors.lightBlue,
-                      Colors.pinkAccent,
-                      Colors.deepOrange,
-                      Colors.purple,
-                      Colors.white
-                    ],
-                    // manually specify the colors to be used
-                    createParticlePath: drawStar, // define a custom shape/path.
-                  ),
-                ),
                 RepaintBoundary(
                   child: AnimatedBuilder(
                     animation: _searchBoxAnimation,

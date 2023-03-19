@@ -116,23 +116,18 @@ class _CountDownTimerState extends State<CountDownTimer>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.only(top: 6.0),
       child: StreamBuilder<CountTimer>(
         initialData: CountTimer(0, 0, 0),
         stream: _eventService.getEventTimerStream(),
         builder: (context, snapshot) {
           return AnimatedContainer(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: detectBackGroundColor(snapshot.data!),
-            ),
-            clipBehavior: Clip.hardEdge,
             duration: SLOW_ANIMATION_DURATION,
             width: 130,
             height: 30,
-            child: !(snapshot.data!.days == 0 &&
-                    snapshot.data!.hours == 0 &&
-                    snapshot.data!.minutes == 0 &&
+            child: !(snapshot.data!.days <= 0 &&
+                    snapshot.data!.hours <= 0 &&
+                    snapshot.data!.minutes <= 0 &&
                     snapshot.data!.seconds < 10)
                 ? countTimerWidget(
                     theme,
@@ -171,7 +166,6 @@ class _CountDownTimerState extends State<CountDownTimer>
             Text(
               'روز',
               style: theme.textTheme.titleLarge!.copyWith(
-                color: Colors.white,
                 fontStyle: FontStyle.italic,
                 fontSize: fontSize,
               ),
@@ -181,7 +175,6 @@ class _CountDownTimerState extends State<CountDownTimer>
                 days,
                 key: ValueKey(countTimer.days),
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -199,7 +192,6 @@ class _CountDownTimerState extends State<CountDownTimer>
               Text(
                 "  :",
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -212,7 +204,6 @@ class _CountDownTimerState extends State<CountDownTimer>
             Text(
               'ساعت',
               style: theme.textTheme.titleLarge!.copyWith(
-                color: Colors.white,
                 fontStyle: FontStyle.italic,
                 fontSize: fontSize,
               ),
@@ -222,7 +213,6 @@ class _CountDownTimerState extends State<CountDownTimer>
                 hours,
                 key: ValueKey(countTimer.hours),
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -240,7 +230,6 @@ class _CountDownTimerState extends State<CountDownTimer>
               Text(
                 ":",
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -253,7 +242,6 @@ class _CountDownTimerState extends State<CountDownTimer>
             Text(
               'دقیقه',
               style: theme.textTheme.titleLarge!.copyWith(
-                color: Colors.white,
                 fontStyle: FontStyle.italic,
                 fontSize: fontSize,
               ),
@@ -263,7 +251,6 @@ class _CountDownTimerState extends State<CountDownTimer>
                 minutes,
                 key: ValueKey(countTimer.minutes),
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -281,7 +268,6 @@ class _CountDownTimerState extends State<CountDownTimer>
               Text(
                 ":",
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -294,7 +280,6 @@ class _CountDownTimerState extends State<CountDownTimer>
             Text(
               'ثانیه',
               style: theme.textTheme.titleLarge!.copyWith(
-                color: Colors.white,
                 fontStyle: FontStyle.italic,
                 fontSize: fontSize,
               ),
@@ -304,7 +289,6 @@ class _CountDownTimerState extends State<CountDownTimer>
                 seconds,
                 key: ValueKey(countTimer.seconds),
                 style: theme.textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontSize: fontSize,
                 ),
@@ -314,17 +298,5 @@ class _CountDownTimerState extends State<CountDownTimer>
         ),
       ],
     );
-  }
-
-  Color detectBackGroundColor(CountTimer callTimer) {
-    if (callTimer.days > 0) {
-      return backgroundColorCard;
-    } else if (callTimer.hours > 0) {
-      return Colors.blueAccent;
-    } else if (callTimer.minutes > 0) {
-      return Colors.orange;
-    } else {
-      return Colors.deepOrange;
-    }
   }
 }
