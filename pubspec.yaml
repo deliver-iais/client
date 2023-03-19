@@ -37,6 +37,7 @@ dependencies:
   circular_countdown_timer: 0.2.3
   clock: 1.1.1
   collection: 1.17.0
+  confetti: 0.7.0
   connectivity_plus: 3.0.3
   connectycube_flutter_call_kit:
     git:
@@ -134,9 +135,10 @@ dependencies:
   path_provider: 2.0.13
   path_provider_android: 2.0.23
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
-  percent_indicator: 4.2.2
+  percent_indicator: 4.2.3
   permission_handler: 10.2.0
   persian_datetime_picker: 2.5.0
+  persian_number_utility: 1.1.3
   phone_state: 1.0.2
   photo_manager: 2.5.2
   photo_view: 0.14.0
@@ -148,7 +150,7 @@ dependencies:
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
   record: 4.4.4
-  rive: 0.10.2
+  rive: 0.10.3
   rxdart: 0.27.7
   screenshot: 1.3.0
   scrollable_positioned_list:
@@ -227,6 +229,7 @@ flutter:
     - assets/images/experiment.webp
     - assets/images/language.webp
     - assets/images/connection.webp
+    - assets/images/norouz.webp
     - lib/lang/en.json
     - lib/lang/fa.json
     - lib/lang/ar.json

@@ -164,8 +164,8 @@ class CallRepo {
   Timer? timerDisconnected;
   Timer? timerEndCallDispose;
   Timer? videoMotivation;
-  BehaviorSubject<CallTimer> callTimer =
-      BehaviorSubject.seeded(CallTimer(0, 0, 0));
+  BehaviorSubject<CountTimer> callTimer =
+      BehaviorSubject.seeded(CountTimer(0, 0, 0));
   bool _isNotificationSelected = false;
   bool isAccepted = false;
   Timer? timer;
@@ -1852,7 +1852,7 @@ class CallRepo {
         _isConnected = false;
         _isVideo = false;
         _isCallInitiated = false;
-        callTimer.add(CallTimer(0, 0, 0));
+        callTimer.add(CountTimer(0, 0, 0));
         _audioService
           ..turnUpTheCallVolume()
           ..stopCallAudioPlayer();
@@ -1910,7 +1910,7 @@ class CallRepo {
         }
       }
       callTimer.add(
-        CallTimer(
+        CountTimer(
           callTimer.value.seconds,
           callTimer.value.minutes,
           callTimer.value.hours,

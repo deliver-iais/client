@@ -71,8 +71,8 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
           : (isMobileDevice ? 150 : 170),
       height: 30,
       child: (widget.callStatus == CallStatus.CONNECTED)
-          ? StreamBuilder<CallTimer>(
-              initialData: CallTimer(0, 0, 0),
+          ? StreamBuilder<CountTimer>(
+              initialData: CountTimer(0, 0, 0),
               stream: _callRepo.callTimer,
               builder: (context, snapshot) {
                 return StreamBuilder<bool>(
@@ -146,7 +146,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
 
   Row callTimerWidget(
     ThemeData theme,
-    CallTimer callTimer, {
+    CountTimer callTimer, {
     required bool isEnd,
   }) {
     var callHour = callTimer.hours.toString();

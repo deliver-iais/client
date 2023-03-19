@@ -32,6 +32,8 @@ import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
+import 'events/has_event_row.dart';
+
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
@@ -68,6 +70,7 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   final TextEditingController _searchBoxController = TextEditingController();
   void Function()? _onNavigationCenterBackPressed;
@@ -122,7 +125,6 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
-
     super.initState();
   }
 
@@ -211,6 +213,19 @@ class NavigationCenterState extends State<NavigationCenter>
           body: RepaintBoundary(
             child: Column(
               children: <Widget>[
+                StreamBuilder<bool>(
+                  stream: _sharedDao.getBooleanStream(
+                    SHARED_DAO_SHOW_EVENTS_ENABLES,
+                    defaultValue: true,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!) {
+                      return const HasEventsRow();
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
                 const HasCallRow(),
                 RepaintBoundary(
                   child: AnimatedBuilder(
@@ -364,8 +379,7 @@ class NavigationCenterState extends State<NavigationCenter>
                           Text(
                             "${_i18n.get(
                               "version",
-                            )} ${snapshot.data!.version} - Size ${snapshot.data!
-                                .size}",
+                            )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
                           ),
                           const SizedBox(
                             height: 10,
@@ -384,7 +398,7 @@ class NavigationCenterState extends State<NavigationCenter>
                             runSpacing: 4,
                             children: [
                               for (var downloadLink
-                              in snapshot.data!.downloadLinks)
+                                  in snapshot.data!.downloadLinks)
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -394,8 +408,8 @@ class NavigationCenterState extends State<NavigationCenter>
                                   ),
                                   onPressed: () =>
                                       _urlHandlerService.handleNormalLink(
-                                        downloadLink.url,
-                                      ),
+                                    downloadLink.url,
+                                  ),
                                   child: Text(
                                     downloadLink.label,
                                     style: const TextStyle(fontSize: 16),

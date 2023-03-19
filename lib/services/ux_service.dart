@@ -30,6 +30,7 @@ class UxService {
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isNotificationAdvanceModeDisabled = BehaviorSubject.seeded(true);
+  final _isShowEventsEnabled = BehaviorSubject.seeded(true);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktopDevice);
   final _keyBoardSizePortrait = BehaviorSubject<double?>.seeded(null);
@@ -163,6 +164,15 @@ class UxService {
         .listen((event) {
       _isNotificationAdvanceModeDisabled.add(event);
     });
+
+    _sharedDao
+        .getBooleanStream(
+      SHARED_DAO_SHOW_EVENTS_ENABLES,
+      defaultValue: true,
+    )
+        .listen((event) {
+      _isShowEventsEnabled.add(event);
+    });
   }
 
   void updateMainContext(BuildContext context) {
@@ -226,12 +236,14 @@ class UxService {
 
   double get textScaleValue => _textScale.value;
 
-   bool get sendByEnter => isDesktopDevice && _sendByEnter.value;
+  bool get sendByEnter => isDesktopDevice && _sendByEnter.value;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
   bool get isNotificationAdvanceModeDisabled =>
       _isNotificationAdvanceModeDisabled.value;
+
+  bool get isShowEventsEnabled => _isShowEventsEnabled.value;
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
@@ -365,6 +377,13 @@ class UxService {
     _sharedDao.putBoolean(
       SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
       !isAllNotificationDisabled,
+    );
+  }
+
+  void toggleIsShowEventsEnabled() {
+    _sharedDao.putBoolean(
+      SHARED_DAO_SHOW_EVENTS_ENABLES,
+      !isShowEventsEnabled,
     );
   }
 

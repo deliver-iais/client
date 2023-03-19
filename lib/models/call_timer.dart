@@ -1,9 +1,11 @@
-class CallTimer {
+class CountTimer {
   int seconds;
 
   int minutes;
 
   int hours;
 
-  CallTimer(this.seconds, this.minutes, this.hours);
+  int days;
+
+  CountTimer(this.seconds, this.minutes, this.hours, {this.days = 0});
 }

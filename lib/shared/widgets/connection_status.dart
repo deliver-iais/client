@@ -98,7 +98,11 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
       case TitleStatusConditions.Connected:
         if (widget.isShowCase) {
           return _i18n.get("showcase").capitalCase;
-        } else {
+        }
+        // else if (_uxService.isShowEventsEnabled) {
+        //   return _i18n.get("events").capitalCase;
+        // }
+        else {
           return _i18n.get("chats").capitalCase;
         }
       case TitleStatusConditions.Syncing:
