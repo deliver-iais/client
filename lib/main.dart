@@ -111,6 +111,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
@@ -320,6 +321,10 @@ void main() async {
   final logger = Logger();
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  if(isDesktopDevice) {
+    FlutterWindowClose.setWindowShouldCloseHandler(() async { return true; });
+  }
 
   logger.i("Application has been started.");
 

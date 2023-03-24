@@ -1002,12 +1002,12 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_webrtc
-      sha256: "558d90e093cd1a48b8ce6d859f1435630b624cd19c6fda39ac7956402f91818c"
+      sha256: "4eacac1b49c65fd225ea69f41b3c28fae55c1f2caba6d5f21a6de2bd43e6dc02"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.23"
+    version: "0.9.24"
   flutter_window_close:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_window_close
       sha256: "63f5846efbf0974ec233e6b5f468aa604a4857157f4c6c44fd482621804a0464"
@@ -1437,10 +1437,10 @@ packages:
     dependency: "direct main"
     description:
       name: livekit_client
-      sha256: "4be96f6ae6590490a3ca4eccf6ee5f9bf413ab98ce7ffaca9848de6cc09510eb"
+      sha256: "08120623da7c48d8288e2ecd4b45100037c4a82c878561833aa46e5ddb5aae06"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   logger:
     dependency: "direct main"
     description:
@@ -1621,10 +1621,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_foundation
-      sha256: "026b97a6c29da75181a37aae2eba9227f5fe13cb2838c6b975ce209328b8ab4e"
+      sha256: "12eee51abdf4d34c590f043f45073adbb45514a108bd9db4491547a2fd891059"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.3"
+    version: "2.2.0"
   path_provider_linux:
     dependency: transitive
     description:
