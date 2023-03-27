@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/payment.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
@@ -58,4 +59,6 @@ extension JsonMapper on String {
   Showcase toShowCase() {
     return Showcase.fromJson(this);
   }
+
+  Link toLink() => Link.fromJson(this);
 }

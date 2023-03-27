@@ -1,12 +1,12 @@
-import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_type.dart';
 
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -17,18 +17,18 @@ import 'music_play_progress.dart';
 
 class MusicAndAudioUi extends StatefulWidget {
   final Uid roomUid;
-  final int mediaCount;
-  final MediaType type;
-  final void Function(Media) addSelectedMedia;
-  final List<Media> selectedMedia;
+  final int audioCount;
+  final MetaType type;
+  final void Function(Meta) addSelectedMeta;
+  final List<Meta> selectedMeta;
 
   const MusicAndAudioUi({
     super.key,
     required this.roomUid,
     required this.type,
-    required this.mediaCount,
-    required this.addSelectedMedia,
-    required this.selectedMedia,
+    required this.audioCount,
+    required this.addSelectedMeta,
+    required this.selectedMeta,
   });
 
   @override
@@ -37,31 +37,39 @@ class MusicAndAudioUi extends StatefulWidget {
 
 class MusicAndAudioUiState extends State<MusicAndAudioUi> {
   static final _audioPlayerService = GetIt.I.get<AudioService>();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  final _metaRepo = GetIt.I.get<MetaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _mediaCache = <int, Media>{};
+  final _metaCache = <int, Meta>{};
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView.builder(
-      itemCount: widget.mediaCount,
+      itemCount: widget.audioCount,
       itemBuilder: (c, index) {
-        return FutureBuilder<Media?>(
-          future: _getMedia(index),
+        return FutureBuilder<Meta?>(
+          future: _metaRepo.getAndCacheMetaPage(
+            widget.audioCount - index,
+            widget.type,
+            widget.roomUid.asString(),
+            _metaCache,
+          ),
           builder: (c, snapShot) {
-            if (snapShot.hasData && snapShot.data != null) {
+            if (snapShot.hasData &&
+                snapShot.data != null ) {
+              if(snapShot.data!.isDeletedMeta()){
+                return const SizedBox.shrink();
+              }
               final filePb = snapShot.data!.json.toFile();
               final fileUuid = filePb.uuid;
               final fileName = filePb.name;
               final fileDuration = filePb.duration;
-              final audioWave = filePb.audioWaveform.data;
 
               return GestureDetector(
-                onLongPress: () => widget.addSelectedMedia(snapShot.data!),
-                onTap: () => widget.addSelectedMedia(snapShot.data!),
+                onLongPress: () => widget.addSelectedMeta(snapShot.data!),
+                onTap: () => widget.addSelectedMeta(snapShot.data!),
                 child: Container(
-                  color: widget.selectedMedia.contains(snapShot.data)
+                  color: widget.selectedMeta.contains(snapShot.data)
                       ? theme.hoverColor.withOpacity(0.4)
                       : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
@@ -110,7 +118,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           child: MusicPlayProgress(
                                             audioUuid: fileUuid,
                                             duration: fileDuration,
-                                            audioWaveData: audioWave,
+                                            file: filePb,
                                           ),
                                         ),
                                       ],
@@ -166,7 +174,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         MusicPlayProgress(
                                           audioUuid: fileUuid,
                                           duration: fileDuration,
-                                          audioWaveData: audioWave,
+                                          file: filePb,
                                         ),
                                       ],
                                     ),
@@ -185,32 +193,11 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                 ),
               );
             } else {
-              return const SizedBox.shrink();
+              return Container(height: 1000,);
             }
           },
         );
       },
     );
-  }
-
-  Future<Media?> _getMedia(int index) async {
-    if (_mediaCache.values.toList().isNotEmpty &&
-        _mediaCache.values.toList().length >= index) {
-      return _mediaCache.values.toList().elementAt(index);
-    } else {
-      final page = (index / MEDIA_PAGE_SIZE).floor();
-      final res = await _mediaQueryRepo.getMediaPage(
-        widget.roomUid.asString(),
-        widget.type,
-        page,
-        index,
-      );
-      if (res != null) {
-        for (final media in res) {
-          _mediaCache[media.messageId] = media;
-        }
-      }
-      return _mediaCache.values.toList()[index];
-    }
   }
 }

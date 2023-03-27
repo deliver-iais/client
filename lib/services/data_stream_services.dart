@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
-import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -18,6 +17,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
@@ -49,7 +49,6 @@ class DataStreamServices {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _sdr = GetIt.I.get<MucDao>();
 
@@ -62,6 +61,7 @@ class DataStreamServices {
   final _callService = GetIt.I.get<CallService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
+  final _metaRepo = GetIt.I.get<MetaRepo>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
   Future<message_model.Message?> handleIncomingMessage(
@@ -284,11 +284,10 @@ class DataStreamServices {
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
     if (savedMsg != null) {
-      final msg = savedMsg.copyDeleted();
-
-      if (msg.type == MessageType.FILE && msg.id != null) {
-        await _mediaDao.deleteMedia(roomUid.asString(), msg.id!);
+      if (savedMsg.type == MessageType.FILE && savedMsg.id != null) {
+        await _metaRepo.addDeletedMetaIndexFromMessage(savedMsg);
       }
+      final msg = savedMsg.copyDeleted();
 
       await _messageDao.saveMessage(msg);
 
@@ -343,7 +342,9 @@ class DataStreamServices {
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
     final msg = await saveMessageInMessagesDB(res.messages.first);
-
+    if (msg != null && msg.id != null && _metaRepo.isMessageContainMeta(msg) ) {
+      await _metaRepo.updateMeta(msg);
+    }
     if (isOnlineMessage) {
       final room = await _roomDao.getRoom(roomUid.asString());
       if (room != null && room.lastMessage?.id == id) {

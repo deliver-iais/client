@@ -1,5 +1,6 @@
-import 'package:deliver/box/media.dart';
+
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/meta.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:flutter/cupertino.dart';
@@ -11,14 +12,14 @@ class ForwardPreview extends StatelessWidget {
   final List<Message>? forwardedMessages;
   final Function() onClick;
   final proto.ShareUid? shareUid;
-  final List<Media>? forwardedMedia;
+  final List<Meta>? forwardedMeta;
 
   ForwardPreview({
     super.key,
     this.forwardedMessages,
     this.shareUid,
     required this.onClick,
-    this.forwardedMedia,
+    this.forwardedMeta,
   });
 
   @override
@@ -42,8 +43,8 @@ class ForwardPreview extends StatelessWidget {
             const SizedBox(width: 10),
             if (shareUid != null)
               Text(shareUid!.name)
-            else if (forwardedMedia != null && forwardedMedia!.isNotEmpty)
-              Text('${forwardedMedia!.length} ${_i18n.get("forwarded_medias")}')
+            else if (forwardedMeta != null && forwardedMeta!.isNotEmpty)
+              Text('${forwardedMeta!.length} ${_i18n.get("forwarded_medias")}')
             else
               Text(
                 '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}',

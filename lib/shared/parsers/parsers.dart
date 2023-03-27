@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:flutter/material.dart';
 
 abstract class Feature {}
@@ -258,6 +259,24 @@ List<T> onePathTransform<T>(
   Transformer<T> transformer,
 ) =>
     blocks.map(transformer).toList();
+
+bool isTextContainUrlFeature(String text) {
+  return getLinkBlocksFromText(text).isNotEmpty;
+}
+
+Iterable<Block> getLinkBlocksFromText(String text) {
+  final blocks = onePathDetection(
+    [
+      Block(text: text, features: {}),
+    ],
+    urlDetector(),
+  );
+  return blocks
+      .where(
+        (element) => element.features.whereType<UrlFeature>().isNotEmpty,
+      )
+      .toList();
+}
 
 List<T> onePath<T>(
   List<Block> initialBlocks,

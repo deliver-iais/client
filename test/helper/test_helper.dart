@@ -7,9 +7,9 @@ import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
-import 'package:deliver/box/dao/media_dao.dart';
-import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/meta_count_dao.dart';
+import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -17,12 +17,16 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
+import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as seen_box;
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -32,15 +36,18 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
@@ -54,6 +61,8 @@ import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart' as meta_pb;
+import 'package:deliver_public_protocol/pub/v1/models/meta.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
@@ -67,10 +76,11 @@ import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
-import '../helper/test_helper.mocks.dart';
 import 'mock_services_discovery_repo.dart';
+import 'test_helper.mocks.dart';
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -114,9 +124,9 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MucRepo>(),
     MockSpec<BotRepo>(),
     MockSpec<CustomNotificationDao>(),
-    MockSpec<MediaDao>(),
-    MockSpec<MediaRepo>(),
-    MockSpec<MediaMetaDataDao>(),
+    MockSpec<MetaDao>(),
+    MockSpec<MetaRepo>(),
+    MockSpec<MetaCountDao>(),
     MockSpec<CallService>(),
     MockSpec<NotificationServices>(),
     MockSpec<LastActivityDao>(),
@@ -125,7 +135,11 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<UrlHandlerService>(),
     MockSpec<RoutingService>(),
     MockSpec<CallRepo>(),
-    MockSpec<AppLifecycleService>()
+    MockSpec<AppLifecycleService>(),
+    MockSpec<AnalyticsService>(),
+    MockSpec<AudioService>(),
+    MockSpec<FileService>(),
+    MockSpec<SharedPreferences>()
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -146,6 +160,33 @@ MockRoutingService getAndRegisterRoutingServices() {
   final service = MockRoutingService();
   GetIt.I.registerSingleton<RoutingService>(service);
   return service;
+}
+
+MockAudioService getAndRegisterAudioServices() {
+  _removeRegistrationIfExists<AudioService>();
+  final service = MockAudioService();
+  GetIt.I.registerSingleton<AudioService>(service);
+  return service;
+}
+
+MockAnalyticsService getAndRegisterAnalyticsService() {
+  _removeRegistrationIfExists<AnalyticsService>();
+  final service = MockAnalyticsService();
+  GetIt.I.registerSingleton<AnalyticsService>(service);
+  return service;
+}
+
+MockFileService getAndRegisterFileService() {
+  _removeRegistrationIfExists<FileService>();
+  final service = MockFileService();
+  GetIt.I.registerSingleton<FileService>(service);
+  when(service.compressFile(any))
+      .thenAnswer((realInvocation) => Future.value(model.File("test", "test")));
+  return service;
+}
+
+void setInitializeValueForSharedPreferences() {
+  SharedPreferences.setMockInitialValues({}); //set values here
 }
 
 MockSettings getAndRegisterUxService({
@@ -179,17 +220,67 @@ MockAuthServiceClient getMockAuthServiceClient() {
   return service;
 }
 
-MockMediaRepo getAndRegisterMediaRepo() {
-  _removeRegistrationIfExists<MediaRepo>();
-  final service = MockMediaRepo();
-  GetIt.I.registerSingleton<MediaRepo>(service);
+MockMetaRepo getAndRegisterMetaRepo() {
+  _removeRegistrationIfExists<MetaRepo>();
+  final service = MockMetaRepo();
+  GetIt.I.registerSingleton<MetaRepo>(service);
+  when(service.isMessageContainMeta(any)).thenAnswer(
+    (realInvocation) => true,
+  );
   return service;
 }
 
-MockServicesDiscoveryRepo getAndRegisterServicesDiscoveryRepo() {
+MockServicesDiscoveryRepo getAndRegisterServicesDiscoveryRepo({
+  List<meta_pb.Meta>? metaList,
+  int? fetchMetaListTime,
+  GetMetaCountsRes? GetMetaCountsRe,
+  int? fetchMetaListLimit,
+  MetaGroup? fetchMetaListGroup,
+  QueryDirection? fetchingDirectionType,
+}) {
   _removeRegistrationIfExists<ServicesDiscoveryRepo>();
   final mockServicesDiscoveryRepo = MockServicesDiscoveryRepo();
   GetIt.I.registerSingleton<ServicesDiscoveryRepo>(mockServicesDiscoveryRepo);
+  when(
+    mockServicesDiscoveryRepo.queryServiceClient.getMetaCounts(
+      GetMetaCountsReq()..roomUid = testUid,
+    ),
+  ).thenAnswer(
+    (realInvocation) => MockResponseFuture<GetMetaCountsRes>(
+      GetMetaCountsRe ??
+          GetMetaCountsRes(
+            allMediaCount: Int64(1),
+          ),
+    ),
+  );
+  when(
+    mockServicesDiscoveryRepo.queryServiceClient.fetchMetaList(
+      any,
+    ),
+  ).thenAnswer(
+    (realInvocation) => MockResponseFuture<FetchMetaListRes>(
+      FetchMetaListRes(
+        metaList: [],
+      ),
+    ),
+  );
+  when(
+    mockServicesDiscoveryRepo.queryServiceClient.fetchMetaList(
+      FetchMetaListReq()
+        ..roomUid = testUid
+        ..pointer = Int64(fetchMetaListTime ?? testMessage.time)
+        ..group = fetchMetaListGroup ?? MetaGroup.MEDIA
+        ..limit = fetchMetaListLimit ?? 20
+        ..direction =
+            fetchingDirectionType ?? QueryDirection.BACKWARD_INCLUSIVE,
+    ),
+  ).thenAnswer(
+    (realInvocation) => MockResponseFuture<FetchMetaListRes>(
+      FetchMetaListRes(
+        metaList: metaList ?? [],
+      ),
+    ),
+  );
   return mockServicesDiscoveryRepo;
 }
 
@@ -341,6 +432,8 @@ MockCustomNotificationDao getAndRegisterCustomNotificationDao() {
       .thenAnswer((realInvocation) => Future.value(false));
   when(service.getCustomNotificationSound(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value("/test"));
+  when(service.watchCustomNotificationSound(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.fromFuture(Future.value("/test")));
   return service;
 }
 
@@ -370,7 +463,7 @@ MockMessageDao getAndRegisterMessageDao({
         ? Future.value([allPendingMessage])
         : Future.value([]),
   );
-  when(service.getPendingMessage("")).thenAnswer(
+  when(service.getPendingMessage(any)).thenAnswer(
     (realInvocation) =>
         pendingMessage != null ? Future.value(pendingMessage) : Future.value(),
   );
@@ -454,6 +547,10 @@ MockRoomRepo getAndRegisterRoomRepo({
     ),
   );
 
+  when(service.getRoomLastMessageId(any)).thenAnswer(
+    (realInvocation) => Future.value(0),
+  );
+
   return service;
 }
 
@@ -487,7 +584,7 @@ MockAuthRepo getAndRegisterAuthRepo({
       .thenAnswer((f) => Future.value(AccessTokenRes()));
   service.newVersionInformation =
       BehaviorSubject.seeded(NewerVersionInformation());
-  when(service.isLoggedIn()).thenReturn(true);
+  when(service.isLoggedIn()).thenReturn(isLoggedIn);
   return service;
 }
 
@@ -495,6 +592,14 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
   _removeRegistrationIfExists<FileRepo>();
   final service = MockFileRepo();
   GetIt.I.registerSingleton<FileRepo>(service);
+  when(
+    service.uploadClonedFile(
+      "946672200000-0-13418",
+      "test",
+      sendActivity: anyNamed("sendActivity"),
+      packetIds: ["946672200000-0-13418"],
+    ),
+  ).thenAnswer((realInvocation) => Future.value(fileInfo));
   when(
     service.uploadClonedFile(
       "94667220000013418",
@@ -508,7 +613,7 @@ MockFileRepo getAndRegisterFileRepo({file_pb.File? fileInfo}) {
       "94667220000013418",
       "test",
       sendActivity: anyNamed("sendActivity"),
-      packetIds: ["94667220000013418"],
+      packetIds: ["946672200000-0-13418"],
     ),
   ).thenAnswer((realInvocation) => Future.value(fileInfo));
   when(
@@ -534,21 +639,42 @@ MockLiveLocationRepo getAndRegisterLiveLocationRepo() {
   return service;
 }
 
-MockMediaDao getAndRegisterMediaDao() {
-  _removeRegistrationIfExists<MediaDao>();
-  final service = MockMediaDao();
-  GetIt.I.registerSingleton<MediaDao>(service);
-  when(service.clear(testUid.asString()))
+MockMetaDao getAndRegisterMetaDao({
+  int? IndexOfMedia = 0,
+  MetaType? getMediaType = MetaType.MEDIA,
+  List<Meta>? getMetaPage,
+}) {
+  _removeRegistrationIfExists<MetaDao>();
+  final service = MockMetaDao();
+  GetIt.I.registerSingleton<MetaDao>(service);
+  when(service.clearAllMetas(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value());
+  when(service.getIndexOfMetaFromMessageId(testUid.asString(), 0))
+      .thenAnswer((realInvocation) => Future.value(IndexOfMedia));
+  when(service.getMetaPage(testUid.asString(), getMediaType, 0)).thenAnswer(
+    (realInvocation) => Future.value(getMetaPage ?? []),
+  );
   return service;
 }
 
-MockMediaMetaDataDao getAndRegisterMediaMetaDataDao() {
-  _removeRegistrationIfExists<MediaMetaDataDao>();
-  final service = MockMediaMetaDataDao();
-  GetIt.I.registerSingleton<MediaMetaDataDao>(service);
+MockMetaCountDao getAndRegisterMetaCountDataDao({
+  MetaCount? metaCount,
+}) {
+  _removeRegistrationIfExists<MetaCountDao>();
+  final service = MockMetaCountDao();
+  GetIt.I.registerSingleton<MetaCountDao>(service);
   when(service.clear(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value());
+  when(
+    service.getAsFuture(testUid.asString()),
+  ).thenAnswer(
+    (realInvocation) => Future.value(metaCount),
+  );
+  when(
+    service.get(testUid.asString()),
+  ).thenAnswer(
+    (realInvocation) => Stream.value(metaCount),
+  );
   return service;
 }
 
@@ -624,6 +750,12 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
         hiddenMessageCount: 0,
       ),
     ),
+  );
+  when(service.getRoomSeen(testUid.asString())).thenAnswer(
+    (realInvocation) => Future.value(testRoom.uid),
+  );
+  when(service.getRoomSeen(testGroupUid.asString())).thenAnswer(
+    (realInvocation) => Future.value(testGroupUid.asString()),
   );
   when(service.watchMySeen(testUid.asString()))
       .thenAnswer((realInvocation) => Stream.value(testSeen));
@@ -732,11 +864,7 @@ MockQueryServiceClient getMockQueryServicesClient({
     ),
   );
   when(
-    queryServiceClient.countIsHiddenMessages(
-      CountIsHiddenMessagesReq()
-        ..roomUid = testUid
-        ..messageId = Int64(0 + 1),
-    ),
+    queryServiceClient.countIsHiddenMessages(any),
   ).thenAnswer(
     (realInvocation) => MockResponseFuture<CountIsHiddenMessagesRes>(
       CountIsHiddenMessagesRes(count: 0),
@@ -944,7 +1072,7 @@ MockUrlHandlerService getAndRegisterUrlHandlerService() {
 void registerServices() {
   getAndRegisterAnalyserRepo();
   getAndRegisterServicesDiscoveryRepo();
-  getAndRegisterMediaRepo();
+  getAndRegisterMetaRepo();
   getAndRegisterLogger();
   getAndRegisterDataStreamServices();
   getAndRegisterCoreServices();
@@ -952,6 +1080,10 @@ void registerServices() {
   getAndRegisterRoomDao();
   getAndRegisterRoomRepo();
   getAndRegisterRoutingServices();
+  getAndRegisterAudioServices();
+  getAndRegisterAnalyticsService();
+  getAndRegisterFileService();
+  setInitializeValueForSharedPreferences();
   getAndRegisterAuthRepo();
   getAndRegisterFileRepo();
   getAndRegisterLiveLocationRepo();
@@ -969,9 +1101,9 @@ void registerServices() {
   getAndRegisterAccountRepo();
   getAndRegisterMucRepo();
   getAndRegisterBotRepo();
-  getAndRegisterMediaDao();
+  getAndRegisterMetaDao();
   getAndRegisterCustomNotificationDao();
-  getAndRegisterMediaMetaDataDao();
+  getAndRegisterMetaCountDataDao();
   getAndRegisterCallService();
   getAndRegisterMessageExtractorServices();
   getAndRegisterNotificationServices();

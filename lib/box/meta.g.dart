@@ -1,35 +1,36 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'media.dart';
+part of 'meta.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MediaAdapter extends TypeAdapter<Media> {
+class MetaAdapter extends TypeAdapter<Meta> {
   @override
   final int typeId = 16;
 
   @override
-  Media read(BinaryReader reader) {
+  Meta read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Media(
+    return Meta(
       createdOn: fields[0] as int,
       json: fields[2] as String,
       roomId: fields[3] as String,
       messageId: fields[4] as int,
-      type: fields[5] as MediaType,
+      type: fields[5] as MetaType,
       createdBy: fields[1] as String,
+      index: fields[6] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Media obj) {
+  void write(BinaryWriter writer, Meta obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.createdOn)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class MediaAdapter extends TypeAdapter<Media> {
       ..writeByte(4)
       ..write(obj.messageId)
       ..writeByte(5)
-      ..write(obj.type);
+      ..write(obj.type)
+      ..writeByte(6)
+      ..write(obj.index);
   }
 
   @override
@@ -50,7 +53,7 @@ class MediaAdapter extends TypeAdapter<Media> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MediaAdapter &&
+      other is MetaAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

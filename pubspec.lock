@@ -510,11 +510,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.21"
-      resolved-ref: "7767316ba2126b95fe660c49ce7ccb48e4ee7bcc"
+      ref: "tags/v1.12.22"
+      resolved-ref: "353345cad9908fa8c3daeadec6d74378fe290ac3"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.21"
+    version: "1.12.22"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -988,6 +988,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.9"
+  flutter_staggered_grid_view:
+    dependency: "direct main"
+    description:
+      name: flutter_staggered_grid_view
+      sha256: "1312314293acceb65b92754298754801b0e1f26a1845833b740b30415bbbcf07"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.6.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter

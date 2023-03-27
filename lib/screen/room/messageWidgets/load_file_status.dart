@@ -19,6 +19,7 @@ class LoadFileStatus extends StatefulWidget {
   final void Function(String?)? onDownloadCompleted;
   final void Function()? onCanceled;
   final void Function()? onResendFile;
+  final void Function()? onFileStatusCompleted;
 
   final bool sendingFileFailed;
   final bool isPendingForwarded;
@@ -37,7 +38,7 @@ class LoadFileStatus extends StatefulWidget {
     this.sendingFileFailed = false,
     this.isPendingForwarded = false,
     this.showDetails = false,
-    this.widgetSize = 50.0,
+    this.widgetSize = 50.0, this.onFileStatusCompleted,
   });
 
   @override
@@ -173,8 +174,14 @@ class LoadFileStatusState extends State<LoadFileStatus>
           Widget child = const SizedBox();
           if (snapshot.hasData &&
               snapshot.data != null &&
-              snapshot.data![widget.file.uuid] == FileStatus.STARTED) {
-            child = buildFileStatus();
+              (snapshot.data![widget.file.uuid] == FileStatus.STARTED ||
+                  snapshot.data![widget.file.uuid] == FileStatus.COMPLETED)) {
+            if (snapshot.data![widget.file.uuid] == FileStatus.STARTED) {
+              child = buildFileStatus();
+            } else if (snapshot.data![widget.file.uuid] ==
+                FileStatus.COMPLETED) {
+              widget.onFileStatusCompleted?.call();
+            }
           } else {
             child = IconButton(
               padding: const EdgeInsets.all(0),

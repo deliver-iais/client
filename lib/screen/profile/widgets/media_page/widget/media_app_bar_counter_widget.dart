@@ -24,7 +24,7 @@ class MediaAppBarCounterWidget extends StatelessWidget {
                     position.data != null &&
                     position.data! != -1) {
                   return Text(
-                    "${snapshot.data! - position.data!} of ${snapshot.data}",
+                    "${position.data!} of ${snapshot.data}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,

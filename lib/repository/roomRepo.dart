@@ -6,8 +6,8 @@ import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
-import 'package:deliver/box/dao/media_dao.dart';
-import 'package:deliver/box/dao/media_meta_data_dao.dart';
+import 'package:deliver/box/dao/meta_count_dao.dart';
+import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -50,8 +50,8 @@ class RoomRepo {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
-  final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
+  final _metaDao = GetIt.I.get<MetaDao>();
+  final _metaCount = GetIt.I.get<MetaCountDao>();
 
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
@@ -62,6 +62,10 @@ class RoomRepo {
     } else {
       return getName(uid);
     }
+  }
+
+  void cleanCache(){
+    roomNameCache.clear();
   }
 
   bool fastForwardIsVerified(Uid uid) =>
@@ -190,8 +194,9 @@ class RoomRepo {
       await _sdr.queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
       final room = await _roomDao.getRoom(roomUid.asString());
-      await _mediaDao.clear(roomUid.asString());
-      await _mediaMetaDataDao.clear(roomUid.asString());
+      // TODO(any): handle this case for metas
+      await _metaDao.clearAllMetas(roomUid.asString());
+      await _metaCount.clear(roomUid.asString());
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         deleted: true,

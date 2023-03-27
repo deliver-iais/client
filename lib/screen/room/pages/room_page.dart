@@ -6,9 +6,9 @@ import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/scroll_position_dao.dart';
-import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -79,13 +79,13 @@ class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message>? forwardedMessages;
   final proto.ShareUid? shareUid;
-  final List<Media>? forwardedMedia;
+  final List<Meta>? forwardedMeta;
 
   const RoomPage({
     super.key,
     required this.roomId,
     this.forwardedMessages,
-    this.forwardedMedia,
+    this.forwardedMeta,
     this.shareUid,
   });
 
@@ -270,7 +270,7 @@ class RoomPageState extends State<RoomPage> {
                   return ForwardPreview(
                     forwardedMessages: widget.forwardedMessages,
                     shareUid: widget.shareUid,
-                    forwardedMedia: widget.forwardedMedia,
+                    forwardedMeta: widget.forwardedMeta,
                     onClick: () {
                       _waitingForForwardedMessage.add(false);
                     },
@@ -478,7 +478,7 @@ class RoomPageState extends State<RoomPage> {
       (widget.forwardedMessages != null &&
               widget.forwardedMessages!.isNotEmpty) ||
           widget.shareUid != null ||
-          (widget.forwardedMedia != null && widget.forwardedMedia!.isNotEmpty),
+          (widget.forwardedMeta != null && widget.forwardedMeta!.isNotEmpty),
     );
     subscribeOnPositionToSendSeen();
 
@@ -855,11 +855,11 @@ class RoomPageState extends State<RoomPage> {
         widget.roomId.asUid(),
         widget.forwardedMessages!,
       );
-    } else if (widget.forwardedMedia != null &&
-        widget.forwardedMedia!.isNotEmpty) {
-      _messageRepo.sendForwardedMediaMessage(
+    } else if (widget.forwardedMeta != null &&
+        widget.forwardedMeta!.isNotEmpty) {
+      _messageRepo.sendForwardedMetaMessage(
         widget.roomId.asUid(),
-        widget.forwardedMedia!,
+        widget.forwardedMeta!,
       );
     }
 

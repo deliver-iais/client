@@ -1,21 +1,21 @@
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
-import 'package:deliver/box/media_meta_data.dart';
+import 'package:deliver/box/meta_count.dart';
 import 'package:hive/hive.dart';
 
-abstract class MediaMetaDataDao {
-  Future save(MediaMetaData mediaMetaData);
+abstract class MetaCountDao {
+  Future<void> save(MetaCount metaCount);
 
-  Stream<MediaMetaData?> get(String roomUid);
+  Stream<MetaCount?> get(String roomUid);
 
-  Future<MediaMetaData?> getAsFuture(String roomUid);
+  Future<MetaCount?> getAsFuture(String roomUid);
 
   Future clear(String roomUid);
 }
 
-class MediaMetaDataDaoImpl extends MediaMetaDataDao {
+class MetaCountDaoImpl extends MetaCountDao {
   @override
-  Stream<MediaMetaData?> get(String roomUid) async* {
+  Stream<MetaCount?> get(String roomUid) async* {
     final box = await _open();
 
     final res = box.values.where((element) => element.roomId.contains(roomUid));
@@ -30,13 +30,13 @@ class MediaMetaDataDaoImpl extends MediaMetaDataDao {
   }
 
   @override
-  Future<void> save(MediaMetaData mediaMetaData) async {
+  Future<void> save(MetaCount metaCount) async {
     final box = await _open();
-    return box.put(mediaMetaData.roomId, mediaMetaData);
+    return box.put(metaCount.roomId, metaCount);
   }
 
   @override
-  Future<MediaMetaData?> getAsFuture(String roomUid) async {
+  Future<MetaCount?> getAsFuture(String roomUid) async {
     final box = await _open();
     try {
       return box.values.firstWhere((element) => element.roomId == roomUid);
@@ -51,10 +51,10 @@ class MediaMetaDataDaoImpl extends MediaMetaDataDao {
     await box.delete(roomUid);
   }
 
-  static String _key() => "media_meta_data";
+  static String _key() => "meta_count";
 
-  Future<BoxPlus<MediaMetaData>> _open() {
-    DBManager.open(_key(), TableInfo.MEDIA_META_DATA_TABLE_NAME);
-    return gen(Hive.openBox<MediaMetaData>(_key()));
+  Future<BoxPlus<MetaCount>> _open() {
+    DBManager.open(_key(), TableInfo.META_COUNT_TABLE_NAME);
+    return gen(Hive.openBox<MetaCount>(_key()));
   }
 }

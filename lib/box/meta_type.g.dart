@@ -1,65 +1,60 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'media_type.dart';
+part of 'meta_type.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MediaTypeAdapter extends TypeAdapter<MediaType> {
+class MetaTypeAdapter extends TypeAdapter<MetaType> {
   @override
   final int typeId = 18;
 
   @override
-  MediaType read(BinaryReader reader) {
+  MetaType read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return MediaType.IMAGE;
+        return MetaType.MEDIA;
       case 1:
-        return MediaType.VIDEO;
+        return MetaType.FILE;
       case 2:
-        return MediaType.FILE;
+        return MetaType.AUDIO;
       case 3:
-        return MediaType.AUDIO;
+        return MetaType.MUSIC;
       case 4:
-        return MediaType.MUSIC;
+        return MetaType.CALL;
       case 5:
-        return MediaType.DOCUMENT;
+        return MetaType.LINK;
       case 6:
-        return MediaType.LINK;
-      case 7:
-        return MediaType.NOT_SET;
+        return MetaType.NOT_SET;
       default:
-        return MediaType.IMAGE;
+        return MetaType.MEDIA;
     }
   }
 
   @override
-  void write(BinaryWriter writer, MediaType obj) {
+  void write(BinaryWriter writer, MetaType obj) {
     switch (obj) {
-      case MediaType.IMAGE:
+      case MetaType.MEDIA:
         writer.writeByte(0);
         break;
-      case MediaType.VIDEO:
+      case MetaType.FILE:
         writer.writeByte(1);
         break;
-      case MediaType.FILE:
+      case MetaType.AUDIO:
         writer.writeByte(2);
         break;
-      case MediaType.AUDIO:
+      case MetaType.MUSIC:
         writer.writeByte(3);
         break;
-      case MediaType.MUSIC:
+      case MetaType.CALL:
         writer.writeByte(4);
         break;
-      case MediaType.DOCUMENT:
+      case MetaType.LINK:
         writer.writeByte(5);
         break;
-      case MediaType.LINK:
+      case MetaType.NOT_SET:
         writer.writeByte(6);
-        break;
-      case MediaType.NOT_SET:
-        writer.writeByte(7);
         break;
     }
   }
@@ -70,7 +65,7 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MediaTypeAdapter &&
+      other is MetaTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

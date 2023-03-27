@@ -1,5 +1,6 @@
-import 'package:deliver/box/media.dart';
+
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/meta.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_appbar.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
@@ -12,13 +13,13 @@ import 'package:get_it/get_it.dart';
 
 class SelectionToForwardPage extends StatefulWidget {
   final List<Message>? forwardedMessages;
-  final List<Media>? medias;
+  final List<Meta>? metas;
   final proto.ShareUid? shareUid;
 
   const SelectionToForwardPage({
     super.key,
     this.forwardedMessages,
-    this.medias,
+    this.metas,
     this.shareUid,
   });
 
@@ -54,7 +55,7 @@ class SelectionToForwardPageState extends State<SelectionToForwardPage> {
       uid.asString(),
       forwardedMessages: widget.forwardedMessages ?? [],
       popAllBeforePush: true,
-      forwardedMedia: widget.medias ?? [],
+      forwardedMeta: widget.metas ?? [],
       shareUid: widget.shareUid,
     );
   }

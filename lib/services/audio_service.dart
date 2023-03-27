@@ -5,11 +5,8 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
-import 'package:deliver/box/media.dart';
-import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/services/audio_auto_play_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
@@ -58,8 +55,6 @@ class AudioTrack {
         name = "",
         path = "",
         duration = Duration.zero;
-
-  bool isVoice() => isVoiceFilePath(path);
 }
 
 enum AudioPlayerState {
@@ -152,16 +147,11 @@ IntermediatePlayerModule getIntermediatePlayerModule() {
 }
 
 class AudioService {
-  List<Media> autoPlayMediaList = [];
-
-  //index of next media
-  int autoPlayMediaIndex = 0;
   final _mainPlayer = getAudioPlayerModule();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _intermediatePlayer = getIntermediatePlayerModule();
   final _temporaryPlayer = TemporaryAudioPlayer();
   final _recorder = RecorderModule();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _audioAutoPlayService = GetIt.I.get<AudioAutoPlayService>();
 
   final _trackStream = BehaviorSubject<AudioTrack?>();
 
@@ -172,53 +162,27 @@ class AudioService {
       _mainPlayer.completedStream.listen((_) async {
         // TODO(any): check to see if message has been edited or deleted
         stopAudio();
-        if (autoPlayMediaList.isNotEmpty &&
-            autoPlayMediaIndex != autoPlayMediaList.length) {
-          final file = autoPlayMediaList[autoPlayMediaIndex].json.toFile();
-          final fileUuid = file.uuid;
-          final fileName = file.name;
-          final fileDuration = file.duration;
-          final filePath = await _getFilePathFromMedia();
-          if (filePath != null) {
-            playAudioMessage(filePath, fileUuid, fileName, fileDuration);
-            autoPlayMediaIndex++;
-
-            //looking for new media
-            // ignore: invariant_booleans
-            if (autoPlayMediaList.length == autoPlayMediaIndex) {
-              final list =
-                  await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
-                messageId: autoPlayMediaList.last.messageId,
-                roomUid: autoPlayMediaList.last.roomId,
-                messageTime: autoPlayMediaList.last.createdOn,
-              );
-
-              if (list != null && list.isNotEmpty) {
-                autoPlayMediaList = list;
-                autoPlayMediaIndex = 0;
-              }
-            }
-
-            //download next file
-            if (autoPlayMediaIndex != autoPlayMediaList.length) {
-              await _getFilePathFromMedia();
-            }
-          }
-        }
+        await _playAndSetAudioAutoPLayList();
       });
     } catch (e) {
       GetIt.I.get<Logger>().e(e);
     }
   }
 
-  Future<String?> _getFilePathFromMedia() {
-    final file = autoPlayMediaList[autoPlayMediaIndex].json.toFile();
-    final fileUuid = file.uuid;
-    final fileName = file.name;
-    return _fileRepo.getFile(
-      fileUuid,
-      fileName,
-    );
+  Future<void> _playAndSetAudioAutoPLayList() async {
+    if (_audioAutoPlayService.HasAudioAutoList()) {
+      final nextAudioMeta = _audioAutoPlayService.getNextAudioInAutoPlayList();
+      final file = nextAudioMeta.json.toFile();
+      final filePath = await _audioAutoPlayService
+          .getAudioAutoPlayFilePathFromMetaAudio(nextAudioMeta);
+      if (filePath != null) {
+        playAudioMessage(filePath, file.uuid, file.name, file.duration);
+      }
+      _audioAutoPlayService.switchToNextAudioInAutoPlayList();
+      //looking for new meta if needed
+      await _audioAutoPlayService
+          .fetchAndSaveNextAudioAutoPlayListPageIfNeeded();
+    }
   }
 
   ValueStream<AudioPlayerState> get playerState => _mainPlayer.stateStream;

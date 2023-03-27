@@ -3,24 +3,22 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'media_type.g.dart';
+part 'meta_type.g.dart';
 
-@HiveType(typeId: MEDIA_TYPE_TRACK_ID)
-enum MediaType {
+@HiveType(typeId: META_TYPE_TRACK_ID)
+enum MetaType {
   @HiveField(0)
-  IMAGE,
+  MEDIA,
   @HiveField(1)
-  VIDEO,
-  @HiveField(2)
   FILE,
-  @HiveField(3)
+  @HiveField(2)
   AUDIO,
-  @HiveField(4)
+  @HiveField(3)
   MUSIC,
+  @HiveField(4)
+  CALL,
   @HiveField(5)
-  DOCUMENT,
-  @HiveField(6)
   LINK,
-  @HiveField(7)
+  @HiveField(6)
   NOT_SET
 }

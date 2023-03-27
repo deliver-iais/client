@@ -3,7 +3,7 @@ import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/widgets/select_muc_type.dart';
@@ -38,7 +38,7 @@ class MucManagePage extends StatefulWidget {
 class MucManagePageState extends State<MucManagePage>
     with TickerProviderStateMixin, CustomPopupMenu {
   final _logger = GetIt.I.get<Logger>();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  final _metaRepo = GetIt.I.get<MetaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -779,7 +779,9 @@ class MucManagePageState extends State<MucManagePage>
       }
     }
     try {
-      await _mediaQueryRepo.fetchMediaMetaData(widget.roomUid);
+      await _metaRepo.fetchMetaCountFromServer(
+        widget.roomUid,
+      );
     } catch (e) {
       _logger.e(e);
     }

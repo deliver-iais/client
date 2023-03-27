@@ -33,15 +33,19 @@ import '../constants/constants.dart';
 import '../helper/test_helper.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('MessageRepoTest -', () {
     setUp(() => registerServices());
     tearDown(() => unregisterServices());
+
     group('MessageRepo -', () {
       test(
           'if login then update rooms before listen on  coreService Connection Status',
           () async {
         final logger = getAndRegisterLogger();
         MessageRepo();
+        await Future.delayed(const Duration(seconds: 1), () {});
         verify(logger.i('updating -----------------'));
       });
 
@@ -69,8 +73,8 @@ void main() {
         );
         getAndRegisterAuthRepo(isLoggedIn: false);
         final messageRepo = getAndRegisterMessageRepo();
-
         await messageRepo.createConnectionStatusHandler();
+        await Future.delayed(const Duration(seconds: 1), () {});
         expect(
           messageRepo.updateState,
           true,
@@ -98,7 +102,7 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = getAndRegisterMessageRepo();
-        await messageRepo.createConnectionStatusHandler();
+        await Future.delayed(const Duration(seconds: 1), () {});
         verify(messageRepo.updatingRooms());
       });
 
@@ -110,8 +114,8 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = getAndRegisterMessageRepo();
+        await Future.delayed(const Duration(seconds: 1), () {});
         await messageRepo.updatingRooms();
-
         expect(
           messageRepo.updatingStatus.value,
           TitleStatusConditions.Syncing,
@@ -136,7 +140,7 @@ void main() {
           () async {
         getAndRegisterAuthRepo(isLoggedIn: false);
         final messageRepo = getAndRegisterMessageRepo();
-        await messageRepo.createConnectionStatusHandler();
+        await Future.delayed(const Duration(seconds: 1), () {});
         expect(
           messageRepo.updatingStatus.value,
           TitleStatusConditions.Disconnected,
@@ -167,6 +171,7 @@ void main() {
           ),
         );
       });
+
       test(
           'When called should get All UserRoomMeta and if finished be true should put on sharedDao',
           () async {
@@ -181,6 +186,7 @@ void main() {
         expect(getAllUserRoomMetaRes.finished, true);
         assert(settings.allRoomFetched.value);
       });
+
       test(
           'When called should get All UserRoomMeta and if finished be false should never put on sharedDao',
           () async {
@@ -260,6 +266,7 @@ void main() {
         await messageRepo.updatingRooms();
         verify(messageRepo.processSeen(roomMetadata));
       });
+
       test(
           'when get room meta data and seenId >0 should update seen dao and not  call  fetahSeen server',
           () async {
@@ -547,7 +554,6 @@ void main() {
     //     );
     //   });
     // });
-
     group('sendTextMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -566,11 +572,13 @@ void main() {
               final messageDao = getAndRegisterMessageDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
               await MessageRepo().sendTextMessage(testUid, "test");
+              await Future.delayed(const Duration(milliseconds: 300), () {});
               verify(messageDao.savePendingMessage(pm));
             });
           },
         );
       });
+
       test('When called should updateRoom', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -579,6 +587,7 @@ void main() {
               final roomDao = getAndRegisterRoomDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
               await MessageRepo().sendTextMessage(testUid, "test");
+              await Future.delayed(const Duration(milliseconds: 100), () {});
               verify(
                 roomDao.updateRoom(
                   uid: pm.roomUid,
@@ -591,6 +600,7 @@ void main() {
           },
         );
       });
+
       test('When called should sendMessageToServer', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -604,12 +614,14 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..text = message_pb.Text.fromJson(pm.msg.json);
+              await Future.delayed(const Duration(milliseconds: 100), () {});
               verify(coreServices.sendMessage(byClient));
             });
           },
         );
       });
     });
+
     group('sendLocationMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -629,11 +641,13 @@ void main() {
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
+              await Future.delayed(const Duration(milliseconds: 300), () {});
               verify(messageDao.savePendingMessage(pm));
             });
           },
         );
       });
+
       test('When called should updateRoomLastMessage', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -645,6 +659,7 @@ void main() {
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
+              await Future.delayed(const Duration(milliseconds: 300), () {});
               verify(
                 roomDao.updateRoom(
                   uid: pm.roomUid,
@@ -657,6 +672,7 @@ void main() {
           },
         );
       });
+
       test('When called should send LocationMessage to server', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -673,12 +689,14 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..location = location_pb.Location.fromJson(pm.msg.json);
+              await Future.delayed(const Duration(milliseconds: 300), () {});
               verify(coreServices.sendMessage(byClient));
             });
           },
         );
       });
     });
+
     group('sendMultipleFilesMessages -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
@@ -700,30 +718,32 @@ void main() {
               );
               verify(
                 fileRepo.uploadClonedFile(
-                  "94667220000013418",
+                  "946672200000-0-13418",
                   "test",
                   sendActivity: anyNamed("sendActivity"),
-                  packetIds: ["94667220000013418"],
+                  packetIds: ["946672200000-0-13418"],
                 ),
               );
             });
           },
         );
       });
+
       test('When called should savePending Multiple Message', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
             withRandomVM(RandomVM.fixed(13418), () async {
               final sendingFakeFile = file_pb.File()
-                ..uuid = "94667220000013418"
+                ..uuid = "946672200000-0-13418"
                 ..caption = "test"
                 ..width = 0
                 ..height = 0
                 ..type = DEFAULT_FILE_TYPE
                 ..size = Int64(File("test").statSync().size)
                 ..name = "test"
-                ..duration = 0;
+                ..duration = 0
+                ..audioWaveform = file_pb.AudioWaveform.getDefault();
               final messageDao = getAndRegisterMessageDao();
               await MessageRepo().sendMultipleFilesMessages(
                 testUid,
@@ -733,10 +753,10 @@ void main() {
               verify(
                 messageDao.savePendingMessage(
                   pm.copyWith(
-                    packetId: "94667220000013418",
-                    status: SendingStatus.UPLOAD_FILE_FAIL,
+                    packetId: "946672200000-0-13418",
+                    status: SendingStatus.UPLOAD_FILE_IN_PROGRESS,
                     msg: testPendingMessage.msg.copyWith(
-                      packetId: "94667220000013418",
+                      packetId: "946672200000-0-13418",
                       type: MessageType.FILE,
                       json: sendingFakeFile.writeToJson(),
                     ),
@@ -747,6 +767,7 @@ void main() {
           },
         );
       });
+
       test(
           'When called if sendFileToServerOfPendingMessage did not return null should sendMessageToServer',
           () async {
@@ -771,7 +792,7 @@ void main() {
                 caption: "test",
               );
               final byClient = message_pb.MessageByClient()
-                ..packetId = "94667220000013418"
+                ..packetId = "946672200000-0-13418"
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..file = file_pb.File(
@@ -781,12 +802,14 @@ void main() {
                   sign: "test",
                   hash: "test",
                 );
+              await Future.delayed(const Duration(milliseconds: 100), () {});
               verify(coreServices.sendMessage(byClient));
             });
           },
         );
       });
     });
+
     group('sendPendingMessages -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -802,7 +825,7 @@ void main() {
         verify(messageDao.getAllPendingMessages());
       });
       test(
-          'When called should getAllPendingMessages and if there is pending message and SendingStatus is SENDING_FILE should uploadClonedFile',
+          'When called should getAllPendingMessages and if there is pending message and SendingStatus is UPLOAD_FILE_FAIL should uploadClonedFile',
           () async {
         final fileRepo = getAndRegisterFileRepo();
         getAndRegisterMessageDao(allPendingMessage: pm);
@@ -1008,7 +1031,7 @@ void main() {
           ..file = file_pb.File(
             name: "test",
             caption: "test",
-            uuid: pm.msg.packetId,
+            uuid: "94667220000013418",
             size: Int64(4096),
             type: DEFAULT_FILE_TYPE,
             width: 0,
@@ -1018,6 +1041,7 @@ void main() {
         verify(coreServices.sendMessage(byClient));
       });
     });
+
     group('sendSeen -', () {
       test('When called should getMySeen', () async {
         final seenDo = getAndRegisterSeenDao();
@@ -1053,6 +1077,7 @@ void main() {
         );
       });
     });
+
     group('sendForwardedMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg
@@ -1065,10 +1090,12 @@ void main() {
           withRandomVM(RandomVM.fixed(13418), () async {
             final messageDao = getAndRegisterMessageDao();
             MessageRepo().sendForwardedMessage(testUid, [testMessage]);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(messageDao.savePendingMessage(pm));
           });
         });
       });
+
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1082,6 +1109,7 @@ void main() {
                 json: Text(text: "test").writeToJson(),
               )
             ]);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1097,6 +1125,7 @@ void main() {
           });
         });
       });
+
       test('When called should sendMessageToServer', () async {
         withClock(
           Clock.fixed(DateTime(2000)),
@@ -1109,12 +1138,14 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..forwardFrom = testUid;
+              await Future.delayed(const Duration(milliseconds: 100), () {});
               verify(coreServices.sendMessage(byClient));
             });
           },
         );
       });
     });
+
     group('getPage -', () {
       test('When called if element!.id == containsId should return message',
           () async {
@@ -1290,6 +1321,7 @@ void main() {
     //     );
     //   });
     // });
+
     group('sendActivity -', () {
       test('When called if category is group or user should sendActivity',
           () async {
@@ -1308,6 +1340,7 @@ void main() {
             });
       });
     });
+
     group('sendFormResultMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -1315,6 +1348,7 @@ void main() {
           json: "{\"2\":[{\"1\":\"test\",\"2\":\"test\"}]}",
         ),
       );
+
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1323,10 +1357,12 @@ void main() {
             formResult.values["test"] = "test";
             MessageRepo()
                 .sendFormResultMessage(testUid.asString(), formResult, 0);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(messageDao.savePendingMessage(pm));
           });
         });
       });
+
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1335,6 +1371,7 @@ void main() {
             formResult.values["test"] = "test";
             MessageRepo()
                 .sendFormResultMessage(testUid.asString(), formResult, 0);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1346,6 +1383,7 @@ void main() {
           });
         });
       });
+
       test('When called should sendMessageToServer', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1359,11 +1397,13 @@ void main() {
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
               ..formResult = FormResult.fromJson(pm.msg.json);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(coreServices.sendMessage(byClient));
           });
         });
       });
     });
+
     group('sendShareUidMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -1372,6 +1412,7 @@ void main() {
               "{\"1\":{\"1\":0,\"2\":\"3049987b-e15d-4288-97cd-42dbc6d73abd\",\"3\":\"*\"}}",
         ),
       );
+
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1380,10 +1421,12 @@ void main() {
               testUid,
               message_pb.ShareUid(uid: testUid),
             );
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(messageDao.savePendingMessage(pm));
           });
         });
       });
+
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1392,6 +1435,7 @@ void main() {
               testUid,
               message_pb.ShareUid(uid: testUid),
             );
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1403,6 +1447,7 @@ void main() {
           });
         });
       });
+
       test('When called should sendMessageToServer', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1416,11 +1461,13 @@ void main() {
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
               ..shareUid = message_pb.ShareUid.fromJson(pm.msg.json);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(coreServices.sendMessage(byClient));
           });
         });
       });
     });
+
     group('sendPrivateMessageAccept -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
@@ -1428,6 +1475,7 @@ void main() {
           json: "{\"1\":2,\"2\":\"test\"}",
         ),
       );
+
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1437,10 +1485,12 @@ void main() {
               PrivateDataType.EMAIL,
               "test",
             );
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(messageDao.savePendingMessage(pm));
           });
         });
       });
+
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1450,6 +1500,7 @@ void main() {
               PrivateDataType.EMAIL,
               "test",
             );
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1461,6 +1512,7 @@ void main() {
           });
         });
       });
+
       test('When called should sendMessageToServer', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           withRandomVM(RandomVM.fixed(13418), () async {
@@ -1476,11 +1528,13 @@ void main() {
               ..replyToId = Int64(pm.msg.replyToId)
               ..sharePrivateDataAcceptance =
                   SharePrivateDataAcceptance.fromJson(pm.msg.json);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(coreServices.sendMessage(byClient));
           });
         });
       });
     });
+
     group('getMessage -', () {
       test('When called should getMessage', () async {
         final messageDao = getAndRegisterMessageDao(message: testMessage);
@@ -1489,6 +1543,7 @@ void main() {
         expect(await messageDao.getMessage(testUid.asString(), 0), testMessage);
       });
     });
+
     group('getPendingMessage -', () {
       test('When called should getPendingMessage', () async {
         final messageDao =
@@ -1498,6 +1553,7 @@ void main() {
         expect(await messageDao.getPendingMessage(""), testPendingMessage);
       });
     });
+
     group('watchPendingMessage -', () {
       test('When called should watchPendingMessage', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1509,6 +1565,7 @@ void main() {
         );
       });
     });
+
     group('watchPendingMessages -', () {
       test('When called should watchPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1520,6 +1577,7 @@ void main() {
         );
       });
     });
+
     group('watchPendingMessages -', () {
       test('When called should getPendingMessages', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1531,6 +1589,7 @@ void main() {
         );
       });
     });
+
     group('resendMessage -', () {
       test('When called should getPendingMessage', () async {
         final messageDao =
@@ -1561,6 +1620,7 @@ void main() {
         verify(coreServices.sendMessage(byClient));
       });
     });
+
     group('deletePendingMessage -', () {
       test('When called should deletePendingMessage', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -1568,6 +1628,7 @@ void main() {
         verify(messageDao.deletePendingMessage(""));
       });
     });
+
     group('pinMessage -', () {
       test('When called should pinMessage', () async {
         final mucServices = getAndRegisterMucServices();
@@ -1576,6 +1637,7 @@ void main() {
         expect(MessageRepo().pinMessage(testMessage), completes);
       });
     });
+
     group('unpinMessage -', () {
       test('When called should unpinMessage', () async {
         final mucServices = getAndRegisterMucServices();
@@ -1584,6 +1646,7 @@ void main() {
         expect(MessageRepo().unpinMessage(testMessage), completes);
       });
     });
+
     group('sendLiveLocationMessage -', () {
       final location = location_pb.Location(
         longitude: testPosition.longitude,
@@ -1603,11 +1666,13 @@ void main() {
           json: json,
         ),
       );
+
       test('When called should createLiveLocation', () async {
         final liveLocationRepo = getAndRegisterLiveLocationRepo();
         await MessageRepo().sendLiveLocationMessage(testUid, 0, testPosition);
         verify(liveLocationRepo.createLiveLocation(testUid, 0));
       });
+
       test('When called should createLiveLocation and save and send it',
           () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
@@ -1617,6 +1682,7 @@ void main() {
             final messageDao = getAndRegisterMessageDao();
             await MessageRepo()
                 .sendLiveLocationMessage(testUid, 0, testPosition);
+            await Future.delayed(const Duration(milliseconds: 100), () {});
             verify(messageDao.savePendingMessage(pm));
             verify(
               roomDao.updateRoom(
@@ -1646,15 +1712,18 @@ void main() {
         );
       });
     });
+
     group('deleteMessage -', () {
       test(
-          'When called if msg.id != null and msg type be file should delete the media from mediaDao',
+          'When called if msg.id != null and msg type be file should delete the media from metaDao',
           () async {
-        final mediaDao = getAndRegisterMediaDao();
+        final metaRepo = getAndRegisterMetaRepo();
+        final deletedMessage =
+            testMessage.copyWith(type: MessageType.FILE, id: 1);
         await MessageRepo().deleteMessage(
-          [testMessage.copyWith(type: MessageType.FILE, id: 1)],
+          [deletedMessage],
         );
-        verify(mediaDao.deleteMedia(testUid.asString(), 1));
+        verify(metaRepo.addDeletedMetaIndexFromMessage(deletedMessage));
       });
       test('When called if msg.id == null should deletePendingMessage',
           () async {
@@ -1754,6 +1823,7 @@ void main() {
         );
       });
     });
+
     group('editTextMessage -', () {
       test('When called should updateMessage in queryServiceClient', () async {
         getAndRegisterRoomDao(
@@ -1909,6 +1979,7 @@ void main() {
         );
       });
     });
+
     group('editFileMessage -', () {
       final updatedMessage = message_pb.MessageByClient()
         ..to = testMessage.to.asUid()

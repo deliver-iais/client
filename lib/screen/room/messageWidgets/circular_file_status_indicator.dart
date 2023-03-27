@@ -1,14 +1,14 @@
-import 'package:deliver/box/dao/media_dao.dart';
-import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/audio_auto_play_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -38,10 +38,9 @@ class CircularFileStatusIndicator extends StatefulWidget {
 class _CircularFileStatusIndicatorState
     extends State<CircularFileStatusIndicator> {
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   static final _audioPlayerService = GetIt.I.get<AudioService>();
-  static final _mediaDao = GetIt.I.get<MediaDao>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _audioAutoPlayService = GetIt.I.get<AudioAutoPlayService>();
 
   @override
   void initState() {
@@ -135,23 +134,14 @@ class _CircularFileStatusIndicatorState
   Widget _showExistedFile(File file, String filePath) {
     return (file.isAudioFileProto() &&
             !isWeb) // we not support audio player for web
-        ? StreamBuilder<int>(
-            stream: _mediaDao.getIndexOfMediaAsStream(
-              widget.message.roomUid,
-              widget.message.id ?? 0,
-              MediaType.MUSIC,
-            ),
-            builder: (context, mediaIndex) {
-              return PlayAudioStatus(
-                uuid: file.uuid,
-                filePath: filePath,
-                name: file.name,
-                duration: file.duration,
-                backgroundColor: widget.backgroundColor,
-                foregroundColor: widget.foregroundColor,
-                onAudioPlay: () => initMediaAutoPlay(),
-              );
-            },
+        ? PlayAudioStatus(
+            uuid: file.uuid,
+            filePath: filePath,
+            name: file.name,
+            duration: file.duration,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
+            onAudioPlay: () => initMediaAutoPlay(),
           )
         : OpenFileStatus(
             filePath: filePath,
@@ -175,8 +165,13 @@ class _CircularFileStatusIndicatorState
       isPendingForwarded: !(widget.message.forwardedFrom == null ||
           widget.message.forwardedFrom!.isEmpty),
       onResendFile: () => onResendFileMessage?.call(),
+      // TODO(any): change this line and refactor
+      onFileStatusCompleted: () {
+        Future.delayed(Duration.zero, () async {
+          setState(() {});
+        });
+      },
       onDownloadCompleted: (audioPath) async {
-        setState(() {});
         if (audioPath != null &&
             (file.type == "audio/mp4" || file.type == "audio/ogg")) {
           _audioPlayerService.playAudioMessage(
@@ -195,22 +190,13 @@ class _CircularFileStatusIndicatorState
 
   Future<void> initMediaAutoPlay() async {
     {
-      final autoPlayMediaList =
-          await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+      await _audioAutoPlayService.fetchAndSaveNextAudioListPageWithMessage(
         messageId: widget.message.id ?? 0,
         roomUid: widget.message.roomUid,
-        messageTime: widget.message.time,
+        type: widget.message.json.toFile().audioWaveform.data.isNotEmpty
+            ? MetaType.AUDIO
+            : MetaType.MUSIC,
       );
-      if (autoPlayMediaList != null) {
-        final file = autoPlayMediaList.first.json.toFile();
-        //download next audio
-        await _fileRepo.getFile(
-          file.uuid,
-          file.name,
-        );
-        _audioPlayerService.autoPlayMediaIndex = 0;
-        _audioPlayerService.autoPlayMediaList = autoPlayMediaList;
-      }
     }
   }
 }

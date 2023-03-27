@@ -1,20 +1,21 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class MusicPlayProgress extends StatelessWidget {
   final String audioUuid;
   final double duration;
-  final List<int> audioWaveData;
+  final File file;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
   MusicPlayProgress({
     super.key,
     required this.audioUuid,
     required this.duration,
-    required this.audioWaveData,
+    required this.file,
   });
 
   @override
@@ -39,7 +40,7 @@ class MusicPlayProgress extends StatelessWidget {
                         audioDuration: track.duration,
                         audioPath: track.path,
                         maxWidth: 200,
-                        audioWaveData: audioWaveData,
+                        file: file,
                       );
                     } else {
                       return const SizedBox.shrink();

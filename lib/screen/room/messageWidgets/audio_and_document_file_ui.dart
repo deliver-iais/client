@@ -58,7 +58,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        if (!isVoiceFilePath(file.name))
+                        if (!file.isVoiceFileProto())
                           SizedBox(
                             width: widget.maxWidth * 0.5,
                             child: Text(

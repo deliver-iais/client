@@ -1,9 +1,10 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_meta_data.dart';
-import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
+import 'package:deliver/box/meta_type.dart';
+
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -12,19 +13,19 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
+
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
-import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
+import 'package:deliver/screen/profile/widgets/media_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/profile_blur_avatar.dart';
 import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
-import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -63,7 +64,7 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin, CustomPopupMenu {
   final _logger = GetIt.I.get<Logger>();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  final _metaRepo = GetIt.I.get<MetaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _featureFlags = GetIt.I.get<FeatureFlags>();
@@ -87,7 +88,7 @@ class ProfilePageState extends State<ProfilePage>
 
   final BehaviorSubject<bool> _selectMediasForForward =
       BehaviorSubject.seeded(false);
-  final List<Media> _selectedMedia = [];
+  final List<Meta> _selectedMeta = [];
 
   @override
   void initState() {
@@ -103,38 +104,99 @@ class ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
+  bool _haveASpecialKindOfMeta(
+    MetaType metaType,
+    AsyncSnapshot<MetaCount?> metaCount,
+  ) {
+    if (metaCount.hasData && metaCount.data != null) {
+      switch (metaType) {
+        case MetaType.MEDIA:
+          return metaCount.data!.mediasCount -
+                  metaCount.data!.allMediaDeletedCount !=
+              0;
+        case MetaType.FILE:
+          return metaCount.data!.filesCount -
+                  metaCount.data!.allFilesDeletedCount !=
+              0;
+        case MetaType.AUDIO:
+          return metaCount.data!.voicesCount -
+                  metaCount.data!.allVoicesDeletedCount !=
+              0;
+        case MetaType.MUSIC:
+          return metaCount.data!.musicsCount -
+                  metaCount.data!.allMusicsDeletedCount !=
+              0;
+        case MetaType.CALL:
+          return metaCount.data!.callsCount -
+                  metaCount.data!.allCallDeletedCount !=
+              0;
+        case MetaType.LINK:
+          return metaCount.data!.linkCount -
+                  metaCount.data!.allLinksDeletedCount !=
+              0;
+        case MetaType.NOT_SET:
+          return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  // TODO(any): add call tab
+  void _setTabCount(AsyncSnapshot<MetaCount?> metaCount) {
+    _tabsCount = 0;
+    for (final type
+        in MetaType.values.where((element) => element != MetaType.CALL)) {
+      if (_haveASpecialKindOfMeta(type, metaCount)) {
+        _tabsCount++;
+      }
+    }
+  }
+
+  // TODO(any): add call tab
+  List<Tab> _getTabList(AsyncSnapshot<MetaCount?> metaCount) {
+    final tabs = <Tab>[];
+    for (final type
+        in MetaType.values.where((element) => element != MetaType.CALL)) {
+      if (_haveASpecialKindOfMeta(type, metaCount)) {
+        tabs.add(
+          Tab(
+            text: _convertMetaTypeToTabName(type),
+          ),
+        );
+      }
+    }
+    return tabs;
+  }
+
+  String _convertMetaTypeToTabName(MetaType metaType) {
+    switch (metaType) {
+      case MetaType.MEDIA:
+        return _i18n.get("medias");
+      case MetaType.FILE:
+        return _i18n.get("file");
+      case MetaType.AUDIO:
+        return _i18n.get("audio");
+      case MetaType.MUSIC:
+        return _i18n.get("music");
+      case MetaType.CALL:
+        return _i18n.get("call");
+      case MetaType.LINK:
+        return _i18n.get("link");
+      case MetaType.NOT_SET:
+        return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
       body: FluidContainerWidget(
-        child: StreamBuilder<MediaMetaData?>(
-          stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-          builder: (context, snapshot) {
-            _tabsCount = 0;
-            if (snapshot.hasData && snapshot.data != null) {
-              if (snapshot.data!.imagesCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.videosCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.linkCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.filesCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.documentsCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.musicsCount != 0) {
-                _tabsCount++;
-              }
-              if (snapshot.data!.audiosCount != 0) {
-                _tabsCount++;
-              }
-            }
+        child: FutureBuilder<MetaCount?>(
+          future: _metaRepo.getMetaCount(widget.roomUid.asString()),
+          builder: (context, metaCount) {
+            _setTabCount(metaCount);
 
             _tabController = TabController(
               length: (widget.roomUid.isGroup() ||
@@ -186,7 +248,7 @@ class ProfilePageState extends State<ProfilePage>
                                             badgeColor: theme.primaryColor,
                                           ),
                                           badgeContent: Text(
-                                            _selectedMedia.length.toString(),
+                                            _selectedMeta.length.toString(),
                                             style: TextStyle(
                                               fontSize: 14,
                                               color:
@@ -202,7 +264,7 @@ class ProfilePageState extends State<ProfilePage>
                                             onPressed: () {
                                               _selectMediasForForward
                                                   .add(false);
-                                              _selectedMedia.clear();
+                                              _selectedMeta.clear();
                                               setState(() {});
                                             },
                                           ),
@@ -218,8 +280,8 @@ class ProfilePageState extends State<ProfilePage>
                                               ),
                                               onPressed: () async {
                                                 final paths =
-                                                    await _getPathOfMedia(
-                                                  _selectedMedia,
+                                                    await _getPathOfMeta(
+                                                  _selectedMeta,
                                                 );
                                                 if (paths.isNotEmpty) {
                                                   Share.shareFiles(paths)
@@ -239,7 +301,7 @@ class ProfilePageState extends State<ProfilePage>
                                             onPressed: () {
                                               _routingService
                                                   .openSelectForwardMessage(
-                                                medias: _selectedMedia,
+                                                metas: _selectedMeta,
                                               );
                                             },
                                           ),
@@ -255,27 +317,7 @@ class ProfilePageState extends State<ProfilePage>
                                           (widget.roomUid.isChannel() &&
                                               _isMucAdminOrOwner))
                                         Tab(text: _i18n.get("members")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.imagesCount != 0)
-                                        Tab(text: _i18n.get("image")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.videosCount != 0)
-                                        Tab(text: _i18n.get("video")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.filesCount != 0)
-                                        Tab(text: _i18n.get("file")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.linkCount != 0)
-                                        Tab(text: _i18n.get("link")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.documentsCount != 0)
-                                        Tab(text: _i18n.get("document")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.musicsCount != 0)
-                                        Tab(text: _i18n.get("music")),
-                                      if (snapshot.hasData &&
-                                          snapshot.data!.audiosCount != 0)
-                                        Tab(text: _i18n.get("audio")),
+                                      ..._getTabList(metaCount),
                                     ],
                                     controller: _tabController,
                                   );
@@ -300,63 +342,43 @@ class ProfilePageState extends State<ProfilePage>
                               mucUid: widget.roomUid,
                             ),
                           ),
-                        if (snapshot.hasData && snapshot.data!.imagesCount != 0)
-                          ImageTabUi(
-                            snapshot.data!.imagesCount,
+                        if (_haveASpecialKindOfMeta(MetaType.MEDIA, metaCount))
+                          MediaTabUi(
+                            metaCount.data!.mediasCount,
                             widget.roomUid,
-                            selectedMedia: _selectedMedia,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
+                            selectedMedia: _selectedMeta,
+                            allDeletedMediasCount:
+                                metaCount.data!.allMediaDeletedCount,
+                            addSelectedMeta: (meta) => _addSelectedMeta(meta),
                           ),
-                        if (snapshot.hasData && snapshot.data!.videosCount != 0)
-                          VideoTabUi(
-                            roomUid: widget.roomUid,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
-                            selectedMedia: _selectedMedia,
-                            videoCount: snapshot.data!.videosCount,
-                          ),
-                        if (snapshot.hasData && snapshot.data!.filesCount != 0)
+                        if (_haveASpecialKindOfMeta(MetaType.FILE, metaCount))
                           DocumentAndFileUi(
                             roomUid: widget.roomUid,
-                            selectedMedia: _selectedMedia,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
-                            documentCount: snapshot.data!.filesCount,
-                            type: MediaType.FILE,
+                            selectedMeta: _selectedMeta,
+                            addSelectedMeta: (meta) => _addSelectedMeta(meta),
+                            documentCount: metaCount.data!.filesCount,
+                            type: MetaType.FILE,
                           ),
-                        if (snapshot.hasData && snapshot.data!.linkCount != 0)
+                        if (_haveASpecialKindOfMeta(MetaType.AUDIO, metaCount))
+                          MusicAndAudioUi(
+                            roomUid: widget.roomUid,
+                            selectedMeta: _selectedMeta,
+                            addSelectedMeta: (meta) => _addSelectedMeta(meta),
+                            type: MetaType.AUDIO,
+                            audioCount: metaCount.data!.voicesCount,
+                          ),
+                        if (_haveASpecialKindOfMeta(MetaType.MUSIC, metaCount))
+                          MusicAndAudioUi(
+                            roomUid: widget.roomUid,
+                            type: MetaType.MUSIC,
+                            selectedMeta: _selectedMeta,
+                            addSelectedMeta: (meta) => _addSelectedMeta(meta),
+                            audioCount: metaCount.data!.musicsCount,
+                          ),
+                        if (_haveASpecialKindOfMeta(MetaType.LINK, metaCount))
                           LinkTabUi(
-                            snapshot.data!.linkCount,
+                            metaCount.data!.linkCount,
                             widget.roomUid,
-                          ),
-                        if (snapshot.hasData &&
-                            snapshot.data!.documentsCount != 0)
-                          DocumentAndFileUi(
-                            selectedMedia: _selectedMedia,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
-                            roomUid: widget.roomUid,
-                            documentCount: snapshot.data!.documentsCount,
-                            type: MediaType.DOCUMENT,
-                          ),
-                        if (snapshot.hasData && snapshot.data!.musicsCount != 0)
-                          MusicAndAudioUi(
-                            roomUid: widget.roomUid,
-                            type: MediaType.MUSIC,
-                            selectedMedia: _selectedMedia,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
-                            mediaCount: snapshot.data!.musicsCount,
-                          ),
-                        if (snapshot.hasData && snapshot.data!.audiosCount != 0)
-                          MusicAndAudioUi(
-                            roomUid: widget.roomUid,
-                            selectedMedia: _selectedMedia,
-                            addSelectedMedia: (media) =>
-                                _addSelectedMedia(media),
-                            type: MediaType.AUDIO,
-                            mediaCount: snapshot.data!.audiosCount,
                           ),
                       ],
                     ),
@@ -370,9 +392,9 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Future<List<String>> _getPathOfMedia(List<Media> medias) async {
+  Future<List<String>> _getPathOfMeta(List<Meta> metas) async {
     final paths = <String>[];
-    for (final media in medias) {
+    for (final media in metas) {
       final file = media.json.toFile();
       final path = await (_fileRepo.getFileIfExist(file.uuid, file.name));
       if (path != null) {
@@ -382,11 +404,11 @@ class ProfilePageState extends State<ProfilePage>
     return paths;
   }
 
-  void _addSelectedMedia(media) {
-    _selectedMedia.contains(media)
-        ? _selectedMedia.remove(media)
-        : _selectedMedia.add(media);
-    _selectMediasForForward.add(_selectedMedia.isNotEmpty);
+  void _addSelectedMeta(meta) {
+    _selectedMeta.contains(meta)
+        ? _selectedMeta.remove(meta)
+        : _selectedMeta.add(meta);
+    _selectMediasForForward.add(_selectedMeta.isNotEmpty);
     setState(() {});
   }
 
@@ -892,7 +914,9 @@ class ProfilePageState extends State<ProfilePage>
       }
     }
     try {
-      await _mediaQueryRepo.fetchMediaMetaData(widget.roomUid);
+      await _metaRepo.fetchMetaCountFromServer(
+        widget.roomUid,
+      );
     } catch (e) {
       _logger.e(e);
     }

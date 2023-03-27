@@ -724,7 +724,6 @@ class CallRepo {
     try {
       _callEvents[clock.now().millisecondsSinceEpoch] = "Failed";
       isConnectedSubject.add(false);
-      _isConnected = false;
       if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
         _reconnectTry = true;
         callingStatus.add(CallStatus.RECONNECTING);

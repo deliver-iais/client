@@ -1,16 +1,17 @@
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 import 'package:get_it/get_it.dart';
 
 class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
+  final File file;
   final String audioPath;
   final Duration audioDuration;
   final double maxWidth;
-  final List<int> audioWaveData;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
@@ -19,8 +20,7 @@ class AudioProgressIndicator extends StatefulWidget {
     required this.audioPath,
     required this.audioDuration,
     required this.maxWidth,
-    this.colorScheme,
-    required this.audioWaveData,
+    this.colorScheme, required this.file,
   });
 
   @override
@@ -48,7 +48,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
             children: [
               Stack(
                 children: [
-                  if (isVoiceFilePath(widget.audioPath))
+                  if (widget.file.isVoiceFileProto())
                     RectangleWaveform(
                       isRoundedRectangle: true,
                       isCentered: true,
@@ -69,7 +69,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       activeColor:
                           widget.colorScheme?.primary ?? theme.primaryColor,
                       elapsedDuration: position.data,
-                      samples: widget.audioWaveData
+                      samples: widget.file.audioWaveform.data
                           .map((i) => i.toDouble())
                           .toList(),
                       height: 20,
@@ -79,7 +79,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                           widget.audioDuration.inMilliseconds) <=
                       1)
                     Opacity(
-                      opacity: isVoiceFilePath(widget.audioPath) ? 0 : 1,
+                      opacity:widget.file.isVoiceFileProto() ? 0 : 1,
                       child: SliderTheme(
                         data: SliderThemeData(
                           overlayShape: SliderComponentShape.noOverlay,
