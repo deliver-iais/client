@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/video/mobile_video_player_widget/material_video_controller.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:video_player/video_player.dart';
 
 class MobileVideoPlayerWidget extends StatefulWidget {
@@ -14,7 +13,8 @@ class MobileVideoPlayerWidget extends StatefulWidget {
 
   const MobileVideoPlayerWidget({
     super.key,
-    required this.videoFilePath, required this.caption,
+    required this.videoFilePath,
+    required this.caption,
   });
 
   @override
@@ -23,7 +23,6 @@ class MobileVideoPlayerWidget extends StatefulWidget {
 }
 
 class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
-  final _uxService = GetIt.I.get<UxService>();
   late VideoPlayerController _controller;
   late final ChewieController _chewieController;
 
@@ -42,11 +41,11 @@ class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
       videoPlayerController: _controller,
       autoPlay: true,
       showOptions: false,
-      customControls:  MaterialVideoController(caption: widget.caption),
+      customControls: MaterialVideoController(caption: widget.caption),
       materialProgressColors: ChewieProgressColors(
-        bufferedColor: _uxService.theme.shadowColor.withOpacity(0.4),
+        bufferedColor: settings.themeData.shadowColor.withOpacity(0.4),
         handleColor: Colors.white,
-        playedColor: _uxService.theme.primaryColor,
+        playedColor: settings.themeData.primaryColor,
       ),
     );
     setState(() {});
@@ -63,8 +62,8 @@ class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
     return Center(
       child: _controller.value.isInitialized
           ? Chewie(
-            controller: _chewieController,
-          )
+              controller: _chewieController,
+            )
           : Container(),
     );
   }

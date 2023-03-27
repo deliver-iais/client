@@ -8,12 +8,11 @@ import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/input_pin.dart';
 import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
@@ -31,7 +30,6 @@ class SplashScreenState extends State<SplashScreen>
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _uxService = GetIt.I.get<UxService>();
   final _i18n = GetIt.I.get<I18N>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _textEditingController = TextEditingController();
@@ -134,7 +132,7 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   Widget desktopLock() {
-    final theme = getThemeScheme(_uxService.themeIndex).theme(isDark: true);
+    final theme = settings.themeScheme.theme(isDark: true);
 
     return Theme(
       data: theme,

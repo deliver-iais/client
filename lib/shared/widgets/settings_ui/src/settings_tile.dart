@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'cupertino_settings_item.dart';
 
@@ -12,8 +13,6 @@ class SettingsTile extends StatelessWidget {
   final int? subtitleMaxLines;
   final Widget? leading;
   final Widget? trailing;
-  final Icon? iosChevron;
-  final EdgeInsetsGeometry? iosChevronPadding;
   final Function(BuildContext context)? onPressed;
   final Function(bool value)? onToggle;
   final bool? switchValue;
@@ -32,8 +31,6 @@ class SettingsTile extends StatelessWidget {
     this.subtitleMaxLines,
     this.leading,
     this.trailing,
-    this.iosChevron = defaultCupertinoForwardIcon,
-    this.iosChevronPadding = defaultCupertinoForwardPadding,
     this.titleTextStyle,
     this.subtitleTextStyle,
     this.subtitleDirection,
@@ -64,8 +61,6 @@ class SettingsTile extends StatelessWidget {
     this.subtitleDirection,
     this.onPressed,
   })  : _tileType = _SettingsTileType.switchTile,
-        iosChevron = null,
-        iosChevronPadding = null,
         assert(titleMaxLines == null || titleMaxLines > 0),
         assert(subtitleMaxLines == null || subtitleMaxLines > 0);
 
@@ -99,8 +94,6 @@ class SettingsTile extends StatelessWidget {
         value: subtitle,
         valueDirection: subtitleDirection,
         trailing: trailing,
-        iosChevron: iosChevron,
-        iosChevronPadding: iosChevronPadding,
         leading: leading,
         onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,

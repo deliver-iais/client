@@ -21,7 +21,9 @@ import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/video_player_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -136,11 +138,11 @@ class _AllMediaPageState extends State<AllMediaPage>
       initialIndex = widget.initIndex;
     }
     controller = AnimationController(
-      duration: ANIMATION_DURATION,
+      duration: AnimationSettings.normal,
       vsync: this,
     )..addStatusListener((status) async {
         if (status == AnimationStatus.completed) {
-          await Future.delayed(ANIMATION_DURATION);
+          await Future.delayed(AnimationSettings.normal);
           animationIndex = (animationIndex + 1) % 4;
           disableRotate = false;
         }
@@ -269,7 +271,7 @@ class _AllMediaPageState extends State<AllMediaPage>
         builder: (context, snapshot) {
           return AnimatedContainer(
             height: snapshot.data! ? 64 : 0,
-            duration: SLOW_ANIMATION_DURATION,
+            duration: AnimationSettings.slow,
             child: buildAppBarWidget(),
           );
         },
@@ -285,7 +287,7 @@ class _AllMediaPageState extends State<AllMediaPage>
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
-            duration: ANIMATION_DURATION,
+            duration: AnimationSettings.normal,
             opacity: _isBarShowing.value ? 1 : 0,
             child: buildBottomSection(
               createdOn: widget.message!.time,
@@ -385,7 +387,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                           return IconButton(
                             onPressed: () {
                               _pageController.nextPage(
-                                duration: SLOW_ANIMATION_DURATION,
+                                duration: AnimationSettings.slow,
                                 curve: Curves.easeInOut,
                               );
                             },
@@ -418,40 +420,43 @@ class _AllMediaPageState extends State<AllMediaPage>
                             builder: (c, mediaSnapShot) {
                               if (mediaSnapShot.hasData) {
                                 final file = mediaSnapShot.data!.json.toFile();
-                                return Hero(
-                                  tag: file.uuid,
-                                  child: FutureBuilder<String?>(
-                                    initialData: _fileCache.get(index),
-                                    future: _fileRepo.getFile(
-                                      file.uuid,
-                                      file.name,
-                                    ),
-                                    builder: (c, filePath) {
-                                      if (filePath.hasData &&
-                                          filePath.data != null) {
-                                        _fileCache.set(
-                                          index,
-                                          filePath.data!,
-                                        );
-                                        return isDesktopDevice
-                                            ? InteractiveViewer(
-                                                child: buildMediaUi(
+                                return HeroMode(
+                                  enabled: settings.showAnimations.value,
+                                  child: Hero(
+                                    tag: file.uuid,
+                                    child: FutureBuilder<String?>(
+                                      initialData: _fileCache.get(index),
+                                      future: _fileRepo.getFile(
+                                        file.uuid,
+                                        file.name,
+                                      ),
+                                      builder: (c, filePath) {
+                                        if (filePath.hasData &&
+                                            filePath.data != null) {
+                                          _fileCache.set(
+                                            index,
+                                            filePath.data!,
+                                          );
+                                          return isDesktopDevice
+                                              ? InteractiveViewer(
+                                                  child: buildMediaUi(
+                                                    filePath.data!,
+                                                    file.caption,
+                                                  ),
+                                                )
+                                              : buildMediaUi(
                                                   filePath.data!,
                                                   file.caption,
-                                                ),
-                                              )
-                                            : buildMediaUi(
-                                                filePath.data!,
-                                                file.caption,
-                                              );
-                                      } else {
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            color: theme.colorScheme.primary,
-                                          ),
-                                        );
-                                      }
-                                    },
+                                                );
+                                        } else {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: theme.colorScheme.primary,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),
                                   ),
                                 );
                               } else {
@@ -492,7 +497,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                     return IconButton(
                       onPressed: () {
                         _pageController.previousPage(
-                          duration: SLOW_ANIMATION_DURATION,
+                          duration: AnimationSettings.slow,
                           curve: Curves.easeInOut,
                         );
                       },
@@ -517,7 +522,7 @@ class _AllMediaPageState extends State<AllMediaPage>
             stream: _isBarShowing,
             builder: (context, snapshot) {
               return AnimatedOpacity(
-                duration: SLOW_ANIMATION_DURATION,
+                duration: AnimationSettings.slow,
                 opacity: snapshot.data! ? 1 : 0,
                 child: StreamBuilder<int>(
                   stream: _currentIndex,

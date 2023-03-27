@@ -1,5 +1,5 @@
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 
 class ExtraThemeData {
-  static final _usServices = GetIt.I.get<UxService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   final Material3ColorScheme colorScheme;
   final CustomColorScheme primaryColorsScheme;
@@ -48,7 +47,7 @@ class ExtraThemeData {
   }
 
   Color messageBackgroundColor(String uid) {
-    if (_authRepo.isCurrentUser(uid) || _usServices.showColorfulMessages) {
+    if (_authRepo.isCurrentUser(uid) || settings.showColorfulMessages.value) {
       return messageColorScheme(uid).primaryContainer;
     } else {
       return colorScheme.surface;
@@ -56,7 +55,7 @@ class ExtraThemeData {
   }
 
   Color messageForegroundColor(String uid) {
-    if (_authRepo.isCurrentUser(uid) || _usServices.showColorfulMessages) {
+    if (_authRepo.isCurrentUser(uid) || settings.showColorfulMessages.value) {
       return messageColorScheme(uid).onPrimaryContainerLowlight();
     } else {
       return colorScheme.onSurface;

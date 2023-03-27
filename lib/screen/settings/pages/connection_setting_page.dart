@@ -1,10 +1,10 @@
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -27,7 +27,6 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
   final TextEditingController _textEditingController = TextEditingController();
-  final _shareDao = GetIt.I.get<SharedDao>();
   final BehaviorSubject<bool> _useCustomIp = BehaviorSubject.seeded(false);
   final _routingServices = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
@@ -39,7 +38,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   }
 
   Future<void> _initConnectionData() async {
-    final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
+    final ip = settings.hostSetByUser.value;
     _useCustomIp.add((ip.isNotEmpty));
     _textEditingController.text = ip;
   }
@@ -68,15 +67,12 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                       SettingsTile.switchTile(
                         title: _i18n.get("connect_on_bad_certificate"),
                         leading: const Icon(CupertinoIcons.shield_slash),
-                        switchValue:
-                            _servicesDiscoveryRepo.badCertificateConnection,
+                        switchValue: settings.useBadCertificateConnection.value,
                         onToggle: (value) => setState(() {
-                          _servicesDiscoveryRepo.setCertificate(
-                            onBadCertificate: value,
-                          );
+                          settings.useBadCertificateConnection.toggleValue();
                         }),
                       ),
-                      if (_servicesDiscoveryRepo.badCertificateConnection)
+                      if (settings.useBadCertificateConnection.value)
                         Padding(
                           padding: const EdgeInsets.only(
                             right: 18.0,
@@ -120,7 +116,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                             switchValue: ipSnapshot.data,
                             onToggle: (value) {
                               if (!value) {
-                                _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
+                                settings.hostSetByUser.set("");
                                 _textEditingController.text = "";
                                 _servicesDiscoveryRepo.initClientChannels();
                               }
@@ -159,13 +155,9 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                   foregroundColor: theme.colorScheme.onPrimary,
                                 ),
                                 onPressed: () {
-                                  _servicesDiscoveryRepo.initClientChannels(
-                                    ip: _textEditingController.text,
-                                  );
-                                  _shareDao.put(
-                                    SHARE_DAO_HOST_SET_BY_USER,
-                                    _textEditingController.text,
-                                  );
+                                  settings.hostSetByUser
+                                      .set(_textEditingController.text);
+                                  _servicesDiscoveryRepo.initClientChannels();
                                   _coreServices.retryConnection(forced: true);
                                   if (widget.rootFromLoginPage) {
                                     Navigator.pop(context);
@@ -184,7 +176,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
               ),
               StreamBuilder<String>(
                 stream: connectionError.stream
-                    .debounceTime(ANIMATION_DURATION)
+                    .debounceTime(AnimationSettings.actualNormal)
                     .asBroadcastStream(),
                 builder: (c, errorMsg) {
                   if (errorMsg.hasData &&

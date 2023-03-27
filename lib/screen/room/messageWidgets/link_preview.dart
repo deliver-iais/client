@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/material.dart';
@@ -91,11 +92,11 @@ class LinkPreview extends StatelessWidget {
         }
 
         return AnimatedOpacity(
-          duration: MOTION_STANDARD_ANIMATION_DURATION,
+          duration: AnimationSettings.standard,
           opacity: show ? 0 : 1,
           curve: Curves.easeInOut,
           child: AnimatedSize(
-            duration: MOTION_STANDARD_ANIMATION_DURATION,
+            duration: AnimationSettings.standard,
             alignment: Alignment.topRight,
             curve: Curves.easeInOut,
             child: widget,

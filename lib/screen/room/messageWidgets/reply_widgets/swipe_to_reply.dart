@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    if(widget.onSwipeLeft == null){
+    if (widget.onSwipeLeft == null) {
       return;
     }
 
@@ -121,14 +121,14 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     final children = <Widget>[
       AnimatedOpacity(
         opacity: showRightIcon ? 1 : 0,
-        duration: ANIMATION_DURATION,
+        duration: AnimationSettings.normal,
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Align(
             alignment: Alignment.centerRight,
             child: AnimatedScale(
               scale: showRightIcon ? 1 : 0,
-              duration: ANIMATION_DURATION,
+              duration: AnimationSettings.normal,
               child: Icon(
                 CupertinoIcons.reply,
                 color: Theme.of(context).iconTheme.color,

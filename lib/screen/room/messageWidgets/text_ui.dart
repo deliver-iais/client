@@ -1,11 +1,14 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_context_menu/context_menus/desktop/custom_desktop_selectable_region_context_menu.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -67,9 +70,8 @@ class TextUI extends StatefulWidget {
 
 class _TextUIState extends State<TextUI> {
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
-  final _uxService = GetIt.I.get<UxService>();
   final _textBoxKey = GlobalKey();
-
+  late final bool _isOnlyEmoji;
   final _textBoxWidth = BehaviorSubject.seeded(0.0);
   String _link = "";
 
@@ -85,6 +87,8 @@ class _TextUIState extends State<TextUI> {
             .firstOrNull
             ?.url ??
         "";
+
+    _isOnlyEmoji = isOnlyEmojiContent(widget.text);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -113,10 +117,19 @@ class _TextUIState extends State<TextUI> {
       ),
     );
 
+    final largeFontSize = theme.textTheme.headlineSmall?.fontSize ?? 24;
+    final fontSize = _isOnlyEmoji
+        ? (largeFontSize * 3 / max(widget.text.length / 2, 1)) + largeFontSize
+        : null;
+
     final text = Text.rich(
-      textAlign:
-          _uxService.showTextsJustified ? TextAlign.justify : TextAlign.start,
-      TextSpan(children: spans, style: theme.textTheme.bodyMedium),
+      textAlign: settings.showTextsJustified.value
+          ? TextAlign.justify
+          : TextAlign.start,
+      TextSpan(
+        children: spans,
+        style: theme.textTheme.bodyMedium?.copyWith(fontSize: fontSize),
+      ),
       textDirection:
           widget.text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
     );
@@ -144,7 +157,7 @@ class _TextUIState extends State<TextUI> {
                     )
                   : text,
             ),
-            if (_uxService.showLinkPreview)
+            if (settings.showLinkPreview.value)
               StreamBuilder<double>(
                 stream: _textBoxWidth,
                 builder: (context, snapshot) {

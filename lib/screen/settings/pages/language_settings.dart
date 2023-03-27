@@ -49,9 +49,9 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
                 Section(
                   title: _i18n.get("languages"),
                   children: [
-                    for (final lang in supportedLanguages)
+                    for (final lang in Language.values)
                       SettingsTile(
-                        title: lang.name,
+                        title: lang.languageName,
                         leading: const Icon(Icons.language),
                         trailing: _i18n.locale.languageCode == lang.languageCode
                             ? const Icon(Icons.done)

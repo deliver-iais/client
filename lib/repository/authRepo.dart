@@ -8,6 +8,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -22,7 +23,6 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 
 const ACCESS_TOKEN_EXPIRATION_DELTA = Duration(seconds: 90);
@@ -34,10 +34,7 @@ class AuthRepo {
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
   static final requestLock = Lock();
 
-  late SharedPreferences _prefs;
-
   final BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
-  final BehaviorSubject<String> _localPassword = BehaviorSubject.seeded("");
 
   BehaviorSubject<NewerVersionInformation?> newVersionInformation =
       BehaviorSubject();
@@ -45,21 +42,15 @@ class AuthRepo {
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
     ..node = "";
-  var _accessToken = "";
-  var _refreshToken = "";
 
   late PhoneNumber _tmpPhoneNumber;
 
-  String get refreshToken => _refreshToken;
+  String get refreshToken => settings.refreshToken.value;
 
-  String get accessToken => _accessToken;
+  String get accessToken => settings.accessToken.value;
 
   Future<void> init({bool retry = false}) async {
     try {
-      _prefs = await SharedPreferences.getInstance();
-      _accessToken = _prefs.getString(SHARED_DAO_ACCESS_TOKEN_KEY) ?? "";
-      _refreshToken = _prefs.getString(SHARED_DAO_REFRESH_TOKEN_KEY) ?? "";
-      _localPassword.add(_prefs.getString(SHARED_DAO_LOCAL_PASSWORD) ?? "");
       if (accessToken.isNotEmpty) {
         _setCurrentUserUidFromAccessToken(accessToken);
       }
@@ -154,7 +145,7 @@ class AuthRepo {
       requestLock.synchronized(() async {
         return await _sdr.authServiceClient.renewAccessToken(
           RenewAccessTokenReq()
-            ..refreshToken = _refreshToken
+            ..refreshToken = refreshToken
             ..platform = await getPlatformPB(),
         );
       });
@@ -195,23 +186,21 @@ class AuthRepo {
         return "";
       }
     } else {
-      return _accessToken;
+      return accessToken;
     }
   }
 
-  bool isLocalLockEnabled() => _localPassword.value != "";
+  bool isLocalLockEnabled() => settings.localPassword.value != "";
 
   Stream<bool> get isLocalLockEnabledStream =>
-      _localPassword.map((event) => _localPassword.value != "");
+      settings.localPassword.stream.map((pass) => pass != "");
 
-  bool localPasswordIsCorrect(String pass) => _localPassword.value == pass;
+  bool localPasswordIsCorrect(String pass) =>
+      settings.localPassword.value == pass;
 
   void setLocalPassword(String pass) {
-    _localPassword.add(pass);
-    _prefs.setString(SHARED_DAO_LOCAL_PASSWORD, pass);
-    _analyticsService.sendLogEvent(
-      "setLocalPassword",
-    );
+    settings.localPassword.set(pass);
+    _analyticsService.sendLogEvent("setLocalPassword");
   }
 
   bool isLoggedIn() => _hasValidRefreshToken();
@@ -230,26 +219,24 @@ class AuthRepo {
       );
     }
 
-    _accessToken = accessToken;
-    _refreshToken = refreshToken;
-    await _prefs.setString(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
-    await _prefs.setString(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
+    settings.accessToken.set(accessToken);
+    settings.refreshToken.set(refreshToken);
     _setCurrentUserUidFromAccessToken(accessToken);
     return true;
   }
 
-  bool _hasValidAccessToken() => _isValidToken(_accessToken);
+  bool _hasValidAccessToken() => _isValidToken(accessToken);
 
-  bool _hasValidRefreshToken() => _isValidToken(_refreshToken);
+  bool _hasValidRefreshToken() => _isValidToken(refreshToken);
 
   bool _isValidToken(String token, {Duration fromNow = Duration.zero}) {
     return token.isNotEmpty && !_isExpired(token, fromNow: fromNow);
   }
 
-  bool isRefreshTokenEmpty() => _refreshToken.isEmpty;
+  bool isRefreshTokenEmpty() => refreshToken.isEmpty;
 
   bool isRefreshTokenExpired() =>
-      _refreshToken.isNotEmpty && _isExpired(_refreshToken);
+      refreshToken.isNotEmpty && _isExpired(refreshToken);
 
   bool _isExpired(token, {Duration fromNow = Duration.zero}) {
     final expirationDate = JwtDecoder.getExpirationDate(token);
@@ -279,12 +266,9 @@ class AuthRepo {
 
   Future<void> logout() async {
     try {
-      _accessToken = "";
-      _refreshToken = "";
-      _localPassword.add("");
-      await _prefs.remove(SHARED_DAO_ACCESS_TOKEN_KEY);
-      await _prefs.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
-      await _prefs.remove(SHARED_DAO_LOCAL_PASSWORD);
+      settings.accessToken.set("");
+      settings.refreshToken.set("");
+      settings.localPassword.set("");
     } catch (e) {
       _logger.e(e);
     }

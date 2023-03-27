@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,12 @@ class BlurredPreferredSizedWidget extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    if (!settings.showBlurredComponents.value) {
+      return Container(
+        color: Theme.of(context).colorScheme.background,
+        child: child,
+      );
+    }
     return ClipRRect(
       clipBehavior: Clip.hardEdge,
       child: BackdropFilter(

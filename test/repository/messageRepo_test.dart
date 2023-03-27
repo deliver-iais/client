@@ -8,6 +8,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/random_vm.dart';
@@ -155,12 +156,6 @@ void main() {
     });
 
     group('updatingMessages -', () {
-      test('When called should fetch all room from sharedDao', () async {
-        final sharedDao = getAndRegisterSharedDao();
-        MessageRepo().updatingRooms();
-        verify(sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED));
-      });
-
       test('When called should get All UserRoomMeta', () async {
         final msdr = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().updatingRooms();
@@ -175,7 +170,6 @@ void main() {
       test(
           'When called should get All UserRoomMeta and if finished be true should put on sharedDao',
           () async {
-        final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingRooms();
         final queryServiceClient = getMockQueryServicesClient();
         final getAllUserRoomMetaRes =
@@ -185,7 +179,7 @@ void main() {
             ..limit = FETCH_ROOM_METADATA_LIMIT,
         );
         expect(getAllUserRoomMetaRes.finished, true);
-        verify(sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true));
+        assert(settings.allRoomFetched.value);
       });
       test(
           'When called should get All UserRoomMeta and if finished be false should never put on sharedDao',
@@ -200,7 +194,9 @@ void main() {
             ..limit = FETCH_ROOM_METADATA_LIMIT,
         );
         expect(getAllUserRoomMetaRes.finished, false);
-        verifyNever(sharedDao.put(SHARED_DAO_ALL_ROOMS_FETCHED, "true"));
+        verifyNever(
+          sharedDao.put(SharedKeys.SHARED_DAO_ALL_ROOMS_FETCHED, "true"),
+        );
       });
 
       test('When called should get room from roomDao', () async {

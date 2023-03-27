@@ -1,7 +1,7 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -39,7 +39,7 @@ class AudioPlayProgress extends StatelessWidget {
                     trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
 
                 return AnimatedSwitcher(
-                  duration: SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.slow,
                   child: audioUuid.contains(track.uuid) &&
                           state != AudioPlayerState.stopped
                       ? AudioProgressIndicator(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
@@ -48,11 +49,13 @@ class MessageWrapper extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
-            boxShadow: DEFAULT_BOX_SHADOWS,
+            boxShadow:
+                settings.showMessageDetails.value ? DEFAULT_BOX_SHADOWS : null,
           ),
           child: child,
         ),
-        if (isFirstMessageInGroupedMessages)
+        if (settings.showMessageDetails.value &&
+            isFirstMessageInGroupedMessages)
           Positioned(
             left: isSender ? null : 10 - width,
             right: !isSender ? null : 10 - width,

@@ -10,7 +10,7 @@ import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_stat
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -121,7 +121,7 @@ class _CircularFileStatusIndicatorState
             );
           }
           return AnimatedSwitcher(
-            duration: FAST_ANIMATION_DURATION,
+            duration: AnimationSettings.fast,
             transitionBuilder: (child, animation) {
               return ScaleTransition(scale: animation, child: child);
             },

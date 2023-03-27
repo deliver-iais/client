@@ -5,6 +5,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -74,7 +75,7 @@ class RecordAudioAnimation extends StatelessWidget {
         final isRecording = snapshot.data ?? false;
 
         return AnimatedContainer(
-          duration: ANIMATION_DURATION,
+          duration: AnimationSettings.normal,
           width: isRecording ? 100 : 40,
           child: Stack(
             clipBehavior: Clip.none,
@@ -93,13 +94,13 @@ class RecordAudioAnimation extends StatelessWidget {
                           1 - ((min(offset.distance, 100) / 100) / 2);
 
                       return AnimatedOpacity(
-                        duration: ANIMATION_DURATION,
+                        duration: AnimationSettings.normal,
                         opacity: (isRecording ? opacity : 0) * lockFactor,
                         child: AnimatedScale(
-                          duration: ANIMATION_DURATION,
+                          duration: AnimationSettings.normal,
                           scale: (isRecording ? 1 : 0) * lockFactor,
                           child: AnimatedContainer(
-                            duration: ANIMATION_DURATION,
+                            duration: AnimationSettings.normal,
                             width: (isRecording ? 30 : 0) * lockFactor,
                             height: (isRecording ? 46 : 0) * lockFactor,
                             transform: isRecording
@@ -136,7 +137,7 @@ class RecordAudioAnimation extends StatelessWidget {
                 builder: (context, snapshot) {
                   final offset = snapshot.data ?? Offset.zero;
                   return AnimatedContainer(
-                    duration: ANIMATION_DURATION,
+                    duration: AnimationSettings.normal,
                     transform: isRecording
                         ? Matrix4.translationValues(
                             43 + min(offset.dx, 0),
@@ -154,10 +155,10 @@ class RecordAudioAnimation extends StatelessWidget {
                                 ? 1 + ((2.8 * amplitude / 64.0) + 1.0)
                                 : 1.0;
                         return AnimatedScale(
-                          duration: ANIMATION_DURATION * 0.5,
+                          duration: AnimationSettings.normal * 0.5,
                           scale: scale,
                           child: AnimatedContainer(
-                            duration: ANIMATION_DURATION * 0.5,
+                            duration: AnimationSettings.normal * 0.5,
                             decoration: BoxDecoration(
                               color: isRecording
                                   ? theme.colorScheme.error.withOpacity(0.3)
@@ -243,7 +244,7 @@ class RecordAudioAnimation extends StatelessWidget {
                             ? const EdgeInsets.only(left: 43)
                             : const EdgeInsets.only(),
                         child: AnimatedContainer(
-                          duration: ANIMATION_DURATION,
+                          duration: AnimationSettings.normal,
                           transform: isRecording
                               ? Matrix4.translationValues(
                                   min(offset.dx, 0),
@@ -259,10 +260,10 @@ class RecordAudioAnimation extends StatelessWidget {
                                   ? 0.9 + ((1.3 * amplitude / 64.0) + 1.0)
                                   : 1.0;
                               return AnimatedScale(
-                                duration: ANIMATION_DURATION * 0.5,
+                                duration: AnimationSettings.normal * 0.5,
                                 scale: scale,
                                 child: AnimatedContainer(
-                                  duration: ANIMATION_DURATION * 0.5,
+                                  duration: AnimationSettings.normal * 0.5,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: (isRecording)

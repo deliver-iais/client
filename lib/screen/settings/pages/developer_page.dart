@@ -1,11 +1,10 @@
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -14,6 +13,7 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -25,10 +25,8 @@ class DeveloperPage extends StatefulWidget {
 class DeveloperPageState extends State<DeveloperPage> {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
-  final _shareDao = GetIt.I.get<SharedDao>();
   final _callRepo = GetIt.I.get<CallRepo>();
 
   @override
@@ -51,10 +49,10 @@ class DeveloperPageState extends State<DeveloperPage> {
               children: [
                 SettingsTile.switchTile(
                   title: "Show Special Debugging Details",
-                  switchValue: _featureFlags.showDeveloperDetails,
+                  switchValue: settings.showDeveloperDetails.value,
                   onToggle: (value) {
                     setState(() {
-                      _featureFlags.toggleShowDeveloperDetails();
+                      settings.showDeveloperDetails.toggleValue();
                     });
                   },
                 ),
@@ -62,18 +60,15 @@ class DeveloperPageState extends State<DeveloperPage> {
             ),
             Section(
               title: 'Log Levels',
-              children: LogLevelHelper.levels()
+              children: Level.values
                   .map(
                     (level) => SettingsTile(
-                      title: level,
-                      trailing: LogLevelHelper.stringToLevel(level) ==
-                              GetIt.I.get<DeliverLogFilter>().level
+                      title: level.name,
+                      trailing: level == GetIt.I.get<DeliverLogFilter>().level
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
                       onPressed: (context) {
-                        setState(() {
-                          _uxService.changeLogLevel(level);
-                        });
+                        setState(() => settings.logLevel.set(level));
                       },
                     ),
                   )
@@ -84,12 +79,9 @@ class DeveloperPageState extends State<DeveloperPage> {
               children: [
                 SettingsTile.switchTile(
                   title: "Log in file is Enabled",
-                  switchValue:
-                      GetIt.I.get<DeliverLogOutput>().saveInFileIsEnabled,
+                  switchValue: settings.logInFileEnable.value,
                   onToggle: (value) {
-                    setState(() {
-                      _uxService.toggleLogInFileEnable();
-                    });
+                    setState(() => settings.logInFileEnable.toggleValue());
                   },
                 ),
                 Column(
@@ -458,30 +450,22 @@ class DeveloperPageState extends State<DeveloperPage> {
               ],
             ),
             if (hasFirebaseCapability)
-              FutureBuilder<String?>(
-                future: _shareDao.get(SHARED_DAO_FIREBASE_TOKEN),
-                builder: (c, ft) {
-                  if (ft.hasData && ft.data != null) {
-                    return Section(
-                      title: "Firebase Token",
+              Section(
+                title: "Firebase Token",
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
+                      runSpacing: 8,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Wrap(
-                            runSpacing: 8,
-                            children: [
-                              Debug(
-                                ft.data,
-                                label: "Token",
-                              ),
-                            ],
-                          ),
-                        )
+                        Debug(
+                          settings.firebaseToken.value,
+                          label: "Token",
+                        ),
                       ],
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
+                    ),
+                  )
+                ],
               ),
           ],
         ),

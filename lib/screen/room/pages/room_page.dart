@@ -5,7 +5,7 @@ import 'package:animations/animations.dart';
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/scroll_position_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -46,7 +46,8 @@ import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -97,7 +98,7 @@ class RoomPageState extends State<RoomPage> {
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _scrollPositionDao = GetIt.I.get<ScrollPositionDao>();
   static final _mucDao = GetIt.I.get<MucDao>();
 
   static final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -126,6 +127,7 @@ class RoomPageState extends State<RoomPage> {
   final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
+  StreamSubscription<AppLifecycle>? _subscription;
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -168,6 +170,7 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _shouldScrollToLastMessageInRoom?.cancel();
 
     super.dispose();
@@ -283,7 +286,7 @@ class RoomPageState extends State<RoomPage> {
         Column(
           children: [
             const SizedBox(height: BAR_HEIGHT),
-            if (_featureFlags.showDeveloperDetails)
+            if (settings.showDeveloperDetails.value)
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),
                 builder: (context, seen) {
@@ -314,7 +317,7 @@ class RoomPageState extends State<RoomPage> {
                     (isScrollingSnapshot.data?.isScrolling ?? false);
 
             return AnimatedSwitcher(
-              duration: SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.slow,
               switchInCurve: Curves.easeInOut,
               switchOutCurve: Curves.easeInOut,
               child: !showTime
@@ -362,6 +365,7 @@ class RoomPageState extends State<RoomPage> {
               if (_itemCount < 50) _defaultMessageHeight = 50;
 
               return PageTransitionSwitcher(
+                duration: AnimationSettings.standard,
                 transitionBuilder: (
                   child,
                   animation,
@@ -390,7 +394,7 @@ class RoomPageState extends State<RoomPage> {
                 right: 16,
                 bottom: 16,
                 child: AnimatedSwitcher(
-                  duration: SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.slow,
                   switchInCurve: Curves.easeInOut,
                   switchOutCurve: Curves.easeInOut,
                   child: !showArrow
@@ -435,8 +439,11 @@ class RoomPageState extends State<RoomPage> {
       }
     });
 
-    final scrollPosition =
-        await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
+    final scrollPosition = await _scrollPositionDao
+        // ignore: deprecated_member_use_from_same_package
+        .get(
+      '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
+    );
 
     if (scrollPosition != null) {
       final arr = scrollPosition.split("-");
@@ -448,7 +455,7 @@ class RoomPageState extends State<RoomPage> {
   @override
   void initState() {
     _roomRepo.updateUserInfo(widget.roomId.asUid());
-    _appLifecycleService.watchAppAppLifecycle().listen((event) {
+    _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
       if (_appIsActive) {
         _sendSeenMessage(_backgroundMessages);
@@ -499,8 +506,8 @@ class RoomPageState extends State<RoomPage> {
                     : first,
           );
           // Save scroll position of first complete visible item
-          _sharedDao.put(
-            '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
+          _scrollPositionDao.put(
+            '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
             "${lastVisibleItem.index}-${lastVisibleItem.itemLeadingEdge}",
           );
         }
@@ -542,7 +549,7 @@ class RoomPageState extends State<RoomPage> {
         MergeStream([_pendingMessages, _room, _pendingEditedMessage])
             .delayWhen(
               (e) => Stream.value(null),
-              listenDelay: Rx.timer(null, MOTION_STANDARD_ANIMATION_DURATION),
+              listenDelay: Rx.timer(null, AnimationSettings.standard),
             )
             .debounceTime(const Duration(milliseconds: 50))
             .asBroadcastStream();
@@ -1637,7 +1644,7 @@ class RoomPageState extends State<RoomPage> {
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: FAST_ANIMATION_DURATION,
+          duration: AnimationSettings.fast,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
               ? Theme.of(context).primaryColor.withAlpha(100)
@@ -1765,7 +1772,7 @@ class RoomPageState extends State<RoomPage> {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: index,
-        duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+        duration: AnimationSettings.superUltraSlow,
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],

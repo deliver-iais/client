@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -39,7 +39,6 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
 
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _uxService = GetIt.I.get<UxService>();
 
   // late final BuildContext context;
 
@@ -72,7 +71,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               ),
               children: [
                 TileLayer(
-                  tilesContainerBuilder: _uxService.themeIsDark
+                  tilesContainerBuilder: settings.themeIsDark.value
                       ? darkModeTilesContainerBuilder
                       : null,
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',

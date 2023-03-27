@@ -3,15 +3,29 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+final onlyEmojiRegex = RegExp(
+  r'^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+$',
+);
+
+bool isOnlyEmojiContent(String content) {
+  return onlyEmojiRegex.hasMatch(content);
+}
+
+bool isOnlyEmojiMessage(Message message) {
+  if (message.type != MessageType.TEXT) return false;
+  final content = message.json.toText().text;
+
+  return isOnlyEmojiContent(content);
+}
 
 bool isAnimatedEmoji(String content) {
   switch (content) {
@@ -296,8 +310,6 @@ class AnimatedEmoji extends StatefulWidget {
 
 class AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
-
   late AnimationController _controller;
   late String path;
 
@@ -326,7 +338,7 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
       crossAxisAlignment:
           isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        if (_featureFlags.showDeveloperDetails)
+        if (settings.showDeveloperDetails.value)
           DebugC(
             isOpen: true,
             children: [
@@ -335,14 +347,17 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
             ],
           ),
         GestureDetector(
-          onTap: () => isWeb ? _controller.forward(from: 0) : null,
+          onTap: () => !settings.repeatAnimatedEmoji.value
+              ? _controller.forward(from: 0)
+              : null,
           child: SizedBox(
             width: 120,
             height: 120,
             child: Ws.asset(
               path,
-              controller: isWeb ? _controller : null,
-              repeat: !isWeb,
+              controller:
+                  !settings.repeatAnimatedEmoji.value ? _controller : null,
+              repeat: settings.repeatAnimatedEmoji.value,
             ),
           ),
         ),

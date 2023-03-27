@@ -30,6 +30,7 @@ dependencies:
   animations: 2.0.7
   audioplayers: 3.0.1
   badges: 3.0.2
+  battery_plus: 3.0.3
   brotli: 0.5.0
   camera: 0.10.3+1
   card_swiper: 2.0.4
@@ -57,7 +58,7 @@ dependencies:
     git:
       ref: main
       url: https://github.com/deliveriais/desktop_window
-  device_info: 2.0.3
+  device_info_plus: 8.1.0
   dio: 5.0.1
   dismissible_page: 1.0.1
   expandable: 5.0.1

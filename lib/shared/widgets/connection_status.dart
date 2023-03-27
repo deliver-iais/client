@@ -99,7 +99,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
         if (widget.isShowCase) {
           return _i18n.get("showcase").capitalCase;
         }
-        // else if (_uxService.isShowEventsEnabled) {
+        // else if (_settings.isShowEventsEnabled) {
         //   return _i18n.get("events").capitalCase;
         // }
         else {

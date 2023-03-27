@@ -1,5 +1,5 @@
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -46,7 +46,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
           stream: _audioPlayerService.playerState,
           builder: (context, snapshot) {
             return AnimatedSwitcher(
-              duration: SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.slow,
               child: snapshot.data == AudioPlayerState.playing
                   ? playingWidget()
                   : playButton(),
@@ -64,7 +64,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         final track = trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
 
         return AnimatedSwitcher(
-          duration: SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.slow,
           child:
               track.uuid.contains(widget.uuid) ? pauseButton() : playButton(),
         );

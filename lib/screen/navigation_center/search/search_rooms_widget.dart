@@ -1,7 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:deliver/screen/navigation_center/search/recent_result/recent_search_and_room_widget.dart';
 import 'package:deliver/screen/navigation_center/search/search_result/search_result_widget.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:flutter/material.dart';
 
 class SearchRoomsWidget extends StatefulWidget {
@@ -21,14 +21,14 @@ class _SearchRoomsWidgetState extends State<SearchRoomsWidget>
     if (widget.searchBoxController.text.isNotEmpty) {
       return SlideInUp(
         key: const Key("result"),
-        duration: VERY_SLOW_ANIMATION_DURATION,
+        duration: AnimationSettings.verySlow,
         child:
             SearchResultWidget(searchBoxController: widget.searchBoxController),
       );
     } else {
       return SlideInUp(
         key: const Key("last_search_result"),
-        duration: VERY_SLOW_ANIMATION_DURATION,
+        duration: AnimationSettings.verySlow,
         child: const RecentSearchAndRoomWidget(),
       );
     }

@@ -10,6 +10,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -24,9 +25,6 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../shared/constants.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
@@ -44,7 +42,6 @@ class CoreServices {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
-  SharedPreferences? _prefs;
 
   @visibleForTesting
   bool responseChecked = false;
@@ -69,10 +66,6 @@ class CoreServices {
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
-
-  CoreServices() {
-    SharedPreferences.getInstance().then((p) => _prefs = p);
-  }
 
   void retryConnection({bool forced = false}) {
     if (!forced && _connectionStatus.value != ConnectionStatus.Disconnected) {
@@ -206,12 +199,8 @@ class CoreServices {
               //update last message delivery ack on sharedPref
               final latMessageDeliveryAck =
                   serverPacket.pong.lastMessageDeliveryAck;
-              final lastMessageDeliveryAckStringJson =
-                  latMessageDeliveryAck.writeToJson();
-              _prefs?.setString(
-                SHARED_DAO_LAST_MESSAGE_DELIVERY_ACK,
-                lastMessageDeliveryAckStringJson,
-              );
+
+              settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
               break;
             case ServerPacket_Type.liveLocationStatusChanged:
             case ServerPacket_Type.error:

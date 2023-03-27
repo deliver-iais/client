@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -45,7 +45,7 @@ class CallBottomRowState extends State<CallBottomRow>
     super.initState();
     animationController = AnimationController(
       vsync: this,
-      duration: SUPER_SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.superSlow,
     );
     animation = CurvedAnimation(
       parent: animationController,

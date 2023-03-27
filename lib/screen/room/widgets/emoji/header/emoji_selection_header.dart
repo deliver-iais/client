@@ -1,5 +1,5 @@
 import 'package:deliver/screen/room/widgets/emoji/header/persistent_emoji_header.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +72,7 @@ class EmojiSelectionHeader extends StatelessWidget {
             stream: selectedEmojiGroup,
             builder: (context, snapshot) {
               return AnimatedContainer(
-                duration: ANIMATION_DURATION,
+                duration: AnimationSettings.normal,
                 child: InkWell(
                   onTap: () => onEmojiGroupHeaderTap(index),
                   child: Padding(
