@@ -1,12 +1,15 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -14,7 +17,7 @@ import 'package:geolocator/geolocator.dart' as location;
 
 const int roomMetaDataLastUpdateTime = 1671431635717;
 
-location.Position testPosition = location.Position(
+final testPosition = location.Position(
   altitude: 0,
   accuracy: 0,
   heading: 0,
@@ -24,10 +27,10 @@ location.Position testPosition = location.Position(
   speedAccuracy: 0,
   timestamp: DateTime(2000),
 );
-Uid testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
+final testUid = "0:3049987b-e15d-4288-97cd-42dbc6d73abd".asUid();
 
-Uid testGroupUid = "2:3049987b-e45g-4288-97cd-42dbc6d73abd".asUid();
-Message testMessage = Message(
+final testGroupUid = "2:3049987b-e45g-4288-97cd-42dbc6d73abd".asUid();
+final testMessage = Message(
   to: testUid.asString(),
   from: testUid.asString(),
   packetId: testUid.asString(),
@@ -36,15 +39,51 @@ Message testMessage = Message(
   json: '',
   isHidden: false,
 );
+final testCallInfo = CallInfo(
+  from: testUid,
+  time: Int64(),
+  to: testUid,
+  callEvent: CallEvent(
+    callDuration: Int64(),
+    callId: "test",
+    callStatus: CallEvent_CallStatus.CREATED,
+    callType: CallEvent_CallType.AUDIO,
+  ),
+);
+final testFile = File()
+  ..uuid = "94667220000013418"
+  ..caption = "test"
+  ..width = 0
+  ..height = 0
+  ..type = "audio/mp4"
+  ..size = Int64()
+  ..name = "test"
+  ..duration = 0;
+final testMetaData = MetaCount(
+  mediasCount: 1,
+  callsCount: 0,
+  filesCount: 0,
+  lastUpdateTime: DateTime(2000).millisecondsSinceEpoch,
+  linkCount: 0,
+  musicsCount: 0,
+  roomId: testUid.asString(),
+  voicesCount: 0,
+  allCallDeletedCount: 0,
+  allFilesDeletedCount: 0,
+  allLinksDeletedCount: 0,
+  allMediaDeletedCount: 0,
+  allMusicsDeletedCount: 0,
+  allVoicesDeletedCount: 0,
+);
 
-RoomMetadata roomMetadata = RoomMetadata(
+final roomMetadata = RoomMetadata(
   roomUid: testUid,
   lastMessageId: Int64(10),
   lastSeenId: Int64(8),
   lastCurrentUserSentMessageId: Int64(9),
 );
 
-Message testLastMessage = Message(
+final testLastMessage = Message(
   to: testUid.asString(),
   from: testUid.asString(),
   packetId: "",
@@ -57,12 +96,12 @@ Message testLastMessage = Message(
   isHidden: false,
 );
 
-PendingMessage testPendingMessage = PendingMessage(
+final testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),
-  packetId: "94667220000013418",
+  packetId: "946672200000-0-13418",
   msg: testMessage.copyWith(
     time: 946672200000,
-    packetId: "94667220000013418",
+    packetId: "946672200000-0-13418",
   ),
   status: SendingStatus.PENDING,
 );
@@ -74,23 +113,24 @@ final filePendingMessage = testPendingMessage.copyWith(
   ),
   status: SendingStatus.UPLOAD_FILE_FAIL,
 );
-Activity testActivity = Activity(
+final testActivity = Activity(
   to: testUid,
   from: testUid,
   typeOfActivity: ActivityType.CHOOSING_STICKER,
 );
-Seen testSeen = Seen(
+final testSeen = Seen(
   uid: testUid.asString(),
   messageId: 0,
   hiddenMessageCount: 0,
 );
 
-Room testRoom = Room(uid: testUid.asString());
-Uid botUid = Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");
-Uid systemUid = Uid(
+final testRoom = Room(uid: testUid.asString());
+final botUid =
+    Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");
+final systemUid = Uid(
   category: Categories.SYSTEM,
   node: "Notification Service",
   sessionId: "*",
 );
-Uid emptyUid = Uid(category: Categories.USER, node: "", sessionId: "*");
-Uid groupUid = Uid(category: Categories.GROUP, node: "", sessionId: "*");
+final emptyUid = Uid(category: Categories.USER, node: "", sessionId: "*");
+final groupUid = Uid(category: Categories.GROUP, node: "", sessionId: "*");

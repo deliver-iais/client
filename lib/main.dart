@@ -24,6 +24,8 @@ import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
+import 'package:deliver/box/dao/meta_count_dao.dart';
+import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
@@ -40,12 +42,13 @@ import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
-import 'package:deliver/box/media_meta_data.dart';
-import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
+import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -69,14 +72,16 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
+import 'package:deliver/services/audio_auto_play_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -123,11 +128,8 @@ import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
-import 'box/dao/media_dao.dart';
-import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
-import 'box/media.dart';
 import 'repository/caching_repo.dart';
 import 'repository/mucRepo.dart';
 import 'repository/show_case_repo.dart';
@@ -183,12 +185,13 @@ Future<void> setupDI() async {
   registerSingleton<AvatarRepo>(AvatarRepo());
   registerSingleton<MucRepo>(MucRepo());
   registerSingleton<RoomRepo>(RoomRepo());
-  registerSingleton<MediaRepo>(MediaRepo());
+  registerSingleton<MetaRepo>(MetaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
   registerSingleton<CachingRepo>(CachingRepo());
 
   try {
+    registerSingleton<AudioAutoPlayService>(AudioAutoPlayService());
     registerSingleton<AudioService>(AudioService());
     registerSingleton<VideoPlayerService>(VideoPlayerService());
   } catch (_) {}
@@ -256,9 +259,9 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
     ..registerAdapter(SendingStatusAdapter())
-    ..registerAdapter(MediaAdapter())
-    ..registerAdapter(MediaMetaDataAdapter())
-    ..registerAdapter(MediaTypeAdapter())
+    ..registerAdapter(MetaAdapter())
+    ..registerAdapter(MetaCountAdapter())
+    ..registerAdapter(MetaTypeAdapter())
     ..registerAdapter(LiveLocationAdapter())
     ..registerAdapter(CallInfoAdapter())
     ..registerAdapter(CallEventAdapter())
@@ -292,8 +295,8 @@ Future<void> dbSetupDI() async {
   registerSingleton<ContactDao>(ContactDaoImpl());
   registerSingleton<MessageDao>(MessageDaoImpl());
   registerSingleton<RoomDao>(RoomDaoImpl());
-  registerSingleton<MediaDao>(MediaDaoImpl());
-  registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  registerSingleton<MetaDao>(MetaDaoImpl());
+  registerSingleton<MetaCountDao>(MetaCountDaoImpl());
   registerSingleton<DBManager>(DBManager());
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());

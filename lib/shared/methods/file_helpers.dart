@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:deliver/box/meta_type.dart' as meta;
 import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -147,6 +148,23 @@ extension FileProtoExtensions on file_proto.File {
 
   bool isAudioFileProto() =>
       isAudioFileType(type) && isFileNameMimeMatchFileType(name, type);
+
+  meta.MetaType findMetaTypeFromFileProto() {
+    if (isImageFileProto() || isVideoFileProto()) {
+      return meta.MetaType.MEDIA;
+    } else if (isAudioFileProto()) {
+      if (isVoiceFileProto()) {
+        return meta.MetaType.AUDIO;
+      } else {
+        return meta.MetaType.MUSIC;
+      }
+    } else {
+      return meta.MetaType.FILE;
+    }
+  }
+
+  bool isVoiceFileProto() =>
+      isAudioFileProto() && audioWaveform.data.isNotEmpty;
 }
 
 extension MimeExtensions on String? {
@@ -235,13 +253,6 @@ bool isAudioFileType(String fileType) {
       lt.contains("mp4") ||
       lt.contains("ogg") ||
       lt.contains("opus");
-}
-
-// TODO(bitbeter): Remove This as soon as possible
-bool isVoiceFilePath(String filePath) {
-  return !isWeb &&
-      (getFileExtension(filePath) == "m4a" ||
-          getFileExtension(filePath) == "ogg");
 }
 
 extension ImagePath on String {

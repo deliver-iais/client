@@ -2,9 +2,8 @@ import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
-import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/meta.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -246,7 +245,7 @@ class RoutingService {
   void openRoom(
     String roomId, {
     List<Message> forwardedMessages = const [],
-    List<Media> forwardedMedia = const [],
+    List<Meta> forwardedMeta = const [],
     bool popAllBeforePush = false,
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
@@ -265,7 +264,7 @@ class RoutingService {
           key: ValueKey("/room/$roomId"),
           roomId: roomId,
           forwardedMessages: forwardedMessages,
-          forwardedMedia: forwardedMedia,
+          forwardedMeta: forwardedMeta,
           shareUid: shareUid,
         ),
         popAllBeforePush: popAllBeforePush,
@@ -398,9 +397,8 @@ class RoutingService {
                 roomUid: roomUid,
                 messageId: messageId,
                 filePath: filePath,
-                initIndex: initIndex,
+                initialMediaIndex: initIndex,
                 message: message,
-                mediaType: MediaType.VIDEO,
               ),
               useTransparentRoute: true,
             )
@@ -410,20 +408,21 @@ class RoutingService {
     required String uid,
     required int messageId,
     int? initIndex,
+    int? mediaCount,
     Message? message,
     String? filePath,
     Function()? onEdit,
   }) =>
       _push(
         AllMediaPage(
-          key: const ValueKey("/media-details"),
+          key: const ValueKey("/all-media"),
           messageId: messageId,
-          initIndex: initIndex,
+          initialMediaIndex: initIndex,
           roomUid: uid,
+          mediaCount: mediaCount,
           filePath: filePath,
           message: message,
           onEdit: onEdit,
-          mediaType: MediaType.IMAGE,
         ),
         useTransparentRoute: true,
       );
@@ -473,14 +472,14 @@ class RoutingService {
 
   void openSelectForwardMessage({
     List<Message>? forwardedMessages,
-    List<Media>? medias,
+    List<Meta>? metas,
     pro.ShareUid? sharedUid,
   }) =>
       _push(
         SelectionToForwardPage(
           key: const ValueKey("/selection-to-forward-page"),
           forwardedMessages: forwardedMessages,
-          medias: medias,
+          metas: metas,
           shareUid: sharedUid,
         ),
       );

@@ -1,11 +1,11 @@
-import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_type.dart';
-
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
+
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -15,17 +15,17 @@ import 'package:open_filex/open_filex.dart';
 class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
   final int documentCount;
-  final MediaType type;
-  final void Function(Media) addSelectedMedia;
-  final List<Media> selectedMedia;
+  final MetaType type;
+  final void Function(Meta) addSelectedMeta;
+  final List<Meta> selectedMeta;
 
   const DocumentAndFileUi({
     super.key,
     required this.roomUid,
     required this.documentCount,
     required this.type,
-    required this.addSelectedMedia,
-    required this.selectedMedia,
+    required this.addSelectedMeta,
+    required this.selectedMeta,
   });
 
   @override
@@ -33,30 +33,9 @@ class DocumentAndFileUi extends StatefulWidget {
 }
 
 class DocumentAndFileUiState extends State<DocumentAndFileUi> {
-  static final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  static final _metaRepo = GetIt.I.get<MetaRepo>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  final _mediaCache = <int, Media>{};
-
-  Future<Media> _getMedia(int index) async {
-    if (_mediaCache.values.toList().isNotEmpty &&
-        _mediaCache.values.toList().length >= index) {
-      return _mediaCache.values.toList().elementAt(index);
-    } else {
-      final page = (index / MEDIA_PAGE_SIZE).floor();
-      final res = await _mediaQueryRepo.getMediaPage(
-        widget.roomUid.asString(),
-        widget.type,
-        page,
-        index,
-      );
-      if (res != null) {
-        for (final media in res) {
-          _mediaCache[media.messageId] = media;
-        }
-      }
-      return _mediaCache.values.toList()[index];
-    }
-  }
+  final _metaCache = <int, Meta>{};
 
   @override
   Widget build(BuildContext context) {
@@ -64,17 +43,25 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
     return ListView.builder(
       itemCount: widget.documentCount,
       itemBuilder: (c, index) {
-        return FutureBuilder<Media>(
-          future: _getMedia(index),
+        return FutureBuilder<Meta?>(
+          future: _metaRepo.getAndCacheMetaPage(
+            widget.documentCount - index,
+            MetaType.FILE,
+            widget.roomUid.asString(),
+            _metaCache,
+          ),
           builder: (c, mediaSnapshot) {
             if (mediaSnapshot.hasData) {
+              if (mediaSnapshot.data!.isDeletedMeta()) {
+                return const SizedBox.shrink();
+              }
               final filePb = mediaSnapshot.data!.json.toFile();
 
               return GestureDetector(
-                onLongPress: () => widget.addSelectedMedia(mediaSnapshot.data!),
-                onTap: () => widget.addSelectedMedia(mediaSnapshot.data!),
+                onLongPress: () => widget.addSelectedMeta(mediaSnapshot.data!),
+                onTap: () => widget.addSelectedMeta(mediaSnapshot.data!),
                 child: Container(
-                  color: widget.selectedMedia.contains(mediaSnapshot.data)
+                  color: widget.selectedMeta.contains(mediaSnapshot.data)
                       ? theme.hoverColor.withOpacity(0.4)
                       : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
@@ -198,7 +185,9 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                 ),
               );
             } else {
-              return const SizedBox.shrink();
+              return Container(
+                height: 100,
+              );
             }
           },
         );

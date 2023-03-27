@@ -155,6 +155,13 @@ class FileRepo {
     }
   }
 
+  Future<String?> getFilePathFromFileProto(file_pb.File file) {
+    return getFile(
+      file.uuid,
+      file.name,
+    );
+  }
+
   Future<bool> isExist(
     String uuid,
     String filename, {

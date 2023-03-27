@@ -3,6 +3,7 @@ import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart' as model_message;
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as model_seen;
 import 'package:deliver/models/call_event_type.dart';
@@ -343,7 +344,8 @@ void main() {
             roomDao.updateRoom(
               uid: testUid.asString(),
               lastMessage: testLastMessage.copyWith(
-                  json: Text(text: "text").writeToJson(),),
+                json: Text(text: "text").writeToJson(),
+              ),
             ),
           );
         });
@@ -432,12 +434,12 @@ void main() {
             getMessageId: 2,
             message: testMessage.copyWith(type: MessageType.FILE, id: 0),
           );
-          final mediaDao = getAndRegisterMediaDao();
+          final metaDao = getAndRegisterMetaDao();
           await DataStreamServices().handleIncomingMessage(
             message,
             isOnlineMessage: true,
           );
-          verify(mediaDao.deleteMedia(testUid.asString(), 0));
+          verify(metaDao.deleteMeta(testUid.asString(), 0, MetaType.FILE));
         });
         test(
             'When called if message type is MessageManipulationPersistentEvent_Action.DELETED should save a new message and get the room ',

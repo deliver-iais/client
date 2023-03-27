@@ -1,16 +1,15 @@
-import 'dart:convert';
-
-import 'package:deliver/box/media.dart';
-import 'package:deliver/box/media_meta_data.dart';
-import 'package:deliver/box/media_type.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_type.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+// TODO(any): add ui design for every url in url list
 class LinkTabUi extends StatefulWidget {
   final int linksCount;
   final Uid roomUid;
@@ -22,59 +21,70 @@ class LinkTabUi extends StatefulWidget {
 }
 
 class LinkTabUiState extends State<LinkTabUi> {
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  final _mediaCache = <int, Media>{};
-
-  Future<Media?> _getMedia(int index) async {
-    if (_mediaCache.values.toList().isNotEmpty &&
-        _mediaCache.values.toList().length >= index) {
-      return _mediaCache.values.toList().elementAt(index);
-    } else {
-      final page = (index / MEDIA_PAGE_SIZE).floor();
-      final res = await _mediaQueryRepo.getMediaPage(
-        widget.roomUid.asString(),
-        MediaType.LINK,
-        page,
-        index,
-      );
-      if (res != null) {
-        for (final media in res) {
-          _mediaCache[media.messageId] = media;
-        }
-      }
-      return _mediaCache.values.toList()[index];
-    }
-  }
+  final _metaRepo = GetIt.I.get<MetaRepo>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _metaCache = <int, Meta>{};
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<MediaMetaData?>(
-      stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-      builder: (context, snapshot) {
-        _mediaCache.clear();
-        return ListView.separated(
-          itemCount: widget.linksCount,
-          separatorBuilder: (c, i) {
-            return const Divider();
-          },
-          itemBuilder: (c, index) {
-            return FutureBuilder<Media?>(
-              future: _getMedia(index),
-              builder: (c, mediaSnapShot) {
-                if (mediaSnapShot.hasData) {
-                  final json = jsonDecode(mediaSnapShot.data!.json) as Map;
-                  return SizedBox(
-                    child: LinkPreview(
-                      link: json["url"],
-                      maxWidth: 100,
-                      isProfile: true,
+    final theme = Theme.of(context).colorScheme;
+    return ListView.separated(
+      itemCount: widget.linksCount,
+      separatorBuilder: (c, i) {
+        return const Divider();
+      },
+      itemBuilder: (c, index) {
+        return FutureBuilder<Meta?>(
+          future: _metaRepo.getAndCacheMetaPage(
+            widget.linksCount - index,
+            MetaType.LINK,
+            widget.roomUid.asString(),
+            _metaCache,
+          ),
+          builder: (c, mediaSnapShot) {
+            if (mediaSnapShot.hasData) {
+              if (mediaSnapShot.data!.isDeletedMeta()) {
+                return const SizedBox.shrink();
+              }
+              final urls = mediaSnapShot.data!.json.toLink().urls;
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: Column(
+                  children: [
+                    LinkPreview(
+                      link: urls.last,
+                      foregroundColor: theme.primary,
                     ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            );
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              _urlHandlerService.onUrlTap(
+                                urls[index],
+                              );
+                            },
+                            child: Text(
+                              urls[index],
+                              maxLines: 1,
+                              style: TextStyle(color: theme.primary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        },
+                        itemCount: urls.length,
+                        shrinkWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return const SizedBox(
+                height: 100,
+              );
+            }
           },
         );
       },

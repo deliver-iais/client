@@ -16,20 +16,18 @@ class LinkPreview extends StatelessWidget {
   static final Cache<String, Metadata> cache =
       LruCache<String, Metadata>(storage: InMemoryStorage(100));
   final String link;
-  final double maxWidth;
+  final double? maxWidth;
   final double maxHeight;
-  final bool isProfile;
   final Color? backgroundColor;
   final Color? foregroundColor;
 
   const LinkPreview({
     super.key,
     required this.link,
-    required this.maxWidth,
+    this.maxWidth,
     this.backgroundColor,
     this.foregroundColor,
     this.maxHeight = 120,
-    this.isProfile = false,
   });
 
   Future<Metadata> _fetchFromHTML(String url) async {
@@ -162,5 +160,5 @@ class LinkPreview extends StatelessWidget {
     );
   }
 
-  double getWidth() => max(maxWidth, 150);
+  double getWidth() => maxWidth != null ? max(maxWidth!, 150) : double.infinity;
 }

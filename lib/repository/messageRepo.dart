@@ -5,13 +5,12 @@ import 'dart:io' as dart_file;
 import 'dart:math';
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
-import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
@@ -21,7 +20,7 @@ import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -95,7 +94,6 @@ class MessageRepo {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
 
   final _audioService = GetIt.I.get<AudioService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -111,8 +109,7 @@ class MessageRepo {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
-  final _mediaRepo = GetIt.I.get<MediaRepo>();
-
+  final _metaRepo = GetIt.I.get<MetaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
@@ -831,7 +828,7 @@ class MessageRepo {
   ) async {
     var tempDimension = Size.zero;
     var tempFileSize = 0;
-    var tempType = "";
+    var tempType = DEFAULT_FILE_TYPE;
 
     try {
       tempType = detectFileMimeByFileModel(file);
@@ -1263,17 +1260,17 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendForwardedMediaMessage(
+  Future<void> sendForwardedMetaMessage(
     Uid roomUid,
-    List<Media> forwardedMedias,
+    List<Meta> forwardedMetas,
   ) async {
-    for (final media in forwardedMedias) {
+    for (final meta in forwardedMetas) {
       final msg = (await _createMessage(
         roomUid,
         replyId: -1,
-        forwardedFrom: media.createdBy,
+        forwardedFrom: meta.createdBy,
       ))
-          .copyWith(type: MessageType.FILE, json: media.json);
+          .copyWith(type: MessageType.FILE, json: meta.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
       return _saveAndSend(pm);
@@ -1546,11 +1543,11 @@ class MessageRepo {
   Future<void> deleteMessage(List<Message> messages) async {
     try {
       for (final message in messages) {
+        if (message.id != null && _metaRepo.isMessageContainMeta(message)) {
+          unawaited(_metaRepo.addDeletedMetaIndexFromMessage(message));
+        }
         final msg = message.copyDeleted();
 
-        if (msg.type == MessageType.FILE && msg.id != null) {
-          unawaited(_mediaDao.deleteMedia(msg.roomUid, msg.id!));
-        }
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
@@ -1737,7 +1734,6 @@ class MessageRepo {
         ..json = updatedFile.writeToJson()
         ..edited = true;
       await _messageDao.saveMessage(editableMessage);
-      await _mediaRepo.updateMediaFile(editableMessage);
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
