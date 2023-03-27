@@ -8,6 +8,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/music_box.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -280,7 +281,7 @@ class ShareBoxState extends State<ShareBox> {
                         top: topPadding,
                       ),
                       child: AnimatedSwitcher(
-                        duration: SLOW_ANIMATION_DURATION,
+                        duration: AnimationSettings.slow,
                         child: w,
                       ),
                     ),
@@ -311,7 +312,7 @@ class ShareBoxState extends State<ShareBox> {
                                       1,
                                     ),
                                   ),
-                                  duration: SLOW_ANIMATION_DURATION,
+                                  duration: AnimationSettings.slow,
                                   curve: Curves.easeInOut,
                                 ),
                               );
@@ -351,11 +352,11 @@ class ShareBoxState extends State<ShareBox> {
                       ],
                     ),
                     AnimatedScale(
-                      duration: VERY_SLOW_ANIMATION_DURATION,
+                      duration: AnimationSettings.verySlow,
                       curve: Curves.easeInOut,
                       scale: isAnyFileSelected ? 1 : 0,
                       child: AnimatedOpacity(
-                        duration: SLOW_ANIMATION_DURATION,
+                        duration: AnimationSettings.slow,
                         curve: Curves.easeInOut,
                         opacity: isAnyFileSelected ? 1 : 0,
                         child: ShareBoxInputCaption(

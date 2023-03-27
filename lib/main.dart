@@ -30,6 +30,7 @@ import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/dao/recent_search_dao.dart';
 import 'package:deliver/box/dao/registered_bot_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/scroll_position_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
@@ -96,11 +97,12 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/firebase_options.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
@@ -159,7 +161,7 @@ Future<void> setupDI() async {
   registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().init(retry: true);
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-  await GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp();
+  GetIt.I.get<ServicesDiscoveryRepo>().initClientChannels();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
@@ -167,7 +169,6 @@ Future<void> setupDI() async {
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  registerSingleton<UxService>(UxService());
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
@@ -279,6 +280,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<AvatarDao>(AvatarDaoImpl());
   registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   registerSingleton<SharedDao>(SharedDaoImpl());
+  registerSingleton<ScrollPositionDao>(ScrollPositionDaoImpl());
   registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   registerSingleton<SeenDao>(SeenDaoImpl());
   registerSingleton<FileDao>(FileDaoImpl());
@@ -303,6 +305,11 @@ Future<void> dbSetupDI() async {
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
+
+  registerSingleton<Settings>(Settings());
+
+  /// Initiating Settings Variables
+  await Future.delayed(const Duration(milliseconds: 500));
 }
 
 Future initializeFirebase() async {
@@ -362,27 +369,21 @@ void main() async {
 
 Future<void> _setWindowSize() async {
   setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
-  final sharedDao = GetIt.I.get<SharedDao>();
-  final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
-  final rect = size?.split('_');
+  final windowFrame = settings.windowsFrame.value;
 
-  if (rect != null) {
-    try {
-      setWindowFrame(
-        Rect.fromLTRB(
-          double.parse(rect[0]),
-          double.parse(rect[1]),
-          double.parse(rect[2]),
-          double.parse(rect[3]),
-        ),
-      );
-    } catch (e) {
-      setWindowMinSize(
-        const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
-      );
-    }
-  } else {
-    setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  try {
+    setWindowFrame(
+      Rect.fromLTRB(
+        windowFrame.left,
+        windowFrame.top,
+        windowFrame.right,
+        windowFrame.bottom,
+      ),
+    );
+  } catch (e) {
+    setWindowMinSize(
+      const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+    );
   }
 
   // setWindowMaxSize(const Size(3000, 3000));
@@ -404,7 +405,7 @@ Future<void> _setWindowSize() async {
 }
 
 class MyApp extends StatelessWidget {
-  final _uxService = GetIt.I.get<UxService>();
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
@@ -413,27 +414,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _uxService.updateMainContext(context);
+    settings.updateMainContext(context);
     return StreamBuilder(
       stream: MergeStream([
-        _uxService.themeIndexStream,
-        _uxService.patternIndexStream,
-        _uxService.themeIsDarkStream,
-        _uxService.showColorfulMessagesStream,
-        _uxService.textScaleStream,
+        settings.themeColorIndex.stream,
+        settings.backgroundPatternIndex.stream,
+        settings.themeIsDark.stream,
+        settings.showColorfulMessages.stream,
+        settings.textScale.stream,
+        _appLifecycleService.lifecycleStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
         return ExtraTheme(
-          extraThemeData: _uxService.extraTheme,
+          extraThemeData: settings.extraThemeData,
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              statusBarIconBrightness:
-                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              statusBarIconBrightness: settings.brightnessOpposite,
               systemNavigationBarColor:
-                  _uxService.theme.colorScheme.onInverseSurface,
-              systemNavigationBarIconBrightness:
-                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+                  settings.themeData.colorScheme.onInverseSurface,
+              systemNavigationBarIconBrightness: settings.brightnessOpposite,
             ),
             child: RawKeyboardListener(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
@@ -446,12 +446,9 @@ class MyApp extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 title: APPLICATION_NAME,
                 locale: _i18n.locale,
-                theme: _uxService.theme,
+                theme: settings.themeData,
                 navigatorKey: _routingService.mainNavigatorState,
-                supportedLocales: const [
-                  Locale('en', 'US'),
-                  Locale('fa', 'IR')
-                ],
+                supportedLocales: Language.values.map((e) => e.locale),
                 localizationsDelegates: [
                   I18N.delegate,
                   GlobalMaterialLocalizations.delegate,

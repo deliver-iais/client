@@ -8,20 +8,17 @@ import 'package:rxdart/rxdart.dart';
 enum AppLifecycle {
   ACTIVE,
   PAUSE,
-  RESUME,
 }
 
 class AppLifecycleService {
   final BehaviorSubject<AppLifecycle> _state =
       BehaviorSubject.seeded(AppLifecycle.ACTIVE);
 
-  AppLifecycle getAppLiveCycle() => _state.value;
+  bool get isActive => _state.value == AppLifecycle.ACTIVE;
+
+  Stream<AppLifecycle> get lifecycleStream => _state.stream.distinct();
 
   void updateAppStateToPause() => _state.value = AppLifecycle.PAUSE;
-
-  bool appIsActive() => _state.value == AppLifecycle.ACTIVE;
-
-  Stream<AppLifecycle> watchAppAppLifecycle() => _state.stream;
 
   void startLifeCycListener() {
     if (isDesktopNative) {

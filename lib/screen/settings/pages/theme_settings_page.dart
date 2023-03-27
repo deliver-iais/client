@@ -6,7 +6,8 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -33,7 +34,6 @@ const MIN_FONT_SIZE = 0.85;
 const MAX_FONT_SIZE = 1.45;
 
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
-  static final _uxService = GetIt.I.get<UxService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
 
@@ -54,13 +54,26 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         FAKE_USER_UID.asString(),
         "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟ اگر نمیای که یه خبری بی زحمت بده [لینک محل ورزشگاه](https://nshn.ir/68sbvXhTWxVYuZ) ",
       ),
-      cm(3, FAKE_USER_UID.asString(), cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
       cm(
-        4,
+        3,
+        FAKE_USER_UID.asString(),
+        cUser,
+        "👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋",
+        replyId: 1,
+      ),
+      cm(4, FAKE_USER_UID.asString(), cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
+      cm(
+        5,
+        cUser,
+        FAKE_USER_UID.asString(),
+        "👌",
+        replyId: 4,
+      ),
+      cm(
+        6,
         cUser,
         FAKE_USER_UID.asString(),
         "ایول\\n \\n ساعت ۹ شب، ورزشگاه. منتظرتیم",
-        replyId: 3,
       ),
     ];
   }
@@ -71,6 +84,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       buildMessageBox(2),
       buildMessageBox(3),
       buildMessageBox(4),
+      buildMessageBox(5),
+      buildMessageBox(6),
     ];
   }
 
@@ -147,9 +162,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     createMessages();
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60.0),
@@ -165,7 +184,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             stream: _idSubject,
             builder: (context, snapshot) {
               return StreamBuilder<int>(
-                stream: _uxService.patternIndexStream,
+                stream: settings.backgroundPatternIndex.stream,
                 builder: (ctx, s) {
                   return Background(
                     id: snapshot.data ?? 0,
@@ -175,8 +194,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             },
           ),
           FluidContainerWidget(
-            // showStandardContainer: true,
-            // backGroundColor: Theme.of(context).colorScheme.surfaceVariant,
             child: Directionality(
               textDirection: _i18n.defaultTextDirection,
               child: ListView(
@@ -206,7 +223,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                   child: Directionality(
                                     textDirection: _i18n.defaultTextDirection,
                                     child: StreamBuilder<double>(
-                                      stream: _uxService.textScaleStream,
+                                      stream: settings.textScale.stream,
                                       builder: (context, snapshot) {
                                         return SliderTheme(
                                           data: const SliderThemeData(
@@ -221,7 +238,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                             label:
                                                 (snapshot.data ?? 1).toString(),
                                             onChanged: (value) {
-                                              _uxService.selectTextSize(value);
+                                              settings.textScale.set(value);
                                             },
                                           ),
                                         );
@@ -243,74 +260,82 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       SettingsTile.switchTile(
                         title: _i18n.get("text_justification"),
                         leading: const Icon(CupertinoIcons.text_append),
-                        switchValue: _uxService.showTextsJustified,
+                        switchValue: settings.showTextsJustified.value,
                         onToggle: (value) {
                           _analyticsService.sendLogEvent(
                             "toggleShowTextsJustified",
                           );
-                          setState(() {
-                            _uxService.toggleShowTextsJustified();
-                          });
+                          setState(
+                            () => settings.showTextsJustified.toggleValue(),
+                          );
                         },
                       ),
                       if (!isWeb)
                         SettingsTile.switchTile(
                           title: _i18n.get("show_link_preview"),
                           leading: const Icon(CupertinoIcons.link),
-                          switchValue: _uxService.showLinkPreview,
+                          switchValue: settings.showLinkPreview.value,
+                          enabled: settings.showLinkPreview.enabled,
                           onToggle: (value) {
                             _analyticsService.sendLogEvent(
                               "toggleShowLinkPreview",
                             );
                             setState(() {
-                              _uxService.toggleShowLinkPreview();
+                              settings.showLinkPreview.toggleValue();
                             });
                           },
                         ),
+                      SettingsTile.switchTile(
+                        title: _i18n["show_animated_emojis"],
+                        leading: const Icon(CupertinoIcons.text_append),
+                        switchValue: settings.showAnimatedEmoji.value,
+                        enabled: settings.showAnimatedEmoji.enabled,
+                        onToggle: (value) {
+                          setState(
+                            () => settings.showAnimatedEmoji.toggleValue(),
+                          );
+                        },
+                      ),
                     ],
                   ),
-                  SizedBox(
-                    child: Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: Stack(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  width: 4,
-                                ),
-                                borderRadius: mainBorder,
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.secondary,
+                                width: 4,
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0,
-                                vertical: 8.0,
-                              ),
-                              child: Column(
-                                children: [
-                                  ...createFakeMessages(),
-                                ],
-                              ),
+                              borderRadius: mainBorder,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0,
+                              vertical: 8.0,
+                            ),
+                            child: Column(
+                              children: [
+                                ...createFakeMessages(),
+                              ],
                             ),
                           ),
-                          Positioned.fill(
-                            bottom: 16,
-                            left: 40,
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: FloatingActionButton(
-                                onPressed: () =>
-                                    _idSubject.add(_idSubject.value + 1),
-                                child: const Icon(Icons.rotate_right),
-                              ),
+                        ),
+                        Positioned.fill(
+                          bottom: 16,
+                          left: 40,
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: FloatingActionButton(
+                              onPressed: () =>
+                                  _idSubject.add(_idSubject.value + 1),
+                              child: const Icon(Icons.rotate_right),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   Container(
@@ -344,75 +369,116 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                 ),
                               ],
                             ),
-                            StreamBuilder<int>(
-                              stream: _uxService.patternIndexStream,
-                              builder: (context, snapshot) {
-                                return Column(
-                                  children: [
-                                    SettingsTile(
-                                      title: _i18n.get("pattern"),
-                                      leading: const Icon(CupertinoIcons.photo),
-                                      trailing: const SizedBox.shrink(),
-                                    ),
-                                    Row(
-                                      children: [
-                                        if (isDesktopDevice)
-                                          IconButton(
-                                            onPressed: () =>
-                                                _controller.animateTo(
-                                              _controller.position.pixels - 200,
-                                              duration:
-                                                  SUPER_SLOW_ANIMATION_DURATION,
-                                              curve: Curves.ease,
+                            SettingsTile.switchTile(
+                              title: _i18n["show_background"],
+                              leading: const Icon(CupertinoIcons.text_append),
+                              switchValue: settings.showRoomBackground.value,
+                              enabled: settings.showRoomBackground.enabled,
+                              onToggle: (value) {
+                                setState(
+                                  () =>
+                                      settings.showRoomBackground.toggleValue(),
+                                );
+                              },
+                            ),
+                            if (settings.showRoomBackground.value)
+                              StreamBuilder<int>(
+                                stream: settings.backgroundPatternIndex.stream,
+                                builder: (context, snapshot) {
+                                  return Column(
+                                    children: [
+                                      SettingsTile(
+                                        title: _i18n.get("pattern"),
+                                        leading:
+                                            const Icon(CupertinoIcons.photo),
+                                        trailing: const SizedBox.shrink(),
+                                      ),
+                                      Row(
+                                        children: [
+                                          if (isDesktopDevice)
+                                            IconButton(
+                                              onPressed: () =>
+                                                  _controller.animateTo(
+                                                _controller.position.pixels -
+                                                    200,
+                                                duration:
+                                                    AnimationSettings.superSlow,
+                                                curve: Curves.ease,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.arrow_back_ios,
+                                              ),
                                             ),
-                                            icon: const Icon(
-                                              Icons.arrow_back_ios,
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              controller: _controller,
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                children: [
+                                                  for (var i = 0;
+                                                      i < patterns.length;
+                                                      i++)
+                                                    pattern(patterns[i], i),
+                                                  pattern(null, patterns.length)
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            controller: _controller,
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                              children: [
-                                                for (var i = 0;
-                                                    i < patterns.length;
-                                                    i++)
-                                                  pattern(patterns[i], i),
-                                                pattern(null, patterns.length)
-                                              ],
+                                          if (isDesktopDevice)
+                                            IconButton(
+                                              onPressed: () =>
+                                                  _controller.animateTo(
+                                                _controller.position.pixels +
+                                                    200,
+                                                duration:
+                                                    AnimationSettings.superSlow,
+                                                curve: Curves.ease,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.arrow_forward_ios,
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        if (isDesktopDevice)
-                                          IconButton(
-                                            onPressed: () =>
-                                                _controller.animateTo(
-                                              _controller.position.pixels + 200,
-                                              duration:
-                                                  SUPER_SLOW_ANIMATION_DURATION,
-                                              curve: Curves.ease,
-                                            ),
-                                            icon: const Icon(
-                                              Icons.arrow_forward_ios,
-                                            ),
-                                          ),
-                                      ],
-                                    )
-                                  ],
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                },
+                              ),
+                            SettingsTile.switchTile(
+                              title: _i18n["repeat_animated_emojis"],
+                              leading: const Icon(CupertinoIcons.text_append),
+                              switchValue: settings.repeatAnimatedEmoji.value,
+                              enabled: settings.repeatAnimatedEmoji.enabled,
+                              onToggle: (value) {
+                                setState(
+                                  () => settings.repeatAnimatedEmoji
+                                      .toggleValue(),
+                                );
+                              },
+                            ),
+                            SettingsTile.switchTile(
+                              title: _i18n["show_animations_with_higher_frame_rates"],
+                              leading: const Icon(CupertinoIcons.text_append),
+                              switchValue:
+                                  settings.showWsWithHighFrameRate.value,
+                              enabled: settings.showWsWithHighFrameRate.enabled,
+                              onToggle: (value) {
+                                setState(
+                                  () => settings.showWsWithHighFrameRate
+                                      .toggleValue(),
                                 );
                               },
                             ),
                             SettingsTile.switchTile(
                               title: _i18n.get("colorful_messages"),
                               leading: const Icon(CupertinoIcons.paintbrush),
-                              switchValue: _uxService.showColorfulMessages,
+                              switchValue: settings.showColorfulMessages.value,
                               onToggle: (value) {
                                 _analyticsService.sendLogEvent(
                                   "themeColorfulMessageToggle",
                                 );
                                 setState(() {
-                                  _uxService.toggleShowColorfulMessages();
+                                  settings.showColorfulMessages.toggleValue();
                                 });
                               },
                             ),
@@ -423,13 +489,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             SettingsTile.switchTile(
                               title: _i18n.get("play_in_chat_sounds"),
                               leading: const Icon(CupertinoIcons.bell),
-                              switchValue: _uxService.playInChatSounds,
+                              switchValue: settings.playInChatSounds.value,
                               onToggle: (value) {
                                 _analyticsService.sendLogEvent(
                                   "togglePlayInChatSounds",
                                 );
                                 setState(() {
-                                  _uxService.togglePlayInChatSounds();
+                                  settings.playInChatSounds.toggleValue();
                                 });
                               },
                             ),
@@ -448,13 +514,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   Widget color(Color color, int index) {
-    final isSelected = _uxService.themeIndex == index;
+    final isSelected = settings.themeColorIndex.value == index;
     final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          _uxService.selectTheme(index);
+          settings.themeColorIndex.set(index);
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -462,7 +528,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             alignment: AlignmentDirectional.center,
             children: [
               AnimatedContainer(
-                duration: MOTION_STANDARD_ANIMATION_DURATION,
+                duration: AnimationSettings.standard,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: isSelected
@@ -498,11 +564,11 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   Widget pattern(String? pattern, int index) {
-    final isSelected = _uxService.patternIndex == index;
+    final isSelected = settings.backgroundPatternIndex.value == index;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => _uxService.selectPattern(index),
+        onTap: () => settings.backgroundPatternIndex.set(index),
         child: AnimatedContainer(
           clipBehavior: Clip.hardEdge,
           margin:
@@ -519,7 +585,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     width: 2,
                   ),
           ),
-          duration: MOTION_STANDARD_ANIMATION_DURATION,
+          duration: AnimationSettings.standard,
           child: SizedBox(
             width: 80,
             height: 100,
@@ -557,7 +623,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   Widget _buildThemeSelection() {
-    final colorPalette = CorePalette.of(palettes[_uxService.themeIndex].value);
+    final colorPalette = settings.corePalette;
     return Column(
       children: [
         SettingsTile(
@@ -572,14 +638,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               selectedBorderColor: Color(colorPalette.primary.get(60)),
               onTap: () {
                 setState(() {
-                  _uxService.toggleThemeToDarkMode(
-                    forceToDisableAutoNightMode: true,
-                  );
+                  settings.isAutoNightModeEnable.set(false);
+                  settings.themeIsDark.toggleValue();
                 });
               },
               child: _darkThemeSelectionItemBackground(colorPalette),
-              isSelected:
-                  _uxService.themeIsDark && !_uxService.isAutoNightModeEnable,
+              isSelected: settings.themeIsDark.value &&
+                  !settings.isAutoNightModeEnable.value,
             ),
             const SizedBox(
               width: 8,
@@ -589,14 +654,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               selectedBorderColor: Color(colorPalette.primary.get(60)),
               onTap: () {
                 setState(() {
-                  _uxService.toggleThemeToLightMode(
-                    forceToDisableAutoNightMode: true,
-                  );
+                  settings.isAutoNightModeEnable.set(false);
+                  settings.themeIsDark.set(false);
                 });
               },
               child: _lightThemeSelectionItemBackground(colorPalette),
-              isSelected:
-                  !_uxService.themeIsDark && !_uxService.isAutoNightModeEnable,
+              isSelected: !settings.themeIsDark.value &&
+                  !settings.isAutoNightModeEnable.value,
             ),
             const SizedBox(
               width: 8,
@@ -605,9 +669,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               text: _i18n.get("os_default"),
               selectedBorderColor: Color(colorPalette.primary.get(60)),
               onTap: () {
-                setState(() {
-                  _uxService.enableAutoNightMode();
-                });
+                setState(() => settings.isAutoNightModeEnable.set(true));
               },
               child: Stack(
                 children: [
@@ -634,7 +696,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   ),
                 ],
               ),
-              isSelected: _uxService.isAutoNightModeEnable,
+              isSelected: settings.isAutoNightModeEnable.value,
             ),
           ],
         ),
@@ -723,13 +785,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       ),
       child: Stack(
         children: [
-          if (patterns.length < _uxService.patternIndex)
+          if (patterns.length < settings.backgroundPatternIndex.value)
             Positioned(
               top: 0,
               child: Image(
                 width: 260,
                 image: AssetImage(
-                  "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                  "assets/backgrounds/${patterns[settings.backgroundPatternIndex.value]}.webp",
                 ),
                 color: patternColor,
                 fit: BoxFit.fill,

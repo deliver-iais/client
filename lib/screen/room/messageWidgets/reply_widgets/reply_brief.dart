@@ -6,6 +6,7 @@ import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:deliver/services/message_extractor_services.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,13 +66,14 @@ class ReplyBrief extends StatelessWidget {
           } else {
             widget = SenderAndContent(
               iconData: CupertinoIcons.reply,
-              maxWidth: maxWidth,
+              maxWidth: max(maxWidth, 0),
               showBackgroundColor: true,
               messageSRF: future,
             );
           }
 
           return PageTransitionSwitcher(
+            duration: AnimationSettings.standard,
             transitionBuilder: (
               child,
               animation,

@@ -1,7 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -77,7 +77,7 @@ class ShareBoxInputCaption extends StatelessWidget {
           top: 0,
           left: 0,
           child: AnimatedScale(
-            duration: VERY_SLOW_ANIMATION_DURATION,
+            duration: AnimationSettings.verySlow,
             curve: Curves.easeInOut,
             scale: count > 0 ? 1 : 0,
             child: Container(

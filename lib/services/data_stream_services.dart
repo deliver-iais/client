@@ -24,7 +24,7 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -538,14 +538,13 @@ class DataStreamServices {
 
   Future<bool> shouldNotifyForThisMessage(Message message) async {
     final authRepo = GetIt.I.get<AuthRepo>();
-    final uxService = GetIt.I.get<UxService>();
     final roomRepo = GetIt.I.get<RoomRepo>();
 
     final roomUid = getRoomUid(authRepo, message);
 
     if (message.shouldBeQuiet) {
       return false;
-    } else if (uxService.isAllNotificationDisabled ||
+    } else if (settings.isAllNotificationDisabled.value ||
         await roomRepo.isRoomMuted(roomUid.asString())) {
       // If Notification is Off
       return false;

@@ -5,30 +5,21 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:material_color_utilities/palettes/core_palette.dart';
 
 class BotStartInformationBoxWidget extends StatelessWidget {
   final Uid roomUid;
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
-  static final _uxService = GetIt.I.get<UxService>();
   final backGroundColors = <Color>[
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .primary
-          .get(80),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .tertiary
-          .get(80),
-    ),
+    Color(settings.corePalette.primary.get(80)),
+    Color(settings.corePalette.tertiary.get(80)),
   ];
 
   BotStartInformationBoxWidget({Key? key, required this.roomUid})
@@ -47,6 +38,7 @@ class BotStartInformationBoxWidget extends StatelessWidget {
         final botCommands = botInfo.data?.commands;
         final botDescription = botInfo.data?.description;
         return PageTransitionSwitcher(
+          duration: AnimationSettings.standard,
           transitionBuilder: (
             child,
             animation,

@@ -1,19 +1,17 @@
 import 'dart:isolate';
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 class NotificationForegroundService {
-  final _logger = GetIt.I.get<Logger>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
   static final _i18n = GetIt.I.get<I18N>();
+  final _logger = GetIt.I.get<Logger>();
 
   ReceivePort? _receivePort;
 
@@ -25,29 +23,15 @@ class NotificationForegroundService {
 
   set setSendPort(SendPort? sp) => _sendPort = sp;
 
-  bool foregroundNotification = false;
-
   NotificationForegroundService() {
-    GetIt.I
-        .get<SharedDao>()
-        .getBooleanStream(SHARED_DAO_NOTIFICATION_FOREGROUND)
-        .listen(
-      (sif) async {
-        foregroundNotification = sif;
-        await foregroundService(foregroundNotification: foregroundNotification);
-      },
-    );
+    settings.foregroundNotificationIsEnabled.stream.listen((event) async {
+      await foregroundService();
+    });
   }
 
-  Future<void> toggleForegroundService() async {
-    final foregroundNotification =
-        await _sharedDao.toggleBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-    await foregroundService(foregroundNotification: foregroundNotification);
-  }
-
-  Future<void> foregroundService({required bool foregroundNotification}) async {
+  Future<void> foregroundService() async {
     if (hasForegroundServiceCapability) {
-      if (foregroundNotification) {
+      if (settings.foregroundNotificationIsEnabled.value) {
         await _foregroundTaskInitializing();
       } else {
         await _stopForegroundTask();
@@ -56,18 +40,14 @@ class NotificationForegroundService {
   }
 
   Future<bool> callForegroundServiceStart() async {
-    final foregroundNotification =
-        await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-    if (!foregroundNotification) {
+    if (!settings.foregroundNotificationIsEnabled.value) {
       return foregroundTaskInitializing();
     }
     return false;
   }
 
   Future<void> callForegroundServiceStop() async {
-    final foregroundNotification =
-        await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-    if (!foregroundNotification) {
+    if (!settings.foregroundNotificationIsEnabled.value) {
       await _stopForegroundTask();
     }
   }
@@ -85,9 +65,6 @@ class NotificationForegroundService {
   }
 
   Future<void> _initForegroundTask() async {
-    final foregroundNotification =
-        await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -103,7 +80,7 @@ class NotificationForegroundService {
           name: 'launcher',
         ),
         buttons: [
-          if (foregroundNotification)
+          if (settings.foregroundNotificationIsEnabled.value)
             NotificationButton(
               id: 'stopForegroundNotification',
               text: _i18n.get("notification_foreground_stop"),
@@ -139,7 +116,7 @@ class NotificationForegroundService {
 
   Future<bool> _startForegroundTask() async {
     final foregroundNotification =
-        await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
+        settings.foregroundNotificationIsEnabled.value;
 
     ReceivePort? receivePort;
     bool reqResult;
@@ -166,7 +143,7 @@ class NotificationForegroundService {
       if (foregroundNotification) {
         receivePort.listen((message) async {
           if (message == "endForegroundNotification") {
-            await _sharedDao.toggleBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
+            settings.foregroundNotificationIsEnabled.toggleValue();
             await _stopForegroundTask();
           } else {
             _logger.i('receive callStatus: $message');

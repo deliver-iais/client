@@ -1,15 +1,11 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'time_counter.g.dart';
+
+@JsonSerializable()
 class TimeCounter {
   int count;
   int time;
-
-  TimeCounter.fromJson(Map<String, dynamic> json)
-      : count = json['count'],
-        time = json['time'];
-
-  Map<String, dynamic> toJson() => {
-        'count': count,
-        'time': time,
-      };
 
   TimeCounter({required this.count, required this.time});
 
@@ -18,3 +14,6 @@ class TimeCounter {
     return "TimeCounter([count:$count],[time:$time])";
   }
 }
+
+const TimeCounterFromJson = _$TimeCounterFromJson;
+const TimeCounterToJson = _$TimeCounterToJson;

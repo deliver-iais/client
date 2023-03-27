@@ -4,7 +4,7 @@ import 'package:deliver/main.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/firebase_services.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
@@ -69,7 +69,7 @@ Future<bool> update() async {
       await Hive.close();
       await setupDI();
     } catch (_) {
-      GetIt.I.get<UxService>().reInitialize();
+      GetIt.I.get<Settings>().reInitialize();
     }
     GetIt.I.get<AppLifecycleService>().updateAppStateToPause();
     await GetIt.I.get<MessageRepo>().updatingRooms();

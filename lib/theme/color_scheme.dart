@@ -1,8 +1,7 @@
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/blend/blend.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
@@ -250,7 +249,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
   );
 
-  final scale = GetIt.I.get<UxService>().textScaleValue;
+  final scale = settings.textScale.value;
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,

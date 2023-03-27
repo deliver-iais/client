@@ -5,13 +5,14 @@ import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/emoji/footer/search_bar_footer.dart';
 import 'package:deliver/screen/room/widgets/emoji/header/emoji_selection_header.dart';
 import 'package:deliver/screen/room/widgets/emoji/skin_tone_overlay/skin_tone_overlay.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/emoji.dart';
@@ -46,7 +47,6 @@ class EmojiKeyboardWidget extends StatefulWidget {
 
 class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     with CustomPopupMenu {
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
@@ -249,7 +249,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
   Widget _buildFooter({bool hideHeader = false}) {
     return AnimatedContainer(
-      duration: VERY_SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.verySlow,
       height: hideHeader ? 0 : 30,
       child: SearchBarFooter(
         onEmojiDeleted: widget.onEmojiDeleted,
@@ -279,7 +279,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         _pinHeader.add(true);
         Scrollable.ensureVisible(
           _headersKeyList[index].currentContext!,
-          duration: SUPER_SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.superSlow,
           curve: Curves.fastOutSlowIn,
         );
       },
@@ -494,7 +494,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                       style: emojiFont(fontSize: 25),
                     ),
                   ),
-                  if (_featureFlags.showDeveloperDetails)
+                  if (settings.showDeveloperDetails.value)
                     if (isAnimatedEmoji(emojiList.elementAt(index).toString()))
                       Center(
                         child: Container(

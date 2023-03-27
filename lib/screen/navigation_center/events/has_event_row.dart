@@ -27,8 +27,9 @@ class HasEventsRowState extends State<HasEventsRow> {
     initialExpanded: _isOpened,
   );
   late final ConfettiController _controllerCenter;
-  // final _eventTime = DateTime(2023, 3, 19, 16, 23, 29).millisecondsSinceEpoch;
+
   final _eventTime = DateTime(2023, 3, 21, 0, 54, 29).millisecondsSinceEpoch;
+  // ignore: avoid_redundant_argument_values
   final _finalDay = DateTime(2023, 4, 3, 0, 0, 0).millisecondsSinceEpoch;
 
   @override

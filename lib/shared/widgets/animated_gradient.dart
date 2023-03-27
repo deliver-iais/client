@@ -1,9 +1,8 @@
 import 'dart:ui';
 
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 
 class AnimatedGradient extends StatefulWidget {
   final bool isConnected;
@@ -33,7 +32,7 @@ class AnimatedGradientState extends State<AnimatedGradient>
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 3));
     _animation =
-        Tween<double>(begin: 10, end:80).animate(_animationController);
+        Tween<double>(begin: 10, end: 80).animate(_animationController);
     _animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _animationController.reverse();
@@ -59,7 +58,6 @@ class AnimatedGradientState extends State<AnimatedGradient>
 }
 
 class AnimatedBackground extends AnimatedWidget {
-  static final uxService = GetIt.I.get<UxService>();
   final bool isConnected;
 
   const AnimatedBackground({
@@ -73,13 +71,10 @@ class AnimatedBackground extends AnimatedWidget {
     final animation = listenable as Animation<double>;
     final gradientColors = <Color>[
       Color(
-        uxService.getCorePalette().primary.get(uxService.themeIsDark ? 50 : 80),
+        settings.corePalette.primary.get(settings.themeIsDark.value ? 50 : 80),
       ),
       Color(
-        uxService
-            .getCorePalette()
-            .tertiary
-            .get(uxService.themeIsDark ? 50 : 70),
+        settings.corePalette.tertiary.get(settings.themeIsDark.value ? 50 : 70),
       ),
     ];
     return AnnotatedRegion<SystemUiOverlayStyle>(

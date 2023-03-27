@@ -4,7 +4,6 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
 import 'defines.dart';
 
 class CupertinoSection extends StatelessWidget {
@@ -12,14 +11,12 @@ class CupertinoSection extends StatelessWidget {
     this.items, {
     super.key,
     this.header,
-    this.headerPadding = defaultTitlePadding,
     this.footer,
   });
 
   final List<Widget> items;
 
   final Widget? header;
-  final EdgeInsetsGeometry headerPadding;
   final Widget? footer;
 
   @override
@@ -29,13 +26,18 @@ class CupertinoSection extends StatelessWidget {
     if (header != null) {
       columnChildren.add(
         Padding(
-          padding: defaultTitleMargin,
+          padding: const EdgeInsets.only(bottom: 6),
           child: Material(
             borderRadius: mainBorder,
             color: theme.colorScheme.surfaceVariant,
             clipBehavior: Clip.hardEdge,
             child: Container(
-              padding: headerPadding,
+              padding: const EdgeInsetsDirectional.only(
+                start: 8.0,
+                end: 8.0,
+                bottom: 6.0,
+                top: 4.0,
+              ),
               constraints: const BoxConstraints(minWidth: 80),
               child: header,
             ),
@@ -88,8 +90,8 @@ class CupertinoSection extends StatelessWidget {
     if (footer != null) {
       columnChildren.add(
         DefaultTextStyle(
-          style: const TextStyle(
-            color: groupSubtitle,
+          style: TextStyle(
+            color: theme.colorScheme.outline,
             fontSize: 13.0,
             letterSpacing: -0.08,
           ),

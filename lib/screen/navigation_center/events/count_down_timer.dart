@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/event_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -122,7 +122,7 @@ class _CountDownTimerState extends State<CountDownTimer>
         stream: _eventService.getEventTimerStream(),
         builder: (context, snapshot) {
           return AnimatedContainer(
-            duration: SLOW_ANIMATION_DURATION,
+            duration: AnimationSettings.slow,
             width: 130,
             height: 30,
             child: !(snapshot.data!.days <= 0 &&

@@ -2,11 +2,10 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/intro/custom_library/intro_slider.dart';
 import 'package:deliver/screen/intro/custom_library/slide_object.dart';
 import 'package:deliver/screen/register/pages/login_page.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,7 +22,6 @@ class IntroPage extends StatefulWidget {
 class IntroPageState extends State<IntroPage> {
   final subject = ReplaySubject<double>();
   final _i18n = GetIt.I.get<I18N>();
-  final _uxService = GetIt.I.get<UxService>();
 
   SMINumber? _step;
 
@@ -85,7 +83,7 @@ class IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = getThemeScheme(_uxService.themeIndex).theme(isDark: true);
+    final theme = settings.themeScheme.theme(isDark: true);
     final animationSize = animationSquareSize(context);
     const paddingTop = 40.0;
     return Theme(

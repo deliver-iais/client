@@ -9,7 +9,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
@@ -53,7 +53,6 @@ class UrlHandlerService {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _uxService = GetIt.I.get<UxService>();
   final _logger = GetIt.I.get<Logger>();
 
   Future<void> onUrlTap(
@@ -191,7 +190,7 @@ class UrlHandlerService {
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
         showFloatingModalBottomSheet(
-          context: _uxService.appContext,
+          context: settings.appContext,
           isDismissible: false,
           builder: (ctx) {
             return Container(
@@ -207,7 +206,7 @@ class UrlHandlerService {
         );
       });
       Timer(const Duration(seconds: 5), () {
-        Navigator.of(_uxService.appContext).pop();
+        Navigator.of(settings.appContext).pop();
         _routingService.pop();
       });
     }
@@ -219,7 +218,7 @@ class UrlHandlerService {
     int? countryCode,
     int? nationalNumber,
   }) async {
-    final theme = Theme.of(_uxService.appContext);
+    final theme = Theme.of(settings.appContext);
     final res =
         await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
@@ -231,7 +230,7 @@ class UrlHandlerService {
       unawaited(
         // ignore: use_build_context_synchronously
         showFloatingModalBottomSheet(
-          context: _uxService.appContext,
+          context: settings.appContext,
           builder: (ctx) => Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -303,12 +302,12 @@ class UrlHandlerService {
     String text, {
     bool sendDirectly = false,
   }) async {
-    final theme = Theme.of(_uxService.appContext);
+    final theme = Theme.of(settings.appContext);
     if (sendDirectly) {
       _sendMessageToBot(botId, text);
     } else {
       showFloatingModalBottomSheet(
-        context: _uxService.appContext,
+        context: settings.appContext,
         builder: (context) => Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -388,7 +387,7 @@ class UrlHandlerService {
                 : privateDataType = PrivateDataType.NAME;
 
     showFloatingModalBottomSheet(
-      context: _uxService.appContext,
+      context: settings.appContext,
       builder: (context) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -461,7 +460,7 @@ class UrlHandlerService {
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
-          context: _uxService.appContext,
+          context: settings.appContext,
           builder: (context) => Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -531,14 +530,14 @@ class UrlHandlerService {
     bool openLinkImmediately = false,
     bool sendDirectly = false,
   }) {
-    final theme = Theme.of(_uxService.appContext);
+    final theme = Theme.of(settings.appContext);
 
     if (openLinkImmediately || sendDirectly) {
       launchUrl(Uri.parse(uri));
     } else {
       Future.delayed(Duration.zero, () {
         showDialog(
-          context: _uxService.appContext,
+          context: settings.appContext,
           builder: (c) {
             return Directionality(
               textDirection: _i18n.defaultTextDirection,

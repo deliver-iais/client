@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'abstract_section.dart';
 import 'cupertino_settings_section.dart';
 
 import 'defines.dart';
 
-class Section extends AbstractSection {
+class Section extends StatelessWidget {
+  final String? title;
   final List<Widget>? children;
   final int? maxLines;
   final Widget? subtitle;
-  final EdgeInsetsGeometry subtitlePadding;
 
   const Section({
     super.key,
-    super.title,
-    super.titlePadding = defaultTitlePadding,
+    this.title,
     this.maxLines,
     this.subtitle,
-    this.subtitlePadding = defaultTitlePadding,
     this.children,
   }) : assert(maxLines == null || maxLines > 0);
 
@@ -40,13 +37,17 @@ class Section extends AbstractSection {
                   ),
                 if (subtitle != null)
                   Padding(
-                    padding: subtitlePadding,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 8.0,
+                      end: 8.0,
+                      bottom: 6.0,
+                      top: 4.0,
+                    ),
                     child: subtitle,
                   ),
               ],
             )
           : null,
-      headerPadding: titlePadding!,
     );
   }
 }

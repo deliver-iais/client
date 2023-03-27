@@ -5,7 +5,7 @@ import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/widgets/blurred_container.dart';
@@ -145,7 +145,7 @@ class _CameraBoxState extends State<CameraBox> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AnimatedContainer(
-                            duration: ANIMATION_DURATION,
+                            duration: AnimationSettings.normal,
                             height: isRecording ? 85 : 75,
                             width: isRecording ? 85 : 75,
                             decoration: BoxDecoration(

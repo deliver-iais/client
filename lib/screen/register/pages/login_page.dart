@@ -25,8 +25,8 @@ import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -401,8 +401,8 @@ class LoginPageState extends State<LoginPage> {
                   margin: const EdgeInsets.only(top: 8, bottom: 8),
                   child: SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.language.name,
-                    leading: const FaIcon(FontAwesomeIcons.globe),
+                    subtitle: _i18n.language.languageName,
+                    leading: const Icon(CupertinoIcons.globe),
                     onPressed: (context) {
                       Navigator.push(
                         context,

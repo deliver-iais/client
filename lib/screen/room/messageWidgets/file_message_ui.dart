@@ -8,7 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.da
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -47,7 +47,6 @@ class FileMessageUi extends StatefulWidget {
 }
 
 class FileMessageUiState extends State<FileMessageUi> {
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
   final GlobalKey _fileMessageBoxKey = GlobalKey();
@@ -72,7 +71,7 @@ class FileMessageUiState extends State<FileMessageUi> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        if (_featureFlags.showDeveloperDetails)
+        if (settings.showDeveloperDetails.value)
           DebugC(label: "file details", children: [Debug(widget.file)]),
         Container(key: _fileMessageBoxKey, child: _buildMainUi()),
         if (widget.file.caption.isNotEmpty)

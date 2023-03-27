@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/cupertino.dart';
@@ -50,7 +51,7 @@ class PinMessageAppBar extends StatelessWidget {
             itemScrollController.scrollTo(
               index: index,
               alignment: 0.5,
-              duration: SUPER_SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.superSlow,
             );
           }
           return MouseRegion(

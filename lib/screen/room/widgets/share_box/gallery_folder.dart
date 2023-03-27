@@ -5,6 +5,8 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -178,41 +180,45 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                         width: isSelected ? 6 : 0,
                                       ),
                                     ),
-                                    child: Hero(
-                                      tag: imagePath,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: secondaryBorder / 2,
-                                          image: DecorationImage(
-                                            image: Image.file(
-                                              File(imagePath),
-                                              height: 500,
-                                              cacheWidth: 200,
-                                            ).image,
-                                            fit: BoxFit.cover,
+                                    child: HeroMode(
+                                      enabled: settings.showAnimations.value,
+                                      child: Hero(
+                                        tag: imagePath,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: secondaryBorder / 2,
+                                            image: DecorationImage(
+                                              image: Image.file(
+                                                File(imagePath),
+                                                height: 500,
+                                                cacheWidth: 200,
+                                              ).image,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                        child: widget.selectAsAvatar
-                                            ? const SizedBox.shrink()
-                                            : Align(
-                                                alignment:
-                                                    Alignment.bottomRight,
-                                                child: IconButton(
-                                                  splashColor:
-                                                      Colors.transparent,
-                                                  highlightColor:
-                                                      Colors.transparent,
-                                                  enableFeedback: false,
-                                                  onPressed: () {
-                                                    onTap(imagePath);
-                                                  },
-                                                  icon: CircularCheckMarkWidget(
-                                                    shouldShowCheckMark:
-                                                        isSelected,
+                                          child: widget.selectAsAvatar
+                                              ? const SizedBox.shrink()
+                                              : Align(
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: IconButton(
+                                                    splashColor:
+                                                        Colors.transparent,
+                                                    highlightColor:
+                                                        Colors.transparent,
+                                                    enableFeedback: false,
+                                                    onPressed: () {
+                                                      onTap(imagePath);
+                                                    },
+                                                    icon:
+                                                        CircularCheckMarkWidget(
+                                                      shouldShowCheckMark:
+                                                          isSelected,
+                                                    ),
+                                                    iconSize: 30,
                                                   ),
-                                                  iconSize: 30,
                                                 ),
-                                              ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -232,11 +238,11 @@ class _GalleryFolderState extends State<GalleryFolder> {
             Align(
               alignment: Alignment.bottomCenter,
               child: AnimatedScale(
-                duration: VERY_SLOW_ANIMATION_DURATION,
+                duration: AnimationSettings.verySlow,
                 curve: Curves.easeInOut,
                 scale: _selectedImage.isNotEmpty ? 1 : 0,
                 child: AnimatedOpacity(
-                  duration: SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.slow,
                   curve: Curves.easeInOut,
                   opacity: _selectedImage.isNotEmpty ? 1 : 0,
                   child: ShareBoxInputCaption(

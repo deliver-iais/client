@@ -1,26 +1,24 @@
 import 'dart:async';
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/dialog.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CheckPermissionsService {
   final _requestLock = Lock();
-  final _sharedDao = GetIt.I.get<SharedDao>();
   final grantedPermissions = <int>{};
   final permanentlyDeniedPermissions = <int>{};
 
   Future<bool> _checkAndGetPermission(
     Permission permission, {
     String? dialogKey,
-    OnceOptions? onceOption,
+    OncePersistent? oncePersistent,
     bool shouldShowRationalDialog = false,
     BuildContext? context,
   }) =>
@@ -30,7 +28,7 @@ class CheckPermissionsService {
         permanentlyDeniedDialogI18nKey: dialogKey,
         shouldShowRationalDialog: shouldShowRationalDialog,
         context: context,
-        onceOptions: onceOption,
+        oncePersistent: oncePersistent,
       );
 
   Future<bool> _advancedCheckAndGetPermission(
@@ -38,7 +36,7 @@ class CheckPermissionsService {
     String? rationalDialogI18nKey,
     String? permanentlyDeniedDialogI18nKey,
     bool shouldShowRationalDialog = false,
-    OnceOptions? onceOptions,
+    OncePersistent? oncePersistent,
     BuildContext? context,
   }) async {
     assert(
@@ -64,13 +62,13 @@ class CheckPermissionsService {
       if (context != null && context.mounted) {
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
-          onceOptions: onceOptions,
+          oncePersistent: oncePersistent,
           context: context,
         );
       } else {
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
-          onceOptions: onceOptions,
+          oncePersistent: oncePersistent,
         );
       }
 
@@ -94,7 +92,7 @@ class CheckPermissionsService {
         // ignore: use_build_context_synchronously
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,
-          onceOptions: onceOptions,
+          oncePersistent: oncePersistent,
           context: context,
         );
 
@@ -111,11 +109,13 @@ class CheckPermissionsService {
 
   Future<void> showPermanentlyDeniedDialog({
     String? permanentlyDeniedDialogI18nKey,
-    OnceOptions? onceOptions,
+    OncePersistent? oncePersistent,
     BuildContext? context,
   }) async {
     if (permanentlyDeniedDialogI18nKey != null) {
-      return _sharedDao.once(onceOptions, () async {
+      if (oncePersistent != null) {}
+
+      return oncePersistent.once(() async {
         final isOk = await showCancelableAbleDialog(
           permanentlyDeniedDialogI18nKey,
           okTextKey: "open_settings",
@@ -135,30 +135,31 @@ class CheckPermissionsService {
         dialogKey: "send_contacts_message",
         context: context,
         shouldShowRationalDialog: true,
-        onceOption: ONCE_SHOW_CONTACT_DIALOG,
+        oncePersistent: settings.onceShowContactDialog,
       );
 
-  Future<bool> checkMicrophonePermissionIsGranted() => Permission.microphone.isGranted;
+  Future<bool> checkMicrophonePermissionIsGranted() =>
+      Permission.microphone.isGranted;
 
   Future<bool> checkAudioRecorderPermission({BuildContext? context}) =>
       _checkAndGetPermission(
         Permission.microphone,
         context: context,
-        onceOption: ONCE_SHOW_MICROPHONE_DIALOG,
+        oncePersistent: settings.onceShowMicrophoneDialog,
       );
 
   Future<bool> checkCameraRecorderPermission({BuildContext? context}) =>
       _checkAndGetPermission(
         Permission.camera,
         context: context,
-        onceOption: ONCE_SHOW_CAMERA_DIALOG,
+        oncePersistent: settings.onceShowCameraDialog,
       );
 
   Future<bool> checkMediaLibraryPermission({BuildContext? context}) =>
       _checkAndGetPermission(
         Permission.mediaLibrary,
         context: context,
-        onceOption: ONCE_SHOW_MEDIA_LIBRARY_DIALOG,
+        oncePersistent: settings.onceShowMediaLibraryDialog,
       );
 
   Future<bool> checkAccessMediaLocationPermission({

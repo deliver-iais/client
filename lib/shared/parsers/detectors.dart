@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
@@ -7,7 +9,8 @@ List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       inlineUrlDetector(),
       urlDetector(),
       idDetector(),
-      emojiDetector(),
+      if (!isMacOSDevice && settings.parseAndShowGoogleEmojis.value)
+        emojiDetector(),
       botCommandDetector(),
       boldDetector(),
       underlineDetector(),
@@ -22,7 +25,8 @@ List<Detector> inputTextDetectors() => grayOutDetector([
       inlineUrlDetector(),
       urlDetector(),
       idDetector(),
-      emojiDetector(),
+      if (!isMacOSDevice && settings.parseAndShowGoogleEmojis.value)
+        emojiDetector(),
       botCommandDetector(),
       boldDetector(),
       underlineDetector(),

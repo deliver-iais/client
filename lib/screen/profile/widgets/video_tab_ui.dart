@@ -6,6 +6,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -122,59 +123,65 @@ class VideoTabUiState extends State<VideoTabUi> {
                       messageId: media.messageId,
                     );
                   },
-                  child: Hero(
-                    tag: file.uuid,
-                    child: Stack(
-                      children: [
-                        FutureBuilder<String?>(
-                          future: _fileRepo.getFile(
-                            file.uuid,
-                            // TODO(fix-this): it should change to webp
-                            file.name,
-                            thumbnailSize: ThumbnailSize.large,
-                            intiProgressbar: false,
-                          ),
-                          builder: (c, path) {
-                            if (path.hasData && path.data != null) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  image: DecorationImage(
-                                    image: path.data!.imageProvider(),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  color: Colors.black.withOpacity(0.5),
-                                ),
-                                // child: Image.file(File(path.data!),width: 400,),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                        Center(
-                          child: Icon(
-                            Icons.play_circle_fill,
-                            color: theme.colorScheme.primary,
-                            size: 55,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            formatDuration(
-                              Duration(
-                                seconds: double.parse(file.duration.toString())
-                                    .round(),
-                              ),
+                  child: HeroMode(
+                    enabled: settings.showAnimations.value,
+                    child: Hero(
+                      tag: file.uuid,
+                      child: Stack(
+                        children: [
+                          FutureBuilder<String?>(
+                            future: _fileRepo.getFile(
+                              file.uuid,
+                              // TODO(fix-this): it should change to webp
+                              file.name,
+                              thumbnailSize: ThumbnailSize.large,
+                              intiProgressbar: false,
                             ),
-                            style:
-                                Theme.of(context).textTheme.bodySmall!.copyWith(
-                                      fontSize: 10,
+                            builder: (c, path) {
+                              if (path.hasData && path.data != null) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                    image: DecorationImage(
+                                      image: path.data!.imageProvider(),
+                                      fit: BoxFit.cover,
                                     ),
+                                    color: Colors.black.withOpacity(0.5),
+                                  ),
+                                  // child: Image.file(File(path.data!),width: 400,),
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
                           ),
-                        ),
-                      ],
+                          Center(
+                            child: Icon(
+                              Icons.play_circle_fill,
+                              color: theme.colorScheme.primary,
+                              size: 55,
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              formatDuration(
+                                Duration(
+                                  seconds:
+                                      double.parse(file.duration.toString())
+                                          .round(),
+                                ),
+                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .copyWith(
+                                    fontSize: 10,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

@@ -3,6 +3,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ class HasCallRowState extends State<HasCallRow> {
               },
               child: callRepo.roomUid != null
                   ? AnimatedContainer(
-                      duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+                      duration: AnimationSettings.superUltraSlow,
                       margin: const EdgeInsets.only(bottom: 4),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -115,12 +116,13 @@ class HasCallRowState extends State<HasCallRow> {
         }
         return AnimatedContainer(
           curve: Curves.easeInOut,
-          duration: MOTION_STANDARD_ANIMATION_DURATION,
+          duration: AnimationSettings.standard,
           height: snapshot.data == CallStatus.NO_CALL ||
                   _callService.getUserCallState == UserCallState.NO_CALL
               ? 0
               : APPBAR_HEIGHT,
           child: PageTransitionSwitcher(
+            duration: AnimationSettings.standard,
             transitionBuilder: (
               child,
               animation,

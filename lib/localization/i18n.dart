@@ -1,45 +1,27 @@
 import 'dart:convert';
 
-import 'package:deliver/box/dao/shared_dao.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class I18N {
-  final _sharedDao = GetIt.I.get<SharedDao>();
-
-  final _language = BehaviorSubject.seeded(defaultLanguage);
-
   Map<String, String>? _values;
 
   I18N() {
-    _loadLanguageResource(defaultLanguage);
-    _sharedDao
-        .getStream(
-          SHARED_DAO_LANGUAGE,
-          defaultValue: defaultLanguage.countryCode,
-        )
-        .map((code) {
-          return supportedLanguages.firstWhere(
-            (e) => e.countryCode == code,
-            orElse: () => english,
-          );
-        })
-        .distinct()
-        .listen((lang) async {
-          await _loadLanguageResource(lang);
-          _language.add(lang);
-        });
+    _loadLanguageResource(Language.defaultLanguage);
+
+    settings.language.stream.listen((lang) async {
+      await _loadLanguageResource(lang);
+    });
   }
 
-  bool get isRtl => _language.value.isRtl;
+  bool get isRtl => settings.language.value.isRtl;
 
-  List<String> get changelogs => _language.value.changelogs;
+  List<String> get changelogs => settings.language.value.changelogs;
 
   Future<void> _loadLanguageResource(Language language) async {
     final jsonValues =
@@ -50,22 +32,25 @@ class I18N {
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
 
-  bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
+  bool get isPersian =>
+      settings.language.value.countryCode.contains(Language.FARSI.countryCode);
 
   TextDirection get defaultTextDirection =>
       isRtl ? TextDirection.rtl : TextDirection.ltr;
 
-  Stream get localeStream => _language.distinct().map((e) => e.locale);
+  Stream get localeStream => settings.language.stream.map((e) => e.locale);
 
-  Locale get locale => _language.value.locale;
+  Locale get locale => settings.language.value.locale;
 
-  Language get language => _language.value;
+  Language get language => settings.language.value;
 
   String get(String key) {
     return _values != null && _values!.isNotEmpty
         ? _values![key] ?? (kDebugMode ? "____NO_TRANSLATION_{$key}___" : "")
         : key.replaceAll("_", " ");
   }
+
+  String operator [](String key) => get(key);
 
   String verb(
     String key, {
@@ -80,7 +65,7 @@ class I18N {
   }
 
   void changeLanguage(Language language) {
-    _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
+    settings.language.set(language);
   }
 
   TextDirection getDirection(String v) {
@@ -101,7 +86,7 @@ class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {
 
   @override
   bool isSupported(Locale locale) {
-    return supportedLanguages
+    return Language.values
         .map((e) => e.languageCode)
         .contains(locale.languageCode);
   }

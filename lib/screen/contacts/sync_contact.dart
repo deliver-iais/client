@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,11 +28,11 @@ class SyncContact extends StatelessWidget {
         final isSyncing = snapshot.data ?? false;
 
         return AnimatedContainer(
-          duration: SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.slow,
           height: isSyncing ? 54 : 0,
           padding: isSyncing ? padding : EdgeInsets.zero,
           child: AnimatedOpacity(
-            duration: SLOW_ANIMATION_DURATION,
+            duration: AnimationSettings.slow,
             curve: Curves.easeInOut,
             opacity: isSyncing ? 1 : 0,
             child: StreamBuilder<double>(

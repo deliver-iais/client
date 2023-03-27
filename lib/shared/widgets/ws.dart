@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:brotli/brotli.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/widgets/animated_lottie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -85,7 +86,8 @@ class Ws extends StatelessWidget {
     return AnimatedLottie(
       cacheKey,
       loader,
-      frameRate: frameRate,
+      frameRate: frameRate ??
+          (settings.showWsWithHighFrameRate.value ? null : FrameRate(30)),
       addRepaintBoundary: addRepaintBoundary,
       animate: animate,
       alignment: alignment,

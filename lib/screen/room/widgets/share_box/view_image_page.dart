@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_page.dart';
@@ -221,12 +222,15 @@ class _ViewImagePageState extends State<ViewImagePage> {
           color: Colors.black,
           child: Stack(
             children: [
-              Hero(
-                tag: imagePath,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imagePath.imageProvider(),
+              HeroMode(
+                enabled: settings.showAnimations.value,
+                child: Hero(
+                  tag: imagePath,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imagePath.imageProvider(),
+                      ),
                     ),
                   ),
                 ),

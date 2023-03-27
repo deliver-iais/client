@@ -1,5 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 
@@ -23,7 +23,6 @@ class CenterAvatarInCall extends StatefulWidget {
 
 class CenterAvatarInCallState extends State<CenterAvatarInCall> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _uxService = GetIt.I.get<UxService>();
 
   late final _globalKey = GlobalObjectKey(widget.roomUid.asString());
 
@@ -84,14 +83,14 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
             end: Alignment.bottomLeft,
             colors: [
               Color(
-                _uxService.getCorePalette().tertiary.get(
-                      _uxService.themeIsDark ? 60 : 75,
-                    ),
+                settings.corePalette.tertiary.get(
+                  settings.themeIsDark.value ? 60 : 75,
+                ),
               ),
               Color(
-                _uxService.getCorePalette().primary.get(
-                      _uxService.themeIsDark ? 60 : 75,
-                    ),
+                settings.corePalette.primary.get(
+                  settings.themeIsDark.value ? 60 : 75,
+                ),
               ),
             ],
           ),

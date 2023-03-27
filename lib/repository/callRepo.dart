@@ -10,7 +10,6 @@ import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/call_info.dart' as call_info;
 import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/box/dao/call_info_dao.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
@@ -26,7 +25,8 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -82,9 +82,6 @@ class CallRepo {
   final _routingService = GetIt.I.get<RoutingService>();
 
   final _callListDao = GetIt.I.get<CallInfoDao>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-
-  final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -417,28 +414,18 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean(
-      "stun:217.218.7.16:3478",
-      defaultValue: true,
-    );
-    final turnLocal = await _sharedDao
-        .getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
-    final stunGoogle =
-        await _sharedDao.getBoolean("stun:stun.l.google.com:19302");
-    final turnGoogle =
-        await _sharedDao.getBoolean("turn:47.102.201.4:19303?transport=udp");
-
     final iceServers = <String, dynamic>{
       'iceServers': [
-        if (stunLocal) {'url': STUN_SERVER_URL},
-        if (turnLocal)
+        if (settings.localStunServerIsEnabled.value) {'url': STUN_SERVER_URL},
+        if (settings.localTurnServerIsEnabled.value)
           {
             'url': TURN_SERVER_URL,
             'username': TURN_SERVER_USERNAME,
             'credential': TURN_SERVER_PASSWORD,
           },
-        if (stunGoogle) {'url': STUN_SERVER_URL_2},
-        if (turnGoogle)
+        if (settings.googleStunServerIsEnabled.value)
+          {'url': STUN_SERVER_URL_2},
+        if (settings.googleTurnServerIsEnabled.value)
           {
             'url': TURN_SERVER_URL_2,
             'username': TURN_SERVER_USERNAME_2,
@@ -1307,7 +1294,7 @@ class CallRepo {
           }
         }
         //this delay because we want show video animation to user
-        videoMotivation = Timer(MOTION_STANDARD_ANIMATION_DURATION, () {
+        videoMotivation = Timer(AnimationSettings.standard, () {
           if (isVideo) {
             muteCamera();
           }
@@ -1598,24 +1585,13 @@ class CallRepo {
     late final int candidateNumber;
     late final int candidateTimeLimit;
     try {
-      candidateNumber = _reconnectTry
-          ? 20
-          : int.parse(
-              (await _sharedDao.get("ICECandidateNumbers")) ??
-                  ICE_CANDIDATE_NUMBER.toInt().toString(),
-            );
-      candidateTimeLimit = _reconnectTry
-          ? 3000
-          : int.parse(
-              (await _sharedDao.get("ICECandidateTimeLimit")) ??
-                  ((_isVideo)
-                      ? "2000"
-                      : ICE_CANDIDATE_TIME_LIMIT.toInt().toString()),
-            ); // 0.5 sec for audio and 1.0 for video
+      candidateNumber = _reconnectTry ? 20 : settings.iceCandidateNumbers.value;
+      candidateTimeLimit =
+          _reconnectTry ? 3000 : settings.iceCandidateTimeLimit.value;
     } catch (e) {
       _logger.e(e);
-      candidateNumber = ICE_CANDIDATE_NUMBER.toInt();
-      candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT.toInt();
+      candidateNumber = ICE_CANDIDATE_NUMBER;
+      candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
     }
     _logger.i(
       "candidateNumber:$candidateNumber",
@@ -2020,38 +1996,36 @@ class CallRepo {
   }
 
   Future<void> _increaseCandidateAndWaitingTime() async {
-    final candidateNumber = int.parse(
-      await _sharedDao.get("ICECandidateNumbers") ??
-          ICE_CANDIDATE_NUMBER.toInt().toString(),
-    );
+    final candidateNumber = settings.iceCandidateNumbers.value;
     if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
-      _featureFlags
-        ..setICECandidateTimeLimit(2000)
-        ..setICECandidateNumber(17);
+      settings
+        ..iceCandidateTimeLimit.set(2000)
+        ..iceCandidateNumbers.set(17);
     } else if (candidateNumber <= 17) {
-      _featureFlags
-        ..setICECandidateTimeLimit(3000)
-        ..setICECandidateNumber(20);
+      settings
+        ..iceCandidateTimeLimit.set(3000)
+        ..iceCandidateNumbers.set(20);
     }
   }
 
   Future<void> _decreaseCandidateAndWaitingTime() async {
-    final candidateNumber = int.parse(
-      await _sharedDao.get("ICECandidateNumbers") ??
-          ICE_CANDIDATE_NUMBER.toInt().toString(),
-    );
+    final candidateNumber = settings.iceCandidateTimeLimit.value;
     if (candidateNumber >= 19) {
-      _featureFlags
-        ..setICECandidateTimeLimit(2000)
-        ..setICECandidateNumber(17);
+      settings
+        ..iceCandidateTimeLimit.set(2000)
+        ..iceCandidateNumbers.set(17);
     } else if (candidateNumber >= 17) {
-      _featureFlags
-        ..setICECandidateTimeLimit(ICE_CANDIDATE_TIME_LIMIT)
-        ..setICECandidateNumber(ICE_CANDIDATE_NUMBER);
+      settings
+        ..iceCandidateTimeLimit.set(ICE_CANDIDATE_TIME_LIMIT)
+        ..iceCandidateNumbers.set(ICE_CANDIDATE_NUMBER);
     }
   }
 
-  void openCallScreen(BuildContext context, Uid room,  {bool isVideoCall = false}) {
+  void openCallScreen(
+    BuildContext context,
+    Uid room, {
+    bool isVideoCall = false,
+  }) {
     if (_callService.getUserCallState == UserCallState.NO_CALL) {
       _routingService.openCallScreen(
         room,

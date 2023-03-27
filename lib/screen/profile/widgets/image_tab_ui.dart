@@ -5,6 +5,8 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -110,14 +112,17 @@ class ImageTabUiState extends State<ImageTabUi> {
               builder: (c, filePath) {
                 Widget c = const SizedBox.shrink();
                 if (filePath.hasData && filePath.data != null) {
-                  c = Hero(
-                    tag: file.uuid,
-                    transitionOnUserGestures: true,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: filePath.data!.imageProvider(),
-                          fit: BoxFit.cover,
+                  c = HeroMode(
+                    enabled: settings.showAnimations.value,
+                    child: Hero(
+                      tag: file.uuid,
+                      transitionOnUserGestures: true,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: filePath.data!.imageProvider(),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -133,14 +138,17 @@ class ImageTabUiState extends State<ImageTabUi> {
                     builder: (s, path) {
                       Widget child = const SizedBox.shrink();
                       if (path.hasData && path.data != null) {
-                        child = Hero(
-                          tag: file.uuid,
-                          transitionOnUserGestures: true,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: path.data!.imageProvider(),
-                                fit: BoxFit.cover,
+                        child = HeroMode(
+                          enabled: settings.showAnimations.value,
+                          child: Hero(
+                            tag: file.uuid,
+                            transitionOnUserGestures: true,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: path.data!.imageProvider(),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
@@ -150,7 +158,7 @@ class ImageTabUiState extends State<ImageTabUi> {
                       }
 
                       return AnimatedSwitcher(
-                        duration: VERY_SLOW_ANIMATION_DURATION,
+                        duration: AnimationSettings.verySlow,
                         transitionBuilder: (child, animation) {
                           return FadeTransition(
                             opacity: animation,
@@ -163,7 +171,7 @@ class ImageTabUiState extends State<ImageTabUi> {
                   );
                 }
                 return AnimatedSwitcher(
-                  duration: VERY_SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.verySlow,
                   transitionBuilder: (child, animation) {
                     return FadeTransition(
                       opacity: animation,

@@ -1,7 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +83,6 @@ class ReceivedMessageBox extends StatelessWidget {
 
   bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
-        AnimatedEmoji.isAnimatedEmojiMessage(message);
+        isOnlyEmojiMessage(message);
   }
 }
