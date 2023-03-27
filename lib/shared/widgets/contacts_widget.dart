@@ -1,5 +1,6 @@
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
@@ -32,7 +33,7 @@ class ContactWidget extends StatelessWidget {
       child: Opacity(
         opacity: currentMember ? 0.7 : 1,
         child: AnimatedContainer(
-          duration: SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.slow,
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
             borderRadius: messageBorder,
@@ -57,10 +58,10 @@ class ContactWidget extends StatelessWidget {
                       showSavedMessageLogoIfNeeded: true,
                     ),
                   AnimatedOpacity(
-                    duration: ANIMATION_DURATION,
+                    duration: AnimationSettings.normal,
                     opacity: isSelected ? 1 : 0,
                     child: AnimatedScale(
-                      duration: ANIMATION_DURATION,
+                      duration: AnimationSettings.normal,
                       scale: isSelected ? 1 : 0.8,
                       child: Container(
                         height: 74,

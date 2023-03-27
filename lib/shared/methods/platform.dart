@@ -6,7 +6,7 @@ import 'package:deliver/web_classes/platform_detect.dart'
     as platform_detector;
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
     as platform_pb;
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -36,7 +36,8 @@ final isDesktopNative = (isLinuxNative || isWindowsNative || isMacOSNative);
 
 final isDesktopDevice = (isLinuxDevice || isWindowsDevice || isMacOSDevice);
 
-final isDesktopNativeOrWeb = (isLinuxNative || isWindowsNative || isMacOSNative || isWeb);
+final isDesktopNativeOrWeb =
+    (isLinuxNative || isWindowsNative || isMacOSNative || isWeb);
 
 final isMobileNative = isAndroidNative || isIOSNative;
 
@@ -75,7 +76,7 @@ Future<platform_pb.Platform> getPlatformPB() async {
 
     platform
       ..platformType = platform_pb.PlatformsType.IOS
-      ..osVersion = iosInfo.systemVersion;
+      ..osVersion = iosInfo.systemVersion ?? "";
   } else if (isLinuxNative) {
     platform
       ..platformType = platform_pb.PlatformsType.LINUX

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -102,5 +102,5 @@ Future<T?> showTitledDialog<T>(
 }
 
 BuildContext? _checkAndGetBuildContext(BuildContext? context) {
-  return context ?? GetIt.I.get<UxService>().appContext;
+  return context ?? GetIt.I.get<Settings>().appContext;
 }

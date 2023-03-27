@@ -9,7 +9,6 @@ import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -34,6 +33,7 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -68,7 +68,6 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum TitleStatusConditions {
   Disconnected,
@@ -96,7 +95,6 @@ class MessageRepo {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
 
   final _audioService = GetIt.I.get<AudioService>();
@@ -120,14 +118,12 @@ class MessageRepo {
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  SharedPreferences? _prefs;
 
   MessageRepo() {
     unawaited(createConnectionStatusHandler());
   }
 
   Future<void> createConnectionStatusHandler() async {
-    _prefs = await SharedPreferences.getInstance();
     if (_authRepo.isLoggedIn()) {
       await update();
     }
@@ -168,9 +164,8 @@ class MessageRepo {
   Future<bool> updatingRooms() async {
     var finished = false;
     var pointer = 0;
-    final allRoomFetched =
-        await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-    final appRunInForeground = !_appLifecycleService.appIsActive();
+    final allRoomFetched = settings.allRoomFetched.value;
+    final appRunInForeground = !_appLifecycleService.isActive;
     if (!allRoomFetched && updateState) {
       updatingStatus.add(TitleStatusConditions.Syncing);
       _logger.i('syncing');
@@ -225,7 +220,7 @@ class MessageRepo {
         if (!finished) {
           finished = getAllUserRoomMetaRes.finished;
           if (finished) {
-            _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true).ignore();
+            settings.allRoomFetched.set(true);
           }
         }
       } on GrpcError catch (e) {
@@ -1135,48 +1130,41 @@ class MessageRepo {
     PendingMessage pm,
   ) async {
     try {
-      final lastDeliveryAckJson =
-          _prefs?.getString(SHARED_DAO_LAST_MESSAGE_DELIVERY_ACK);
-      if (lastDeliveryAckJson != null) {
-        final msg = pm.msg;
-        final lastDeliveryAck =
-            message_pb.MessageDeliveryAck.fromJson(lastDeliveryAckJson);
-        final lastDeliveryAckPacketId = lastDeliveryAck.packetId;
-        final lastDeliveryAckTo = lastDeliveryAck.to;
-        final lastDeliveryAckFrom = lastDeliveryAck.from;
-        if (lastDeliveryAckPacketId == pm.packetId &&
-            lastDeliveryAckTo.asString() == msg.to &&
-            lastDeliveryAckFrom.asString() == msg.from) {
+      final lastDeliveryAck = settings.lastMessageDeliveryAck.value;
+      final msg = pm.msg;
+      final lastDeliveryAckPacketId = lastDeliveryAck.packetId;
+      final lastDeliveryAckTo = lastDeliveryAck.to;
+      final lastDeliveryAckFrom = lastDeliveryAck.from;
+      if (lastDeliveryAckPacketId == pm.packetId &&
+          lastDeliveryAckTo.asString() == msg.to &&
+          lastDeliveryAckFrom.asString() == msg.from) {
+        return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
+      } else if (lastDeliveryAckTo.asString() == msg.to &&
+          lastDeliveryAckFrom.asString() == msg.from) {
+        final timeLastMessageDeliveryAck =
+            int.parse(lastDeliveryAckPacketId.split("-")[0]);
+        final lastMessageIdLastMessageDeliveryAck =
+            int.parse(lastDeliveryAckPacketId.split("-")[1]);
+        final timeMessage = int.parse(msg.packetId.split("-")[0]);
+        final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
+        if ((timeLastMessageDeliveryAck - timeMessage) >
+                REPEATED_DETECTION_TIME ||
+            (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
+                REPEATED_DETECTION_COUNT) {
           return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
-        } else if (lastDeliveryAckTo.asString() == msg.to &&
-            lastDeliveryAckFrom.asString() == msg.from) {
-          final timeLastMessageDeliveryAck =
-              int.parse(lastDeliveryAckPacketId.split("-")[0]);
-          final lastMessageIdLastMessageDeliveryAck =
-              int.parse(lastDeliveryAckPacketId.split("-")[1]);
-          final timeMessage = int.parse(msg.packetId.split("-")[0]);
-          final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
-          if ((timeLastMessageDeliveryAck - timeMessage) >
-                  REPEATED_DETECTION_TIME ||
-              (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
-                  REPEATED_DETECTION_COUNT) {
-            return PendingMessageReapetedStatus
-                .REPEATED_DETECTION_MESSAGE_REPEAT;
-          }
-        } else {
-          final timeLastMessageDeliveryAck =
-              int.parse(lastDeliveryAckPacketId.split("-")[0]);
-          final lastMessageIdLastMessageDeliveryAck =
-              await _roomRepo.getRoomLastMessageId(pm.roomUid);
-          final timeMessage = int.parse(msg.packetId.split("-")[0]);
-          final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
-          if ((timeLastMessageDeliveryAck - timeMessage) >=
-                  REPEATED_DETECTION_TIME ||
-              (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
-                  REPEATED_DETECTION_COUNT) {
-            return PendingMessageReapetedStatus
-                .REPEATED_DETECTION_MESSAGE_FAILED;
-          }
+        }
+      } else {
+        final timeLastMessageDeliveryAck =
+            int.parse(lastDeliveryAckPacketId.split("-")[0]);
+        final lastMessageIdLastMessageDeliveryAck =
+            await _roomRepo.getRoomLastMessageId(pm.roomUid);
+        final timeMessage = int.parse(msg.packetId.split("-")[0]);
+        final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
+        if ((timeLastMessageDeliveryAck - timeMessage) >=
+                REPEATED_DETECTION_TIME ||
+            (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
+                REPEATED_DETECTION_COUNT) {
+          return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
         }
       }
 

@@ -4,7 +4,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -25,14 +25,14 @@ import 'package:map_launcher/map_launcher.dart' as map;
 import 'package:map_launcher/map_launcher.dart';
 
 class LocationMessageWidget extends StatelessWidget {
+  static final _routingServices = GetIt.I.get<RoutingService>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
-  static final _routingServices = GetIt.I.get<RoutingService>();
-  final _uxService = GetIt.I.get<UxService>();
 
-  LocationMessageWidget({
+  const LocationMessageWidget({
     super.key,
     required this.message,
     required this.isSeen,
@@ -56,11 +56,11 @@ class LocationMessageWidget extends StatelessWidget {
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               // onEnter: (event) {
-              //   _uxService.scrollPhysics
+              //   _settings.scrollPhysics
               //       .add(const NeverScrollableScrollPhysics());
               // },
               // onExit: (event) {
-              //   _uxService.scrollPhysics.add(const ClampingScrollPhysics());
+              //   _settings.scrollPhysics.add(const ClampingScrollPhysics());
               // },
               child: FlutterMap(
                 options: MapOptions(
@@ -86,7 +86,7 @@ class LocationMessageWidget extends StatelessWidget {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: _uxService.themeIsDark
+                    tilesContainerBuilder: settings.themeIsDark.value
                         ? darkModeTilesContainerBuilder
                         : null,
                     urlTemplate:
@@ -130,7 +130,6 @@ class LocationDialog extends StatelessWidget {
   final Uid from;
   final double size = isDesktopDevice ? 500 : 350;
   static final _i18n = GetIt.I.get<I18N>();
-  final _uxService = GetIt.I.get<UxService>();
 
   LocationDialog({super.key, required this.location, required this.from});
 
@@ -165,7 +164,7 @@ class LocationDialog extends StatelessWidget {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: _uxService.themeIsDark
+                    tilesContainerBuilder: settings.themeIsDark.value
                         ? darkModeTilesContainerBuilder
                         : null,
                     urlTemplate:
@@ -246,8 +245,6 @@ class _LocationPageState extends State<LocationPage> {
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  final _uxService = GetIt.I.get<UxService>();
-
   final position = _determinePosition();
 
   late final MapController _mapController = MapController();
@@ -317,7 +314,7 @@ class _LocationPageState extends State<LocationPage> {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: _uxService.themeIsDark
+                    tilesContainerBuilder: settings.themeIsDark.value
                         ? darkModeTilesContainerBuilder
                         : null,
                     urlTemplate:

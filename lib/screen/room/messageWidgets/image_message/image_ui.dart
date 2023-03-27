@@ -9,6 +9,8 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -60,72 +62,76 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     try {
-      return Hero(
-        tag: widget.image.uuid,
-        child: Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: const BoxDecoration(borderRadius: messageBorder),
-          constraints: BoxConstraints(
-            minWidth: widget.minWidth,
-            maxWidth: widget.maxWidth,
-            maxHeight: widget.maxWidth,
-          ),
-          child: AspectRatio(
-            aspectRatio:
-                max(widget.image.width, 1) / max(widget.image.height, 1),
-            child: SizedBox(
-              width: widget.image.width * 1.0,
-              height: widget.image.height * 1.0,
-              child: FutureBuilder<String?>(
-                key: globalKey,
-                initialData: _fileRepo.localUploadedFilePath[widget.image.uuid],
-                future: _fileRepo.getFileIfExist(
-                  widget.image.uuid,
-                  widget.image.name,
-                ),
-                builder: (c, pathSnapShot) {
-                  if (pathSnapShot.hasData && pathSnapShot.data != null) {
-                    return buildImageUi(context, pathSnapShot);
-                  } else {
-                    return StreamBuilder<Map<String, FileStatus>>(
-                      stream: _fileService.watchFileStatus(),
-                      builder: (c, status) {
-                        Widget child = defaultImageUI();
-                        if (_fileRepo.fileExitInCache(widget.image.uuid) ||
-                            status.hasData &&
-                                status.data != null &&
-                                status.data![widget.image.uuid] ==
-                                    FileStatus.COMPLETED) {
-                          child = FutureBuilder<String?>(
-                            future: _fileRepo.getFileIfExist(
-                              widget.image.uuid,
-                              widget.image.name,
-                            ),
-                            builder: (c, path) {
-                              if (path.hasData && path.data != null) {
-                                return buildImageUi(context, path);
-                              }
-                              return buildDownloadImageWidget();
-                            },
-                          );
-                        } else {
-                          child = buildDownloadImageWidget();
-                        }
-
-                        return AnimatedSwitcher(
-                          duration: VERY_SLOW_ANIMATION_DURATION,
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
+      return HeroMode(
+        enabled: settings.showAnimations.value,
+        child: Hero(
+          tag: widget.image.uuid,
+          child: Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: const BoxDecoration(borderRadius: messageBorder),
+            constraints: BoxConstraints(
+              minWidth: widget.minWidth,
+              maxWidth: widget.maxWidth,
+              maxHeight: widget.maxWidth,
+            ),
+            child: AspectRatio(
+              aspectRatio:
+                  max(widget.image.width, 1) / max(widget.image.height, 1),
+              child: SizedBox(
+                width: widget.image.width * 1.0,
+                height: widget.image.height * 1.0,
+                child: FutureBuilder<String?>(
+                  key: globalKey,
+                  initialData:
+                      _fileRepo.localUploadedFilePath[widget.image.uuid],
+                  future: _fileRepo.getFileIfExist(
+                    widget.image.uuid,
+                    widget.image.name,
+                  ),
+                  builder: (c, pathSnapShot) {
+                    if (pathSnapShot.hasData && pathSnapShot.data != null) {
+                      return buildImageUi(context, pathSnapShot);
+                    } else {
+                      return StreamBuilder<Map<String, FileStatus>>(
+                        stream: _fileService.watchFileStatus(),
+                        builder: (c, status) {
+                          Widget child = defaultImageUI();
+                          if (_fileRepo.fileExitInCache(widget.image.uuid) ||
+                              status.hasData &&
+                                  status.data != null &&
+                                  status.data![widget.image.uuid] ==
+                                      FileStatus.COMPLETED) {
+                            child = FutureBuilder<String?>(
+                              future: _fileRepo.getFileIfExist(
+                                widget.image.uuid,
+                                widget.image.name,
+                              ),
+                              builder: (c, path) {
+                                if (path.hasData && path.data != null) {
+                                  return buildImageUi(context, path);
+                                }
+                                return buildDownloadImageWidget();
+                              },
                             );
-                          },
-                          child: child,
-                        );
-                      },
-                    );
-                  }
-                },
+                          } else {
+                            child = buildDownloadImageWidget();
+                          }
+
+                          return AnimatedSwitcher(
+                            duration: AnimationSettings.verySlow,
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            child: child,
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ),

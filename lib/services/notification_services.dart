@@ -23,7 +23,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -182,15 +182,6 @@ class NotificationServices {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  final _uxService = GetIt.I.get<UxService>();
-
-  bool _appIsActive = true;
-
-  NotificationServices() {
-    _appLifecycleService.watchAppAppLifecycle().listen((event) {
-      _appIsActive = event == AppLifecycle.ACTIVE;
-    });
-  }
 
   void notifyOutgoingMessage(String roomUid) {
     if (_routingService.isInRoom(roomUid)) {
@@ -203,7 +194,7 @@ class NotificationServices {
     String roomUid, {
     String? roomName,
   }) {
-    if (_routingService.isInRoom(roomUid) && _appIsActive) {
+    if (_routingService.isInRoom(roomUid) && _appLifecycleService.isActive) {
       _playSoundIn();
     } else {
       _showTextNotification(message, roomUid, roomName: roomName);
@@ -276,13 +267,13 @@ class NotificationServices {
   }
 
   void _playSoundIn() {
-    if (_uxService.playInChatSounds) {
+    if (settings.playInChatSounds.value) {
       _audioService.playSoundIn();
     }
   }
 
   void _playSoundOut() {
-    if (_uxService.playInChatSounds) {
+    if (settings.playInChatSounds.value) {
       _audioService.playSoundOut();
     }
   }

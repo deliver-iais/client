@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -67,7 +68,7 @@ class CircleAvatarWidget extends StatelessWidget {
     }
 
     return HeroMode(
-      enabled: isHeroEnabled,
+      enabled: settings.showAnimations.value && isHeroEnabled,
       child: Hero(
         tag: contactUid.asString(),
         child: Container(
@@ -94,6 +95,10 @@ class CircleAvatarWidget extends StatelessWidget {
         color: textColor,
       );
     } else {
+      if (!settings.showAvatarImages.value) {
+        return showAvatarAlternative(textColor);
+      }
+
       return StreamBuilder<String?>(
         key: _streamKey,
         initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
@@ -139,9 +144,12 @@ class CircleAvatarWidget extends StatelessWidget {
         },
       );
     } else {
-      return noAvatarWidget ?? showDisplayName(textColor);
+      return showAvatarAlternative(textColor);
     }
   }
+
+  Widget showAvatarAlternative(Color textColor) =>
+      noAvatarWidget ?? showDisplayName(textColor);
 
   Widget showDisplayName(Color textColor) {
     if (forceText.isNotEmpty) {

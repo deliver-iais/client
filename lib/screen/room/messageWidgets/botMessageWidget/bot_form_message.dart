@@ -8,6 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formatted_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/rich_formatted_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -239,6 +240,10 @@ class BotFormMessageState extends State<BotFormMessage> {
                           "assets/animations/touch.ws",
                           width: 90,
                           height: 70,
+                          frameRate: settings.showWsWithHighFrameRate.value
+                              ? FrameRate(30)
+                              : FrameRate(10),
+                          repeat: settings.showAnimations.value,
                           delegates: LottieDelegates(
                             values: [
                               ValueDelegate.color(

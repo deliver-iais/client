@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class AnimatedLottie extends StatefulWidget {
@@ -44,18 +48,30 @@ class AnimatedLottie extends StatefulWidget {
 
 // TODO(any): edit solve animation bug  !!!!
 class _AnimatedLottieState extends State<AnimatedLottie> {
-  late final Future<LottieComposition> composition;
+  static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+  late final Future<LottieComposition> _composition;
+
+  StreamSubscription<AppLifecycle>? _subscription;
 
   @override
   void initState() {
-    composition = Lottie.cache.putIfAbsent(widget.cacheKey, widget.loader);
+    _subscription = _appLifecycleService.lifecycleStream.listen((event) {
+      setState(() {});
+    });
+    _composition = Lottie.cache.putIfAbsent(widget.cacheKey, widget.loader);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LottieComposition>(
-      future: composition,
+      future: _composition,
       builder: (context, snapshot) {
         final composition = snapshot.data;
 
@@ -75,7 +91,7 @@ class _AnimatedLottieState extends State<AnimatedLottie> {
             repeat: widget.repeat,
             reverse: widget.reverse,
             fit: widget.fit,
-            animate: widget.animate,
+            animate: _appLifecycleService.isActive && widget.animate,
             alignment: widget.alignment,
             frameRate: widget.frameRate,
             options: widget.options,

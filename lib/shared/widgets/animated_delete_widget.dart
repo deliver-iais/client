@@ -1,4 +1,4 @@
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:flutter/cupertino.dart';
 
 class AnimatedDeleteWidget extends StatelessWidget {
@@ -12,7 +12,7 @@ class AnimatedDeleteWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.slow,
       transitionBuilder: (child, animation) {
         return FadeTransition(
           opacity: animation,

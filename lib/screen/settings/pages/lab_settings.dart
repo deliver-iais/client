@@ -1,11 +1,8 @@
-import 'dart:math';
-
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/notification_foreground_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
@@ -27,58 +24,25 @@ class LabSettingsPage extends StatefulWidget {
 class _LabSettingsPageState extends State<LabSettingsPage> {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _i18n = GetIt.I.get<I18N>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
 
-  double ICECandidateNumber = ICE_CANDIDATE_NUMBER;
-
-  double ICECandidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
-
-  List<CheckBoxListTileModel> checkBoxListTileModel = [];
-
-  @override
-  void initState() {
-    getCandidateValues();
-    getICEServersValues();
-    super.initState();
-  }
-
-  Future<void> getCandidateValues() async {
-    ICECandidateNumber = max(
-      double.parse(
-        await _sharedDao.get("ICECandidateNumbers") ??
-            ICE_CANDIDATE_NUMBER.toString(),
-      ),
-      ICECandidateNumber,
-    );
-    ICECandidateTimeLimit = max(
-      double.parse(
-        await _sharedDao.get("ICECandidateTimeLimit") ??
-            ICE_CANDIDATE_TIME_LIMIT.toString(),
-      ),
-      ICECandidateTimeLimit,
-    ); //mSec
-    setState(() {});
-  }
-
-  Future<void> getICEServersValues() async {
-    checkBoxListTileModel = await getServers();
-    setState(() {});
-  }
-
-  void changeStunAndTurnServerEnabledStatus(
-    int index, {
-    bool newValue = false,
-  }) {
-    setState(() {
-      checkBoxListTileModel[index].isCheck = newValue;
-      _featureFlags.setICEServerEnable(
-        checkBoxListTileModel[index].title,
-        newStatus: newValue,
-      );
-    });
-  }
+  List<CallServerItem> checkBoxListTileModel = [
+    CallServerItem(
+      checkboxId: 1,
+      serverSetting: settings.localStunServerIsEnabled,
+    ),
+    CallServerItem(
+      checkboxId: 2,
+      serverSetting: settings.localTurnServerIsEnabled,
+    ),
+    CallServerItem(
+      checkboxId: 3,
+      serverSetting: settings.googleStunServerIsEnabled,
+    ),
+    CallServerItem(
+      checkboxId: 4,
+      serverSetting: settings.googleTurnServerIsEnabled,
+    ),
+  ];
 
   Future<void> checkForSystemAlertWindowPermission() async {
     if (isAndroidNative &&
@@ -118,11 +82,11 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                       subtitle:
                           "Application will be available in background for getting new messages online",
                       switchValue:
-                          _notificationForegroundService.foregroundNotification,
+                          settings.foregroundNotificationIsEnabled.value,
                       onToggle: (value) {
                         setState(() {
-                          _notificationForegroundService
-                              .toggleForegroundService();
+                          settings.foregroundNotificationIsEnabled
+                              .toggleValue();
                         });
                       },
                     ),
@@ -145,17 +109,16 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                           trailing: Text(""),
                         ),
                         Slider(
-                          value: ICECandidateNumber,
+                          value: settings.iceCandidateNumbers.value.toDouble(),
                           onChanged: (newICECandidateNumber) {
                             setState(() {
-                              ICECandidateNumber = newICECandidateNumber;
-                              _featureFlags
-                                  .setICECandidateNumber(ICECandidateNumber);
+                              settings.iceCandidateNumbers
+                                  .set(newICECandidateNumber.toInt());
                             });
                           },
                           divisions: 5,
-                          label: "$ICECandidateNumber",
-                          min: ICE_CANDIDATE_NUMBER,
+                          label: "${settings.iceCandidateNumbers.value}",
+                          min: ICE_CANDIDATE_NUMBER.toDouble(),
                           max: 20,
                         )
                       ],
@@ -168,18 +131,18 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                           trailing: Text(""),
                         ),
                         Slider(
-                          value: ICECandidateTimeLimit,
+                          value:
+                              settings.iceCandidateTimeLimit.value.toDouble(),
                           onChanged: (newICECandidateTimeLimit) {
                             setState(() {
-                              ICECandidateTimeLimit = newICECandidateTimeLimit;
-                              _featureFlags.setICECandidateTimeLimit(
-                                ICECandidateTimeLimit,
+                              settings.iceCandidateTimeLimit.set(
+                                newICECandidateTimeLimit.toInt(),
                               );
                             });
                           },
                           divisions: 15,
-                          label: "$ICECandidateTimeLimit",
-                          min: ICE_CANDIDATE_TIME_LIMIT,
+                          label: "${settings.iceCandidateTimeLimit.value}",
+                          min: ICE_CANDIDATE_TIME_LIMIT.toDouble(),
                           max: 3000,
                         )
                       ],
@@ -208,7 +171,9 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                         dense: true,
                                         //font change
                                         title: Text(
-                                          checkBoxListTileModel[index].title,
+                                          checkBoxListTileModel[index]
+                                              .serverSetting
+                                              .name,
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -216,12 +181,14 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                           ),
                                         ),
                                         value: checkBoxListTileModel[index]
-                                            .isCheck,
-                                        onChanged: (val) {
-                                          changeStunAndTurnServerEnabledStatus(
-                                            index,
-                                            newValue: val ?? false,
-                                          );
+                                            .serverSetting
+                                            .value,
+                                        onChanged: (_) {
+                                          setState(() {
+                                            checkBoxListTileModel[index]
+                                                .serverSetting
+                                                .toggleValue();
+                                          });
                                         },
                                       ),
                                     ],
@@ -240,43 +207,6 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
         ),
       ),
     );
-  }
-
-  Future<List<CheckBoxListTileModel>> getServers() async {
-    return <CheckBoxListTileModel>[
-      CheckBoxListTileModel(
-        checkboxId: 1,
-        title: "stun:217.218.7.16:3478",
-        isCheck: await _sharedDao.getBoolean(
-          "stun:217.218.7.16:3478",
-          defaultValue: true,
-        ),
-      ),
-      CheckBoxListTileModel(
-        checkboxId: 3,
-        title: "turn:217.218.7.16:3478?transport=udp",
-        isCheck: await _sharedDao.getBoolean(
-          "turn:217.218.7.16:3478?transport=udp",
-          defaultValue: true,
-        ),
-      ),
-      CheckBoxListTileModel(
-        checkboxId: 2,
-        title: "stun:stun.l.google.com:19302",
-        isCheck: await _sharedDao.getBoolean(
-          "stun:stun.l.google.com:19302",
-          defaultValue: true,
-        ),
-      ),
-      CheckBoxListTileModel(
-        checkboxId: 4,
-        title: "turn:47.102.201.4:19303?transport=udp",
-        isCheck: await _sharedDao.getBoolean(
-          "turn:47.102.201.4:19303?transport=udp",
-          defaultValue: true,
-        ),
-      ),
-    ];
   }
 
   void showPermissionDialog() {
@@ -349,14 +279,12 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
   }
 }
 
-class CheckBoxListTileModel {
+class CallServerItem {
   int checkboxId;
-  String title;
-  bool isCheck;
+  BooleanPersistent serverSetting;
 
-  CheckBoxListTileModel({
+  CallServerItem({
     required this.checkboxId,
-    required this.title,
-    required this.isCheck,
+    required this.serverSetting,
   });
 }

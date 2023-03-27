@@ -1,6 +1,6 @@
 import 'package:animations/animations.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
@@ -10,12 +10,15 @@ import 'package:deliver/screen/navigation_center/widgets/feature_discovery_descr
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
@@ -68,7 +71,6 @@ class NavigationCenterState extends State<NavigationCenter>
 
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
@@ -77,13 +79,12 @@ class NavigationCenterState extends State<NavigationCenter>
   final ScrollController _scrollController = ScrollController();
   late AnimationController _searchBoxAnimationController;
   late final Animation<double> _searchBoxAnimation;
-  bool _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST;
 
   @override
   void initState() {
     _searchBoxAnimationController = AnimationController(
       vsync: this,
-      duration: MOTION_STANDARD_ANIMATION_DURATION,
+      duration: AnimationSettings.standard,
       animationBehavior: AnimationBehavior.preserve,
     );
     _searchBoxAnimation = Tween(begin: 40.0, end: 0.0).animate(
@@ -108,19 +109,6 @@ class NavigationCenterState extends State<NavigationCenter>
       }
     });
 
-    _sharedDao
-        .getBooleanStream(
-          SHARED_DAO_IS_SHOWCASE_ENABLE,
-          // ignore: avoid_redundant_argument_values
-          defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
-        )
-        .distinct()
-        .listen(
-          (event) => setState(
-            () => _isShowCaseEnable = SHOWCASES_IS_AVAILABLE && event,
-          ),
-        );
-
     _routingService.registerPreMaybePopScope(
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
@@ -135,6 +123,9 @@ class NavigationCenterState extends State<NavigationCenter>
     _searchMode.close();
     super.dispose();
   }
+
+  bool get showShowcase =>
+      settings.showShowcasePage.value && SHOWCASES_IS_AVAILABLE;
 
   NavigationCenterState();
 
@@ -214,10 +205,7 @@ class NavigationCenterState extends State<NavigationCenter>
             child: Column(
               children: <Widget>[
                 StreamBuilder<bool>(
-                  stream: _sharedDao.getBooleanStream(
-                    SHARED_DAO_SHOW_EVENTS_ENABLES,
-                    defaultValue: true,
-                  ),
+                  stream: settings.showEvents.stream,
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!) {
                       return const HasEventsRow();
@@ -256,6 +244,7 @@ class NavigationCenterState extends State<NavigationCenter>
                 if (!isLarge(context)) const AudioPlayerAppBar(),
                 Expanded(
                   child: PageTransitionSwitcher(
+                    duration: AnimationSettings.standard,
                     transitionBuilder: (
                       child,
                       animation,
@@ -287,7 +276,7 @@ class NavigationCenterState extends State<NavigationCenter>
                           );
                         } else {
                           _onNavigationCenterBackPressed = null;
-                          return !_isShowCaseEnable
+                          return !showShowcase
                               ? ChatsPage(
                                   scrollController: _scrollController,
                                 )
@@ -321,9 +310,13 @@ class NavigationCenterState extends State<NavigationCenter>
   bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
     if (isDesktopNative) {
       getWindowInfo().then((size) {
-        _sharedDao.put(
-          SHARED_DAO_WINDOWS_SIZE,
-          '${size.frame.left}_${size.frame.top}_${size.frame.right}_${size.frame.bottom}',
+        settings.windowsFrame.set(
+          WindowFrame(
+            left: size.frame.left,
+            top: size.frame.top,
+            right: size.frame.right,
+            bottom: size.frame.bottom,
+          ),
         );
       });
     }
@@ -348,8 +341,7 @@ class NavigationCenterState extends State<NavigationCenter>
       stream: _authRepo.newVersionInformation,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          _sharedDao.once(
-            ONCE_SHOW_NEW_VERSION_INFORMATION,
+          settings.onceShowNewVersionInformation.once(
             () async {
               await Future.delayed(Duration.zero);
               if (context.mounted) {
@@ -500,7 +492,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     _scrollController.animateTo(
                       0.0,
                       curve: Curves.easeOut,
-                      duration: SLOW_ANIMATION_DURATION,
+                      duration: AnimationSettings.slow,
                     );
                   }
                 },
@@ -565,7 +557,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                   ),
                   titleSpacing: 8.0,
-                  title: ConnectionStatus(isShowCase: _isShowCaseEnable),
+                  title: ConnectionStatus(isShowCase: showShowcase),
                   actions: [
                     if (isMobileNative)
                       DescribedFeatureOverlay(
@@ -602,7 +594,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,
-                        tapTarget: !_isShowCaseEnable
+                        tapTarget: !showShowcase
                             ? Icon(
                                 Icons.storefront_outlined,
                                 color: theme.colorScheme.tertiaryContainer,
@@ -631,8 +623,8 @@ class NavigationCenterState extends State<NavigationCenter>
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
-                            onTap: () => _sharedDao
-                                .toggleBoolean(SHARED_DAO_IS_SHOWCASE_ENABLE),
+                            onTap: () =>
+                                settings.showShowcasePage.toggleValue(),
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               clipBehavior: Clip.none,
@@ -651,6 +643,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                     borderRadius: messageBorder,
                                   ),
                                   child: PageTransitionSwitcher(
+                                    duration: AnimationSettings.standard,
                                     transitionBuilder: (
                                       child,
                                       animation,
@@ -661,7 +654,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                         child: child,
                                       );
                                     },
-                                    child: !_isShowCaseEnable
+                                    child: !showShowcase
                                         ? Icon(
                                             Icons.storefront_outlined,
                                             color: theme.colorScheme.surface,
@@ -672,9 +665,9 @@ class NavigationCenterState extends State<NavigationCenter>
                                           ),
                                   ),
                                 ),
-                                if (_isShowCaseEnable)
+                                if (showShowcase)
                                   const UnreadRoomCounterWidget(),
-                                if (_isShowCaseEnable)
+                                if (showShowcase)
                                   JumpingDotAnimation(
                                     dotsColor: theme.colorScheme.primary,
                                   ),

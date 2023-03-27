@@ -1,6 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class ReplyPreview extends StatelessWidget {
     final theme = Theme.of(context);
     return AnimatedContainer(
       width: double.infinity,
-      duration: SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.slow,
       color: theme.colorScheme.surface.withAlpha(200),
       child: message != null
           ? Padding(

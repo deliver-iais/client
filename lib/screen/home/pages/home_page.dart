@@ -1,18 +1,21 @@
 import 'dart:async';
 
 import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:flutter/material.dart';
@@ -21,6 +24,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:rxdart/rxdart.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,11 +35,11 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final _routingService = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
-  final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -58,6 +62,24 @@ class HomePageState extends State<HomePage> {
       });
     }
 
+    PerformanceMonitor.performanceProfile.pairwise().listen((mode) {
+      if (mode[0].level > mode[1].level &&
+          mode[1] == PerformanceMode.POWER_SAVER) {
+        ToastDisplay.showToast(
+          toastText: _i18n["power_saver_turned_on"],
+          showWarningAnimation: true,
+          maxWidth: 400,
+        );
+      } else if (mode[0].level < mode[1].level &&
+          mode[0] == PerformanceMode.POWER_SAVER) {
+        ToastDisplay.showToast(
+          toastText: _i18n["power_saver_turned_off"],
+          showWarningAnimation: true,
+          maxWidth: 400,
+        );
+      }
+    });
+
     //this means user login successfully
     _analyticsService.sendLogEvent(
       "user_starts_app",
@@ -76,8 +98,8 @@ class HomePageState extends State<HomePage> {
 
     _appLifecycleService
       ..startLifeCycListener()
-      ..watchAppAppLifecycle().listen((event) {
-        if (event == AppLifecycle.RESUME) {
+      ..lifecycleStream.listen((event) {
+        if (event == AppLifecycle.ACTIVE) {
           _coreServices.checkConnectionTimer();
         }
       });
@@ -138,7 +160,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _uxService.updateHomeContext(context);
+    settings.updateHomeContext(context);
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
@@ -160,11 +182,11 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> checkIfVersionChange() async {
-    if (await _accountRepo.shouldShowNewFeatureDialog()) {
-      if(context.mounted) {
+  void checkIfVersionChange() {
+    if (_accountRepo.shouldShowNewFeatureDialog()) {
+      if (context.mounted) {
         showDialog(builder: (context) => NewFeatureDialog(), context: context)
-          .ignore();
+            .ignore();
       }
       unawaited(_accountRepo.updatePlatformVersion());
     }

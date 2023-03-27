@@ -4,7 +4,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_buttons_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_message.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_table_widget.dart';
@@ -21,7 +21,7 @@ import 'package:deliver/screen/room/widgets/share_private_data_accept_message_wi
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -80,7 +80,6 @@ class BoxContent extends StatefulWidget {
 class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
@@ -89,7 +88,9 @@ class BoxContentState extends State<BoxContent> {
 
   @override
   void initState() {
-    forwarderName = isForwarded() ? _roomRepo.getName(widget.message.forwardedFrom!.asUid()) : null;
+    forwarderName = isForwarded()
+        ? _roomRepo.getName(widget.message.forwardedFrom!.asUid())
+        : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.message.id != null &&
@@ -121,7 +122,7 @@ class BoxContentState extends State<BoxContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_featureFlags.showDeveloperDetails)
+                if (settings.showDeveloperDetails.value)
                   DebugC(
                     label: "message details",
                     children: [
@@ -132,8 +133,7 @@ class BoxContentState extends State<BoxContent> {
                   ),
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 // Reply box in animated emoji has different UI
-                if (!AnimatedEmoji.isAnimatedEmojiMessage(widget.message) &&
-                    hasReply())
+                if (!isOnlyEmojiMessage(widget.message) && hasReply())
                   replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
                 Container(key: _messageBoxKey, child: messageBox())
@@ -196,7 +196,8 @@ class BoxContentState extends State<BoxContent> {
               roomId: widget.message.roomUid,
               replyToId: widget.message.replyToId,
               messageReplyBrief: widget.messageReplyBrief,
-              maxWidth: snapshot.data ?? 0,
+              maxWidth:
+                  isOnlyEmojiMessage(widget.message) ? 120 : (snapshot.data ?? 0),
               backgroundColor: colorScheme.onPrimary,
               foregroundColor: colorScheme.primary,
             );
@@ -259,17 +260,33 @@ class BoxContentState extends State<BoxContent> {
   Widget messageBox() {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
-    if (AnimatedEmoji.isAnimatedEmojiMessage(widget.message)) {
+    if (isOnlyEmojiMessage(widget.message)) {
       // Reply box in animated emoji has different UI
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (hasReply() && widget.isSender) replyToIdBox(),
-          AnimatedEmoji(
-            message: widget.message,
-            isSeen: widget.isSeen,
-            colorScheme: colorScheme,
-          ),
+          if (settings.showAnimatedEmoji.value &&
+              AnimatedEmoji.isAnimatedEmojiMessage(widget.message))
+            AnimatedEmoji(
+              message: widget.message,
+              isSeen: widget.isSeen,
+              colorScheme: colorScheme,
+            )
+          else
+            TextUI(
+              message: widget.message,
+              maxWidth: widget.maxWidth * 0.7,
+              minWidth: isForwarded() || hasReply() || shouldShowSenderName()
+                  ? widget.minWidth
+                  : 0,
+              isSender: widget.isSender,
+              isSeen: widget.isSeen,
+              colorScheme: colorScheme,
+              searchTerm: widget.pattern,
+              onUsernameClick: widget.onUsernameClick,
+              onBotCommandClick: widget.onBotCommandClick,
+            ),
           if (hasReply() && !widget.isSender) replyToIdBox(),
         ],
       );

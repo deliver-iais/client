@@ -36,6 +36,7 @@ import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/lab_settings.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
+import 'package:deliver/screen/settings/pages/power_saver_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
@@ -45,6 +46,7 @@ import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -69,6 +71,9 @@ const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
     LanguageSettingsPage(key: ValueKey("/language-settings"));
+
+const _powerSaverSettings =
+    PowerSaverSettingsPage(key: ValueKey("/power-saver-settings"));
 
 const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
@@ -141,6 +146,13 @@ class RoutingService {
       "languageSettingsPage_open",
     );
     _push(_languageSettings);
+  }
+
+  void openPowerSaverSettings() {
+    _analyticsService.sendLogEvent(
+      "powerSaverSettingsPage_open",
+    );
+    _push(_powerSaverSettings);
   }
 
   void openThemeSettings() {
@@ -525,8 +537,8 @@ class RoutingService {
     final route = useTransparentRoute
         ? TransparentRoute(
             backgroundColor: Colors.transparent,
-            transitionDuration: SLOW_ANIMATION_DURATION,
-            reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+            transitionDuration: AnimationSettings.slow,
+            reverseTransitionDuration: AnimationSettings.slow,
             builder: (c) => widget,
             settings: RouteSettings(name: path),
           )
@@ -553,6 +565,8 @@ class RoutingService {
       PageRouteBuilder(
         settings: setting,
         pageBuilder: builder,
+        transitionDuration: AnimationSettings.standard,
+        reverseTransitionDuration: AnimationSettings.standard,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeScaleTransition(
             animation: animation,

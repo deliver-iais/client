@@ -21,6 +21,8 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -198,9 +200,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     _showCustomMenu(context, msg);
                   }
                 },
-          onDoubleTap: !isDesktopDevice || widget.selectMultiMessageSubject.value
-              ? null
-              : widget.onReply,
+          onDoubleTap:
+              !isDesktopDevice || widget.selectMultiMessageSubject.value
+                  ? null
+                  : widget.onReply,
           onLongPress: () async {
             await selectMessage();
           },
@@ -331,7 +334,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             builder: (context, snapshot) {
               final isAnimated = snapshot.data ?? false;
               return AnimatedContainer(
-                duration: SLOW_ANIMATION_DURATION,
+                duration: AnimationSettings.slow,
                 // transform: Matrix4.rotationX(turns.value * pi * 2),
                 transform: isAnimated
                     ? Matrix4.translationValues(
@@ -355,13 +358,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           stream: widget.selectedMessageListIndex,
           builder: (context, snapshot) {
             return AnimatedOpacity(
-              duration: SUPER_SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.superSlow,
               opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
               child: AnimatedContainer(
                 width: widget.selectMultiMessageSubject.value
                     ? SELECTED_MESSAGE_CHECKBOX_WIDTH
                     : 0,
-                duration: SUPER_SLOW_ANIMATION_DURATION,
+                duration: AnimationSettings.superSlow,
                 child: Checkbox(
                   checkColor: Colors.white,
                   fillColor: MaterialStateProperty.resolveWith(getColor),
@@ -409,7 +412,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       widgetSendTime = int.parse(widget.message.packetId);
     } catch (_) {}
     return (clock.now().millisecondsSinceEpoch - widgetSendTime).abs() <
-        SLOW_ANIMATION_DURATION.inMilliseconds * 3;
+        AnimationSettings.slow.inMilliseconds * 3;
   }
 
   void onBotCommandClick(String command) {
@@ -440,7 +443,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          if (isFirstMessageInGroupedMessages &&
+          if (settings.showAvatars.value &&
+              isFirstMessageInGroupedMessages &&
               widget.message.roomUid.asUid().category == Categories.GROUP)
             MouseRegion(
               cursor: SystemMouseCursors.click,
@@ -458,7 +462,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 },
               ),
             ),
-          if (!isFirstMessageInGroupedMessages &&
+          if (settings.showAvatars.value &&
+              !isFirstMessageInGroupedMessages &&
               widget.message.roomUid.asUid().category == Categories.GROUP)
             const SizedBox(width: 44),
           messageWidget,
@@ -467,13 +472,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             stream: widget.selectedMessageListIndex,
             builder: (context, snapshot) {
               return AnimatedOpacity(
-                duration: SUPER_SLOW_ANIMATION_DURATION,
+                duration: AnimationSettings.superSlow,
                 opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
                 child: AnimatedContainer(
                   width: widget.selectMultiMessageSubject.value
                       ? SELECTED_MESSAGE_CHECKBOX_WIDTH
                       : 0,
-                  duration: SUPER_SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.superSlow,
                   child: Checkbox(
                     checkColor: Colors.white,
                     fillColor: MaterialStateProperty.resolveWith(getColor),
@@ -747,7 +752,10 @@ class OperationOnMessageSelection {
 
   void onSave() {
     final file = message.json.toFile();
-    _fileRepo.saveDownloadedFileInWeb(file.uuid, file.name,);
+    _fileRepo.saveDownloadedFileInWeb(
+      file.uuid,
+      file.name,
+    );
   }
 
   void onSaveAs() {

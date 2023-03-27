@@ -8,10 +8,9 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
-import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
@@ -25,7 +24,6 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -40,7 +38,6 @@ class SettingsPage extends StatefulWidget {
 
 class SettingsPageState extends State<SettingsPage> {
   static final _logger = GetIt.I.get<Logger>();
-  static final _uxService = GetIt.I.get<UxService>();
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
@@ -145,6 +142,7 @@ class SettingsPageState extends State<SettingsPage> {
                                         snapshot.data!.countryCode!,
                                         snapshot.data!.nationalNumber!,
                                       ),
+                                      textDirection: TextDirection.ltr,
                                       style: theme.textTheme.titleMedium,
                                     )
                                   ],
@@ -198,7 +196,7 @@ class SettingsPageState extends State<SettingsPage> {
                         leading: const Icon(CupertinoIcons.lock),
                         onPressed: (context) {
                           Navigator.pushReplacement(
-                            _uxService.appContext,
+                            settings.appContext,
                             MaterialPageRoute(
                               builder: (c) {
                                 return const SplashScreen();
@@ -240,36 +238,36 @@ class SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: _i18n.get("notification"),
                     leading: const Icon(CupertinoIcons.bell),
-                    switchValue: !_uxService.isAllNotificationDisabled,
+                    switchValue: !settings.isAllNotificationDisabled.value,
                     onToggle: (value) => setState(
-                      () => _uxService.toggleIsAllNotificationDisabled(),
+                      () => settings.isAllNotificationDisabled.toggleValue(),
                     ),
                   ),
                   SettingsTile.switchTile(
                     title: _i18n.get("events"),
                     leading: const Icon(CupertinoIcons.calendar),
-                    switchValue: _uxService.isShowEventsEnabled,
-                    onToggle: (value) => setState(() {
-                      _uxService.toggleIsShowEventsEnabled();
-                    }),
+                    switchValue: settings.showEvents.value,
+                    onToggle: (value) => setState(
+                      () => settings.showEvents.toggleValue(),
+                    ),
                   ),
                   if (isAndroidNative)
                     SettingsTile.switchTile(
                       title: _i18n.get("notification_advanced_mode"),
                       leading: const Icon(CupertinoIcons.bell_circle_fill),
                       switchValue:
-                          !_uxService.isNotificationAdvanceModeDisabled,
+                          !settings.isNotificationAdvanceModeDisabled.value,
                       onToggle: (value) => value
                           ? _showNotificationAdvanceModeDialog()
                           : setState(() {
-                              _uxService
-                                  .toggleIsAdvanceNotificationModeDisabled();
+                              settings.isNotificationAdvanceModeDisabled
+                                  .toggleValue();
                             }),
                     ),
                   SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: _i18n.language.name,
-                    leading: const FaIcon(FontAwesomeIcons.globe),
+                    subtitle: _i18n.language.languageName,
+                    leading: const Icon(CupertinoIcons.globe),
                     onPressed: (context) {
                       _routingService.openLanguageSettings();
                     },
@@ -279,7 +277,6 @@ class SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                     onPressed: (context) =>
                         _routingService.openSecuritySettings(),
-                    trailing: const SizedBox.shrink(),
                   ),
                   SettingsTile(
                     title: _i18n.get("devices"),
@@ -292,9 +289,9 @@ class SettingsPageState extends State<SettingsPage> {
                     SettingsTile.switchTile(
                       title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(CupertinoIcons.keyboard),
-                      switchValue: !_uxService.sendByEnter,
+                      switchValue: !settings.sendByEnter.value,
                       onToggle: (value) {
-                        setState(() => _uxService.toggleSendByEnter());
+                        setState(() => settings.sendByEnter.toggleValue());
                       },
                     ),
                 ],
@@ -305,10 +302,11 @@ class SettingsPageState extends State<SettingsPage> {
                   SettingsTile.switchTile(
                     title: _i18n.get("dark_mode"),
                     leading: const Icon(CupertinoIcons.moon),
-                    switchValue: _uxService.themeIsDark,
+                    switchValue: settings.themeIsDark.value,
                     onToggle: (value) {
                       setState(() {
-                        _uxService.toggleThemeLightingMode();
+                        settings.isAutoNightModeEnable.set(false);
+                        settings.themeIsDark.toggleValue();
                       });
                     },
                   ),
@@ -317,6 +315,13 @@ class SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(CupertinoIcons.paintbrush),
                     onPressed: (context) {
                       _routingService.openThemeSettings();
+                    },
+                  ),
+                  SettingsTile(
+                    title: _i18n["power_saver"],
+                    leading: const Icon(CupertinoIcons.battery_25),
+                    onPressed: (context) {
+                      _routingService.openPowerSaverSettings();
                     },
                   ),
                 ],
@@ -343,15 +348,13 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-              if (UxService.showDeveloperPage)
+              if (settings.showDeveloperPage.value)
                 Section(
                   title: 'Developer Mode',
                   children: [
                     SettingsTile(
                       title: 'Developer Page',
-                      subtitle: "Log Level: ${LogLevelHelper.levelToString(
-                        GetIt.I.get<DeliverLogFilter>().level!,
-                      )}",
+                      subtitle: "Log Level: ${settings.logLevel.value.name}",
                       leading: const Icon(Icons.bug_report_rounded),
                       onPressed: (context) {
                         _routingService.openDeveloperPage();
@@ -365,14 +368,14 @@ class SettingsPageState extends State<SettingsPage> {
                     SettingsTile(
                       title: _i18n.get("lab"),
                       subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                      leading: const FaIcon(FontAwesomeIcons.vial),
+                      leading: const Icon(CupertinoIcons.lab_flask),
                       onPressed: (context) => _routingService.openLab(),
                     ),
                   SettingsTile(
                     title: _i18n.get("version"),
                     leading:
                         const Icon(CupertinoIcons.square_stack_3d_down_right),
-                    trailing: UxService.showDeveloperPage
+                    trailing: settings.showDeveloperPage.value
                         ? FutureBuilder<String?>(
                             future: SmsAutoFill().getAppSignature,
                             builder: (c, sms) => Text(sms.data ?? VERSION),
@@ -383,7 +386,7 @@ class SettingsPageState extends State<SettingsPage> {
                       developerModeCounterCountDown--;
                       if (developerModeCounterCountDown < 1) {
                         setState(() {
-                          UxService.showDeveloperPage = true;
+                          settings.showDeveloperPage.set(true);
                         });
                       }
                     },
@@ -420,9 +423,10 @@ class SettingsPageState extends State<SettingsPage> {
               onPressed: () async {
                 Navigator.pop(c);
                 if (await _backgroundService.enableListenOnSmsAnCall()) {
-                  setState(() {
-                    _uxService.toggleIsAdvanceNotificationModeDisabled();
-                  });
+                  setState(
+                    () => settings.isNotificationAdvanceModeDisabled
+                        .toggleValue(),
+                  );
                 }
               },
               child: Text(_i18n.get("continue")),

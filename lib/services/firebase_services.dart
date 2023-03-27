@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
@@ -29,7 +28,6 @@ external set _decodeMessageForCallFromJs(Function f);
 
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
 
   final List<String> _requestedRoom = [];
@@ -54,7 +52,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
+      if (settings.firebaseSettingIsSet.value) {
         try {
           String? token;
           try {
@@ -63,8 +61,8 @@ class FireBaseServices {
             _logger.e(e);
           }
 
-          token ??= await _sharedDao.get(SHARED_DAO_FIREBASE_TOKEN);
-          if (token != null && token.isNotEmpty) {
+          token ??= settings.firebaseToken.value;
+          if (token.isNotEmpty) {
             _saveFirebaseToken(token);
             unawaited(_sendFirebaseToken(token));
           }
@@ -76,7 +74,7 @@ class FireBaseServices {
   }
 
   void _saveFirebaseToken(String token) {
-    unawaited(_sharedDao.put(SHARED_DAO_FIREBASE_TOKEN, token));
+    settings.firebaseToken.set(token);
   }
 
   Future<void> updateFirebaseToken() async {
@@ -107,10 +105,7 @@ class FireBaseServices {
       try {
         await _services.firebaseServiceClient
             .registration(RegistrationReq()..tokenId = fireBaseToken);
-        return _sharedDao.putBoolean(
-          SHARED_DAO_FIREBASE_SETTING_IS_SET,
-          true,
-        );
+        settings.firebaseSettingIsSet.set(true);
       } catch (e) {
         _logger.e(e);
       }
@@ -173,7 +168,7 @@ Future<void> _backgroundRemoteMessageHandler(
       await Hive.close();
       await setupDI();
     } catch (_) {
-      GetIt.I.get<UxService>().reInitialize();
+      GetIt.I.get<Settings>().reInitialize();
     }
 
     try {

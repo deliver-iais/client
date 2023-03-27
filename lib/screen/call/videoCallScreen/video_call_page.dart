@@ -7,6 +7,7 @@ import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/call_status.dart';
 import 'package:deliver/screen/call/center_avatar_image_in_call.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/theme.dart';
@@ -160,6 +161,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                                   const SizedBox.shrink();
                                             }
                                             return PageTransitionSwitcher(
+                                              duration:
+                                                  AnimationSettings.standard,
                                               transitionBuilder: (
                                                 child,
                                                 animation,
@@ -262,6 +265,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                             }
 
                                             return PageTransitionSwitcher(
+                                              duration: AnimationSettings.standard,
                                               transitionBuilder: (
                                                 child,
                                                 animation,
@@ -369,6 +373,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                           }
 
                                           return PageTransitionSwitcher(
+                                            duration: AnimationSettings.standard,
                                             transitionBuilder: (
                                               child,
                                               animation,
@@ -482,7 +487,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     height:
                         (isMobileDevice && _callRepo.isAccepted) ? 100 : 200,
                     child: PageTransitionSwitcher(
-                      duration: ULTRA_SLOW_ANIMATION_DURATION,
+                      duration: AnimationSettings.ultraSlow,
                       transitionBuilder: (
                         child,
                         animation,
@@ -600,6 +605,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
               }
 
               return PageTransitionSwitcher(
+                duration: AnimationSettings.standard,
                 transitionBuilder: (
                   child,
                   animation,

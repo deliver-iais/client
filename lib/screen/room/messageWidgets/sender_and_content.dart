@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/services/message_extractor_services.dart';
@@ -59,7 +61,7 @@ class SenderAndContent extends StatelessWidget {
 
         return Container(
           constraints: maxWidth != null
-              ? BoxConstraints(maxWidth: maxWidth! - 8.0)
+              ? BoxConstraints(maxWidth: max(maxWidth!, 100) - 8.0)
               : null,
           decoration: showBackgroundColor
               ? BoxDecoration(

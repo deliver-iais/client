@@ -3,7 +3,7 @@ import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -80,7 +80,7 @@ class SeenStatus extends StatelessWidget {
                 final seen = (snapshot.data?.messageId ?? -1) >= messageId!;
 
                 return AnimatedSwitcher(
-                  duration: SLOW_ANIMATION_DURATION,
+                  duration: AnimationSettings.slow,
                   switchInCurve: Curves.easeIn,
                   child: statusWidget(
                     context,

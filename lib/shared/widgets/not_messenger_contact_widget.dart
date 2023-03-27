@@ -1,4 +1,5 @@
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,7 +18,7 @@ class NotMessengerContactWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AnimatedContainer(
-      duration: SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.slow,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         borderRadius: messageBorder,

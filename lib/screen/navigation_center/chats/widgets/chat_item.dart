@@ -10,7 +10,8 @@ import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'contact_pic.dart';
 import 'last_message.dart';
@@ -69,6 +71,7 @@ class ChatItemState extends State<ChatItem> {
   late final Future<String> nameFuture;
 
   StreamSubscription<Room>? _roomSubscription;
+  StreamSubscription<bool>? _showAvatarsSubscription;
   late final Future<String> futureRoomName;
 
   @override
@@ -81,6 +84,10 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
+    _showAvatarsSubscription = MergeStream([
+      settings.showAvatars.stream,
+      settings.showAvatarImages.stream,
+    ]).listen((_) => setState(() {}));
     nameFuture = _roomRepo.getName(widget.room.uid.asUid());
     if (!widget.room.synced) {
       _fetchRoomLastMessage();
@@ -95,6 +102,7 @@ class ChatItemState extends State<ChatItem> {
   @override
   void dispose() {
     _roomSubscription?.cancel();
+    _showAvatarsSubscription?.cancel();
     super.dispose();
   }
 
@@ -161,7 +169,10 @@ class ChatItemState extends State<ChatItem> {
         ),
         if (!isPinnedRoom)
           Padding(
-            padding: const EdgeInsets.only(left: 76.0),
+            padding: EdgeInsets.only(
+              // TODO(bitbeter): maybe can be better
+              left: settings.showAvatars.value ? 76.0 : 0,
+            ),
             child: widget.isInRoom
                 ? const SizedBox(height: 0.5)
                 : const Divider(height: 0.5, thickness: 0.5),
@@ -172,7 +183,10 @@ class ChatItemState extends State<ChatItem> {
             width: double.infinity,
             color: pinnedColor,
             child: Padding(
-              padding: const EdgeInsets.only(left: 76.0),
+              padding: EdgeInsets.only(
+                // TODO(bitbeter): maybe can be better
+                left: settings.showAvatars.value ? 76.0 : 0,
+              ),
               child: widget.isInRoom
                   ? const SizedBox(height: 0.5)
                   : const Divider(height: 0.5, thickness: 0.5),
@@ -194,10 +208,11 @@ class ChatItemState extends State<ChatItem> {
   Widget buildChatItemWidget(String name) {
     final theme = Theme.of(context);
     final detailsHeight = (theme.primaryTextTheme.bodyLarge!.fontSize! + 3) * 2;
+
     return Row(
       children: <Widget>[
-        ContactPic(widget.room.uid.asUid()),
-        const SizedBox(width: 8),
+        if (settings.showAvatars.value) ContactPic(widget.room.uid.asUid()),
+        if (settings.showAvatars.value) const SizedBox(width: 8),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -271,7 +286,7 @@ class ChatItemState extends State<ChatItem> {
                         child: SizedBox(
                           height: detailsHeight,
                           child: AnimatedSwitcher(
-                            duration: SLOW_ANIMATION_DURATION,
+                            duration: AnimationSettings.slow,
                             child: (roomActivityStream.hasData &&
                                     roomActivityStream.data != null &&
                                     roomActivityStream.data!.typeOfActivity !=

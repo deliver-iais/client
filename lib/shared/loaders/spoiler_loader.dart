@@ -1,4 +1,4 @@
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:rxdart/rxdart.dart';
@@ -46,7 +46,7 @@ class SpoilerLoader extends StatelessWidget {
         return Stack(
           children: [
             CustomAnimationBuilder<Color?>(
-              duration: SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.slow,
               control: control,
               tween: ColorTween(begin: Colors.transparent, end: foreground),
               builder: (context, color, child) {
@@ -59,7 +59,7 @@ class SpoilerLoader extends StatelessWidget {
             ),
             AnimatedOpacity(
               opacity: showLoader ? 1 : 0,
-              duration: SLOW_ANIMATION_DURATION,
+              duration: AnimationSettings.slow,
               child: loader,
             )
           ],

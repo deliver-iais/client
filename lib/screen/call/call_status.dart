@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
@@ -65,7 +66,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
         color: detectBackGroundColor(widget.callStatus),
       ),
       clipBehavior: Clip.hardEdge,
-      duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+      duration: AnimationSettings.superUltraSlow,
       width: widget.callStatus == CallStatus.CONNECTED
           ? 120
           : (isMobileDevice ? 150 : 170),
@@ -79,7 +80,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
                   stream: _callRepo.incomingCallOnHold,
                   builder: (context, isCallOnHold) {
                     return AnimatedSwitcher(
-                      duration: SUPER_SLOW_ANIMATION_DURATION,
+                      duration: AnimationSettings.superSlow,
                       child: (isCallOnHold.data ?? false)
                           ? Text(
                               _i18n.get("call_on_hold"),

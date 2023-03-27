@@ -1,3 +1,4 @@
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +20,10 @@ class CircularCounterWidget extends StatelessWidget {
     final theme = Theme.of(context);
     return AnimatedScale(
       scale: unreadCount > 0 ? 1 : 0,
-      duration: ANIMATION_DURATION,
+      duration: AnimationSettings.normal,
       child: AnimatedOpacity(
         opacity: unreadCount > 0 ? 1 : 0,
-        duration: ANIMATION_DURATION,
+        duration: AnimationSettings.normal,
         child: Container(
           constraints: const BoxConstraints(minWidth: 20),
           height: 20,

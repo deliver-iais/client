@@ -1,57 +1,22 @@
 import 'dart:ui';
 
-import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:material_color_utilities/palettes/core_palette.dart';
 
 class Background extends StatelessWidget {
-  static final _uxService = GetIt.I.get<UxService>();
   final backGroundColors = <Color>[
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .tertiary
-          .get(85),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .primary
-          .get(93),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .secondary
-          .get(90),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .tertiary
-          .get(90),
-    ),
+    Color(settings.corePalette.tertiary.get(85)),
+    Color(settings.corePalette.primary.get(93)),
+    Color(settings.corePalette.secondary.get(90)),
+    Color(settings.corePalette.tertiary.get(90)),
   ];
   final patternColors = <Color>[
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .tertiary
-          .get(70),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .primary
-          .get(75),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .secondary
-          .get(75),
-    ),
-    Color(
-      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
-          .tertiary
-          .get(75),
-    ),
+    Color(settings.corePalette.tertiary.get(70)),
+    Color(settings.corePalette.primary.get(75)),
+    Color(settings.corePalette.secondary.get(75)),
+    Color(settings.corePalette.tertiary.get(75)),
   ];
   final int id;
 
@@ -60,6 +25,10 @@ class Background extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (!settings.showRoomBackground.value) {
+      return Container(color: theme.colorScheme.surfaceVariant.withAlpha(150));
+    }
 
     List<Color> rotate(List<Color> colors) {
       final i = id % colors.length;
@@ -87,14 +56,14 @@ class Background extends StatelessWidget {
                         children: [
                           Expanded(
                             child: AnimatedContainer(
-                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              duration: AnimationSettings.superSlow,
                               curve: curve,
                               color: backGroundColor[0],
                             ),
                           ),
                           Expanded(
                             child: AnimatedContainer(
-                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              duration: AnimationSettings.superSlow,
                               curve: curve,
                               color: backGroundColor[1],
                             ),
@@ -108,14 +77,14 @@ class Background extends StatelessWidget {
                         children: [
                           Expanded(
                             child: AnimatedContainer(
-                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              duration: AnimationSettings.superSlow,
                               curve: curve,
                               color: backGroundColor[3],
                             ),
                           ),
                           Expanded(
                             child: AnimatedContainer(
-                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              duration: AnimationSettings.superSlow,
                               curve: curve,
                               color: backGroundColor[2],
                             ),
@@ -136,7 +105,7 @@ class Background extends StatelessWidget {
               ],
             ),
           ),
-          if (_uxService.patternIndex < patterns.length)
+          if (settings.backgroundPatternIndex.value < patterns.length)
             Opacity(
               opacity: theme.brightness == Brightness.dark ? 0.3 : 0.8,
               child: SizedBox.expand(
@@ -155,7 +124,7 @@ class Background extends StatelessWidget {
                   blendMode: BlendMode.srcATop,
                   child: Image(
                     image: AssetImage(
-                      "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                      "assets/backgrounds/${patterns[settings.backgroundPatternIndex.value]}.webp",
                     ),
                     fit: BoxFit.scaleDown,
                     repeat: ImageRepeat.repeat,

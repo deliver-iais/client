@@ -26,7 +26,8 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -92,7 +93,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _uxService = GetIt.I.get<UxService>();
   static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   static final _logger = GetIt.I.get<Logger>();
   static final checkPermission = GetIt.I.get<CheckPermissionsService>();
@@ -485,7 +485,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   }
 
                   return AnimatedContainer(
-                    duration: ANIMATION_DURATION,
+                    duration: AnimationSettings.normal,
                     curve: Curves.easeInOut,
                     height: riseKeyboard
                         ? searchKeyboard
@@ -530,18 +530,18 @@ class InputMessageWidgetState extends State<InputMessage> {
   double getKeyboardSize() {
     final mq = MediaQuery.of(context);
     if (mq.orientation == Orientation.landscape) {
-      return _uxService.getKeyBoardSizeLandscape() ?? 200;
+      return settings.keyboardSizeLandscape.value;
     } else {
-      return _uxService.getKeyBoardSizePortrait() ?? 254;
+      return settings.keyboardSizePortrait.value;
     }
   }
 
   void setKeyBoardSize(double bottomOffset, MediaQueryData mq) {
     if (bottomOffset > 0) {
       if (mq.orientation == Orientation.portrait) {
-        _uxService.setKeyBoardSizePortrait(bottomOffset);
+        settings.keyboardSizePortrait.max(bottomOffset);
       } else {
-        _uxService.setKeyBoardSizeLandScape(bottomOffset);
+        settings.keyboardSizeLandscape.max(bottomOffset);
       }
     }
   }
@@ -698,7 +698,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                 },
               ),
-            if ((isWindowsNative) && !showSendButton && !widget.waitingForForward)
+            if ((isWindowsNative) &&
+                !showSendButton &&
+                !widget.waitingForForward)
               IconButton(
                 icon: const Icon(
                   CupertinoIcons.location,
@@ -865,8 +867,8 @@ class InputMessageWidgetState extends State<InputMessage> {
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
     }
-    if (((!_uxService.sendByEnter && event.isShiftPressed) ||
-            (_uxService.sendByEnter && !event.isShiftPressed)) &&
+    if (((!settings.sendByEnter.value && event.isShiftPressed) ||
+            (settings.sendByEnter.value && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&

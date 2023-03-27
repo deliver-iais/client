@@ -10,7 +10,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -66,7 +66,7 @@ class FileRepo {
         ToastDisplay.showToast(
           toastText: e.response!.data,
           maxWidth: 500.0,
-          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.actualSuperUltraSlow,
         );
         for (final packetId in packetIds) {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
@@ -83,7 +83,7 @@ class FileRepo {
         ToastDisplay.showToast(
           toastText: _i18N.get("connection_error"),
           maxWidth: 500.0,
-          duration: SUPER_ULTRA_SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.actualSuperUltraSlow,
         );
         for (final packetId in packetIds) {
           GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
@@ -194,7 +194,10 @@ class FileRepo {
     );
     if (fileInfo != null) {
       if (isWeb) {
-        return _convertDataByteToBlobUrl(fileInfo.path,filename.getMimeString());
+        return _convertDataByteToBlobUrl(
+          fileInfo.path,
+          filename.getMimeString(),
+        );
       } else {
         final file = io.File(fileInfo.path);
         if (file.existsSync()) {
@@ -215,7 +218,7 @@ class FileRepo {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
-        return path;
+      return path;
     }
     final downloadedFileUri = await _fileService.getFile(
       uuid,
@@ -235,7 +238,10 @@ class FileRepo {
         if (intiProgressbar) {
           _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
         }
-        return _convertDataByteToBlobUrl(downloadedFileUri,filename.getMimeString());
+        return _convertDataByteToBlobUrl(
+          downloadedFileUri,
+          filename.getMimeString(),
+        );
       }
 
       await _saveFileInfo(

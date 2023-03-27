@@ -4,11 +4,11 @@ import 'dart:async';
 
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/dao/account_dao.dart';
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -20,7 +20,7 @@ import 'package:logger/logger.dart';
 
 class AccountRepo {
   final _logger = GetIt.I.get<Logger>();
-  final _sharedDao = GetIt.I.get<SharedDao>();
+
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -226,27 +226,20 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final version = await _sharedDao.get(SHARED_DAO_VERSION);
-    if (version == null || version != VERSION) {
-      final pDbVersion = await _sharedDao.get(SHARED_DAO_DB_VERSION);
-      if (pDbVersion == null ||
-          int.parse(pDbVersion) != _dbManager.getDbVersionHashcode()) {
+    final applicationVersion = settings.applicationVersion.value;
+    final dbHashCode = settings.dbHashCode.value;
+    if (applicationVersion.isEmpty || applicationVersion != VERSION) {
+      if (dbHashCode != _dbManager.getDbVersionHashcode()) {
         try {
           await _dbManager.migrate(removeOld: true);
-          await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
-          unawaited(
-            _sharedDao.resetTimeCounter(ONCE_SHOW_NEW_VERSION_INFORMATION),
-          );
+          settings.allRoomFetched.set(false);
+          settings.onceShowNewVersionInformation.reset();
+          // TODO(dansi): why is here, it should be safer place in code instead of here
           unawaited(GetIt.I.get<ContactRepo>().getContacts());
         } catch (e) {
           _logger.e(e);
         }
-        unawaited(
-          _sharedDao.put(
-            SHARED_DAO_DB_VERSION,
-            _dbManager.getDbVersionHashcode().toString(),
-          ),
-        );
+        settings.dbHashCode.set(_dbManager.getDbVersionHashcode());
       }
       unawaited(_updateSessionInformationIfNeed());
     }
@@ -254,8 +247,9 @@ class AccountRepo {
 
   Future<void> _updateSessionInformationIfNeed() async {
     try {
-      final version = await _sharedDao.get(SHARED_DAO_VERSION);
-      if (version == null || shouldUpdateSessionPlatformInformation(version)) {
+      final applicationVersion = settings.applicationVersion.value;
+      if (applicationVersion.isEmpty ||
+          shouldUpdateSessionPlatformInformation(applicationVersion)) {
         await updatePlatformVersion();
       }
     } catch (e) {
@@ -268,7 +262,7 @@ class AccountRepo {
       await _sdr.sessionServiceClient.updateSessionPlatformInformation(
         UpdateSessionPlatformInformationReq()..platform = await getPlatformPB(),
       );
-      unawaited(_sharedDao.put(SHARED_DAO_VERSION, VERSION));
+      settings.applicationVersion.set(VERSION);
     } catch (e) {
       _logger.e(e);
     }
@@ -277,7 +271,7 @@ class AccountRepo {
   bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
       previousVersion != VERSION;
 
-  bool shouldShowNewFeaturesDialog(String? previousVersion) =>
+  bool shouldShowNewFeaturesDialog(String previousVersion) =>
       previousVersion != VERSION;
 
   Future<bool> verifyQrCodeToken(String token) async {
@@ -325,9 +319,8 @@ class AccountRepo {
     return buildName(account!.firstname, account.lastname);
   }
 
-  Future<bool> shouldShowNewFeatureDialog() async {
-    final pv = await _sharedDao.get(SHARED_DAO_VERSION);
-    return shouldShowNewFeaturesDialog(pv);
+  bool shouldShowNewFeatureDialog() {
+    return shouldShowNewFeaturesDialog(settings.applicationVersion.value);
   }
 
   Future<bool> isTwoStepVerificationEnabled() async {

@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/theme.dart';
@@ -19,12 +20,12 @@ class ToastDisplay {
     bool showCopyAnimation = false,
     BuildContext? toastContext,
     double maxWidth = 1000.0,
-    Duration duration = SUPER_SLOW_ANIMATION_DURATION,
+    Duration duration = AnimationSettings.actualSuperSlow,
     required String toastText,
   }) {
     final i18n = GetIt.I.get<I18N>();
 
-    final context = toastContext ?? GetIt.I.get<UxService>().appContext;
+    final context = toastContext ?? GetIt.I.get<Settings>().appContext;
 
     final theme = Theme.of(context);
 
@@ -128,7 +129,7 @@ class ToastDisplay {
     FToast().showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      fadeDuration: SLOW_ANIMATION_DURATION,
+      fadeDuration: AnimationSettings.slow,
       toastDuration: duration * 4,
     );
   }

@@ -2,9 +2,9 @@
 
 import 'dart:core';
 
-import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
@@ -39,41 +39,40 @@ class ServicesDiscoveryRepo {
 
   final fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
-  bool _badCertificateConnection = true;
+  ChannelCredentials get channelCredentials => ChannelCredentials.secure(
+        onBadCertificate: (c, d) => settings.useBadCertificateConnection.value,
+      );
 
-  final _shareDao = GetIt.I.get<SharedDao>();
+  String ipOrAddress(String address) {
+    final ip = settings.hostSetByUser.value;
 
-  Future<void> initRepoWithCustomIp() async {
-    final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
-    initClientChannels(ip: ip);
+    if (ip.isEmpty) return address;
+    return ip;
   }
 
-  void initClientChannels({String ip = ""}) {
+  void initClientChannels() {
     final grpcClientInterceptors = [
       GetIt.I.get<DeliverClientInterceptor>(),
       GetIt.I.get<AnalyticsClientInterceptor>()
     ];
-    _initQueryClientChannelServices(ip, grpcClientInterceptors);
-    _initBotClientChannelServices(ip, grpcClientInterceptors);
-    _initStickerClientChannelServices(ip, grpcClientInterceptors);
-    _initMucClientChannelServices(ip, grpcClientInterceptors);
-    _initCoreClientChannelServices(ip, grpcClientInterceptors);
-    _initProfileClintChannelServices(ip, grpcClientInterceptors);
-    _initAvatarChannelClientServices(ip, grpcClientInterceptors);
-    _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
-    _initLiverLocationClientServices(ip, grpcClientInterceptors);
+    _initQueryClientChannelServices(grpcClientInterceptors);
+    _initBotClientChannelServices(grpcClientInterceptors);
+    _initStickerClientChannelServices(grpcClientInterceptors);
+    _initMucClientChannelServices(grpcClientInterceptors);
+    _initCoreClientChannelServices(grpcClientInterceptors);
+    _initProfileClintChannelServices(grpcClientInterceptors);
+    _initAvatarChannelClientServices(grpcClientInterceptors);
+    _initFirebaseClientChannelServices(grpcClientInterceptors);
+    _initLiverLocationClientServices(grpcClientInterceptors);
   }
 
   void _initQueryClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final queryClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
+      ipOrAddress("query.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -89,15 +88,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initBotClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final botClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-bot.$APPLICATION_DOMAIN",
+      ipOrAddress("ms-bot.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -113,15 +109,14 @@ class ServicesDiscoveryRepo {
   }
 
   void _initStickerClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final stickerClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-sticker.$APPLICATION_DOMAIN",
-      options: const ChannelOptions(
+      ipOrAddress("ms-sticker.$APPLICATION_DOMAIN"),
+      options: ChannelOptions(
         userAgent: "ms-sticker",
-        credentials: ChannelCredentials.insecure(),
-        connectionTimeout: Duration(seconds: 2),
+        credentials: channelCredentials,
+        connectionTimeout: const Duration(seconds: 2),
       ),
     );
 
@@ -137,15 +132,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initMucClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final mucServicesClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
+      ipOrAddress("query.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -168,15 +160,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initCoreClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final coreServicesClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "core.$APPLICATION_DOMAIN",
+      ipOrAddress("core.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -193,15 +182,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initProfileClintChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final profileServicesClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-profile.$APPLICATION_DOMAIN",
+      ipOrAddress("ms-profile.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -233,16 +219,13 @@ class ServicesDiscoveryRepo {
   }
 
   void _initAvatarChannelClientServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     // ignore: non_constant_identifier_names
     final avatarServicesClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-avatar.$APPLICATION_DOMAIN",
+      ipOrAddress("ms-avatar.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -259,15 +242,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initFirebaseClientChannelServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final firebaseServicesClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-firebase.$APPLICATION_DOMAIN",
+      ipOrAddress("ms-firebase.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -284,15 +264,12 @@ class ServicesDiscoveryRepo {
   }
 
   void _initLiverLocationClientServices(
-    String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
     final liveLocationServiceClientChannel = ClientChannel(
-      ip.isNotEmpty ? ip : "ms-livelocation.$APPLICATION_DOMAIN",
+      ipOrAddress("ms-livelocation.$APPLICATION_DOMAIN"),
       options: ChannelOptions(
-        credentials: ChannelCredentials.secure(
-          onBadCertificate: (c, d) => badCertificateConnection,
-        ),
+        credentials: channelCredentials,
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
@@ -308,24 +285,8 @@ class ServicesDiscoveryRepo {
     );
   }
 
-  Future<void> initCertificate() async {
-    _badCertificateConnection = (await (GetIt.I.get<SharedDao>().getBoolean(
-          SHARED_DAO_BAD_CERTIFICATE_CONNECTION,
-          defaultValue: true,
-        )));
-  }
-
-  void setCertificate({required bool onBadCertificate}) {
-    (GetIt.I
-        .get<SharedDao>()
-        .putBoolean(SHARED_DAO_BAD_CERTIFICATE_CONNECTION, onBadCertificate));
-    _badCertificateConnection = onBadCertificate;
-  }
-
   CallOptions _getCallOption(String address) =>
       CallOptions(metadata: {"service": address});
-
-  bool get badCertificateConnection => _badCertificateConnection;
 
   CoreServiceClient? get coreServiceClient {
     if (_coreServiceClient == null) initClientChannels();

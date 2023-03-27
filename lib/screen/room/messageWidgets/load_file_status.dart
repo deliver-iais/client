@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -152,7 +153,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
           child = buildFileStatus();
         }
         return AnimatedSwitcher(
-          duration: VERY_SLOW_ANIMATION_DURATION,
+          duration: AnimationSettings.verySlow,
           transitionBuilder: (child, animation) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -186,7 +187,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
             );
           }
           return AnimatedSwitcher(
-            duration: VERY_SLOW_ANIMATION_DURATION,
+            duration: AnimationSettings.verySlow,
             transitionBuilder: (child, animation) {
               return FadeTransition(opacity: animation, child: child);
             },

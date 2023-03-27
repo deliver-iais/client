@@ -2,7 +2,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'defines.dart';
 
 enum SettingsItemType {
   toggle,
@@ -21,8 +20,6 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.subtitleMaxLines,
     this.leading,
     this.trailing,
-    this.iosChevron = defaultCupertinoForwardIcon,
-    this.iosChevronPadding = defaultCupertinoForwardPadding,
     this.value,
     this.valueDirection,
     this.hasDetails = false,
@@ -44,8 +41,6 @@ class CupertinoSettingsItem extends StatefulWidget {
   final int? subtitleMaxLines;
   final Widget? leading;
   final Widget? trailing;
-  final Icon? iosChevron;
-  final EdgeInsetsGeometry? iosChevronPadding;
   final SettingsItemType type;
   final String? value;
   final TextDirection? valueDirection;
@@ -225,15 +220,17 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           );
         }
 
-        final iosChevron = widget.iosChevron;
-        if (widget.trailing == null && iosChevron != null) {
+        final iosChevron = Icon(
+          CupertinoIcons.forward,
+          size: 21.0,
+          color: theme.colorScheme.outline,
+        );
+        if (widget.trailing == null) {
           endRowChildren.add(
-            widget.iosChevronPadding == null
-                ? iosChevron
-                : Padding(
-                    padding: widget.iosChevronPadding!,
-                    child: iosChevron,
-                  ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 2.25),
+              child: iosChevron,
+            ),
           );
         }
 

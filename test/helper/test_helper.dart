@@ -46,8 +46,8 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
@@ -121,7 +121,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<NotificationServices>(),
     MockSpec<LastActivityDao>(),
     MockSpec<MucDao>(),
-    MockSpec<UxService>(),
+    MockSpec<Settings>(),
     MockSpec<UrlHandlerService>(),
     MockSpec<RoutingService>(),
     MockSpec<CallRepo>(),
@@ -148,13 +148,13 @@ MockRoutingService getAndRegisterRoutingServices() {
   return service;
 }
 
-MockUxService getAndRegisterUxService({
+MockSettings getAndRegisterUxService({
   bool isAllNotificationDisabled = false,
 }) {
-  _removeRegistrationIfExists<UxService>();
-  final service = MockUxService();
-  GetIt.I.registerSingleton<UxService>(service);
-  when(service.isAllNotificationDisabled)
+  _removeRegistrationIfExists<Settings>();
+  final service = MockSettings();
+  GetIt.I.registerSingleton<Settings>(service);
+  when(service.isAllNotificationDisabled.value)
       .thenAnswer((realInvocation) => isAllNotificationDisabled);
   return service;
 }
@@ -590,7 +590,7 @@ MockAppLifecycleService getAndRegisterAppLifecycleService({
   _removeRegistrationIfExists<AppLifecycleService>();
   final service = MockAppLifecycleService();
   GetIt.I.registerSingleton<AppLifecycleService>(service);
-  when(service.appIsActive()).thenAnswer((realInvocation) => appIsActive);
+  when(service.isActive).thenAnswer((realInvocation) => appIsActive);
   return service;
 }
 
@@ -895,10 +895,10 @@ MockSharedDao getAndRegisterSharedDao({
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
-  when(service.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED))
-      .thenAnswer((realInvocation) => Future.value(allRoomFetched));
-  when(service.getBooleanStream(SHARED_DAO_IS_SHOWCASE_ENABLE))
-      .thenAnswer((realInvocation) => Stream.value(showCaseEnable));
+  // when(service.getBoolean(SharedKeys.SHARED_DAO_ALL_ROOMS_FETCHED))
+  //     .thenAnswer((realInvocation) => Future.value(allRoomFetched));
+  // when(service.getBooleanStream(SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE))
+  //     .thenAnswer((realInvocation) => Stream.value(showCaseEnable));
   return service;
 }
 

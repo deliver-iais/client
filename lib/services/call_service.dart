@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:clock/clock.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
@@ -8,8 +6,10 @@ import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -17,7 +17,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -42,7 +41,6 @@ class CallService {
 
   late RTCVideoRenderer _localRenderer;
   late RTCVideoRenderer _remoteRenderer;
-  late SharedPreferences _prefs;
 
   bool shouldRemoveData = false;
 
@@ -53,7 +51,6 @@ class CallService {
   bool isHole = false;
 
   CallService() {
-    SharedPreferences.getInstance().then((p) => _prefs = p);
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
@@ -243,17 +240,17 @@ class CallService {
     if (!_isCallDataInSharedPref(
       callId,
       roomUid,
-      SHARED_DAO_LAST_CALL_DATA_SLOT_1,
+      settings.LAST_CALL_DATA_SLOT_1,
     )) {
       if (!_isCallDataInSharedPref(
         callId,
         roomUid,
-        SHARED_DAO_LAST_CALL_DATA_SLOT_2,
+        settings.LAST_CALL_DATA_SLOT_2,
       )) {
         if (!_isCallDataInSharedPref(
           callId,
           roomUid,
-          SHARED_DAO_LAST_CALL_DATA_SLOT_3,
+          settings.LAST_CALL_DATA_SLOT_3,
         )) {
           return false;
         }
@@ -262,30 +259,30 @@ class CallService {
     return true;
   }
 
-  bool _isCallDataInSharedPref(String callId, String roomUid, String slot) {
-    final callDataSlot = _prefs.getString(slot);
-    if (callDataSlot != null) {
-      final callData = CallData.fromJson(jsonDecode(callDataSlot));
-      if (callData.callId == callId && callData.roomUid == roomUid) {
-        return true;
-      } else {
-        return false;
-      }
+  bool _isCallDataInSharedPref(
+    String callId,
+    String roomUid,
+    JsonMapPersistent<CallData> slot,
+  ) {
+    final callData = slot.value;
+    if (callData.callId == callId && callData.roomUid == roomUid) {
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   void saveLastCallStatusOnSharedPrefCallSlot(CallData data) {
-    var replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_1;
+    var replacedSlot = settings.LAST_CALL_DATA_SLOT_1;
     var minExpireTime =
-        _checkSlotAndSaveIfPossible(data, SHARED_DAO_LAST_CALL_DATA_SLOT_1);
+        _checkSlotAndSaveIfPossible(data, settings.LAST_CALL_DATA_SLOT_1);
     if (minExpireTime != 0) {
       final tempExpireTime = _checkSlotAndSaveIfPossible(
         data,
-        SHARED_DAO_LAST_CALL_DATA_SLOT_2,
+        settings.LAST_CALL_DATA_SLOT_2,
       );
       if (minExpireTime > tempExpireTime) {
-        replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_2;
+        replacedSlot = settings.LAST_CALL_DATA_SLOT_2;
         minExpireTime = tempExpireTime;
       }
     } else {
@@ -294,37 +291,34 @@ class CallService {
     if (minExpireTime != 0) {
       final tempExpireTime = _checkSlotAndSaveIfPossible(
         data,
-        SHARED_DAO_LAST_CALL_DATA_SLOT_3,
+        settings.LAST_CALL_DATA_SLOT_3,
       );
       if (minExpireTime > tempExpireTime) {
-        replacedSlot = SHARED_DAO_LAST_CALL_DATA_SLOT_3;
+        replacedSlot = settings.LAST_CALL_DATA_SLOT_3;
         minExpireTime = tempExpireTime;
       }
     } else {
       return;
     }
     if (minExpireTime != 0) {
-      _prefs.setString(replacedSlot, jsonEncode(data));
+      replacedSlot.set(data);
     } else {
       return;
     }
   }
 
-  int _checkSlotAndSaveIfPossible(CallData data, String slot) {
-    final callDataSlot = _prefs.getString(slot);
-    if (callDataSlot != null) {
-      final callData = CallData.fromJson(jsonDecode(callDataSlot));
-      if (((callData.expireTime - clock.now().millisecondsSinceEpoch).abs()) >
-          100000) {
-        // 100 sec ExpireTime
-        _prefs.setString(slot, jsonEncode(data));
-        return data.expireTime;
-      } else {
-        return 0;
-      }
-    } else {
-      _prefs.setString(slot, jsonEncode(data));
+  int _checkSlotAndSaveIfPossible(
+    CallData data,
+    JsonMapPersistent<CallData> slot,
+  ) {
+    final callData = slot.value;
+    if (((callData.expireTime - clock.now().millisecondsSinceEpoch).abs()) >
+        CALL_DATA_EXPIRE_CHECK_TIME_MS) {
+      // 100 sec ExpireTime
+      slot.set(data);
       return data.expireTime;
+    } else {
+      return 0;
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb_file;
@@ -55,38 +56,41 @@ class VideoUiState extends State<VideoUi> {
             messageId: widget.message.id ?? 0,
             message: widget.message,
           ),
-          child: Hero(
-            tag: file.uuid,
-            child: LimitedBox(
-              maxWidth: MediaQuery.of(context).size.width,
-              maxHeight: MediaQuery.of(context).size.height / 2,
-              child: Center(
-                child: FutureBuilder<String?>(
-                  future: _fileRepo.getFile(
-                    file.uuid,
-                    "${file.name}.webp",
-                    thumbnailSize: ThumbnailSize.frame,
-                    intiProgressbar: false,
-                  ),
-                  builder: (c, path) {
-                    if (path.hasData && path.data != null) {
-                      return Container(
-                        width: file.width.toDouble(),
-                        height: file.height.toDouble(),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          image: DecorationImage(
-                            image: path.data!.imageProvider(),
-                            fit: BoxFit.cover,
+          child: HeroMode(
+            enabled: settings.showAnimations.value,
+            child: Hero(
+              tag: file.uuid,
+              child: LimitedBox(
+                maxWidth: MediaQuery.of(context).size.width,
+                maxHeight: MediaQuery.of(context).size.height / 2,
+                child: Center(
+                  child: FutureBuilder<String?>(
+                    future: _fileRepo.getFile(
+                      file.uuid,
+                      "${file.name}.webp",
+                      thumbnailSize: ThumbnailSize.frame,
+                      intiProgressbar: false,
+                    ),
+                    builder: (c, path) {
+                      if (path.hasData && path.data != null) {
+                        return Container(
+                          width: file.width.toDouble(),
+                          height: file.height.toDouble(),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4.0),
+                            image: DecorationImage(
+                              image: path.data!.imageProvider(),
+                              fit: BoxFit.cover,
+                            ),
+                            color: Colors.black.withOpacity(0.5),
                           ),
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                        // child: Image.file(File(path.data!),width: 400,),
-                      );
-                    } else {
-                      return defaultImageUI(file);
-                    }
-                  },
+                          // child: Image.file(File(path.data!),width: 400,),
+                        );
+                      } else {
+                        return defaultImageUI(file);
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
