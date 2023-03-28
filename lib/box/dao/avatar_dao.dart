@@ -68,7 +68,7 @@ class AvatarDaoImpl extends AvatarDao {
     final lastAvatar = box2.get(uid);
 
     if (lastAvatar == null ||
-        lastAvatar.createdOn < lastAvatarOfList!.createdOn ||
+        lastAvatar.createdOn <= lastAvatarOfList!.createdOn ||
         box.values.length == 1) {
       return box2.put(
         lastAvatarOfList!.uid,

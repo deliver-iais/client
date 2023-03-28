@@ -79,9 +79,9 @@ class FormSimpleInputFieldWidgetState
         return TextFormField(
           minLines: 1,
           maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
-          inputFormatters: [
-            NumberInputFormatter
-          ],
+          inputFormatters: keyboardType == TextInputType.number
+              ? [NumberInputFormatter]
+              : [],
           controller: _textEditingController,
           textDirection: value,
           validator: validateFormTextField,
