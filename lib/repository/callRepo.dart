@@ -631,7 +631,7 @@ class CallRepo {
                 _startCallTimerAndChangeStatus();
               } else {
                 callingStatus.add(CallStatus.CONNECTED);
-                vibrate(duration: 50);
+                lightVibrate();
                 _reconnectTry = false;
               }
               break;
@@ -697,7 +697,7 @@ class CallRepo {
       );
       callingStatus.add(CallStatus.CONNECTED);
       _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
-      await vibrate(duration: 50);
+      lightVibrate().ignore();
 
       if (_isVideo) {
         if (hasSpeakerCapability) {
@@ -765,7 +765,7 @@ class CallRepo {
     }
     _logger.i("Start Call $_startCallTime");
     callingStatus.add(CallStatus.CONNECTED);
-    vibrate(duration: 50).ignore();
+    lightVibrate().ignore();
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
     }

@@ -12,6 +12,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
@@ -132,7 +133,7 @@ class ChatItemState extends State<ChatItem> {
     final pinnedHoverColor = Color.lerp(
       pinnedColor,
       theme.dividerColor,
-      0.5,
+      0.1,
     );
 
     final hoverColor = theme.hoverColor;
@@ -140,7 +141,7 @@ class ChatItemState extends State<ChatItem> {
       children: [
         HoverContainer(
           cursor: SystemMouseCursors.click,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsetsDirectional.only(start: p8, end: p12),
           hoverDecoration: BoxDecoration(
             color: widget.isInRoom
                 ? activeHoverColor
@@ -168,29 +169,13 @@ class ChatItemState extends State<ChatItem> {
           ),
         ),
         if (!isPinnedRoom)
-          Padding(
-            padding: EdgeInsets.only(
-              // TODO(bitbeter): maybe can be better
-              left: settings.showAvatars.value ? 76.0 : 0,
-            ),
-            child: widget.isInRoom
-                ? const SizedBox(height: 0.5)
-                : const Divider(height: 0.5, thickness: 0.5),
-          )
+          const Divider(height: 0.7, thickness: 0.7)
         else
           Container(
             height: 1,
             width: double.infinity,
             color: pinnedColor,
-            child: Padding(
-              padding: EdgeInsets.only(
-                // TODO(bitbeter): maybe can be better
-                left: settings.showAvatars.value ? 76.0 : 0,
-              ),
-              child: widget.isInRoom
-                  ? const SizedBox(height: 0.5)
-                  : const Divider(height: 0.5, thickness: 0.5),
-            ),
+            child: const Divider(height: 0.7, thickness: 0.7),
           )
       ],
     );
@@ -212,7 +197,7 @@ class ChatItemState extends State<ChatItem> {
     return Row(
       children: <Widget>[
         if (settings.showAvatars.value) ContactPic(widget.room.uid.asUid()),
-        if (settings.showAvatars.value) const SizedBox(width: 8),
+        if (settings.showAvatars.value) const SizedBox(width: p8),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -220,43 +205,28 @@ class ChatItemState extends State<ChatItem> {
               Row(
                 children: [
                   if (widget.room.uid.asUid().category == Categories.GROUP)
-                    const SizedBox(
-                      width: 16,
-                      child: Icon(
-                        CupertinoIcons.person_2_fill,
-                        size: 16,
-                      ),
+                    const Icon(
+                      CupertinoIcons.person_2_fill,
+                      size: 16,
                     ),
                   if (widget.room.uid.asUid().category == Categories.CHANNEL)
-                    const SizedBox(
-                      width: 16,
-                      child: Icon(
-                        CupertinoIcons.news_solid,
-                        size: 16,
-                      ),
+                    const Icon(
+                      CupertinoIcons.news_solid,
+                      size: 16,
                     ),
                   if (widget.room.uid.asUid().category == Categories.BOT)
-                    const SizedBox(
-                      width: 16,
-                      child: Icon(
-                        Icons.smart_toy,
-                        size: 16,
-                      ),
+                    const Icon(
+                      Icons.smart_toy,
+                      size: 16,
                     ),
+                  if (widget.room.uid.asUid().isGroup() ||
+                      widget.room.uid.asUid().isChannel() ||
+                      widget.room.uid.asUid().isBot())
+                    const SizedBox(width: p4),
                   Expanded(
-                    flex: 80,
-                    child: Padding(
-                      padding: widget.room.uid.asUid().isGroup() ||
-                              widget.room.uid.asUid().isChannel() ||
-                              widget.room.uid.asUid().isBot()
-                          ? const EdgeInsets.only(
-                              left: 4.0,
-                            )
-                          : EdgeInsets.zero,
-                      child: RoomName(
-                        uid: widget.room.uid.asUid(),
-                        name: name,
-                      ),
+                    child: RoomName(
+                      uid: widget.room.uid.asUid(),
+                      name: name,
                     ),
                   ),
                   if (widget.room.lastMessage != null)
@@ -358,7 +328,7 @@ class ChatItemState extends State<ChatItem> {
                   if (widget.room.lastMessage != null &&
                       !_authRepo.isCurrentUser(widget.room.lastMessage!.from))
                     Padding(
-                      padding: const EdgeInsets.only(left: 4.0),
+                      padding: const EdgeInsetsDirectional.only(start: p4),
                       child: UnreadMessageCounterWidget(
                         widget.room.lastMessage!.roomUid,
                         widget.room.lastMessageId,
@@ -369,7 +339,7 @@ class ChatItemState extends State<ChatItem> {
                     ),
                   if (widget.room.pinned)
                     Padding(
-                      padding: const EdgeInsets.only(left: 4.0),
+                      padding: const EdgeInsetsDirectional.only(start: p4),
                       child: Icon(
                         CupertinoIcons.pin,
                         size: 16,

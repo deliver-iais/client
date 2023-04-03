@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:deliver/shared/changelog.dart';
 
+import 'widgets/release_badge.dart';
+
 enum Language {
   FARSI(
     languageCode: "fa",
@@ -19,8 +21,9 @@ enum Language {
   ),
   ARABIC(
     languageCode: "ar",
-    languageName: "عربی - BETA",
+    languageName: "عربي",
     countryCode: "SA",
+    releaseState: ReleaseState.ALPHA,
     isRtl: true,
     changelogs: ARABIC_FEATURE_LIST,
   );
@@ -30,6 +33,7 @@ enum Language {
   final String languageCode;
   final String languageName;
   final String countryCode;
+  final ReleaseState? releaseState;
   final bool isRtl;
   final List<String> changelogs;
 
@@ -39,6 +43,7 @@ enum Language {
     required this.countryCode,
     required this.isRtl,
     required this.changelogs,
+    this.releaseState,
   });
 
   Locale get locale => Locale(languageCode, countryCode);

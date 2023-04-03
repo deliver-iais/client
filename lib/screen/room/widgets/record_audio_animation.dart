@@ -117,7 +117,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                   : Colors.transparent,
                             ),
                             margin: isRecording
-                                ? const EdgeInsets.only(right: 50)
+                                ? const EdgeInsetsDirectional.only(end: 50)
                                 : EdgeInsets.zero,
                             child: IconButton(
                               color: theme.colorScheme.onPrimary,
@@ -241,8 +241,8 @@ class RecordAudioAnimation extends StatelessWidget {
                           _pointerOffset.add(tg.offsetFromOrigin),
                       child: Padding(
                         padding: isRecording
-                            ? const EdgeInsets.only(left: 43)
-                            : const EdgeInsets.only(),
+                            ? const EdgeInsetsDirectional.only(start: 43)
+                            : const EdgeInsetsDirectional.only(),
                         child: AnimatedContainer(
                           duration: AnimationSettings.normal,
                           transform: isRecording

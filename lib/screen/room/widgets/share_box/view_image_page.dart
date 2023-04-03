@@ -118,7 +118,7 @@ class _ViewImagePageState extends State<ViewImagePage> {
                           cropFrameColor: theme.primaryColorDark,
                           toolbarColor: theme.bottomAppBarTheme.color,
                           toolbarWidgetColor: theme.colorScheme.onSurface,
-                          activeControlsWidgetColor: theme.primaryColor,
+                          activeControlsWidgetColor: theme.colorScheme.primary,
                           initAspectRatio: CropAspectRatioPreset.original,
                           lockAspectRatio: false,
                         ),

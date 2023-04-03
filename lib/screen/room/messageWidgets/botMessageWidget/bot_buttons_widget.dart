@@ -74,10 +74,10 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                   lock: (l) => _locked.add(l),
                 ),
               Container(
-                padding: EdgeInsets.only(
+                padding: EdgeInsetsDirectional.only(
                   top: buttons.lockAfter.isZero ? 4 : 50,
-                  left: 4,
-                  right: 4,
+                  end: 4,
+                  start: 4,
                 ),
                 // width: maxWidth,
                 child: Column(
@@ -92,7 +92,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                       Container(
                         constraints: const BoxConstraints(minHeight: 20),
                         width: widget.maxWidth,
-                        margin: const EdgeInsets.only(bottom: 6),
+                        margin: const EdgeInsetsDirectional.only(bottom: 6),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: widget.colorScheme.primary,
@@ -112,7 +112,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                         ),
                       ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 6.0, left: 6.0),
+                      padding: const EdgeInsetsDirectional.symmetric(horizontal: 6.0),
                       child: TimeAndSeenStatus(
                         widget.message,
                         isSender: widget.isSender,

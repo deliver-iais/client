@@ -216,7 +216,7 @@ class ShareBoxState extends State<ShareBox> {
                   minMax(remainingPixels / MAIN_BORDER_RADIUS_SIZE);
 
               return Container(
-                padding: EdgeInsets.only(
+                padding: EdgeInsetsDirectional.only(
                   bottom: bottomOffset,
                 ),
                 clipBehavior: Clip.hardEdge,
@@ -243,7 +243,7 @@ class ShareBoxState extends State<ShareBox> {
                           width: double.infinity,
                           child: Padding(
                             padding:
-                                const EdgeInsets.only(right: 20.0, left: 4),
+                                const EdgeInsetsDirectional.only(end: 20.0, start: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -276,7 +276,7 @@ class ShareBoxState extends State<ShareBox> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.only(
+                      padding: EdgeInsetsDirectional.only(
                         bottom: BOTTOM_BUTTONS_HEIGHT,
                         top: topPadding,
                       ),
@@ -387,7 +387,7 @@ class ShareBoxState extends State<ShareBox> {
                       child: Opacity(
                         opacity: draggableOpacity,
                         child: Container(
-                          margin: const EdgeInsets.only(top: 6),
+                          margin: const EdgeInsetsDirectional.only(top: 6),
                           width: 42,
                           height: 4,
                           decoration: BoxDecoration(

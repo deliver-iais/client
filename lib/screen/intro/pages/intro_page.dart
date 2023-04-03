@@ -194,7 +194,7 @@ class IntroPageState extends State<IntroPage> {
               styleNameDoneBtn: theme.primaryTextTheme.labelLarge,
               styleNamePrevBtn: theme.primaryTextTheme.labelLarge,
               colorDot: const Color(0xFFBCE0FD),
-              colorActiveDot: theme.primaryColor,
+              colorActiveDot: theme.colorScheme.primary,
               onSkipPress: navigateToLoginPage,
               onAnimationChange: (d) {
                 subject.add(d);
@@ -206,7 +206,7 @@ class IntroPageState extends State<IntroPage> {
                 key: const Key("INTRO_ANIMATION_PAGE"),
                 width: animationSize,
                 height: animationSize + paddingTop,
-                padding: const EdgeInsets.only(top: paddingTop),
+                padding: const EdgeInsetsDirectional.only(top: paddingTop),
                 child: SizedBox(
                   width: 300,
                   height: 300,

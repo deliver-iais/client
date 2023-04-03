@@ -40,11 +40,11 @@ class ShareBoxInputCaption extends StatelessWidget {
             hintTextDirection: _i18n.defaultTextDirection,
             isCollapsed: true,
             // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
-            contentPadding: EdgeInsets.only(
+            contentPadding: EdgeInsetsDirectional.only(
               top: 12,
               bottom: isDesktopDevice ? 9 : 16,
-              left: 16,
-              right: 8,
+              start: 16,
+              end: 8,
             ),
           ),
           style: const TextStyle(fontSize: 16),

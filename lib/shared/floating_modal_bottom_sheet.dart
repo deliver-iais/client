@@ -64,7 +64,7 @@ void showQrCode(BuildContext context, String url) {
     builder: (context) => Container(
       color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+        padding: const EdgeInsetsDirectional.only(top: 20.0, end: 20.0, start: 20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -79,7 +79,7 @@ void showQrCode(BuildContext context, String url) {
             Container(
               width: double.infinity,
               height: 60,
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsetsDirectional.only(top: 10.0),
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(i18n.get("skip")),

@@ -84,9 +84,9 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     ? OrientationBuilder(
                         builder: (context, orientation) {
                           return Padding(
-                            padding: const EdgeInsets.only(
-                              left: 8.0,
-                              right: 8.0,
+                            padding: const EdgeInsetsDirectional.only(
+                              end: 8.0,
+                              start: 8.0,
                               top: 20,
                               bottom: 20,
                             ),
@@ -265,7 +265,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                             }
 
                                             return PageTransitionSwitcher(
-                                              duration: AnimationSettings.standard,
+                                              duration:
+                                                  AnimationSettings.standard,
                                               transitionBuilder: (
                                                 child,
                                                 animation,
@@ -373,7 +374,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                           }
 
                                           return PageTransitionSwitcher(
-                                            duration: AnimationSettings.standard,
+                                            duration:
+                                                AnimationSettings.standard,
                                             transitionBuilder: (
                                               child,
                                               animation,
@@ -444,8 +446,12 @@ class VideoCallScreenState extends State<VideoCallScreen>
             SafeArea(
               child: Padding(
                 padding: isDesktopDevice
-                    ? const EdgeInsets.only(bottom: 40, right: 50, left: 50)
-                    : const EdgeInsets.only(top: 8),
+                    ? const EdgeInsetsDirectional.only(
+                        bottom: 40,
+                        start: 50,
+                        end: 50,
+                      )
+                    : const EdgeInsetsDirectional.only(top: 8),
                 child: Align(
                   alignment: isDesktopDevice
                       ? Alignment.bottomRight
@@ -681,7 +687,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                             ],
                           ),
                           color:
-                              Theme.of(context).primaryColor.withOpacity(0.5),
+                              Theme.of(context).colorScheme.primary.withOpacity(0.5),
                           borderRadius: mainBorder,
                           boxShadow: DEFAULT_BOX_SHADOWS,
                         ),

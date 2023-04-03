@@ -132,72 +132,69 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
           ),
           Column(
             children: [
-              Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 20.0,
-                    ),
-                    child: Row(
-                      children: [
-                        ClipOval(
-                          child: Material(
-                            color: theme.primaryColor, // button color
-                            child: InkWell(
-                              splashColor: theme.shadowColor.withOpacity(0.3),
-                              child: const SizedBox(
-                                width: 40,
-                                height: 40,
-                                child: Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.white,
-                                ),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 20.0,
+                  ),
+                  child: Row(
+                    children: [
+                      ClipOval(
+                        child: Material(
+                          color: theme.colorScheme.primary, // button color
+                          child: InkWell(
+                            splashColor: theme.shadowColor.withOpacity(0.3),
+                            child: const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Icon(
+                                Icons.location_on_rounded,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (currentLocation.latitude !=
-                                    pointerLocation.latitude ||
-                                currentLocation.longitude !=
-                                    pointerLocation.longitude)
-                              Text(
-                                _i18n.get(
-                                  "send_this_location",
-                                ),
-                                style: const TextStyle(fontSize: 18),
-                              )
-                            else
-                              Text(
-                                _i18n.get(
-                                  "send_current_location",
-                                ),
-                                style: const TextStyle(fontSize: 18),
-                              ),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (currentLocation.latitude !=
+                                  pointerLocation.latitude ||
+                              currentLocation.longitude !=
+                                  pointerLocation.longitude)
                             Text(
-                              "${_i18n.get("location")} (${pointerLocation.latitude.toStringAsFixed(5)},${pointerLocation.longitude.toStringAsFixed(5)})",
+                              _i18n.get(
+                                "send_this_location",
+                              ),
+                              style: const TextStyle(fontSize: 18),
                             )
-                          ],
-                        ),
-                      ],
-                    ),
+                          else
+                            Text(
+                              _i18n.get(
+                                "send_current_location",
+                              ),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          Text(
+                            "${_i18n.get("location")} (${pointerLocation.latitude.toStringAsFixed(5)},${pointerLocation.longitude.toStringAsFixed(5)})",
+                          )
+                        ],
+                      ),
+                    ],
                   ),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _messageRepo.sendLocationMessage(
-                      pointerLocation,
-                      widget.roomUid,
-                    );
-                  },
                 ),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _messageRepo.sendLocationMessage(
+                    pointerLocation,
+                    widget.roomUid,
+                  );
+                },
               ),
             ],
           ),
@@ -423,13 +420,14 @@ class AttachLocation {
           stream: time,
           builder: (context, snapshot) {
             return Padding(
-              padding: const EdgeInsets.only(top: 300, left: 30, right: 30),
+              padding: const EdgeInsetsDirectional.only(
+                  top: 300, end: 30, start: 30),
               child: Center(
                 child: ListView(
                   children: [
                     Container(
                       height: 50,
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                       child: Icon(
                         Icons.location_on,
                         color: theme.primaryColorLight,
@@ -468,7 +466,7 @@ class AttachLocation {
                             i18n.get("cancel"),
                             style: TextStyle(
                               fontSize: 20,
-                              color: theme.primaryColor,
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                           onTap: () {
@@ -513,12 +511,12 @@ class AttachLocation {
       title: t,
       leading: Icon(
         Icons.alarm,
-        color: theme.primaryColor,
+        color: theme.colorScheme.primary,
       ),
       trailing: data == t
           ? Icon(
               Icons.done,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
             )
           : const SizedBox.shrink(),
       onPressed: (context) {

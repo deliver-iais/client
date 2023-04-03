@@ -47,38 +47,35 @@ class LinkTabUiState extends State<LinkTabUi> {
                 return const SizedBox.shrink();
               }
               final urls = mediaSnapShot.data!.json.toLink().urls;
-              return Directionality(
-                textDirection: TextDirection.ltr,
-                child: Column(
-                  children: [
-                    LinkPreview(
-                      link: urls.last,
-                      foregroundColor: theme.primary,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              _urlHandlerService.onUrlTap(
-                                urls[index],
-                              );
-                            },
-                            child: Text(
+              return Column(
+                children: [
+                  LinkPreview(
+                    link: urls.last,
+                    foregroundColor: theme.primary,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            _urlHandlerService.onUrlTap(
                               urls[index],
-                              maxLines: 1,
-                              style: TextStyle(color: theme.primary),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        },
-                        itemCount: urls.length,
-                        shrinkWrap: true,
-                      ),
+                            );
+                          },
+                          child: Text(
+                            urls[index],
+                            maxLines: 1,
+                            style: TextStyle(color: theme.primary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      },
+                      itemCount: urls.length,
+                      shrinkWrap: true,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             } else {
               return const SizedBox(

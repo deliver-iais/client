@@ -40,45 +40,41 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
             key: Key(state),
             stream: _i18n.localeStream,
             builder: (context, snapshot) {
-              return Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: GestureDetector(
-                        onTap: () {
-                          if (status.data ==
-                              TitleStatusConditions.Disconnected) {
-                            _routingService.openConnectionSettingPage();
-                          }
-                        },
-                        child: Text(
-                          state,
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: true,
-                          style: theme.textTheme.titleLarge,
-                          key: ValueKey(randomString(10)),
-                        ),
+              return Row(
+                children: [
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (status.data == TitleStatusConditions.Disconnected) {
+                          _routingService.openConnectionSettingPage();
+                        }
+                      },
+                      child: Text(
+                        state,
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        softWrap: true,
+                        style: theme.textTheme.titleLarge,
+                        key: ValueKey(randomString(10)),
                       ),
                     ),
-                    if (status.data != TitleStatusConditions.Connected)
-                      LoadingDotAnimation(
-                        dotsColor: theme.textTheme.titleLarge?.color ??
-                            theme.colorScheme.primary,
+                  ),
+                  if (status.data != TitleStatusConditions.Connected)
+                    LoadingDotAnimation(
+                      dotsColor: theme.textTheme.titleLarge?.color ??
+                          theme.colorScheme.primary,
+                    ),
+                  if (status.data == TitleStatusConditions.Disconnected)
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      iconSize: 23,
+                      onPressed: _coreService.fasterRetryConnection,
+                      icon: Icon(
+                        CupertinoIcons.refresh,
+                        color: theme.colorScheme.primary,
                       ),
-                    if (status.data == TitleStatusConditions.Disconnected)
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 23,
-                        onPressed: _coreService.fasterRetryConnection,
-                        icon: Icon(
-                          CupertinoIcons.refresh,
-                          color: theme.primaryColor,
-                        ),
-                      ),
-                  ],
-                ),
+                    ),
+                ],
               );
             },
           ),

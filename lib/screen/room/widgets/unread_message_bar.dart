@@ -20,13 +20,13 @@ class UnreadMessageBar extends StatelessWidget {
         children: [
           Icon(
             CupertinoIcons.chevron_down,
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
             size: 18,
           ),
           const SizedBox(width: 8),
           Text(
             _i18n.get("unread_messages"),
-            style: TextStyle(color: theme.primaryColor),
+            style: TextStyle(color: theme.colorScheme.primary),
           ),
         ],
       ),

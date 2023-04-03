@@ -93,7 +93,11 @@ class HomePageState extends State<HomePage> {
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
-    checkIfVersionChange();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        checkIfVersionChange();
+      }
+    });
     checkAddToHomeInWeb(context);
 
     _appLifecycleService

@@ -74,83 +74,83 @@ class SearchBoxState extends State<SearchBox> {
     super.initState();
   }
 
+  double get height =>
+      widget.animationValue != null ? (43 - (widget.animationValue! / 4)) : 40;
+
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 40,
-                child: AutoDirectionTextField(
-                  style: const TextStyle(fontSize: 16),
-                  focusNode: _getFocusNode(),
-                  controller: widget.controller ?? _localController,
-                  onChanged: (str) {
-                    widget.onChange?.call(str);
-                  },
-                  onTap: () {
-                    widget.onTap?.call();
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(top: 15),
-                    focusedBorder: const OutlineInputBorder(
-                      borderRadius: mainBorder,
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                      borderRadius: mainBorder,
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    isDense: true,
-                    prefixIcon: const Icon(CupertinoIcons.search),
-                    suffixIcon: StreamBuilder<bool?>(
-                      stream: _hasText,
-                      builder: (c, ht) {
-                        if (ht.hasData) {
-                          if (ht.data!) {
-                            return _buildZoomInClearIcon();
-                          } else {
-                            return _buildZoomOutClearIcon();
-                          }
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                    hintText: _i18n.get("search"),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: height,
+              child: AutoDirectionTextField(
+                style: const TextStyle(fontSize: 16),
+                focusNode: _getFocusNode(),
+                controller: widget.controller ?? _localController,
+                onChanged: (str) {
+                  widget.onChange?.call(str);
+                },
+                onTap: () {
+                  widget.onTap?.call();
+                },
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsetsDirectional.only(top: 1),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: mainBorder,
+                    borderSide: BorderSide.none,
                   ),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: mainBorder,
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  isDense: true,
+                  prefixIcon: const Icon(CupertinoIcons.search),
+                  suffixIcon: StreamBuilder<bool?>(
+                    stream: _hasText,
+                    builder: (c, ht) {
+                      if (ht.hasData) {
+                        if (ht.data!) {
+                          return _buildZoomInClearIcon();
+                        } else {
+                          return _buildZoomOutClearIcon();
+                        }
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  hintText: _i18n.get("search"),
                 ),
               ),
             ),
-            if (widget.animationValue != null)
-              SizedBox(
-                width: (widget.animationValue! - 40) * -1.7,
-                height: 40,
-                child: IconButton(
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  onPressed: () {
-                    widget.onSearchEnd?.call();
-                    _hasText.add(false);
-                    _clearTextEditingController();
-                    _getFocusNode().unfocus();
-                  },
-                  icon: Opacity(
-                    opacity: widget.animationValue! < 10
-                        ? ((widget.animationValue!) - 40) * -1 / 40
-                        : 0,
-                    child: Text(_i18n.get("cancel")),
-                  ),
+          ),
+          if (widget.animationValue != null)
+            SizedBox(
+              width: (widget.animationValue! - 40) * -1.7,
+              height: height,
+              child: IconButton(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                onPressed: () {
+                  widget.onSearchEnd?.call();
+                  _hasText.add(false);
+                  _clearTextEditingController();
+                  _getFocusNode().unfocus();
+                },
+                icon: Opacity(
+                  opacity: widget.animationValue! < 10
+                      ? ((widget.animationValue!) - 40) * -1 / 40
+                      : 0,
+                  child: Text(_i18n.get("cancel")),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

@@ -68,14 +68,14 @@ class FileDetails extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.only(
-          left: 7,
-          right: 8,
+        padding: const EdgeInsetsDirectional.only(
+          start: 7,
+          end: 8,
           top: 6,
           bottom: 4,
         ),
-        margin: const EdgeInsets.only(
-          left: 5,
+        margin: const EdgeInsetsDirectional.only(
+          start: 5,
           top: 5,
         ),
         decoration: BoxDecoration(

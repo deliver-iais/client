@@ -105,7 +105,7 @@ class FormSimpleInputFieldWidgetState
       suffixIcon: widget.formField.isOptional
           ? const SizedBox.shrink()
           : Padding(
-              padding: const EdgeInsets.only(top: 20, left: 25),
+              padding: const EdgeInsetsDirectional.only(top: 20, start: 25),
               child: Text(
                 "*",
                 style: TextStyle(color: Theme.of(context).colorScheme.error),

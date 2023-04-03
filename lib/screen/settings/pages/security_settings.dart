@@ -48,154 +48,150 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: ListView(
-            children: [
-              const BrandImage(
-                text: "",
-                imagePath: "assets/images/security.webp",
-                alignment: Alignment(0.0, -0.4),
-                topFreeHeight: 380,
-              ),
-              Section(
-                title: _i18n.get("lock_app"),
-                children: [
-                  SettingsTile.switchTile(
-                    title: _i18n.get("enable_local_lock"),
-                    leading: const Icon(CupertinoIcons.lock),
-                    switchValue: _authRepo.isLocalLockEnabled(),
-                    onToggle: (enabled) {
-                      if (enabled) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return setLocalPassword();
-                          },
-                        );
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return disableLocalPassword();
-                          },
-                        );
-                      }
+        child: ListView(
+          children: [
+            const BrandImage(
+              text: "",
+              imagePath: "assets/images/security.webp",
+              alignment: Alignment(0.0, -0.4),
+              topFreeHeight: 380,
+            ),
+            Section(
+              title: _i18n.get("lock_app"),
+              children: [
+                SettingsTile.switchTile(
+                  title: _i18n.get("enable_local_lock"),
+                  leading: const Icon(CupertinoIcons.lock),
+                  switchValue: _authRepo.isLocalLockEnabled(),
+                  onToggle: (enabled) {
+                    if (enabled) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return setLocalPassword();
+                        },
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return disableLocalPassword();
+                        },
+                      );
+                    }
+                  },
+                ),
+                if (_authRepo.isLocalLockEnabled())
+                  SettingsTile(
+                    title: _i18n.get("edit_password"),
+                    leading: const Icon(Icons.edit),
+                    onPressed: (c) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return setLocalPassword();
+                        },
+                      );
                     },
+                    trailing: const SizedBox.shrink(),
                   ),
-                  if (_authRepo.isLocalLockEnabled())
-                    SettingsTile(
-                      title: _i18n.get("edit_password"),
-                      leading: const Icon(Icons.edit),
-                      onPressed: (c) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return setLocalPassword();
-                          },
-                        );
-                      },
-                      trailing: const SizedBox.shrink(),
-                    ),
-                ],
-              ),
-              if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
-                Section(
-                  title: _i18n.get("two_step_verification"),
-                  children: [
-                    FutureBuilder<Account?>(
-                      future: _accountRepo.getAccount(),
-                      builder: (context, accountData) {
-                        if (accountData.hasData && accountData.data != null) {
-                          return SettingsTile.switchTile(
-                            title: _i18n.get("two_step_verification"),
-                            leading: const Icon(CupertinoIcons.lock_shield),
-                            switchValue:
-                                accountData.data!.passwordProtected ?? false,
-                            onToggle: (enabled) async {
-                              if (enabled) {
-                                if (accountData.data!.email != null &&
-                                    accountData.data!.email!.isNotEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return enableOrUpdateTwoStepVerification(
-                                        email: accountData.data!.email!,
-                                        updatePassword: false,
-                                      );
-                                    },
-                                  ).ignore();
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (c) {
-                                      return AlertDialog(
-                                        content: Text(
-                                          _i18n.get("need_to_set_email"),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(c);
-                                              _routingService
-                                                  .openAccountSettings();
-                                            },
-                                            child:
-                                                Text(_i18n.get("go_setting")),
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  ).ignore();
-                                }
-                              } else {
+              ],
+            ),
+            if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
+              Section(
+                title: _i18n.get("two_step_verification"),
+                children: [
+                  FutureBuilder<Account?>(
+                    future: _accountRepo.getAccount(),
+                    builder: (context, accountData) {
+                      if (accountData.hasData && accountData.data != null) {
+                        return SettingsTile.switchTile(
+                          title: _i18n.get("two_step_verification"),
+                          leading: const Icon(CupertinoIcons.lock_shield),
+                          switchValue:
+                              accountData.data!.passwordProtected ?? false,
+                          onToggle: (enabled) async {
+                            if (enabled) {
+                              if (accountData.data!.email != null &&
+                                  accountData.data!.email!.isNotEmpty) {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
-                                    return disableTwoStepVerification();
+                                    return enableOrUpdateTwoStepVerification(
+                                      email: accountData.data!.email!,
+                                      updatePassword: false,
+                                    );
+                                  },
+                                ).ignore();
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (c) {
+                                    return AlertDialog(
+                                      content: Text(
+                                        _i18n.get("need_to_set_email"),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(c);
+                                            _routingService
+                                                .openAccountSettings();
+                                          },
+                                          child: Text(_i18n.get("go_setting")),
+                                        )
+                                      ],
+                                    );
                                   },
                                 ).ignore();
                               }
-                            },
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                    FutureBuilder<Account?>(
-                      future: _accountRepo.getAccount(),
-                      builder: (c, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.passwordProtected != null &&
-                            snapshot.data!.passwordProtected!) {
-                          return SettingsTile(
-                            title: _i18n
-                                .get("edit_two_step_verification_password"),
-                            leading: const Icon(Icons.edit),
-                            onPressed: (c) {
+                            } else {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return enableOrUpdateTwoStepVerification(
-                                    email: snapshot.data!.email!,
-                                    updatePassword: true,
-                                  );
+                                  return disableTwoStepVerification();
                                 },
-                              );
-                            },
-                            trailing: const SizedBox.shrink(),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    )
-                  ],
-                )
-            ],
-          ),
+                              ).ignore();
+                            }
+                          },
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  FutureBuilder<Account?>(
+                    future: _accountRepo.getAccount(),
+                    builder: (c, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data!.passwordProtected != null &&
+                          snapshot.data!.passwordProtected!) {
+                        return SettingsTile(
+                          title:
+                              _i18n.get("edit_two_step_verification_password"),
+                          leading: const Icon(Icons.edit),
+                          onPressed: (c) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return enableOrUpdateTwoStepVerification(
+                                  email: snapshot.data!.email!,
+                                  updatePassword: true,
+                                );
+                              },
+                            );
+                          },
+                          trailing: const SizedBox.shrink(),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  )
+                ],
+              )
+          ],
         ),
       ),
     );
@@ -207,7 +203,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         final theme = Theme.of(context);
         return AlertDialog(
           titlePadding: EdgeInsets.zero,
-          actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+          actionsPadding: const EdgeInsetsDirectional.only(bottom: 10, end: 5),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -265,7 +261,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
         titlePadding: EdgeInsets.zero,
-        actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+        actionsPadding: const EdgeInsetsDirectional.only(bottom: 10, end: 5),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -282,15 +278,12 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 ],
               ),
             ),
-            Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: TextField(
-                controller: textController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: _i18n.get("current_password"),
-                ),
+            TextField(
+              controller: textController,
+              obscureText: true,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: _i18n.get("current_password"),
               ),
             ),
           ],
@@ -491,15 +484,12 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               const SizedBox(
                 height: 20,
               ),
-              Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: TextField(
-                  readOnly: true,
-                  controller: TextEditingController(text: email),
-                  decoration: InputDecoration(
-                    labelText: _i18n.get("recovery_email"),
-                    helperText: _i18n.get("email_for_two_step"),
-                  ),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(text: email),
+                decoration: InputDecoration(
+                  labelText: _i18n.get("recovery_email"),
+                  helperText: _i18n.get("email_for_two_step"),
                 ),
               ),
             ],
@@ -516,7 +506,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         final theme = Theme.of(context);
         return AlertDialog(
           titlePadding: EdgeInsets.zero,
-          actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+          actionsPadding: const EdgeInsetsDirectional.only(bottom: 10, end: 5),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

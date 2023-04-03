@@ -484,7 +484,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                           curve: Curves.easeInOut,
                         );
                       },
-                      icon: const Icon(Icons.arrow_back_ios_new_outlined),
+                      icon: const Icon(Icons.arrow_back_ios_outlined),
                       color: theme.primaryColorLight,
                     );
                   } else {
@@ -496,7 +496,7 @@ class _AllMediaPageState extends State<AllMediaPage>
               ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 10, top: 10),
+                padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
                 child: ExtendedImageGesturePageView.builder(
                   itemBuilder: (context, index) {
                     return FutureBuilder<Meta?>(

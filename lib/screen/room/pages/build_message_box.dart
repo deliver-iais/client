@@ -211,7 +211,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTapDown: storePosition,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: msg.isHidden ? 0.0 : 4.0,
+              vertical: msg.isHidden ? 0.0 : p4,
             ),
             child: PersistentEventMessage(
               message: msg,
@@ -439,7 +439,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
 
     return Padding(
-      padding: EdgeInsets.only(top: isFirstMessageInGroupedMessages ? 12.0 : 0),
+      padding: EdgeInsetsDirectional.only(
+        top: isFirstMessageInGroupedMessages ? p16 : 0,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -450,7 +452,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 2.0, left: 8.0),
+                  padding: const EdgeInsetsDirectional.only(start: p8),
                   child: CircleAvatarWidget(
                     message.from.asUid(),
                     18,

@@ -54,7 +54,7 @@ class HasCallRowState extends State<HasCallRow> {
               child: callRepo.roomUid != null
                   ? AnimatedContainer(
                       duration: AnimationSettings.superUltraSlow,
-                      margin: const EdgeInsets.only(bottom: 4),
+                      margin: const EdgeInsetsDirectional.only(bottom: 4),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [

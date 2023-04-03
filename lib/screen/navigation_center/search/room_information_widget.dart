@@ -31,7 +31,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+      padding: const EdgeInsetsDirectional.only(end: 8.0, start: 8.0, top: 8.0),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(

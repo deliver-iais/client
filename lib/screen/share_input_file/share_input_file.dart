@@ -93,7 +93,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
     return Align(
       alignment: Alignment.bottomRight,
       child: Padding(
-        padding: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsetsDirectional.only(end: 20),
         child: Stack(
           children: <Widget>[
             Container(
@@ -102,9 +102,9 @@ class _ShareInputFileState extends State<ShareInputFile> {
               ),
               child: ClipOval(
                 child: Material(
-                  color: Theme.of(context).primaryColor, // button color
+                  color: theme.colorScheme.primary, // button color
                   child: InkWell(
-                    splashColor: theme.primaryColor, // inkwell color
+                    splashColor: theme.colorScheme.primary, // inkwell color
                     child: const SizedBox(
                       width: 60,
                       height: 60,
@@ -144,7 +144,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: theme.primaryColor, // inner circle color
+                        color: theme.colorScheme.primary, // inner circle color
                       ),
                       child: Center(
                         child: Text(

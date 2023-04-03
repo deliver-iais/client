@@ -142,29 +142,29 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     }
     final theme = Theme.of(context);
 
-    return FutureBuilder<List<RecentEmoji>>(
-      future: _recentEmojisDao.getAll(),
-      builder: (context, recentEmoji) {
-        if (recentEmoji.hasData && recentEmoji.data != null) {
-          Emoji.addRecentEmojis(recentEmoji.data!);
-        }
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollNotification) {
-            if (scrollNotification is ScrollEndNotification) {
-              _onScrollEnded(context);
-            }
-            return true;
-          },
-          child: GestureDetector(
-            onTap: () => _closeSkinToneOverlay(),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow:
-                    hasVirtualKeyboardCapability ? null : DEFAULT_BOX_SHADOWS,
-                color: theme.colorScheme.onInverseSurface,
-                borderRadius:
-                    hasVirtualKeyboardCapability ? null : tertiaryBorder,
-              ),
+    final borderRadius =
+        hasVirtualKeyboardCapability ? BorderRadius.zero : secondaryBorder;
+
+    return Material(
+      elevation: 10,
+      borderRadius: borderRadius,
+      // color: Colors.transparent,
+      child: FutureBuilder<List<RecentEmoji>>(
+        future: _recentEmojisDao.getAll(),
+        builder: (context, recentEmoji) {
+          if (recentEmoji.hasData && recentEmoji.data != null) {
+            Emoji.addRecentEmojis(recentEmoji.data!);
+          }
+
+          return NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollEndNotification) {
+                _onScrollEnded(context);
+              }
+              return true;
+            },
+            child: GestureDetector(
+              onTap: () => _closeSkinToneOverlay(),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -241,9 +241,9 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                 ],
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -295,55 +295,52 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
           onFocusChange: (hasFocus) {
             widget.onSearchEmoji(hasFocus);
           },
-          child: Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                right: 25.0,
-                left: 25,
-                top: 15,
-                bottom: 8,
-              ),
-              child: AutoDirectionTextField(
-                controller: _searchController,
-                focusNode: _searchFocusNode,
-                onChanged: (text) async {
-                  if (text.isNotEmpty) {
-                    _searchEmojiResult.add(Emoji.search(text).toList());
-                  }
-                },
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: _i18n.get("search"),
-                  contentPadding: const EdgeInsets.only(top: 15),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: mainBorder,
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderRadius: mainBorder,
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  isDense: true,
-                  prefixIcon: const Icon(CupertinoIcons.search),
-                  suffixIcon: StreamBuilder<bool?>(
-                    stream: _searchBoxHasText,
-                    builder: (c, ht) {
-                      if (ht.hasData && ht.data!) {
-                        return IconButton(
-                          icon: const Icon(
-                            CupertinoIcons.xmark,
-                          ),
-                          onPressed: () {
-                            _searchController.text = '';
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: 25.0,
+              end: 25,
+              top: 15,
+              bottom: 8,
+            ),
+            child: AutoDirectionTextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              onChanged: (text) async {
+                if (text.isNotEmpty) {
+                  _searchEmojiResult.add(Emoji.search(text).toList());
+                }
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: _i18n.get("search"),
+                contentPadding: const EdgeInsetsDirectional.only(top: 15),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: mainBorder,
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: mainBorder,
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                isDense: true,
+                prefixIcon: const Icon(CupertinoIcons.search),
+                suffixIcon: StreamBuilder<bool?>(
+                  stream: _searchBoxHasText,
+                  builder: (c, ht) {
+                    if (ht.hasData && ht.data!) {
+                      return IconButton(
+                        icon: const Icon(
+                          CupertinoIcons.xmark,
+                        ),
+                        onPressed: () {
+                          _searchController.text = '';
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
               ),
             ),
@@ -393,16 +390,13 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         key: _headersKeyList[emojiGroup.index],
         child: SizedBox(
           height: header.isNotEmpty ? 40 : 0,
-          child: Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-              child: Text(
-                header,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.outline,
-                  fontSize: 16,
-                ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+            child: Text(
+              header,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.outline,
+                fontSize: 16,
               ),
             ),
           ),
@@ -435,31 +429,28 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   void _showClearRecentEmojiDialog() {
     showDialog(
       context: context,
-      builder: (context) => Directionality(
-        textDirection: _i18n.defaultTextDirection,
-        child: AlertDialog(
-          title: Text(
-            _i18n.get("clear_recent_emoji"),
-          ),
-          content: Text(
-            _i18n.get("sure_clear_recent_emoji"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(_i18n.get("cancel")),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(_i18n.get("clear_all")),
-              onPressed: () {
-                _recentEmojisDao.deleteAll();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+      builder: (context) => AlertDialog(
+        title: Text(
+          _i18n.get("clear_recent_emoji"),
         ),
+        content: Text(
+          _i18n.get("sure_clear_recent_emoji"),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text(_i18n.get("cancel")),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text(_i18n.get("clear_all")),
+            onPressed: () {
+              _recentEmojisDao.deleteAll();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -482,7 +473,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                     .addRecentEmoji(emojiList.elementAt(index).toString());
               },
               onLongPress: () {
-                vibrate(duration: 30);
+                lightVibrate();
                 _onLongTap(index, emojiList.elementAt(index));
               },
               onTapDown: storePosition,
@@ -516,7 +507,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   }
 
   void _onEmojiSelected(String emoji) {
-    vibrate(duration: 30);
+    lightVibrate();
     widget.onTap(emoji);
     _closeSkinToneOverlay();
   }

@@ -16,7 +16,7 @@ class VideoViewerPage extends StatelessWidget {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 100),
+            padding: const EdgeInsetsDirectional.only(bottom: 100),
             child: Center(
               child: MobileVideoPlayerWidget(
                 videoFilePath: file.path,

@@ -56,8 +56,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: theme.primaryColor,
-          foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.buttonTheme.colorScheme?.onPrimary,
           child: const Icon(Icons.arrow_forward),
           onPressed: () async {
             try {
@@ -116,7 +116,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
             _i18n.get("two_step_verification"),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
             ),
           ),
         ),
@@ -151,7 +151,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                   const SizedBox(height: 30),
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 30, right: 30, bottom: 30),
+                        const EdgeInsetsDirectional.only(end: 30, start: 30, bottom: 30),
                     child: StreamBuilder<bool>(
                       stream: _showPasswordHint,
                       builder: (context, snapshot) {

@@ -64,8 +64,17 @@ class DeveloperPageState extends State<DeveloperPage> {
                   .map(
                     (level) => SettingsTile(
                       title: level.name,
+                      leading: Icon(
+                        level == GetIt.I.get<DeliverLogFilter>().level
+                            ? Icons.circle
+                            : Icons.circle_outlined,
+                        color: theme.colorScheme.primary,
+                      ),
                       trailing: level == GetIt.I.get<DeliverLogFilter>().level
-                          ? const Icon(Icons.done)
+                          ? Icon(
+                              Icons.done,
+                              color: theme.colorScheme.primary,
+                            )
                           : const SizedBox.shrink(),
                       onPressed: (context) {
                         setState(() => settings.logLevel.set(level));
@@ -126,9 +135,9 @@ class DeveloperPageState extends State<DeveloperPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 24,
+                          start: 24,
                           bottom: 10,
                         ),
                         child: Container(
@@ -201,9 +210,9 @@ class DeveloperPageState extends State<DeveloperPage> {
                         trailing: Text(""),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 24,
+                          start: 24,
                           bottom: 10,
                         ),
                         child: Container(

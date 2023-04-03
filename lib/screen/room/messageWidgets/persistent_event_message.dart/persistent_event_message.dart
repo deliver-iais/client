@@ -41,15 +41,15 @@ class PersistentEventMessage extends StatelessWidget {
     return persistentEventMessage.whichType() ==
             PersistentEvent_Type.botSpecificPersistentEvent
         ? Padding(
-            padding: const EdgeInsets.only(left: 1),
+            padding: const EdgeInsetsDirectional.only(start: 1),
             child: Container(
               constraints: BoxConstraints(
                 maxWidth: maxWidth,
               ),
-              padding: const EdgeInsets.only(
+              padding: const EdgeInsetsDirectional.only(
                 top: 5,
-                left: 8.0,
-                right: 8.0,
+                end: 8.0,
+                start: 8.0,
                 bottom: 4.0,
               ),
               decoration: BoxDecoration(
@@ -94,10 +94,10 @@ class PersistentEventMessage extends StatelessWidget {
                     color: theme.chipTheme.backgroundColor,
                     borderRadius: tertiaryBorder,
                   ),
-                  padding: const EdgeInsets.only(
+                  padding: const EdgeInsetsDirectional.only(
                     top: 6.0,
-                    left: 8.0,
-                    right: 8.0,
+                    end: 8.0,
+                    start: 8.0,
                     bottom: 2.0,
                   ),
                   child: FutureBuilder<List<Widget>?>(
@@ -108,12 +108,7 @@ class PersistentEventMessage extends StatelessWidget {
                     ),
                     builder: (c, s) {
                       if (s.hasData && s.data != null) {
-                        return Directionality(
-                          textDirection: _i18n.defaultTextDirection,
-                          child: Row(
-                            children: s.data!,
-                          ),
-                        );
+                        return Row(children: s.data!);
                       } else {
                         return const SizedBox.shrink();
                       }

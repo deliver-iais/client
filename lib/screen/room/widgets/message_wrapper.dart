@@ -41,18 +41,18 @@ class MessageWrapper extends StatelessWidget {
       fit: StackFit.passthrough,
       children: [
         Container(
-          clipBehavior: Clip.hardEdge,
           margin: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(
             top: isFirstMessageInGroupedMessages && isSender ? 16 : 0,
             bottom: 6,
           ),
-          decoration: BoxDecoration(
-            borderRadius: border,
+          child: Material(
+            clipBehavior:
+                settings.showMessageDetails.value ? Clip.hardEdge : Clip.none,
+            borderRadius: settings.showMessageDetails.value ? border : null,
+            elevation: settings.showMessageDetails.value ? 1 : 0,
             color: color,
-            boxShadow:
-                settings.showMessageDetails.value ? DEFAULT_BOX_SHADOWS : null,
+            child: child,
           ),
-          child: child,
         ),
         if (settings.showMessageDetails.value &&
             isFirstMessageInGroupedMessages)

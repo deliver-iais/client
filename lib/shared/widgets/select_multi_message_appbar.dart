@@ -78,14 +78,14 @@ class SelectMultiMessageAppBar extends StatelessWidget {
       }
     }
     return Padding(
-      padding: const EdgeInsets.only(right: 12, top: 5),
+      padding: const EdgeInsetsDirectional.only(end: 12, top: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Tooltip(
             message: _i18n.get("forward"),
             child: IconButton(
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
               icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
               onPressed: () {
                 _routingService.openSelectForwardMessage(
@@ -99,7 +99,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
             Tooltip(
               message: _i18n.get("delete"),
               child: IconButton(
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
                 icon: const Icon(CupertinoIcons.delete),
                 onPressed: () {
                   deleteSelectedMessage();
@@ -110,7 +110,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
             Tooltip(
               message: _i18n.get("share"),
               child: IconButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.share),
                 onPressed: () async {
                   var copyText = "";
@@ -175,7 +175,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
           Tooltip(
             message: _i18n.get("copy"),
             child: IconButton(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               icon: const Icon(CupertinoIcons.doc_on_clipboard),
               onPressed: () async {
                 var copyText = "";

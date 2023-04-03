@@ -22,18 +22,12 @@ class ActivityStatus extends StatelessWidget {
   });
 
   TextStyle textStyle(BuildContext context) {
-    return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
+    return TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: _buildStatusWidget(_getStatus(activity.typeOfActivity), context),
-      ),
-    );
+    return _buildStatusWidget(_getStatus(activity.typeOfActivity), context);
   }
 
   String _getStatus(ActivityType typeOfActivity) {
@@ -75,13 +69,13 @@ class ActivityStatus extends StatelessWidget {
         );
       } else {
         return Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Text(
               status,
               style: textStyle(context),
             ),
-            LoadingDotAnimation(dotsColor: Theme.of(context).primaryColor),
+            LoadingDotAnimation(dotsColor: Theme.of(context).colorScheme.primary),
           ],
         );
       }

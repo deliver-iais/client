@@ -97,32 +97,29 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   Widget build(BuildContext context) {
     return ((widget.files.isNotEmpty) || widget.editableMessage != null)
-        ? Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: SingleChildScrollView(
-              child: AlertDialog(
-                contentPadding: const EdgeInsets.all(0),
-                actionsPadding: const EdgeInsets.all(0),
-                content: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height - 300,
-                  ),
-                  width: 330,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.editableMessage == null) ...[
-                        _buildSelectedFileTitle(),
-                        const Divider()
-                      ],
-                      _buildFilesListWidget(),
-                      const Divider(),
-                      _buildCaptionInputBox(),
-                    ],
-                  ),
+        ? SingleChildScrollView(
+            child: AlertDialog(
+              contentPadding: const EdgeInsets.all(0),
+              actionsPadding: const EdgeInsets.all(0),
+              content: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height - 300,
                 ),
-                actions: [_buildActionButtonsRow()],
+                width: 330,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.editableMessage == null) ...[
+                      _buildSelectedFileTitle(),
+                      const Divider()
+                    ],
+                    _buildFilesListWidget(),
+                    const Divider(),
+                    _buildCaptionInputBox(),
+                  ],
+                ),
               ),
+              actions: [_buildActionButtonsRow()],
             ),
           )
         : const SizedBox.shrink();
@@ -176,7 +173,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             child: Text(
               _i18n.get("cancel"),
               style: TextStyle(
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
                 fontSize: 15,
               ),
             ),
@@ -189,7 +186,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             child: Text(
               _i18n.get("send"),
               style: TextStyle(
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
                 fontSize: 16,
               ),
             ),
@@ -368,7 +365,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         ClipOval(
           child: Material(
-            color: theme.primaryColor, // button color
+            color: theme.colorScheme.primary,
             child: InkWell(
               child: SizedBox(
                 width: 40,
@@ -421,7 +418,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           },
           icon: Icon(
             CupertinoIcons.refresh,
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
             size: 16,
           ),
         ),
@@ -436,7 +433,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             },
             icon: Icon(
               Icons.delete,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
               size: 16,
             ),
           ),
@@ -445,7 +442,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             onPressed: () => _openEditImagePage(index),
             icon: Icon(
               Icons.edit,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
               size: 16,
             ),
           )

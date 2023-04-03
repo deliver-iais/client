@@ -1,6 +1,9 @@
-import 'package:deliver/shared/widgets/blur_widget/blur_popup_menu_card.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/widgets/popup_menu_card.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
+import 'package:get_it/get_it.dart';
 
 /// A mixin to provide convenience methods to record a tap position and show a popup menu.
 mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
@@ -23,31 +26,40 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
   }) {
+    final i18n = GetIt.I.get<I18N>();
     final screenSize = MediaQuery.of(context).size;
 
-    final overlaySize =
-        Overlay.of(context).context.findRenderObject()!.semanticBounds.size;
+    final overlaySize = i18n.isRtl
+        ? settings.appContext.findRenderObject()!.semanticBounds.size
+        : Overlay.of(context).context.findRenderObject()!.semanticBounds.size;
 
     final dx = screenSize.width - overlaySize.width;
     final dy = screenSize.height - overlaySize.height;
 
-    final position = RelativeRect.fromLTRB(
-      _tapPosition.dx - dx,
-      _tapPosition.dy - 5 - dy,
-      overlaySize.width,
-      overlaySize.height,
-    );
+    final position = i18n.isRtl
+        ? RelativeRect.fromDirectional(
+            textDirection: i18n.defaultTextDirection,
+            end: _tapPosition.dx - dx,
+            start: overlaySize.width,
+            top: _tapPosition.dy - 5 - dy,
+            bottom: overlaySize.height,
+          )
+        : RelativeRect.fromDirectional(
+            textDirection: i18n.defaultTextDirection,
+            start: _tapPosition.dx - dx,
+            end: overlaySize.width,
+            top: _tapPosition.dy - 5 - dy,
+            bottom: overlaySize.height,
+          );
 
     return material.showMenu<T>(
       context: context,
       position: position,
-      elevation: 0,
       items: <PopupMenuEntry<T>>[
-        BlurPopupMenuCard(
+        PopupMenuCard(
           items: items,
-        )
+        ),
       ],
-      color: Colors.transparent,
     );
   }
 }

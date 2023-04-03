@@ -32,7 +32,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
           widgetRows.add(
             Container(
               padding:
-                  const EdgeInsets.only(bottom: 2.0, left: 2.0, right: 2.0),
+                  const EdgeInsetsDirectional.only(bottom: 2.0, end: 2.0, start: 2.0),
               child: BlurContainer(
                 skew: 3,
                 color: theme.dividerColor.withOpacity(0.2),

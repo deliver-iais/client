@@ -1,13 +1,18 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaAppBarCounterWidget extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<int> mediaCount;
   final BehaviorSubject<int> currentIndex;
 
-  const MediaAppBarCounterWidget(
-      {Key? key, required this.mediaCount, required this.currentIndex,})
-      : super(key: key);
+  const MediaAppBarCounterWidget({
+    Key? key,
+    required this.mediaCount,
+    required this.currentIndex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,7 @@ class MediaAppBarCounterWidget extends StatelessWidget {
                     position.data != null &&
                     position.data! != -1) {
                   return Text(
-                    "${position.data!} of ${snapshot.data}",
+                    "${position.data!} ${_i18n["of"]} ${snapshot.data}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,

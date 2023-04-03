@@ -43,7 +43,7 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
             controller: _controller,
             fadeLayoutColor: theme.colorScheme.surface,
             maxWidth: size ?? MediaQuery.of(context).size.width,
-            primaryColor: theme.primaryColor,
+            primaryColor: theme.colorScheme.primary,
             child: Container(
               height: 40,
               color: theme.colorScheme.surface,

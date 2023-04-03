@@ -108,14 +108,14 @@ class VideoMessageState extends State<VideoMessage> {
                             Align(
                               alignment: Alignment.topLeft,
                               child: Container(
-                                padding: const EdgeInsets.only(
-                                  left: 7,
-                                  right: 8,
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 7,
+                                  end: 8,
                                   top: 5,
                                   bottom: 3,
                                 ),
-                                margin: const EdgeInsets.only(
-                                  left: 5,
+                                margin: const EdgeInsetsDirectional.only(
+                                  start: 5,
                                   top: 5,
                                 ),
                                 decoration: BoxDecoration(

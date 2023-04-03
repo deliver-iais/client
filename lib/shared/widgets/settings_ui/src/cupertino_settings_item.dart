@@ -1,7 +1,7 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 
 enum SettingsItemType {
   toggle,
@@ -32,6 +32,7 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.subtitleDirection,
     this.valueTextStyle,
     this.switchActiveColor,
+    this.releaseState,
   })  : assert(labelMaxLines == null || labelMaxLines > 0),
         assert(subtitleMaxLines == null || subtitleMaxLines > 0);
 
@@ -50,6 +51,7 @@ class CupertinoSettingsItem extends StatefulWidget {
   final bool? switchValue;
   final Function(bool value)? onToggle;
   final TextStyle? labelTextStyle;
+  final ReleaseState? releaseState;
   final TextStyle? subtitleTextStyle;
   final TextDirection? subtitleDirection;
   final TextStyle? valueTextStyle;
@@ -67,16 +69,13 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
   Widget build(BuildContext context) {
     _checked = widget.switchValue;
 
-    /// The width of iPad. This is used to make circular borders on iPad and web
-    // final isLargeScreen = MediaQuery.of(context).size.width >= 768;
-
     final theme = Theme.of(context);
-    final tileTheme = ListTileTheme.of(context);
+    final inActiveColor = theme.disabledColor;
 
     final iconThemeData = IconThemeData(
       color: widget.enabled
-          ? _iconColor(theme, tileTheme)
-          : CupertinoColors.inactiveGray,
+          ? theme.colorScheme.secondary.withOpacity(0.8)
+          : inActiveColor,
     );
 
     Widget? leadingIcon;
@@ -91,9 +90,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     if (leadingIcon != null) {
       rowChildren.add(
         Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: 15.0,
-          ),
+          padding: const EdgeInsetsDirectional.only(start: p16),
           child: leadingIcon,
         ),
       );
@@ -108,7 +105,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         style: widget.labelTextStyle ??
             TextStyle(
               fontSize: theme.textTheme.bodyLarge!.fontSize,
-              color: widget.enabled ? null : CupertinoColors.inactiveGray,
+              color: widget.enabled ? null : inActiveColor,
             ),
       );
     } else {
@@ -122,43 +119,50 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             overflow: TextOverflow.ellipsis,
             style: widget.labelTextStyle,
           ),
-          const SizedBox(height: 2.5),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Text(
-              widget.subtitle!,
-              maxLines: widget.subtitleMaxLines,
-              overflow: TextOverflow.ellipsis,
-              textDirection: widget.subtitleDirection,
-              style: widget.subtitleTextStyle ??
-                  const TextStyle(
-                    fontSize: 12.0,
-                    letterSpacing: -0.2,
-                  ),
-            ),
+          const SizedBox(height: p2),
+          Text(
+            widget.subtitle!,
+            maxLines: widget.subtitleMaxLines,
+            overflow: TextOverflow.ellipsis,
+            textDirection: widget.subtitleDirection,
+            style: widget.subtitleTextStyle ??
+                const TextStyle(
+                  fontSize: 12.0,
+                  letterSpacing: -0.2,
+                ),
           ),
         ],
       );
     }
 
-    rowChildren.add(
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: 15.0,
-            end: 15.0,
+    if (widget.releaseState != null) {
+      rowChildren.addAll([
+        const SizedBox(width: p16),
+        ReleaseBadge(state: widget.releaseState!),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: p4),
+            child: titleSection,
           ),
-          child: titleSection,
+        )
+      ]);
+    } else {
+      rowChildren.add(
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: p16),
+            child: titleSection,
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     switch (widget.type) {
       case SettingsItemType.toggle:
         if (widget.onPress != null) {
           rowChildren.add(
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: p8),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: mainBorder,
@@ -172,7 +176,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         }
         rowChildren.add(
           Padding(
-            padding: const EdgeInsetsDirectional.only(end: 11.0),
+            padding: const EdgeInsetsDirectional.only(end: p8),
             child: Switch(
               value: widget.switchValue!,
               onChanged:
@@ -188,18 +192,15 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         } else {
           rowChildren.add(
             Padding(
-              padding: const EdgeInsetsDirectional.only(
-                top: 1.5,
-                end: 2.25,
-              ),
+              padding: const EdgeInsetsDirectional.only(top: p2, start: p2),
               child: Text(
                 widget.value!,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
                 textDirection: widget.valueDirection,
                 style: widget.valueTextStyle ??
-                    const TextStyle(
-                      color: CupertinoColors.inactiveGray,
+                    TextStyle(
+                      color: inActiveColor.withOpacity(0.8),
                       fontSize: 16,
                     ),
               ),
@@ -211,10 +212,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         if (widget.trailing != null) {
           endRowChildren.add(
             Padding(
-              padding: const EdgeInsetsDirectional.only(
-                top: 0.5,
-                start: 2.25,
-              ),
+              padding: const EdgeInsetsDirectional.only(top: p4, end: p4),
               child: widget.trailing,
             ),
           );
@@ -228,13 +226,13 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         if (widget.trailing == null) {
           endRowChildren.add(
             Padding(
-              padding: const EdgeInsetsDirectional.only(start: 2.25),
+              padding: const EdgeInsetsDirectional.only(end: p2),
               child: iosChevron,
             ),
           );
         }
 
-        endRowChildren.add(const SizedBox(width: 8.5));
+        endRowChildren.add(const SizedBox(width: p8));
 
         rowChildren.add(
           Row(
@@ -304,28 +302,9 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         },
         child: Container(
           constraints: const BoxConstraints(minHeight: 44.0),
-          child: Row(
-            children: rowChildren,
-          ),
+          child: Row(children: rowChildren),
         ),
       ),
     );
-  }
-
-  Color? _iconColor(ThemeData theme, ListTileThemeData tileTheme) {
-    if (tileTheme.selectedColor != null) {
-      return tileTheme.selectedColor;
-    }
-
-    if (tileTheme.iconColor != null) {
-      return tileTheme.iconColor;
-    }
-
-    switch (theme.brightness) {
-      case Brightness.light:
-        return theme.colorScheme.onPrimaryContainer.withOpacity(0.45);
-      case Brightness.dark:
-        return null; // null - use current icon theme color
-    }
   }
 }

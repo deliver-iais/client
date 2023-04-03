@@ -14,6 +14,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -194,318 +195,294 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             },
           ),
           FluidContainerWidget(
-            child: Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: ListView(
-                children: [
-                  Section(
-                    children: [
-                      Column(
-                        children: [
-                          SettingsTile(
-                            title: _i18n.get("text_size"),
-                            leading: const Icon(CupertinoIcons.textformat_size),
-                            trailing: const SizedBox.shrink(),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  "A",
-                                  style: TextStyle(
-                                    fontSize: DEFAULT_FONT_SIZE * MIN_FONT_SIZE,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Directionality(
-                                    textDirection: _i18n.defaultTextDirection,
-                                    child: StreamBuilder<double>(
-                                      stream: settings.textScale.stream,
-                                      builder: (context, snapshot) {
-                                        return SliderTheme(
-                                          data: const SliderThemeData(
-                                            showValueIndicator:
-                                                ShowValueIndicator.never,
-                                          ),
-                                          child: Slider(
-                                            divisions: 4,
-                                            value: snapshot.data ?? 1,
-                                            max: MAX_FONT_SIZE,
-                                            min: MIN_FONT_SIZE,
-                                            label:
-                                                (snapshot.data ?? 1).toString(),
-                                            onChanged: (value) {
-                                              settings.textScale.set(value);
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                const Text(
-                                  "A",
-                                  style: TextStyle(
-                                    fontSize: DEFAULT_FONT_SIZE * MAX_FONT_SIZE,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SettingsTile.switchTile(
-                        title: _i18n.get("text_justification"),
-                        leading: const Icon(CupertinoIcons.text_append),
-                        switchValue: settings.showTextsJustified.value,
-                        onToggle: (value) {
-                          _analyticsService.sendLogEvent(
-                            "toggleShowTextsJustified",
-                          );
-                          setState(
-                            () => settings.showTextsJustified.toggleValue(),
-                          );
-                        },
-                      ),
-                      if (!isWeb)
-                        SettingsTile.switchTile(
-                          title: _i18n.get("show_link_preview"),
-                          leading: const Icon(CupertinoIcons.link),
-                          switchValue: settings.showLinkPreview.value,
-                          enabled: settings.showLinkPreview.enabled,
-                          onToggle: (value) {
-                            _analyticsService.sendLogEvent(
-                              "toggleShowLinkPreview",
-                            );
-                            setState(() {
-                              settings.showLinkPreview.toggleValue();
-                            });
-                          },
-                        ),
-                      SettingsTile.switchTile(
-                        title: _i18n["show_animated_emojis"],
-                        leading: const Icon(CupertinoIcons.text_append),
-                        switchValue: settings.showAnimatedEmoji.value,
-                        enabled: settings.showAnimatedEmoji.enabled,
-                        onToggle: (value) {
-                          setState(
-                            () => settings.showAnimatedEmoji.toggleValue(),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Stack(
+            child: ListView(
+              children: [
+                Section(
+                  children: [
+                    Column(
                       children: [
+                        SettingsTile(
+                          title: _i18n.get("text_size"),
+                          leading: const Icon(CupertinoIcons.textformat_size),
+                          trailing: const SizedBox.shrink(),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.secondary,
-                                width: 4,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "A",
+                                style: TextStyle(
+                                  fontSize: DEFAULT_FONT_SIZE * MIN_FONT_SIZE,
+                                ),
                               ),
-                              borderRadius: mainBorder,
+                              Expanded(
+                                child: StreamBuilder<double>(
+                                  stream: settings.textScale.stream,
+                                  builder: (context, snapshot) {
+                                    return SliderTheme(
+                                      data: const SliderThemeData(
+                                        showValueIndicator:
+                                            ShowValueIndicator.never,
+                                      ),
+                                      child: Slider(
+                                        divisions: 4,
+                                        value: snapshot.data ?? 1,
+                                        max: MAX_FONT_SIZE,
+                                        min: MIN_FONT_SIZE,
+                                        label:
+                                            (snapshot.data ?? 1).toString(),
+                                        onChanged: (value) {
+                                          settings.textScale.set(value);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const Text(
+                                "A",
+                                style: TextStyle(
+                                  fontSize: DEFAULT_FONT_SIZE * MAX_FONT_SIZE,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SettingsTile.switchTile(
+                      title: _i18n.get("text_justification"),
+                      leading: const Icon(CupertinoIcons.text_append),
+                      switchValue: settings.showTextsJustified.value,
+                      onToggle: (value) {
+                        _analyticsService.sendLogEvent(
+                          "toggleShowTextsJustified",
+                        );
+                        setState(
+                          () => settings.showTextsJustified.toggleValue(),
+                        );
+                      },
+                    ),
+                    if (!isWeb)
+                      SettingsTile.switchTile(
+                        title: _i18n.get("show_link_preview"),
+                        leading: const Icon(CupertinoIcons.link),
+                        switchValue: settings.showLinkPreview.value,
+                        enabled: settings.showLinkPreview.enabled,
+                        onToggle: (value) {
+                          _analyticsService.sendLogEvent(
+                            "toggleShowLinkPreview",
+                          );
+                          setState(() {
+                            settings.showLinkPreview.toggleValue();
+                          });
+                        },
+                      ),
+                    SettingsTile.switchTile(
+                      title: _i18n["show_animated_emojis"],
+                      leading: const Icon(Icons.emoji_emotions_outlined),
+                      releaseState: ReleaseState.NEW,
+                      switchValue: settings.showAnimatedEmoji.value,
+                      enabled: settings.showAnimatedEmoji.enabled,
+                      onToggle: (value) {
+                        setState(
+                          () => settings.showAnimatedEmoji.toggleValue(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: p16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0,
-                              vertical: 8.0,
-                            ),
-                            child: Column(
+                            borderRadius: mainBorder,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0,
+                            vertical: 8.0,
+                          ),
+                          child: Column(
+                            children: [
+                              ...createFakeMessages(),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        bottom: p16,
+                        left: p16 * 2,
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: FloatingActionButton(
+                            onPressed: () =>
+                                _idSubject.add(_idSubject.value + 1),
+                            child: const Icon(Icons.rotate_right),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Section(
+                  title: _i18n.get("advanced_settings"),
+                  children: [
+                    Column(
+                      children: [
+                        SettingsTile(
+                          title: _i18n.get("main_color"),
+                          leading: const Icon(CupertinoIcons.color_filter),
+                          trailing: const SizedBox.shrink(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
                               children: [
-                                ...createFakeMessages(),
+                                for (var i = 0; i < palettes.length; i++)
+                                  color(palettes[i], i)
                               ],
                             ),
                           ),
                         ),
-                        Positioned.fill(
-                          bottom: 16,
-                          left: 40,
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: FloatingActionButton(
-                              onPressed: () =>
-                                  _idSubject.add(_idSubject.value + 1),
-                              child: const Icon(Icons.rotate_right),
-                            ),
-                          ),
-                        )
                       ],
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 12, top: 4),
-                    child: Column(
-                      children: [
-                        Section(
-                          title: _i18n.get("advanced_settings"),
-                          children: [
-                            Column(
-                              children: [
-                                SettingsTile(
-                                  title: _i18n.get("main_color"),
-                                  leading:
-                                      const Icon(CupertinoIcons.color_filter),
-                                  trailing: const SizedBox.shrink(),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        for (var i = 0;
-                                            i < palettes.length;
-                                            i++)
-                                          color(palettes[i], i)
-                                      ],
+                    SettingsTile.switchTile(
+                      title: _i18n["show_background"],
+                      leading: const Icon(Icons.image_not_supported_outlined),
+                      switchValue: settings.showRoomBackground.value,
+                      releaseState: ReleaseState.NEW,
+                      enabled: settings.showRoomBackground.enabled,
+                      onToggle: (value) {
+                        setState(
+                          () => settings.showRoomBackground.toggleValue(),
+                        );
+                      },
+                    ),
+                    if (settings.showRoomBackground.value)
+                      StreamBuilder<int>(
+                        stream: settings.backgroundPatternIndex.stream,
+                        builder: (context, snapshot) {
+                          return Column(
+                            children: [
+                              SettingsTile(
+                                title: _i18n.get("pattern"),
+                                leading: const Icon(CupertinoIcons.photo),
+                                trailing: const SizedBox.shrink(),
+                              ),
+                              Row(
+                                children: [
+                                  if (isDesktopDevice)
+                                    IconButton(
+                                      onPressed: () => _controller.animateTo(
+                                        _controller.position.pixels - 200,
+                                        duration: AnimationSettings.superSlow,
+                                        curve: Curves.ease,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.arrow_back_ios,
+                                      ),
+                                    ),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      controller: _controller,
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          for (var i = 0;
+                                              i < patterns.length;
+                                              i++)
+                                            pattern(patterns[i], i),
+                                          pattern(null, patterns.length)
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SettingsTile.switchTile(
-                              title: _i18n["show_background"],
-                              leading: const Icon(CupertinoIcons.text_append),
-                              switchValue: settings.showRoomBackground.value,
-                              enabled: settings.showRoomBackground.enabled,
-                              onToggle: (value) {
-                                setState(
-                                  () =>
-                                      settings.showRoomBackground.toggleValue(),
-                                );
-                              },
-                            ),
-                            if (settings.showRoomBackground.value)
-                              StreamBuilder<int>(
-                                stream: settings.backgroundPatternIndex.stream,
-                                builder: (context, snapshot) {
-                                  return Column(
-                                    children: [
-                                      SettingsTile(
-                                        title: _i18n.get("pattern"),
-                                        leading:
-                                            const Icon(CupertinoIcons.photo),
-                                        trailing: const SizedBox.shrink(),
+                                  if (isDesktopDevice)
+                                    IconButton(
+                                      onPressed: () => _controller.animateTo(
+                                        _controller.position.pixels + 200,
+                                        duration: AnimationSettings.superSlow,
+                                        curve: Curves.ease,
                                       ),
-                                      Row(
-                                        children: [
-                                          if (isDesktopDevice)
-                                            IconButton(
-                                              onPressed: () =>
-                                                  _controller.animateTo(
-                                                _controller.position.pixels -
-                                                    200,
-                                                duration:
-                                                    AnimationSettings.superSlow,
-                                                curve: Curves.ease,
-                                              ),
-                                              icon: const Icon(
-                                                Icons.arrow_back_ios,
-                                              ),
-                                            ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              controller: _controller,
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                children: [
-                                                  for (var i = 0;
-                                                      i < patterns.length;
-                                                      i++)
-                                                    pattern(patterns[i], i),
-                                                  pattern(null, patterns.length)
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          if (isDesktopDevice)
-                                            IconButton(
-                                              onPressed: () =>
-                                                  _controller.animateTo(
-                                                _controller.position.pixels +
-                                                    200,
-                                                duration:
-                                                    AnimationSettings.superSlow,
-                                                curve: Curves.ease,
-                                              ),
-                                              icon: const Icon(
-                                                Icons.arrow_forward_ios,
-                                              ),
-                                            ),
-                                        ],
-                                      )
-                                    ],
-                                  );
-                                },
-                              ),
-                            SettingsTile.switchTile(
-                              title: _i18n["repeat_animated_emojis"],
-                              leading: const Icon(CupertinoIcons.text_append),
-                              switchValue: settings.repeatAnimatedEmoji.value,
-                              enabled: settings.repeatAnimatedEmoji.enabled,
-                              onToggle: (value) {
-                                setState(
-                                  () => settings.repeatAnimatedEmoji
-                                      .toggleValue(),
-                                );
-                              },
-                            ),
-                            SettingsTile.switchTile(
-                              title: _i18n["show_animations_with_higher_frame_rates"],
-                              leading: const Icon(CupertinoIcons.text_append),
-                              switchValue:
-                                  settings.showWsWithHighFrameRate.value,
-                              enabled: settings.showWsWithHighFrameRate.enabled,
-                              onToggle: (value) {
-                                setState(
-                                  () => settings.showWsWithHighFrameRate
-                                      .toggleValue(),
-                                );
-                              },
-                            ),
-                            SettingsTile.switchTile(
-                              title: _i18n.get("colorful_messages"),
-                              leading: const Icon(CupertinoIcons.paintbrush),
-                              switchValue: settings.showColorfulMessages.value,
-                              onToggle: (value) {
-                                _analyticsService.sendLogEvent(
-                                  "themeColorfulMessageToggle",
-                                );
-                                setState(() {
-                                  settings.showColorfulMessages.toggleValue();
-                                });
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: _buildThemeSelection(),
-                            ),
-                            SettingsTile.switchTile(
-                              title: _i18n.get("play_in_chat_sounds"),
-                              leading: const Icon(CupertinoIcons.bell),
-                              switchValue: settings.playInChatSounds.value,
-                              onToggle: (value) {
-                                _analyticsService.sendLogEvent(
-                                  "togglePlayInChatSounds",
-                                );
-                                setState(() {
-                                  settings.playInChatSounds.toggleValue();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                                      icon: const Icon(
+                                        Icons.arrow_forward_ios,
+                                      ),
+                                    ),
+                                ],
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    SettingsTile.switchTile(
+                      title: _i18n["repeat_animated_emojis"],
+                      leading: const Icon(Icons.animation),
+                      releaseState: ReleaseState.NEW,
+                      switchValue: settings.repeatAnimatedEmoji.value,
+                      enabled: settings.repeatAnimatedEmoji.enabled,
+                      onToggle: (value) {
+                        setState(
+                          () => settings.repeatAnimatedEmoji.toggleValue(),
+                        );
+                      },
                     ),
-                  )
-                ],
-              ),
+                    SettingsTile.switchTile(
+                      title: _i18n["show_animations_with_higher_frame_rates"],
+                      leading: const Icon(CupertinoIcons.flame),
+                      releaseState: ReleaseState.NEW,
+                      switchValue: settings.showWsWithHighFrameRate.value,
+                      enabled: settings.showWsWithHighFrameRate.enabled,
+                      onToggle: (value) {
+                        setState(
+                          () => settings.showWsWithHighFrameRate.toggleValue(),
+                        );
+                      },
+                    ),
+                    SettingsTile.switchTile(
+                      title: _i18n.get("colorful_messages"),
+                      leading: const Icon(CupertinoIcons.paintbrush),
+                      switchValue: settings.showColorfulMessages.value,
+                      onToggle: (value) {
+                        _analyticsService.sendLogEvent(
+                          "themeColorfulMessageToggle",
+                        );
+                        setState(() {
+                          settings.showColorfulMessages.toggleValue();
+                        });
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _buildThemeSelection(),
+                    ),
+                    SettingsTile.switchTile(
+                      title: _i18n.get("play_in_chat_sounds"),
+                      leading: const Icon(CupertinoIcons.bell),
+                      switchValue: settings.playInChatSounds.value,
+                      onToggle: (value) {
+                        _analyticsService.sendLogEvent(
+                          "togglePlayInChatSounds",
+                        );
+                        setState(() {
+                          settings.playInChatSounds.toggleValue();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -533,7 +510,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   shape: BoxShape.circle,
                   border: isSelected
                       ? Border.all(
-                          color: theme.primaryColor,
+                          color: theme.colorScheme.primary,
                           width: 3,
                         )
                       : null,

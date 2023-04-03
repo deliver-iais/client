@@ -34,13 +34,13 @@ class ProfileIdSettingsTileState extends State<ProfileIdSettingsTile> {
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsetsDirectional.only(top: 8.0),
               child: SettingsTile(
                 title: _i18n.get("username"),
                 subtitle: snapshot.data?.id ?? "",
                 leading: const Icon(Icons.alternate_email),
                 trailing: const Icon(Icons.copy),
-                subtitleTextStyle: TextStyle(color: widget.theme.primaryColor),
+                subtitleTextStyle: TextStyle(color: widget.theme.colorScheme.primary),
                 onPressed: (_) => saveToClipboard("@${snapshot.data!.id}"),
               ),
             );
@@ -56,13 +56,13 @@ class ProfileIdSettingsTileState extends State<ProfileIdSettingsTile> {
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsetsDirectional.only(top: 8.0),
               child: SettingsTile(
                 title: _i18n.get("username"),
                 subtitle: "${snapshot.data}",
                 leading: const Icon(Icons.alternate_email),
                 trailing: const Icon(Icons.copy),
-                subtitleTextStyle: TextStyle(color: widget.theme.primaryColor),
+                subtitleTextStyle: TextStyle(color: widget.theme.colorScheme.primary),
                 onPressed: (_) => saveToClipboard("@${snapshot.data!}"),
               ),
             );

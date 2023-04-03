@@ -70,7 +70,7 @@ class SentMessageBox extends StatelessWidget {
               ),
               if (message.markup?.isNotEmpty ?? false)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
+                  padding: const EdgeInsetsDirectional.only(bottom: 12.0),
                   child: InlineMarkUpButtonWidget(
                     message: message,
                     isSender: true,

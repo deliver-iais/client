@@ -84,6 +84,8 @@ enum PendingMessageReapetedStatus {
 
 const EMPTY_MESSAGE = "{}";
 
+const _sendingDelay = Duration(milliseconds: 100);
+
 BehaviorSubject<MessageEvent?> messageEventSubject =
     BehaviorSubject.seeded(null);
 
@@ -709,6 +711,8 @@ class MessageRepo {
         caption: files.last.path == file.path ? caption : "",
         replyToId: replyToId,
       );
+
+      await Future.delayed(_sendingDelay);
     }
   }
 
@@ -1239,24 +1243,27 @@ class MessageRepo {
     Uid room,
     List<Message> forwardedMessage,
   ) async {
-    for (final forwardedMessage in forwardedMessage) {
+    for (var i = 0; i < forwardedMessage.length; i++) {
+      final fm = forwardedMessage[i];
       final msg = (await _createMessage(
         room,
-        forwardedFrom: forwardedMessage.forwardedFrom?.isEmptyUid() ?? true
-            ? forwardedMessage.roomUid.isChannel()
-                ? forwardedMessage.roomUid
-                : forwardedMessage.from
-            : forwardedMessage.forwardedFrom,
+        forwardedFrom: fm.forwardedFrom?.isEmptyUid() ?? true
+            ? fm.roomUid.isChannel()
+                ? fm.roomUid
+                : fm.from
+            : fm.forwardedFrom,
       ))
           .copyWith(
-        type: forwardedMessage.type,
-        json: forwardedMessage.json,
-        markup: forwardedMessage.markup,
+        type: fm.type,
+        json: fm.json,
+        markup: fm.markup,
       );
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
 
-      return _saveAndSend(pm);
+      await _saveAndSend(pm);
+
+      await Future.delayed(_sendingDelay);
     }
   }
 
@@ -1273,7 +1280,9 @@ class MessageRepo {
           .copyWith(type: MessageType.FILE, json: meta.json);
 
       final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-      return _saveAndSend(pm);
+      await _saveAndSend(pm);
+
+      await Future.delayed(_sendingDelay);
     }
   }
 

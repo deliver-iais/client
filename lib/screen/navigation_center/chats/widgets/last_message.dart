@@ -1,7 +1,7 @@
 import 'package:deliver/box/message.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/message_extractor_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
@@ -61,7 +61,6 @@ class AsyncLastMessage extends StatelessWidget {
 
 class LastMessage extends StatelessWidget {
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
 
   final MessageSimpleRepresentative messageSR;
 
@@ -97,8 +96,6 @@ class LastMessage extends StatelessWidget {
               Expanded(
                 child: Text(
                   mb.sender.trim(),
-                  textAlign: TextAlign.end,
-                  textDirection: TextDirection.rtl,
                   overflow: TextOverflow.ellipsis,
                   style: theme.primaryTextTheme.bodySmall?.copyWith(
                     color: highlightColor,
@@ -113,7 +110,7 @@ class LastMessage extends StatelessWidget {
           children: [
             if (showSeenStatus && !isReceivedMessage)
               Padding(
-                padding: const EdgeInsets.only(right: 4.0),
+                padding: const EdgeInsetsDirectional.only(end: p4),
                 child: SeenStatus(
                   mb.roomUid.asString(),
                   mb.packetId,
@@ -124,8 +121,6 @@ class LastMessage extends StatelessWidget {
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
                 maxLines: maxLine ?? (showSender ? 1 : 2),
-                textAlign: TextAlign.left,
-                textDirection: _i18n.defaultTextDirection,
                 text: TextSpan(
                   children: [
                     if (mb.typeDetails.isNotEmpty)

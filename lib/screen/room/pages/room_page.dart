@@ -323,7 +323,13 @@ class RoomPageState extends State<RoomPage> {
               child: !showTime
                   ? const SizedBox.shrink()
                   : Padding(
-                      padding: const EdgeInsets.only(top: APPBAR_HEIGHT + 8.0),
+                      padding: _lastPinedMessage.value > 0
+                          ? const EdgeInsetsDirectional.only(
+                              top: APPBAR_HEIGHT * 2 + p8,
+                            )
+                          : const EdgeInsetsDirectional.only(
+                              top: APPBAR_HEIGHT + p8,
+                            ),
                       child: StreamBuilder<String>(
                         stream: _timeHeader.stream,
                         builder: (context, dateSnapshot) {
@@ -350,61 +356,64 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  Expanded buildAllMessagesBox() {
-    return Expanded(
-      child: Stack(
-        children: [
-          StreamBuilder(
-            stream: pendingAndRoomMessagesStream,
-            builder: (context, event) {
-              // Set Item Count
-              _itemCount = room.lastMessageId +
-                  pendingMessages.length -
-                  room.firstMessageId;
-              _itemCountSubject.add(_itemCount);
-              if (_itemCount < 50) _defaultMessageHeight = 50;
+  Widget buildAllMessagesBox() {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Expanded(
+        child: Stack(
+          children: [
+            StreamBuilder(
+              stream: pendingAndRoomMessagesStream,
+              builder: (context, event) {
+                // Set Item Count
+                _itemCount = room.lastMessageId +
+                    pendingMessages.length -
+                    room.firstMessageId;
+                _itemCountSubject.add(_itemCount);
+                if (_itemCount < 50) _defaultMessageHeight = 50;
 
-              return PageTransitionSwitcher(
-                duration: AnimationSettings.standard,
-                transitionBuilder: (
-                  child,
-                  animation,
-                  secondaryAnimation,
-                ) {
-                  return SharedAxisTransition(
-                    fillColor: Colors.transparent,
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    transitionType: SharedAxisTransitionType.vertical,
-                    child: child,
-                  );
-                },
-                child: event.connectionState == ConnectionState.waiting
-                    ? const SizedBox.shrink()
-                    : buildMessagesListView(),
-              );
-            },
-          ),
-          StreamBuilder<ScrollingState>(
-            stream: _isScrolling,
-            builder: (context, snapshot) {
-              final showArrow = checkShowArrowDown(snapshot);
-
-              return Positioned(
-                right: 16,
-                bottom: 16,
-                child: AnimatedSwitcher(
-                  duration: AnimationSettings.slow,
-                  switchInCurve: Curves.easeInOut,
-                  switchOutCurve: Curves.easeInOut,
-                  child: !showArrow
+                return PageTransitionSwitcher(
+                  duration: AnimationSettings.standard,
+                  transitionBuilder: (
+                    child,
+                    animation,
+                    secondaryAnimation,
+                  ) {
+                    return SharedAxisTransition(
+                      fillColor: Colors.transparent,
+                      animation: animation,
+                      secondaryAnimation: secondaryAnimation,
+                      transitionType: SharedAxisTransitionType.vertical,
+                      child: child,
+                    );
+                  },
+                  child: event.connectionState == ConnectionState.waiting
                       ? const SizedBox.shrink()
-                      : scrollDownButtonWidget(),
-                ),
-              );
-            },
-          ),
-        ],
+                      : buildMessagesListView(),
+                );
+              },
+            ),
+            StreamBuilder<ScrollingState>(
+              stream: _isScrolling,
+              builder: (context, snapshot) {
+                final showArrow = checkShowArrowDown(snapshot);
+
+                return Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: AnimatedSwitcher(
+                    duration: AnimationSettings.slow,
+                    switchInCurve: Curves.easeInOut,
+                    switchOutCurve: Curves.easeInOut,
+                    child: !showArrow
+                        ? const SizedBox.shrink()
+                        : scrollDownButtonWidget(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -582,8 +591,9 @@ class RoomPageState extends State<RoomPage> {
     }
   }
 
-  double startPointOfPage() =>
-      ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
+  double startPointOfPage() => _lastPinedMessage.value > 0
+      ? ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 3)
+      : ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
   SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
     return SizedBox(
@@ -1192,9 +1202,9 @@ class RoomPageState extends State<RoomPage> {
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 10.0,
-                                                ),
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .only(top: p8),
                                                 child: Text(
                                                   _i18n.get(
                                                     "alert_window_permission_attention",
@@ -1223,7 +1233,7 @@ class RoomPageState extends State<RoomPage> {
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.all(
-                                                        8.0,
+                                                        p8,
                                                       ),
                                                       child: Text(
                                                         _i18n.get(
@@ -1296,7 +1306,7 @@ class RoomPageState extends State<RoomPage> {
                     return Row(
                       children: [
                         IconButton(
-                          color: theme.primaryColor,
+                          color: theme.colorScheme.primary,
                           icon: const Icon(
                             CupertinoIcons.xmark,
                             size: 25,
@@ -1399,7 +1409,10 @@ class RoomPageState extends State<RoomPage> {
       ),
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),
-        child: Divider(),
+        child: Divider(
+          thickness: 1,
+          height: 1,
+        ),
       ),
     );
   }
@@ -1647,7 +1660,7 @@ class RoomPageState extends State<RoomPage> {
           duration: AnimationSettings.fast,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
-              ? Theme.of(context).primaryColor.withAlpha(100)
+              ? Theme.of(context).colorScheme.primary.withAlpha(100)
               : Colors.transparent,
           curve: Curves.elasticOut,
           child: widget,

@@ -34,39 +34,36 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Focus(
-        autofocus: true,
-        child: Container(
-          child: widget.selected == "delete_room"
-              ? deletePopupDialog(
-                  title: !widget.roomUid.isMuc()
-                      ? _i18n.get("delete_chat")
-                      : widget.roomUid.isChannel()
-                          ? _i18n.get("left_channel")
-                          : _i18n.get("left_group"),
-                  description: !widget.roomUid.isMuc()
-                      ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
-                      : widget.roomUid.isChannel()
-                          ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
-                          : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
-                  onPressed: () {
-                    widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
-                  },
-                )
-              : deletePopupDialog(
-                  title: widget.roomUid.isChannel()
-                      ? _i18n.get("delete_channel")
-                      : _i18n.get("delete_group"),
-                  description: widget.roomUid.isGroup()
-                      ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
-                      : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
-                  onPressed: () {
-                    _deleteMuc();
-                  },
-                ),
-        ),
+    return Focus(
+      autofocus: true,
+      child: Container(
+        child: widget.selected == "delete_room"
+            ? deletePopupDialog(
+                title: !widget.roomUid.isMuc()
+                    ? _i18n.get("delete_chat")
+                    : widget.roomUid.isChannel()
+                        ? _i18n.get("left_channel")
+                        : _i18n.get("left_group"),
+                description: !widget.roomUid.isMuc()
+                    ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
+                    : widget.roomUid.isChannel()
+                        ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
+                        : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
+                onPressed: () {
+                  widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
+                },
+              )
+            : deletePopupDialog(
+                title: widget.roomUid.isChannel()
+                    ? _i18n.get("delete_channel")
+                    : _i18n.get("delete_group"),
+                description: widget.roomUid.isGroup()
+                    ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
+                    : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
+                onPressed: () {
+                  _deleteMuc();
+                },
+              ),
       ),
     );
   }

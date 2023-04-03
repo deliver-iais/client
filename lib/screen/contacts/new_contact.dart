@@ -39,76 +39,73 @@ class NewContactState extends State<NewContact> {
       body: FluidContainerWidget(
         child: Section(
           children: [
-            Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    AutoDirectionTextField(
-                      onChanged: (firstName) {
-                        _firstName = firstName;
-                      },
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  AutoDirectionTextField(
+                    onChanged: (firstName) {
+                      _firstName = firstName;
+                    },
+                    controller: TextEditingController(),
+                    style: theme.textTheme.bodyLarge,
+                    decoration:
+                        InputDecoration(labelText: _i18n.get("firstName")),
+                  ),
+                  const SizedBox(height: 10),
+                  AutoDirectionTextField(
+                    onChanged: (lastName) {
+                      _lastName = lastName;
+                    },
+                    controller: TextEditingController(),
+                    style: theme.textTheme.bodyLarge,
+                    decoration:
+                        InputDecoration(labelText: _i18n.get("lastName")),
+                  ),
+                  const SizedBox(height: 50),
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: IntlPhoneField(
                       controller: TextEditingController(),
+                      onMaxAndMinLengthChanged: (_, p) {},
+                      validator: (value) =>
+                          (value!.length == 11 && value[0] != '0') ||
+                                  (value.length < 10 &&
+                                      (value.isNotEmpty && value[0] == '0'))
+                              ? _i18n.get("invalid_mobile_number")
+                              : null,
                       style: theme.textTheme.bodyLarge,
-                      decoration:
-                          InputDecoration(labelText: _i18n.get("firstName")),
-                    ),
-                    const SizedBox(height: 10),
-                    AutoDirectionTextField(
-                      onChanged: (lastName) {
-                        _lastName = lastName;
+                      onChanged: (ph) {
+                        _phoneNumber = ph;
                       },
-                      controller: TextEditingController(),
-                      style: theme.textTheme.bodyLarge,
-                      decoration:
-                          InputDecoration(labelText: _i18n.get("lastName")),
+                      onSubmitted: (p) {
+                        _phoneNumber = p;
+                        // checkAndGoNext();
+                      },
                     ),
-                    const SizedBox(height: 50),
-                    Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: IntlPhoneField(
-                        controller: TextEditingController(),
-                        onMaxAndMinLengthChanged: (_, p) {},
-                        validator: (value) =>
-                            (value!.length == 11 && value[0] != '0') ||
-                                    (value.length < 10 &&
-                                        (value.isNotEmpty && value[0] == '0'))
-                                ? _i18n.get("invalid_mobile_number")
-                                : null,
-                        style: theme.textTheme.bodyLarge,
-                        onChanged: (ph) {
-                          _phoneNumber = ph;
-                        },
-                        onSubmitted: (p) {
-                          _phoneNumber = p;
-                          // checkAndGoNext();
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      child: Text(_i18n.get("save")),
-                      onPressed: () async {
-                        if (_phoneNumber != null) {
-                          final contactUid = await _contactRepo.sendNewContact(
-                            Contact()
-                              ..phoneNumber = _phoneNumber!
-                              ..firstName = _firstName
-                              ..lastName = _lastName,
-                          );
-                          if (contactUid != null) {
-                            _routingServices.openRoom(contactUid);
-                          } else {
-                            showContactNotExistToast();
-                          }
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    child: Text(_i18n.get("save")),
+                    onPressed: () async {
+                      if (_phoneNumber != null) {
+                        final contactUid = await _contactRepo.sendNewContact(
+                          Contact()
+                            ..phoneNumber = _phoneNumber!
+                            ..firstName = _firstName
+                            ..lastName = _lastName,
+                        );
+                        if (contactUid != null) {
+                          _routingServices.openRoom(contactUid);
+                        } else {
+                          showContactNotExistToast();
                         }
-                      },
-                    )
-                  ],
-                ),
+                      }
+                    },
+                  )
+                ],
               ),
             ),
           ],

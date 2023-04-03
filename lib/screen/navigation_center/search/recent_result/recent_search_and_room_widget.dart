@@ -131,33 +131,30 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
             recentSearch.data!.isNotEmpty) {
           return Column(
             children: [
-              Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: Container(
-                  color: theme.dividerColor.withAlpha(10),
-                  padding: const EdgeInsets.all(8),
-                  margin: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _i18n.get("recent_search"),
+              Container(
+                color: theme.dividerColor.withAlpha(10),
+                padding: const EdgeInsets.all(8),
+                margin: const EdgeInsetsDirectional.only(bottom: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _i18n.get("recent_search"),
+                      style: getFadeTextStyle(context),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(100, 10),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        _i18n.get("clear_all"),
                         style: getFadeTextStyle(context),
                       ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(100, 10),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          _i18n.get("clear_all"),
-                          style: getFadeTextStyle(context),
-                        ),
-                        onPressed: () => _recentSearch.deleteAll(),
-                      ),
-                    ],
-                  ),
+                      onPressed: () => _recentSearch.deleteAll(),
+                    ),
+                  ],
                 ),
               ),
               ListView.builder(

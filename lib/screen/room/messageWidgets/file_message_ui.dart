@@ -81,7 +81,7 @@ class FileMessageUiState extends State<FileMessageUi> {
               return SizedBox(
                 width: snapshot.data ?? dimensions.width,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsetsDirectional.only(top: 4),
                   child: TextUI(
                     message: widget.message,
                     maxWidth: widget.maxWidth,

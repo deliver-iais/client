@@ -92,7 +92,7 @@ class _DebugCState extends State<DebugC> {
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(p8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -25,7 +25,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = Color.alphaBlend(
-      Theme.of(context).primaryColor.withAlpha(30),
+      Theme.of(context).colorScheme.primary.withAlpha(30),
       Theme.of(context).colorScheme.surface,
     );
     final widgetRows = <Widget>[];
@@ -46,7 +46,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
                         Color.alphaBlend(
-                          Theme.of(context).primaryColor.withAlpha(60),
+                          Theme.of(context).colorScheme.primary.withAlpha(60),
                           Theme.of(context).colorScheme.surface,
                         ),
                       ),

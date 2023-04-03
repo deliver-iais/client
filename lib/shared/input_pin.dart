@@ -56,11 +56,11 @@ void inputPin({
               showHelper: showHelper,
               confirmPinFormKey: confirmPinFormKey,
             ),
-            titlePadding: const EdgeInsets.only(top: 8, bottom: 8),
+            titlePadding: const EdgeInsetsDirectional.only(top: 8, bottom: 8),
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-            actionsPadding: const EdgeInsets.only(
-              left: 4,
-              right: 4,
+            actionsPadding: const EdgeInsetsDirectional.only(
+              end: 4,
+              start: 4,
               bottom: 4,
             ),
             actions: [

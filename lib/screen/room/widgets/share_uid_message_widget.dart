@@ -35,14 +35,14 @@ class ShareUidMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final shareUid = message.json.toShareUid();
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
+      padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 2.0, end: 4, start: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             icon: Padding(
-              padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+              padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(
                 shareUid.uid,
                 14,
@@ -53,7 +53,7 @@ class ShareUidMessageWidget extends StatelessWidget {
               children: [
                 if (shareUid.uid.category == Categories.GROUP)
                   Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
+                    padding: const EdgeInsetsDirectional.only(start: 4.0),
                     child: Icon(
                       Icons.group_rounded,
                       size: 18,
@@ -62,14 +62,14 @@ class ShareUidMessageWidget extends StatelessWidget {
                   ),
                 if (shareUid.uid.category == Categories.CHANNEL)
                   const Padding(
-                    padding: EdgeInsets.only(left: 4.0),
+                    padding: EdgeInsetsDirectional.only(start: 4.0),
                     child: Icon(
                       Icons.rss_feed_rounded,
                       size: 18,
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 4.0),
+                  padding: const EdgeInsetsDirectional.only(start: 4.0),
                   child: Text(
                     shareUid.name +
                         (shareUid.uid.category != Categories.USER

@@ -55,30 +55,28 @@ class _ShowcasePageState extends State<ShowcasePage> {
       backgroundColor: theme.colorScheme.background,
       extendBodyBehindAppBar: true,
       body: FluidContainerWidget(
-        child: Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: StreamBuilder<List<ShowCase>>(
-            stream: _showCaseCache,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                return ListView.separated(
-                  separatorBuilder: (context, index) {
-                    return const Padding(
-                      padding: EdgeInsets.only(right: 20, left: 20, top: 10),
-                      child: Divider(),
-                    );
-                  },
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (ctx, index) {
-                    return _buildShowCaseItem(
-                      snapshot.data![index].json,
-                    );
-                  },
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            },
-          ),
+        child: StreamBuilder<List<ShowCase>>(
+          stream: _showCaseCache,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return ListView.separated(
+                separatorBuilder: (context, index) {
+                  return const Padding(
+                    padding:
+                        EdgeInsetsDirectional.only(start: 20, end: 20, top: 10),
+                    child: Divider(),
+                  );
+                },
+                itemCount: snapshot.data!.length,
+                itemBuilder: (ctx, index) {
+                  return _buildShowCaseItem(
+                    snapshot.data![index].json,
+                  );
+                },
+              );
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
       ),
     );

@@ -192,272 +192,269 @@ class AccountSettingsState extends State<AccountSettings> {
               _descriptionTextController.text = _account.description ?? "";
               _emailTextController.text = _account.email ?? "";
 
-              return Directionality(
-                textDirection: _i18n.defaultTextDirection,
-                child: ListView(
-                  children: [
-                    Section(
-                      title: _i18n.get("avatar"),
-                      children: [
-                        NormalSettingsTitle(
-                          child: Center(
-                            child: StreamBuilder<String>(
-                              stream: _newAvatarPath,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData &&
-                                    snapshot.data != null &&
-                                    snapshot.data!.isNotEmpty) {
-                                  return Stack(
-                                    children: [
-                                      Center(
-                                        child: CircleAvatar(
-                                          radius: 60,
-                                          backgroundImage:
-                                              snapshot.data!.imageProvider(),
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.only(top: 45),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 6.0,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                }
+              return ListView(
+                children: [
+                  Section(
+                    title: _i18n.get("avatar"),
+                    children: [
+                      NormalSettingsTitle(
+                        child: Center(
+                          child: StreamBuilder<String>(
+                            stream: _newAvatarPath,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData &&
+                                  snapshot.data != null &&
+                                  snapshot.data!.isNotEmpty) {
                                 return Stack(
                                   children: [
                                     Center(
-                                      child: Container(
-                                        height: 130,
-                                        width: 130,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.grey[500]!
-                                              .withOpacity(0.9),
-                                        ),
-                                        child: CircleAvatarWidget(
-                                          _authRepo.currentUserUid,
-                                          130,
-                                          hideName: true,
-                                        ),
+                                      child: CircleAvatar(
+                                        radius: 60,
+                                        backgroundImage:
+                                            snapshot.data!.imageProvider(),
                                       ),
                                     ),
-                                    Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 35),
-                                        child: IconButton(
-                                          color: Colors.white,
-                                          splashRadius: 40,
-                                          iconSize: 50,
-                                          icon: const Icon(
-                                            Icons.add_a_photo,
-                                          ),
-                                          onPressed: () => attachFile(),
+                                    const Padding(
+                                      padding: EdgeInsetsDirectional.only(top: 45),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 6.0,
+                                          color: Colors.blue,
                                         ),
                                       ),
                                     )
                                   ],
                                 );
-                              },
-                            ),
+                              }
+                              return Stack(
+                                children: [
+                                  Center(
+                                    child: Container(
+                                      height: 130,
+                                      width: 130,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey[500]!
+                                            .withOpacity(0.9),
+                                      ),
+                                      child: CircleAvatarWidget(
+                                        _authRepo.currentUserUid,
+                                        130,
+                                        hideName: true,
+                                      ),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsetsDirectional.only(top: 35),
+                                      child: IconButton(
+                                        color: Colors.white,
+                                        splashRadius: 40,
+                                        iconSize: 50,
+                                        icon: const Icon(
+                                          Icons.add_a_photo,
+                                        ),
+                                        onPressed: () => attachFile(),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                            },
                           ),
-                        )
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("account_info"),
-                      children: [
-                        NormalSettingsTitle(
-                          child: Column(
-                            children: [
-                              Form(
-                                key: _formKey,
-                                child: Column(
-                                  children: [
-                                    TextFormField(
-                                      minLines: 1,
-                                      controller: _firstnameTextController,
-                                      textInputAction: TextInputAction.send,
-                                      validator: validateFirstName,
-                                      decoration: buildInputDecoration(
-                                        _i18n.get("firstName"),
-                                        isOptional: true,
-                                      ),
+                        ),
+                      )
+                    ],
+                  ),
+                  Section(
+                    title: _i18n.get("account_info"),
+                    children: [
+                      NormalSettingsTitle(
+                        child: Column(
+                          children: [
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    minLines: 1,
+                                    controller: _firstnameTextController,
+                                    textInputAction: TextInputAction.send,
+                                    validator: validateFirstName,
+                                    decoration: buildInputDecoration(
+                                      _i18n.get("firstName"),
+                                      isOptional: true,
                                     ),
-                                    const SizedBox(
-                                      height: 20,
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
+                                    minLines: 1,
+                                    controller: _lastnameTextController,
+                                    textInputAction: TextInputAction.send,
+                                    decoration: buildInputDecoration(
+                                      _i18n.get("lastName"),
                                     ),
-                                    TextFormField(
-                                      minLines: 1,
-                                      controller: _lastnameTextController,
-                                      textInputAction: TextInputAction.send,
-                                      decoration: buildInputDecoration(
-                                        _i18n.get("lastName"),
-                                      ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Autocomplete<String>(
+                                    optionsBuilder: (textEditingValue) =>
+                                        _getUsernameSuggestion(
+                                      textEditingValue.text,
                                     ),
-                                    const SizedBox(
-                                      height: 20,
+                                    initialValue: TextEditingValue(
+                                      text: _usernameTextController.text,
                                     ),
-                                    Autocomplete<String>(
-                                      optionsBuilder: (textEditingValue) =>
-                                          _getUsernameSuggestion(
-                                        textEditingValue.text,
-                                      ),
-                                      initialValue: TextEditingValue(
-                                        text: _usernameTextController.text,
-                                      ),
-                                      onSelected: (selection) {
-                                        _usernameTextController.text =
-                                            selection;
-                                        _usernameFormKey.currentState
-                                            ?.validate();
-                                      },
-                                      fieldViewBuilder: (
-                                        context,
-                                        textEditingController,
-                                        focusNode,
-                                        onFieldSubmitted,
-                                      ) {
-                                        return GestureDetector(
-                                          onTap: () {
-                                            onFieldSubmitted();
-                                          },
-                                          child: Column(
-                                            children: [
-                                              Form(
-                                                key: _usernameFormKey,
-                                                child: TextFormField(
-                                                  minLines: 1,
-                                                  focusNode: focusNode,
-                                                  controller:
-                                                      textEditingController,
-                                                  textInputAction:
-                                                      TextInputAction.send,
-                                                  onChanged: (str) {
-                                                    _usernameTextController
-                                                        .text = str;
-                                                    _idIsIsAvailableChecker
-                                                        .add(str);
-                                                  },
-                                                  maxLength: 20,
-                                                  validator: validateUsername,
-                                                  decoration:
-                                                      buildInputDecoration(
-                                                    _i18n.get(
-                                                      "username",
-                                                    ),
-                                                    hintText: "alice_bob",
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                      optionsViewBuilder: (
-                                        con,
-                                        void Function(String) onSelected,
-                                        options,
-                                      ) {
-                                        return Stack(
+                                    onSelected: (selection) {
+                                      _usernameTextController.text =
+                                          selection;
+                                      _usernameFormKey.currentState
+                                          ?.validate();
+                                    },
+                                    fieldViewBuilder: (
+                                      context,
+                                      textEditingController,
+                                      focusNode,
+                                      onFieldSubmitted,
+                                    ) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          onFieldSubmitted();
+                                        },
+                                        child: Column(
                                           children: [
-                                            Material(
-                                              child: Container(
-                                                color: CupertinoColors
-                                                    .inactiveGray
-                                                    .withOpacity(0.2),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: options.map((opt) {
-                                                    return InkWell(
-                                                      onTap: () {
-                                                        onSelected(opt);
-                                                      },
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                          horizontal: 60,
-                                                        ),
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(10),
-                                                          child: Text(opt),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
+                                            Form(
+                                              key: _usernameFormKey,
+                                              child: TextFormField(
+                                                minLines: 1,
+                                                focusNode: focusNode,
+                                                controller:
+                                                    textEditingController,
+                                                textInputAction:
+                                                    TextInputAction.send,
+                                                onChanged: (str) {
+                                                  _usernameTextController
+                                                      .text = str;
+                                                  _idIsIsAvailableChecker
+                                                      .add(str);
+                                                },
+                                                maxLength: 20,
+                                                validator: validateUsername,
+                                                decoration:
+                                                    buildInputDecoration(
+                                                  _i18n.get(
+                                                    "username",
+                                                  ),
+                                                  hintText: "alice_bob",
                                                 ),
                                               ),
                                             ),
                                           ],
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _i18n.get("username_helper"),
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.blueAccent,
+                                        ),
+                                      );
+                                    },
+                                    optionsViewBuilder: (
+                                      con,
+                                      void Function(String) onSelected,
+                                      options,
+                                    ) {
+                                      return Stack(
+                                        children: [
+                                          Material(
+                                            child: Container(
+                                              color: CupertinoColors
+                                                  .inactiveGray
+                                                  .withOpacity(0.2),
+                                              child: Column(
+                                                mainAxisSize:
+                                                    MainAxisSize.min,
+                                                children: options.map((opt) {
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      onSelected(opt);
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                        horizontal: 60,
+                                                      ),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: Text(opt),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
-                                      TextFormField(
-                                        minLines: 1,
-                                        controller: _emailTextController,
-                                        textInputAction: TextInputAction.send,
-                                        validator: validateEmail,
-                                        decoration: InputDecoration(
-                                          labelText: _i18n.get("email"),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _i18n.get("username_helper"),
+                                          textAlign: TextAlign.justify,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.blueAccent,
+                                          ),
                                         ),
                                       ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
+                                    ],
+                                  ),
+                                  if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
                                     TextFormField(
                                       minLines: 1,
-                                      controller: _descriptionTextController,
+                                      controller: _emailTextController,
                                       textInputAction: TextInputAction.send,
+                                      validator: validateEmail,
                                       decoration: InputDecoration(
-                                        labelText: _i18n.get("description"),
+                                        labelText: _i18n.get("email"),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
+                                    minLines: 1,
+                                    controller: _descriptionTextController,
+                                    textInputAction: TextInputAction.send,
+                                    decoration: InputDecoration(
+                                      labelText: _i18n.get("description"),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  onPressed: checkAndSend,
-                                  child: Text(_i18n.get("save")),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                onPressed: checkAndSend,
+                                child: Text(_i18n.get("save")),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  )
+                ],
               );
             },
           ),
@@ -518,7 +515,7 @@ class AccountSettingsState extends State<AccountSettings> {
     return InputDecoration(
       suffixIcon: isOptional
           ? const Padding(
-              padding: EdgeInsets.only(top: 20, left: 25),
+              padding: EdgeInsetsDirectional.only(top: 20, start: 25),
               child: Text(
                 "*",
                 style: TextStyle(color: Colors.red),

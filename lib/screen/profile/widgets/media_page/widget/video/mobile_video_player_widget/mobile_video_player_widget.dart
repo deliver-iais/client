@@ -45,7 +45,7 @@ class _MobileVideoPlayerWidgetState extends State<MobileVideoPlayerWidget> {
       materialProgressColors: ChewieProgressColors(
         bufferedColor: settings.themeData.shadowColor.withOpacity(0.4),
         handleColor: Colors.white,
-        playedColor: settings.themeData.primaryColor,
+        playedColor: settings.themeData.colorScheme.primary,
       ),
     );
     setState(() {});

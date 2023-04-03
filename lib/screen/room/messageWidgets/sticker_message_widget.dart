@@ -74,10 +74,10 @@ class StickerMessageWidgetState extends State<StickerMessageWidget> {
     //                                     },
     //                                   )
     //                                   )),
-    //                               titlePadding: EdgeInsets.only(
-    //                                   left: 0, right: 0, top: 0),
+    //                               titlePadding: EdgeInsetsDirectional.only(
+    //                                   end: 0, start: 0, top: 0),
     //                               actionsPadding:
-    //                                   EdgeInsets.only(bottom: 10, right: 5),
+    //                                   EdgeInsetsDirectional.only(bottom: 10, end: 5),
     //                               actions: <Widget>[
     //                                 GestureDetector(
     //                                   child: Text(
@@ -157,7 +157,7 @@ class StickerMessageWidgetState extends State<StickerMessageWidget> {
     //                                                     "add_sticker"),
     //                                             style: TextStyle(
     //                                                 color:theme
-    //                                                     .primaryColor),
+    //                                                     .colorScheme.primary),
     //                                           ),
     //                                           onTap: () {
     //                                             _stickerRepo.saveStickers(

@@ -1,8 +1,7 @@
+import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'cupertino_settings_item.dart';
-
-import 'defines.dart';
 
 enum _SettingsTileType { simple, switchTile }
 
@@ -13,6 +12,7 @@ class SettingsTile extends StatelessWidget {
   final int? subtitleMaxLines;
   final Widget? leading;
   final Widget? trailing;
+  final ReleaseState? releaseState;
   final Function(BuildContext context)? onPressed;
   final Function(bool value)? onToggle;
   final bool? switchValue;
@@ -29,6 +29,7 @@ class SettingsTile extends StatelessWidget {
     this.titleMaxLines,
     this.subtitle,
     this.subtitleMaxLines,
+    this.releaseState,
     this.leading,
     this.trailing,
     this.titleTextStyle,
@@ -50,6 +51,7 @@ class SettingsTile extends StatelessWidget {
     this.titleMaxLines,
     this.subtitle,
     this.subtitleMaxLines,
+    this.releaseState,
     this.leading,
     this.enabled = true,
     this.trailing,
@@ -76,6 +78,7 @@ class SettingsTile extends StatelessWidget {
         subtitle: subtitle,
         subtitleMaxLines: subtitleMaxLines,
         switchValue: switchValue,
+        releaseState: releaseState,
         onToggle: onToggle,
         onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,
@@ -93,6 +96,7 @@ class SettingsTile extends StatelessWidget {
         labelMaxLines: titleMaxLines,
         value: subtitle,
         valueDirection: subtitleDirection,
+        releaseState: releaseState,
         trailing: trailing,
         leading: leading,
         onPress: onTapFunction(context) as void Function()?,

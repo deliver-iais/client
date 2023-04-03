@@ -42,7 +42,7 @@ class ReplyBrief extends StatelessWidget {
 
     return Container(
       height: theme.textTheme.displayMedium!.height,
-      padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {

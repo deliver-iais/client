@@ -84,7 +84,7 @@ PODS:
     - FlutterMacOS
   - flutter_webrtc (0.9.22):
     - FlutterMacOS
-    - WebRTC-SDK (= 104.5112.11)
+    - WebRTC-SDK (= 104.5112.12)
   - flutter_window_close (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -139,7 +139,7 @@ PODS:
     - FlutterMacOS
   - livekit_client (1.1.14):
     - FlutterMacOS
-    - WebRTC-SDK (= 104.5112.11)
+    - WebRTC-SDK (= 104.5112.12)
   - mobile_scanner (3.0.0):
     - FlutterMacOS
   - nanopb (2.30909.0):
@@ -170,7 +170,7 @@ PODS:
     - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (104.5112.11)
+  - WebRTC-SDK (104.5112.12)
   - window_size (0.0.2):
     - FlutterMacOS
 
@@ -311,7 +311,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
-  flutter_webrtc: 79e5bcac548314a108c28c29cd49ffdf13cd83f7
+  flutter_webrtc: 0e2af3876ed28d4599c06734c771c2526309356b
   flutter_window_close: ee4a6b81ca6fafe93b7cba48b0a18976e3f48e39
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   geolocator_apple: 72a78ae3f3e4ec0db62117bd93e34523f5011d58
@@ -320,7 +320,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
-  livekit_client: 7c4faa0d5db9e401c6a77f32e93e4a9dfc333180
+  livekit_client: 5be7db46f878e52ac66dfa155d4fc2482ceac7a3
   mobile_scanner: ed7618fb749adc6574563e053f3b8e5002c13994
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
@@ -334,7 +334,7 @@ SPEC CHECKSUMS:
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
-  WebRTC-SDK: 98ab93b8d28f33699a6d4909a06e824a6c7497aa
+  WebRTC-SDK: 6469c304549f7187e7e67119c8b3184f9ec6b7f6
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
 PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0

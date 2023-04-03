@@ -138,7 +138,7 @@ class HasEventsRowState extends State<HasEventsRow> {
                       ),
                       expanded: ExpandableButton(
                         child: Container(
-                          padding: const EdgeInsets.only(top: 8.0),
+                          padding: const EdgeInsetsDirectional.only(top: 8.0),
                           color: Theme.of(context)
                               .colorScheme
                               .surfaceVariant

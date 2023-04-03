@@ -743,7 +743,7 @@ class IntroSliderState extends State<IntroSlider>
   ) {
     final animationSize = animationSquareSize(context);
     return Container(
-      padding: EdgeInsets.only(top: animationSize + 40),
+      padding: EdgeInsetsDirectional.only(top: animationSize + 40),
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundImage != null
@@ -763,11 +763,11 @@ class IntroSliderState extends State<IntroSlider>
       child: Container(
         // Title
         margin: marginTitle ??
-            const EdgeInsets.only(
+            const EdgeInsetsDirectional.only(
               top: 20.0,
               bottom: 60.0,
-              left: 20.0,
-              right: 20.0,
+              start: 20.0,
+              end: 20.0,
             ),
         // Title
         child: widgetTitle ??
@@ -805,7 +805,7 @@ class IntroSliderState extends State<IntroSlider>
         ),
         width: radius,
         height: radius,
-        margin: EdgeInsets.only(left: radius / 2, right: radius / 2),
+        margin: EdgeInsetsDirectional.only(start: radius / 2, end: radius / 2),
       ),
     );
   }

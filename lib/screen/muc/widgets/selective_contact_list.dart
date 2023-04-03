@@ -6,12 +6,13 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
-import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -100,7 +101,6 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Stack(
       children: [
         Column(
@@ -180,69 +180,62 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
               return const SizedBox.shrink();
             }
             if (snapshot.data! > 0) {
-              return Positioned(
-                bottom: 5,
-                right: 15,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.primaryColor,
-                  ),
-                  child: widget.mucUid != null
-                      ? IconButton(
-                          icon: const Icon(Icons.check),
-                          padding: const EdgeInsets.all(0),
-                          onPressed: () async {
-                            final users = <Uid>[];
-                            for (final contact in _createMucService.contacts) {
-                              if (contact.uid != null) {
-                                users.add(contact.uid!.asUid());
-                              }
+              return Positioned.directional(
+                textDirection: _i18n.defaultTextDirection,
+                bottom: p8,
+                end: p8,
+                child: widget.mucUid != null
+                    ? FloatingActionButton.extended(
+                        icon: const Icon(Icons.add),
+                        heroTag: "select_contacts",
+                        label: Text(_i18n["add"]),
+                        onPressed: () async {
+                          final users = <Uid>[];
+                          for (final contact in _createMucService.contacts) {
+                            if (contact.uid != null) {
+                              users.add(contact.uid!.asUid());
                             }
-                            final usersAddCode = await _mucRepo.sendMembers(
-                              widget.mucUid!,
-                              users,
+                          }
+                          final usersAddCode = await _mucRepo.sendMembers(
+                            widget.mucUid!,
+                            users,
+                          );
+                          if (usersAddCode == StatusCode.ok) {
+                            _routingService.openRoom(
+                              widget.mucUid!.asString(),
+                              popAllBeforePush: true,
                             );
-                            if (usersAddCode == StatusCode.ok) {
-                              _routingService.openRoom(
-                                widget.mucUid!.asString(),
-                                popAllBeforePush: true,
-                              );
-                              // _createMucService.reset();
-
-                            } else {
-                              var message = _i18n.get("error_occurred");
-                              if (usersAddCode == StatusCode.unavailable) {
-                                message = _i18n.get("notwork_is_unavailable");
-                              } else if (usersAddCode ==
-                                  StatusCode.permissionDenied) {
-                                message = _i18n.get("permission_denied");
-                              }
-                            if(context.mounted) {
+                            // _createMucService.reset();
+                          } else {
+                            var message = _i18n.get("error_occurred");
+                            if (usersAddCode == StatusCode.unavailable) {
+                              message = _i18n.get("notwork_is_unavailable");
+                            } else if (usersAddCode ==
+                                StatusCode.permissionDenied) {
+                              message = _i18n.get("permission_denied");
+                            }
+                            if (context.mounted) {
                               ToastDisplay.showToast(
                                 toastText: message,
                                 toastContext: context,
                               );
                             }
-                              // _routingService.pop();
-                            }
-                          },
-                        )
-                      : IconButton(
-                          icon: const Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                          ),
-                          padding: const EdgeInsets.all(0),
-                          onPressed: () {
-                            _routingService.openGroupInfoDeterminationPage(
-                              isChannel: widget.isChannel,
-                            );
-                          },
+                            // _routingService.pop();
+                          }
+                        },
+                      )
+                    : FloatingActionButton.extended(
+                        heroTag: "select_contacts",
+                        icon: const Icon(
+                          Icons.chevron_right_rounded,
                         ),
-                ),
+                        label: Text(_i18n["next"]),
+                        onPressed: () {
+                          _routingService.openGroupInfoDeterminationPage(
+                            isChannel: widget.isChannel,
+                          );
+                        },
+                      ),
               );
             } else {
               return const SizedBox.shrink();
@@ -266,7 +259,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
           }
         }
       },
-      child: SelectiveContact(
+      child: ContactWidget(
         contact: items![index],
         isSelected: _createMucService.isSelected(items![index]),
         currentMember: members.contains(items![index].uid),

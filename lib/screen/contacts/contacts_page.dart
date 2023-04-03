@@ -170,7 +170,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsetsDirectional.only(top: 8.0),
                       child: MouseRegion(
                         hitTestBehavior: HitTestBehavior.translucent,
                         child: GestureDetector(
@@ -196,11 +196,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                               CupertinoIcons.person_add,
                                             ),
                                             const SizedBox(width: 8),
-                                            Text(
-                                              _i18n.get("add_contact"),
-                                              style: theme
-                                                  .primaryTextTheme.bodyMedium,
-                                            ),
+                                            Text(_i18n.get("add_contact")),
                                           ],
                                         ),
                                       ),
@@ -215,8 +211,6 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                             const SizedBox(width: 8),
                                             Text(
                                               _i18n.get("import_contact"),
-                                              style: theme
-                                                  .primaryTextTheme.bodyMedium,
                                             )
                                           ],
                                         ),

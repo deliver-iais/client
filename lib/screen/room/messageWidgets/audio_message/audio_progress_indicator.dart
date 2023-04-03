@@ -55,19 +55,19 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       borderWidth: 0,
                       inactiveBorderColor: Color.alphaBlend(
                         widget.colorScheme?.primary.withAlpha(70) ??
-                            theme.primaryColor.withAlpha(70),
+                            theme.colorScheme.primary.withAlpha(70),
                         Colors.white10,
                       ),
                       activeBorderColor:
-                          widget.colorScheme?.primary ?? theme.primaryColor,
+                          widget.colorScheme?.primary ?? theme.colorScheme.primary,
                       maxDuration: widget.audioDuration,
                       inactiveColor: Color.alphaBlend(
                         widget.colorScheme?.primary.withAlpha(70) ??
-                            theme.primaryColor.withAlpha(70),
+                            theme.colorScheme.primary.withAlpha(70),
                         Colors.white10,
                       ),
                       activeColor:
-                          widget.colorScheme?.primary ?? theme.primaryColor,
+                          widget.colorScheme?.primary ?? theme.colorScheme.primary,
                       elapsedDuration: position.data,
                       samples: widget.file.audioWaveform.data
                           .map((i) => i.toDouble())

@@ -91,7 +91,7 @@ class CallBottomRowState extends State<CallBottomRow>
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
           child: IconButton(
             onPressed: () => _enableSpeaker(theme),
-            hoverColor: theme.primaryColor.withOpacity(0.6),
+            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
             tooltip: _i18n.get("speaker"),
             icon: getEnableIconWithSize(
               isEnable: isEnable,
@@ -115,7 +115,7 @@ class CallBottomRowState extends State<CallBottomRow>
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
           child: IconButton(
             onPressed: () => _offVideoCam(theme),
-            hoverColor: theme.primaryColor.withOpacity(0.6),
+            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
             tooltip: _i18n.get("camera"),
             icon: getEnableIconWithSize(
               isEnable: isEnable,
@@ -139,7 +139,7 @@ class CallBottomRowState extends State<CallBottomRow>
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
           child: IconButton(
             onPressed: () => _shareScreen(theme, context),
-            hoverColor: theme.primaryColor.withOpacity(0.6),
+            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
             tooltip: _i18n.get("share_screen"),
             icon: getEnableIconWithSize(
               isEnable: isEnable,
@@ -166,7 +166,7 @@ class CallBottomRowState extends State<CallBottomRow>
         behavior: HitTestBehavior.translucent,
         onPanDown: (e) => storePosition(e),
         child: IconButton(
-          hoverColor: theme.primaryColor.withOpacity(0.6),
+          hoverColor: theme.colorScheme.primary.withOpacity(0.6),
           tooltip: _i18n.get("call_audio"),
           icon: getEnableIconWithSize(
             isEnable: isEnable,
@@ -229,7 +229,7 @@ class CallBottomRowState extends State<CallBottomRow>
       backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
       child: IconButton(
         onPressed: () => _muteMic(theme),
-        hoverColor: theme.primaryColor.withOpacity(0.6),
+        hoverColor: theme.colorScheme.primary.withOpacity(0.6),
         tooltip: _i18n.get("mute_call"),
         icon: getEnableIconWithSize(
           isEnable: isEnable,
@@ -253,7 +253,7 @@ class CallBottomRowState extends State<CallBottomRow>
             isDesktopDevice ? _desktopDualVideo() : _switchCamera(theme),
         tooltip:
             isDesktopDevice ? _i18n.get("screen") : _i18n.get("camera_switch"),
-        hoverColor: theme.primaryColor.withOpacity(0.6),
+        hoverColor: theme.colorScheme.primary.withOpacity(0.6),
         icon: Icon(
           isDesktopDevice ? desktopDualVideoIcon : CupertinoIcons.switch_camera,
           size: _iconsSize,
@@ -284,7 +284,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Widget _buildVoiceCallWidget(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 70, right: 50, left: 50),
+      padding: const EdgeInsetsDirectional.only(bottom: 70, start: 50, end: 50),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
@@ -312,7 +312,7 @@ class CallBottomRowState extends State<CallBottomRow>
                   children: <Widget>[
                     buildSpeakerButton(theme),
                     Padding(
-                      padding: const EdgeInsets.only(top: 3),
+                      padding: const EdgeInsetsDirectional.only(top: 3),
                       child: Text(
                         _i18n.get("speaker"),
                         style: theme.textTheme.titleSmall,
@@ -325,7 +325,7 @@ class CallBottomRowState extends State<CallBottomRow>
                   children: [
                     buildEndCallButton(),
                     Padding(
-                      padding: const EdgeInsets.only(top: 3),
+                      padding: const EdgeInsetsDirectional.only(top: 3),
                       child: Text(
                         _i18n.get("end_call"),
                         style: theme.textTheme.titleSmall,
@@ -339,7 +339,7 @@ class CallBottomRowState extends State<CallBottomRow>
                     children: <Widget>[
                       buildMicButton(theme),
                       Padding(
-                        padding: const EdgeInsets.only(top: 3),
+                        padding: const EdgeInsetsDirectional.only(top: 3),
                         child: Text(
                           _i18n.get("mute_call"),
                           style: theme.textTheme.titleSmall,
@@ -353,7 +353,7 @@ class CallBottomRowState extends State<CallBottomRow>
                     children: <Widget>[
                       buildAudioInputSelectionButton(theme),
                       Padding(
-                        padding: const EdgeInsets.only(top: 3),
+                        padding: const EdgeInsetsDirectional.only(top: 3),
                         child: Text(
                           _i18n.get("call_audio"),
                           style: theme.textTheme.titleSmall,
@@ -371,15 +371,12 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Widget _buildVideoCallWidget(ThemeData theme, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 25, right: 20, left: 20),
+      padding: const EdgeInsetsDirectional.only(bottom: 25, start: 20, end: 20),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
           width: 500,
-          padding: const EdgeInsets.only(
-            bottom: 10,
-            top: 10,
-          ),
+          padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -398,7 +395,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Padding _buildIncomingCallWidget(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 25),
+      padding: const EdgeInsetsDirectional.only(bottom: 25),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Row(

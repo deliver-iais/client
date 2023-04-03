@@ -29,15 +29,15 @@ class ForwardPreview extends StatelessWidget {
       width: double.infinity,
       color: theme.colorScheme.surface.withAlpha(200),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 15,
-          right: 3,
+        padding: const EdgeInsetsDirectional.only(
+          start: 15,
+          end: 3,
         ),
         child: Row(
           children: [
             Icon(
               CupertinoIcons.arrow_turn_up_right,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
               size: 25,
             ),
             const SizedBox(width: 10),

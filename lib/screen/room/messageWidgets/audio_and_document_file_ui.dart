@@ -33,7 +33,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
     return Padding(
-      padding: const EdgeInsets.only(left: 6.0, top: 4, bottom: 4),
+      padding: const EdgeInsetsDirectional.only(start: 6.0, top: 4, bottom: 4),
       child: Stack(
         children: [
           Padding(
@@ -52,8 +52,8 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                     vertical: 2.0,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 4,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 4,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
