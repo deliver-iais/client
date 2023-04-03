@@ -101,46 +101,42 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
                 );
               },
             )
-          : Directionality(
-              textDirection:
-                  _i18n.defaultTextDirection,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (widget.callStatus != CallStatus.ENDED)
-                    Text(
-                      callStatusOnScreen(widget.callStatus),
-                      style: theme.textTheme.titleLarge!
-                          .copyWith(color: Colors.white70, fontSize: fontSize),
-                    )
-                  else
-                    FadeTransition(
-                      opacity: _repeatEndCallAnimationController,
-                      child: (_callRepo.isConnected)
-                          ? Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: callTimerWidget(
-                                theme,
-                                _callRepo.callTimer.value,
-                                isEnd: true,
-                              ),
-                            )
-                          : Text(
-                              callStatusOnScreen(widget.callStatus),
-                              style: theme.textTheme.titleLarge!.copyWith(
-                                color: Colors.white,
-                                fontSize: fontSize,
-                              ),
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.callStatus != CallStatus.ENDED)
+                  Text(
+                    callStatusOnScreen(widget.callStatus),
+                    style: theme.textTheme.titleLarge!
+                        .copyWith(color: Colors.white70, fontSize: fontSize),
+                  )
+                else
+                  FadeTransition(
+                    opacity: _repeatEndCallAnimationController,
+                    child: (_callRepo.isConnected)
+                        ? Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: callTimerWidget(
+                              theme,
+                              _callRepo.callTimer.value,
+                              isEnd: true,
                             ),
-                    ),
-                  if (widget.callStatus == CallStatus.CONNECTING ||
-                      widget.callStatus == CallStatus.RECONNECTING ||
-                      widget.callStatus == CallStatus.IS_RINGING ||
-                      widget.callStatus == CallStatus.CREATED)
-                    const LoadingDotAnimation()
-                ],
-              ),
+                          )
+                        : Text(
+                            callStatusOnScreen(widget.callStatus),
+                            style: theme.textTheme.titleLarge!.copyWith(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                            ),
+                          ),
+                  ),
+                if (widget.callStatus == CallStatus.CONNECTING ||
+                    widget.callStatus == CallStatus.RECONNECTING ||
+                    widget.callStatus == CallStatus.IS_RINGING ||
+                    widget.callStatus == CallStatus.CREATED)
+                  const LoadingDotAnimation()
+              ],
             ),
     );
   }

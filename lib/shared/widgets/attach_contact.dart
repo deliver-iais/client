@@ -84,7 +84,7 @@ class _AttachContactState extends State<AttachContact> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 12.0, bottom: 4),
+          padding: const EdgeInsetsDirectional.only(top: 12.0, bottom: 4),
           child: SearchBox(
             onChange: (str) => filterSearchResults(str),
             onCancel: () => filterSearchResults(""),

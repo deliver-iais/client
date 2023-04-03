@@ -248,7 +248,8 @@ class UrlHandlerService {
                 ),
                 Text(
                   buildName(firstName, lastName),
-                  style: TextStyle(color: theme.primaryColor, fontSize: 20),
+                  style:
+                      TextStyle(color: theme.colorScheme.primary, fontSize: 20),
                 ),
                 Text(
                   buildPhoneNumber(countryCode, nationalNumber),
@@ -325,7 +326,8 @@ class UrlHandlerService {
               ),
               Text(
                 text,
-                style: TextStyle(color: theme.primaryColor, fontSize: 25),
+                style:
+                    TextStyle(color: theme.colorScheme.primary, fontSize: 25),
               ),
               const SizedBox(
                 height: 40,
@@ -473,7 +475,7 @@ class UrlHandlerService {
                 ),
                 if (name != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsetsDirectional.only(top: 8.0),
                     child: Text(
                       name,
                       style: Theme.of(context).textTheme.titleLarge,
@@ -539,83 +541,80 @@ class UrlHandlerService {
         showDialog(
           context: settings.appContext,
           builder: (c) {
-            return Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: AlertDialog(
-                title: Text(_i18n.get("open_link_title")),
-                content: Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 330,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withOpacity(0.5),
-                            ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
+            return AlertDialog(
+              title: Text(_i18n.get("open_link_title")),
+              content: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 330,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withOpacity(0.5),
                           ),
-                          child: IntrinsicHeight(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      uri,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(4)),
+                        ),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    uri,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 8,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              VerticalDivider(
+                                color:
+                                    theme.colorScheme.primary.withOpacity(0.5),
+                              ),
+                              InkWell(
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(Icons.copy),
                                 ),
-                                VerticalDivider(
-                                  color: theme.colorScheme.primary
-                                      .withOpacity(0.5),
-                                ),
-                                InkWell(
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Icon(Icons.copy),
-                                  ),
-                                  onTap: () {
-                                    saveToClipboard(uri);
-                                    Navigator.pop(c);
-                                  },
-                                )
-                              ],
-                            ),
+                                onTap: () {
+                                  saveToClipboard(uri);
+                                  Navigator.pop(c);
+                                },
+                              )
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(c),
-                    child: Text(_i18n.get("cancel")),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.pop(c);
-                      await launchUrl(
-                        Uri.parse(uri),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    },
-                    child: Text(_i18n.get("open")),
-                  ),
-                ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(c),
+                  child: Text(_i18n.get("cancel")),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(c);
+                    await launchUrl(
+                      Uri.parse(uri),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  },
+                  child: Text(_i18n.get("open")),
+                ),
+              ],
             );
           },
         );

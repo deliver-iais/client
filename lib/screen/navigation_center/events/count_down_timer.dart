@@ -116,7 +116,7 @@ class _CountDownTimerState extends State<CountDownTimer>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 6.0),
+      padding: const EdgeInsetsDirectional.only(top: 6.0),
       child: StreamBuilder<CountTimer>(
         initialData: CountTimer(0, 0, 0),
         stream: _eventService.getEventTimerStream(),

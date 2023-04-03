@@ -87,7 +87,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
           if (widget.isUploading) buildUpload() else buildDownload(),
           if (widget.showDetails)
             Padding(
-              padding: const EdgeInsets.only(right: 8, left: 2),
+              padding: const EdgeInsetsDirectional.only(end: 8, start: 2),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

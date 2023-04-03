@@ -8,7 +8,7 @@ import 'package:material_color_utilities/material_color_utilities.dart';
 
 class ExtraThemeData {
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  final Material3ColorScheme colorScheme;
+  final ColorScheme colorScheme;
   final CustomColorScheme primaryColorsScheme;
   final CustomColorScheme secondaryColorsScheme;
   final CustomColorScheme tertiaryColorsScheme;

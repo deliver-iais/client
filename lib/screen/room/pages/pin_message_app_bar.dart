@@ -13,6 +13,8 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+const PIN_APPBAR_HEIGHT = APPBAR_HEIGHT + p4;
+
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final List<Message> pinMessages;
@@ -64,46 +66,40 @@ class PinMessageAppBar extends StatelessWidget {
                 elevation: 1,
                 color: theme.colorScheme.surface,
                 child: Container(
-                  height: 70,
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 8,
-                    top: 12,
-                    bottom: 4,
+                  height: PIN_APPBAR_HEIGHT,
+                  padding: const EdgeInsetsDirectional.only(
+                    end: p8,
                   ),
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 5,
-                        child: Center(
-                          child: ScrollablePositionedList.builder(
-                            itemScrollController: itemScrollController,
-                            initialScrollIndex: index ?? 0,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: messageBorder,
-                                  color: color(context, index),
-                                ),
-                                height: (40 /
-                                    min(
-                                      pinMessages.length.toDouble(),
-                                      4,
-                                    )),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 2.0),
-                              );
-                            },
-                            itemCount: pinMessages.length,
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                          ),
+                        width: p4,
+                        child: ScrollablePositionedList.builder(
+                          itemScrollController: itemScrollController,
+                          initialScrollIndex: index ?? 0,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: tertiaryBorder,
+                                color: color(context, index),
+                              ),
+                              height: (PIN_APPBAR_HEIGHT /
+                                  min(
+                                    pinMessages.length.toDouble(),
+                                    2.5,
+                                  )),
+                              margin: EdgeInsets.only(top: index > 0 ? 2.0 : 0),
+                            );
+                          },
+                          itemCount: pinMessages.length,
+                          padding: EdgeInsets.zero,
+                          // shrinkWrap: true,
                         ),
                       ),
                       const SizedBox(width: 8.0),
                       Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (mes != null) ...[
@@ -111,15 +107,14 @@ class PinMessageAppBar extends StatelessWidget {
                                 children: [
                                   Text(
                                     _i18n.get("pinned_message"),
-                                    textDirection: TextDirection.ltr,
                                     style: theme.primaryTextTheme.titleSmall
                                         ?.copyWith(
                                       color: theme.colorScheme.primary,
                                     ),
                                   ),
+                                  const SizedBox(width: p2),
                                   Text(
-                                    " #${index != null ? index + 1 : ""}",
-                                    textDirection: TextDirection.ltr,
+                                    "#${index != null ? index + 1 : ""}",
                                     style: theme.primaryTextTheme.titleSmall
                                         ?.copyWith(
                                       color: theme.colorScheme.primary,
@@ -190,7 +185,7 @@ class PinMessageAppBar extends StatelessWidget {
         ),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(
-            theme.primaryColor.withAlpha(50),
+            theme.colorScheme.primary.withAlpha(50),
           ),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             const RoundedRectangleBorder(
@@ -203,14 +198,14 @@ class PinMessageAppBar extends StatelessWidget {
         ),
       );
     } else {
-      return IconButton(
-        iconSize: 20,
-        onPressed: () {
-          onClose();
-        },
-        icon: Icon(
-          CupertinoIcons.xmark,
-          color: theme.colorScheme.primary,
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(top: p4),
+        child: IconButton(
+          onPressed: onClose,
+          icon: Icon(
+            CupertinoIcons.xmark,
+            color: theme.colorScheme.primary,
+          ),
         ),
       );
     }

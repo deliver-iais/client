@@ -202,39 +202,7 @@ Color _harmonizeColor(Color from, Color to) {
 Color elevation(Color surface, Color primary, int number) =>
     Color.lerp(surface, primary, number * 3 / 100)!;
 
-ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
-  return ColorScheme(
-    primary: colorScheme.primary,
-    onPrimary: colorScheme.onPrimary,
-    primaryContainer: colorScheme.primaryContainer,
-    onPrimaryContainer: colorScheme.onPrimaryContainer,
-    secondary: colorScheme.secondary,
-    onSecondary: colorScheme.onSecondary,
-    secondaryContainer: colorScheme.secondaryContainer,
-    onSecondaryContainer: colorScheme.onSecondaryContainer,
-    tertiary: colorScheme.tertiary,
-    onTertiary: colorScheme.onTertiary,
-    tertiaryContainer: colorScheme.tertiaryContainer,
-    onTertiaryContainer: colorScheme.onTertiaryContainer,
-    surface: colorScheme.surface,
-    onSurface: colorScheme.onSurface,
-    surfaceVariant: colorScheme.surfaceVariant,
-    onSurfaceVariant: colorScheme.onSurfaceVariant,
-    inversePrimary: colorScheme.inversePrimary,
-    inverseSurface: colorScheme.inverseSurface,
-    onInverseSurface: colorScheme.onInverseSurface,
-    background: colorScheme.background,
-    onBackground: colorScheme.onBackground,
-    error: colorScheme.error,
-    onError: colorScheme.onError,
-    errorContainer: colorScheme.errorContainer,
-    onErrorContainer: colorScheme.onErrorContainer,
-    outline: colorScheme.outline,
-    brightness: colorScheme.brightness,
-  );
-}
-
-ThemeData getThemeData(Material3ColorScheme colorScheme) {
+ThemeData getThemeData(ColorScheme colorScheme) {
   final primaryTextTheme = GoogleFonts.vazirmatnTextTheme(
     Typography.blackCupertino.apply(
       displayColor: colorScheme.primary,
@@ -253,9 +221,9 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
   final theme = ThemeData(
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
-    brightness: colorScheme.brightness,
     fontFamily: GoogleFonts.vazirmatn().fontFamily,
-    colorScheme: getColorScheme(colorScheme),
+    colorScheme: colorScheme,
+    brightness: colorScheme.brightness,
     primaryColor: colorScheme.primary,
     primaryTextTheme: setupTextTheme(primaryTextTheme, scale),
     textTheme: setupTextTheme(textTheme, scale),
@@ -263,27 +231,19 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 
   return theme.copyWith(
     useMaterial3: true,
-    scaffoldBackgroundColor: colorScheme.background,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: colorScheme.inverseSurface,
       actionTextColor: colorScheme.inversePrimary,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
-    popupMenuTheme: PopupMenuThemeData(
-      textStyle: TextStyle(color: colorScheme.primary, fontSize: 15),
-      shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
-    ),
-    dividerTheme: DividerThemeData(
-      space: 1.0,
-      thickness: 1.0,
-      color: theme.dividerColor.withOpacity(0.4),
+    popupMenuTheme: const PopupMenuThemeData(
+      shape: RoundedRectangleBorder(borderRadius: tertiaryBorder),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
     appBarTheme: AppBarTheme(
       color: colorScheme.background.withOpacity(0.7),
-      scrolledUnderElevation: 2,
     ),
     chipTheme: theme.chipTheme.copyWith(
       backgroundColor: colorScheme.surface,
@@ -322,5 +282,5 @@ TextTheme setupTextTheme(TextTheme textTheme, double scale) {
   );
 }
 
-ExtraThemeData getExtraThemeData(Material3ColorScheme colorScheme) =>
+ExtraThemeData getExtraThemeData(ColorScheme colorScheme) =>
     ExtraThemeData(colorScheme: colorScheme);

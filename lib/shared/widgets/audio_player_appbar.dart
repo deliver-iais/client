@@ -130,7 +130,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   ),
                 ),
                 IconButton(
-                  padding: const EdgeInsets.only(right: 5),
+                  padding: const EdgeInsetsDirectional.only(end: 5),
                   constraints: const BoxConstraints(),
                   onPressed: () {
                     audioPlayerService.stopAudio();

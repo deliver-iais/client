@@ -329,7 +329,7 @@ class ScreenSelectDialog extends Dialog {
                       },
                     ),
                     MaterialButton(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       child: const Text(
                         'Share',
                       ),

@@ -61,7 +61,7 @@ class RoomName extends StatelessWidget {
                  " $status",
                 style: style,
               ),
-              LoadingDotAnimation(dotsColor: Theme.of(context).primaryColor)
+              LoadingDotAnimation(dotsColor: Theme.of(context).colorScheme.primary)
             ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),

@@ -324,6 +324,7 @@
   "need_to_set_email": "Your email not set,to active two-step-verification go to account setting and set email",
   "network": "Network",
   "network_unavailable": "Network is unavailable, please check and try again",
+  "new_": "new",
   "new_channel": "New Channel",
   "new_contact": "New Contact",
   "new_group": "New Group",

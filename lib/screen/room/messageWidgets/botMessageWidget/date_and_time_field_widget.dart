@@ -95,7 +95,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
         suffixIcon: widget.formField.isOptional
             ? const SizedBox.shrink()
             : const Padding(
-                padding: EdgeInsets.only(top: 20, left: 25),
+                padding: EdgeInsetsDirectional.only(top: 20, end: 25),
                 child: Text(
                   "*",
                   style: TextStyle(color: Colors.red),
@@ -181,7 +181,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
         suffixIcon: widget.formField.isOptional
             ? const SizedBox.shrink()
             : const Padding(
-                padding: EdgeInsets.only(top: 20, left: 25),
+                padding: EdgeInsetsDirectional.only(top: 20, end: 25),
                 child: Text(
                   "*",
                   style: TextStyle(color: Colors.red),

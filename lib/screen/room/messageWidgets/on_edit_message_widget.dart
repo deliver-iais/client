@@ -19,9 +19,9 @@ class OnEditMessageWidget extends StatelessWidget {
       width: double.infinity,
       color: theme.colorScheme.surface.withAlpha(200),
       child: Padding(
-        padding: const EdgeInsets.only(
-          left: 15,
-          right: 3,
+        padding: const EdgeInsetsDirectional.only(
+          start: 15,
+          end: 3,
         ),
         child: Row(
           children: [

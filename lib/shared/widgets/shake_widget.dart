@@ -48,9 +48,9 @@ class ShakeWidgetState extends State<ShakeWidget>
       builder: (context, child) {
         return Container(
           transform: Matrix4.translationValues(offsetAnimation.value, 0, 0),
-          // padding: EdgeInsets.only(
-          //   left: offsetAnimation.value + widget.horizontalPadding,
-          //   right: widget.horizontalPadding - offsetAnimation.value,
+          // padding: EdgeInsetsDirectional.only(
+          //   start: offsetAnimation.value + widget.horizontalPadding,
+          //   end: widget.horizontalPadding - offsetAnimation.value,
           // ),
           child: widget.child,
         );

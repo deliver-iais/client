@@ -96,7 +96,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
                         width: 5,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: theme.primaryColor.withOpacity(0.7),
+                          color: theme.colorScheme.primary.withOpacity(0.7),
                         ),
                       ),
                     ),
@@ -136,7 +136,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(5.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.primaryColor.withOpacity(0.2),
+                      color: theme.colorScheme.primary.withOpacity(0.2),
                       borderRadius: tertiaryBorder,
                     ),
                     child: listItems(index),

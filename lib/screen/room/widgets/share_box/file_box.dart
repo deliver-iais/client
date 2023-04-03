@@ -80,7 +80,7 @@ class FilesBoxState extends State<FilesBox> {
                   children: [
                     Container(
                       margin:
-                          const EdgeInsets.only(top: 16.0, right: 8, left: 8),
+                          const EdgeInsetsDirectional.only(top: 16.0, start: 8, end: 8),
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () async {
@@ -126,7 +126,7 @@ class FilesBoxState extends State<FilesBox> {
                         child: Text(
                           _i18n.get("recent_files"),
                           style: TextStyle(
-                            color: theme.primaryColor,
+                            color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
@@ -142,7 +142,7 @@ class FilesBoxState extends State<FilesBox> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     color:
-                        selected ? theme.primaryColor.withOpacity(0.3) : null,
+                        selected ? theme.colorScheme.primary.withOpacity(0.3) : null,
                     child: Column(
                       children: [
                         FileBoxItem(
@@ -162,7 +162,7 @@ class FilesBoxState extends State<FilesBox> {
         }
         return Center(
           child: CircularProgressIndicator(
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
           ),
         );
       },

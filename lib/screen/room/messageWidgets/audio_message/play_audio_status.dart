@@ -34,7 +34,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2),
+      padding: const EdgeInsetsDirectional.only(start: 2),
       child: Container(
         width: 50,
         height: 50,

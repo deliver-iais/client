@@ -54,9 +54,9 @@ class SyncContact extends StatelessWidget {
                     ),
                     borderRadius: mainBorder,
                   ),
-                  padding: const EdgeInsets.only(
-                    left: 8,
-                    right: 8,
+                  padding: const EdgeInsetsDirectional.only(
+                    start: 8,
+                    end: 8,
                     top: 8,
                     bottom: 6,
                   ),
@@ -66,8 +66,10 @@ class SyncContact extends StatelessWidget {
                       Row(
                         children: [
                           Padding(
-                            padding:
-                            const EdgeInsets.only(bottom: 2.0, left: 10),
+                            padding: const EdgeInsetsDirectional.only(
+                              bottom: 2.0,
+                              start: 10,
+                            ),
                             child: SizedBox(
                               width: 14,
                               height: 14,
@@ -86,7 +88,7 @@ class SyncContact extends StatelessWidget {
                         ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(right: 20),
+                        padding: const EdgeInsetsDirectional.only(end: 20),
                         child: Text(
                           "${((percent) * 100).toInt()} %",
                           overflow: TextOverflow.ellipsis,

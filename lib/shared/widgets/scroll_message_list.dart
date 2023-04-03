@@ -85,7 +85,7 @@ class ScrollMessageListState extends State<ScrollMessageList> {
                       right: 2.0,
                       top: 55,
                       child: Padding(
-                        padding: EdgeInsets.only(
+                        padding: EdgeInsetsDirectional.only(
                           top: max(
                             MediaQuery.of(context).size.height -
                                 snapshot.data! -
@@ -117,7 +117,7 @@ class ScrollMessageListState extends State<ScrollMessageList> {
       height: 60,
       width: 8,
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(10),
       ),
     );

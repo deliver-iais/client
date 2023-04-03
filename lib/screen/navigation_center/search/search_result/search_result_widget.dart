@@ -109,7 +109,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(8),
-      margin: const EdgeInsets.only(bottom: 4),
+      margin: const EdgeInsetsDirectional.only(bottom: 4),
       width: double.infinity,
       color: theme.dividerColor.withAlpha(10),
       child: Text(

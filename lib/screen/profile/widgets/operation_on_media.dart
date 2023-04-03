@@ -31,91 +31,88 @@ class OperationOnImageState extends State<OperationOnMedia> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Column(
-        children: [
-          if (isDesktopNative) ...[
-            _buildPopupMenuItem(
-              _i18n.get("show_in_folder"),
-              CupertinoIcons.folder_open,
-              () async {
-                final message = await (widget.getMessage());
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SHOW_IN_FOLDER,
-                  );
-                }
-              },
-            ),
-            _buildPopupMenuItem(
-              _i18n.get("save_to_downloads"),
-              CupertinoIcons.down_arrow,
-              () async {
-                final message = await (widget.getMessage());
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SAVE_TO_DOWNLOADS,
-                  );
-                }
-              },
-            ),
-            _buildPopupMenuItem(
-              _i18n.get("save_as"),
-              Icons.save_alt_rounded,
-              () async {
-                final message = await (widget.getMessage());
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SAVE_AS,
-                  );
-                }
-              },
-            ),
-          ],
-          if (isAndroidNative)
-            _buildPopupMenuItem(
-              _i18n.get("share"),
-              Icons.share_rounded,
-              () async {
-                final message = await (widget.getMessage());
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SHARE,
-                  );
-                }
-              },
-            ),
-          if (isMobileNative)
-            _buildPopupMenuItem(
-              _i18n.get("save_to_gallery"),
-              CupertinoIcons.down_arrow,
-              () async {
-                final message = await (widget.getMessage());
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SAVE_TO_GALLERY,
-                  );
-                }
-              },
-            ),
+    return Column(
+      children: [
+        if (isDesktopNative) ...[
+          _buildPopupMenuItem(
+            _i18n.get("show_in_folder"),
+            CupertinoIcons.folder_open,
+            () async {
+              final message = await (widget.getMessage());
+              if (context.mounted) {
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  OperationOnMessage.SHOW_IN_FOLDER,
+                );
+              }
+            },
+          ),
+          _buildPopupMenuItem(
+            _i18n.get("save_to_downloads"),
+            CupertinoIcons.down_arrow,
+            () async {
+              final message = await (widget.getMessage());
+              if (context.mounted) {
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  OperationOnMessage.SAVE_TO_DOWNLOADS,
+                );
+              }
+            },
+          ),
+          _buildPopupMenuItem(
+            _i18n.get("save_as"),
+            Icons.save_alt_rounded,
+            () async {
+              final message = await (widget.getMessage());
+              if (context.mounted) {
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  OperationOnMessage.SAVE_AS,
+                );
+              }
+            },
+          ),
         ],
-      ),
+        if (isAndroidNative)
+          _buildPopupMenuItem(
+            _i18n.get("share"),
+            Icons.share_rounded,
+            () async {
+              final message = await (widget.getMessage());
+              if (context.mounted) {
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  OperationOnMessage.SHARE,
+                );
+              }
+            },
+          ),
+        if (isMobileNative)
+          _buildPopupMenuItem(
+            _i18n.get("save_to_gallery"),
+            CupertinoIcons.down_arrow,
+            () async {
+              final message = await (widget.getMessage());
+              if (context.mounted) {
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  OperationOnMessage.SAVE_TO_GALLERY,
+                );
+              }
+            },
+          ),
+      ],
     );
   }
 

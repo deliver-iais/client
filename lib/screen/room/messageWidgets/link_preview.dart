@@ -107,7 +107,7 @@ class LinkPreview extends StatelessWidget {
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.only(top: 6),
+      margin: const EdgeInsetsDirectional.only(top: 6),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       constraints: BoxConstraints(
         maxWidth: getWidth(),

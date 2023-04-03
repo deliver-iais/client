@@ -27,6 +27,14 @@ const VERSION = "2.0.3";
 //messageRepo
 const RANDOM_SIZE = 100000;
 
+// Padding and Margin Constants
+const p24 = 24.0; // 3nd Most usable padding
+const p16 = 16.0; // 2nd Most usable padding
+const p12 = 12.0; // 5nd Most usable padding
+const p8 = 8.0; // 1nd Most usable padding
+const p4 = 4.0; // 2nd Most usable padding
+const p2 = 2.0; // 4nd Most usable padding
+
 // Time Constants
 const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
@@ -250,7 +258,7 @@ const CALL_FEATURE = 'CALL_FEATURE';
 final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
 
 // UI
-const double APPBAR_HEIGHT = 56.0;
+const double APPBAR_HEIGHT = 52.0;
 const double BAR_HEIGHT = 50.0;
 const double FLUID_MAX_WIDTH = 500.0;
 const double FLUID_MAX_HEIGHT = 640.0;

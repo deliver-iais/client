@@ -95,7 +95,7 @@ class TitleStatusState extends State<TitleStatus> {
                 overflow: TextOverflow.fade,
                 softWrap: false,
                 style: widget.style
-                    .copyWith(color: widget.color ?? theme.primaryColor),
+                    .copyWith(color: widget.color ?? theme.colorScheme.primary),
               );
             } else {
               final lastActivityTime =
@@ -107,7 +107,7 @@ class TitleStatusState extends State<TitleStatus> {
                 overflow: TextOverflow.fade,
                 softWrap: false,
                 style: widget.style
-                    .copyWith(color: widget.color ?? theme.primaryColor),
+                    .copyWith(color: widget.color ?? theme.colorScheme.primary),
               );
             }
           }

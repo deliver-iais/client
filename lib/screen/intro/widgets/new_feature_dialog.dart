@@ -15,83 +15,79 @@ class NewFeatureDialog extends StatelessWidget {
     final pageSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
 
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: AlertDialog(
-        content: SizedBox(
-          width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _i18n.get("about_update"),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  Text(
-                    "V$VERSION",
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    separatorBuilder: (context, index) {
-                      return const Padding(
-                        padding: EdgeInsets.only(bottom: 10.0, top: 4.0),
-                        child: Divider(),
-                      );
-                    },
-                    itemCount: _i18n.changelogs.length,
-                    itemBuilder: (context, index) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: index > 8 ? 2.0 : 12.0,
-                              // top: 1,
-                            ),
-                            child: Text(
-                              "${index + 1}. ",
-                              style:
-                                  TextStyle(color: theme.colorScheme.primary),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              _i18n.changelogs[index],
-                              textDirection: _i18n.defaultTextDirection,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+    return AlertDialog(
+      content: SizedBox(
+        width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _i18n.get("about_update"),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
-              )
-            ],
-          ),
+                Text(
+                  "V$VERSION",
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(top: 8),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                      padding:
+                          EdgeInsetsDirectional.only(bottom: 10.0, top: 4.0),
+                      child: Divider(),
+                    );
+                  },
+                  itemCount: _i18n.changelogs.length,
+                  itemBuilder: (context, index) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(
+                            end: index > 8 ? 2.0 : 12.0,
+                          ),
+                          child: Text(
+                            "${index + 1}. ",
+                            style: TextStyle(color: theme.colorScheme.primary),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            _i18n.changelogs[index],
+                            textDirection: _i18n.defaultTextDirection,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
         ),
-        actions: [
-          TextButton(
-            child: Text(_i18n.get("got_it")),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
       ),
+      actions: [
+        TextButton(
+          child: Text(_i18n.get("got_it")),
+          onPressed: () => Navigator.pop(context),
+        )
+      ],
     );
   }
 }

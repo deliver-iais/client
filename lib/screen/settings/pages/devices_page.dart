@@ -79,10 +79,10 @@ class DevicesPageState extends State<DevicesPage> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(
+                    padding: const EdgeInsetsDirectional.only(
                       top: 16.0,
-                      left: 24.0,
-                      right: 24.0,
+                      end: 24.0,
+                      start: 24.0,
                       bottom: 8.0,
                     ),
                     width: double.infinity,
@@ -204,7 +204,7 @@ class DevicesPageState extends State<DevicesPage> {
       builder: (context) {
         return AlertDialog(
           titlePadding: EdgeInsets.zero,
-          actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+          actionsPadding: const EdgeInsetsDirectional.only(bottom: 10, end: 5),
           backgroundColor: Colors.white,
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,

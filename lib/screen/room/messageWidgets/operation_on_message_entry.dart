@@ -8,6 +8,7 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -36,7 +37,7 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
 
   @override
-  double get height => 100;
+  double get height => 108;
 
   @override
   bool represents(OperationOnMessage? value) =>
@@ -63,8 +64,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return FutureBuilder<PendingMessage?>(
       future: _messageRepo.getPendingEditedMessage(
         widget.message.roomUid,
@@ -73,349 +72,276 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
       builder: (context, pendingEditedMessage) {
         final isPendingMessage =
             widget.message.id == null || pendingEditedMessage.data != null;
-        return Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: Column(
-            children: [
-              if (widget.hasPermissionInChannel && widget.message.id != null)
-                PopupMenuItem(
-                  value: OperationOnMessage.REPLY,
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.reply),
-                      const SizedBox(width: 8),
-                      Text(
-                        _i18n.get("reply"),
-                        style: theme.primaryTextTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+        return Column(
+          children: [
+            if (widget.hasPermissionInChannel && widget.message.id != null)
+              PopupMenuItem(
+                value: OperationOnMessage.REPLY,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.reply),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("reply")),
+                  ],
                 ),
-              if ((widget.message.roomUid.asUid().category ==
-                          Categories.GROUP &&
-                      widget.hasPermissionInGroup) ||
-                  (widget.message.roomUid.asUid().category ==
-                          Categories.CHANNEL &&
-                      widget.hasPermissionInChannel))
-                if (widget.message.type != MessageType.PERSISTENT_EVENT)
-                  if (!widget.isPinned)
-                    PopupMenuItem(
-                      value: OperationOnMessage.PIN_MESSAGE,
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.pin),
-                          const SizedBox(width: 8),
-                          Text(
-                            _i18n.get("pin"),
-                            style: theme.primaryTextTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    PopupMenuItem(
-                      value: OperationOnMessage.UN_PIN_MESSAGE,
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.delete),
-                          const SizedBox(width: 8),
-                          Text(
-                            _i18n.get("unpin"),
-                            style: theme.primaryTextTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
+              ),
+            if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
+                    widget.hasPermissionInGroup) ||
+                (widget.message.roomUid.asUid().category ==
+                        Categories.CHANNEL &&
+                    widget.hasPermissionInChannel))
+              if (widget.message.type != MessageType.PERSISTENT_EVENT)
+                if (!widget.isPinned)
+                  PopupMenuItem(
+                    value: OperationOnMessage.PIN_MESSAGE,
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.pin),
+                        const SizedBox(width: p12),
+                        Text(_i18n.get("pin")),
+                      ],
                     ),
-              if (widget.message.type == MessageType.TEXT ||
-                  (widget.message.type == MessageType.SHARE_UID &&
-                      widget.message.json.toShareUid().uid.isMuc()) ||
-                  (widget.message.type == MessageType.FILE &&
-                      widget.message.json.toFile().caption.isNotEmpty))
-                PopupMenuItem(
-                  value: OperationOnMessage.COPY,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.doc_on_clipboard,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _i18n.get("copy"),
-                        style: theme.primaryTextTheme.bodyMedium,
-                      ),
-                    ],
+                  )
+                else
+                  PopupMenuItem(
+                    value: OperationOnMessage.UN_PIN_MESSAGE,
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.delete),
+                        const SizedBox(width: p12),
+                        Text(_i18n.get("unpin")),
+                      ],
+                    ),
                   ),
+            if (widget.message.type == MessageType.TEXT ||
+                (widget.message.type == MessageType.SHARE_UID &&
+                    widget.message.json.toShareUid().uid.isMuc()) ||
+                (widget.message.type == MessageType.FILE &&
+                    widget.message.json.toFile().caption.isNotEmpty))
+              PopupMenuItem(
+                value: OperationOnMessage.COPY,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.doc_on_clipboard),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("copy")),
+                  ],
                 ),
-              if (!isPendingMessage &&
-                  (widget.message.type == MessageType.TEXT ||
-                      widget.message.type == MessageType.FILE))
-                PopupMenuItem(
-                  value: OperationOnMessage.SELECT,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.checkmark_alt_circle,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _i18n.get("select"),
-                        style: theme.primaryTextTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+              ),
+            if (!isPendingMessage &&
+                (widget.message.type == MessageType.TEXT ||
+                    widget.message.type == MessageType.FILE))
+              PopupMenuItem(
+                value: OperationOnMessage.SELECT,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.checkmark_alt_circle),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("select")),
+                  ],
                 ),
-              if (widget.message.type == MessageType.FILE)
-                FutureBuilder(
-                  future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name,
-                  ),
-                  builder: (c, fe) {
-                    if (fe.hasData && fe.data != null) {
-                      _fileIsExist.add(true);
-                      final f = widget.message.json.toFile();
-                      return PopupMenuItem(
-                        value: isWeb
-                            ? OperationOnMessage.SAVE
-                            : isDesktopNative
-                                ? OperationOnMessage.SAVE_TO_DOWNLOADS
-                                : (f.isImageFileProto() ||
-                                        f.isVideoFileProto())
-                                    ? OperationOnMessage.SAVE_TO_GALLERY
-                                    : f.isAudioFileProto()
-                                        ? OperationOnMessage.SAVE_TO_MUSIC
-                                        : OperationOnMessage
-                                            .SAVE_TO_DOWNLOADS,
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.down_arrow),
-                            const SizedBox(width: 8),
-                            if (isWeb)
-                              Text(
-                                _i18n.get("save"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            else if (isDesktopNative)
-                              Text(
-                                _i18n.get("save_to_downloads"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            else if (f.isImageFileProto() ||
-                                f.isVideoFileProto())
-                              Text(
-                                _i18n.get("save_to_gallery"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            else if (f.isAudioFileProto())
-                              Text(
-                                _i18n.get("save_in_music"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            else
-                              Text(
-                                _i18n.get("save_to_downloads"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
+              ),
+            if (widget.message.type == MessageType.FILE)
+              FutureBuilder(
+                future: _fileRepo.getFileIfExist(
+                  widget.message.json.toFile().uuid,
+                  widget.message.json.toFile().name,
                 ),
-              if (widget.message.type == MessageType.FILE && isAndroidNative)
-                StreamBuilder<bool>(
-                  stream: _fileIsExist,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      _fileIsExist.add(true);
-                      return PopupMenuItem(
-                        value: OperationOnMessage.SHARE,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.share),
-                            const SizedBox(width: 8),
+                builder: (c, fe) {
+                  if (fe.hasData && fe.data != null) {
+                    _fileIsExist.add(true);
+                    final f = widget.message.json.toFile();
+                    return PopupMenuItem(
+                      value: isWeb
+                          ? OperationOnMessage.SAVE
+                          : isDesktopNative
+                              ? OperationOnMessage.SAVE_TO_DOWNLOADS
+                              : (f.isImageFileProto() || f.isVideoFileProto())
+                                  ? OperationOnMessage.SAVE_TO_GALLERY
+                                  : f.isAudioFileProto()
+                                      ? OperationOnMessage.SAVE_TO_MUSIC
+                                      : OperationOnMessage.SAVE_TO_DOWNLOADS,
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.down_arrow),
+                          const SizedBox(width: p12),
+                          if (isWeb)
+                            Text(_i18n.get("save"))
+                          else if (isDesktopNative)
+                            Text(_i18n.get("save_to_downloads"))
+                          else if (f.isImageFileProto() || f.isVideoFileProto())
                             Text(
-                              _i18n.get("share"),
-                              style: theme.primaryTextTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              if (widget.message.type == MessageType.TEXT && isAndroidNative)
-                PopupMenuItem(
-                  value: OperationOnMessage.SHARE,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.share),
-                      const SizedBox(width: 8),
-                      Text(
-                        _i18n.get("share"),
-                        style: theme.primaryTextTheme.bodyMedium,
+                              _i18n.get("save_to_gallery"),
+                            )
+                          else if (f.isAudioFileProto())
+                            Text(_i18n.get("save_in_music"))
+                          else
+                            Text(_i18n.get("save_to_downloads")),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              if (widget.message.type == MessageType.FILE && isDesktopNative)
-                StreamBuilder<bool>(
-                  stream: _fileIsExist,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      return PopupMenuItem(
-                        value: OperationOnMessage.SAVE_AS,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.save_alt_rounded,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              _i18n.get("save_as"),
-                              style: theme.primaryTextTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              if (widget.message.roomUid.isMuc())
-                PopupMenuItem(
-                  value: OperationOnMessage.REPORT,
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.burst),
-                      const SizedBox(width: 8),
-                      Text(
-                        _i18n.get("report"),
-                        style: theme.primaryTextTheme.bodyMedium,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.message.type == MessageType.FILE && isAndroidNative)
+              StreamBuilder<bool>(
+                stream: _fileIsExist,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    _fileIsExist.add(true);
+                    return PopupMenuItem(
+                      value: OperationOnMessage.SHARE,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.share),
+                          const SizedBox(width: p12),
+                          Text(_i18n.get("share")),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.message.type == MessageType.TEXT && isAndroidNative)
+              PopupMenuItem(
+                value: OperationOnMessage.SHARE,
+                child: Row(
+                  children: [
+                    const Icon(Icons.share),
+                    const SizedBox(width: 8),
+                    Text(_i18n.get("share")),
+                  ],
                 ),
-              if (!isPendingMessage &&
-                  widget.message.type != MessageType.PERSISTENT_EVENT)
-                PopupMenuItem(
-                  value: OperationOnMessage.FORWARD,
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.arrowshape_turn_up_right),
-                      const SizedBox(width: 8),
-                      Text(
-                        _i18n.get("forward"),
-                        style: theme.primaryTextTheme.bodyMedium,
+              ),
+            if (widget.message.type == MessageType.FILE && isDesktopNative)
+              StreamBuilder<bool>(
+                stream: _fileIsExist,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    return PopupMenuItem(
+                      value: OperationOnMessage.SAVE_AS,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.save_alt_rounded),
+                          const SizedBox(width: p12),
+                          Text(_i18n.get("save_as")),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.message.roomUid.isMuc())
+              PopupMenuItem(
+                value: OperationOnMessage.REPORT,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.burst),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("report")),
+                  ],
                 ),
-              if (widget.message.id == null)
-                FutureBuilder<PendingMessage?>(
-                  future:
-                      _messageRepo.getPendingMessage(widget.message.packetId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!.failed) {
-                      return PopupMenuItem(
-                        value: OperationOnMessage.RESEND,
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.refresh),
-                            const SizedBox(width: 8),
-                            Text(
-                              _i18n.get("resend"),
-                              style: theme.primaryTextTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
+              ),
+            if (!isPendingMessage &&
+                widget.message.type != MessageType.PERSISTENT_EVENT)
+              PopupMenuItem(
+                value: OperationOnMessage.FORWARD,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.arrowshape_turn_up_right),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("forward")),
+                  ],
                 ),
-              if (_hasPermissionToDeleteMsg)
-                widget.message.id != null
-                    ? deleteMenuWidget(
-                        context,
-                        isPendingEditedMessage:
-                            pendingEditedMessage.data != null,
-                      )
-                    : FutureBuilder<PendingMessage?>(
-                        future: _messageRepo
-                            .getPendingMessage(widget.message.packetId),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData &&
-                              snapshot.data != null &&
-                              _isDeletablePendingMessage(snapshot.data!)) {
-                            return deleteMenuWidget(
-                              context,
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
+              ),
+            if (widget.message.id == null)
+              FutureBuilder<PendingMessage?>(
+                future: _messageRepo.getPendingMessage(widget.message.packetId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.failed) {
+                    return PopupMenuItem(
+                      value: OperationOnMessage.RESEND,
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.refresh),
+                          const SizedBox(width: p12),
+                          Text(_i18n.get("resend")),
+                        ],
                       ),
-              if (!isPendingMessage &&
-                  (widget.message.type == MessageType.TEXT ||
-                      widget.message.type == MessageType.FILE) &&
-                  _autRepo.isCurrentUserSender(widget.message) &&
-                  checkMessageTime(widget.message))
-                PopupMenuItem(
-                  value: OperationOnMessage.EDIT,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.paintbrush,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _i18n.get("edit"),
-                        style: theme.primaryTextTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (_hasPermissionToDeleteMsg)
+              widget.message.id != null
+                  ? deleteMenuWidget(
+                      context,
+                      isPendingEditedMessage: pendingEditedMessage.data != null,
+                    )
+                  : FutureBuilder<PendingMessage?>(
+                      future: _messageRepo
+                          .getPendingMessage(widget.message.packetId),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            _isDeletablePendingMessage(snapshot.data!)) {
+                          return deleteMenuWidget(
+                            context,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+            if (!isPendingMessage &&
+                (widget.message.type == MessageType.TEXT ||
+                    widget.message.type == MessageType.FILE) &&
+                _autRepo.isCurrentUserSender(widget.message) &&
+                checkMessageTime(widget.message))
+              PopupMenuItem(
+                value: OperationOnMessage.EDIT,
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.paintbrush),
+                    const SizedBox(width: p12),
+                    Text(_i18n.get("edit")),
+                  ],
                 ),
-              if (isDesktopNative && widget.message.type == MessageType.FILE)
-                FutureBuilder<String?>(
-                  future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name,
-                  ),
-                  builder: (c, snapshot) {
-                    if (snapshot.hasData) {
-                      return PopupMenuItem(
-                        value: OperationOnMessage.SHOW_IN_FOLDER,
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.folder_open),
-                            const SizedBox(width: 8),
-                            Text(
-                              _i18n.get("show_in_folder"),
-                              style: theme.primaryTextTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
+              ),
+            if (isDesktopNative && widget.message.type == MessageType.FILE)
+              FutureBuilder<String?>(
+                future: _fileRepo.getFileIfExist(
+                  widget.message.json.toFile().uuid,
+                  widget.message.json.toFile().name,
                 ),
-            ],
-          ),
+                builder: (c, snapshot) {
+                  if (snapshot.hasData) {
+                    return PopupMenuItem(
+                      value: OperationOnMessage.SHOW_IN_FOLDER,
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.folder_open),
+                          const SizedBox(width: p12),
+                          Text(_i18n.get("show_in_folder")),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+          ],
         );
       },
     );
@@ -430,7 +356,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     BuildContext context, {
     bool isPendingEditedMessage = false,
   }) {
-    final theme = Theme.of(context);
     return PopupMenuItem(
       value: widget.message.id != null
           ? isPendingEditedMessage
@@ -439,15 +364,12 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           : OperationOnMessage.DELETE_PENDING_MESSAGE,
       child: Row(
         children: [
-          const Icon(
-            CupertinoIcons.delete,
-          ),
-          const SizedBox(width: 8),
+          const Icon(CupertinoIcons.delete),
+          const SizedBox(width: p12),
           Text(
             isPendingEditedMessage
                 ? _i18n.get("cancel_sending")
                 : _i18n.get("delete"),
-            style: theme.primaryTextTheme.bodyMedium,
           ),
         ],
       ),
@@ -470,40 +392,37 @@ void showDeleteMsgDialog(
   final messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
     context: context,
-    builder: (c) => Directionality(
-      textDirection: i18n.defaultTextDirection,
-      child: AlertDialog(
-        title: Text(
-          "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""}${i18n.get("message")}",
-          style: theme.textTheme.bodyLarge,
-        ),
-        content: Text(
-          messages.length > 1
-              ? i18n.get("sure_delete_messages")
-              : i18n.get("sure_delete_message"),
-        ),
-        actions: [
-          TextButton(
-            child: Text(i18n.get("cancel"), style: theme.textTheme.bodyMedium),
-            onPressed: () {
-              onDelete();
-              Navigator.pop(c);
-            },
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(i18n.get("delete")),
-            onPressed: () async {
-              // ignore: use_build_context_synchronously
-              Navigator.pop(c);
-              await messageRepo.deleteMessage(messages);
-              onDelete();
-            },
-          ),
-        ],
+    builder: (c) => AlertDialog(
+      title: Text(
+        "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""}${i18n.get("message")}",
+        style: theme.textTheme.bodyLarge,
       ),
+      content: Text(
+        messages.length > 1
+            ? i18n.get("sure_delete_messages")
+            : i18n.get("sure_delete_message"),
+      ),
+      actions: [
+        TextButton(
+          child: Text(i18n.get("cancel"), style: theme.textTheme.bodyMedium),
+          onPressed: () {
+            onDelete();
+            Navigator.pop(c);
+          },
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+          ),
+          child: Text(i18n.get("delete")),
+          onPressed: () async {
+            // ignore: use_build_context_synchronously
+            Navigator.pop(c);
+            await messageRepo.deleteMessage(messages);
+            onDelete();
+          },
+        ),
+      ],
     ),
   );
 }

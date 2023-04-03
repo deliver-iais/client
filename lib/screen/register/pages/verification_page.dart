@@ -124,7 +124,7 @@ class VerificationPageState extends State<VerificationPage> {
             key: const Key('start'),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
               fontSize: 14.5,
             ),
           ),
@@ -135,7 +135,7 @@ class VerificationPageState extends State<VerificationPage> {
             _i18n.get("verification"),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: theme.primaryColor,
+              color: theme.colorScheme.primary,
             ),
           ),
         ),
@@ -164,7 +164,7 @@ class VerificationPageState extends State<VerificationPage> {
                   const SizedBox(height: 30),
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 30, right: 30, bottom: 30),
+                        const EdgeInsetsDirectional.only(end: 30, start: 30, bottom: 30),
                     child: PinFieldAutoFill(
                       key: const Key("verificationCode"),
                       autoFocus: true,
@@ -174,11 +174,11 @@ class VerificationPageState extends State<VerificationPage> {
                       cursor: Cursor(color: theme.focusColor, enabled: true, width: 1, height: 32),
                       decoration: UnderlineDecoration(
                         colorBuilder: PinListenColorBuilder(
-                          theme.primaryColor,
+                          theme.colorScheme.primary,
                           theme.colorScheme.secondary,
                         ),
                         textStyle: theme.primaryTextTheme.headlineSmall!
-                            .copyWith(color: theme.primaryColor),
+                            .copyWith(color: theme.colorScheme.primary),
                       ),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {

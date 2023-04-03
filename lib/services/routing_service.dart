@@ -49,6 +49,8 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/background.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -610,7 +612,10 @@ class RoutingService {
               width: NAVIGATION_PANEL_SIZE,
               child: _navigationCenter,
             ),
-            const VerticalDivider()
+            const VerticalDivider(
+              thickness: 1,
+              width: 1,
+            )
           ],
           Expanded(
             child: ClipRect(
@@ -674,10 +679,32 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(
-        onPressed: pop,
-        color: color,
+  Widget backButtonLeading({Color? color}) => Center(
+        child: BackButtonWidget(
+          color: color,
+          onPressed: pop,
+        ),
       );
+}
+
+class BackButtonWidget extends StatelessWidget {
+  const BackButtonWidget({super.key, this.color, required this.onPressed});
+
+  final Color? color;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    assert(debugCheckHasMaterialLocalizations(context));
+    return IconButton(
+      icon: const Icon(Icons.arrow_back_ios_rounded),
+      iconSize: p24,
+      color: color,
+      alignment: Alignment.center,
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      onPressed: onPressed,
+    );
+  }
 }
 
 class RouteEvent {
@@ -738,19 +765,28 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.onPrimary,
-            borderRadius: secondaryBorder,
+      body: Stack(
+        children: [
+          Background(),
+          Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onPrimary,
+                borderRadius: secondaryBorder,
+              ),
+              padding: const EdgeInsetsDirectional.only(
+                end: 10,
+                start: 10,
+                top: 6,
+                bottom: 4,
+              ),
+              child: Text(
+                _i18n.get("please_select_a_chat_to_start_messaging"),
+                style: theme.primaryTextTheme.bodyMedium,
+              ),
+            ),
           ),
-          padding:
-              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-          child: Text(
-            _i18n.get("please_select_a_chat_to_start_messaging"),
-            style: theme.primaryTextTheme.bodyMedium,
-          ),
-        ),
+        ],
       ),
     );
   }

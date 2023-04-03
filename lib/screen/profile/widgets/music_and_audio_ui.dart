@@ -96,8 +96,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     child: Stack(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 8,
+                                          padding: const EdgeInsetsDirectional.only(
+                                            start: 8,
                                             top: 10,
                                           ),
                                           child: Text(
@@ -110,10 +110,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.only(
+                                          padding: const EdgeInsetsDirectional.only(
                                             top: 20,
                                             bottom: 10,
-                                            left: 8,
+                                            start: 8,
                                           ),
                                           child: MusicPlayProgress(
                                             audioUuid: fileUuid,
@@ -159,8 +159,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     child: Stack(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 8.0,
+                                          padding: const EdgeInsetsDirectional.only(
+                                            start: 8.0,
                                             top: 8,
                                           ),
                                           child: Text(

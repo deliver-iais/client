@@ -87,19 +87,16 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       showDialog(
         context: context,
         builder: (context) {
-          return Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: AlertDialog(
-              content: Text(_i18n.get("pin_more_than_5")),
-              actions: [
-                TextButton(
-                  child: Text(_i18n.get("ok")),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
+          return AlertDialog(
+            content: Text(_i18n.get("pin_more_than_5")),
+            actions: [
+              TextButton(
+                child: Text(_i18n.get("ok")),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           );
         },
       );
@@ -161,10 +158,8 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
               );
             }
           : null,
-      child: ChatItem(
-        key: ValueKey("chatItem/${rw.room.uid}"),
-        roomWrapper: rw,
-      ),
+      child:
+          ChatItem(key: ValueKey("chatItem/${rw.room.uid}"), roomWrapper: rw),
     );
   }
 

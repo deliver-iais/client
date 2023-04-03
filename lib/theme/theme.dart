@@ -1,7 +1,6 @@
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:material_color_utilities/palettes/core_palette.dart';
 
 final ACTIVE_COLOR = Colors.greenAccent.shade700;
 
@@ -59,22 +58,20 @@ final patterns = [
   "pattern-5",
   "pattern-6",
   "pattern-7",
+  "pattern-8",
 ];
 
 ThemeScheme getThemeScheme(int index) =>
-    ThemeScheme(getCorePalette(index));
-
-CorePalette getCorePalette(int index) =>
-    CorePalette.of(palettes[index % palettes.length].value);
-
+    ThemeScheme(palettes[index % palettes.length]);
 
 class ThemeScheme {
-  final Material3ColorScheme _dark;
-  final Material3ColorScheme _light;
+  final ColorScheme _dark;
+  final ColorScheme _light;
 
-  ThemeScheme(CorePalette palette)
-      : _dark = Material3ColorScheme.darkOfCorePalette(palette),
-        _light = Material3ColorScheme.lightOfCorePalette(palette);
+  ThemeScheme(Color seed)
+      : _dark =
+            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
+        _light = ColorScheme.fromSeed(seedColor: seed);
 
   ThemeData theme({bool isDark = false}) =>
       isDark ? getThemeData(_dark) : getThemeData(_light);

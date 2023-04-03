@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   late AnimationController _moveController;
   late Animation<Offset> _moveAnimation;
   bool showRightIcon = false;
+  double iconScale = 0;
 
   @override
   void initState() {
@@ -80,16 +83,23 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
       final adjustedPixelPos = movePastThresholdPixels * reducedThreshold;
       newPos = adjustedPixelPos / context.size!.width;
     }
-    if (_dragExtent < -50) {
+
+    // Range control
+    final rangeValue = min(max(_dragExtent, -50), 0);
+
+    setState(() {
+      iconScale = rangeValue.abs() / 50;
+    });
+
+    if (rangeValue <= -50) {
       if (showRightIcon == false) {
-        vibrate(duration: 50);
+        lightVibrate();
         setState(() {
           showRightIcon = true;
         });
       }
-    } else {
+    } else if (rangeValue >= -45) {
       if (showRightIcon == true) {
-        vibrate(duration: 50);
         setState(() {
           showRightIcon = false;
         });
@@ -101,6 +111,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   void _handleDragEnd(DragEndDetails details) {
     _moveController.animateTo(0.0, duration: const Duration(milliseconds: 200));
     if (_dragExtent < -50) {
+      iconScale = 0;
       showRightIcon = false;
       setState(() {});
       widget.onSwipeLeft?.call();
@@ -120,18 +131,33 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final children = <Widget>[
       AnimatedOpacity(
-        opacity: showRightIcon ? 1 : 0,
+        opacity: showRightIcon ? 1 : iconScale * 0.3,
         duration: AnimationSettings.normal,
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
+        child: AnimatedContainer(
+          width: 46,
+          height: 46,
+          padding: const EdgeInsets.all(p8),
+          margin: const EdgeInsets.all(p8),
+          decoration: BoxDecoration(
+            color: showRightIcon
+                ? Theme.of(context).colorScheme.primaryContainer
+                .withOpacity(0.8)
+                : Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0),
+            borderRadius: mainBorder,
+          ),
+          duration: AnimationSettings.slow,
           child: Align(
             alignment: Alignment.centerRight,
             child: AnimatedScale(
-              scale: showRightIcon ? 1 : 0,
+              scale: iconScale,
               duration: AnimationSettings.normal,
               child: Icon(
                 CupertinoIcons.reply,
-                color: Theme.of(context).iconTheme.color,
+                size: 30,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
             ),
           ),
@@ -146,9 +172,9 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.centerRight,
         fit: StackFit.passthrough,
         children: children,
       ),

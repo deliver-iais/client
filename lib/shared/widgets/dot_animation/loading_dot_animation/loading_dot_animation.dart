@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/delay_tween.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(p2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(3, (i) {

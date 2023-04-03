@@ -332,8 +332,10 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  if(isDesktopDevice) {
-    FlutterWindowClose.setWindowShouldCloseHandler(() async { return true; });
+  if (isDesktopDevice) {
+    FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      return true;
+    });
   }
 
   logger.i("Application has been started.");
@@ -434,48 +436,49 @@ class MyApp extends StatelessWidget {
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {
-        return ExtraTheme(
-          extraThemeData: settings.extraThemeData,
-          child: AnnotatedRegion<SystemUiOverlayStyle>(
-            value: SystemUiOverlayStyle(
-              statusBarIconBrightness: settings.brightnessOpposite,
-              systemNavigationBarColor:
-                  settings.themeData.colorScheme.onInverseSurface,
-              systemNavigationBarIconBrightness: settings.brightnessOpposite,
-            ),
-            child: RawKeyboardListener(
-              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              onKey: (event) {
-                _rawKeyboardService
-                  ..escapeHandling(event)
-                  ..searchHandling(event);
-              },
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: APPLICATION_NAME,
-                locale: _i18n.locale,
-                theme: settings.themeData,
-                navigatorKey: _routingService.mainNavigatorState,
-                supportedLocales: Language.values.map((e) => e.locale),
-                localizationsDelegates: [
-                  I18N.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate
-                ],
-                home: const SplashScreen(),
-                localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (final locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale!.languageCode &&
-                        locale.countryCode == deviceLocale.countryCode) {
-                      return deviceLocale;
-                    }
-                  }
-                  return supportedLocale.first;
+        return Directionality(
+          textDirection: _i18n.defaultTextDirection,
+          child: ExtraTheme(
+            extraThemeData: settings.extraThemeData,
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarIconBrightness: settings.brightnessOpposite,
+                systemNavigationBarColor:
+                    settings.themeData.colorScheme.onInverseSurface,
+                systemNavigationBarIconBrightness: settings.brightnessOpposite,
+              ),
+              child: RawKeyboardListener(
+                focusNode:
+                    FocusNode(skipTraversal: true, canRequestFocus: false),
+                onKey: (event) {
+                  _rawKeyboardService
+                    ..escapeHandling(event)
+                    ..searchHandling(event);
                 },
-                builder: (x, c) => Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: c!,
+                child: MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: APPLICATION_NAME,
+                  locale: _i18n.locale,
+                  theme: settings.themeData,
+                  navigatorKey: _routingService.mainNavigatorState,
+                  supportedLocales: Language.values.map((e) => e.locale),
+                  localizationsDelegates: [
+                    I18N.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate
+                  ],
+                  home: const SplashScreen(),
+                  localeResolutionCallback: (deviceLocale, supportedLocale) {
+                    for (final locale in supportedLocale) {
+                      if (locale.languageCode == deviceLocale!.languageCode &&
+                          locale.countryCode == deviceLocale.countryCode) {
+                        return deviceLocale;
+                      }
+                    }
+                    return supportedLocale.first;
+                  },
+                  // builder: (x, c) => c!,
                 ),
               ),
             ),

@@ -1,13 +1,8 @@
-import 'dart:convert';
-
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/pin_code_settings.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 
 class ShowCaseRepo {
@@ -55,65 +50,198 @@ class ShowCaseRepo {
       // ),
       Showcase(
         singleBanner: BannerCase(
-          uid: "3:fec74bc5-a8e6-4020-933e-784b1f3c6c05".asUid(),
           bannerImg: File(
-            uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
-            name: "1667989130491.jpeg",
+            uuid: "a3a22351-872c-4332-99d9-90119821f8d1",
+            name: "1673170736121.jpeg",
           ),
+          uid: "0:285abc61-d67b-464c-b0d8-6de724643506".asUid(),
         ),
       ),
       Showcase(
-        singleUrl: UrlCase(
-          name: "بات",
-          description: "ساخت بات",
-          botCallback: BotCallback(
-            bot: Uid(category: Categories.BOT, node: "auth_bot"),
-            data: _getData("REGISTER", "BOT_PLATFORM"),
-            pinCodeSettings: PinCodeSettings(
-              length: 4,
-              isOutsideFirstRedirectionEnabled: true,
-              outsideFirstRedirectionAlert:
-                  "با مراجعه به بات نشست خود را احراز کنید.",
-              outsideFirstRedirectionText: "/start",
+        groupedUrl: GroupedUrls(
+          name: "خدمات الکترونیک مالیاتی",
+          urlsList: [
+            UrlCase(
+              img: File(
+                uuid: "326605b5-c0af-4e7e-a2a5-48787d4f91e5",
+                name: "1669073754293.webp",
+              ),
+              description: "دسترسی به کلیه پرونده های مالیاتی",
+              name: "پنجره واحد خدمات مالیاتی",
+              url: SimpleUrl(url: "https://my.tax.gov.ir"),
             ),
-          ),
-          img: File(
-            uuid: "0410e8ed-aeda-4180-949a-5f13b2efc1b1",
-            name: "yaybotemoji.gif",
-          ),
-        ),
-      ),
-      Showcase(
-        singleUrl: UrlCase(
-          name: "گروه تستی احراز هویت",
-          description: "گروه تستی احراز هویت",
-          botCallback: BotCallback(
-            bot: Uid(category: Categories.BOT, node: "auth_bot"),
-            data: _getData(
-              "JOIN_TO_GROUP",
-              "d23e3f2f-9484-44da-a851-da1efa761f7c",
+            UrlCase(
+              img: File(
+                uuid: "51bf997d-0931-422e-9007-ac1ea09366b9",
+                name: "1671729817643.webp",
+              ),
+              description:
+                  "با داشتن شناسه پرداخت می توانید به صورت آنلاین پرداخت نمایید.",
+              name: "پرداخت آنلاین مالیات",
+              url: SimpleUrl(url: "https://payments.tax.gov.ir"),
             ),
-          ),
-          img: File(
-            uuid: "d369efa0-5159-463c-98e7-f96378ca8710",
-            name: "1676788382457.jpeg",
-          ),
+            UrlCase(
+              img: File(
+                uuid: "2a03e1ec-ad2c-45c8-a977-874d65f7cfa2",
+                name: "1673183860314.jpeg",
+              ),
+              description: "",
+              name: "گواهی ماده ۱۸۶",
+              url: SimpleUrl(url: "https://govahi186.tax.gov.ir"),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "ab86fcf1-7a27-4f61-a383-e4f8f00b3443",
+                name: "1673183988498.jpeg",
+              ),
+              description: "",
+              name: "مالیات نقل و انتقال خودرو",
+              url: SimpleUrl(url: "https://cartransfer.tax.gov.ir"),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "95e6dc4e-9c4c-4ab2-9227-8da0ef191004",
+                name: "1673183111350.webp",
+              ),
+              description: "",
+              name: "محاسبه و پرداخت مالیات ارث",
+              url: SimpleUrl(url: "https://ersportal.tax.gov.ir"),
+            ),
+          ],
         ),
       ),
       Showcase(
-        singleUrl: UrlCase(
-          name: "ارزیابی",
-          description: "سامانه ارزیابی",
-          botCallback: BotCallback(
-            bot: Uid(category: Categories.BOT, node: "auth_bot"),
-            data: _getData("LOGIN", "botplatform"),
-          ),
-          img: File(
-            uuid: "14f0fa82-7023-4932-9e85-06935612c0cb",
-            name: "1667989130491.jpeg",
-          ),
+        isAdvertisement: false,
+        groupedUrl: GroupedUrls(
+          name: "اطلاع رسانی های مالیاتی",
+          urlsList: [
+            UrlCase(
+              img: File(
+                uuid: "65e3cb68-23c0-4d6d-8c5d-bedcc19a5ac5",
+                name: "1673190421060.jpeg",
+              ),
+              url: SimpleUrl(url: "https://news.intamedia.ir"),
+              name: "پایگاه خبری تحلیلی سازمان امور مالیاتی",
+              description: "",
+            ),
+            UrlCase(
+              url: SimpleUrl(
+                url:
+                    "https://www.intamedia.ir/Law-of-store-terminals-and-taxpayer-system",
+              ),
+              name: "پایانه های فروشگاهی و سامانه مودیان",
+              description: "",
+              img: File(
+                uuid: "c0638b13-a64d-411c-b8d2-79a62c007d97",
+                name: "1671728600458.webp",
+              ),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "8e90bfe2-a263-438f-a80d-8c64d72f3f3f",
+                name: "1669073961778.webp",
+              ),
+              description: "کلیه قوانین و مقررات مالیاتی",
+              name: "قوانین مالیاتی",
+              url: SimpleUrl(url: "https://hamrahyaar.com/books/177679"),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "b99a35c0-0db9-494b-b1e6-694dd6abc933",
+                name: "1669073982836.webp",
+              ),
+              description: "",
+              name: "رادیو مالیاتی",
+              url: SimpleUrl(url: "https://www.intamedia.ir/podcast"),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "88a58764-ce45-43ba-bd03-27b03735414b",
+                name: "1669074068574.webp",
+              ),
+              description: "",
+              name: "راهنمای سامانه های مالیاتی",
+              url: SimpleUrl(url: "https://www.tax.gov.ir/Pages/HomePage"),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "4011724e-7644-444f-897b-8b4c689c27d0",
+                name: "1669074156772.webp",
+              ),
+              description: "آدرس و محل تمامی ساختمان های مالیاتی",
+              name: "راهنمای ساختمان",
+              url: SimpleUrl(
+                url: "https://www.intamedia.ir/Contact-Consultants",
+              ),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "58400917-188b-4762-8dcb-355035133ed9",
+                name: "1669153385240.webp",
+              ),
+              description: "",
+              name: "سوت زنی",
+              url: SimpleUrl(
+                url: "https://www.intamedia.ir/popular-report/new-tax-frude",
+              ),
+            ),
+            UrlCase(
+              img: File(
+                uuid: "2e18c836-ed5a-41ac-b3c8-02d5b0ef002f",
+                name: "1673193481661.jpeg",
+              ),
+              description: "",
+              name: "آموزش",
+              url: SimpleUrl(
+                url: "https://www.intamedia.ir/video-gallery/categoryid/1328",
+              ),
+            ),
+          ],
         ),
       ),
+      Showcase(
+        groupedBanners: GroupedBanners(
+          name: "سایر خدمات مالیاتی",
+          bannersList: [
+            BannerCase(
+              bannerImg: File(
+                uuid: "a0565245-029e-4029-935e-c7c6a3d93bb1",
+                name: "1679343450677.webp",
+              ),
+              uid: "4:auth_bot".asUid(),
+            ),
+            BannerCase(
+              uid: "3:57ad8f01-dce4-45f2-8a6a-995ebde9ca21".asUid(),
+              bannerImg: File(
+                uuid: "46c0ea16-af4c-47b2-a386-a57cdc204fb4",
+                name: " 1669073291026.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:quiztest_bot".asUid(),
+              bannerImg: File(
+                uuid: "3ce1cd63-2ce5-4402-ae15-f9209386cf0a",
+                name: "1669073638421.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              bannerImg: File(
+                uuid: "a50b746f-1d78-48e9-8de3-1a3c6e2ca8f9",
+                name: "1679343398517.webp",
+              ),
+              uid: "4:callcenter_bot".asUid(),
+            ),
+          ],
+        ),
+      ),
+
       // Showcase(
       //   primary: true,
       //   groupedRooms: GroupedRooms(
@@ -267,8 +395,6 @@ class ShowCaseRepo {
   Showcase_Type findShowCaseType(String showCaseJson) {
     return Showcase.fromJson(showCaseJson).whichType();
   }
-
-  String _getData(String key, String value) => jsonEncode({key: value});
 
   Future<List<ShowCase>> _saveFetchedShowCases(
     List<Showcase> getShowCases,

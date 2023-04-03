@@ -23,9 +23,9 @@ class ReplyPreview extends StatelessWidget {
       color: theme.colorScheme.surface.withAlpha(200),
       child: message != null
           ? Padding(
-              padding: const EdgeInsets.only(
-                left: 15,
-                right: 3,
+              padding: const EdgeInsetsDirectional.only(
+                start: 15,
+                end: 3,
               ),
               child: Row(
                 children: [

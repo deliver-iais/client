@@ -138,66 +138,54 @@ class NavigationCenterState extends State<NavigationCenter>
         child: Scaffold(
           backgroundColor: theme.colorScheme.background,
           appBar: _buildAppBar(),
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: MouseRegion(
-              hitTestBehavior: HitTestBehavior.translucent,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onPanDown: (e) => storePosition(e),
-                child: FloatingActionButton(
-                  heroTag: "navigation-center-fab",
-                  onPressed: () {
-                    this.showMenu(
-                      context: context,
-                      items: [
-                        PopupMenuItem<String>(
-                          key: const Key("contacts"),
-                          value: "contacts",
-                          child: Row(
-                            children: [
-                              const Icon(CupertinoIcons.person_2_alt),
-                              const SizedBox(width: 8),
-                              Text(
-                                _i18n.get("contacts"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            ],
-                          ),
+          floatingActionButton: MouseRegion(
+            hitTestBehavior: HitTestBehavior.translucent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanDown: (e) => storePosition(e),
+              child: FloatingActionButton(
+                heroTag: "navigation-center-fab",
+                onPressed: () {
+                  this.showMenu(
+                    context: context,
+                    items: [
+                      PopupMenuItem<String>(
+                        key: const Key("contacts"),
+                        value: "contacts",
+                        child: Row(
+                          children: [
+                            const Icon(CupertinoIcons.person_2_alt),
+                            const SizedBox(width: p8),
+                            Text(_i18n.get("contacts"))
+                          ],
                         ),
-                        PopupMenuItem<String>(
-                          key: const Key("new_group"),
-                          value: "new_group",
-                          child: Row(
-                            children: [
-                              const Icon(CupertinoIcons.group),
-                              const SizedBox(width: 8),
-                              Text(
-                                _i18n.get("new_group"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              ),
-                            ],
-                          ),
+                      ),
+                      PopupMenuItem<String>(
+                        key: const Key("new_group"),
+                        value: "new_group",
+                        child: Row(
+                          children: [
+                            const Icon(CupertinoIcons.group),
+                            const SizedBox(width: p8),
+                            Text(_i18n.get("new_group")),
+                          ],
                         ),
-                        PopupMenuItem<String>(
-                          key: const Key("new_channel"),
-                          value: "new_channel",
-                          child: Row(
-                            children: [
-                              const Icon(CupertinoIcons.news),
-                              const SizedBox(width: 8),
-                              Text(
-                                _i18n.get("new_channel"),
-                                style: theme.primaryTextTheme.bodyMedium,
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ).then((value) => selectChatMenu(value ?? ""));
-                  },
-                  child: const Icon(Icons.add),
-                ),
+                      ),
+                      PopupMenuItem<String>(
+                        key: const Key("new_channel"),
+                        value: "new_channel",
+                        child: Row(
+                          children: [
+                            const Icon(CupertinoIcons.news),
+                            const SizedBox(width: p8),
+                            Text(_i18n.get("new_channel"))
+                          ],
+                        ),
+                      )
+                    ],
+                  ).then((value) => selectChatMenu(value ?? ""));
+                },
+                child: const Icon(Icons.add),
               ),
             ),
           ),
@@ -351,10 +339,10 @@ class NavigationCenterState extends State<NavigationCenter>
                   isDismissible: false,
                   builder: (c) {
                     return Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 8,
-                        left: 24,
-                        right: 24,
+                      padding: const EdgeInsetsDirectional.only(
+                        bottom: p8,
+                        end: p24,
+                        start: p24,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -500,7 +488,7 @@ class NavigationCenterState extends State<NavigationCenter>
                   elevation: 0,
                   scrolledUnderElevation: 0,
                   leading: Padding(
-                    padding: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsetsDirectional.only(start: p4),
                     child: DescribedFeatureOverlay(
                       featureId: SETTING_FEATURE,
                       tapTarget:
@@ -591,6 +579,42 @@ class NavigationCenterState extends State<NavigationCenter>
                           ),
                         ),
                       ),
+                    StreamBuilder<PerformanceMode>(
+                      stream: PerformanceMonitor.performanceProfile,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data!.level <=
+                                PerformanceMode.POWER_SAVER.level) {
+                          return GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onPanDown: (e) => storePosition(e),
+                            child: IconButton(
+                              onPressed: () async {
+                                final value = await this.showMenu(
+                                  context: context,
+                                  items: [
+                                    PopupMenuItem(
+                                      value: "go_to_settings",
+                                      child: Text(
+                                        _i18n["power_saver_turned_on"],
+                                      ),
+                                    )
+                                  ],
+                                );
+                                if (value == "go_to_settings") {
+                                  _routingServices.openPowerSaverSettings();
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.energy_savings_leaf_outlined,
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                     if (SHOWCASES_IS_AVAILABLE)
                       DescribedFeatureOverlay(
                         featureId: SHOW_CASE_FEATURE,
@@ -623,8 +647,9 @@ class NavigationCenterState extends State<NavigationCenter>
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
-                            onTap: () =>
-                                settings.showShowcasePage.toggleValue(),
+                            onTap: () => setState(
+                              () => settings.showShowcasePage.toggleValue(),
+                            ),
                             child: Stack(
                               alignment: AlignmentDirectional.center,
                               clipBehavior: Clip.none,

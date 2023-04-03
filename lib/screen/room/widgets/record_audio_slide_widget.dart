@@ -22,7 +22,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             const Padding(
-              padding: EdgeInsets.only(left: 16.0),
+              padding: EdgeInsetsDirectional.only(start: 16.0),
               child: Icon(
                 Icons.fiber_manual_record,
                 color: Colors.red,

@@ -98,7 +98,7 @@ class SeenStatus extends StatelessWidget {
   Widget statusWidget(BuildContext context, SeenMessageStatus status) {
     final theme = Theme.of(context);
 
-    final color = iconColor ?? theme.primaryColor;
+    final color = iconColor ?? theme.colorScheme.primary;
     final errorColor = theme.colorScheme.error;
     const size = 14.5;
 

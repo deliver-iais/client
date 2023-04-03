@@ -169,12 +169,12 @@ class BotFormMessageState extends State<BotFormMessage> {
                             title: buildTitle(theme, _errorText),
                             content: buildContent(),
                             titlePadding:
-                                const EdgeInsets.only(top: 8, bottom: 8),
+                                const EdgeInsetsDirectional.only(top: 8, bottom: 8),
                             contentPadding:
                                 const EdgeInsets.symmetric(horizontal: 8),
-                            actionsPadding: const EdgeInsets.only(
-                              left: 4,
-                              right: 4,
+                            actionsPadding: const EdgeInsetsDirectional.only(
+                              end: 4,
+                              start: 4,
                               bottom: 4,
                             ),
                             actions: [
@@ -223,10 +223,10 @@ class BotFormMessageState extends State<BotFormMessage> {
                   }
                 },
                 child: Padding(
-                  padding: EdgeInsets.only(
+                  padding: EdgeInsetsDirectional.only(
                     top: form.lockAfter.isZero ? 5 : 50,
-                    left: 5,
-                    right: 5,
+                    end: 5,
+                    start: 5,
                     bottom: 5,
                   ),
                   child: Container(

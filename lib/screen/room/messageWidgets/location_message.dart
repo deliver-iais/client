@@ -405,149 +405,146 @@ class _LocationPageState extends State<LocationPage> {
               ),
             ),
           ),
-          Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Container(
-                height: 140,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(15.0),
-                    topLeft: Radius.circular(15.0),
-                  ),
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: Container(
+              height: 140,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(15.0),
+                  topLeft: Radius.circular(15.0),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 20.0,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatarWidget(widget.from, 25),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                height: 1,
-                              ),
-                              FutureBuilder<String>(
-                                initialData: _roomRepo.fastForwardName(
-                                  widget.message.from.asUid(),
-                                ),
-                                future: _roomRepo
-                                    .getName(widget.message.from.asUid()),
-                                builder: (context, snapshot) {
-                                  final roomName =
-                                      snapshot.data ?? _i18n.get("loading");
-                                  return RoomName(
-                                    uid: widget.message.from.asUid(),
-                                    name: roomName,
-                                  );
-                                },
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              FutureBuilder(
-                                future: _distance(widget.message),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    var distance = snapshot.data;
-                                    distance = double.parse("$distance")
-                                        .toStringAsFixed(3);
-                                    return Text(
-                                      "$distance ${_i18n.get("away")}",
-                                    );
-                                  } else {
-                                    return FutureBuilder<bool>(
-                                      future: _checkPermissionsService
-                                          .haveLocationPermission(),
-                                      builder: (context, havePermission) {
-                                        if (havePermission.hasData &&
-                                            havePermission.data != null &&
-                                            havePermission.data!) {
-                                          return Text(
-                                            _i18n.get("locating"),
-                                          );
-                                        } else {
-                                          return const Text(" ");
-                                        }
-                                      },
-                                    );
-                                  }
-                                },
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatarWidget(widget.from, 25),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ElevatedButton(
-                              style: ButtonStyle(
-                                fixedSize: MaterialStateProperty.all(
-                                  const Size(380, 50),
-                                ),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                ),
-                                padding: MaterialStateProperty.all(
-                                  const EdgeInsets.all(10),
-                                ),
-                                backgroundColor: MaterialStateProperty.all(
-                                  theme.colorScheme.primary,
-                                ),
-                                textStyle: MaterialStateProperty.all(
-                                  const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                            const SizedBox(
+                              height: 1,
+                            ),
+                            FutureBuilder<String>(
+                              initialData: _roomRepo.fastForwardName(
+                                widget.message.from.asUid(),
                               ),
-                              onPressed: () async {
-                                isIOSNative
-                                    ? await MapLauncher.showDirections(
-                                        mapType: MapType.apple,
-                                        destination: map.Coords(
-                                          widget.location.latitude,
-                                          widget.location.longitude,
-                                        ),
-                                      )
-                                    : MapLauncher.showDirections(
-                                        mapType: MapType.google,
-                                        destination: map.Coords(
-                                          widget.location.latitude,
-                                          widget.location.longitude,
-                                        ),
-                                      );
+                              future: _roomRepo
+                                  .getName(widget.message.from.asUid()),
+                              builder: (context, snapshot) {
+                                final roomName =
+                                    snapshot.data ?? _i18n.get("loading");
+                                return RoomName(
+                                  uid: widget.message.from.asUid(),
+                                  name: roomName,
+                                );
                               },
-                              child: Text(
-                                _i18n.get("direction"),
-                                style: TextStyle(
-                                  color: theme.colorScheme.surface,
-                                ),
-                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            FutureBuilder(
+                              future: _distance(widget.message),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  var distance = snapshot.data;
+                                  distance = double.parse("$distance")
+                                      .toStringAsFixed(3);
+                                  return Text(
+                                    "$distance ${_i18n.get("away")}",
+                                  );
+                                } else {
+                                  return FutureBuilder<bool>(
+                                    future: _checkPermissionsService
+                                        .haveLocationPermission(),
+                                    builder: (context, havePermission) {
+                                      if (havePermission.hasData &&
+                                          havePermission.data != null &&
+                                          havePermission.data!) {
+                                        return Text(
+                                          _i18n.get("locating"),
+                                        );
+                                      } else {
+                                        return const Text(" ");
+                                      }
+                                    },
+                                  );
+                                }
+                              },
                             )
                           ],
                         ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              fixedSize: MaterialStateProperty.all(
+                                const Size(380, 50),
+                              ),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(10),
+                              ),
+                              backgroundColor: MaterialStateProperty.all(
+                                theme.colorScheme.primary,
+                              ),
+                              textStyle: MaterialStateProperty.all(
+                                const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            onPressed: () async {
+                              isIOSNative
+                                  ? await MapLauncher.showDirections(
+                                      mapType: MapType.apple,
+                                      destination: map.Coords(
+                                        widget.location.latitude,
+                                        widget.location.longitude,
+                                      ),
+                                    )
+                                  : MapLauncher.showDirections(
+                                      mapType: MapType.google,
+                                      destination: map.Coords(
+                                        widget.location.latitude,
+                                        widget.location.longitude,
+                                      ),
+                                    );
+                            },
+                            child: Text(
+                              _i18n.get("direction"),
+                              style: TextStyle(
+                                color: theme.colorScheme.surface,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

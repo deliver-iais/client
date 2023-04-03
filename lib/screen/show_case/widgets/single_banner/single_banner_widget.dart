@@ -71,7 +71,7 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
             children: [
               if (widget.isAdvertisement)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsetsDirectional.only(bottom: 8),
                   child: Text(
                     SingleBannerWidget._i18n.get("ads"),
                     style: const TextStyle(
@@ -85,7 +85,7 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
                   padding: widget.isPrimary ? const EdgeInsets.all(10) : null,
                   decoration: BoxDecoration(
                     color: widget.isPrimary
-                        ? theme.primaryColor.withOpacity(0.2)
+                        ? theme.colorScheme.primary.withOpacity(0.2)
                         : null,
                     borderRadius: secondaryBorder,
                     border: Border.all(color: theme.dividerColor),
@@ -125,12 +125,7 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
                         ),
                         if (widget.showDescription && snapshot.data != null)
                           Padding(
-                            padding: const EdgeInsets.only(
-                              top: 15,
-                              left: 15,
-                              right: 15,
-                              bottom: 15,
-                            ),
+                            padding: const EdgeInsetsDirectional.all(15),
                             child: Column(
                               children: [
                                 Text(

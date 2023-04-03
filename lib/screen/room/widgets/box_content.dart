@@ -212,7 +212,7 @@ class BoxContentState extends State<BoxContent> {
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
       margin: const EdgeInsets.all(4),
-      padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 2),
+      padding: const EdgeInsetsDirectional.only(start: 4, end: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,

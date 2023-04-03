@@ -59,9 +59,9 @@ class MusicBoxState extends State<MusicBox> {
 
                     return InkWell(
                       child: Container(
-                        padding: EdgeInsets.only(
-                          left: 8,
-                          right: 8,
+                        padding: EdgeInsetsDirectional.only(
+                          end: 8,
+                          start: 8,
                           bottom: 8,
                           top: index == 0 ? 16 : 8,
                         ),

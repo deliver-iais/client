@@ -19,11 +19,11 @@ class CountDownTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 10,
+      padding: const EdgeInsetsDirectional.only(
+        start: 10,
         top: 10,
         bottom: 25,
-        right: 70,
+        end: 70,
       ),
       child: CircularCountDownTimer(
         duration: lockAfter ~/ 1000,

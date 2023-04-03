@@ -240,25 +240,22 @@ class LoginPageState extends State<LoginPage> {
             "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}",
           ),
           const SizedBox(height: 10),
-          Directionality(
-            textDirection: _i18n.defaultTextDirection,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  textDirection: _i18n.defaultTextDirection,
-                  "2. ${_i18n.get("login_page_qr_code_1")}",
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(Icons.qr_code_rounded, size: 17),
-                ),
-                Text(
-                  textDirection: _i18n.defaultTextDirection,
-                  _i18n.get("login_page_qr_code_2"),
-                ),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                textDirection: _i18n.defaultTextDirection,
+                "2. ${_i18n.get("login_page_qr_code_1")}",
+              ),
+              const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(Icons.qr_code_rounded, size: 17),
+              ),
+              Text(
+                textDirection: _i18n.defaultTextDirection,
+                _i18n.get("login_page_qr_code_2"),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
           Text(
@@ -299,29 +296,32 @@ class LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: <Widget>[
                       const SizedBox(height: 20),
-                      IntlPhoneField(
-                        initialCountryCode: phoneNumber != null
-                            ? phoneNumber!.countryCode.toString()
-                            : null,
-                        controller: controller,
-                        validator: (value) => value == null ||
-                                value.isEmpty ||
-                                value.length > _maxLength ||
-                                value.length < _minLength
-                            ? i18n.get("invalid_mobile_number")
-                            : null,
-                        onChanged: (p) {
-                          phoneNumber = p;
-                        },
-                        onMaxAndMinLengthChanged: (min, max) {
-                          _maxLength = max;
-                          _minLength = min;
-                        },
-                        onSubmitted: (p) {
-                          phoneNumber = p;
-                          if (_acceptPrivacy) checkAndGoNext();
-                        },
-                        key: const Key("IntlPhoneField"),
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: IntlPhoneField(
+                          initialCountryCode: phoneNumber != null
+                              ? phoneNumber!.countryCode.toString()
+                              : null,
+                          controller: controller,
+                          validator: (value) => value == null ||
+                                  value.isEmpty ||
+                                  value.length > _maxLength ||
+                                  value.length < _minLength
+                              ? i18n.get("invalid_mobile_number")
+                              : null,
+                          onChanged: (p) {
+                            phoneNumber = p;
+                          },
+                          onMaxAndMinLengthChanged: (min, max) {
+                            _maxLength = max;
+                            _minLength = min;
+                          },
+                          onSubmitted: (p) {
+                            phoneNumber = p;
+                            if (_acceptPrivacy) checkAndGoNext();
+                          },
+                          key: const Key("IntlPhoneField"),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -329,65 +329,53 @@ class LoginPageState extends State<LoginPage> {
                         style: theme.textTheme.labelSmall,
                       ),
                       const SizedBox(height: 24),
-                      Directionality(
-                        textDirection: _i18n.defaultTextDirection,
-                        child: ShakeWidget(
-                          controller: _shakeWidgetController,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Form(
-                                key: _acceptPrivacyKey,
-                                child: FormField<bool>(
-                                  builder: (state) {
-                                    return Checkbox(
-                                      activeColor: theme.primaryColor,
-                                      side: BorderSide(
-                                        width: state.hasError ? 2 : 1,
-                                        color: state.hasError
-                                            ? Colors.red
-                                            : theme.checkboxTheme.shape?.side
-                                                    .color ??
-                                                theme.primaryColor,
-                                      ),
-                                      value: _acceptPrivacy,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _acceptPrivacy = value ?? false;
-                                          state.didChange(value);
-                                        });
-                                      },
-                                    );
-                                  },
-                                  validator: (value) {
-                                    if (!_acceptPrivacy) {
-                                      return 'You need to accept terms';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                ),
+                      ShakeWidget(
+                        controller: _shakeWidgetController,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Form(
+                              key: _acceptPrivacyKey,
+                              child: FormField<bool>(
+                                builder: (state) {
+                                  return Checkbox(
+                                    value: _acceptPrivacy,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _acceptPrivacy = value ?? false;
+                                        state.didChange(value);
+                                      });
+                                    },
+                                  );
+                                },
+                                validator: (value) {
+                                  if (!_acceptPrivacy) {
+                                    return 'You need to accept terms';
+                                  } else {
+                                    return null;
+                                  }
+                                },
                               ),
-                              Flexible(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _acceptPrivacy = !_acceptPrivacy;
-                                    });
-                                  },
-                                  child: RichText(
-                                    text: TextSpan(
-                                      children: buildText(
-                                        "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
-                                        context,
-                                      ),
-                                      style: theme.textTheme.bodyMedium,
+                            ),
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _acceptPrivacy = !_acceptPrivacy;
+                                  });
+                                },
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: buildText(
+                                      "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
+                                      context,
                                     ),
+                                    style: theme.textTheme.bodyMedium,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -398,7 +386,7 @@ class LoginPageState extends State<LoginPage> {
                     color: theme.colorScheme.surfaceVariant,
                     borderRadius: secondaryBorder,
                   ),
-                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                  margin: const EdgeInsetsDirectional.only(top: 8, bottom: 8),
                   child: SettingsTile(
                     title: _i18n.get("language"),
                     subtitle: _i18n.language.languageName,
@@ -425,7 +413,8 @@ class LoginPageState extends State<LoginPage> {
                     if (snapshot.hasData && snapshot.data!) {
                       return Container(
                         height: 40,
-                        margin: const EdgeInsets.only(top: 8, bottom: 8),
+                        margin:
+                            const EdgeInsetsDirectional.only(top: 8, bottom: 8),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceVariant,
                           borderRadius: secondaryBorder,
@@ -464,14 +453,7 @@ class LoginPageState extends State<LoginPage> {
                         child: Align(
                           alignment: Alignment.bottomLeft,
                           child: TextButton(
-                            child: Text(
-                              _i18n.get("login_with_qr_code"),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: theme.primaryColor,
-                                fontSize: 13,
-                              ),
-                            ),
+                            child: Text(_i18n.get("login_with_qr_code")),
                             onPressed: () {
                               setState(() {
                                 loginWithQrCode = true;
@@ -488,11 +470,6 @@ class LoginPageState extends State<LoginPage> {
                         child: Text(
                           i18n.get("next"),
                           key: const Key('next'),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                            fontSize: 14.5,
-                          ),
                         ),
                       ),
                     ),

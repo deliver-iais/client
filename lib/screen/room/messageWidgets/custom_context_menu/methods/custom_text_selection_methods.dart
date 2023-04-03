@@ -75,7 +75,7 @@ class CustomContextMenuMethods {
       context: buildContext,
       builder: (context) {
         return AlertDialog(
-          actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
+          actionsPadding: const EdgeInsetsDirectional.only(bottom: 8, end: 8),
           content: SizedBox(
             width: 200,
             child: Column(
@@ -155,16 +155,13 @@ class CustomContextMenuMethods {
     String label, {
     bool useLinkValidator = false,
   }) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: AutoDirectionTextForm(
-        controller: controller,
-        validator: useLinkValidator ? validateLink : validateTextLink,
-        decoration: InputDecoration(
-          labelText: label,
-          contentPadding: const EdgeInsets.only(),
-          border: const UnderlineInputBorder(),
-        ),
+    return AutoDirectionTextForm(
+      controller: controller,
+      validator: useLinkValidator ? validateLink : validateTextLink,
+      decoration: InputDecoration(
+        labelText: label,
+        contentPadding: const EdgeInsetsDirectional.only(),
+        border: const UnderlineInputBorder(),
       ),
     );
   }

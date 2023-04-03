@@ -137,7 +137,7 @@ class _TextUIState extends State<TextUI> {
     return Container(
       constraints:
           BoxConstraints(maxWidth: widget.maxWidth, minWidth: widget.minWidth),
-      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
+      padding: const EdgeInsetsDirectional.only(top: 8, start: 8, end: 8),
       child: IntrinsicWidth(
         child: Column(
           crossAxisAlignment: widget.text.isPersian()

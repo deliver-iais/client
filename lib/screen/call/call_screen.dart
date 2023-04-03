@@ -105,10 +105,10 @@ class CallScreenState extends State<CallScreen> {
                 ),
                 textDirection: _i18n.defaultTextDirection,
                 style: theme.textTheme.bodyLarge!
-                    .copyWith(color: theme.primaryColor),
+                    .copyWith(color: theme.colorScheme.primary),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsetsDirectional.only(top: 10.0),
                 child: Text(
                   _i18n.get(
                     "alert_window_permission_attention",

@@ -99,7 +99,7 @@ class Background extends StatelessWidget {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 80.0, sigmaY: 80.0),
                     child:
-                        Container(color: theme.primaryColor.withOpacity(0.12)),
+                        Container(color: theme.colorScheme.primary.withOpacity(0.12)),
                   ),
                 ),
               ],

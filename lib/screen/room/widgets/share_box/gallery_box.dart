@@ -118,7 +118,7 @@ class GalleryBoxState extends State<GalleryBox> {
                     clipBehavior: Clip.hardEdge,
                     margin: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(co).primaryColor,
+                      color: Theme.of(co).colorScheme.primary,
                       borderRadius: secondaryBorder,
                       boxShadow: [
                         BoxShadow(
@@ -241,11 +241,11 @@ class GalleryBoxState extends State<GalleryBox> {
                       ? Align(
                           alignment: Alignment.bottomLeft,
                           child: Container(
-                            padding: const EdgeInsets.only(
+                            padding: const EdgeInsetsDirectional.only(
                               top: 6,
                               bottom: 4,
-                              left: 6,
-                              right: 4,
+                              start: 6,
+                              end: 4,
                             ),
                             width: MediaQuery.of(context).size.width / 2 - 40,
                             decoration: BoxDecoration(

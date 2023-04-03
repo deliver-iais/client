@@ -41,7 +41,7 @@ class UserAppbarTitle extends StatelessWidget {
           children: [
             CircleAvatarWidget(
               userUid,
-              23,
+              20,
               showSavedMessageLogoIfNeeded: true,
             ),
             const SizedBox(

@@ -130,7 +130,7 @@ class RecorderModule {
       _onCompleteCallbackStream.add(onComplete);
       _onCancelCallbackStream.add(onCancel);
 
-      quickVibrate();
+      lightVibrate().ignore();
 
       _logger.wtf("recording started");
       isRecordingStream.add(await _recorder.isRecording());
@@ -139,7 +139,7 @@ class RecorderModule {
 
   void lock() {
     if (isRecordingStream.valueOrNull ?? false) {
-      quickVibrate();
+      lightVibrate().ignore();
 
       isLockedSteam.add(true);
     }
@@ -164,7 +164,7 @@ class RecorderModule {
         isRecordingStream.add(false);
         recordingRoom = "";
 
-        quickVibrate();
+        lightVibrate().ignore();
         final recordingDuration =
             recordingDurationStream.valueOrNull ?? Duration.zero;
         if (recordingDuration.inMilliseconds < 300) {
@@ -207,7 +207,7 @@ class RecorderModule {
       _logger.wtf("1.recording canceled");
       isRecordingStream.add(false);
       recordingRoom = "";
-      quickVibrate();
+      lightVibrate().ignore();
 
       _onCancelCallbackStream.valueOrNull?.call();
 

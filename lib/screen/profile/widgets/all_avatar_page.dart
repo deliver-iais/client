@@ -139,14 +139,15 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                       return InteractiveViewer(
                                         child: Center(
                                           child: Image(
-                                            image: filePath.data!.imageProvider(),
+                                            image:
+                                                filePath.data!.imageProvider(),
                                           ),
                                         ),
                                       );
                                     } else {
                                       return Center(
                                         child: CircularProgressIndicator(
-                                          color: theme.primaryColor,
+                                          color: theme.colorScheme.primary,
                                         ),
                                       );
                                     }
@@ -212,7 +213,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
             child: snapshot.data!
                 ? AppBar(
                     iconTheme: IconThemeData(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     backgroundColor: Colors.black.withAlpha(120),
                     leading:
@@ -260,23 +261,20 @@ class AllAvatarPageState extends State<AllAvatarPage> {
       itemBuilder: (cc) => [
         if (_filePath != null)
           PopupMenuItem(
-            child: Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Row(
-                children: [
-                  const Icon(Icons.save_alt_rounded),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    isWeb
-                        ? _i18n.get("save")
-                        : isDesktopNative
-                            ? _i18n.get("save_as")
-                            : _i18n.get("save_to_gallery"),
-                  ),
-                ],
-              ),
+            child: Row(
+              children: [
+                const Icon(Icons.save_alt_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  isWeb
+                      ? _i18n.get("save")
+                      : isDesktopNative
+                          ? _i18n.get("save_as")
+                          : _i18n.get("save_to_gallery"),
+                ),
+              ],
             ),
             onTap: () {
               if (isDesktopNative) {
@@ -318,19 +316,16 @@ class AllAvatarPageState extends State<AllAvatarPage> {
           ),
         if (isDesktopNative && _filePath != null)
           PopupMenuItem(
-            child: Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Row(
-                children: [
-                  const Icon(Icons.copy_all_rounded),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    _i18n.get("copy_image"),
-                  ),
-                ],
-              ),
+            child: Row(
+              children: [
+                const Icon(Icons.copy_all_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  _i18n.get("copy_image"),
+                ),
+              ],
             ),
             onTap: () async {
               _fileRepo.copyFileToPasteboard(_filePath!);
@@ -342,67 +337,61 @@ class AllAvatarPageState extends State<AllAvatarPage> {
           ),
         if (widget.hasPermissionToDeletePic)
           PopupMenuItem(
-            child: Directionality(
-              textDirection: _i18n.defaultTextDirection,
-              child: Row(
-                children: [
-                  const Icon(Icons.delete_outline_rounded),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text(_i18n.get("delete")),
-                ],
-              ),
+            child: Row(
+              children: [
+                const Icon(Icons.delete_outline_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(_i18n.get("delete")),
+              ],
             ),
             onTap: () async {
               await showDialog(
                 context: context,
                 builder: (context) {
-                  return Directionality(
-                    textDirection: _i18n.defaultTextDirection,
-                    child: AlertDialog(
-                      content: Text(
-                        _i18n.get("sure_delete_avatar"),
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      actions: [
-                        TextButton(
-                          child: Text(
-                            _i18n.get("cancel"),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.primaryColor,
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        TextButton(
-                          child: Text(
-                            _i18n.get("ok"),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await _avatarRepo.deleteAvatar(
-                              _avatars[_swipePositionSubject.value]!,
-                            );
-                            if (_swipePositionSubject.value == 0 &&
-                                totalLength == 1) {
-                              setState(() {
-                                _routingService.pop();
-                              });
-                            } else {
-                              _avatars.clear();
-                              setState(() {});
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 10)
-                      ],
+                  return AlertDialog(
+                    content: Text(
+                      _i18n.get("sure_delete_avatar"),
+                      style: const TextStyle(fontSize: 18),
                     ),
+                    actions: [
+                      TextButton(
+                        child: Text(
+                          _i18n.get("cancel"),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      TextButton(
+                        child: Text(
+                          _i18n.get("ok"),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          await _avatarRepo.deleteAvatar(
+                            _avatars[_swipePositionSubject.value]!,
+                          );
+                          if (_swipePositionSubject.value == 0 &&
+                              totalLength == 1) {
+                            setState(() {
+                              _routingService.pop();
+                            });
+                          } else {
+                            _avatars.clear();
+                            setState(() {});
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 10)
+                    ],
                   );
                 },
               );

@@ -41,14 +41,14 @@ class FormResultWidgetState extends State<FormResultWidget> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 4, left: 8, right: 8),
+              padding: const EdgeInsetsDirectional.only(top: 4, end: 8, start: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final key in formResult.values.keys)
                     if (key.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 2),
+                        padding: const EdgeInsetsDirectional.only(top: 10, bottom: 2),
                         child: TextField(
                           enabled: false,
                           readOnly: true,
@@ -81,7 +81,7 @@ class FormResultWidgetState extends State<FormResultWidget> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 6.0),
+                  padding: const EdgeInsetsDirectional.only(bottom: 6.0),
                   child: Text(
                     _i18n.get("submitted_on"),
                     style: TextStyle(

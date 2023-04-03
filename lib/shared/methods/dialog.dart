@@ -85,7 +85,7 @@ Future<T?> showTitledDialog<T>(
     useSafeArea: true,
     builder: (context) {
       return AlertDialog(
-        actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
+        actionsPadding: const EdgeInsetsDirectional.only(bottom: 8, end: 8),
         content: SizedBox(
           width: 200,
           child: Text(

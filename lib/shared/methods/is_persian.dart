@@ -1,4 +1,9 @@
+import 'package:flutter/material.dart';
+
 extension IsPersian on String {
+  TextDirection textDirection() =>
+      isPersian() ? TextDirection.rtl : TextDirection.ltr;
+
   bool isPersian() {
     final temp = trim();
     for (var i = 0; i < temp.length; i++) {

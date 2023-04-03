@@ -32,55 +32,52 @@ class SelectMucTypeState extends State<SelectMucType> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.outline,
-          ),
-          borderRadius: BorderRadius.circular(15),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: theme.colorScheme.outline,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              // Negative padding
-              transform: Matrix4.translationValues(
-                5.0,
-                -10.0,
-                0.0,
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 5,
-              ),
-              decoration: BoxDecoration(
-                color: widget.backgroundColor,
-              ),
-              child: Text(
-                _i18n.get("channel_type"),
-                style: TextStyle(
-                  color: theme.primaryColor,
-                  fontSize: 12,
-                ),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            // Negative padding
+            transform: Matrix4.translationValues(
+              5.0,
+              -10.0,
+              0.0,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+            ),
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+            ),
+            child: Text(
+              _i18n.get("channel_type"),
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+                fontSize: 12,
               ),
             ),
-            Column(
-              children: [
-                buildSelectMucTypeRow(
-                  title: _i18n.get("public_channel"),
-                  description: _i18n.get("public_channel_description"),
-                  radioValue: ChannelType.PUBLIC,
-                ),
-                buildSelectMucTypeRow(
-                  title: _i18n.get("private_channel"),
-                  description: _i18n.get("private_channel_description"),
-                  radioValue: ChannelType.PRIVATE,
-                )
-              ],
-            )
-          ],
-        ),
+          ),
+          Column(
+            children: [
+              buildSelectMucTypeRow(
+                title: _i18n.get("public_channel"),
+                description: _i18n.get("public_channel_description"),
+                radioValue: ChannelType.PUBLIC,
+              ),
+              buildSelectMucTypeRow(
+                title: _i18n.get("private_channel"),
+                description: _i18n.get("private_channel_description"),
+                radioValue: ChannelType.PRIVATE,
+              )
+            ],
+          )
+        ],
       ),
     );
   }
@@ -97,7 +94,7 @@ class SelectMucTypeState extends State<SelectMucType> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Radio<ChannelType>(
-            activeColor: theme.primaryColor,
+            activeColor: theme.colorScheme.primary,
             value: radioValue,
             groupValue: _groupValue,
             onChanged: (value) {

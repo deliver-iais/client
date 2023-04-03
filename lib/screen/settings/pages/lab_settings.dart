@@ -64,146 +64,143 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: ListView(
-            children: [
-              BrandImage(
-                text: _i18n.get("these_feature_arent_stable_yet"),
-                imagePath: "assets/images/experiment.webp",
-                alignment: Alignment.topCenter,
+        child: ListView(
+          children: [
+            BrandImage(
+              text: _i18n.get("these_feature_arent_stable_yet"),
+              imagePath: "assets/images/experiment.webp",
+              alignment: Alignment.topCenter,
+            ),
+            if (hasForegroundServiceCapability)
+              Section(
+                title: 'Foreground Service',
+                children: [
+                  SettingsTile.switchTile(
+                    title: "Foreground Notification Enable",
+                    subtitle:
+                        "Application will be available in background for getting new messages online",
+                    switchValue:
+                        settings.foregroundNotificationIsEnabled.value,
+                    onToggle: (value) {
+                      setState(() {
+                        settings.foregroundNotificationIsEnabled
+                            .toggleValue();
+                      });
+                    },
+                  ),
+                ],
               ),
-              if (hasForegroundServiceCapability)
-                Section(
-                  title: 'Foreground Service',
-                  children: [
-                    SettingsTile.switchTile(
-                      title: "Foreground Notification Enable",
-                      subtitle:
-                          "Application will be available in background for getting new messages online",
-                      switchValue:
-                          settings.foregroundNotificationIsEnabled.value,
-                      onToggle: (value) {
-                        setState(() {
-                          settings.foregroundNotificationIsEnabled
-                              .toggleValue();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              if (_featureFlags.isVoiceCallAvailable())
-                Section(
-                  title: _i18n.get("calls"),
-                  children: [
-                    SettingsTile(
-                      title: _i18n.get("voice_call_feature"),
-                      leading: const Icon(CupertinoIcons.phone),
-                      trailing: const SizedBox.shrink(),
-                    ),
-                    Column(
-                      children: [
-                        const SettingsTile(
-                          title: "ICECandidateNumber",
-                          leading: Icon(CupertinoIcons.number_square_fill),
-                          trailing: Text(""),
-                        ),
-                        Slider(
-                          value: settings.iceCandidateNumbers.value.toDouble(),
-                          onChanged: (newICECandidateNumber) {
-                            setState(() {
-                              settings.iceCandidateNumbers
-                                  .set(newICECandidateNumber.toInt());
-                            });
-                          },
-                          divisions: 5,
-                          label: "${settings.iceCandidateNumbers.value}",
-                          min: ICE_CANDIDATE_NUMBER.toDouble(),
-                          max: 20,
-                        )
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        const SettingsTile(
-                          title: "ICECandidateTimeLimit(mSec)",
-                          leading: Icon(CupertinoIcons.timer_fill),
-                          trailing: Text(""),
-                        ),
-                        Slider(
-                          value:
-                              settings.iceCandidateTimeLimit.value.toDouble(),
-                          onChanged: (newICECandidateTimeLimit) {
-                            setState(() {
-                              settings.iceCandidateTimeLimit.set(
-                                newICECandidateTimeLimit.toInt(),
-                              );
-                            });
-                          },
-                          divisions: 15,
-                          label: "${settings.iceCandidateTimeLimit.value}",
-                          min: ICE_CANDIDATE_TIME_LIMIT.toDouble(),
-                          max: 3000,
-                        )
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        const SettingsTile(
-                          title: "Turn/Stun Servers",
-                          leading: Icon(CupertinoIcons.settings),
-                          trailing: Text(""),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: checkBoxListTileModel.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                child: Container(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      CheckboxListTile(
-                                        activeColor: theme.colorScheme.primary,
-                                        dense: true,
-                                        //font change
-                                        title: Text(
+            if (_featureFlags.isVoiceCallAvailable())
+              Section(
+                title: _i18n.get("calls"),
+                children: [
+                  SettingsTile(
+                    title: _i18n.get("voice_call_feature"),
+                    leading: const Icon(CupertinoIcons.phone),
+                    trailing: const SizedBox.shrink(),
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "ICECandidateNumber",
+                        leading: Icon(CupertinoIcons.number_square_fill),
+                        trailing: Text(""),
+                      ),
+                      Slider(
+                        value: settings.iceCandidateNumbers.value.toDouble(),
+                        onChanged: (newICECandidateNumber) {
+                          setState(() {
+                            settings.iceCandidateNumbers
+                                .set(newICECandidateNumber.toInt());
+                          });
+                        },
+                        divisions: 5,
+                        label: "${settings.iceCandidateNumbers.value}",
+                        min: ICE_CANDIDATE_NUMBER.toDouble(),
+                        max: 20,
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "ICECandidateTimeLimit(mSec)",
+                        leading: Icon(CupertinoIcons.timer_fill),
+                        trailing: Text(""),
+                      ),
+                      Slider(
+                        value:
+                            settings.iceCandidateTimeLimit.value.toDouble(),
+                        onChanged: (newICECandidateTimeLimit) {
+                          setState(() {
+                            settings.iceCandidateTimeLimit.set(
+                              newICECandidateTimeLimit.toInt(),
+                            );
+                          });
+                        },
+                        divisions: 15,
+                        label: "${settings.iceCandidateTimeLimit.value}",
+                        min: ICE_CANDIDATE_TIME_LIMIT.toDouble(),
+                        max: 3000,
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "Turn/Stun Servers",
+                        leading: Icon(CupertinoIcons.settings),
+                        trailing: Text(""),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: checkBoxListTileModel.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              child: Container(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  children: <Widget>[
+                                    CheckboxListTile(
+                                      activeColor: theme.colorScheme.primary,
+                                      dense: true,
+                                      //font change
+                                      title: Text(
+                                        checkBoxListTileModel[index]
+                                            .serverSetting
+                                            .name,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      value: checkBoxListTileModel[index]
+                                          .serverSetting
+                                          .value,
+                                      onChanged: (_) {
+                                        setState(() {
                                           checkBoxListTileModel[index]
                                               .serverSetting
-                                              .name,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                        value: checkBoxListTileModel[index]
-                                            .serverSetting
-                                            .value,
-                                        onChanged: (_) {
-                                          setState(() {
-                                            checkBoxListTileModel[index]
-                                                .serverSetting
-                                                .toggleValue();
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                              .toggleValue();
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-            ],
-          ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );
@@ -229,10 +226,10 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                 ),
                 textDirection: _i18n.defaultTextDirection,
                 style: theme.textTheme.bodyMedium!
-                    .copyWith(color: theme.primaryColor),
+                    .copyWith(color: theme.colorScheme.primary),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsetsDirectional.only(top: 10.0),
                 child: Text(
                   _i18n.get(
                     "alert_window_permission_attention",

@@ -40,7 +40,7 @@ class AudioCallScreen extends StatelessWidget {
             AnimatedGradient(isConnected: _callRepo.isConnected),
             Center(
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: EdgeInsetsDirectional.only(
                   top: MediaQuery.of(context).size.height * 0.10,
                 ),
                 child: Column(

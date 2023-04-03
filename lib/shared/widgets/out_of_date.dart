@@ -16,10 +16,10 @@ void showOutOfDateDialog(BuildContext context) {
       builder: (c) {
         return AlertDialog(
           content: Padding(
-            padding: const EdgeInsets.only(
+            padding: const EdgeInsetsDirectional.only(
               bottom: 8,
-              left: 24,
-              right: 24,
+              end: 24,
+              start: 24,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

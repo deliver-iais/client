@@ -124,7 +124,7 @@ class CallListPageState extends State<CallListPage> {
                             ),
                             collapsed: const SizedBox.shrink(),
                             expanded: Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
+                              padding: const EdgeInsetsDirectional.only(bottom: 16.0),
                               child: CallDetailPage(
                                 callEvent: calls[index],
                                 caller: caller,

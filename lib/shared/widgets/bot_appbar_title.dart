@@ -25,7 +25,7 @@ class BotAppbarTitle extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Row(
           children: [
-            CircleAvatarWidget(botUid, 23),
+            CircleAvatarWidget(botUid, 20),
             const SizedBox(
               width: 16,
             ),

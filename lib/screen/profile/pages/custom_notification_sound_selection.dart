@@ -180,12 +180,12 @@ class CustomNotificationSoundSelectionState
                   height: 60,
                 ),
               Padding(
-                padding: const EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsetsDirectional.only(start: 8.0),
                 child: Icon(
                   _selectedSongIndex == index
                       ? Icons.radio_button_checked_outlined
                       : Icons.radio_button_off,
-                  color: theme.primaryColor,
+                  color: theme.colorScheme.primary,
                 ),
               )
             ],

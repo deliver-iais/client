@@ -26,7 +26,7 @@ class MucAppbarTitle extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Row(
           children: [
-            CircleAvatarWidget(mucUid.asUid(), 23),
+            CircleAvatarWidget(mucUid.asUid(), 20),
             const SizedBox(
               width: 16,
             ),

@@ -5,6 +5,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/textx.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -80,26 +81,21 @@ class ContactWidget extends StatelessWidget {
                   )
                 ],
               ),
-              const SizedBox(
-                width: 15,
-              ),
               Expanded(
-                child: Text(
-                  buildName(contact.firstName, contact.lastName),
-                  overflow: TextOverflow.fade,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: theme.textTheme.titleMedium,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: p8),
+                  child: TextX(
+                    buildName(contact.firstName, contact.lastName),
+                    overflow: TextOverflow.fade,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: theme.textTheme.titleMedium,
+                  ),
                 ),
               ),
-              if (currentMember)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(_i18n.get("member")),
-                ),
               if (circleIcon != null)
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsetsDirectional.only(end: p8),
                   child: IconButton(
                     splashRadius: 40,
                     iconSize: 24,

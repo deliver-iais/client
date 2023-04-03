@@ -1,19 +1,17 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/widgets/blur_widget/blur_menu_card.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-const double _kToolbarScreenPadding = 8.0;
-const double _kToolbarWidth = 180.0;
 
 // Generates the child that's passed into DesktopTextSelectionToolbar.
 class DesktopCustomContextMenuToolbar extends StatefulWidget {
   const DesktopCustomContextMenuToolbar({
     super.key,
-     this.clipboardStatus,
+    this.clipboardStatus,
     required this.handleCopy,
-     this.handleCut,
-     this.handlePaste,
+    this.handleCut,
+    this.handlePaste,
     required this.handleSelectAll,
     this.handleBold,
     this.handleItalic,
@@ -77,6 +75,8 @@ class DesktopCustomContextMenuToolbarState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     // Don't render the menu until the state of the clipboard is known.
     if (widget.handlePaste != null &&
         widget.clipboardStatus?.value == ClipboardStatus.unknown) {
@@ -107,13 +107,7 @@ class DesktopCustomContextMenuToolbarState
     }
 
     void addDivider() {
-      items.add(
-        Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: _kToolbarButtonPadding.left),
-          child: const Divider(),
-        ),
-      );
+      items.add(const Divider());
     }
 
     Color? color;
@@ -139,7 +133,7 @@ class DesktopCustomContextMenuToolbarState
       addToolbarButton(
         localizations.pasteButtonLabel,
         widget.handlePaste!,
-        Icons.paste_outlined,
+        Icons.paste,
       );
     }
     if (widget.handleSelectAll != null) {
@@ -147,6 +141,13 @@ class DesktopCustomContextMenuToolbarState
         localizations.selectAllButtonLabel,
         widget.handleSelectAll!,
         Icons.select_all_rounded,
+      );
+    }
+    if (widget.handleCreateLink != null) {
+      addToolbarButton(
+        _i18n.get("create_link"),
+        widget.handleCreateLink!,
+        Icons.link_rounded,
       );
     }
     if (widget.handleBold != null) {
@@ -192,24 +193,15 @@ class DesktopCustomContextMenuToolbarState
         textColor: color,
       );
     }
-    if (widget.handleUnderline != null) {
-      addDivider();
-    }
-    if (widget.handleCreateLink != null) {
-      addToolbarButton(
-        _i18n.get("create_link"),
-        widget.handleCreateLink!,
-        Icons.link_rounded,
-      );
-    }
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
+    return IconTheme(
+      data: IconTheme.of(context)
+          .copyWith(size: 20, color: theme.colorScheme.onSurfaceVariant),
       child: _DesktopTextSelectionToolbar(
         anchor: widget.textSelectionToolbarAnchors.secondaryAnchor ??
             widget.textSelectionToolbarAnchors.primaryAnchor,
@@ -253,9 +245,16 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
 
   // Builds a desktop toolbar in the Material style.
   static Widget _defaultToolbarBuilder(BuildContext context, Widget child) {
-    return BlurMenuCard(
-      child: SizedBox(
-        width: _kToolbarWidth,
+    final theme = Theme.of(context);
+
+    return Material(
+      elevation: 4,
+      borderRadius: tertiaryBorder,
+      clipBehavior: Clip.hardEdge,
+      color: elevation(theme.colorScheme.surface, theme.colorScheme.primary, 2),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: p8),
+        constraints: const BoxConstraints(minWidth: 112, maxWidth: 180),
         child: child,
       ),
     );
@@ -266,16 +265,11 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
     assert(debugCheckHasMediaQuery(context));
     final mediaQuery = MediaQuery.of(context);
 
-    final paddingAbove = mediaQuery.padding.top + _kToolbarScreenPadding;
-    final localAdjustment = Offset(_kToolbarScreenPadding, paddingAbove);
+    final paddingAbove = mediaQuery.padding.top + p8;
+    final localAdjustment = Offset(p8, paddingAbove);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        _kToolbarScreenPadding,
-        paddingAbove,
-        _kToolbarScreenPadding,
-        _kToolbarScreenPadding,
-      ),
+      padding: EdgeInsets.only(top: paddingAbove, bottom: p8),
       child: CustomSingleChildLayout(
         delegate: DesktopTextSelectionToolbarLayoutDelegate(
           anchor: anchor - localAdjustment,
@@ -291,13 +285,6 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
     );
   }
 }
-
-const EdgeInsets _kToolbarButtonPadding = EdgeInsets.fromLTRB(
-  15.0,
-  0.0,
-  15.0,
-  3.0,
-);
 
 /// A [TextButton] for the Material desktop text selection toolbar.
 class _DesktopTextSelectionToolbarButton extends StatelessWidget {
@@ -317,14 +304,12 @@ class _DesktopTextSelectionToolbarButton extends StatelessWidget {
     required String text,
   }) : child = Row(
           children: [
+            const SizedBox(width: p8),
             Icon(
               iconData,
-              size: 15,
               color: textColor,
             ),
-            SizedBox(
-              width: _kToolbarButtonPadding.right,
-            ),
+            const SizedBox(width: p12),
             Text(
               text,
               overflow: TextOverflow.ellipsis,
@@ -347,19 +332,16 @@ class _DesktopTextSelectionToolbarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.colorScheme.onSurface;
 
     return SizedBox(
-      width: double.infinity,
+      // width: double.infinity,
       child: TextButton(
         style: TextButton.styleFrom(
-          alignment: Alignment.centerLeft,
-          enabledMouseCursor: SystemMouseCursors.basic,
-          disabledMouseCursor: SystemMouseCursors.basic,
-          foregroundColor: primary,
+          textStyle: theme.textTheme.labelLarge
+              ?.copyWith(color: theme.colorScheme.onSurface),
+          foregroundColor: theme.colorScheme.onSurface,
           shape: const RoundedRectangleBorder(),
-          minimumSize: const Size(kMinInteractiveDimension, 36.0),
-          padding: _kToolbarButtonPadding,
+          fixedSize: const Size.fromHeight(48),
         ),
         onPressed: onPressed,
         child: child,

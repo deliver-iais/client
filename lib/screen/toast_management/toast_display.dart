@@ -42,87 +42,84 @@ class ToastDisplay {
         borderRadius: tertiaryBorder,
         color: theme.colorScheme.inverseSurface,
       ),
-      child: Directionality(
-        textDirection: i18n.defaultTextDirection,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (toastIcon != null) Icon(toastIcon),
-            if (toastIcon != null)
-              const SizedBox(
-                width: 16.0,
-              ),
-            if (showDoneAnimation)
-              const Ws.asset(
-                "assets/animations/data.ws",
-                width: 60,
-                height: 40,
-              ),
-            if (showCopyAnimation)
-              Ws.asset(
-                "assets/animations/copy.ws",
-                width: 60,
-                height: 40,
-                repeat: false,
-                delegates: LottieDelegates(
-                  values: [
-                    ValueDelegate.color(
-                      const ['Oval', '**'],
-                      value: theme.colorScheme.onInverseSurface,
-                    ),
-                    ValueDelegate.strokeColor(
-                      const ['**'],
-                      value: theme.colorScheme.onInverseSurface,
-                    ),
-                    ValueDelegate.strokeColor(
-                      const ["info1", '**'],
-                      value: theme.colorScheme.inverseSurface,
-                    ),
-                    ValueDelegate.color(
-                      const ["info2", '**'],
-                      value: theme.colorScheme.inverseSurface,
-                    ),
-                  ],
-                ),
-              ),
-            if (showWarningAnimation)
-              Ws.asset(
-                "assets/animations/warning.ws",
-                width: 60,
-                height: 40,
-                delegates: LottieDelegates(
-                  values: [
-                    ValueDelegate.color(
-                      const ['Oval', '**'],
-                      value: theme.colorScheme.onInverseSurface,
-                    ),
-                    ValueDelegate.strokeColor(
-                      const ['**'],
-                      value: theme.colorScheme.onInverseSurface,
-                    ),
-                    ValueDelegate.strokeColor(
-                      const ["info1", '**'],
-                      value: theme.colorScheme.inverseSurface,
-                    ),
-                    ValueDelegate.color(
-                      const ["info2", '**'],
-                      value: theme.colorScheme.inverseSurface,
-                    ),
-                  ],
-                ),
-              ),
-            Expanded(
-              child: Text(
-                toastText,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: theme.colorScheme.onInverseSurface,
-                ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (toastIcon != null) Icon(toastIcon),
+          if (toastIcon != null)
+            const SizedBox(
+              width: 16.0,
+            ),
+          if (showDoneAnimation)
+            const Ws.asset(
+              "assets/animations/data.ws",
+              width: 60,
+              height: 40,
+            ),
+          if (showCopyAnimation)
+            Ws.asset(
+              "assets/animations/copy.ws",
+              width: 60,
+              height: 40,
+              repeat: false,
+              delegates: LottieDelegates(
+                values: [
+                  ValueDelegate.color(
+                    const ['Oval', '**'],
+                    value: theme.colorScheme.onInverseSurface,
+                  ),
+                  ValueDelegate.strokeColor(
+                    const ['**'],
+                    value: theme.colorScheme.onInverseSurface,
+                  ),
+                  ValueDelegate.strokeColor(
+                    const ["info1", '**'],
+                    value: theme.colorScheme.inverseSurface,
+                  ),
+                  ValueDelegate.color(
+                    const ["info2", '**'],
+                    value: theme.colorScheme.inverseSurface,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          if (showWarningAnimation)
+            Ws.asset(
+              "assets/animations/warning.ws",
+              width: 60,
+              height: 40,
+              delegates: LottieDelegates(
+                values: [
+                  ValueDelegate.color(
+                    const ['Oval', '**'],
+                    value: theme.colorScheme.onInverseSurface,
+                  ),
+                  ValueDelegate.strokeColor(
+                    const ['**'],
+                    value: theme.colorScheme.onInverseSurface,
+                  ),
+                  ValueDelegate.strokeColor(
+                    const ["info1", '**'],
+                    value: theme.colorScheme.inverseSurface,
+                  ),
+                  ValueDelegate.color(
+                    const ["info2", '**'],
+                    value: theme.colorScheme.inverseSurface,
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: Text(
+              toastText,
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.colorScheme.onInverseSurface,
+              ),
+            ),
+          ),
+        ],
       ),
     );
 

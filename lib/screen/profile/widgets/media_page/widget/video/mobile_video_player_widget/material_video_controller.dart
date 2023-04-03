@@ -108,18 +108,18 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
                       child:
                           _buildSubtitles(context, chewieController.subtitle!),
                     ),
-                  if(widget.caption.isNotEmpty)
-                  AnimatedOpacity(
-                    opacity: notifier.hideStuff ? 0.0 : 1.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MediaCaptionWidget(caption: widget.caption),
-                      ],
+                  if (widget.caption.isNotEmpty)
+                    AnimatedOpacity(
+                      opacity: notifier.hideStuff ? 0.0 : 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MediaCaptionWidget(caption: widget.caption),
+                        ],
+                      ),
                     ),
-                  ),
                   Container(
                     color: Colors.black.withAlpha(120),
                     child: _buildBottomBar(context),
@@ -276,8 +276,8 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
       duration: const Duration(milliseconds: 300),
       child: Container(
         height: barHeight + (chewieController.isFullScreen ? 10.0 : 0),
-        padding: EdgeInsets.only(
-          left: 20,
+        padding: EdgeInsetsDirectional.only(
+          start: 20,
           bottom: !chewieController.isFullScreen ? 10.0 : 0,
         ),
         child: Column(
@@ -305,7 +305,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
             if (!chewieController.isLive)
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.only(right: 20),
+                  padding: const EdgeInsetsDirectional.only(end: 20),
                   child: Row(
                     children: [
                       _buildProgressBar(),
@@ -339,8 +339,8 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
         child: ClipRect(
           child: Container(
             height: barHeight,
-            padding: const EdgeInsets.only(
-              left: 6.0,
+            padding: const EdgeInsetsDirectional.only(
+              start: 6.0,
             ),
             child: Icon(
               _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
@@ -360,11 +360,8 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
         duration: const Duration(milliseconds: 300),
         child: Container(
           height: barHeight + (chewieController.isFullScreen ? 15.0 : 0),
-          margin: const EdgeInsets.only(right: 12.0),
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
+          margin: const EdgeInsetsDirectional.only(end: 12.0),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 8.0),
           child: Center(
             child: Icon(
               chewieController.isFullScreen
@@ -470,10 +467,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
       child: Container(
         height: barHeight,
         color: Colors.transparent,
-        padding: const EdgeInsets.only(
-          left: 12.0,
-          right: 12.0,
-        ),
+        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12.0),
         child: Icon(
           _subtitleOn
               ? Icons.closed_caption
@@ -623,7 +617,8 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),
