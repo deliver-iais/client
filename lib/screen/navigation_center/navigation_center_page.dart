@@ -37,7 +37,7 @@ import 'package:window_size/window_size.dart';
 
 import 'events/has_event_row.dart';
 
-BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
+final modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
 class CallNotificationActionInBackground {
@@ -52,9 +52,8 @@ class CallNotificationActionInBackground {
   });
 }
 
-BehaviorSubject<CallNotificationActionInBackground?>
-    modifyRoutingByCallNotificationActionInBackgroundInAndroid =
-    BehaviorSubject.seeded(null);
+final modifyRoutingByCallNotificationActionInBackgroundInAndroid =
+    BehaviorSubject<CallNotificationActionInBackground?>.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({super.key});

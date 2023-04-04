@@ -1215,13 +1215,10 @@ Offset _round(Offset offset) {
 // Align the given offset to the given axis by allowing movement only in the
 // axis direction.
 Offset _alignAxis(Offset offset, Axis? axis) {
-  switch (axis) {
-    case Axis.horizontal:
-      return Offset(offset.dx, 0.0);
-    case Axis.vertical:
-    // ignore: no_default_cases
-    default:
-      return Offset(0.0, offset.dy);
+  if (axis == Axis.horizontal) {
+    return Offset(offset.dx, 0.0);
+  } else {
+    return Offset(0.0, offset.dy);
   }
 }
 

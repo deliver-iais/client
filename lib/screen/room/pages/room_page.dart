@@ -1170,87 +1170,84 @@ class RoomPageState extends State<RoomPage> {
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
-                                  return version.data != null &&
-                                          version.data! >= 31
-                                      ? Container(
-                                          constraints: const BoxConstraints(
-                                            maxWidth: 350,
+                                  if (version.data == null ||
+                                      version.data! < 31) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  return Container(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 350,
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: secondaryBorder / 1.2,
+                                      border: Border.all(
+                                        color:
+                                            theme.colorScheme.onErrorContainer,
+                                      ),
+                                      color: theme.colorScheme.errorContainer,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Text(
+                                          _i18n.get(
+                                            "alert_window_permission",
                                           ),
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            borderRadius: secondaryBorder / 1.2,
-                                            border: Border.all(
-                                              color: theme
-                                                  .colorScheme.onErrorContainer,
-                                            ),
+                                          textDirection:
+                                              _i18n.defaultTextDirection,
+                                          style: TextStyle(
                                             color: theme
-                                                .colorScheme.errorContainer,
+                                                .colorScheme.onErrorContainer,
                                           ),
-                                          child: Column(
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: p8),
+                                          child: Text(
+                                            _i18n.get(
+                                              "alert_window_permission_attention",
+                                            ),
+                                            textDirection:
+                                                _i18n.defaultTextDirection,
+                                            style: TextStyle(
+                                              color: theme.colorScheme.error,
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            FeatureDiscovery.dismissAll(
+                                              context,
+                                            );
+                                            await Permission.systemAlertWindow
+                                                .request();
+                                          },
+                                          child: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Text(
-                                                _i18n.get(
-                                                  "alert_window_permission",
-                                                ),
-                                                textDirection:
-                                                    _i18n.defaultTextDirection,
-                                                style: TextStyle(
-                                                  color: theme.colorScheme
-                                                      .onErrorContainer,
-                                                ),
-                                              ),
                                               Padding(
-                                                padding:
-                                                    const EdgeInsetsDirectional
-                                                        .only(top: p8),
+                                                padding: const EdgeInsets.all(
+                                                  p8,
+                                                ),
                                                 child: Text(
                                                   _i18n.get(
-                                                    "alert_window_permission_attention",
-                                                  ),
-                                                  textDirection: _i18n
-                                                      .defaultTextDirection,
-                                                  style: TextStyle(
-                                                    color:
-                                                        theme.colorScheme.error,
+                                                    "go_to_setting",
                                                   ),
                                                 ),
                                               ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  FeatureDiscovery.dismissAll(
-                                                    context,
-                                                  );
-                                                  await Permission
-                                                      .systemAlertWindow
-                                                      .request();
-                                                },
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                        p8,
-                                                      ),
-                                                      child: Text(
-                                                        _i18n.get(
-                                                          "go_to_setting",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const Icon(
-                                                      Icons.arrow_forward,
-                                                    ),
-                                                  ],
-                                                ),
+                                              const Icon(
+                                                Icons.arrow_forward,
                                               ),
                                             ],
                                           ),
-                                        )
-                                      : const SizedBox.shrink();
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                 },
                               )
                             : null,
@@ -1786,7 +1783,7 @@ class RoomPageState extends State<RoomPage> {
       _itemScrollController.scrollTo(
         index: index,
         duration: AnimationSettings.superUltraSlow,
-        alignment: .5,
+        alignment: 0.5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
       ).then((value) {
@@ -1822,6 +1819,8 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
+      // Ignore because there is no emoji in this string
+      // ignore: avoid-substring
       final roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
     } else {

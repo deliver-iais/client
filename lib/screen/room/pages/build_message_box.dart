@@ -538,6 +538,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
+      // Ignore because there is no emoji in this string
+      // ignore: avoid-substring
       final roomId = "4:${username.substring(1)}";
       _routingServices.openRoom(roomId);
     } else {
@@ -696,10 +698,14 @@ class OperationOnMessageSelection {
 
   Future<void> onShare() async {
     if (message.type == MessageType.TEXT) {
-      final copyText =
-          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n${DateTime.fromMillisecondsSinceEpoch(
+      // Ignore because there is no emoji in this string
+      // ignore: avoid-substring
+      final timeText = DateTime.fromMillisecondsSinceEpoch(
         message.time,
-      ).toString().substring(0, 19)}";
+      ).toString().substring(0, 19);
+
+      final copyText =
+          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n$timeText";
 
       return Share.share(
         copyText,

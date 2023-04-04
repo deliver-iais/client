@@ -79,6 +79,7 @@ class ActiveNotificationDaoImpl extends ActiveNotificationDao {
         .where((element) => element.contains("active-notification"));
     for (final element in keys) {
       await removeRoomActiveNotification(
+        // Ignore because there is no emoji in this string
         // ignore: avoid-substring
         element.substring("active-notification-".length),
       );

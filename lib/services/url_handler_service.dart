@@ -156,6 +156,8 @@ class UrlHandlerService {
 
   String normalizeApplicationUrl(String uri) {
     if (uri.startsWith("we://")) {
+      // Ignore because there is no emoji in this string
+      // ignore: avoid-substring
       return "https://$APPLICATION_DOMAIN${uri.substring(4)}";
     } else {
       return uri;
@@ -378,15 +380,16 @@ class UrlHandlerService {
     String botId,
     String token,
   ) async {
-    PrivateDataType privateDataType;
-    final type = pdType;
-    type.contains("PHONE_NUMBER")
-        ? privateDataType = PrivateDataType.PHONE_NUMBER
-        : type.contains("USERNAME")
-            ? privateDataType = PrivateDataType.USERNAME
-            : type.contains("EMAIL")
-                ? privateDataType = PrivateDataType.EMAIL
-                : privateDataType = PrivateDataType.NAME;
+    late final PrivateDataType privateDataType;
+    if (pdType.contains("PHONE_NUMBER")) {
+      privateDataType = PrivateDataType.PHONE_NUMBER;
+    } else if (pdType.contains("USERNAME")) {
+      privateDataType = PrivateDataType.USERNAME;
+    } else if (pdType.contains("EMAIL")) {
+      privateDataType = PrivateDataType.EMAIL;
+    } else {
+      privateDataType = PrivateDataType.NAME;
+    }
 
     showFloatingModalBottomSheet(
       context: settings.appContext,

@@ -87,8 +87,6 @@ class CallRepo {
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
   RTCRtpSender? _videoSender;
-
-  // ignore: unused_field
   RTCRtpSender? _audioSender;
   RTCDataChannel? _dataChannel;
   List<Map<String, Object>> _candidate = [];
@@ -1894,6 +1892,7 @@ class CallRepo {
     });
   }
 
+  // TODO(amirhossein): Remove if not needed!
   // ignore: unused_element
   Future<void> _cleanRtpSender() async {
     if (_audioSender != null) {
@@ -1939,19 +1938,17 @@ class CallRepo {
     }
   }
 
-// ignore: non_constant_identifier_names
-  BehaviorSubject<CallStatus> callingStatus =
-      BehaviorSubject.seeded(CallStatus.NO_CALL);
-  BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> sharing = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> incomingSharing = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> incomingVideoSwitch = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
-  BehaviorSubject<bool> isSpeaker = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> incomingCallOnHold = BehaviorSubject.seeded(false);
-  BehaviorSubject<bool> isConnectedSubject = BehaviorSubject.seeded(false);
+  final callingStatus = BehaviorSubject.seeded(CallStatus.NO_CALL);
+  final switching = BehaviorSubject.seeded(false);
+  final sharing = BehaviorSubject.seeded(false);
+  final incomingSharing = BehaviorSubject.seeded(false);
+  final videoing = BehaviorSubject.seeded(false);
+  final incomingVideo = BehaviorSubject.seeded(false);
+  final incomingVideoSwitch = BehaviorSubject.seeded(false);
+  final desktopDualVideo = BehaviorSubject.seeded(true);
+  final isSpeaker = BehaviorSubject.seeded(false);
+  final incomingCallOnHold = BehaviorSubject.seeded(false);
+  final isConnectedSubject = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,
@@ -2066,7 +2063,6 @@ void startCallback() {
 }
 
 class FirstTaskHandler extends TaskHandler {
-  // ignore: prefer_typing_uninitialized_variables
   late final SendPort? sPort;
 
   @override

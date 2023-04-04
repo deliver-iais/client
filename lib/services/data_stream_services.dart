@@ -417,9 +417,6 @@ class DataStreamServices {
           );
         }
       }
-      try {} catch (e) {
-        _logger.e(e);
-      }
     } else {
       await _seenDao.saveOthersSeen(
         Seen(

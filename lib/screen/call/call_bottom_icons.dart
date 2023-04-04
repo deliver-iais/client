@@ -470,7 +470,6 @@ class CallBottomRowState extends State<CallBottomRow>
     setState(() {});
   }
 
-  // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
     if (isDesktopNative) {
       if (!_callRepo.isSharing) {

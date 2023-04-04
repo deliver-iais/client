@@ -85,8 +85,7 @@ const EMPTY_MESSAGE = "{}";
 
 const _sendingDelay = Duration(milliseconds: 100);
 
-BehaviorSubject<MessageEvent?> messageEventSubject =
-    BehaviorSubject.seeded(null);
+final messageEventSubject = BehaviorSubject<MessageEvent?>.seeded(null);
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();

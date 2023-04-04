@@ -1,8 +1,8 @@
 // ignore_for_file: camel_case_types
 
 class browser {
-  static String name = "";
-  static Version version = Version();
+  static const name = "";
+  static final version = Version();
 }
 
 class Version {

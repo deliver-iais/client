@@ -221,7 +221,6 @@ class ServicesDiscoveryRepo {
   void _initAvatarChannelClientServices(
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
-    // ignore: non_constant_identifier_names
     final avatarServicesClientChannel = ClientChannel(
       ipOrAddress("ms-avatar.$APPLICATION_DOMAIN"),
       options: ChannelOptions(

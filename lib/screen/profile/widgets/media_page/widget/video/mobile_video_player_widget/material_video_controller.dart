@@ -440,7 +440,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: Colors.white.withOpacity(0.75),
               fontWeight: FontWeight.normal,
             ),
           )
@@ -616,7 +616,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
               handleColor: Theme.of(context).colorScheme.secondary,
               bufferedColor:
                   Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              backgroundColor: Theme.of(context).disabledColor.withOpacity(0.5),
             ),
       ),
     );

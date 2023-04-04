@@ -143,14 +143,8 @@ class FormSimpleInputFieldWidgetState
       }
     }
 
-    final max =
-        widget.formField.whichType() == form_pb.Form_Field_Type.textField
-            ? widget.formField.textField.max
-            : widget.formField.textField.max;
-    final min =
-        widget.formField.whichType() == form_pb.Form_Field_Type.textField
-            ? widget.formField.textField.min
-            : widget.formField.textField.min;
+    final max = widget.formField.textField.max;
+    final min = widget.formField.textField.min;
     if (value.isEmpty && widget.formField.isOptional) {
       return null;
     } else if (max > 0 && value.length > max) {

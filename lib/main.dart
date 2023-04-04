@@ -323,6 +323,7 @@ Future initializeFirebase() async {
   );
 }
 
+// There is an exceptional for main function
 // ignore: avoid_void_async
 void main() async {
   if (isWindowsNative || isLinuxNative) {

@@ -78,7 +78,7 @@ class I18N {
     return TextDirection.ltr;
   }
 
-  static LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
+  static final LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
 }
 
 class _MyLocalizationDelegate extends LocalizationsDelegate<I18N> {

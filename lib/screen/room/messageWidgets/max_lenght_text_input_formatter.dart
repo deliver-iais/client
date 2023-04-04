@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MaxLinesTextInputFormatter extends TextInputFormatter {
@@ -28,7 +29,8 @@ class MaxLinesTextInputFormatter extends TextInputFormatter {
             if (!iterator.moveNext()) break;
           }
         }
-        final truncated = newValue.text.substring(0, iterator.rawIndex);
+        final truncated =
+            newValue.text.characters.getRange(0, iterator.rawIndex).string;
         return TextEditingValue(
           text: truncated,
           selection: newSelection,

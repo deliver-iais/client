@@ -239,8 +239,9 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 onPressed: _currentPass.isNotEmpty
                     ? () {
                         if (_authRepo.localPasswordIsCorrect(_currentPass)) {
-                          _authRepo.setLocalPassword("");
-                          setState(() {});
+                          setState(() {
+                            _authRepo.setLocalPassword("");
+                          });
                           Navigator.of(context).pop();
                         } else {
                           // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
@@ -302,8 +303,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               onPressed: () async {
                 if (await _accountRepo
                     .disableTwoStepVerification(textController.text)) {
-                  setState(() {});
                   if (context.mounted) {
+                    setState(() {});
                     Navigator.of(context).pop();
                   }
                 } else {

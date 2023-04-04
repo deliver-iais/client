@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+// TODO(any): Refactor and use final variables instead!
 // ignore: must_be_immutable
 class ScreenSelectDialog extends Dialog {
   static final _logger = GetIt.I.get<Logger>();

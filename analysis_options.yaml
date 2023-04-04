@@ -161,12 +161,12 @@ dart_code_metrics:
         acceptable-level: 2
 #    - member-ordering: true
     - no-boolean-literal-compare: true
-    - no-empty-block: true
+#    - no-empty-block: true
     - no-equal-then-else: true
-    - prefer-commenting-analyzer-ignores: true
+    - prefer-commenting-analyzer-ignores:
+        exclude:
+          - lib/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart
     - prefer-iterable-of: true
-    - prefer-first: true
-    - prefer-last: true
 #    - prefer-moving-to-variable: true
 
 # Additional information about this file can be found at

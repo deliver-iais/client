@@ -195,15 +195,21 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     showDialog(
       context: context,
       builder: (c) {
+        late final String text;
+
+        if (sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER) {
+          text = _i18n.get("access_phone_number");
+        } else if (sharePrivateDataRequest.data == PrivateDataType.EMAIL) {
+          text = _i18n.get("access_email");
+        } else if (sharePrivateDataRequest.data == PrivateDataType.NAME) {
+          text = _i18n.get("access_name");
+        } else {
+          text = _i18n.get("access_username");
+        }
+
         return AlertDialog(
           content: Text(
-            sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
-                ? _i18n.get("access_phone_number")
-                : sharePrivateDataRequest.data == PrivateDataType.EMAIL
-                    ? _i18n.get("access_email")
-                    : sharePrivateDataRequest.data == PrivateDataType.NAME
-                        ? _i18n.get("access_name")
-                        : _i18n.get("access_username"),
+            text,
             style: const TextStyle(fontSize: 16),
           ),
           actions: [

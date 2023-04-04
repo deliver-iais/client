@@ -257,8 +257,8 @@ class DeveloperPageState extends State<DeveloperPage> {
                     return Table(
                       border: TableBorder.all(borderRadius: mainBorder),
                       columnWidths: const {
-                        0: FlexColumnWidth(0.80),
-                        1: FlexColumnWidth(0.20)
+                        0: FlexColumnWidth(0.8),
+                        1: FlexColumnWidth(0.2)
                       },
                       children: [
                         const TableRow(
@@ -319,8 +319,8 @@ class DeveloperPageState extends State<DeveloperPage> {
                     return Table(
                       border: TableBorder.all(borderRadius: mainBorder),
                       columnWidths: const {
-                        0: FlexColumnWidth(0.80),
-                        1: FlexColumnWidth(0.20)
+                        0: FlexColumnWidth(0.8),
+                        1: FlexColumnWidth(0.2)
                       },
                       children: [
                         const TableRow(
@@ -380,8 +380,8 @@ class DeveloperPageState extends State<DeveloperPage> {
                     return Table(
                       border: TableBorder.all(borderRadius: mainBorder),
                       columnWidths: const {
-                        0: FlexColumnWidth(0.80),
-                        1: FlexColumnWidth(0.20)
+                        0: FlexColumnWidth(0.8),
+                        1: FlexColumnWidth(0.2)
                       },
                       children: [
                         const TableRow(

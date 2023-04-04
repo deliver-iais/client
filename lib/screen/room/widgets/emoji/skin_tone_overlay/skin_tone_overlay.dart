@@ -126,7 +126,7 @@ class SkinToneOverlay {
         (row) * emojiSpace -
         scrollOffset -
         topOffset;
-    return Rect.fromLTWH(left, top, emojiSpace, .0);
+    return Rect.fromLTWH(left, top, emojiSpace, 0.0);
   }
 
   static Widget _buildSkinToneEmoji(

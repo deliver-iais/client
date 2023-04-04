@@ -8097,15 +8097,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<_i90.CallStatus>);
   @override
-  set callingStatus(_i4.BehaviorSubject<_i90.CallStatus>? _callingStatus) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #callingStatus,
-          _callingStatus,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get switching => (super.noSuchMethod(
         Invocation.getter(#switching),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8113,14 +8104,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
           Invocation.getter(#switching),
         ),
       ) as _i4.BehaviorSubject<bool>);
-  @override
-  set switching(_i4.BehaviorSubject<bool>? _switching) => super.noSuchMethod(
-        Invocation.setter(
-          #switching,
-          _switching,
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   _i4.BehaviorSubject<bool> get sharing => (super.noSuchMethod(
         Invocation.getter(#sharing),
@@ -8130,14 +8113,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<bool>);
   @override
-  set sharing(_i4.BehaviorSubject<bool>? _sharing) => super.noSuchMethod(
-        Invocation.setter(
-          #sharing,
-          _sharing,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get incomingSharing => (super.noSuchMethod(
         Invocation.getter(#incomingSharing),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8145,15 +8120,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
           Invocation.getter(#incomingSharing),
         ),
       ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingSharing(_i4.BehaviorSubject<bool>? _incomingSharing) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingSharing,
-          _incomingSharing,
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   _i4.BehaviorSubject<bool> get videoing => (super.noSuchMethod(
         Invocation.getter(#videoing),
@@ -8163,14 +8129,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<bool>);
   @override
-  set videoing(_i4.BehaviorSubject<bool>? _videoing) => super.noSuchMethod(
-        Invocation.setter(
-          #videoing,
-          _videoing,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get incomingVideo => (super.noSuchMethod(
         Invocation.getter(#incomingVideo),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8178,15 +8136,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
           Invocation.getter(#incomingVideo),
         ),
       ) as _i4.BehaviorSubject<bool>);
-  @override
-  set incomingVideo(_i4.BehaviorSubject<bool>? _incomingVideo) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingVideo,
-          _incomingVideo,
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   _i4.BehaviorSubject<bool> get incomingVideoSwitch => (super.noSuchMethod(
         Invocation.getter(#incomingVideoSwitch),
@@ -8196,15 +8145,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<bool>);
   @override
-  set incomingVideoSwitch(_i4.BehaviorSubject<bool>? _incomingVideoSwitch) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingVideoSwitch,
-          _incomingVideoSwitch,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get desktopDualVideo => (super.noSuchMethod(
         Invocation.getter(#desktopDualVideo),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8212,15 +8152,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
           Invocation.getter(#desktopDualVideo),
         ),
       ) as _i4.BehaviorSubject<bool>);
-  @override
-  set desktopDualVideo(_i4.BehaviorSubject<bool>? _desktopDualVideo) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #desktopDualVideo,
-          _desktopDualVideo,
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   _i4.BehaviorSubject<bool> get isSpeaker => (super.noSuchMethod(
         Invocation.getter(#isSpeaker),
@@ -8230,14 +8161,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<bool>);
   @override
-  set isSpeaker(_i4.BehaviorSubject<bool>? _isSpeaker) => super.noSuchMethod(
-        Invocation.setter(
-          #isSpeaker,
-          _isSpeaker,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get incomingCallOnHold => (super.noSuchMethod(
         Invocation.getter(#incomingCallOnHold),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8246,15 +8169,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
         ),
       ) as _i4.BehaviorSubject<bool>);
   @override
-  set incomingCallOnHold(_i4.BehaviorSubject<bool>? _incomingCallOnHold) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #incomingCallOnHold,
-          _incomingCallOnHold,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   _i4.BehaviorSubject<bool> get isConnectedSubject => (super.noSuchMethod(
         Invocation.getter(#isConnectedSubject),
         returnValue: _FakeBehaviorSubject_2<bool>(
@@ -8262,15 +8176,6 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
           Invocation.getter(#isConnectedSubject),
         ),
       ) as _i4.BehaviorSubject<bool>);
-  @override
-  set isConnectedSubject(_i4.BehaviorSubject<bool>? _isConnectedSubject) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #isConnectedSubject,
-          _isConnectedSubject,
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   bool get isMicMuted => (super.noSuchMethod(
         Invocation.getter(#isMicMuted),

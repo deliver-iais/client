@@ -185,9 +185,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         break;
 
       case SettingsItemType.modal:
-        if (widget.value == null) {
-          // rowChildren.add(const Expanded(child: SizedBox.shrink()));
-        } else {
+        if (widget.value != null) {
           rowChildren.add(
             Padding(
               padding: const EdgeInsetsDirectional.only(top: p2, start: p2),

@@ -10,11 +10,11 @@ class PendingMessageExceptStatusMatcher extends Matcher {
   final PendingMessage pm;
 
   @override
+  // Matchers should use dynamic in function definition
   // ignore: type_annotate_public_apis
   bool matches(other, Map<dynamic, dynamic> matchState) {
     return identical(this, other) ||
-        (
-            other.runtimeType == pm.runtimeType &&
+        (other.runtimeType == pm.runtimeType &&
             other is PendingMessage &&
             const DeepCollectionEquality().equals(other.roomUid, pm.roomUid) &&
             const DeepCollectionEquality()

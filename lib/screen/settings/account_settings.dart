@@ -483,11 +483,13 @@ class AccountSettingsState extends State<AccountSettings> {
     final u3 = name.isEmpty ? lastName : name;
     var suggestion = <String>[u1, u2, u3];
     if (name.isNotEmpty && lastName.isNotEmpty) {
-      suggestion.add("${name.substring(0, 1)}_$lastName");
+      suggestion.add("${name.characters.getRange(0, 1)}_$lastName");
     }
     suggestion = suggestion
         .map<String>(
-          (e) => e.length > 20 ? e.substring(0, 20).trim() : e.trim(),
+          (e) => e.length > 20
+              ? e.characters.getRange(0, 20).string.trim()
+              : e.trim(),
         )
         .where((element) => element.length > 4 && element.contains(input))
         .toList();

@@ -44,6 +44,8 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
           height: 10,
         ),
         Text(
+          // Ignore because there is no emoji in this string
+          // ignore: avoid-substring
           DateTime.fromMillisecondsSinceEpoch(
             createdOn,
           ).toString().substring(0, 19),

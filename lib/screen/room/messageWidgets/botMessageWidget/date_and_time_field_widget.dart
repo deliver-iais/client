@@ -46,25 +46,28 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
+
+    late final Widget fieldWidget;
+
+    if (widget.formField.whichType() == form_pb.Form_Field_Type.dateField) {
+      fieldWidget = buildDateField(context);
+    } else if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.timeField) {
+      fieldWidget = buildTimeField(context);
+    } else if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.dateAndTimeField) {
+      fieldWidget = buildDateWithTimeField(context);
+    } else {
+      fieldWidget = Container();
+    }
+
     return ShakeWidget(
       controller: _shakeWidgetController,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Column(
           children: [
-            Form(
-              key: _formKey,
-              child: widget.formField.whichType() ==
-                      form_pb.Form_Field_Type.dateField
-                  ? buildDateField(context)
-                  : widget.formField.whichType() ==
-                          form_pb.Form_Field_Type.timeField
-                      ? buildTimeField(context)
-                      : widget.formField.whichType() ==
-                              form_pb.Form_Field_Type.dateAndTimeField
-                          ? buildDateWithTimeField(context)
-                          : Container(),
-            ),
+            Form(key: _formKey, child: fieldWidget),
             if (widget.formField.hint.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(6.0),

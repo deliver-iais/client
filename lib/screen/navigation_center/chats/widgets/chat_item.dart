@@ -288,21 +288,25 @@ class ChatItemState extends State<ChatItem> {
                                               snapshot.data!.hiddenMessageCount;
                                         }
                                       }
-                                      return widget.room.draft != null &&
-                                              widget.room.draft!.isNotEmpty &&
-                                              unreadCount == 0
-                                          ? buildDraftMessageWidget(
-                                              _i18n,
-                                              context,
-                                            )
-                                          : widget.room.lastMessage != null
-                                              ? buildLastMessage(
-                                                  widget.room.lastMessage!,
-                                                )
-                                              : const SizedBox(
-                                                  height: 3,
-                                                  width: 5,
-                                                );
+
+                                      if (widget.room.draft != null &&
+                                          widget.room.draft!.isNotEmpty &&
+                                          unreadCount == 0) {
+                                        return buildDraftMessageWidget(
+                                          _i18n,
+                                          context,
+                                        );
+                                      } else if (widget.room.lastMessage !=
+                                          null) {
+                                        return buildLastMessage(
+                                          widget.room.lastMessage!,
+                                        );
+                                      } else {
+                                        return const SizedBox(
+                                          height: 3,
+                                          width: 5,
+                                        );
+                                      }
                                     },
                                   ),
                           ),

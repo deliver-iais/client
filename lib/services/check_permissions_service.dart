@@ -40,7 +40,7 @@ class CheckPermissionsService {
     BuildContext? context,
   }) async {
     assert(
-      shouldShowRationalDialog == false || rationalDialogI18nKey != null,
+      !shouldShowRationalDialog || rationalDialogI18nKey != null,
       "if you set shouldShowRationalDialog to true, you should set rationalDialogI18nKey too!",
     );
 
@@ -89,6 +89,7 @@ class CheckPermissionsService {
       if (s.isPermanentlyDenied) {
         permanentlyDeniedPermissions.add(permission.value);
 
+        // Not possible to check
         // ignore: use_build_context_synchronously
         await showPermanentlyDeniedDialog(
           permanentlyDeniedDialogI18nKey: permanentlyDeniedDialogI18nKey,

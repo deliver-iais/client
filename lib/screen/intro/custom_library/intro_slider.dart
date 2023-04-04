@@ -233,14 +233,13 @@ class IntroSlider extends StatefulWidget {
 class IntroSliderState extends State<IntroSlider>
     with SingleTickerProviderStateMixin {
   /// Default values
-  static TextStyle defaultBtnNameTextStyle =
-      const TextStyle(color: Colors.white);
+  static const defaultBtnNameTextStyle = TextStyle(color: Colors.white);
 
-  static double defaultBtnBorderRadius = 28.0;
+  static const defaultBtnBorderRadius = 28.0;
 
-  static Color defaultBtnColor = Colors.transparent;
+  static const defaultBtnColor = Colors.transparent;
 
-  static Color defaultBtnHighlightColor = Colors.white.withOpacity(0.3);
+  static final defaultBtnHighlightColor = Colors.white.withOpacity(0.3);
 
   // ---------- Slides ----------
   /// An array of Slide object

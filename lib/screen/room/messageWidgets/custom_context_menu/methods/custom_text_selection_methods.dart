@@ -51,7 +51,11 @@ class CustomContextMenuMethods {
     final start = textController.selection.start;
     final end = textController.selection.end;
     if (start != end &&
-        textController.text.substring(start, end).trim().isNotEmpty) {
+        textController.text.characters
+            .getRange(start, end)
+            .string
+            .trim()
+            .isNotEmpty) {
       return true;
     } else {
       return false;
@@ -69,7 +73,8 @@ class CustomContextMenuMethods {
     final start = textController.selection.start;
 
     if (isAnyThingSelected(textController)) {
-      linkTextController.text = textController.text.substring(start, end);
+      linkTextController.text =
+          textController.text.characters.getRange(start, end).string;
     }
     showDialog(
       context: buildContext,
@@ -128,14 +133,18 @@ class CustomContextMenuMethods {
                   final link =
                       createLink(linkTextController.text, linkController.text);
 
-                  textController.text = textController.text.substring(
-                        0,
-                        start,
-                      ) +
+                  textController.text = textController.text.characters
+                          .getRange(
+                            0,
+                            start,
+                          )
+                          .string +
                       link +
-                      textController.text.substring(
-                        isAnyThingSelected(textController) ? end : start,
-                      );
+                      textController.text.characters
+                          .getRange(
+                            isAnyThingSelected(textController) ? end : start,
+                          )
+                          .string;
 
                   Navigator.pop(context);
                 }
@@ -194,8 +203,8 @@ class CustomContextMenuMethods {
     String specialChar,
     TextEditingController textController,
   ) {
-    return "${textController.text.substring(0, textController.selection.start)}"
-        "$specialChar${textController.text.substring(textController.selection.start, textController.selection.end)}"
-        "$specialChar${textController.text.substring(textController.selection.end, textController.text.length)}";
+    return "${textController.text.characters.getRange(0, textController.selection.start)}"
+        "$specialChar${textController.text.characters.getRange(textController.selection.start, textController.selection.end)}"
+        "$specialChar${textController.text.characters.getRange(textController.selection.end, textController.text.length)}";
   }
 }

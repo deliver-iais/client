@@ -28,8 +28,8 @@ import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
-BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
-BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
+final disconnectedTime = BehaviorSubject.seeded(0);
+final connectionError = BehaviorSubject.seeded("");
 
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 final MAX_BACKOFF_TIME = isMobileNative ? 16 : 64;
