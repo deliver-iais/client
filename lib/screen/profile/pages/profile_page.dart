@@ -486,7 +486,7 @@ class ProfilePageState extends State<ProfilePage>
                   if (snapshot.data != null &&
                       snapshot.data!.countryCode != 0) {
                     return GestureDetector(
-                      onPanDown: (e) => storePosition(e),
+                      onPanDown: storeDragDownPosition,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.only(top: 12.0),
                         child: SettingsTile(
@@ -808,7 +808,7 @@ class ProfilePageState extends State<ProfilePage>
     ];
 
     return GestureDetector(
-      onPanDown: (e) => storePosition(e),
+      onPanDown: storeDragDownPosition,
       child: IconButton(
         icon: const Icon(
           Icons.more_vert,

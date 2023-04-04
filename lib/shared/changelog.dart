@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 const List<String> FARSI_FEATURE_LIST = [
   'اضافه کردن قابلیت انتخاب میکروفن در دسکتاپ برای تماس صوتی و تصویری',
   'بهبود نمایش نوتیفیکیشن‌های برنامه در اندروید و مک',

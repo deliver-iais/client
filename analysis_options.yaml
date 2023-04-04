@@ -166,6 +166,7 @@ dart_code_metrics:
     - prefer-commenting-analyzer-ignores:
         exclude:
           - lib/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart
+          - lib/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart
     - prefer-iterable-of: true
 #    - prefer-moving-to-variable: true
 

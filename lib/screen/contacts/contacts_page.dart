@@ -174,7 +174,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                         hitTestBehavior: HitTestBehavior.translucent,
                         child: GestureDetector(
                           behavior: HitTestBehavior.translucent,
-                          onPanDown: (e) => storePosition(e),
+                          onPanDown: storeDragDownPosition,
                           child: FloatingActionButton(
                             heroTag: "add_contact-fab",
                             onPressed: () async {

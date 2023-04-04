@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/localization/i18n.dart';

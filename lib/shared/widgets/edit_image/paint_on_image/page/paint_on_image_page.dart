@@ -89,8 +89,9 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
     );
     outPutFile.writeAsBytesSync(image!);
     widget.onDone(outPutFile.path);
-    // ignore: use_build_context_synchronously
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
     setState(() {
       _showLoading = false;
     });

@@ -213,16 +213,20 @@ List<Block> partitioner(Block block, Detector detector) {
   var start = 0;
 
   for (final p in partitions) {
-    if (text.substring(start, p.start).isNotEmpty) {
+    if (text.characters.getRange(start, p.start).isNotEmpty) {
       blocks.add(
-        Block(text: text.substring(start, p.start), features: block.features),
+        Block(
+          text: text.characters.getRange(start, p.start).string,
+          features: block.features,
+        ),
       );
     }
 
-    if (text.substring(p.start, p.end).isNotEmpty) {
+    if (text.characters.getRange(p.start, p.end).isNotEmpty) {
       blocks.add(
         Block(
-          text: p.replacedText ?? text.substring(p.start, p.end),
+          text:
+              p.replacedText ?? text.characters.getRange(p.start, p.end).string,
           features: {...block.features, ...p.features},
           lockToMoreParsing: p.lockToMoreParsing,
         ),
@@ -232,8 +236,13 @@ List<Block> partitioner(Block block, Detector detector) {
     start = p.end;
   }
 
-  if (text.substring(start).isNotEmpty) {
-    blocks.add(Block(text: text.substring(start), features: block.features));
+  if (text.characters.getRange(start).isNotEmpty) {
+    blocks.add(
+      Block(
+        text: text.characters.getRange(start).string,
+        features: block.features,
+      ),
+    );
   }
 
   return blocks;

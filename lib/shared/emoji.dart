@@ -11262,21 +11262,11 @@ enum EmojiGroup {
 }
 
 /// All Skin Tones
-// ignore: camel_case_types
-enum fitzpatrick {
-  light,
-  mediumLight,
-  medium,
-  mediumDark,
-  dark,
-  // ignore: constant_identifier_names
-  None
-}
+enum FITZPATRICK { light, mediumLight, medium, mediumDark, dark, None }
 
 const _skinToneCharCodes = [127995, 127996, 127997, 127998, 127999];
 
 /// List of chars with zero width
-// ignore: constant_identifier_names
 const ZeroWidthCharCodes = [65039, 8205];
 const _modifiableCharCodes = [
   127877,
@@ -11406,7 +11396,6 @@ class Emoji {
   static const variationSelector16 = 65039;
   static final _i18n = GetIt.I.get<I18N>();
 
-  // ignore: constant_identifier_names
   static const ZWJ = 8205;
 
   final String name;
@@ -11431,8 +11420,6 @@ class Emoji {
   List<int> get charRunes {
     return _runes ??= char.runes.toList();
   }
-
-
 
   /// Get all Emojis
   static List<Emoji> all() => List.unmodifiable(_emojis + _recentEmojis);
@@ -11515,25 +11502,25 @@ class Emoji {
   }
 
   /// Modify skin tone of [emoji] by requested [skinTone]
-  static String modify(String emoji, fitzpatrick skinTone) {
+  static String modify(String emoji, FITZPATRICK skinTone) {
     int skinToneCharCode;
     switch (skinTone) {
-      case fitzpatrick.light:
+      case FITZPATRICK.light:
         skinToneCharCode = 127995;
         break;
-      case fitzpatrick.mediumLight:
+      case FITZPATRICK.mediumLight:
         skinToneCharCode = 127996;
         break;
-      case fitzpatrick.medium:
+      case FITZPATRICK.medium:
         skinToneCharCode = 127997;
         break;
-      case fitzpatrick.mediumDark:
+      case FITZPATRICK.mediumDark:
         skinToneCharCode = 127998;
         break;
-      case fitzpatrick.dark:
+      case FITZPATRICK.dark:
         skinToneCharCode = 127999;
         break;
-      case fitzpatrick.None:
+      case FITZPATRICK.None:
         return stabilize(emoji);
     }
 
@@ -11557,7 +11544,7 @@ class Emoji {
       _emojis[index] = Emoji(
         shortName: emoji.shortName,
         emojiGroup: emoji.emojiGroup,
-        char: modify(char, fitzpatrick.values[tone]),
+        char: modify(char, FITZPATRICK.values[tone]),
         name: emoji.name,
         modifiable: emoji.modifiable,
       );

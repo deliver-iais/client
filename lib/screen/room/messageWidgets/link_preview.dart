@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:metadata_fetch/metadata_fetch.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ignore: constant_identifier_names
 const APARAT = "https://www.aparat.com";
 
 class LinkPreview extends StatelessWidget {

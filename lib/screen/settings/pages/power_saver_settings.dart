@@ -25,8 +25,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
 
-  // ignore: cancel_subscriptions
-  StreamSubscription<dynamic>? streamSubscription;
+  late final StreamSubscription<dynamic> streamSubscription;
 
   @override
   void initState() {
@@ -41,7 +40,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
 
   @override
   void dispose() {
-    streamSubscription?.cancel();
+    streamSubscription.cancel();
     super.dispose();
   }
 
@@ -296,8 +295,9 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                       );
                     },
                   ),
-                  // TODO(bitbeter): should be implemented
                   if (false)
+                    // TODO(bitbeter): Add settings usage for show animated avatars.
+                    // ignore: dead_code
                     SettingsTile.switchTile(
                       title: _i18n["show_animated_avatars"],
                       leading: const Icon(Icons.person_4_rounded),

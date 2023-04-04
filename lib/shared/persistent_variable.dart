@@ -10,6 +10,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 
+// TODO(bitbeter): add in package.yaml
 // ignore: depend_on_referenced_packages
 import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:rxdart/rxdart.dart';

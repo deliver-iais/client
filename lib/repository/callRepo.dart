@@ -1,4 +1,5 @@
-// ignore_for_file: file_names, constant_identifier_names, avoid_dynamic_calls
+// TODO(any): change file name
+// ignore_for_file: file_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -1436,15 +1437,16 @@ class CallRepo {
   }
 
   Future<void> _setCallCandidate(String candidatesJson) async {
-    final candidates = (jsonDecode(candidatesJson) as List)
-        .map(
-          (data) => RTCIceCandidate(
-            data['candidate'],
-            data['sdpMid'],
-            data['sdpMlineIndex'],
-          ),
-        )
-        .toList();
+    final candidates =
+        (jsonDecode(candidatesJson) as List<Map<String, dynamic>>)
+            .map(
+              (data) => RTCIceCandidate(
+                data['candidate'],
+                data['sdpMid'],
+                data['sdpMlineIndex'],
+              ),
+            )
+            .toList();
     await _setCandidate(candidates);
   }
 

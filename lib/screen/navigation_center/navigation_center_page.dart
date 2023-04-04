@@ -141,7 +141,7 @@ class NavigationCenterState extends State<NavigationCenter>
             hitTestBehavior: HitTestBehavior.translucent,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onPanDown: (e) => storePosition(e),
+              onPanDown: storeDragDownPosition,
               child: FloatingActionButton(
                 heroTag: "navigation-center-fab",
                 onPressed: () {
@@ -586,7 +586,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                 PerformanceMode.POWER_SAVER.level) {
                           return GestureDetector(
                             behavior: HitTestBehavior.translucent,
-                            onPanDown: (e) => storePosition(e),
+                            onPanDown: storeDragDownPosition,
                             child: IconButton(
                               onPressed: () async {
                                 final value = await this.showMenu(

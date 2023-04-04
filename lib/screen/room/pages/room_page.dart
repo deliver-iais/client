@@ -448,9 +448,7 @@ class RoomPageState extends State<RoomPage> {
       }
     });
 
-    final scrollPosition = await _scrollPositionDao
-        // ignore: deprecated_member_use_from_same_package
-        .get(
+    final scrollPosition = await _scrollPositionDao.get(
       '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
     );
 

@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'package:collection/collection.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';

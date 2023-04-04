@@ -207,8 +207,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onLongPress: () async {
             await selectMessage();
           },
-          onTapDown: storePosition,
-          onSecondaryTapDown: storePosition,
+          onTapDown: storeTapDownPosition,
+          onSecondaryTapDown: storeTapDownPosition,
           child: Padding(
             padding: EdgeInsets.symmetric(
               vertical: msg.isHidden ? 0.0 : p4,
@@ -298,8 +298,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onLongPress: () async {
         await selectMessage();
       },
-      onTapDown: storePosition,
-      onSecondaryTapDown: storePosition,
+      onTapDown: storeTapDownPosition,
+      onSecondaryTapDown: storeTapDownPosition,
       child: messageWidget,
     );
   }
@@ -318,7 +318,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       scrollToMessage: widget.scrollToMessage,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
-      storePosition: storePosition,
+      storePosition: storeTapDownPosition,
       onEdit: widget.onEdit,
       showMenuDisable: widget.selectMultiMessageSubject.value,
     );
@@ -433,7 +433,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onUsernameClick: onUsernameClick,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),
-      storePosition: storePosition,
+      storePosition: storeTapDownPosition,
       onEdit: widget.onEdit,
       showMenuDisable: widget.selectMultiMessageSubject.value,
     );
@@ -602,7 +602,6 @@ class OperationOnMessageSelection {
         onShare().ignore();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
-        // ignore: use_build_context_synchronously
         onSaveTOGallery(context);
         break;
       case OperationOnMessage.SAVE_TO_DOWNLOADS:

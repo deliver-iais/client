@@ -9,17 +9,17 @@ class _SliderIndicatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawCircle(
-      Offset(position, size.height / 2),
-      12,
-      Paint()..color = Colors.white,
-    );
-    // ignore: cascade_invocations
-    canvas.drawCircle(
-      Offset(position, size.height / 2),
-      3,
-      Paint()..color = controller.color,
-    );
+    canvas
+      ..drawCircle(
+        Offset(position, size.height / 2),
+        12,
+        Paint()..color = Colors.white,
+      )
+      ..drawCircle(
+        Offset(position, size.height / 2),
+        3,
+        Paint()..color = controller.color,
+      );
   }
 
   @override

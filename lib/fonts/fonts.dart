@@ -1,8 +1,9 @@
-// ignore_for_file: implementation_imports
-
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+
+// TODO(any): after accessing compact noto emoji in fonts we should remove this imports
+// ignore_for_file: implementation_imports
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_fonts/src/google_fonts_base.dart';
 import 'package:google_fonts/src/google_fonts_descriptor.dart';

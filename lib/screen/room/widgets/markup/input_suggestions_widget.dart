@@ -30,9 +30,8 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
       onNotification: (notification) {
         setState(() {
           if (mounted && context.findRenderObject() != null) {
-            // ignore: cast_nullable_to_non_nullable
-            final renderBox = context.findRenderObject() as RenderBox;
-            size = renderBox.size.width;
+            final renderBox = context.findRenderObject() as RenderBox?;
+            size = renderBox?.size.width;
           }
         });
         return true;

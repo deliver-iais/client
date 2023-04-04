@@ -229,74 +229,73 @@ class UrlHandlerService {
             "${buildName(firstName, lastName)} ${_i18n.get("contact_exist")}",
       );
     } else {
-      unawaited(
-        // ignore: use_build_context_synchronously
-        showFloatingModalBottomSheet(
-          context: settings.appContext,
-          builder: (ctx) => Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  _i18n.get("sure_add_contact"),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
+      // Forced
+      // ignore: use_build_context_synchronously
+      showFloatingModalBottomSheet(
+        context: settings.appContext,
+        builder: (ctx) => Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                _i18n.get("sure_add_contact"),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Text(
+                buildName(firstName, lastName),
+                style:
+                    TextStyle(color: theme.colorScheme.primary, fontSize: 20),
+              ),
+              Text(
+                buildPhoneNumber(countryCode, nationalNumber),
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(_i18n.get("skip")),
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Text(
-                  buildName(firstName, lastName),
-                  style:
-                      TextStyle(color: theme.colorScheme.primary, fontSize: 20),
-                ),
-                Text(
-                  buildPhoneNumber(countryCode, nationalNumber),
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text(_i18n.get("skip")),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        final navigatorState = Navigator.of(ctx);
-                        final contactUid = await _contactRepo.sendNewContact(
-                          Contact()
-                            ..firstName = firstName!
-                            ..lastName = lastName!
-                            ..phoneNumber = PhoneNumber(
-                              countryCode: countryCode,
-                              nationalNumber: Int64(nationalNumber),
-                            ),
+                  TextButton(
+                    onPressed: () async {
+                      final navigatorState = Navigator.of(ctx);
+                      final contactUid = await _contactRepo.sendNewContact(
+                        Contact()
+                          ..firstName = firstName!
+                          ..lastName = lastName!
+                          ..phoneNumber = PhoneNumber(
+                            countryCode: countryCode,
+                            nationalNumber: Int64(nationalNumber),
+                          ),
+                      );
+                      if (contactUid != null) {
+                        ToastDisplay.showToast(
+                          toastText: "$firstName$lastName ${_i18n.get(
+                            "contact_add",
+                          )}",
                         );
-                        if (contactUid != null) {
-                          ToastDisplay.showToast(
-                            toastText: "$firstName$lastName ${_i18n.get(
-                              "contact_add",
-                            )}",
-                          );
-                          navigatorState.pop();
-                        }
-                      },
-                      child: Text(_i18n.get("add_contact")),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                        navigatorState.pop();
+                      }
+                    },
+                    child: Text(_i18n.get("add_contact")),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      );
+      ).ignore();
     }
   }
 

@@ -168,7 +168,6 @@ void startCallbackNotification() {
 }
 
 class NotificationHandler extends TaskHandler {
-  // ignore: prefer_typing_uninitialized_variables
   late final SendPort? sPort;
 
   @override
@@ -288,7 +287,6 @@ void startCallbackCallForeground() {
 }
 
 class CallForegroundHandler extends TaskHandler {
-  // ignore: prefer_typing_uninitialized_variables
   late final SendPort? sPort;
 
   @override

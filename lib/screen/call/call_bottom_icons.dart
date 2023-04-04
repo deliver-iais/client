@@ -164,7 +164,7 @@ class CallBottomRowState extends State<CallBottomRow>
       backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onPanDown: (e) => storePosition(e),
+        onPanDown: storeDragDownPosition,
         child: IconButton(
           hoverColor: theme.colorScheme.primary.withOpacity(0.6),
           tooltip: _i18n.get("call_audio"),

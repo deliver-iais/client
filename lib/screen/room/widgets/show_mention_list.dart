@@ -5,8 +5,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-// ignore: constant_identifier_names
-const HEIGHT = 52.0;
+const OPTION_ITEM_HEIGHT = 52.0;
 
 class ShowMentionList extends StatelessWidget {
   static final _mucRepo = GetIt.I.get<MucRepo>();
@@ -36,8 +35,8 @@ class ShowMentionList extends StatelessWidget {
               Flexible(
                 child: SizedBox(
                   height: members.data!.length >= 4
-                      ? HEIGHT * 4
-                      : (members.data!.length * HEIGHT),
+                      ? OPTION_ITEM_HEIGHT * 4
+                      : (members.data!.length * OPTION_ITEM_HEIGHT),
                   child: Container(
                     color: theme.colorScheme.background,
                     child: ListView.separated(

@@ -205,6 +205,7 @@ class CheckPermissionsService {
 
   Future<bool> checkStoragePermission({BuildContext? context}) async {
     if (isAndroidNative && await getAndroidVersion() < 33) {
+      // Forced
       // ignore: use_build_context_synchronously
       return _checkAndGetPermission(
         Permission.storage,

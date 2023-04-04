@@ -422,8 +422,9 @@ void showDeleteMsgDialog(
           ),
           child: Text(i18n.get("delete")),
           onPressed: () async {
-            // ignore: use_build_context_synchronously
-            Navigator.pop(c);
+            if (c.mounted) {
+              Navigator.pop(c);
+            }
             await messageRepo.deleteMessage(messages);
             onDelete();
           },
