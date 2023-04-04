@@ -15,7 +15,7 @@ class CallEvents {
   final String callId;
   final int time;
 
-  static CallEvents none = const CallEvents._none();
+  static const CallEvents none = CallEvents._none();
 
   const CallEvents._none()
       : callEvent = null,

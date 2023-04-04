@@ -1682,7 +1682,7 @@ void main() {
             final messageDao = getAndRegisterMessageDao();
             await MessageRepo()
                 .sendLiveLocationMessage(testUid, 0, testPosition);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
             verify(
               roomDao.updateRoom(

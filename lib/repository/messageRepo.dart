@@ -59,7 +59,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart' as location;
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -568,10 +567,12 @@ class MessageRepo {
         var i = 0;
         while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
           result.add(
-            text.substring(
-              i * TEXT_MESSAGE_MAX_LENGTH,
-              min((i + 1) * TEXT_MESSAGE_MAX_LENGTH, text.length),
-            ),
+            text.characters
+                .getRange(
+                  i * TEXT_MESSAGE_MAX_LENGTH,
+                  min((i + 1) * TEXT_MESSAGE_MAX_LENGTH, text.length),
+                )
+                .string,
           );
           i++;
         }
