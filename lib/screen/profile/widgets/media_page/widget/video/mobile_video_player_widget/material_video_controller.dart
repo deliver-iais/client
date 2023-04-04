@@ -247,21 +247,18 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.all(marginSize),
-      child: Container(
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: const Color(0x96000000),
-          borderRadius: BorderRadius.circular(10.0),
+    return Container(
+      padding: EdgeInsets.all(marginSize + 5),
+      decoration: BoxDecoration(
+        color: const Color(0x96000000),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Text(
+        currentSubtitle.first!.text.toString(),
+        style: const TextStyle(
+          fontSize: 18,
         ),
-        child: Text(
-          currentSubtitle.first!.text.toString(),
-          style: const TextStyle(
-            fontSize: 18,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

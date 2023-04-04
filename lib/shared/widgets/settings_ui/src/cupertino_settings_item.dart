@@ -161,16 +161,14 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       case SettingsItemType.toggle:
         if (widget.onPress != null) {
           rowChildren.add(
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: p8),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: mainBorder,
-                  color: theme.dividerColor,
-                ),
-                height: 26,
-                width: 3,
+              decoration: BoxDecoration(
+                borderRadius: mainBorder,
+                color: theme.dividerColor,
               ),
+              height: 26,
+              width: 3,
             ),
           );
         }

@@ -361,10 +361,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               Container(
                 decoration: BoxDecoration(color: theme.colorScheme.surface),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4.0,
-                    horizontal: 4.0,
-                  ),
+                  padding: const EdgeInsets.all(4.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
@@ -466,7 +463,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                             _keyboardStatus
                                 .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
                           } else if (widget.focusNode.hasFocus) {
-                            _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                            _keyboardStatus
+                                .add(KeyboardStatus.DEFAULT_KEYBOARD);
                           }
                         },
                         keyboardStatus: back.data!,

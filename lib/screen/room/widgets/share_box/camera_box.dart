@@ -110,10 +110,7 @@ class _CameraBoxState extends State<CameraBox> {
           alignment: Alignment.bottomCenter,
           child: Container(
             color: theme.colorScheme.surface.withOpacity(0.5),
-            padding: const EdgeInsets.symmetric(
-              vertical: 24.0,
-              horizontal: 24.0,
-            ),
+            padding: const EdgeInsets.all(24.0),
             height: 180,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -198,11 +195,12 @@ class _CameraBoxState extends State<CameraBox> {
                         if (!widget.selectAsAvatar) {
                           _cameraService.stopVideoRecorder().then(
                                 (file) => _routingService.openVideoViewerPage(
-                                    file: file,
-                                    onSend: (caption) {
-                                      Navigator.pop(context);
-                                      _sendMessage(file, caption);
-                                    },),
+                                  file: file,
+                                  onSend: (caption) {
+                                    Navigator.pop(context);
+                                    _sendMessage(file, caption);
+                                  },
+                                ),
                               );
                         }
                       },

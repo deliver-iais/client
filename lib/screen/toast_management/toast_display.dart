@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -23,8 +22,6 @@ class ToastDisplay {
     Duration duration = AnimationSettings.actualSuperSlow,
     required String toastText,
   }) {
-    final i18n = GetIt.I.get<I18N>();
-
     final context = toastContext ?? GetIt.I.get<Settings>().appContext;
 
     final theme = Theme.of(context);

@@ -134,68 +134,66 @@ class DeveloperPageState extends State<DeveloperPage> {
                           child: const Text("Logs Reset"),
                         ),
                       ),
-                      Padding(
+                      Container(
                         padding: const EdgeInsetsDirectional.only(
                           end: 24,
                           start: 24,
                           bottom: 10,
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.outline,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("id"),
-                                      Text(_callRepo.selectedCandidate.id),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("timestamp"),
-                                      Text(
-                                        _callRepo.selectedCandidate.timestamp
-                                            .toString(),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text("id"),
+                                    Text(_callRepo.selectedCandidate.id),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text("timestamp"),
+                                    Text(
+                                      _callRepo.selectedCandidate.timestamp
+                                          .toString(),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text("type"),
+                                    Text(_callRepo.selectedCandidate.type),
+                                  ],
+                                ),
+                                ..._callRepo.selectedCandidate.values.entries
+                                    .map(
+                                      (entry) => Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(entry.key),
+                                          Text(
+                                            entry.value.toString(),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("type"),
-                                      Text(_callRepo.selectedCandidate.type),
-                                    ],
-                                  ),
-                                  ..._callRepo.selectedCandidate.values.entries
-                                      .map(
-                                        (entry) => Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(entry.key),
-                                            Text(
-                                              entry.value.toString(),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
-                                ],
-                              ),
+                                    )
+                                    .toList(),
+                              ],
                             ),
                           ),
                         ),
@@ -209,41 +207,39 @@ class DeveloperPageState extends State<DeveloperPage> {
                         leading: Icon(CupertinoIcons.pencil_outline),
                         trailing: Text(""),
                       ),
-                      Padding(
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         padding: const EdgeInsetsDirectional.only(
                           end: 24,
                           start: 24,
                           bottom: 10,
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.outline,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: Column(
-                                children: [
-                                  ..._callRepo.callEvents.entries
-                                      .map(
-                                        (entry) => Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(entry.key.toString()),
-                                            Text(
-                                              entry.value,
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
-                                ],
-                              ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Column(
+                              children: [
+                                ..._callRepo.callEvents.entries
+                                    .map(
+                                      (entry) => Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(entry.key.toString()),
+                                          Text(
+                                            entry.value,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    .toList(),
+                              ],
                             ),
                           ),
                         ),

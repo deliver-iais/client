@@ -84,11 +84,9 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     ? OrientationBuilder(
                         builder: (context, orientation) {
                           return Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              end: 8.0,
-                              start: 8.0,
-                              top: 20,
-                              bottom: 20,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 20,
                             ),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width,
@@ -686,8 +684,10 @@ class VideoCallScreenState extends State<VideoCallScreen>
                               Colors.greenAccent
                             ],
                           ),
-                          color:
-                              Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5),
                           borderRadius: mainBorder,
                           boxShadow: DEFAULT_BOX_SHADOWS,
                         ),

@@ -10,6 +10,8 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  plugins:
+    - dart_code_metrics
   exclude:
     - lib/generated_plugin_registrant.dart
 
@@ -138,6 +140,13 @@ linter:
     #close_sinks: true
     #prefer_expression_function_bodies: true
     #diagnostic_describe_all_properties: true
+
+dart_code_metrics:
+  rules:
+    - avoid-wrapping-in-padding: true
+    - prefer-correct-edge-insets-constructor: true
+    - prefer-define-hero-tag: true
+    - avoid-cascade-after-if-null: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

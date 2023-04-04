@@ -3,7 +3,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

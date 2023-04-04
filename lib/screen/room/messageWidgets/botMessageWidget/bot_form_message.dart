@@ -169,7 +169,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                             title: buildTitle(theme, _errorText),
                             content: buildContent(),
                             titlePadding:
-                                const EdgeInsetsDirectional.only(top: 8, bottom: 8),
+                                const EdgeInsets.symmetric(vertical: 8),
                             contentPadding:
                                 const EdgeInsets.symmetric(horizontal: 8),
                             actionsPadding: const EdgeInsetsDirectional.only(
@@ -222,58 +222,56 @@ class BotFormMessageState extends State<BotFormMessage> {
                     );
                   }
                 },
-                child: Padding(
+                child: Container(
                   padding: EdgeInsetsDirectional.only(
                     top: form.lockAfter.isZero ? 5 : 50,
                     end: 5,
                     start: 5,
                     bottom: 5,
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: widget.colorScheme.primaryContainer,
-                      borderRadius: secondaryBorder,
-                    ),
-                    child: Row(
-                      children: [
-                        Ws.asset(
-                          "assets/animations/touch.ws",
-                          width: 90,
-                          height: 70,
-                          frameRate: settings.showWsWithHighFrameRate.value
-                              ? FrameRate(30)
-                              : FrameRate(10),
-                          repeat: settings.showAnimations.value,
-                          delegates: LottieDelegates(
-                            values: [
-                              ValueDelegate.color(
-                                const ['**'],
-                                value: widget.colorScheme.onPrimaryContainer,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              _i18n.get("form"),
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: widget.colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            Text(
-                              form.title,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: widget.colorScheme.onPrimaryContainer,
-                              ),
+                  decoration: BoxDecoration(
+                    color: widget.colorScheme.primaryContainer,
+                    borderRadius: secondaryBorder,
+                  ),
+                  child: Row(
+                    children: [
+                      Ws.asset(
+                        "assets/animations/touch.ws",
+                        width: 90,
+                        height: 70,
+                        frameRate: settings.showWsWithHighFrameRate.value
+                            ? FrameRate(30)
+                            : FrameRate(10),
+                        repeat: settings.showAnimations.value,
+                        delegates: LottieDelegates(
+                          values: [
+                            ValueDelegate.color(
+                              const ['**'],
+                              value: widget.colorScheme.onPrimaryContainer,
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          width: 24,
-                        )
-                      ],
-                    ),
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            _i18n.get("form"),
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: widget.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          Text(
+                            form.title,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: widget.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        width: 24,
+                      )
+                    ],
                   ),
                 ),
               ),

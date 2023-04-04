@@ -143,20 +143,18 @@ class ColorPickerState extends State<ColorPicker> {
             },
             //This outside padding makes it much easier to grab the   slider because the gesture detector has
             // the extra padding to recognize gestures inside of
-            child: Padding(
+            child: Container(
+              width: widget.width,
+              height: 15,
               padding: const EdgeInsets.all(15),
-              child: Container(
-                width: widget.width,
-                height: 15,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  gradient: LinearGradient(colors: _colors),
-                ),
-                child: CustomPaint(
-                  painter: _SliderIndicatorPainter(
-                    _colorSliderPosition,
-                    widget.controller,
-                  ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(colors: _colors),
+              ),
+              child: CustomPaint(
+                painter: _SliderIndicatorPainter(
+                  _colorSliderPosition,
+                  widget.controller,
                 ),
               ),
             ),

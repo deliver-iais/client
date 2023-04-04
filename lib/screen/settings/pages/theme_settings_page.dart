@@ -231,8 +231,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                         value: snapshot.data ?? 1,
                                         max: MAX_FONT_SIZE,
                                         min: MIN_FONT_SIZE,
-                                        label:
-                                            (snapshot.data ?? 1).toString(),
+                                        label: (snapshot.data ?? 1).toString(),
                                         onChanged: (value) {
                                           settings.textScale.set(value);
                                         },
@@ -298,25 +297,22 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   textDirection: TextDirection.ltr,
                   child: Stack(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: p16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.secondary,
-                              width: 2,
-                            ),
-                            borderRadius: mainBorder,
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.secondary,
+                            width: 2,
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0,
-                            vertical: 8.0,
-                          ),
-                          child: Column(
-                            children: [
-                              ...createFakeMessages(),
-                            ],
-                          ),
+                          borderRadius: mainBorder,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 8.0,
+                        ),
+                        child: Column(
+                          children: [
+                            ...createFakeMessages(),
+                          ],
                         ),
                       ),
                       Positioned.fill(

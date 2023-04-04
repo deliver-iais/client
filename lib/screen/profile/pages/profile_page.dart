@@ -24,7 +24,6 @@ import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
-import 'package:deliver/screen/profile/widgets/profile_blur_avatar.dart';
 import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -230,9 +229,8 @@ class ProfilePageState extends State<ProfilePage>
                                   selectMediaToForward.data != null &&
                                   selectMediaToForward.data!) {
                                 return Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                    end: 20,
-                                    start: 20,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
@@ -951,10 +949,7 @@ class ProfilePageState extends State<ProfilePage>
                 child: Text(_i18n.get("cancel")),
               )
             ],
-            contentPadding: const EdgeInsetsDirectional.only(
-              end: 10,
-              start: 10,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text(_i18n.get("add_bot_to_group")),
             content: SizedBox(
               width: 350,

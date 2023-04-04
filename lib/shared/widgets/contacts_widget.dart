@@ -1,5 +1,4 @@
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -7,10 +6,8 @@ import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/textx.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 class ContactWidget extends StatelessWidget {
-  static final _i18n = GetIt.I.get<I18N>();
   final Contact contact;
   final IconData? circleIcon;
   final void Function()? onCircleIcon;

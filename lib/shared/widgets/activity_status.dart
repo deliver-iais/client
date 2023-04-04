@@ -22,7 +22,10 @@ class ActivityStatus extends StatelessWidget {
   });
 
   TextStyle textStyle(BuildContext context) {
-    return TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary);
+    return TextStyle(
+      fontSize: 14,
+      color: Theme.of(context).colorScheme.primary,
+    );
   }
 
   @override
@@ -69,13 +72,14 @@ class ActivityStatus extends StatelessWidget {
         );
       } else {
         return Row(
-          mainAxisSize: MainAxisSize.max,
           children: [
             Text(
               status,
               style: textStyle(context),
             ),
-            LoadingDotAnimation(dotsColor: Theme.of(context).colorScheme.primary),
+            LoadingDotAnimation(
+              dotsColor: Theme.of(context).colorScheme.primary,
+            ),
           ],
         );
       }

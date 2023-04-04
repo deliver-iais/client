@@ -139,23 +139,21 @@ class _ShareInputFileState extends State<ShareInputFile> {
                     color: theme.colorScheme.background, // border color
                     shape: BoxShape.circle,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(2), // border width
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.primary, // inner circle color
-                      ),
-                      child: Center(
-                        child: Text(
-                          _selectedRooms.length.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ), // inner content
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.primary,
                     ),
+                    padding: const EdgeInsets.all(2),
+                    child: Center(
+                      child: Text(
+                        _selectedRooms.length.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ), // inner content
                   ),
                 ),
               ),

@@ -12,10 +12,7 @@ class SyncContact extends StatelessWidget {
 
   const SyncContact({
     Key? key,
-    this.padding = const EdgeInsets.symmetric(
-      horizontal: 8.0,
-      vertical: 8,
-    ),
+    this.padding = const EdgeInsets.all(8.0),
   }) : super(key: key);
 
   @override

@@ -82,7 +82,6 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(

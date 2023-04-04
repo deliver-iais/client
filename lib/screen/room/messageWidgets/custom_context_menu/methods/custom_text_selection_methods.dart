@@ -160,7 +160,7 @@ class CustomContextMenuMethods {
       validator: useLinkValidator ? validateLink : validateTextLink,
       decoration: InputDecoration(
         labelText: label,
-        contentPadding: const EdgeInsetsDirectional.only(),
+        contentPadding: EdgeInsetsDirectional.zero,
         border: const UnderlineInputBorder(),
       ),
     );

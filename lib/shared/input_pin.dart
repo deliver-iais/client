@@ -56,7 +56,7 @@ void inputPin({
               showHelper: showHelper,
               confirmPinFormKey: confirmPinFormKey,
             ),
-            titlePadding: const EdgeInsetsDirectional.only(top: 8, bottom: 8),
+            titlePadding: const EdgeInsets.symmetric(vertical: 8),
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             actionsPadding: const EdgeInsetsDirectional.only(
               end: 4,
@@ -154,7 +154,7 @@ Widget buildTitle(BuildContext context) {
 
   return Center(
     child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 24.0),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
           FutureBuilder(
