@@ -377,6 +377,7 @@ Detector simpleStyleDetectorTwoCharacter(
                   ),
                 ),
               );
+              idx += 1;
               start = null;
             }
           }
@@ -427,6 +428,7 @@ Detector simpleStyleDetectorThreeCharacter(
                   ),
                 ),
               );
+              idx += 2;
               start = null;
             }
           }
