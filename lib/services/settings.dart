@@ -25,13 +25,16 @@ class Settings {
   final performanceMode = PerformanceMonitor.performanceModeSetting;
   final powerSaverBatteryLevel = PerformanceMonitor.powerSaverBatteryLevel;
 
-  // final SHARED_DAO_ACCESS_TOKEN_KEY
   final accessToken = StringPersistent(
     SharedKeys.SHARED_DAO_ACCESS_TOKEN_KEY.inSharedPreferenceStorage(),
     defaultValue: "",
   );
   final refreshToken = StringPersistent(
     SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    defaultValue: "",
+  );
+  final refreshTokenDao = StringPersistent(
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedDaoStorage(),
     defaultValue: "",
   );
   final localPassword = StringPersistent(
