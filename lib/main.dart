@@ -123,6 +123,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:universal_html/html.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
@@ -332,7 +333,7 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (isDesktopDevice) {
+  if (isDesktopNative) {
     FlutterWindowClose.setWindowShouldCloseHandler(() async {
       return true;
     });
@@ -366,6 +367,9 @@ void main() async {
     } catch (e) {
       logger.e(e);
     }
+  }
+  if (isWeb) {
+    document.onContextMenu.listen((e) => e.preventDefault());
   }
 
   Paint.enableDithering = true;
