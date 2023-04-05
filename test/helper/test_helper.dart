@@ -582,8 +582,6 @@ MockAuthRepo getAndRegisterAuthRepo({
       .thenAnswer((d) => Future.value(AccessTokenRes()));
   when(service.checkQrCodeToken(any))
       .thenAnswer((f) => Future.value(AccessTokenRes()));
-  service.newVersionInformation =
-      BehaviorSubject.seeded(NewerVersionInformation());
   when(service.isLoggedIn()).thenReturn(isLoggedIn);
   return service;
 }

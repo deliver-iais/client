@@ -17,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -25,19 +26,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
-const ACCESS_TOKEN_EXPIRATION_DELTA = Duration(seconds: 90);
-const REFRESH_TOKEN_EXPIRATION_DELTA = Duration(days: 3);
-
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
-  static final requestLock = Lock();
+  static final _accessTokenLock = Lock();
 
-  final BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
+  int _serverTimeDiff = 0;
 
-  BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-      BehaviorSubject();
+  final BehaviorSubject<bool> isOutOfDate = BehaviorSubject.seeded(false);
+
+  final newVersionInformation =
+      BehaviorSubject<NewerVersionInformation?>.seeded(null);
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -45,34 +45,60 @@ class AuthRepo {
 
   late PhoneNumber _tmpPhoneNumber;
 
-  String get refreshToken => settings.refreshToken.value;
+  String refreshToken({bool checkDaoFirst = false}) {
+    if (checkDaoFirst) {
+      if (settings.refreshTokenDao.value.isNotEmpty) {
+        return settings.refreshTokenDao.value;
+      } else {
+        return settings.refreshToken.value;
+      }
+    } else {
+      if (settings.refreshToken.value.isNotEmpty) {
+        return settings.refreshToken.value;
+      } else {
+        return settings.refreshTokenDao.value;
+      }
+    }
+  }
 
   String get accessToken => settings.accessToken.value;
 
+  Duration get serverTimeDiff => Duration(milliseconds: _serverTimeDiff);
+
   Future<void> init({bool retry = false}) async {
     try {
+      if (retry) {
+        // Run just first time...
+        await calculateServerTimeDiff();
+      }
+
       if (accessToken.isNotEmpty) {
         _setCurrentUserUidFromAccessToken(accessToken);
       }
     } catch (e) {
-      try {
-        //delete shared pref file
-        if (isWindowsNative || isLinuxNative) {
-          final path =
-              "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
-          if (File(path).existsSync()) {
-            await (File(path)).delete(recursive: true);
-            _logger.i("delete $path");
-          }
-        }
-      } catch (e) {
-        _logger.e(e);
-      }
-
       _logger.e(e);
+
+      await restoreSharedPreferenceFile();
+
       if (retry) {
         return init();
       }
+    }
+  }
+
+  Future<void> restoreSharedPreferenceFile() async {
+    try {
+      //delete shared pref file
+      if (isWindowsNative || isLinuxNative) {
+        final path =
+            "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
+        if (File(path).existsSync()) {
+          await (File(path)).delete(recursive: true);
+          _logger.i("delete $path");
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
@@ -80,13 +106,15 @@ class AuthRepo {
     final platform = await getPlatformPB();
 
     _tmpPhoneNumber = p;
-    await _sdr.authServiceClient.getVerificationCode(
+    final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = p
         ..type = VerificationType.SMS
         ..platform = platform,
       options: CallOptions(timeout: const Duration(seconds: 10)),
     );
+
+    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
   }
 
   Future<AccessTokenRes> sendVerificationCode(
@@ -106,11 +134,13 @@ class AuthRepo {
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
-      await _setTokensAndCurrentUserUid(
+      await login(
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       );
     }
+
+    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
 
     return res;
   }
@@ -132,62 +162,46 @@ class AuthRepo {
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
-      await _setTokensAndCurrentUserUid(
+      await login(
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       );
     }
 
+    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
+
     return res;
   }
 
-  Future<RenewAccessTokenRes> _renewTokensFromServer() =>
-      requestLock.synchronized(() async {
-        return await _sdr.authServiceClient.renewAccessToken(
-          RenewAccessTokenReq()
-            ..refreshToken = refreshToken
-            ..platform = await getPlatformPB(),
-        );
-      });
+  Future<RenewAccessTokenRes> tryRenewTokens({
+    String? refreshToken,
+    bool checkDaoFirst = false,
+  }) async {
+    return _sdr.authServiceClient.renewAccessToken(
+      RenewAccessTokenReq()
+        ..refreshToken =
+            refreshToken ?? this.refreshToken(checkDaoFirst: checkDaoFirst)
+        ..platform = await getPlatformPB(),
+    );
+  }
 
   Future<String> getAccessToken() async {
-    if (!_hasValidAccessToken()) {
-      if (!_hasValidRefreshToken()) {
-        return "";
-      }
-      try {
-        final renewAccessTokenRes = await _renewTokensFromServer();
-
-        await _setTokensAndCurrentUserUid(
-          accessToken: renewAccessTokenRes.accessToken,
-          refreshToken: renewAccessTokenRes.refreshToken,
-        );
-
-        if (!newVersionInformation.hasValue &&
-            renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
-            renewAccessTokenRes.newerVersionInformation.version != VERSION) {
-          newVersionInformation
-              .add(renewAccessTokenRes.newerVersionInformation);
-        }
-
-        return renewAccessTokenRes.accessToken;
-      } on GrpcError catch (e) {
-        _logger.e(e);
-        if (e.code == StatusCode.unauthenticated) {
-          unawaited(GetIt.I.get<RoutingService>().logout());
-        } else if (e.code == StatusCode.aborted && !outOfDateObject.value) {
-          outOfDateObject.add(true);
-        }
-
-        return "";
-      } catch (e) {
-        _logger.e(e);
-
-        return "";
-      }
-    } else {
+    if (isDeliverTokenValid(accessToken)) {
       return accessToken;
     }
+
+    return _accessTokenLock.synchronized(() async {
+      if (!isDeliverTokenValid(accessToken)) {
+        if (!isDeliverTokenValid(refreshToken())) {
+          unawaited(GetIt.I.get<RoutingService>().logout());
+          return "";
+        } else {
+          await updateAndCheckTokens();
+        }
+      }
+
+      return accessToken;
+    });
   }
 
   bool isLocalLockEnabled() => settings.localPassword.value != "";
@@ -203,45 +217,9 @@ class AuthRepo {
     _analyticsService.sendLogEvent("setLocalPassword");
   }
 
-  bool isLoggedIn() => _hasValidRefreshToken();
-
-  Future<bool> _setTokensAndCurrentUserUid({
-    required String accessToken,
-    required String refreshToken,
-  }) async {
-    if (_isValidToken(accessToken, fromNow: ACCESS_TOKEN_EXPIRATION_DELTA) &&
-        _isValidToken(
-          accessToken,
-          fromNow: REFRESH_TOKEN_EXPIRATION_DELTA,
-        )) {
-      throw Exception(
-        "Not valid tokens - [accessToken: $accessToken] [refreshToken: $refreshToken]",
-      );
-    }
-
-    settings.accessToken.set(accessToken);
-    settings.refreshToken.set(refreshToken);
-    _setCurrentUserUidFromAccessToken(accessToken);
-    return true;
-  }
-
-  bool _hasValidAccessToken() => _isValidToken(accessToken);
-
-  bool _hasValidRefreshToken() => _isValidToken(refreshToken);
-
-  bool _isValidToken(String token, {Duration fromNow = Duration.zero}) {
-    return token.isNotEmpty && !_isExpired(token, fromNow: fromNow);
-  }
-
-  bool isRefreshTokenEmpty() => refreshToken.isEmpty;
-
-  bool isRefreshTokenExpired() =>
-      refreshToken.isNotEmpty && _isExpired(refreshToken);
-
-  bool _isExpired(token, {Duration fromNow = Duration.zero}) {
-    final expirationDate = JwtDecoder.getExpirationDate(token);
-    return clock.now().add(fromNow).isAfter(expirationDate);
-  }
+  bool isLoggedIn() =>
+      isDeliverTokenValid(refreshToken()) ||
+      isDeliverTokenValid(refreshToken(checkDaoFirst: true));
 
   void _setCurrentUserUidFromAccessToken(String accessToken) {
     final decodedToken = JwtDecoder.decode(accessToken);
@@ -281,6 +259,180 @@ class AuthRepo {
         ..phoneNumber = phoneNumber,
     );
   }
+
+  Future<void> calculateServerTimeDiff() async {
+    final startTime = clock.now().millisecondsSinceEpoch; // 1000
+
+    try {
+      final response =
+          await _sdr.queryServiceClient.getTime(GetTimeReq()); // 1100
+
+      final now = clock.now().millisecondsSinceEpoch; // 1200
+
+      final estimatedRoundTripTime = (now - startTime) ~/ 2; // 100
+
+      _serverTimeDiff = (now - estimatedRoundTripTime) -
+          response.currentTime.toInt(); // 1200 - 100 - 1100
+    } catch (_) {
+      // Just ignore this option
+      _serverTimeDiff = 0;
+    }
+  }
+
+  Future<bool> login({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    storeTokens(accessToken: accessToken, refreshToken: refreshToken);
+
+    if (!checkTokensTimes() ||
+        !(await checkAccessToken()) ||
+        !(await checkRefreshToken())) {
+      await updateAndCheckTokens();
+    }
+
+    if (!checkTokensTimes() ||
+        !(await checkAccessToken()) ||
+        !(await checkRefreshToken())) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> updateAndCheckTokens() async {
+    try {
+      final r = await tryRenewTokens();
+      final info = r.newerVersionInformation;
+
+      emitNewVersionInformationIfNeeded(info);
+
+      if (checkTokensTimes(
+            accessToken: r.accessToken,
+            refreshToken: r.refreshToken,
+          ) &&
+          await checkAccessToken(
+            accessToken: r.accessToken,
+          ) &&
+          await checkRefreshToken(
+            refreshToken: r.refreshToken,
+          )) {
+        // All things are good.
+
+        storeTokens(accessToken: r.accessToken, refreshToken: r.refreshToken);
+        return;
+      }
+    } on GrpcError catch (e) {
+      _logger.e(e);
+      handleGrpcError(e);
+    } catch (e) {
+      _logger.e(e);
+    }
+
+    try {
+      final r2 = await tryRenewTokens(checkDaoFirst: true);
+      // Save anyway
+      storeTokens(accessToken: r2.accessToken, refreshToken: r2.refreshToken);
+    } on GrpcError catch (e) {
+      _logger.e(e);
+      handleGrpcError(e);
+    } catch (e) {
+      _logger.e(e);
+    }
+
+    return;
+  }
+
+  void handleGrpcError(GrpcError e) {
+    if (e.code == StatusCode.unauthenticated) {
+      unawaited(GetIt.I.get<RoutingService>().logout());
+    } else if (e.code == StatusCode.aborted) {
+      emitOutOfDateIfNeeded();
+    }
+  }
+
+  void emitNewVersionInformationIfNeeded(NewerVersionInformation info) {
+    if (newVersionInformation.value == null &&
+        info.version.isNotEmpty &&
+        info.version != VERSION) {
+      newVersionInformation.add(info);
+    }
+  }
+
+  void emitOutOfDateIfNeeded() {
+    if (!isOutOfDate.value) {
+      isOutOfDate.add(true);
+    }
+  }
+
+  void storeTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) {
+    settings.accessToken.set(accessToken);
+    settings.refreshToken.set(refreshToken);
+    settings.refreshTokenDao.set(refreshToken);
+    _setCurrentUserUidFromAccessToken(accessToken);
+  }
+
+  bool checkTokensTimes({
+    String? accessToken,
+    String? refreshToken,
+  }) {
+    if (isDeliverTokenValid(accessToken ?? this.accessToken) &&
+        isDeliverTokenValid(refreshToken ?? this.refreshToken())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> checkAccessToken({
+    String? accessToken,
+  }) async {
+    try {
+      await _sdr.queryServiceClient.getUserLastDeliveryAck(
+        GetUserLastDeliveryAckReq(),
+        options: CallOptions(
+          metadata: {"access_token": accessToken ?? this.accessToken},
+        ),
+      );
+
+      // TODO(bitbeter): use last delivery ack
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> checkRefreshToken({
+    String? refreshToken,
+  }) async {
+    try {
+      await tryRenewTokens(refreshToken: refreshToken);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  bool isDeliverTokenValid(String token) {
+    return token.isNotEmpty && !isDeliverTokenExpired(token);
+  }
+
+  bool isDeliverTokenExpired(String token) {
+    final expirationDate = JwtDecoder.getExpirationDate(token);
+
+    final now = clock.now();
+
+    final diffDuration = Duration(milliseconds: _serverTimeDiff.abs());
+
+    if (_serverTimeDiff > 0) {
+      return now.subtract(diffDuration).isAfter(expirationDate);
+    } else {
+      return now.add(diffDuration).isAfter(expirationDate);
+    }
+  }
 }
 
 class DeliverClientInterceptor implements ClientInterceptor {
@@ -290,7 +442,9 @@ class DeliverClientInterceptor implements ClientInterceptor {
     Map<String, String> metadata,
     String uri,
   ) async {
-    metadata['access_token'] = await _authRepo.getAccessToken();
+    if (metadata['access_token']?.isEmpty ?? true) {
+      metadata['access_token'] = await _authRepo.getAccessToken();
+    }
   }
 
   @override
