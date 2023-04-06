@@ -319,7 +319,7 @@ Detector simpleStyleDetector(
           if (char == specialChar) {
             if (start == null) {
               start = idx;
-            } else if (start + 1 < idx) {
+            } else if (start + 1 < idx && text[idx - 1] != specialChar) {
               partitions.add(
                 Partition(
                   start,
@@ -366,7 +366,7 @@ Detector simpleStyleDetectorTwoCharacter(
           if (char == specialChar && nextChar == specialChar) {
             if (start == null) {
               start = idx;
-            } else if (start + 2 < idx) {
+            } else if (start + 2 < idx && text[idx - 1] != specialChar) {
               partitions.add(
                 Partition(
                   start,
@@ -417,7 +417,7 @@ Detector simpleStyleDetectorThreeCharacter(
               nextNextChar == specialChar) {
             if (start == null) {
               start = idx;
-            } else if (start + 3 < idx) {
+            } else if (start + 3 < idx && text[idx - 1] != specialChar) {
               partitions.add(
                 Partition(
                   start,
