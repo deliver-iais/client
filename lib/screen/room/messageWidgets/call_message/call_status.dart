@@ -8,14 +8,14 @@ class CallState extends StatelessWidget {
       GetIt.I.get<MessageExtractorServices>();
   final CallEvent_CallStatus callStatus;
   final int time;
-  final bool isCurrentUser;
+  final bool isIncomingCall;
   final TextStyle? textStyle;
 
   const CallState({
     super.key,
     required this.callStatus,
     required this.time,
-    required this.isCurrentUser,
+    required this.isIncomingCall,
     this.textStyle,
   });
 
@@ -24,7 +24,7 @@ class CallState extends StatelessWidget {
     final text = _messageExtractorServices.getCallText(
       callStatus,
       time,
-      fromCurrentUser: isCurrentUser,
+      isIncomingCall: isIncomingCall,
     );
 
     if (text != null) {

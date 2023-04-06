@@ -85,7 +85,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                     if (buttons.text.isNotEmpty)
                       Container(
                         constraints: const BoxConstraints(minHeight: 20),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        margin: const EdgeInsetsDirectional.symmetric(vertical: 8),
                         child: builtText(buttons.text),
                       ),
                     for (final btn in buttons.buttons)

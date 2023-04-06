@@ -64,13 +64,13 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
     return ShakeWidget(
       controller: _shakeWidgetController,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
         child: Column(
           children: [
             Form(key: _formKey, child: fieldWidget),
             if (widget.formField.hint.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.all(6.0),
+                padding: const EdgeInsetsDirectional.all(6.0),
                 child: Row(
                   children: [Text(widget.formField.hint)],
                 ),

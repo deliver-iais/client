@@ -52,7 +52,7 @@ class FormSimpleInputFieldWidgetState
     return ShakeWidget(
       controller: shakeWidgetController,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
         child: Form(
           key: _formKey,
           child: buildSimpleInputFormField(

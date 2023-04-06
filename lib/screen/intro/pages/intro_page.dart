@@ -102,7 +102,7 @@ class IntroPageState extends State<IntroPage> {
                         style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: SizedBox(
                           width: animationSize,
                           child: Text(
@@ -124,7 +124,7 @@ class IntroPageState extends State<IntroPage> {
                         style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: SizedBox(
                           width: animationSize,
                           child: Text(
@@ -146,7 +146,7 @@ class IntroPageState extends State<IntroPage> {
                         style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: SizedBox(
                           width: animationSize,
                           child: Text(
@@ -168,7 +168,7 @@ class IntroPageState extends State<IntroPage> {
                         style: theme.primaryTextTheme.headlineSmall,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: SizedBox(
                           width: animationSize,
                           child: Text(

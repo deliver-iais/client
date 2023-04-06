@@ -171,7 +171,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                             titlePadding:
                                 const EdgeInsets.symmetric(vertical: 8),
                             contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 8),
+                                const EdgeInsetsDirectional.symmetric(horizontal: 8),
                             actionsPadding: const EdgeInsetsDirectional.only(
                               end: 4,
                               start: 4,

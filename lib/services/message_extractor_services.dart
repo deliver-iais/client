@@ -224,7 +224,7 @@ class MessageExtractorServices {
         typeDetails = getCallText(
               callStatus,
               time,
-              fromCurrentUser: fromCurrentUser,
+              isIncomingCall: fromCurrentUser,
             ) ??
             "";
         break;
@@ -259,10 +259,10 @@ class MessageExtractorServices {
   String? getCallText(
     CallEvent_CallStatus callStatus,
     int time, {
-    bool fromCurrentUser = false,
+    bool isIncomingCall = false,
   }) {
     if (callStatus == CallEvent_CallStatus.ENDED &&
-        fromCurrentUser &&
+        isIncomingCall &&
         time == 0) {
       return _i18n.get("canceled_call");
     } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
@@ -272,7 +272,7 @@ class MessageExtractorServices {
     } else if (callStatus == CallEvent_CallStatus.ENDED && time == 0) {
       return _i18n.get("missed_call");
     } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        fromCurrentUser &&
+        isIncomingCall &&
         time != 0) {
       return _i18n.get("outgoing_call");
     } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {

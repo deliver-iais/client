@@ -54,7 +54,7 @@ class LinkTabUiState extends State<LinkTabUi> {
                     foregroundColor: theme.primary,
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsetsDirectional.all(8.0),
                     child: ListView.builder(
                       itemBuilder: (context, index) {
                         return GestureDetector(

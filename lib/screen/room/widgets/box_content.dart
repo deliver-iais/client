@@ -157,9 +157,9 @@ class BoxContentState extends State<BoxContent> {
                       opacity: showMenu ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 200),
                       child: Container(
-                        margin: const EdgeInsets.all(2),
+                        margin: const EdgeInsetsDirectional.all(2),
                         child: const BlurContainer(
-                          padding: EdgeInsets.all(3),
+                          padding: EdgeInsetsDirectional.all(3),
                           child: Icon(
                             CupertinoIcons.chevron_down,
                             size: 16,
@@ -211,7 +211,7 @@ class BoxContentState extends State<BoxContent> {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsetsDirectional.all(4),
       padding: const EdgeInsetsDirectional.only(start: 4, end: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
@@ -436,7 +436,7 @@ class BoxContentState extends State<BoxContent> {
     return Container(
       constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
       height: 18,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      margin: const EdgeInsetsDirectional.symmetric(vertical: 4, horizontal: 8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

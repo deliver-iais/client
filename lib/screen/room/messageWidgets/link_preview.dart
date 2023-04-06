@@ -121,7 +121,7 @@ class LinkPreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 8.0, vertical: 2.0),
             child: Text(
               data!.title!,
               textDirection: data.title!.isPersian()
@@ -137,7 +137,7 @@ class LinkPreview extends StatelessWidget {
           if (data.description != null)
             Flexible(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: const EdgeInsetsDirectional.symmetric(
                   horizontal: 8.0,
                   vertical: 2.0,
                 ),

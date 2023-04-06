@@ -1,25 +1,24 @@
 import 'dart:math' as math;
 
-import 'package:deliver/box/call_info.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class CallDetailPage extends StatefulWidget {
+class CallDetails extends StatefulWidget {
   final CallInfo callEvent;
   final bool isIncomingCall;
   final Uid caller;
 
-  const CallDetailPage({
+  const CallDetails({
     super.key,
     required this.isIncomingCall,
     required this.caller,
@@ -27,13 +26,12 @@ class CallDetailPage extends StatefulWidget {
   });
 
   @override
-  CallDetailPageState createState() => CallDetailPageState();
+  CallDetailsState createState() => CallDetailsState();
 }
 
-class CallDetailPageState extends State<CallDetailPage> {
+class CallDetailsState extends State<CallDetails> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _callService = GetIt.I.get<CallService>();
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +39,7 @@ class CallDetailPageState extends State<CallDetailPage> {
     return Column(
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          padding: EdgeInsetsDirectional.symmetric(horizontal: 12.0),
           child: Divider(),
         ),
         Row(
@@ -72,12 +70,10 @@ class CallDetailPageState extends State<CallDetailPage> {
                 children: [
                   CallState(
                     textStyle: const TextStyle(fontSize: 17),
-                    callStatus: _callService.findCallEventStatusDB(
-                      widget.callEvent.callEvent.callStatus,
-                    ),
-                    time: widget.callEvent.callEvent.callDuration,
-                    isCurrentUser:
-                        _authRepo.isCurrentUser(widget.callEvent.from),
+                    callStatus: widget.callEvent.callEvent.callStatus,
+                    time: widget.callEvent.callEvent.callDuration.toInt(),
+                    isIncomingCall: _authRepo
+                        .isCurrentUser(widget.callEvent.from.toString()),
                   ),
                   if (widget.callEvent.callEvent.callDuration != 0)
                     DefaultTextStyle(
@@ -87,7 +83,7 @@ class CallDetailPageState extends State<CallDetailPage> {
                       ),
                       child: CallTime(
                         time: DateTime.fromMillisecondsSinceEpoch(
-                          widget.callEvent.callEvent.callDuration,
+                          widget.callEvent.callEvent.callDuration.toInt(),
                           isUtc: true,
                         ),
                       ),

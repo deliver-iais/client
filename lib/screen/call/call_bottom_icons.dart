@@ -300,7 +300,7 @@ class CallBottomRowState extends State<CallBottomRow>
             borderRadius: BorderRadius.circular(35.0),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
+            padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 15,
               vertical: 10,
             ),
@@ -410,7 +410,7 @@ class CallBottomRowState extends State<CallBottomRow>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(45.0),
+              padding: const EdgeInsetsDirectional.all(45.0),
               child: SizedBox(
                 height: 60,
                 width: 60,

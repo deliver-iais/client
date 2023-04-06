@@ -380,7 +380,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                   in snapshot.data!.downloadLinks)
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
+                                    padding: const EdgeInsetsDirectional.symmetric(
                                       horizontal: 16,
                                       vertical: 8,
                                     ),
@@ -396,7 +396,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                 ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: const EdgeInsetsDirectional.symmetric(
                                     horizontal: 16,
                                     vertical: 8,
                                   ),

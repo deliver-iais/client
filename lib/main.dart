@@ -7,8 +7,8 @@ import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/call_event.dart';
-import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
@@ -19,7 +19,6 @@ import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
-import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -126,6 +125,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart';
 import 'package:window_size/window_size.dart';
 
+import 'box/dao/call_data_usage_dao.dart';
 import 'box/dao/contact_dao.dart';
 import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
@@ -264,7 +264,6 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MetaCountAdapter())
     ..registerAdapter(MetaTypeAdapter())
     ..registerAdapter(LiveLocationAdapter())
-    ..registerAdapter(CallInfoAdapter())
     ..registerAdapter(CallEventAdapter())
     ..registerAdapter(CallStatusAdapter())
     ..registerAdapter(CallTypeAdapter())
@@ -278,7 +277,8 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(RecentEmojiAdapter())
     ..registerAdapter(EmojiSkinToneAdapter())
     ..registerAdapter(RecentRoomsAdapter())
-    ..registerAdapter(RecentSearchAdapter());
+    ..registerAdapter(RecentSearchAdapter())
+    ..registerAdapter(CallDataUsageAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -300,7 +300,6 @@ Future<void> dbSetupDI() async {
   registerSingleton<MetaCountDao>(MetaCountDaoImpl());
   registerSingleton<DBManager>(DBManager());
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
-  registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
@@ -310,6 +309,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
+  registerSingleton<CallDataUsageDao>(CallDataUsageDaoImpl());
 
   registerSingleton<Settings>(Settings());
 

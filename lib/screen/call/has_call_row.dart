@@ -67,7 +67,7 @@ class HasCallRowState extends State<HasCallRow> {
                       width: MediaQuery.of(context).size.width,
                       height: BAR_HEIGHT,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 15),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

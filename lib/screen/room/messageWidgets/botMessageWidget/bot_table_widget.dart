@@ -48,7 +48,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
           controller: _controller,
           scrollDirection: Axis.horizontal,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsetsDirectional.all(12),
             child: Table(
               border: TableBorder.all(
                 color: widget.colorScheme.primary,
@@ -77,7 +77,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             : const IntrinsicColumnWidth();
         columns.add(
           Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsetsDirectional.all(8),
             child: Center(
               child: Text(
                 row.columns[i],

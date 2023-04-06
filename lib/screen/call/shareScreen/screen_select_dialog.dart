@@ -99,7 +99,7 @@ class ScreenSelectDialog extends Dialog {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsetsDirectional.all(10),
                 child: Stack(
                   children: <Widget>[
                     const Align(
@@ -122,7 +122,7 @@ class ScreenSelectDialog extends Dialog {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsetsDirectional.all(10),
                   child: StatefulBuilder(
                     builder: (context, setState) {
                       _stateSetter = setState;

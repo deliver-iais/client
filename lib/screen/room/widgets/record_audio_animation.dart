@@ -118,11 +118,11 @@ class RecordAudioAnimation extends StatelessWidget {
                             ),
                             margin: isRecording
                                 ? const EdgeInsetsDirectional.only(end: 50)
-                                : EdgeInsets.zero,
+                                : EdgeInsetsDirectional.zero,
                             child: IconButton(
                               color: theme.colorScheme.onPrimary,
                               onPressed: () => {},
-                              padding: EdgeInsets.zero,
+                              padding: EdgeInsetsDirectional.zero,
                               icon: const Icon(Icons.lock),
                             ),
                           ),

@@ -88,7 +88,7 @@ class PinMessageAppBar extends StatelessWidget {
                                     pinMessages.length.toDouble(),
                                     2.5,
                                   )),
-                              margin: EdgeInsets.only(top: index > 0 ? 2.0 : 0),
+                              margin: EdgeInsetsDirectional.only(top: index > 0 ? 2.0 : 0),
                             );
                           },
                           itemCount: pinMessages.length,

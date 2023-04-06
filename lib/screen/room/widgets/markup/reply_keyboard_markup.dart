@@ -41,7 +41,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsetsDirectional.all(4),
                   child: TextButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
@@ -113,7 +113,7 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
         color: bgColor,
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsetsDirectional.all(15),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: widgetRows,

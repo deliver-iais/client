@@ -51,6 +51,8 @@ extension JsonMapper on String {
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
 
+  CallInfo toCallInfo() => CallInfo.fromJson(this);
+
   MessageMarkup toMessageMarkup() => MessageMarkup.fromJson(this);
 
   ReplyKeyboardMarkup toReplyKeyboardMarkup() =>

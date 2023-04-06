@@ -41,7 +41,7 @@ class CallMessageWidget extends StatelessWidget {
         : _authRepo.isCurrentUser(message.from);
     return Container(
       width: 210,
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsetsDirectional.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -51,7 +51,7 @@ class CallMessageWidget extends StatelessWidget {
               CallState(
                 time: _callDuration,
                 callStatus: _callEvent,
-                isCurrentUser: _authRepo.isCurrentUser(message.from),
+                isIncomingCall: _authRepo.isCurrentUser(message.from),
               ),
               const SizedBox(
                 height: 5,

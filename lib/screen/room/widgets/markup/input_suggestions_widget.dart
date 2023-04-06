@@ -50,7 +50,7 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
                 controller: _controller,
                 separatorBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsetsDirectional.all(8.0),
                     child: VerticalDivider(
                       color: theme.primaryColorLight,
                     ),
@@ -65,7 +65,7 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
                     },
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsetsDirectional.all(8.0),
                         child: Text(widget.inputSuggestions[i]),
                       ),
                     ),

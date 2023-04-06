@@ -15,7 +15,7 @@ class ChatItemToForward extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 8.0),
         child: SizedBox(
           height: 50,
           child: Row(

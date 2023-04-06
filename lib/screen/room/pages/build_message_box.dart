@@ -161,7 +161,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: 6),
+          margin: const EdgeInsetsDirectional.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
@@ -210,7 +210,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onTapDown: storeTapDownPosition,
           onSecondaryTapDown: storeTapDownPosition,
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding: EdgeInsetsDirectional.symmetric(
               vertical: msg.isHidden ? 0.0 : p4,
             ),
             child: PersistentEventMessage(

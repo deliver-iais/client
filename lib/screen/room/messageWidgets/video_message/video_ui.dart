@@ -105,7 +105,7 @@ class VideoUiState extends State<VideoUi> {
               color: widget.background,
             ),
             child: IconButton(
-              padding: EdgeInsets.zero,
+              padding: EdgeInsetsDirectional.zero,
               icon: Icon(Icons.play_arrow, color: widget.foreground),
               iconSize: 42,
               onPressed: () => _routingService.openShowAllVideos(
