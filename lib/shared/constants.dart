@@ -87,9 +87,9 @@ const STUN_SERVER_URL_2 = 'stun:157.90.138.141:3478';
 const STUN_SERVER_URL_3 = 'stun:stun.l.google.com:19302';
 
 //Turn Server1
-const TURN_SERVER_URL_1 = 'turn:157.90.138.141?transport=udp';
+const TURN_SERVER_URL_1 = 'turn:157.90.138.141:3478?transport=udp';
 const TURN_SERVER_USERNAME_1 = 'deliver2';
-const TURN_SERVER_PASSWORD_1 = 'deliver2@123';
+const TURN_SERVER_PASSWORD_1 = 'Deliver2@123';
 
 //Turn Server2
 const TURN_SERVER_URL_2 = 'turn:217.218.7.16:3478?transport=udp';
