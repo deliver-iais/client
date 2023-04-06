@@ -1448,15 +1448,14 @@ class CallRepo {
 
   Future<void> _setCallCandidate(String candidatesJson) async {
     final candidates =
-        (jsonDecode(candidatesJson) as List<Map<String, dynamic>>)
-            .map(
-              (data) => RTCIceCandidate(
-                data['candidate'],
-                data['sdpMid'],
-                data['sdpMlineIndex'],
-              ),
-            )
-            .toList();
+        (jsonDecode(candidatesJson) as List<dynamic>).map((element) {
+          final data = element as Map<String, dynamic>;
+      return RTCIceCandidate(
+        data['candidate'],
+        data['sdpMid'],
+        data['sdpMlineIndex'],
+      );
+    }).toList();
     await _setCandidate(candidates);
   }
 
