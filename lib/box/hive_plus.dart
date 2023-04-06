@@ -25,6 +25,21 @@ class BoxPlus<E> {
     return box.watch(key: key);
   }
 
+  Future<Iterable<int>> addAll(Iterable<E> values) {
+    if (kDebugMode) _analyticsRepo.incDao("addAll/${box.name}");
+    return box.addAll(values);
+  }
+
+  bool containsKey(key) {
+    if (kDebugMode) _analyticsRepo.incDao("containsKey/${box.name}");
+    return box.containsKey(key);
+  }
+
+  Iterable<E> valuesBetween({startKey, endKey}) {
+    if (kDebugMode) _analyticsRepo.incDao("valuesBetween/${box.name}");
+    return box.valuesBetween(startKey: startKey, endKey: endKey);
+  }
+
   Future<void> put(key, E value) {
     if (kDebugMode) _analyticsRepo.incDao("put/${box.name}");
     return box.put(key, value);
@@ -48,6 +63,11 @@ class BoxPlus<E> {
   bool get isEmpty {
     if (kDebugMode) _analyticsRepo.incDao("isEmpty/${box.name}");
     return box.isEmpty;
+  }
+
+  Iterable<dynamic> get keys {
+    if (kDebugMode) _analyticsRepo.incDao("keys/${box.name}");
+    return box.keys;
   }
 
   Iterable<E> get values {

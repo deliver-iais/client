@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -13,6 +14,7 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 
 class DeveloperPage extends StatefulWidget {
@@ -249,6 +251,65 @@ class DeveloperPageState extends State<DeveloperPage> {
                 ],
               ),
             Section(
+              title: "Authentication",
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Wrap(
+                    // runSpacing: 8,
+                    children: [
+                      Debug(
+                        _authRepo.refreshToken(),
+                        label: "Refresh Token",
+                      ),
+                      Debug(
+                        _authRepo.accessToken,
+                        label: "Access Token",
+                      ),
+                      Debug(
+                        _authRepo.serverTimeDiff,
+                        label: "Server time diff",
+                      ),
+                      Debug(
+                        clock.now(),
+                        label: "App time",
+                      ),
+                      Debug(
+                        clock.now().millisecondsSinceEpoch,
+                        label: "App time in milliseconds since epoch time",
+                      ),
+                      Debug(
+                        JwtDecoder.getExpirationDate(_authRepo.refreshToken()),
+                        label: "Refresh Token Expire Date",
+                      ),
+                      Debug(
+                        JwtDecoder.getExpirationDate(_authRepo.accessToken),
+                        label: "Access Token Expire Date",
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            if (hasFirebaseCapability)
+              Section(
+                title: "Firebase Token",
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
+                      runSpacing: 8,
+                      children: [
+                        Debug(
+                          settings.firebaseToken.value,
+                          label: "Token",
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            Section(
               title: "Analytics - Requests Frequency",
               children: [
                 StreamBuilder(
@@ -433,45 +494,6 @@ class DeveloperPageState extends State<DeveloperPage> {
                 )
               ],
             ),
-            Section(
-              title: "Tokens",
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Wrap(
-                    runSpacing: 8,
-                    children: [
-                      Debug(
-                        _authRepo.refreshToken,
-                        label: "Refresh Token",
-                      ),
-                      Debug(
-                        _authRepo.accessToken,
-                        label: "Access Token",
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            if (hasFirebaseCapability)
-              Section(
-                title: "Firebase Token",
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      runSpacing: 8,
-                      children: [
-                        Debug(
-                          settings.firebaseToken.value,
-                          label: "Token",
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
           ],
         ),
       ),

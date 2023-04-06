@@ -20,6 +20,7 @@ import 'package:dio/dio.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -32,6 +33,8 @@ class FileRepo {
   final _i18N = GetIt.I.get<I18N>();
 
   Map<String, String> localUploadedFilePath = {};
+  Map<String, String> webDownloadFileBlob = {};
+  Map<String, String> webThumbnailFileBlob = {};
 
   Future<void> saveInFileInfo(
     io.File file,
@@ -163,17 +166,47 @@ class FileRepo {
     );
   }
 
+  String? getFileFromWebCacheBlob(
+    String uuid, {
+    ThumbnailSize? thumbnailSize,
+  }) {
+    if (isWeb) {
+      if (thumbnailSize == null) {
+        return webDownloadFileBlob[uuid];
+      }
+      return webThumbnailFileBlob[uuid];
+    }
+    return null;
+  }
+
+  String? saveWebBlobToFileCache(
+    String blob,
+    String uuid, {
+    ThumbnailSize? thumbnailSize,
+  }) {
+    if (isWeb) {
+      if (thumbnailSize == null) {
+        return webDownloadFileBlob[uuid] = blob;
+      }
+      return webThumbnailFileBlob[uuid] = blob;
+    }
+    return null;
+  }
+
   Future<bool> isExist(
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
+    if (isWeb) {
+      return getFileFromWebCacheBlob(uuid, thumbnailSize: thumbnailSize) !=
+          null;
+    }
     final fileInfo = await _getFileInfoInDB(
       (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
       uuid,
     );
     if (fileInfo != null) {
-      if (isWeb) return fileInfo.path.isNotEmpty;
       final file = io.File(fileInfo.path);
       return file.existsSync();
     }
@@ -193,6 +226,9 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
+    if (isWeb) {
+      return getFileFromWebCacheBlob(uuid, thumbnailSize: thumbnailSize);
+    }
     if (thumbnailSize == null && fileExitInCache(uuid)) {
       return localUploadedFilePath[uuid];
     }
@@ -201,16 +237,9 @@ class FileRepo {
       uuid,
     );
     if (fileInfo != null) {
-      if (isWeb) {
-        return _convertDataByteToBlobUrl(
-          fileInfo.path,
-          filename.getMimeString(),
-        );
-      } else {
-        final file = io.File(fileInfo.path);
-        if (file.existsSync()) {
-          return file.path;
-        }
+      final file = io.File(fileInfo.path);
+      if (file.existsSync()) {
+        return file.path;
       }
     }
     return null;
@@ -237,19 +266,15 @@ class FileRepo {
     );
     if (downloadedFileUri != null) {
       if (isWeb) {
-        await _saveFileInfo(
-          uuid,
-          downloadedFileUri,
-          filename,
-          thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
-        );
         if (intiProgressbar) {
           _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
         }
-        return _convertDataByteToBlobUrl(
+        final blob = _convertDataByteToBlobUrl(
           downloadedFileUri,
           filename.getMimeString(),
         );
+        saveWebBlobToFileCache(blob, uuid, thumbnailSize: thumbnailSize);
+        return blob;
       }
 
       await _saveFileInfo(
@@ -271,7 +296,7 @@ class FileRepo {
   String _convertDataByteToBlobUrl(String dataByte, String type) {
     final blob = html.Blob(
       <Object>[UriData.parse(dataByte).contentAsBytes()],
-      "application/$type}",
+      type,
     );
 
     return html.Url.createObjectUrlFromBlob(blob);
@@ -350,6 +375,16 @@ class FileRepo {
         convertToJpg: convertToJpg,
       ),
     );
+  }
+
+  Future<void> openFile(
+    String filePath,
+  ) async {
+    if (isWeb) {
+      html.window.open(filePath, "_");
+    } else {
+      OpenFilex.open(filePath).ignore();
+    }
   }
 
   void copyFileToPasteboard(

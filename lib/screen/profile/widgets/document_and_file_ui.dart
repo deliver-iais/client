@@ -10,7 +10,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_filex/open_filex.dart';
 
 class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
@@ -75,9 +74,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                           children: [
                             ListTile(
                               title: GestureDetector(
-                                onTap: () {
-                                  OpenFilex.open(filePath.data ?? "");
-                                },
+                                onTap: () => _fileRepo.openFile(filePath.data!),
                                 child: Row(
                                   children: <Widget>[
                                     Container(
@@ -97,11 +94,9 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           color: theme.colorScheme.primary,
                                           size: 35,
                                         ),
-                                        onPressed: () {
-                                          OpenFilex.open(
-                                            filePath.data ?? "",
-                                          );
-                                        },
+                                        onPressed: () => _fileRepo.openFile(
+                                          filePath.data!,
+                                        ),
                                       ),
                                     ),
                                     Expanded(
