@@ -33,7 +33,6 @@ import 'package:deliver/screen/settings/pages/call_settings.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
-import 'package:deliver/screen/settings/pages/lab_settings.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/settings/pages/power_saver_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
@@ -85,8 +84,6 @@ const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
 const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
-
-const _lab = LabSettingsPage(key: ValueKey("/lab"));
 
 const _callSettings = CallSettingsPage(key: ValueKey("/call-settings"));
 
@@ -189,13 +186,6 @@ class RoutingService {
       "autoDownloadPage_open",
     );
     _push(_autoDownload);
-  }
-
-  void openLab() {
-    _analyticsService.sendLogEvent(
-      "labPage_open",
-    );
-    _push(_lab);
   }
 
   void openCallSetting() {

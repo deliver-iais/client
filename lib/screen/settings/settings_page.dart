@@ -364,14 +364,6 @@ class SettingsPageState extends State<SettingsPage> {
                     releaseState: ReleaseState.NEW,
                     onPressed: (context) => _routingService.openCallSetting(),
                   ),
-                if (_featureFlags.labIsAvailable())
-                  SettingsTile(
-                    title: _i18n.get("lab"),
-                    subtitleTextStyle:
-                        TextStyle(color: theme.colorScheme.primary),
-                    leading: const Icon(CupertinoIcons.lab_flask),
-                    onPressed: (context) => _routingService.openLab(),
-                  ),
                 SettingsTile(
                   title: _i18n.get("version"),
                   leading:

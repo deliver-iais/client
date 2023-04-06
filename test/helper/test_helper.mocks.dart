@@ -7157,38 +7157,6 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i18.IntPersistent);
   @override
-  _i18.BooleanPersistent get localStunServerIsEnabled => (super.noSuchMethod(
-        Invocation.getter(#localStunServerIsEnabled),
-        returnValue: _FakeBooleanPersistent_25(
-          this,
-          Invocation.getter(#localStunServerIsEnabled),
-        ),
-      ) as _i18.BooleanPersistent);
-  @override
-  _i18.BooleanPersistent get localTurnServerIsEnabled => (super.noSuchMethod(
-        Invocation.getter(#localTurnServerIsEnabled),
-        returnValue: _FakeBooleanPersistent_25(
-          this,
-          Invocation.getter(#localTurnServerIsEnabled),
-        ),
-      ) as _i18.BooleanPersistent);
-  @override
-  _i18.BooleanPersistent get googleStunServerIsEnabled => (super.noSuchMethod(
-        Invocation.getter(#googleStunServerIsEnabled),
-        returnValue: _FakeBooleanPersistent_25(
-          this,
-          Invocation.getter(#googleStunServerIsEnabled),
-        ),
-      ) as _i18.BooleanPersistent);
-  @override
-  _i18.BooleanPersistent get googleTurnServerIsEnabled => (super.noSuchMethod(
-        Invocation.getter(#googleTurnServerIsEnabled),
-        returnValue: _FakeBooleanPersistent_25(
-          this,
-          Invocation.getter(#googleTurnServerIsEnabled),
-        ),
-      ) as _i18.BooleanPersistent);
-  @override
   _i18.EnumPersistent<_i61.Language> get language => (super.noSuchMethod(
         Invocation.getter(#language),
         returnValue: _FakeEnumPersistent_21<_i61.Language>(
@@ -7758,14 +7726,6 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
   void openAutoDownload() => super.noSuchMethod(
         Invocation.method(
           #openAutoDownload,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void openLab() => super.noSuchMethod(
-        Invocation.method(
-          #openLab,
           [],
         ),
         returnValueForMissingStub: null,

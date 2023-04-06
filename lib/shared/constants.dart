@@ -81,19 +81,22 @@ final FAKE_USER_UID = Uid()
 const FAKE_USER_NAME = "John Doe";
 
 // Call Constants
-const STUN_SERVER_URL = 'stun:217.218.7.16:3478';
-const STUN_SERVER_URL_2 = 'stun:stun.l.google.com:19302';
-const TURN_SERVER_URL =
-    'turn:217.218.7.16:3478?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
-const TURN_SERVER_USERNAME = 'deliver'; //1639512193:flutter-webrtc //deliver
-const TURN_SERVER_PASSWORD =
-    'Deliver@123'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
-const TURN_SERVER_URL_2 =
-    'turn:47.102.201.4:19303?transport=udp'; //turn:47.102.201.4:19303?transport=udp //turn:217.218.7.16:3478?transport=udp
-const TURN_SERVER_USERNAME_2 =
-    '1639512193:flutter-webrtc'; //1639512193:flutter-webrtc //deliver
-const TURN_SERVER_PASSWORD_2 =
-    'WyxSLuhpUNpFWrD44gmTGN0q93E'; //WyxSLuhpUNpFWrD44gmTGN0q93E //Deliver@123
+//Stun Servers
+const STUN_SERVER_URL_1 = 'stun:217.218.7.16:3478';
+const STUN_SERVER_URL_2 = 'stun:157.90.138.141:3478';
+const STUN_SERVER_URL_3 = 'stun:stun.l.google.com:19302';
+
+//Turn Server1
+const TURN_SERVER_URL_1 = 'turn:157.90.138.141?transport=udp';
+const TURN_SERVER_USERNAME_1 = 'deliver2';
+const TURN_SERVER_PASSWORD_1 = 'deliver2@123';
+
+//Turn Server2
+const TURN_SERVER_URL_2 = 'turn:217.218.7.16:3478?transport=udp';
+const TURN_SERVER_USERNAME_2 = 'deliver';
+const TURN_SERVER_PASSWORD_2 = 'Deliver@123';
+
+//Status Webrtc
 const STATUS_CAMERA_OPEN = "camera-open";
 const STATUS_CAMERA_CLOSE = "camera-close";
 const STATUS_MIC_OPEN = "mic-open";
@@ -109,6 +112,8 @@ const STATUS_CONNECTION_DISCONNECTED = "connection-disconnected";
 const STATUS_CONNECTION_ENDED = "connection-ended";
 const STATUS_CAMERA_SWITCH_ON = "camera-switch-on";
 const STATUS_CAMERA_SWITCH_OFF = "camera-switch-off";
+
+//Call Configuration
 const WEBRTC_MAX_BITRATE_LOW_AUDIO_CALL = 32000; // 32 kbps
 const WEBRTC_MAX_BITRATE_NORMAL_AUDIO_CALL = 64000; // 64 kbps
 const WEBRTC_MIN_BITRATE_HIGH_QUALITY_AUDIO_CALL = 256000; // 256 kbps
@@ -117,8 +122,11 @@ const WEBRTC_MAX_BITRATE_NORMAL_VIDEO_CALL = 512000; // 512 kbps
 const ICE_CANDIDATE_NUMBER = 15;
 const ICE_CANDIDATE_TIME_LIMIT = 1500;
 const CALL_DATA_EXPIRE_CHECK_TIME_MS = 100000;
+
+//Colors
 const grayColor = Color.fromRGBO(55, 58, 62, 1.0);
 const backgroundColorCard = Color.fromRGBO(44, 99, 45, 1.0);
+
 const DEFAULT_ZOOM_LEVEL = 15.0;
 const androidSmallCallWidgetVerticalMargin = 120.0;
 
@@ -173,10 +181,6 @@ enum SharedKeys {
   ONCE_SHOW_CAMERA_DIALOG,
   ONCE_SHOW_MEDIA_LIBRARY_DIALOG,
   SHOW_DEVELOPER_PAGE,
-  LOCAL_STUN_SERVER_IS_ENABLED,
-  LOCAL_TURN_SERVER_IS_ENABLED,
-  GOOGLE_STUN_SERVER_IS_ENABLED,
-  GOOGLE_TURN_SERVER_IS_ENABLED,
   ICE_CANDIDATE_NUMBERS,
   ICE_CANDIDATE_TIME_LIMIT,
   REPEAT_ANIMATED_EMOJI,
