@@ -10,12 +10,12 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ContactPic extends StatelessWidget {
+class ChatAvatar extends StatelessWidget {
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   final Uid userUid;
 
-  const ContactPic(this.userUid, {super.key});
+  const ChatAvatar(this.userUid, {super.key});
 
   @override
   Widget build(BuildContext context) {

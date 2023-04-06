@@ -1,6 +1,7 @@
 // TODO(any): change file name
 // ignore_for_file: file_names
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
@@ -53,7 +54,16 @@ class AvatarRepo {
     }
   }
 
+  final _completer = <String, Completer<void>>{};
+
   Future<void> _getAvatarRequest(Uid userUid) async {
+    var completer = _completer[userUid.asString()];
+    if (completer != null && !completer.isCompleted) {
+      return completer.future;
+    }
+    completer = Completer();
+    _completer[userUid.asString()] = completer;
+
     try {
       final getAvatarReq = GetAvatarReq()..uidList.add(userUid);
       final getAvatars = await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
@@ -71,15 +81,17 @@ class AvatarRepo {
 
       if (avatars.isNotEmpty) {
         await _avatarDao.clearAllAvatars(userUid.asString());
-        return _avatarDao.saveAvatars(userUid.asString(), avatars);
+        await _avatarDao.saveAvatars(userUid.asString(), avatars);
       } else {
-        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+        await _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
+      return completer.complete();
     } on GrpcError catch (e) {
       _logger.e("grpc error for $userUid", e);
       if (e.code == StatusCode.notFound) {
-        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+        await _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
+      return completer.complete();
     }
   }
 
@@ -219,7 +231,8 @@ class AvatarRepo {
 
   Future<void> uploadAvatar(String path, Uid uid) async {
     await _fileRepo.saveInFileInfo(File(path), uid.node, path);
-    final fileInfo = await _fileRepo.uploadClonedFile(uid.node, path, packetIds: []);
+    final fileInfo =
+        await _fileRepo.uploadClonedFile(uid.node, path, packetIds: []);
     if (fileInfo != null) {
       final createdOn = clock.now().millisecondsSinceEpoch;
       await _setAvatarAtServer(fileInfo, createdOn, uid);
