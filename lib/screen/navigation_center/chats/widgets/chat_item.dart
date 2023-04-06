@@ -9,6 +9,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/chat_avatar.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -25,7 +26,6 @@ import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'contact_pic.dart';
 import 'last_message.dart';
 
 class RoomWrapper {
@@ -196,7 +196,7 @@ class ChatItemState extends State<ChatItem> {
 
     return Row(
       children: <Widget>[
-        if (settings.showAvatars.value) ContactPic(widget.room.uid.asUid()),
+        if (settings.showAvatars.value) ChatAvatar(widget.room.uid.asUid()),
         if (settings.showAvatars.value) const SizedBox(width: p8),
         Expanded(
           child: Column(

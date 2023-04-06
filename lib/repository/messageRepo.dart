@@ -117,10 +117,6 @@ class MessageRepo {
   bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
-  MessageRepo() {
-    unawaited(createConnectionStatusHandler());
-  }
-
   Future<void> createConnectionStatusHandler() async {
     if (_authRepo.isLoggedIn()) {
       await update();
@@ -253,7 +249,13 @@ class MessageRepo {
               )
               .ignore();
         }
-        unawaited(processSeen(roomMetadata));
+        unawaited(
+          processSeen(
+            roomMetadata,
+            needFetchHiddenMessageCountAndMentions:
+                room == null || roomMetadata.lastMessageId > room.lastMessageId,
+          ),
+        );
 
         if (room == null ||
             (roomMetadata.lastUpdate.toInt() != room.lastUpdateTime ||
@@ -300,7 +302,10 @@ class MessageRepo {
     return false;
   }
 
-  Future<void> processSeen(RoomMetadata roomMetadata) async {
+  Future<void> processSeen(
+    RoomMetadata roomMetadata, {
+    bool needFetchHiddenMessageCountAndMentions = false,
+  }) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
       final roomSeen =
@@ -325,6 +330,7 @@ class MessageRepo {
           ),
           roomMetadata.roomUid.asString(),
           roomMetadata.lastMessageId.toInt(),
+          needFetchHiddenMessageCountAndMentions,
         );
       } else {
         final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
@@ -347,6 +353,7 @@ class MessageRepo {
     int lastSeenMessageId,
     String roomUid,
     int lastMessageId,
+    bool needFetchHiddenMessageCountAndMentions,
   ) async {
     unawaited(
       (_seenDao.updateMySeen(
@@ -354,14 +361,16 @@ class MessageRepo {
         messageId: lastSeenMessageId,
       )),
     );
-
-    unawaited(fetchHiddenMessageCount(roomUid.asUid(), lastSeenMessageId));
+    if (needFetchHiddenMessageCountAndMentions) {
+      unawaited(fetchHiddenMessageCount(roomUid.asUid(), lastSeenMessageId));
+    }
 
     if (roomUid.isGroup()) {
       unawaited(
         _updateRoomMention(lastSeenMessageId, roomUid),
       );
-      if (lastMessageId > lastSeenMessageId) {
+      if (needFetchHiddenMessageCountAndMentions &&
+          lastMessageId > lastSeenMessageId) {
         await _fetchMentions(roomUid, lastSeenMessageId);
       }
     }
@@ -492,6 +501,7 @@ class MessageRepo {
             newSeenMessageId,
             roomUid,
             lastMessageId,
+            false,
           ),
         );
       } on GrpcError catch (e) {

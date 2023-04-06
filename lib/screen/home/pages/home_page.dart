@@ -4,6 +4,7 @@ import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
@@ -44,12 +45,14 @@ class HomePageState extends State<HomePage> {
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _backgroundService = GetIt.I.get<BackgroundService>();
-
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
 
   @override
   void initState() {
+    _coreServices.initStreamConnection();
+    _messageRepo.createConnectionStatusHandler();
     if (isMacOSNative) {
       GetIt.I.get<SeenDao>().watchAllRoomSeen().listen((event) {
         try {
@@ -84,8 +87,6 @@ class HomePageState extends State<HomePage> {
     _analyticsService.sendLogEvent(
       "user_starts_app",
     );
-
-    _coreServices.initStreamConnection();
     if (isMobileNative) {
       checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();

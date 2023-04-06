@@ -1,5 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/navigation_center/chats/widgets/contact_pic.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/chat_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class ShareChatItem extends StatelessWidget {
                     Stack(
                       children: [
                         if (!selected)
-                          ContactPic(uid)
+                          ChatAvatar(uid)
                         else
                           Icon(
                             CupertinoIcons.checkmark_alt_circle_fill,
