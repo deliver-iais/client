@@ -1,3 +1,4 @@
+// TODO(any): change file name
 // ignore_for_file: file_names
 
 import 'dart:async';
@@ -300,7 +301,7 @@ class MucRepo {
             c.pinMessagesIdList,
           );
         }
-        // ignore: unrelated_type_equality_checks
+
         if (channel.requesterRole != muc_pb.Role.NONE &&
             channel.requesterRole != muc_pb.Role.MEMBER) {
           unawaited(fetchChannelMembers(mucUid, channel.population.toInt()));

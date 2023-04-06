@@ -41,7 +41,7 @@ class AudioCallScreen extends StatelessWidget {
             Center(
               child: Padding(
                 padding: EdgeInsetsDirectional.only(
-                  top: MediaQuery.of(context).size.height * 0.10,
+                  top: MediaQuery.of(context).size.height * 0.1,
                 ),
                 child: Column(
                   children: [

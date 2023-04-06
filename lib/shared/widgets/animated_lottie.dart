@@ -42,12 +42,10 @@ class AnimatedLottie extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _AnimatedLottieState createState() => _AnimatedLottieState();
+  AnimatedLottieState createState() => AnimatedLottieState();
 }
 
-// TODO(any): edit solve animation bug  !!!!
-class _AnimatedLottieState extends State<AnimatedLottie> {
+class AnimatedLottieState extends State<AnimatedLottie> {
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   late final Future<LottieComposition> _composition;
 

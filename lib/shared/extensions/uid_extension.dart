@@ -28,7 +28,6 @@ extension UidExtension on Uid {
   bool isEqual(Uid uid) => asString() == uid.asString();
 }
 
-// ignore: constant_identifier_names
 const String _ALL_SESSIONS = "*";
 
 extension StringUidExtension on String {

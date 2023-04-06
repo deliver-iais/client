@@ -1,3 +1,4 @@
+// TODO(any): Fix the import
 // ignore_for_file: implementation_imports
 
 import 'dart:async';
@@ -247,21 +248,18 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.all(marginSize),
-      child: Container(
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: const Color(0x96000000),
-          borderRadius: BorderRadius.circular(10.0),
+    return Container(
+      padding: EdgeInsets.all(marginSize + 5),
+      decoration: BoxDecoration(
+        color: const Color(0x96000000),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Text(
+        currentSubtitle.first!.text.toString(),
+        style: const TextStyle(
+          fontSize: 18,
         ),
-        child: Text(
-          currentSubtitle.first!.text.toString(),
-          style: const TextStyle(
-            fontSize: 18,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -443,7 +441,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
             text: '/ ${formatDuration(duration)}',
             style: TextStyle(
               fontSize: 14.0,
-              color: Colors.white.withOpacity(.75),
+              color: Colors.white.withOpacity(0.75),
               fontWeight: FontWeight.normal,
             ),
           )
@@ -619,7 +617,7 @@ class _MaterialVideoControllerState extends State<MaterialVideoController>
               handleColor: Theme.of(context).colorScheme.secondary,
               bufferedColor:
                   Theme.of(context).colorScheme.background.withOpacity(0.5),
-              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
+              backgroundColor: Theme.of(context).disabledColor.withOpacity(0.5),
             ),
       ),
     );

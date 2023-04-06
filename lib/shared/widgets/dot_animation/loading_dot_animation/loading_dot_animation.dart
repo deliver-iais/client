@@ -39,7 +39,7 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation>
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(3, (i) {
           return ScaleTransition(
-            scale: DelayTween(begin: 0.5, end: 1.0, delay: i * .2)
+            scale: DelayTween(begin: 0.5, end: 1.0, delay: i * 0.2)
                 .animate(_controller),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 1),

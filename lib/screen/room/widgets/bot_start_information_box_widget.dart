@@ -106,10 +106,7 @@ class BotStartInformationBoxWidget extends StatelessWidget {
                                     itemCount: botCommands!.length,
                                     itemBuilder: (c, index) {
                                       return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 8,
-                                        ),
+                                        padding: const EdgeInsets.all(8),
                                         child: MouseRegion(
                                           cursor: SystemMouseCursors.click,
                                           child: GestureDetector(

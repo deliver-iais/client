@@ -57,10 +57,7 @@ class BotCommandsState extends State<BotCommands> {
                   return Container(
                     color: botCommandItemColor,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.all(8),
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(

@@ -60,10 +60,9 @@ class SelectMultiMessageAppBar extends StatelessWidget {
     var canShareMessage = true;
 
     for (final message in selectedMessages.values.toList()) {
-      if ((_authRepo.isCurrentUserSender(message) ||
-              (message.roomUid.isChannel() && hasPermissionInChannel) ||
-              (message.roomUid.isGroup() && hasPermissionInGroup)) ==
-          false) {
+      if (!(_authRepo.isCurrentUserSender(message) ||
+          (message.roomUid.isChannel() && hasPermissionInChannel) ||
+          (message.roomUid.isGroup() && hasPermissionInGroup))) {
         hasPermissionToDeleteMsg = false;
       }
     }
@@ -134,10 +133,13 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                         copyText =
                             "$copyText${await _roomRepo.getName(message.from.asUid())}:\n$fileTypeEmoji\n${message.json.toFile().caption}";
                       }
-                      copyText =
-                          "$copyText\n${DateTime.fromMillisecondsSinceEpoch(
+                      // Ignore because there is no emoji in this string
+                      // ignore: avoid-substring
+                      final timeString = DateTime.fromMillisecondsSinceEpoch(
                         message.time,
-                      ).toString().substring(0, 19)}\n";
+                      ).toString().substring(0, 19);
+
+                      copyText = "$copyText\n$timeString\n";
                     }
 
                     Share.share(

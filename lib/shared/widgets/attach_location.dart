@@ -421,7 +421,10 @@ class AttachLocation {
           builder: (context, snapshot) {
             return Padding(
               padding: const EdgeInsetsDirectional.only(
-                  top: 300, end: 30, start: 30),
+                top: 300,
+                end: 30,
+                start: 30,
+              ),
               child: Center(
                 child: ListView(
                   children: [

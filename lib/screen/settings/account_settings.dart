@@ -215,7 +215,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                       ),
                                     ),
                                     const Padding(
-                                      padding: EdgeInsetsDirectional.only(top: 45),
+                                      padding:
+                                          EdgeInsetsDirectional.only(top: 45),
                                       child: Center(
                                         child: CircularProgressIndicator(
                                           strokeWidth: 6.0,
@@ -234,8 +235,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                       width: 130,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors.grey[500]!
-                                            .withOpacity(0.9),
+                                        color:
+                                            Colors.grey[500]!.withOpacity(0.9),
                                       ),
                                       child: CircleAvatarWidget(
                                         _authRepo.currentUserUid,
@@ -246,7 +247,9 @@ class AccountSettingsState extends State<AccountSettings> {
                                   ),
                                   Center(
                                     child: Padding(
-                                      padding: const EdgeInsetsDirectional.only(top: 35),
+                                      padding: const EdgeInsetsDirectional.only(
+                                        top: 35,
+                                      ),
                                       child: IconButton(
                                         color: Colors.white,
                                         splashRadius: 40,
@@ -309,10 +312,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                       text: _usernameTextController.text,
                                     ),
                                     onSelected: (selection) {
-                                      _usernameTextController.text =
-                                          selection;
-                                      _usernameFormKey.currentState
-                                          ?.validate();
+                                      _usernameTextController.text = selection;
+                                      _usernameFormKey.currentState?.validate();
                                     },
                                     fieldViewBuilder: (
                                       context,
@@ -336,8 +337,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                                 textInputAction:
                                                     TextInputAction.send,
                                                 onChanged: (str) {
-                                                  _usernameTextController
-                                                      .text = str;
+                                                  _usernameTextController.text =
+                                                      str;
                                                   _idIsIsAvailableChecker
                                                       .add(str);
                                                 },
@@ -369,25 +370,19 @@ class AccountSettingsState extends State<AccountSettings> {
                                                   .inactiveGray
                                                   .withOpacity(0.2),
                                               child: Column(
-                                                mainAxisSize:
-                                                    MainAxisSize.min,
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: options.map((opt) {
                                                   return InkWell(
                                                     onTap: () {
                                                       onSelected(opt);
                                                     },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets
-                                                              .symmetric(
+                                                    child: Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
                                                         horizontal: 60,
+                                                        vertical: 10,
                                                       ),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10),
-                                                        child: Text(opt),
-                                                      ),
+                                                      child: Text(opt),
                                                     ),
                                                   );
                                                 }).toList(),
@@ -488,11 +483,13 @@ class AccountSettingsState extends State<AccountSettings> {
     final u3 = name.isEmpty ? lastName : name;
     var suggestion = <String>[u1, u2, u3];
     if (name.isNotEmpty && lastName.isNotEmpty) {
-      suggestion.add("${name.substring(0, 1)}_$lastName");
+      suggestion.add("${name.characters.getRange(0, 1)}_$lastName");
     }
     suggestion = suggestion
         .map<String>(
-          (e) => e.length > 20 ? e.substring(0, 20).trim() : e.trim(),
+          (e) => e.length > 20
+              ? e.characters.getRange(0, 20).string.trim()
+              : e.trim(),
         )
         .where((element) => element.length > 4 && element.contains(input))
         .toList();

@@ -45,7 +45,7 @@ void main() {
           () async {
         final logger = getAndRegisterLogger();
         MessageRepo();
-        await Future.delayed(const Duration(seconds: 1), () {});
+        await Future.delayed(const Duration(seconds: 1));
         verify(logger.i('updating -----------------'));
       });
 
@@ -74,7 +74,7 @@ void main() {
         getAndRegisterAuthRepo(isLoggedIn: false);
         final messageRepo = getAndRegisterMessageRepo();
         await messageRepo.createConnectionStatusHandler();
-        await Future.delayed(const Duration(seconds: 1), () {});
+        await Future.delayed(const Duration(seconds: 1));
         expect(
           messageRepo.updateState,
           true,
@@ -89,8 +89,6 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         await (getAndRegisterMessageRepo()).createConnectionStatusHandler();
-        // ignore: await_only_futures
-
         verify(logger.i('updating -----------------'));
       });
 
@@ -102,7 +100,7 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = getAndRegisterMessageRepo();
-        await Future.delayed(const Duration(seconds: 1), () {});
+        await Future.delayed(const Duration(seconds: 1));
         verify(messageRepo.updatingRooms());
       });
 
@@ -114,7 +112,7 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = getAndRegisterMessageRepo();
-        await Future.delayed(const Duration(seconds: 1), () {});
+        await Future.delayed(const Duration(seconds: 1));
         await messageRepo.updatingRooms();
         expect(
           messageRepo.updatingStatus.value,
@@ -140,7 +138,7 @@ void main() {
           () async {
         getAndRegisterAuthRepo(isLoggedIn: false);
         final messageRepo = getAndRegisterMessageRepo();
-        await Future.delayed(const Duration(seconds: 1), () {});
+        await Future.delayed(const Duration(seconds: 1));
         expect(
           messageRepo.updatingStatus.value,
           TitleStatusConditions.Disconnected,
@@ -572,7 +570,7 @@ void main() {
               final messageDao = getAndRegisterMessageDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
               await MessageRepo().sendTextMessage(testUid, "test");
-              await Future.delayed(const Duration(milliseconds: 300), () {});
+              await Future.delayed(const Duration(milliseconds: 300));
               verify(messageDao.savePendingMessage(pm));
             });
           },
@@ -587,7 +585,7 @@ void main() {
               final roomDao = getAndRegisterRoomDao();
               // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
               await MessageRepo().sendTextMessage(testUid, "test");
-              await Future.delayed(const Duration(milliseconds: 100), () {});
+              await Future.delayed(const Duration(milliseconds: 100));
               verify(
                 roomDao.updateRoom(
                   uid: pm.roomUid,
@@ -614,7 +612,7 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..text = message_pb.Text.fromJson(pm.msg.json);
-              await Future.delayed(const Duration(milliseconds: 100), () {});
+              await Future.delayed(const Duration(milliseconds: 100));
               verify(coreServices.sendMessage(byClient));
             });
           },
@@ -641,7 +639,7 @@ void main() {
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
-              await Future.delayed(const Duration(milliseconds: 300), () {});
+              await Future.delayed(const Duration(milliseconds: 300));
               verify(messageDao.savePendingMessage(pm));
             });
           },
@@ -659,7 +657,7 @@ void main() {
                 LatLng(testPosition.latitude, testPosition.longitude),
                 testUid,
               );
-              await Future.delayed(const Duration(milliseconds: 300), () {});
+              await Future.delayed(const Duration(milliseconds: 300));
               verify(
                 roomDao.updateRoom(
                   uid: pm.roomUid,
@@ -689,7 +687,7 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..location = location_pb.Location.fromJson(pm.msg.json);
-              await Future.delayed(const Duration(milliseconds: 300), () {});
+              await Future.delayed(const Duration(milliseconds: 300));
               verify(coreServices.sendMessage(byClient));
             });
           },
@@ -802,7 +800,7 @@ void main() {
                   sign: "test",
                   hash: "test",
                 );
-              await Future.delayed(const Duration(milliseconds: 100), () {});
+              await Future.delayed(const Duration(milliseconds: 100));
               verify(coreServices.sendMessage(byClient));
             });
           },
@@ -1090,7 +1088,7 @@ void main() {
           withRandomVM(RandomVM.fixed(13418), () async {
             final messageDao = getAndRegisterMessageDao();
             MessageRepo().sendForwardedMessage(testUid, [testMessage]);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
           });
         });
@@ -1109,7 +1107,7 @@ void main() {
                 json: Text(text: "test").writeToJson(),
               )
             ]);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1138,7 +1136,7 @@ void main() {
                 ..to = pm.msg.to.asUid()
                 ..replyToId = Int64(pm.msg.replyToId)
                 ..forwardFrom = testUid;
-              await Future.delayed(const Duration(milliseconds: 100), () {});
+              await Future.delayed(const Duration(milliseconds: 100));
               verify(coreServices.sendMessage(byClient));
             });
           },
@@ -1357,7 +1355,7 @@ void main() {
             formResult.values["test"] = "test";
             MessageRepo()
                 .sendFormResultMessage(testUid.asString(), formResult, 0);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
           });
         });
@@ -1371,7 +1369,7 @@ void main() {
             formResult.values["test"] = "test";
             MessageRepo()
                 .sendFormResultMessage(testUid.asString(), formResult, 0);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1397,7 +1395,7 @@ void main() {
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
               ..formResult = FormResult.fromJson(pm.msg.json);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(coreServices.sendMessage(byClient));
           });
         });
@@ -1421,7 +1419,7 @@ void main() {
               testUid,
               message_pb.ShareUid(uid: testUid),
             );
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
           });
         });
@@ -1435,7 +1433,7 @@ void main() {
               testUid,
               message_pb.ShareUid(uid: testUid),
             );
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1461,7 +1459,7 @@ void main() {
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
               ..shareUid = message_pb.ShareUid.fromJson(pm.msg.json);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(coreServices.sendMessage(byClient));
           });
         });
@@ -1485,7 +1483,7 @@ void main() {
               PrivateDataType.EMAIL,
               "test",
             );
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
           });
         });
@@ -1500,7 +1498,7 @@ void main() {
               PrivateDataType.EMAIL,
               "test",
             );
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(
               roomDao.updateRoom(
                 uid: pm.roomUid,
@@ -1528,7 +1526,7 @@ void main() {
               ..replyToId = Int64(pm.msg.replyToId)
               ..sharePrivateDataAcceptance =
                   SharePrivateDataAcceptance.fromJson(pm.msg.json);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(coreServices.sendMessage(byClient));
           });
         });
@@ -1682,7 +1680,7 @@ void main() {
             final messageDao = getAndRegisterMessageDao();
             await MessageRepo()
                 .sendLiveLocationMessage(testUid, 0, testPosition);
-            await Future.delayed(const Duration(milliseconds: 100), () {});
+            await Future.delayed(const Duration(milliseconds: 100));
             verify(messageDao.savePendingMessage(pm));
             verify(
               roomDao.updateRoom(

@@ -175,6 +175,7 @@ class SettingsPageState extends State<SettingsPage> {
                           "QRShare",
                         );
                         final account = await _accountRepo.getAccount();
+                        // Forced
                         // ignore: use_build_context_synchronously
                         showQrCode(
                           context,

@@ -89,15 +89,13 @@ class GroupedShowCaseListWidget extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
-                    Padding(
+                    Container(
                       padding: const EdgeInsets.all(5.0),
-                      child: Container(
-                        height: 5,
-                        width: 5,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: theme.colorScheme.primary.withOpacity(0.7),
-                        ),
+                      height: 5,
+                      width: 5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.colorScheme.primary.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -132,15 +130,13 @@ class GroupedShowCaseListWidget extends StatelessWidget {
         controller: scrollController,
         itemBuilder: (ctx, index) {
           return isPrimary
-              ? Padding(
+              ? Container(
                   padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.2),
-                      borderRadius: tertiaryBorder,
-                    ),
-                    child: listItems(index),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    borderRadius: tertiaryBorder,
                   ),
+                  child: listItems(index),
                 )
               : listItems(index);
         },

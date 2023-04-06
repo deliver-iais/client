@@ -37,7 +37,7 @@ import 'package:window_size/window_size.dart';
 
 import 'events/has_event_row.dart';
 
-BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
+final modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
 class CallNotificationActionInBackground {
@@ -52,9 +52,8 @@ class CallNotificationActionInBackground {
   });
 }
 
-BehaviorSubject<CallNotificationActionInBackground?>
-    modifyRoutingByCallNotificationActionInBackgroundInAndroid =
-    BehaviorSubject.seeded(null);
+final modifyRoutingByCallNotificationActionInBackgroundInAndroid =
+    BehaviorSubject<CallNotificationActionInBackground?>.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({super.key});
@@ -142,7 +141,7 @@ class NavigationCenterState extends State<NavigationCenter>
             hitTestBehavior: HitTestBehavior.translucent,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-              onPanDown: (e) => storePosition(e),
+              onPanDown: storeDragDownPosition,
               child: FloatingActionButton(
                 heroTag: "navigation-center-fab",
                 onPressed: () {
@@ -587,7 +586,7 @@ class NavigationCenterState extends State<NavigationCenter>
                                 PerformanceMode.POWER_SAVER.level) {
                           return GestureDetector(
                             behavior: HitTestBehavior.translucent,
-                            onPanDown: (e) => storePosition(e),
+                            onPanDown: storeDragDownPosition,
                             child: IconButton(
                               onPressed: () async {
                                 final value = await this.showMenu(

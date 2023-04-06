@@ -92,14 +92,14 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     });
 
     if (rangeValue <= -50) {
-      if (showRightIcon == false) {
+      if (!showRightIcon) {
         lightVibrate();
         setState(() {
           showRightIcon = true;
         });
       }
     } else if (rangeValue >= -45) {
-      if (showRightIcon == true) {
+      if (showRightIcon) {
         setState(() {
           showRightIcon = false;
         });
@@ -140,12 +140,11 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
           margin: const EdgeInsets.all(p8),
           decoration: BoxDecoration(
             color: showRightIcon
-                ? Theme.of(context).colorScheme.primaryContainer
-                .withOpacity(0.8)
-                : Theme.of(context)
+                ? Theme.of(context)
                     .colorScheme
                     .primaryContainer
-                    .withOpacity(0),
+                    .withOpacity(0.8)
+                : Theme.of(context).colorScheme.primaryContainer.withOpacity(0),
             borderRadius: mainBorder,
           ),
           duration: AnimationSettings.slow,

@@ -10,6 +10,8 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  plugins:
+    - dart_code_metrics
   exclude:
     - lib/generated_plugin_registrant.dart
 
@@ -138,6 +140,35 @@ linter:
     #close_sinks: true
     #prefer_expression_function_bodies: true
     #diagnostic_describe_all_properties: true
+
+dart_code_metrics:
+  rules:
+    - avoid-wrapping-in-padding: true
+    - prefer-correct-edge-insets-constructor: true
+    - prefer-define-hero-tag: true
+    - avoid-cascade-after-if-null: true
+    - avoid-double-slash-imports: true
+    - avoid-global-state: true
+#    - avoid-non-null-assertion: true
+    - avoid-substring: true
+    - avoid-non-ascii-symbols:
+      exclude:
+        - lib/screen/room/messageWidgets/animation_emoji.dart
+        - lib/screen/register/widgets/countries.dart
+    - avoid-unnecessary-type-casts: true
+    - double-literal-format: true
+    - avoid-nested-conditional-expressions:
+        acceptable-level: 2
+#    - member-ordering: true
+    - no-boolean-literal-compare: true
+#    - no-empty-block: true
+    - no-equal-then-else: true
+    - prefer-commenting-analyzer-ignores:
+        exclude:
+          - lib/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart
+          - lib/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart
+    - prefer-iterable-of: true
+#    - prefer-moving-to-variable: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

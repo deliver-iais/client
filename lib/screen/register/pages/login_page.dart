@@ -386,7 +386,7 @@ class LoginPageState extends State<LoginPage> {
                     color: theme.colorScheme.surfaceVariant,
                     borderRadius: secondaryBorder,
                   ),
-                  margin: const EdgeInsetsDirectional.only(top: 8, bottom: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   child: SettingsTile(
                     title: _i18n.get("language"),
                     subtitle: _i18n.language.languageName,
@@ -413,8 +413,7 @@ class LoginPageState extends State<LoginPage> {
                     if (snapshot.hasData && snapshot.data!) {
                       return Container(
                         height: 40,
-                        margin:
-                            const EdgeInsetsDirectional.only(top: 8, bottom: 8),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceVariant,
                           borderRadius: secondaryBorder,

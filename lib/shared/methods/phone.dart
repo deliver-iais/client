@@ -8,7 +8,7 @@ String buildPhoneNumberSimpleText(int countryCode, int nationalNumber) =>
     "+$countryCode$nationalNumber";
 
 PhoneNumber? getPhoneNumber(String pStr) {
-  try{
+  try {
     final phone = pStr
         .replaceAll(RegExp(r"\s+\b|\b\s"), '')
         .replaceAll('+', '')
@@ -20,20 +20,26 @@ PhoneNumber? getPhoneNumber(String pStr) {
     switch (phone.length) {
       case 11:
         phoneNumber.countryCode = 98;
+        // Ignore because not important
+        // ignore: avoid-substring
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
         return phoneNumber;
       case 12:
+        // Ignore because not important
+        // ignore: avoid-substring
         phoneNumber.countryCode = int.parse(phone.substring(0, 2));
+        // Ignore because not important
+        // ignore: avoid-substring
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
         return phoneNumber;
       case 10:
         phoneNumber.countryCode = 98;
+        // Ignore because not important
+        // ignore: avoid-substring
         phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
         return phoneNumber;
     }
-  }catch(_){
-
-  }
+  } catch (_) {}
 
   return null;
 }

@@ -35,14 +35,20 @@ class ShareUidMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final shareUid = message.json.toShareUid();
     return Padding(
-      padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 2.0, end: 4, start: 4),
+      padding: const EdgeInsetsDirectional.only(
+        top: 4.0,
+        bottom: 2.0,
+        end: 4,
+        start: 4,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             icon: Padding(
-              padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: CircleAvatarWidget(
                 shareUid.uid,
                 14,

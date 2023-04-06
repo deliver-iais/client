@@ -60,13 +60,17 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       ],
     ).then<void>((opr) async {
       if (opr == null) return;
-      // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
           pinTheRoom(room);
           break;
         case OperationOnRoom.UN_PIN_ROOM:
           unPinTheRoom(room);
+          break;
+        case OperationOnRoom.MUTE_ROOM:
+        case OperationOnRoom.Un_MUTE_ROOM:
+        case OperationOnRoom.DELETE_ROOM:
+        case OperationOnRoom.REPORT:
           break;
       }
     });
@@ -148,8 +152,8 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
           rw.room,
         );
       },
-      onTapDown: storePosition,
-      onSecondaryTapDown: storePosition,
+      onTapDown: storeTapDownPosition,
+      onSecondaryTapDown: storeTapDownPosition,
       onSecondaryTap: isDesktopDevice
           ? () {
               _showCustomMenu(

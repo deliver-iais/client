@@ -34,21 +34,32 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   @override
   Widget build(BuildContext context) {
+    late final String title;
+    late final String description;
+
+    if (!widget.roomUid.isMuc()) {
+      title = _i18n.get("delete_chat");
+      description =
+          "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}";
+    } else if (widget.roomUid.isChannel()) {
+      title = _i18n.get("left_channel");
+      description =
+          "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}";
+    } else {
+      title = _i18n.get("left_group");
+      description =
+          "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}";
+    }
+
+    !widget.roomUid.isMuc();
+
     return Focus(
       autofocus: true,
       child: Container(
         child: widget.selected == "delete_room"
             ? deletePopupDialog(
-                title: !widget.roomUid.isMuc()
-                    ? _i18n.get("delete_chat")
-                    : widget.roomUid.isChannel()
-                        ? _i18n.get("left_channel")
-                        : _i18n.get("left_group"),
-                description: !widget.roomUid.isMuc()
-                    ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
-                    : widget.roomUid.isChannel()
-                        ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
-                        : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
+                title: title,
+                description: description,
                 onPressed: () {
                   widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
                 },

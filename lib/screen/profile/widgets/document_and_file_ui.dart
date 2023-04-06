@@ -77,32 +77,25 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                 onTap: () => _fileRepo.openFile(filePath.data!),
                                 child: Row(
                                   children: <Widget>[
-                                    Padding(
+                                    Container(
                                       padding: const EdgeInsetsDirectional.only(
                                         start: 2,
                                       ),
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: theme.colorScheme.onPrimary,
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: theme.colorScheme.onPrimary,
+                                      ),
+                                      child: IconButton(
+                                        padding: const EdgeInsets.only(left: 1),
+                                        icon: Icon(
+                                          Icons.insert_drive_file_sharp,
+                                          color: theme.colorScheme.primary,
+                                          size: 35,
                                         ),
-                                        child: IconButton(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            0,
-                                            0,
-                                          ),
-                                          icon: Icon(
-                                            Icons.insert_drive_file_sharp,
-                                            color: theme.colorScheme.primary,
-                                            size: 35,
-                                          ),
-                                          onPressed: () => _fileRepo.openFile(
-                                            filePath.data!,
-                                          ),
+                                        onPressed: () => _fileRepo.openFile(
+                                          filePath.data!,
                                         ),
                                       ),
                                     ),

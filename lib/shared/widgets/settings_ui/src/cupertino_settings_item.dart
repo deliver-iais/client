@@ -161,16 +161,14 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       case SettingsItemType.toggle:
         if (widget.onPress != null) {
           rowChildren.add(
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: p8),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: mainBorder,
-                  color: theme.dividerColor,
-                ),
-                height: 26,
-                width: 3,
+              decoration: BoxDecoration(
+                borderRadius: mainBorder,
+                color: theme.dividerColor,
               ),
+              height: 26,
+              width: 3,
             ),
           );
         }
@@ -187,9 +185,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
         break;
 
       case SettingsItemType.modal:
-        if (widget.value == null) {
-          // rowChildren.add(const Expanded(child: SizedBox.shrink()));
-        } else {
+        if (widget.value != null) {
           rowChildren.add(
             Padding(
               padding: const EdgeInsetsDirectional.only(top: p2, start: p2),

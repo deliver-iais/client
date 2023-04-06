@@ -1,5 +1,4 @@
 import 'package:deliver/box/show_case.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
@@ -21,7 +20,6 @@ class ShowcasePage extends StatefulWidget {
 }
 
 class _ShowcasePageState extends State<ShowcasePage> {
-  static final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<List<ShowCase>> _showCaseCache =
       BehaviorSubject.seeded([]);
   final _showCaseRepo = GetIt.I.get<ShowCaseRepo>();

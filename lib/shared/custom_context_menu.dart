@@ -10,21 +10,18 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
   late Offset _tapPosition;
 
   /// Pass this method to an onTapDown parameter to record the tap position.
-  // ignore: type_annotate_public_apis
-  void storePosition(details) {
-    if (details is TapDownDetails ||
-        details is DragDownDetails ||
-        details is TapUpDetails) {
-      // ignore: avoid_dynamic_calls
-      _tapPosition = details.globalPosition;
-    }
+  void storeTapDownPosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  void storeDragDownPosition(DragDownDetails details) {
+    _tapPosition = details.globalPosition;
   }
 
   /// Use this method to show the menu.
-  // ignore: avoid_shadowing_type_parameters
-  Future<T?> showMenu<T>({
+  Future<R?> showMenu<R>({
     required BuildContext context,
-    required List<PopupMenuEntry<T>> items,
+    required List<PopupMenuEntry<R>> items,
   }) {
     final i18n = GetIt.I.get<I18N>();
     final screenSize = MediaQuery.of(context).size;
@@ -52,10 +49,10 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
             bottom: overlaySize.height,
           );
 
-    return material.showMenu<T>(
+    return material.showMenu<R>(
       context: context,
       position: position,
-      items: <PopupMenuEntry<T>>[
+      items: <PopupMenuEntry<R>>[
         PopupMenuCard(
           items: items,
         ),

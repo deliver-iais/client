@@ -15,15 +15,23 @@ class CallTime extends StatelessWidget {
     final callSec = time.second != 0 ? time.second.toString() : "";
     final theme = Theme.of(context);
 
+    late final String text;
+
+    if (callHour.isNotEmpty) {
+      text =
+          "$callHour ${_i18n.get("hour")} ${_i18n.get("and")} $callMin ${_i18n.get("minutes")}";
+    } else if (callMin.isNotEmpty) {
+      text =
+          "$callMin ${_i18n.get("minutes")} ${_i18n.get("and")} $callSec ${_i18n.get("seconds")}";
+    } else {
+      text = "$callSec ${_i18n.get("seconds")}";
+    }
+
     return time.microsecondsSinceEpoch != 0
         ? Text(
+            text,
             textDirection: _i18n.defaultTextDirection,
             style: theme.textTheme.bodySmall,
-            callHour.isNotEmpty
-                ? "$callHour ${_i18n.get("hour")} ${_i18n.get("and")} $callMin ${_i18n.get("minutes")}"
-                : callMin.isNotEmpty
-                    ? "$callMin ${_i18n.get("minutes")} ${_i18n.get("and")} $callSec ${_i18n.get("seconds")}"
-                    : "$callSec ${_i18n.get("seconds")}",
           )
         : const SizedBox.shrink();
   }

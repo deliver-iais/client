@@ -40,80 +40,74 @@ class PersistentEventMessage extends StatelessWidget {
 
     return persistentEventMessage.whichType() ==
             PersistentEvent_Type.botSpecificPersistentEvent
-        ? Padding(
-            padding: const EdgeInsetsDirectional.only(start: 1),
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: maxWidth,
-              ),
-              padding: const EdgeInsetsDirectional.only(
-                top: 5,
-                end: 8.0,
-                start: 8.0,
-                bottom: 4.0,
-              ),
-              decoration: BoxDecoration(
-                color: theme.chipTheme.backgroundColor,
-                borderRadius: secondaryBorder,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        CupertinoIcons.exclamationmark_bubble,
-                        color: theme.colorScheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _i18n.get("bot_not_responding"),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  if (persistentEventMessage
-                      .botSpecificPersistentEvent.errorMessage.isNotEmpty)
+        ? Container(
+            constraints: BoxConstraints(
+              maxWidth: maxWidth,
+            ),
+            padding: const EdgeInsetsDirectional.only(
+              top: 5,
+              end: 8.0,
+              start: 9.0,
+              bottom: 4.0,
+            ),
+            decoration: BoxDecoration(
+              color: theme.chipTheme.backgroundColor,
+              borderRadius: secondaryBorder,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.exclamationmark_bubble,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: 8),
                     Text(
-                      persistentEventMessage
-                          .botSpecificPersistentEvent.errorMessage,
-                      style: theme.textTheme.bodySmall,
-                    )
-                ],
-              ),
+                      _i18n.get("bot_not_responding"),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+                if (persistentEventMessage
+                    .botSpecificPersistentEvent.errorMessage.isNotEmpty)
+                  Text(
+                    persistentEventMessage
+                        .botSpecificPersistentEvent.errorMessage,
+                    style: theme.textTheme.bodySmall,
+                  )
+              ],
             ),
           )
         : Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.chipTheme.backgroundColor,
-                    borderRadius: tertiaryBorder,
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.chipTheme.backgroundColor,
+                  borderRadius: tertiaryBorder,
+                ),
+                padding: const EdgeInsetsDirectional.only(
+                  top: 10.0,
+                  end: 8.0,
+                  start: 8.0,
+                  bottom: 6.0,
+                ),
+                child: FutureBuilder<List<Widget>?>(
+                  future: getPersistentMessage(
+                    persistentEventMessage,
+                    context,
+                    isChannel: message.roomUid.isChannel(),
                   ),
-                  padding: const EdgeInsetsDirectional.only(
-                    top: 6.0,
-                    end: 8.0,
-                    start: 8.0,
-                    bottom: 2.0,
-                  ),
-                  child: FutureBuilder<List<Widget>?>(
-                    future: getPersistentMessage(
-                      persistentEventMessage,
-                      context,
-                      isChannel: message.roomUid.isChannel(),
-                    ),
-                    builder: (c, s) {
-                      if (s.hasData && s.data != null) {
-                        return Row(children: s.data!);
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
+                  builder: (c, s) {
+                    if (s.hasData && s.data != null) {
+                      return Row(children: s.data!);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
               ),
               if (message.json.toPersistentEvent().whichType() ==

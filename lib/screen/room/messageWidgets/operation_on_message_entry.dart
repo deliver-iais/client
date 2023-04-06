@@ -151,16 +151,22 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   if (fe.hasData && fe.data != null) {
                     _fileIsExist.add(true);
                     final f = widget.message.json.toFile();
+                    late final OperationOnMessage operationValue;
+
+                    if (isWeb) {
+                      operationValue = OperationOnMessage.SAVE;
+                    } else if (isDesktopNative) {
+                      operationValue = OperationOnMessage.SAVE_TO_DOWNLOADS;
+                    } else if (f.isImageFileProto() || f.isVideoFileProto()) {
+                      operationValue = OperationOnMessage.SAVE_TO_GALLERY;
+                    } else if (f.isAudioFileProto()) {
+                      operationValue = OperationOnMessage.SAVE_TO_MUSIC;
+                    } else {
+                      operationValue = OperationOnMessage.SAVE_TO_DOWNLOADS;
+                    }
+
                     return PopupMenuItem(
-                      value: isWeb
-                          ? OperationOnMessage.SAVE
-                          : isDesktopNative
-                              ? OperationOnMessage.SAVE_TO_DOWNLOADS
-                              : (f.isImageFileProto() || f.isVideoFileProto())
-                                  ? OperationOnMessage.SAVE_TO_GALLERY
-                                  : f.isAudioFileProto()
-                                      ? OperationOnMessage.SAVE_TO_MUSIC
-                                      : OperationOnMessage.SAVE_TO_DOWNLOADS,
+                      value: operationValue,
                       child: Row(
                         children: [
                           const Icon(CupertinoIcons.down_arrow),
@@ -416,8 +422,9 @@ void showDeleteMsgDialog(
           ),
           child: Text(i18n.get("delete")),
           onPressed: () async {
-            // ignore: use_build_context_synchronously
-            Navigator.pop(c);
+            if (c.mounted) {
+              Navigator.pop(c);
+            }
             await messageRepo.deleteMessage(messages);
             onDelete();
           },

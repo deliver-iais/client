@@ -463,9 +463,7 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
     _audioCurrentState.add(AudioPlayerState.playing);
     _audioPlayer
       ..play(
-        isWeb
-            ? UrlSource(path)
-            : DeviceFileSource(path),
+        isWeb ? UrlSource(path) : DeviceFileSource(path),
       )
       ..setPlaybackRate(playbackRate);
   }
@@ -538,7 +536,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   JustAudioAudioPlayer() {
     _audioPlayer.playerStateStream.listen((event) async {
       if (event.processingState == just_audio.ProcessingState.completed &&
-          _isProcessCompleted.value != true) {
+          !_isProcessCompleted.value) {
         _isProcessCompleted.add(true);
         _playerCompleted.add(null);
       } else {

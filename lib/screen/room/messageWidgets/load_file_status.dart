@@ -106,6 +106,8 @@ class LoadFileStatusState extends State<LoadFileStatus>
                   ),
                   if (widget.file.duration > 0)
                     _buildText(
+                      // Ignore because there is no emoji in this string
+                      // ignore: avoid-substring
                       Duration(seconds: widget.file.duration.toInt())
                           .toString()
                           .substring(0, 7),

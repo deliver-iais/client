@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {

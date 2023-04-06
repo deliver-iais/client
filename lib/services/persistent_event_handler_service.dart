@@ -86,6 +86,8 @@ class PersistentEventHandlerService {
           .where((e) => e.isNotEmpty)
           .join(" ");
     }
+    // Ignore because not important
+    // ignore: avoid-substring
     return '"${content.substring(0, min(content.length, 15))}${content.length > 15 ? "..." : ""}"';
   }
 

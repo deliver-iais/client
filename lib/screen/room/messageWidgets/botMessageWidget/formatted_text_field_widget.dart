@@ -26,10 +26,12 @@ class FormattedTextFieldWidget extends StatefulWidget {
 class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
   @override
   void initState() {
-    // ignore: no_leading_underscores_for_local_identifiers
-    for (final _ in widget.formField.formattedTextField.partitionsSizes) {
-      _textControllerList.add(TextEditingController());
-    }
+    _textControllerList.addAll(
+      List.generate(
+        widget.formField.formattedTextField.partitionsSizes.length,
+        (_) => TextEditingController(),
+      ),
+    );
     super.initState();
   }
 
@@ -74,7 +76,9 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
                         i++)
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 2),
+                          padding: const EdgeInsetsDirectional.symmetric(
+                            horizontal: 2,
+                          ),
                           child: TextField(
                             onChanged: (t) => _changeResult(),
                             maxLength: widget.formField.formattedTextField

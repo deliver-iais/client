@@ -212,12 +212,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               widget.textController.selection.end &&
           widget.textController.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-            widget.textController.text
-                .substring(0 + 1, widget.textController.selection.start),
+            widget.textController.text.characters
+                .getRange(0 + 1, widget.textController.selection.start)
+                .string,
           )) {
         _botCommandQuery.add(
-          widget.textController.text
-              .substring(0 + 1, widget.textController.selection.start),
+          widget.textController.text.characters
+              .getRange(0 + 1, widget.textController.selection.start)
+              .string,
         );
       } else {
         _botCommandQuery.add("-");
@@ -242,20 +244,23 @@ class InputMessageWidgetState extends State<InputMessage> {
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               (idRegexp.hasMatch(
-                    widget.textController.text.substring(
-                      start + 1,
-                      widget.textController.selection.start,
-                    ),
+                    widget.textController.text.characters
+                        .getRange(
+                          start + 1,
+                          widget.textController.selection.start,
+                        )
+                        .string,
                   ) ||
-                  widget.textController.text
-                      .substring(
+                  widget.textController.text.characters
+                      .getRange(
                         start + 1,
                         widget.textController.selection.start,
                       )
                       .isEmpty)) {
             _mentionQuery.add(
-              widget.textController.text
-                  .substring(start + 1, widget.textController.selection.start),
+              widget.textController.text.characters
+                  .getRange(start + 1, widget.textController.selection.start)
+                  .string,
             );
           } else {
             _mentionQuery.add(null);
@@ -361,10 +366,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               Container(
                 decoration: BoxDecoration(color: theme.colorScheme.surface),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4.0,
-                    horizontal: 4.0,
-                  ),
+                  padding: const EdgeInsets.all(4.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
@@ -466,7 +468,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                             _keyboardStatus
                                 .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
                           } else if (widget.focusNode.hasFocus) {
-                            _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
+                            _keyboardStatus
+                                .add(KeyboardStatus.DEFAULT_KEYBOARD);
                           }
                         },
                         keyboardStatus: back.data!,
@@ -508,12 +511,14 @@ class InputMessageWidgetState extends State<InputMessage> {
   void _onEmojiSelected(String emoji) {
     if (widget.textController.text.isNotEmpty) {
       final start = widget.textController.selection.baseOffset;
-      var block_1 = widget.textController.text.substring(0, start);
-      block_1 = block_1.substring(0, start);
-      final block_2 = widget.textController.text.substring(
-        start,
-        widget.textController.text.length,
-      );
+      final block_1 =
+          widget.textController.text.characters.getRange(0, start).string;
+      final block_2 = widget.textController.text.characters
+          .getRange(
+            start,
+            widget.textController.text.length,
+          )
+          .string;
       widget.textController.text = block_1 + emoji + block_2;
       widget.textController.selection = TextSelection.fromPosition(
         TextPosition(
@@ -820,11 +825,13 @@ class InputMessageWidgetState extends State<InputMessage> {
   void onMentionSelected(String? s) {
     final start = widget.textController.selection.baseOffset;
 
-    var block_1 = widget.textController.text.substring(0, start);
+    var block_1 =
+        widget.textController.text.characters.getRange(0, start).string;
     final indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.substring(0, indexOf + 1);
-    final block_2 = widget.textController.text
-        .substring(start, widget.textController.text.length);
+    block_1 = block_1.characters.getRange(0, indexOf + 1).string;
+    final block_2 = widget.textController.text.characters
+        .getRange(start, widget.textController.text.length)
+        .string;
     widget.textController.text = "$block_1${s ?? ""} $block_2";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(
@@ -1058,7 +1065,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         isMentionSelected) {
       isMentionSelected = false;
     }
-    if (widget.waitingForForward == true) {
+    if (widget.waitingForForward) {
       widget.sendForwardMessage?.call();
       widget.resetRoomPageDetails!();
     }
@@ -1154,13 +1161,29 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   String getEditableMessageContent() {
     var text = "";
-    // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:
         text = widget.editableMessage!.json.toText().text;
         break;
       case MessageType.FILE:
         text = widget.editableMessage!.json.toFile().caption;
+        break;
+      case MessageType.STICKER:
+      case MessageType.LOCATION:
+      case MessageType.LIVE_LOCATION:
+      case MessageType.POLL:
+      case MessageType.FORM:
+      case MessageType.PERSISTENT_EVENT:
+      case MessageType.NOT_SET:
+      case MessageType.BUTTONS:
+      case MessageType.SHARE_UID:
+      case MessageType.FORM_RESULT:
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+      case MessageType.CALL:
+      case MessageType.TABLE:
+      case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
     }
     return "$text ";
   }

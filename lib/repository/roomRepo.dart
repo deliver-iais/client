@@ -1,3 +1,4 @@
+// TODO(any): change file name
 // ignore_for_file: file_names
 
 import 'dart:async';
@@ -28,12 +29,13 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-Cache<String, String> roomNameCache =
-    LruCache<String, String>(storage: InMemoryStorage(100));
+// TODO(any): should refactor and move to cache repo!
+final roomNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -64,7 +66,7 @@ class RoomRepo {
     }
   }
 
-  void cleanCache(){
+  void cleanCache() {
     roomNameCache.clear();
   }
 
@@ -456,7 +458,7 @@ class RoomRepo {
     final sid = id.trim();
 
     if (sid.contains('@')) {
-      return sid.substring(sid.indexOf('@') + 1, sid.length);
+      return sid.characters.getRange(sid.indexOf('@') + 1, sid.length).string;
     } else {
       return sid;
     }

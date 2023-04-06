@@ -81,7 +81,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             2,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            padding: const EdgeInsets.all(15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -134,7 +134,9 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   ),
                                   suffixIcon: const Padding(
                                     padding: EdgeInsetsDirectional.only(
-                                        top: 20, start: 25),
+                                      top: 20,
+                                      start: 25,
+                                    ),
                                     child: Text("*"),
                                   ),
                                   helperText: _i18n.get("username_helper"),

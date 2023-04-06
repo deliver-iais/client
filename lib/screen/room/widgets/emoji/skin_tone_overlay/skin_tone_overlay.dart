@@ -55,7 +55,7 @@ class SkinToneOverlay {
                   child: Row(
                     children: [
                       ...List.generate(
-                        fitzpatrick.values.length,
+                        FITZPATRICK.values.length,
                         (i) => _buildSkinToneEmoji(
                           i,
                           emoji.toString(),
@@ -112,7 +112,7 @@ class SkinToneOverlay {
     final leftOffset = _getLeftOffset(
       emojiSpace,
       column,
-      fitzpatrick.values.length,
+      FITZPATRICK.values.length,
       columns,
     );
     final left = offset.dx -
@@ -126,7 +126,7 @@ class SkinToneOverlay {
         (row) * emojiSpace -
         scrollOffset -
         topOffset;
-    return Rect.fromLTWH(left, top, emojiSpace, .0);
+    return Rect.fromLTWH(left, top, emojiSpace, 0.0);
   }
 
   static Widget _buildSkinToneEmoji(
@@ -135,7 +135,7 @@ class SkinToneOverlay {
     double width,
     void Function(String) onEmojiSelected,
   ) {
-    final modifyEmoji = Emoji.modify(emoji, fitzpatrick.values[index]);
+    final modifyEmoji = Emoji.modify(emoji, FITZPATRICK.values[index]);
     return Material(
       color: Colors.white.withOpacity(0.0),
       child: InkWell(

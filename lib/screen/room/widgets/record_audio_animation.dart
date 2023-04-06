@@ -242,7 +242,7 @@ class RecordAudioAnimation extends StatelessWidget {
                       child: Padding(
                         padding: isRecording
                             ? const EdgeInsetsDirectional.only(start: 43)
-                            : const EdgeInsetsDirectional.only(),
+                            : EdgeInsetsDirectional.zero,
                         child: AnimatedContainer(
                           duration: AnimationSettings.normal,
                           transform: isRecording

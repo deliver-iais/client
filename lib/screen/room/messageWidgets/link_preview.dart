@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:metadata_fetch/metadata_fetch.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ignore: constant_identifier_names
 const APARAT = "https://www.aparat.com";
 
 class LinkPreview extends StatelessWidget {
@@ -108,7 +107,7 @@ class LinkPreview extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsetsDirectional.only(top: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding: const EdgeInsets.all(4.0),
       constraints: BoxConstraints(
         maxWidth: getWidth(),
         maxHeight: maxHeight,

@@ -33,26 +33,24 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsetsDirectional.only(start: 2),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: widget.backgroundColor,
-        ),
-        child: StreamBuilder<AudioPlayerState>(
-          stream: _audioPlayerService.playerState,
-          builder: (context, snapshot) {
-            return AnimatedSwitcher(
-              duration: AnimationSettings.slow,
-              child: snapshot.data == AudioPlayerState.playing
-                  ? playingWidget()
-                  : playButton(),
-            );
-          },
-        ),
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: widget.backgroundColor,
+      ),
+      child: StreamBuilder<AudioPlayerState>(
+        stream: _audioPlayerService.playerState,
+        builder: (context, snapshot) {
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            child: snapshot.data == AudioPlayerState.playing
+                ? playingWidget()
+                : playButton(),
+          );
+        },
       ),
     );
   }

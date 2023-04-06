@@ -107,8 +107,9 @@ class DragDropWidgetState extends State<DragDropWidget> {
                         ),
                       );
                     }
-                    // ignore: use_build_context_synchronously
-                    _sendInputFiles(files, context).ignore();
+                    if (context.mounted) {
+                      _sendInputFiles(files, context).ignore();
+                    }
                   }
                 },
                 child: widget.child,
@@ -134,13 +135,14 @@ class DragDropWidgetState extends State<DragDropWidget> {
         widget.roomUid,
       );
       if (res) {
-        // ignore: use_build_context_synchronously
-        showDialogInDesktop(
-          inputFiles,
-          context,
-          widget.replyMessageId,
-          widget.resetRoomPageDetails,
-        );
+        if (context.mounted) {
+          showDialogInDesktop(
+            inputFiles,
+            context,
+            widget.replyMessageId,
+            widget.resetRoomPageDetails,
+          );
+        }
       }
     }
   }

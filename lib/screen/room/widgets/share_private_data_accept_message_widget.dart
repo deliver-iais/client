@@ -29,6 +29,20 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
     final sharePrivateDataAcceptance =
         message.json.toSharePrivateDataAcceptance();
 
+    late final String text;
+
+    if (sharePrivateDataAcceptance.data == PrivateDataType.PHONE_NUMBER) {
+      text = _i18n.get("phone_number_granted");
+    } else if (sharePrivateDataAcceptance.data == PrivateDataType.EMAIL) {
+      text = _i18n.get("email_granted");
+    } else if (sharePrivateDataAcceptance.data == PrivateDataType.NAME) {
+      text = _i18n.get("name_granted");
+    } else if (sharePrivateDataAcceptance.data == PrivateDataType.USERNAME) {
+      text = _i18n.get("username_granted");
+    } else {
+      text = _i18n.get("private_data_granted");
+    }
+
     return Row(
       children: [
         Padding(
@@ -40,17 +54,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                 color: colorScheme.onPrimaryContainer,
               ),
               Text(
-                sharePrivateDataAcceptance.data == PrivateDataType.PHONE_NUMBER
-                    ? _i18n.get("phone_number_granted")
-                    : sharePrivateDataAcceptance.data == PrivateDataType.NAME
-                        ? _i18n.get("name_granted")
-                        : sharePrivateDataAcceptance.data ==
-                                PrivateDataType.USERNAME
-                            ? _i18n.get("username_granted")
-                            : sharePrivateDataAcceptance.data ==
-                                    PrivateDataType.EMAIL
-                                ? _i18n.get("email_granted")
-                                : _i18n.get("private_data_granted"),
+                text,
                 style: theme.textTheme.bodyMedium!.copyWith(
                   color: colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.w400,

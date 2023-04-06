@@ -85,32 +85,28 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
       return Positioned(
         left: isLeftPosition ? 0 : null,
         right: isLeftPosition ? null : 0,
-        child: Padding(
+        child: Container(
+          decoration: BoxDecoration(
+            color: widget.primaryColor.withAlpha(100),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
           padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: widget.primaryColor.withAlpha(100),
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: IconButton(
+            padding: const EdgeInsets.all(5),
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              arrowIcon,
+              color: widget.primaryColor,
             ),
-            child: IconButton(
-              padding: const EdgeInsets.all(5),
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                arrowIcon,
-                color: widget.primaryColor,
-              ),
-              onPressed: () {
-                widget.controller.animateTo(
-                  isLeftPosition
-                      ? widget.controller.position.pixels -
-                          widget.maxWidth * 0.7
-                      : widget.controller.position.pixels +
-                          widget.maxWidth * 0.7,
-                  duration: AnimationSettings.superSlow,
-                  curve: Curves.ease,
-                );
-              },
-            ),
+            onPressed: () {
+              widget.controller.animateTo(
+                isLeftPosition
+                    ? widget.controller.position.pixels - widget.maxWidth * 0.7
+                    : widget.controller.position.pixels + widget.maxWidth * 0.7,
+                duration: AnimationSettings.superSlow,
+                curve: Curves.ease,
+              );
+            },
           ),
         ),
       );

@@ -476,7 +476,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                 lightVibrate();
                 _onLongTap(index, emojiList.elementAt(index));
               },
-              onTapDown: storePosition,
+              onTapDown: storeTapDownPosition,
               child: Stack(
                 children: [
                   Center(

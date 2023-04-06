@@ -380,17 +380,15 @@ class MucManagePageState extends State<MucManagePage>
                               ),
                             ),
                             if (!widget.roomUid.isBot()) ...[
-                              Padding(
+                              Container(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: mainBorder,
-                                    color: theme.dividerColor,
-                                  ),
-                                  height: 26,
-                                  width: 3,
+                                decoration: BoxDecoration(
+                                  borderRadius: mainBorder,
+                                  color: theme.dividerColor,
                                 ),
+                                height: 26,
+                                width: 3,
                               ),
                               Expanded(
                                 child: Padding(

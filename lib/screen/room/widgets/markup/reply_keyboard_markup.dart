@@ -72,11 +72,13 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
                           textController.text =
                               textController.text + button.text;
                         } else {
-                          textController.text =
-                              textController.text.substring(0, start) +
-                                  button.text +
-                                  textController.text
-                                      .substring(textController.selection.end);
+                          textController.text = textController.text.characters
+                                  .getRange(0, start)
+                                  .string +
+                              button.text +
+                              textController.text.characters
+                                  .getRange(textController.selection.end)
+                                  .string;
                         }
                       }
                     },
