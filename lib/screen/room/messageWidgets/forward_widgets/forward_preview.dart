@@ -51,7 +51,7 @@ class ForwardPreview extends StatelessWidget {
               ),
             const Spacer(),
             IconButton(
-              padding: const EdgeInsets.all(0),
+              padding: const EdgeInsetsDirectional.all(0),
               icon: const Icon(CupertinoIcons.xmark, size: 20),
               onPressed: onClick,
             ),

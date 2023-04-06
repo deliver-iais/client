@@ -55,7 +55,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                     _routingServices.openProfile(member!.memberUid);
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsetsDirectional.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

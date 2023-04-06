@@ -13,8 +13,8 @@ class UnreadMessageBar extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       color: theme.colorScheme.background,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(4),
+      margin: const EdgeInsetsDirectional.symmetric(vertical: 8),
+      padding: const EdgeInsetsDirectional.all(4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

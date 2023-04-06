@@ -37,7 +37,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsetsDirectional.all(4.0),
             child: Row(
               children: <Widget>[
                 CircularFileStatusIndicator(
@@ -47,7 +47,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                 ),
                 Container(
                   width: widget.maxWidth * 0.55,
-                  margin: const EdgeInsets.symmetric(
+                  margin: const EdgeInsetsDirectional.symmetric(
                     horizontal: 4.0,
                     vertical: 2.0,
                   ),

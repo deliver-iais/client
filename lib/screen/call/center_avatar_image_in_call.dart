@@ -75,7 +75,7 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
       child: Container(
         width: 140,
         height: 140,
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsetsDirectional.all(8.0),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(

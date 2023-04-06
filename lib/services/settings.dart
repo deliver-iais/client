@@ -173,6 +173,10 @@ class Settings {
     SharedKeys.ICE_CANDIDATE_TIME_LIMIT.inSharedDaoStorage(),
     defaultValue: 1500,
   );
+  final videoFrameRateLimitation = IntPersistent(
+    SharedKeys.VIDEO_FRAME_RATE_LIMITATION.inSharedDaoStorage(),
+    defaultValue: 30,
+  );
   final localStunServerIsEnabled = BooleanPersistent(
     SharedKeys.LOCAL_STUN_SERVER_IS_ENABLED.inSharedDaoStorage(),
     defaultValue: true,
@@ -198,6 +202,11 @@ class Settings {
     SharedKeys.LOG_LEVEL.inSharedDaoStorage(),
     defaultValue: kDebugMode ? Level.info : Level.debug,
     enumValues: Level.values,
+  );
+  final videoCallQuality = EnumPersistent<VideoCallQuality>(
+    SharedKeys.VIDEO_CALL_QUALITY.inSharedDaoStorage(),
+    defaultValue: VideoCallQuality.MEDIUM,
+    enumValues: VideoCallQuality.values,
   );
   final logInFileEnable = BooleanPersistent(
     SharedKeys.LOG_IN_FILE_ENABLE.inSharedDaoStorage(),
@@ -283,6 +292,23 @@ class Settings {
   final showWsWithHighFrameRate = PerformanceBooleanPersistent(
     SharedKeys.SHOW_WS_WITH_HIGH_FRAME_RATE.inSharedDaoStorage(),
     PerformanceMode.HIGH,
+  );
+  final lowNetworkUsageVideoCall = PerformanceBooleanPersistent(
+    SharedKeys.LOW_NETWORK_USAGE_VIDEO_CALL.inSharedDaoStorage(),
+    PerformanceMode.POWER_SAVER,
+    defaultValue: false,
+    isReverse: true,
+  );
+  final lowNetworkUsageVoiceCall = PerformanceBooleanPersistent(
+    SharedKeys.LOW_NETWORK_USAGE_VOICE_CALL.inSharedDaoStorage(),
+    PerformanceMode.POWER_SAVER,
+    defaultValue: false,
+    isReverse: true,
+  );
+  final highQualityCall = PerformanceBooleanPersistent(
+    SharedKeys.HIGH_QUALITY_CALL.inSharedDaoStorage(),
+    PerformanceMode.BALANCED,
+    defaultValue: false,
   );
 
   final _homeContext = BehaviorSubject<BuildContext?>.seeded(null);

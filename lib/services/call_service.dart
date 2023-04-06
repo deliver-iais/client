@@ -1,8 +1,11 @@
 import 'package:clock/clock.dart';
+import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
+import 'package:deliver/box/dao/call_data_usage_dao.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;
@@ -31,7 +34,10 @@ enum UserCallState {
 
 class CallService {
   final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
+  final _callDataUsage = GetIt.I.get<CallDataUsageDao>();
   final _logger = GetIt.I.get<Logger>();
+
+  final _i18n = GetIt.I.get<I18N>();
 
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
@@ -307,6 +313,28 @@ class CallService {
     }
   }
 
+  Future<void> saveCallDataUsage(int byteSend, int byteReceived) async {
+    final callDataUsage = CallDataUsage(
+      callId: _callId,
+      byteSend: byteSend,
+      byteReceived: byteReceived,
+    );
+    return _callDataUsage.save(callDataUsage);
+  }
+
+  Future<String> getCallDataUsage(String callId) async {
+    final callDataUsage = await _callDataUsage.get(callId);
+    final totalDataUsage =
+        (callDataUsage?.byteSend ?? 0) + (callDataUsage?.byteReceived ?? 0);
+    //calculate at KiloBytes
+    if (totalDataUsage < 1000000) {
+      // less than 1mB
+      return "${(totalDataUsage / 1000).toStringAsFixed(2)} ${_i18n.get("kilo_byte")}";
+    } else {
+      return "${(totalDataUsage / 1000000).toStringAsFixed(2)} ${_i18n.get("mega_byte")}";
+    }
+  }
+
   int _checkSlotAndSaveIfPossible(
     CallData data,
     JsonMapPersistent<CallData> slot,
@@ -319,6 +347,61 @@ class CallService {
       return data.expireTime;
     } else {
       return 0;
+    }
+  }
+
+  VideoCallQualityDetails getVideoCallQualityDetails(
+    VideoCallQuality videoCallQuality,
+  ) {
+    switch (videoCallQuality) {
+      case VideoCallQuality.LOW:
+        return VideoCallQualityDetails(
+          width: 320,
+          height: 240,
+          frameRate: 20,
+        );
+      case VideoCallQuality.MEDIUM:
+        return VideoCallQualityDetails(
+          width: 480,
+          height: 360,
+          frameRate: 30,
+        );
+      case VideoCallQuality.HIGH:
+        return VideoCallQualityDetails(
+          width: 640,
+          height: 480,
+          frameRate: 30,
+        );
+      case VideoCallQuality.ULTRA:
+        return VideoCallQualityDetails(
+          width: 720,
+          height: 540,
+          frameRate: 30,
+        );
+    }
+  }
+}
+
+class VideoCallQualityDetails {
+  final int width;
+  final int height;
+  final int frameRate;
+
+  VideoCallQualityDetails({
+    required this.width,
+    required this.height,
+    required this.frameRate,
+  });
+
+  String getResolution() {
+    return "$width x $height";
+  }
+
+  int getFrameRate() {
+    if (settings.lowNetworkUsageVideoCall.value) {
+      return 15;
+    } else {
+      return frameRate;
     }
   }
 }

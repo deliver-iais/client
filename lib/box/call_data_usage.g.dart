@@ -1,41 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'call_info.dart';
+part of 'call_data_usage.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class CallInfoAdapter extends TypeAdapter<CallInfo> {
+class CallDataUsageAdapter extends TypeAdapter<CallDataUsage> {
   @override
-  final int typeId = 20;
+  final int typeId = 37;
 
   @override
-  CallInfo read(BinaryReader reader) {
+  CallDataUsage read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return CallInfo(
-      callEvent: fields[2] as CallEvent,
-      from: fields[0] as String,
-      to: fields[1] as String,
-      time: fields[3] as int,
+    return CallDataUsage(
+      callId: fields[0] as String,
+      byteSend: fields[1] as int,
+      byteReceived: fields[2] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, CallInfo obj) {
+  void write(BinaryWriter writer, CallDataUsage obj) {
     writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.from)
-      ..writeByte(1)
-      ..write(obj.to)
-      ..writeByte(2)
-      ..write(obj.callEvent)
       ..writeByte(3)
-      ..write(obj.time);
+      ..writeByte(0)
+      ..write(obj.callId)
+      ..writeByte(1)
+      ..write(obj.byteSend)
+      ..writeByte(2)
+      ..write(obj.byteReceived);
   }
 
   @override
@@ -44,7 +41,7 @@ class CallInfoAdapter extends TypeAdapter<CallInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CallInfoAdapter &&
+      other is CallDataUsageAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

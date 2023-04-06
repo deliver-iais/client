@@ -49,7 +49,7 @@ class SelectMucTypeState extends State<SelectMucType> {
               -10.0,
               0.0,
             ),
-            padding: const EdgeInsets.symmetric(
+            padding: const EdgeInsetsDirectional.symmetric(
               horizontal: 5,
             ),
             decoration: BoxDecoration(
@@ -89,7 +89,7 @@ class SelectMucTypeState extends State<SelectMucType> {
   }) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsetsDirectional.all(8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -8,16 +8,13 @@ import 'dart:isolate';
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
-import 'package:deliver/box/call_info.dart' as call_info;
 import 'package:deliver/box/current_call_info.dart' as current_call_info;
-import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -32,10 +29,10 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -67,7 +64,7 @@ enum CallStatus {
 
 class CallRepo {
   final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -81,8 +78,6 @@ class CallRepo {
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
-
-  final _callListDao = GetIt.I.get<CallInfoDao>();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -494,26 +489,15 @@ class CallRepo {
       }
 
       //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
-      ..onConnectionState = (state) {
+      ..onConnectionState = (state) async {
         _logger.i("onConnectionState $state");
         switch (state) {
           case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
             //when connection Connected Status we Set some limit on bitRate
-            // var params = _videoSender.parameters;
-            // if (params.encodings.isEmpty) {
-            //   params.encodings = [];
-            //   params.encodings.add(new RTCRtpEncoding());
-            // }
-            //
-            // params.encodings[0].maxBitrate =
-            //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-            // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-            // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-            //     params.encodings[0].scaleResolutionDownBy = 2;
-            // await _videoSender.setParameters(params);
-            onRTCPeerConnectionConnected();
+            await setConnectionQualityAndLimitationParams();
+            await onRTCPeerConnectionConnected();
             if (!isWeb) {
-              _startCallTimerAndChangeStatus();
+              await _startCallTimerAndChangeStatus();
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
@@ -572,7 +556,7 @@ class CallRepo {
         _dataChannel = channel;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
-        _dataChannel!.onMessage = (data) {
+        _dataChannel!.onMessage = (data) async {
           final status = data.text;
           _logger.i(status);
           // we need Decision making by state
@@ -594,8 +578,10 @@ class CallRepo {
             case STATUS_MIC_CLOSE:
               break;
             case STATUS_SHARE_SCREEN:
-              _analyticsService.sendLogEvent(
-                "shareScreenOnVideoCall",
+              unawaited(
+                _analyticsService.sendLogEvent(
+                  "shareScreenOnVideoCall",
+                ),
               );
               incomingSharing.add(true);
               break;
@@ -613,24 +599,12 @@ class CallRepo {
             case STATUS_CONNECTION_DISCONNECTED:
               break;
             case STATUS_CONNECTION_CONNECTED:
-              //when connection Connected Status we Set some limit on bitRate
-              // var params = _videoSender.parameters;
-              // if (params.encodings.isEmpty) {
-              //   params.encodings = [];
-              //   params.encodings.add(new RTCRtpEncoding());
-              // }
-              //
-              // params.encodings[0].maxBitrate =
-              //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-              // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-              // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-              //     params.encodings[0].scaleResolutionDownBy = 2;
-              // await _videoSender.setParameters(params);
+              await setConnectionQualityAndLimitationParams();
               if (!_reconnectTry) {
-                _startCallTimerAndChangeStatus();
+                await _startCallTimerAndChangeStatus();
               } else {
                 callingStatus.add(CallStatus.CONNECTED);
-                lightVibrate();
+                unawaited(lightVibrate());
                 _reconnectTry = false;
               }
               break;
@@ -639,7 +613,7 @@ class CallRepo {
               break;
             case STATUS_CONNECTION_ENDED:
               //received end from Callee
-              receivedEndCall(0);
+              unawaited(receivedEndCall(0));
               break;
           }
         };
@@ -647,6 +621,49 @@ class CallRepo {
       };
 
     return pc;
+  }
+
+  Future<void> setConnectionQualityAndLimitationParams() async {
+    //when connection Connected Status we Set some limit on bitRate
+    final RTCRtpParameters params;
+    if (_videoSender != null) {
+      params = _videoSender!.parameters;
+    } else {
+      params = _audioSender!.parameters;
+    }
+    if (params.encodings!.isEmpty) {
+      params.encodings = [];
+      params.encodings!.add(RTCRtpEncoding());
+    }
+
+    params.encodings![0].active = true;
+    if (settings.highQualityCall.value) {
+      params.encodings![0].minBitrate =
+          WEBRTC_MIN_BITRATE_HIGH_QUALITY_AUDIO_CALL; // 320 kbps and use less about 150-160 kbps
+    } else if (settings.lowNetworkUsageVoiceCall.value) {
+      params.encodings![0].maxBitrate =
+          WEBRTC_MAX_BITRATE_LOW_AUDIO_CALL; // 32 kbps
+    } else {
+      params.encodings![0].maxBitrate =
+          WEBRTC_MAX_BITRATE_NORMAL_AUDIO_CALL; // 64 kbps
+    }
+    if (_videoSender != null) {
+      if (settings.lowNetworkUsageVideoCall.value) {
+        params.encodings![0].maxBitrate =
+            WEBRTC_MAX_BITRATE_LOW_VIDEO_CALL; // 256 kbps
+      } else {
+        params.encodings![0].maxBitrate =
+            WEBRTC_MAX_BITRATE_NORMAL_VIDEO_CALL; // 512 kbps
+      }
+      params.encodings![0].maxFramerate = _callService
+          .getVideoCallQualityDetails(settings.videoCallQuality.value)
+          .getFrameRate();
+      params.encodings![0].scaleResolutionDownBy = 2;
+      final paramSetResult = await _videoSender!.setParameters(params);
+      _logger.i("Set Param result VideoSender is : $paramSetResult");
+    }
+    final paramSetResult = await _audioSender!.setParameters(params);
+    _logger.i("Set Param result AudioSender is : $paramSetResult");
   }
 
   void onRTCPeerConnectionDisconnected() {
@@ -691,6 +708,7 @@ class CallRepo {
           _selectedCandidate = stat;
         }
       }
+
       await _analyticsService.sendLogEvent(
         "connectedCall",
       );
@@ -801,7 +819,7 @@ class CallRepo {
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
     _isDCReceived = true;
-    dataChannel.onMessage = (data) {
+    dataChannel.onMessage = (data) async {
       final status = data.text;
       _logger.i(status);
       // we need Decision making by state
@@ -829,8 +847,10 @@ class CallRepo {
           incomingCallOnHold.add(false);
           break;
         case STATUS_SHARE_SCREEN:
-          _analyticsService.sendLogEvent(
-            "shareScreenOnVideoCall",
+          unawaited(
+            _analyticsService.sendLogEvent(
+              "shareScreenOnVideoCall",
+            ),
           );
           incomingSharing.add(true);
           break;
@@ -842,21 +862,9 @@ class CallRepo {
         case STATUS_CONNECTION_DISCONNECTED:
           break;
         case STATUS_CONNECTION_CONNECTED:
-          //when connection Connected Status we Set some limit on bitRate
-          // var params = _videoSender.parameters;
-          // if (params.encodings.isEmpty) {
-          //   params.encodings = [];
-          //   params.encodings.add(new RTCRtpEncoding());
-          // }
-          //
-          // params.encodings[0].maxBitrate =
-          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-          //     params.encodings[0].scaleResolutionDownBy = 2;
-          // await _videoSender.setParameters(params);
+          await setConnectionQualityAndLimitationParams();
           if (!_isConnected) {
-            _startCallTimerAndChangeStatus();
+            await _startCallTimerAndChangeStatus();
           }
           if (timerConnectionFailed != null) {
             timerConnectionFailed!.cancel();
@@ -879,56 +887,60 @@ class CallRepo {
   * */
   Future<MediaStream> _getUserMedia() async {
     // Provide your own width, height and frame rate here
+    final VideoCallQualityDetails videoCallQualityDetails;
+    if (settings.lowNetworkUsageVideoCall.value) {
+      videoCallQualityDetails =
+          _callService.getVideoCallQualityDetails(VideoCallQuality.MEDIUM);
+    } else {
+      videoCallQualityDetails = _callService
+          .getVideoCallQualityDetails(settings.videoCallQuality.value);
+    }
     Map<String, dynamic> mediaConstraints;
-    if (isDesktopNative) {
-      mediaConstraints = {
-        'video': _isVideo
-            ? {
-                'mandatory': {
-                  'minWidth': '640',
-                  'maxWidth': '1024',
-                  'minHeight': '480',
-                  'maxHeight': '768',
-                  'minFrameRate': '20',
-                  'maxFrameRate': '30',
-                  'aspectRatio:': ' 1.777777778',
-                },
-                'facingMode': 'user',
-                'optional': [],
-              }
-            : false,
-        'audio': {
-          'sampleSize': '16',
-          'channelCount': '2',
-          'echoCancellation': 'true',
-        }
+
+    final Map<String, String> audioConstrains;
+    if (!_isVideo && settings.highQualityCall.value) {
+      audioConstrains = {
+        'sampleSize': '24',
+        'channelCount': '2',
+        'echoCancellation': 'true',
+        'latency': '0',
+        'noiseSuppression': 'ture',
+        'sampleRate': '96000',
+      };
+    } else if (settings.lowNetworkUsageVoiceCall.value) {
+      audioConstrains = {
+        'sampleSize': '12',
+        'channelCount': '2',
+        'sampleRate': '22400',
       };
     } else {
-      mediaConstraints = {
-        'video': _isVideo
-            ? {
-                'mandatory': {
-                  'minWidth': '640',
-                  'maxWidth': '1024',
-                  'minHeight': '480',
-                  'maxHeight': '768',
-                  'minFrameRate': '20',
-                  'maxFrameRate': '30',
-                  'aspectRatio:': ' 1.777777778',
-                },
-                'facingMode': 'user',
-                'optional': [],
-              }
-            : false,
-        'audio': {
-          'sampleSize': '16',
-          'channelCount': '2',
-          'echoCancellation': 'true',
-          'latency': '0',
-          'noiseSuppression': 'ture',
-        }
+      audioConstrains = {
+        'sampleSize': '16',
+        'channelCount': '2',
+        'echoCancellation': 'true',
+        'latency': '0',
+        'noiseSuppression': 'ture',
       };
     }
+    mediaConstraints = {
+      'video': _isVideo
+          ? {
+              'mandatory': {
+                'minWidth': videoCallQualityDetails.width.toString(),
+                'minHeight': videoCallQualityDetails.height.toString(),
+                'maxWidth': videoCallQualityDetails.width.toString(),
+                'maxHeight': videoCallQualityDetails.height.toString(),
+                'minFrameRate':
+                    videoCallQualityDetails.getFrameRate().toString(),
+                'maxFrameRate':
+                    videoCallQualityDetails.getFrameRate().toString(),
+              },
+              'facingMode': 'user',
+              'optional': [],
+            }
+          : false,
+      'audio': audioConstrains
+    };
 
     final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     return stream;
@@ -1558,7 +1570,34 @@ class CallRepo {
     await _peerConnection!.setRemoteDescription(description);
   }
 
+  // TODO(amirhossein): waiting for next webRtc update
+  // List<RTCRtpCodecCapability> _sortCodecByPriorities(
+  //   List<RTCRtpCodecCapability> rtcRtpCodecCapability,
+  // ) {
+  //   final priorities = ["video/H264", "video/VP8", "video/VP9"];
+  //   final sortedByPriorities = <RTCRtpCodecCapability>[];
+  //   for (final priCodec in priorities) {
+  //     for (final codec in rtcRtpCodecCapability) {
+  //       if (codec.mimeType == priCodec) {
+  //         sortedByPriorities.add(codec);
+  //       }
+  //     }
+  //   }
+  //
+  //   return sortedByPriorities;
+  // }
+
   Future<String> _createAnswer() async {
+    //note the following should be called before before calling either RTCPeerConnection.createOffer() or createAnswer()
+    //Still Not Supported
+    // if (_isVideo && isAndroidDevice) {
+    //   final transceiver = (await _peerConnection!.getTransceivers())[0];
+    //   final senderCapabilities =
+    //       await getRtpSenderCapabilities(_videoSender!.track!.kind!);
+    //   await transceiver.setCodecPreferences(
+    //     _sortCodecByPriorities(senderCapabilities.codecs!),
+    //   );
+    // }
     final description = await _peerConnection!.createAnswer(_sdpConstraints);
 
     final session = parse(description.sdp.toString());
@@ -1571,6 +1610,17 @@ class CallRepo {
   }
 
   Future<String> _createOffer() async {
+    //note the following should be called before before calling either RTCPeerConnection.createOffer() or createAnswer()
+    //Still Not Supported
+    // if (_isVideo && isAndroidDevice) {
+    //   final transceiver = await _peerConnection!.getTransceivers();
+    //   final senderCapabilities =
+    //       await getRtpSenderCapabilities(_videoSender!.track!.kind!);
+    //   final sortedCodec = _sortCodecByPriorities(senderCapabilities.codecs!);
+    //   await transceiver[1].setCodecPreferences(
+    //     sortedCodec,
+    //   );
+    // }
     final description = await _peerConnection!.createOffer(_sdpConstraints);
     //get SDP as String
     final session = parse(description.sdp.toString());
@@ -1718,7 +1768,7 @@ class CallRepo {
     _logger.i("!!!!Disposeeeee!!!!");
     try {
       await cancelCallNotification();
-      if (hasSpeakerCapability) {
+      if (hasSpeakerCapability && _localStream != null) {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
       }
       if (hasForegroundServiceCapability) {
@@ -1742,6 +1792,33 @@ class CallRepo {
       }
 
       if (_isConnected) {
+        try {
+          var byteSend = 0;
+          var byteReceived = 0;
+          if (_videoSender != null) {
+            final videoSender = await _videoSender!.getStats();
+            for (final stat in videoSender) {
+              if (stat.type == "transport") {
+                _logger.i(stat.values);
+                byteSend += stat.values["bytesSent"] as int;
+                byteReceived += stat.values["bytesReceived"] as int;
+              }
+            }
+          }
+          if (_audioSender != null) {
+            final videoSender = await _audioSender!.getStats();
+            for (final stat in videoSender) {
+              if (stat.type == "transport") {
+                _logger.i(stat.values);
+                byteSend += stat.values["bytesSent"] as int;
+                byteReceived += stat.values["bytesReceived"] as int;
+              }
+            }
+          }
+          await _callService.saveCallDataUsage(byteSend, byteReceived);
+        } catch (e) {
+          _logger.e(e);
+        }
         unawaited(_decreaseCandidateAndWaitingTime());
       }
 
@@ -1952,47 +2029,6 @@ class CallRepo {
   final incomingCallOnHold = BehaviorSubject.seeded(false);
   final isConnectedSubject = BehaviorSubject.seeded(false);
 
-  Future<void> fetchUserCallList(
-    Uid roomUid,
-  ) async {
-    try {
-      var date = clock.now();
-      for (var i = 0; i < 6; i++) {
-        final callLists = await _sdr.queryServiceClient.fetchUserCalls(
-          FetchUserCallsReq()
-            ..roomUid = roomUid
-            ..limit = 200
-            ..pointer = Int64(
-              clock.now().millisecondsSinceEpoch,
-            )
-            ..fetchingDirectionType =
-                FetchUserCallsReq_FetchingDirectionType.BACKWARD_FETCH
-            ..month = date.month - 1
-            ..year = date.year,
-        );
-        for (final call in callLists.cellEvents) {
-          final callEvent = call_event.CallEvent(
-            callDuration: call.callEvent.callDuration.toInt(),
-            callType: _callService.findCallEventType(call.callEvent.callType),
-            callStatus: _callService
-                .findCallEventStatusProto(call.callEvent.callStatus),
-            id: call.callEvent.callId,
-          );
-          final callList = call_info.CallInfo(
-            callEvent: callEvent,
-            from: call.from.asString(),
-            to: call.to.asString(),
-            time: call.time.toInt(),
-          );
-          await _callListDao.save(callList);
-        }
-        date = date.subtract(const Duration(days: 30));
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   Future<void> _increaseCandidateAndWaitingTime() async {
     final candidateNumber = settings.iceCandidateNumbers.value;
     if (candidateNumber <= ICE_CANDIDATE_NUMBER) {
@@ -2056,6 +2092,18 @@ class CallRepo {
       }
     }
   }
+}
+
+class Bandwidth {
+  final int screen;
+  final int audio;
+  final int video;
+
+  Bandwidth({
+    required this.screen,
+    required this.audio,
+    required this.video,
+  });
 }
 
 // The callback function should always be a top-level function.

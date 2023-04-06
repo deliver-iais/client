@@ -9,7 +9,6 @@ import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/call/callList/call_list_page.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
@@ -30,6 +29,7 @@ import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
+import 'package:deliver/screen/settings/pages/call_settings.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
@@ -88,13 +88,14 @@ const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
 
 const _lab = LabSettingsPage(key: ValueKey("/lab"));
 
+const _callSettings = CallSettingsPage(key: ValueKey("/call-settings"));
+
 const _contacts = ContactsPage(key: ValueKey("/contacts"));
 
 const _newContact = NewContact(key: ValueKey("/new-contact"));
 
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
-const _calls = CallListPage(key: ValueKey("/calls"));
 
 const _showcase = ShowcasePage(key: ValueKey("/showcase"));
 
@@ -197,6 +198,13 @@ class RoutingService {
     _push(_lab);
   }
 
+  void openCallSetting() {
+    _analyticsService.sendLogEvent(
+      "callSettingsPage_open",
+    );
+    _push(_callSettings);
+  }
+
   void openContacts() {
     _analyticsService.sendLogEvent(
       "contactsPage_open",
@@ -216,13 +224,6 @@ class RoutingService {
       "scanQrCodePage_open",
     );
     _push(_scanQrCode);
-  }
-
-  void openCallsList() {
-    _analyticsService.sendLogEvent(
-      "callsListPage_open",
-    );
-    _push(_calls);
   }
 
   void openShowcase() {

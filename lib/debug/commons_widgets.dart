@@ -21,7 +21,7 @@ class Debug extends StatelessWidget {
         },
         child: Container(
           constraints: const BoxConstraints(maxWidth: 350),
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsetsDirectional.all(8),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder / 1.2,
             border: Border.all(color: theme.colorScheme.onErrorContainer),
@@ -67,7 +67,7 @@ class _DebugCState extends State<DebugC> {
       return Tooltip(
         message: widget.label ?? "",
         child: Container(
-          margin: const EdgeInsets.all(4),
+          margin: const EdgeInsetsDirectional.all(4),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
             border: Border.all(width: 2, color: theme.colorScheme.onError),
@@ -82,7 +82,7 @@ class _DebugCState extends State<DebugC> {
       );
     }
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsetsDirectional.all(4),
       constraints: const BoxConstraints(maxWidth: 350),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
@@ -92,7 +92,7 @@ class _DebugCState extends State<DebugC> {
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(p8),
+            padding: const EdgeInsetsDirectional.all(p8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -118,7 +118,7 @@ class _DebugCState extends State<DebugC> {
             alignment: Alignment.topRight,
             child: IconButton(
               color: theme.colorScheme.onError,
-              padding: const EdgeInsets.all(2.0),
+              padding: const EdgeInsetsDirectional.all(2.0),
               iconSize: 16,
               onPressed: () => setState(() => isOpen = false),
               icon: const Icon(Icons.close_fullscreen),

@@ -26,7 +26,7 @@ class FormListWidget extends StatelessWidget {
         : formField.radioButtonList.values;
     setFormKey(_formKey);
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsetsDirectional.symmetric(vertical: 6),
       child: ShakeWidget(
         controller: shakeWidgetController,
         child: Column(

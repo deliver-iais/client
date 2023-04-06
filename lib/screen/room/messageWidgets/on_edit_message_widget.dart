@@ -27,7 +27,7 @@ class OnEditMessageWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(2.0),
+                padding: const EdgeInsetsDirectional.all(2.0),
                 child: SenderAndContent.viaMessage(
                   iconData: Icons.edit,
                   message: message,
@@ -35,7 +35,7 @@ class OnEditMessageWidget extends StatelessWidget {
               ),
             ),
             IconButton(
-              padding: const EdgeInsets.all(0),
+              padding: const EdgeInsetsDirectional.all(0),
               icon: const Icon(Icons.close, size: 18),
               onPressed: resetRoomPageDetails,
             ),

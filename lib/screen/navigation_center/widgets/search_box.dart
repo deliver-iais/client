@@ -80,7 +80,7 @@ class SearchBoxState extends State<SearchBox> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         children: [
           Expanded(

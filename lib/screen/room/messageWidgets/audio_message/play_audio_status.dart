@@ -72,7 +72,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
 
   IconButton pauseButton() {
     return IconButton(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsetsDirectional.zero,
       icon: Icon(
         Icons.pause_rounded,
         color: widget.foregroundColor,
@@ -86,7 +86,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
 
   IconButton playButton() {
     return IconButton(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsetsDirectional.zero,
       icon: Icon(
         Icons.play_arrow_rounded,
         color: widget.foregroundColor,

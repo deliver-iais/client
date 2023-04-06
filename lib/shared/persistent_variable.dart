@@ -460,25 +460,31 @@ class PerformanceMonitor {
 
 class PerformanceBooleanPersistent extends _BooleanPersistent {
   final PerformanceMode availableLevel;
+  bool isReverse = false;
 
   PerformanceBooleanPersistent(
     super.storage,
     this.availableLevel, {
     super.defaultValue = true,
+    this.isReverse = false,
   }) {
     PerformanceMonitor.performanceProfile.listen((event) {
       _value.add(_value.value);
     });
   }
 
-  bool get enabled =>
-      PerformanceMonitor.performanceProfile.value.level >= availableLevel.level;
+  bool get enabled => isReverse
+      ? PerformanceMonitor.performanceProfile.value.level <=
+          availableLevel.level
+      : PerformanceMonitor.performanceProfile.value.level >=
+          availableLevel.level;
 
   @override
   Stream<bool> get stream => _value.map((v) => enabled && v).distinct();
 
   @override
-  bool get value => enabled && _value.value;
+  bool get value =>
+      isReverse ? (enabled || _value.value) : enabled && _value.value;
 }
 
 enum PerformanceMode {
@@ -505,6 +511,30 @@ enum PerformanceMode {
   final int level;
 
   const PerformanceMode(this.buttonName, this.i18nKey, this.level);
+}
+
+enum VideoCallQuality {
+  /// this case is low quality video , 320 x 240 x 20 frame
+  /// less internet usage
+  LOW("Low", "low_quality", 0),
+
+  /// this case is medium video quality 480 x 360 x 30 frame
+  /// more internet usage
+  MEDIUM("Medium", "medium_quality", 1),
+
+  /// this case is high video quality 640 x 480 x 30 frame
+  /// more internet usage
+  HIGH("High", "high_quality", 3),
+
+  /// this case is high video quality 720 x 540 x 30 frame
+  /// more internet usage
+  ULTRA("ULTRA", "ultra_quality", 4);
+
+  final String buttonName;
+  final String i18nKey;
+  final int level;
+
+  const VideoCallQuality(this.buttonName, this.i18nKey, this.level);
 }
 
 extension SharedKeysExtention on SharedKeys {

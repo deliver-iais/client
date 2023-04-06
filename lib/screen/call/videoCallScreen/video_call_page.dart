@@ -98,7 +98,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   if (_callRepo.incomingSharing.value)
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -128,7 +128,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   else if (_callRepo.incomingVideo.value)
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -186,7 +186,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   else
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -207,7 +207,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   if (_callRepo.sharing.value)
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -227,7 +227,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   else if (_callRepo.videoing.value)
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -290,7 +290,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   else
                                     Expanded(
                                       child: Container(
-                                        margin: const EdgeInsets.all(
+                                        margin: const EdgeInsetsDirectional.all(
                                           0.0,
                                         ),
                                         clipBehavior:
@@ -399,7 +399,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     Container(
                                       width: x,
                                       height: y,
-                                      margin: const EdgeInsets.all(
+                                      margin: const EdgeInsetsDirectional.all(
                                         0.0,
                                       ),
                                       clipBehavior: Clip.antiAliasWithSaveLayer,

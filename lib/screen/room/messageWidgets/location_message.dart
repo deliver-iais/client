@@ -197,7 +197,7 @@ class LocationDialog extends StatelessWidget {
                         ),
                       ),
                       padding: MaterialStateProperty.all(
-                        const EdgeInsets.all(10),
+                        const EdgeInsetsDirectional.all(10),
                       ),
                       backgroundColor: MaterialStateProperty.all(
                         Theme.of(context).colorScheme.surface,
@@ -329,7 +329,7 @@ class _LocationPageState extends State<LocationPage> {
                           builder: (_) {
                             return Container(
                               alignment: Alignment.topCenter,
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsetsDirectional.all(8),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 // borderRadius: BorderRadius.circular(48.0),
@@ -399,7 +399,7 @@ class _LocationPageState extends State<LocationPage> {
                     icon: const Icon(Icons.my_location_sharp),
                     color: theme.colorScheme.primary,
                     iconSize: 30,
-                    padding: const EdgeInsets.all(1.0),
+                    padding: const EdgeInsetsDirectional.all(1.0),
                   );
                 },
               ),
@@ -418,7 +418,7 @@ class _LocationPageState extends State<LocationPage> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: const EdgeInsetsDirectional.symmetric(
                   vertical: 10.0,
                   horizontal: 20.0,
                 ),
@@ -505,7 +505,7 @@ class _LocationPageState extends State<LocationPage> {
                                 ),
                               ),
                               padding: MaterialStateProperty.all(
-                                const EdgeInsets.all(10),
+                                const EdgeInsetsDirectional.all(10),
                               ),
                               backgroundColor: MaterialStateProperty.all(
                                 theme.colorScheme.primary,

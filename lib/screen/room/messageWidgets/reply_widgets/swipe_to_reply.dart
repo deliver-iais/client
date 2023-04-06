@@ -136,8 +136,8 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
         child: AnimatedContainer(
           width: 46,
           height: 46,
-          padding: const EdgeInsets.all(p8),
-          margin: const EdgeInsets.all(p8),
+          padding: const EdgeInsetsDirectional.all(p8),
+          margin: const EdgeInsetsDirectional.all(p8),
           decoration: BoxDecoration(
             color: showRightIcon
                 ? Theme.of(context)

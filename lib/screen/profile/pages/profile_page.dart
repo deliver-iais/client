@@ -17,6 +17,7 @@ import 'package:deliver/repository/metaRepo.dart';
 
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/profile/widgets/call_tab/call_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/media_tab_ui.dart';
@@ -144,8 +145,7 @@ class ProfilePageState extends State<ProfilePage>
   // TODO(any): add call tab
   void _setTabCount(AsyncSnapshot<MetaCount?> metaCount) {
     _tabsCount = 0;
-    for (final type
-        in MetaType.values.where((element) => element != MetaType.CALL)) {
+    for (final type in MetaType.values) {
       if (_haveASpecialKindOfMeta(type, metaCount)) {
         _tabsCount++;
       }
@@ -155,8 +155,7 @@ class ProfilePageState extends State<ProfilePage>
   // TODO(any): add call tab
   List<Tab> _getTabList(AsyncSnapshot<MetaCount?> metaCount) {
     final tabs = <Tab>[];
-    for (final type
-        in MetaType.values.where((element) => element != MetaType.CALL)) {
+    for (final type in MetaType.values) {
       if (_haveASpecialKindOfMeta(type, metaCount)) {
         tabs.add(
           Tab(
@@ -365,6 +364,11 @@ class ProfilePageState extends State<ProfilePage>
                           selectedMeta: _selectedMeta,
                           addSelectedMeta: (meta) => _addSelectedMeta(meta),
                           audioCount: metaCount.data!.musicsCount,
+                        ),
+                      if (_haveASpecialKindOfMeta(MetaType.CALL, metaCount))
+                        CallTabUi(
+                          metaCount.data!.callsCount,
+                          widget.roomUid,
                         ),
                       if (_haveASpecialKindOfMeta(MetaType.LINK, metaCount))
                         LinkTabUi(
@@ -699,7 +703,7 @@ class ProfilePageState extends State<ProfilePage>
       child: Row(
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            padding: EdgeInsetsDirectional.symmetric(horizontal: 12.0),
             child: Icon(Icons.info),
           ),
           Text(

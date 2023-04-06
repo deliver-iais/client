@@ -31,7 +31,7 @@ class ReplyPreview extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(2.0),
+                      padding: const EdgeInsetsDirectional.all(2.0),
                       child: SenderAndContent.viaMessage(
                         iconData: CupertinoIcons.reply,
                         message: message!,
@@ -39,7 +39,7 @@ class ReplyPreview extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    padding: const EdgeInsets.all(0),
+                    padding: const EdgeInsetsDirectional.all(0),
                     icon: const Icon(CupertinoIcons.xmark, size: 20),
                     onPressed: resetRoomPageDetails,
                   ),

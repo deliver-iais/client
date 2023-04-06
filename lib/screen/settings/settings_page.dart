@@ -218,14 +218,6 @@ class SettingsPageState extends State<SettingsPage> {
                         _routingService.openContacts();
                       },
                     ),
-                    if (_featureFlags.isVoiceCallAvailable())
-                      SettingsTile(
-                        title: _i18n.get("calls"),
-                        leading: const Icon(CupertinoIcons.phone),
-                        onPressed: (context) {
-                          _routingService.openCallsList();
-                        },
-                      )
                   ],
                 );
               },
@@ -364,6 +356,14 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             Section(
               children: [
+                if (_featureFlags.isVoiceCallAvailable())
+                  SettingsTile(
+                    title: _i18n.get("call"),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    leading: const Icon(CupertinoIcons.phone),
+                    releaseState: ReleaseState.NEW,
+                    onPressed: (context) => _routingService.openCallSetting(),
+                  ),
                 if (_featureFlags.labIsAvailable())
                   SettingsTile(
                     title: _i18n.get("lab"),

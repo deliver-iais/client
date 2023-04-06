@@ -25,8 +25,8 @@ class NotSupportedMessage extends StatelessWidget {
         borderRadius: messageBorder,
         color: colorScheme.primaryContainer,
       ),
-      margin: const EdgeInsets.all(4),
-      padding: const EdgeInsets.all(6),
+      margin: const EdgeInsetsDirectional.all(4),
+      padding: const EdgeInsetsDirectional.all(6),
       child: Text(
         _i18n.get("message_not_supported"),
         style: TextStyle(color: colorScheme.onPrimaryContainer),

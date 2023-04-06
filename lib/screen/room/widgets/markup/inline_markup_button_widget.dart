@@ -36,7 +36,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
               child: BlurContainer(
                 skew: 3,
                 color: theme.dividerColor.withOpacity(0.2),
-                padding: const EdgeInsets.all(2.0),
+                padding: const EdgeInsetsDirectional.all(2.0),
                 child: TextButton(
                   clipBehavior: Clip.hardEdge,
                   onPressed: () {
@@ -86,7 +86,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
         widgetColumns.add(
           IntrinsicHeight(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10.0),
+              margin: const EdgeInsetsDirectional.symmetric(horizontal: 10.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,

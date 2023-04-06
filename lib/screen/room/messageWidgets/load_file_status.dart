@@ -144,7 +144,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
           child = buildFileStatus();
         } else if (widget.sendingFileFailed || widget.isPendingForwarded) {
           child = IconButton(
-            padding: const EdgeInsets.all(0),
+            padding: const EdgeInsetsDirectional.all(0),
             icon: Icon(
               Icons.arrow_upward,
               color: widget.foreground,
@@ -186,7 +186,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
             }
           } else {
             child = IconButton(
-              padding: const EdgeInsets.all(0),
+              padding: const EdgeInsetsDirectional.all(0),
               icon: Icon(
                 Icons.arrow_downward,
                 color: widget.foreground,
@@ -221,7 +221,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
             children: [
               Center(
                 child: Padding(
-                  padding: EdgeInsets.all(padding),
+                  padding: EdgeInsetsDirectional.all(padding),
                   child: AnimatedBuilder(
                     animation: _controller,
                     builder: (_, child) {

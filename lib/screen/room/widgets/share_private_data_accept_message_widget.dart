@@ -46,7 +46,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsetsDirectional.all(4.0),
           child: Row(
             children: [
               Icon(

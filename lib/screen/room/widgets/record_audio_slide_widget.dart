@@ -83,7 +83,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
                             onPressed: () {
                               _audioService.toggleRecorderPause();
                             },
-                            padding: EdgeInsets.zero,
+                            padding: EdgeInsetsDirectional.zero,
                             icon: Icon(
                               isPaused
                                   ? CupertinoIcons.circle
@@ -106,7 +106,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
                           CupertinoIcons.clear_thick,
                           color: theme.colorScheme.onPrimaryContainer,
                         ),
-                        padding: EdgeInsets.zero,
+                        padding: EdgeInsetsDirectional.zero,
                         onPressed: () {
                           _audioService.cancelRecording();
                         },

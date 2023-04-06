@@ -73,7 +73,7 @@ class SenderAndContent extends StatelessWidget {
                   ),
                 )
               : null,
-          padding: const EdgeInsets.all(4),
+          padding: const EdgeInsetsDirectional.all(4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

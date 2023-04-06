@@ -47,7 +47,7 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
         child: ShakeWidget(
           controller: shakeWidgetController,
           child: Column(

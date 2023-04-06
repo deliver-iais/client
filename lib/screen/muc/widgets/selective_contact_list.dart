@@ -107,7 +107,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
           children: [
             const SyncContact(),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              padding: const EdgeInsetsDirectional.symmetric(vertical: 4.0),
               child: SearchBox(
                 onChange: (str) => filterSearchResults(str),
                 onCancel: () => filterSearchResults(""),
@@ -150,7 +150,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         children: [
                           const EmptyContacts(),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 32),
                             child: TextButton(
                               onPressed: _routingService.openContacts,
                               child: Row(

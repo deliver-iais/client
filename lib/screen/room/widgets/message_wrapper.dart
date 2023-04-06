@@ -47,7 +47,8 @@ class MessageWrapper extends StatelessWidget {
           child: Material(
             clipBehavior:
                 settings.showMessageDetails.value ? Clip.hardEdge : Clip.none,
-            borderRadius: settings.showMessageDetails.value ? border : null,
+            borderRadius:
+                settings.showMessageDetails.value ? border : BorderRadius.zero,
             elevation: settings.showMessageDetails.value ? 1 : 0,
             color: color,
             child: child,

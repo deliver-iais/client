@@ -128,7 +128,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                     if (_messengerContacts.isEmpty) const EmptyContacts(),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
                         child: FlexibleFixedHeightGridView(
                           itemCount: contacts.length,
                           itemBuilder: (context, index) {
@@ -167,7 +167,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsetsDirectional.all(16.0),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.only(top: 8.0),
                       child: MouseRegion(
@@ -308,7 +308,7 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         )
         .toList(growable: false);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 24.0),
       child: FlexibleFixedHeightGridView(
         itemCount: filteredContacts.length,
         itemBuilder: (context, index) {
