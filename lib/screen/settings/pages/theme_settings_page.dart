@@ -293,41 +293,48 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ),
                   ],
                 ),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 2,
+                Padding(
+                  padding: const EdgeInsets.all(p16),
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
+                            ),
+                            borderRadius: mainBorder,
                           ),
-                          borderRadius: mainBorder,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 8.0,
-                        ),
-                        child: Column(
-                          children: [
-                            ...createFakeMessages(),
-                          ],
-                        ),
-                      ),
-                      Positioned.fill(
-                        bottom: p16,
-                        left: p16 * 2,
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: FloatingActionButton(
-                            onPressed: () =>
-                                _idSubject.add(_idSubject.value + 1),
-                            child: const Icon(Icons.rotate_right),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: p4,
+                            vertical: p4,
+                          ),
+                          child: Column(
+                            children: [
+                              ...createFakeMessages(),
+                            ],
                           ),
                         ),
-                      )
-                    ],
+                        Positioned.fill(
+                          bottom: p12,
+                          left: p8 * 2,
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: FloatingActionButton(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.tertiary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onTertiary,
+                              onPressed: () =>
+                                  _idSubject.add(_idSubject.value + 1),
+                              child: const Icon(Icons.rotate_right),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 Section(

@@ -102,6 +102,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       titleSection = Text(
         widget.label,
         overflow: TextOverflow.ellipsis,
+        maxLines: 2,
+        softWrap: false,
         style: widget.labelTextStyle ??
             TextStyle(
               fontSize: theme.textTheme.bodyLarge!.fontSize,
@@ -117,6 +119,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           Text(
             widget.label,
             overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            softWrap: false,
             style: widget.labelTextStyle,
           ),
           const SizedBox(height: p2),
