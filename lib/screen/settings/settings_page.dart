@@ -284,6 +284,14 @@ class SettingsPageState extends State<SettingsPage> {
                       setState(() => settings.sendByEnter.toggleValue());
                     },
                   ),
+                if (_featureFlags.isVoiceCallAvailable())
+                  SettingsTile(
+                    title: _i18n.get("call"),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    leading: const Icon(CupertinoIcons.phone),
+                    releaseState: ReleaseState.NEW,
+                    onPressed: (context) => _routingService.openCallSetting(),
+                  ),
                 SettingsTile(
                   title: _i18n["power_saver"],
                   leading: const Icon(CupertinoIcons.battery_25),
@@ -356,22 +364,6 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             Section(
               children: [
-                if (_featureFlags.isVoiceCallAvailable())
-                  SettingsTile(
-                    title: _i18n.get("call"),
-                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                    leading: const Icon(CupertinoIcons.phone),
-                    releaseState: ReleaseState.NEW,
-                    onPressed: (context) => _routingService.openCallSetting(),
-                  ),
-                if (_featureFlags.labIsAvailable())
-                  SettingsTile(
-                    title: _i18n.get("lab"),
-                    subtitleTextStyle:
-                        TextStyle(color: theme.colorScheme.primary),
-                    leading: const Icon(CupertinoIcons.lab_flask),
-                    onPressed: (context) => _routingService.openLab(),
-                  ),
                 SettingsTile(
                   title: _i18n.get("version"),
                   leading:

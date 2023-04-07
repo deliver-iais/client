@@ -177,22 +177,6 @@ class Settings {
     SharedKeys.VIDEO_FRAME_RATE_LIMITATION.inSharedDaoStorage(),
     defaultValue: 30,
   );
-  final localStunServerIsEnabled = BooleanPersistent(
-    SharedKeys.LOCAL_STUN_SERVER_IS_ENABLED.inSharedDaoStorage(),
-    defaultValue: true,
-  );
-  final localTurnServerIsEnabled = BooleanPersistent(
-    SharedKeys.LOCAL_TURN_SERVER_IS_ENABLED.inSharedDaoStorage(),
-    defaultValue: true,
-  );
-  final googleStunServerIsEnabled = BooleanPersistent(
-    SharedKeys.GOOGLE_STUN_SERVER_IS_ENABLED.inSharedDaoStorage(),
-    defaultValue: true,
-  );
-  final googleTurnServerIsEnabled = BooleanPersistent(
-    SharedKeys.GOOGLE_TURN_SERVER_IS_ENABLED.inSharedDaoStorage(),
-    defaultValue: true,
-  );
   final language = EnumPersistent<Language>(
     SharedKeys.LANGUAGE.inSharedDaoStorage(),
     defaultValue: Language.defaultLanguage,
@@ -362,6 +346,6 @@ class FeatureFlags {
 
   bool hasVoiceCallPermission(String roomUid) =>
       roomUid.asUid().isUser() &&
-      !_authRepo.isCurrentUser(roomUid) &&
-      isVoiceCallAvailable();
+          !_authRepo.isCurrentUser(roomUid) &&
+          isVoiceCallAvailable();
 }

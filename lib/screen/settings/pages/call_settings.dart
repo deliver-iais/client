@@ -31,25 +31,6 @@ class _CallSettingsPageState extends State<CallSettingsPage> {
   final _localRenderer = RTCVideoRenderer();
   MediaStream? _localStream;
 
-  List<CallServerItem> checkBoxListTileModel = [
-    CallServerItem(
-      checkboxId: 1,
-      serverSetting: settings.localStunServerIsEnabled,
-    ),
-    CallServerItem(
-      checkboxId: 2,
-      serverSetting: settings.localTurnServerIsEnabled,
-    ),
-    CallServerItem(
-      checkboxId: 3,
-      serverSetting: settings.googleStunServerIsEnabled,
-    ),
-    CallServerItem(
-      checkboxId: 4,
-      serverSetting: settings.googleTurnServerIsEnabled,
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();

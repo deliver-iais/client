@@ -410,21 +410,19 @@ class CallRepo {
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
     final iceServers = <String, dynamic>{
       'iceServers': [
-        if (settings.localStunServerIsEnabled.value) {'url': STUN_SERVER_URL},
-        if (settings.localTurnServerIsEnabled.value)
-          {
-            'url': TURN_SERVER_URL,
-            'username': TURN_SERVER_USERNAME,
-            'credential': TURN_SERVER_PASSWORD,
-          },
-        if (settings.googleStunServerIsEnabled.value)
-          {'url': STUN_SERVER_URL_2},
-        if (settings.googleTurnServerIsEnabled.value)
-          {
-            'url': TURN_SERVER_URL_2,
-            'username': TURN_SERVER_USERNAME_2,
-            'credential': TURN_SERVER_PASSWORD_2,
-          },
+        {'url': STUN_SERVER_URL_1},
+        {
+          'url': TURN_SERVER_URL_1,
+          'username': TURN_SERVER_USERNAME_1,
+          'credential': TURN_SERVER_PASSWORD_1,
+        },
+        {'url': STUN_SERVER_URL_2},
+        {
+          'url': TURN_SERVER_URL_2,
+          'username': TURN_SERVER_USERNAME_2,
+          'credential': TURN_SERVER_PASSWORD_2,
+        },
+        {'url': STUN_SERVER_URL_3},
       ]
     };
 
