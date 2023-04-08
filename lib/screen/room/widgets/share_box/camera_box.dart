@@ -6,6 +6,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/widgets/blurred_container.dart';
@@ -108,125 +109,160 @@ class _CameraBoxState extends State<CameraBox> {
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Container(
-            color: theme.colorScheme.surface.withOpacity(0.5),
-            padding: const EdgeInsets.all(24.0),
-            height: 180,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: 25,
-                  backgroundColor: getEnableBackgroundColor(
-                    isEnable: _cameraService.enableAudio(),
-                  ),
-                  child: IconButton(
-                    onPressed: () async {
-                      await _cameraService.changeRecordAudioState();
-                      setState(() {});
-                    },
-                    icon: getEnableIcon(
-                      isEnable: _cameraService.enableAudio(),
-                      enableIcon: CupertinoIcons.volume_up,
-                      disableIcon: CupertinoIcons.volume_mute,
-                      size: 25,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!_cameraService.enableAudio())
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: p4),
+                  child: BlurContainer(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: p8,
+                      vertical: p4,
+                    ),
+                    skew: 10,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.volume_off),
+                        const SizedBox(width: p8),
+                        Text(
+                          "Mute",
+                          style: theme.textTheme.labelMedium,
+                        )
+                      ],
                     ),
                   ),
                 ),
-                StreamBuilder<bool>(
-                  stream: _cameraService.isRecordingVideo(),
-                  builder: (context, snapshot) {
-                    final isRecording = snapshot.data ?? false;
-                    return GestureDetector(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedContainer(
-                            duration: AnimationSettings.normal,
-                            height: isRecording ? 85 : 75,
-                            width: isRecording ? 85 : 75,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isRecording ? Colors.red : Colors.white,
-                                width: 6,
-                              ),
-                              color:
-                                  isRecording ? Colors.red : Colors.transparent,
-                            ),
-                          ),
-                          if (!widget.selectAsAvatar) ...[
-                            const SizedBox(height: 12),
-                            DefaultTextStyle(
-                              style: TextStyle(
-                                decoration: TextDecoration.none,
-                                fontSize: isRecording ? 0 : null,
-                                color: isRecording ? Colors.transparent : null,
-                              ),
-                              child: Text(
-                                _i18n.get("take_picture_and_video_helper"),
-                              ),
-                            ),
-                          ],
-                        ],
+              Container(
+                color: theme.colorScheme.surface.withOpacity(0.5),
+                padding: const EdgeInsets.all(24.0),
+                height: 180,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CircleAvatar(
+                      radius: 25,
+                      backgroundColor: getEnableBackgroundColor(
+                        isEnable: _cameraService.enableAudio(),
                       ),
-                      onTap: () => _cameraService.takePicture().then((file) {
-                        if (widget.selectAsAvatar) {
-                          Navigator.pop(context);
-                          widget.onAvatarSelected!(file.path);
-                        } else {
-                          _routingService.openViewImagePage(
-                            imagePath: file.path,
-                            onEditEnd: (path) {
-                              if (widget.selectAsAvatar) {
-                                widget.onAvatarSelected!(path);
-                              }
-                              Navigator.pop(context);
-                            },
-                            onSend: (caption) => _sendMessage(file, caption),
-                            forceToShowCaptionTextField: true,
-                          );
-                        }
-                      }),
-                      onLongPressStart: (_) => !widget.selectAsAvatar
-                          ? _cameraService.startVideoRecorder()
-                          : null,
-                      onLongPressEnd: (d) {
-                        if (!widget.selectAsAvatar) {
-                          _cameraService.stopVideoRecorder().then(
-                                (file) => _routingService.openVideoViewerPage(
-                                  file: file,
-                                  onSend: (caption) {
-                                    Navigator.pop(context);
-                                    _sendMessage(file, caption);
-                                  },
+                      child: IconButton(
+                        onPressed: () async {
+                          await _cameraService.changeRecordAudioState();
+                          setState(() {});
+                        },
+                        icon: getEnableIcon(
+                          isEnable: _cameraService.enableAudio(),
+                          enableIcon: CupertinoIcons.volume_up,
+                          disableIcon: CupertinoIcons.volume_off,
+                          size: 25,
+                        ),
+                      ),
+                    ),
+                    StreamBuilder<bool>(
+                      stream: _cameraService.isRecordingVideo(),
+                      builder: (context, snapshot) {
+                        final isRecording = snapshot.data ?? false;
+                        return GestureDetector(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedContainer(
+                                duration: AnimationSettings.normal,
+                                height: isRecording ? 85 : 75,
+                                width: isRecording ? 85 : 75,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color:
+                                        isRecording ? Colors.red : Colors.white,
+                                    width: 6,
+                                  ),
+                                  color: isRecording
+                                      ? Colors.red
+                                      : Colors.transparent,
                                 ),
+                              ),
+                              if (!widget.selectAsAvatar) ...[
+                                const SizedBox(height: 12),
+                                DefaultTextStyle(
+                                  style: TextStyle(
+                                    decoration: TextDecoration.none,
+                                    fontSize: isRecording ? 0 : null,
+                                    color:
+                                        isRecording ? Colors.transparent : null,
+                                  ),
+                                  child: Text(
+                                    _i18n.get("take_picture_and_video_helper"),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          onTap: () =>
+                              _cameraService.takePicture().then((file) {
+                            if (widget.selectAsAvatar) {
+                              Navigator.pop(context);
+                              widget.onAvatarSelected!(file.path);
+                            } else {
+                              _routingService.openViewImagePage(
+                                imagePath: file.path,
+                                onEditEnd: (path) {
+                                  if (widget.selectAsAvatar) {
+                                    widget.onAvatarSelected!(path);
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                onSend: (caption) =>
+                                    _sendMessage(file, caption),
+                                forceToShowCaptionTextField: true,
                               );
-                        }
+                            }
+                          }),
+                          onLongPressStart: (_) => !widget.selectAsAvatar
+                              ? _cameraService.startVideoRecorder()
+                              : null,
+                          onLongPressEnd: (d) {
+                            if (!widget.selectAsAvatar) {
+                              _cameraService.stopVideoRecorder().then(
+                                    (file) =>
+                                        _routingService.openVideoViewerPage(
+                                      file: file,
+                                      onSend: (caption) {
+                                        Navigator.pop(context);
+                                        _sendMessage(file, caption);
+                                      },
+                                    ),
+                                  );
+                            }
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
-                if (_cameraService.hasMultiCamera())
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundColor: getEnableBackgroundColor(isEnable: false),
-                    child: IconButton(
-                      onPressed: () => _cameraService.switchToAnotherCamera(),
-                      icon: const Icon(
-                        CupertinoIcons.camera_rotate,
-                      ),
-                      color: getEnableColor(isEnable: false),
-                      iconSize: 25,
                     ),
-                  )
-                else
-                  const SizedBox(
-                    width: 50,
-                    height: 50,
-                  )
-              ],
-            ),
+                    if (_cameraService.hasMultiCamera())
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundColor:
+                            getEnableBackgroundColor(isEnable: false),
+                        child: IconButton(
+                          onPressed: () =>
+                              _cameraService.switchToAnotherCamera(),
+                          icon: const Icon(
+                            CupertinoIcons.camera_rotate,
+                          ),
+                          color: getEnableColor(isEnable: false),
+                          iconSize: 25,
+                        ),
+                      )
+                    else
+                      const SizedBox(
+                        width: 50,
+                        height: 50,
+                      )
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
