@@ -130,11 +130,14 @@ class GalleryBoxState extends State<GalleryBox> {
                       ],
                     ),
                     child: GestureDetector(
-                      onTap: () => _routingService.openCameraBox(
-                        selectAsAvatar: widget.selectAsAvatar,
-                        roomUid: widget.roomUid,
-                        onAvatarSelected: widget.onAvatarSelected,
-                      ),
+                      onTap: () async {
+                        await _cameraService.enableRecordAudio();
+                        _routingService.openCameraBox(
+                          selectAsAvatar: widget.selectAsAvatar,
+                          roomUid: widget.roomUid,
+                          onAvatarSelected: widget.onAvatarSelected,
+                        );
+                      },
                       child: Stack(
                         fit: StackFit.expand,
                         children: [

@@ -34,6 +34,8 @@ abstract class CameraService {
 
   Stream<bool> isRecordingVideo();
 
+  Future<void> enableRecordAudio();
+
   bool enableAudio();
 
   void dispose();
@@ -44,6 +46,7 @@ class MobileCameraService extends CameraService {
   late CameraController _controller;
   List<CameraDescription> _cameras = [];
   final BehaviorSubject<int> _duration = BehaviorSubject.seeded(0);
+  final ResolutionPreset _resolutionPreset = ResolutionPreset.medium;
 
   final BehaviorSubject<bool> _isRecordingVideo = BehaviorSubject.seeded(false);
 
@@ -60,7 +63,7 @@ class MobileCameraService extends CameraService {
             await _checkPermissionService.checkMicrophonePermissionIsGranted();
         _controller = CameraController(
           _cameras[0],
-          ResolutionPreset.max,
+          _resolutionPreset,
           enableAudio: microphonePermissionIsGranted,
         );
         await _controller.initialize();
@@ -81,7 +84,7 @@ class MobileCameraService extends CameraService {
   Future<void> switchToAnotherCamera() async {
     _controller = CameraController(
       _cameras.firstWhere((element) => element != _controller.description),
-      ResolutionPreset.max,
+      _resolutionPreset,
       enableAudio: _controller.enableAudio,
     );
     await _controller.initialize();
@@ -135,7 +138,7 @@ class MobileCameraService extends CameraService {
   Future<void> changeRecordAudioState() async {
     _controller = CameraController(
       _controller.description,
-      ResolutionPreset.max,
+      _resolutionPreset,
       enableAudio: !_controller.enableAudio,
     );
     await _controller.initialize();
@@ -146,4 +149,15 @@ class MobileCameraService extends CameraService {
 
   @override
   Stream<bool> isRecordingVideo() => _isRecordingVideo.stream;
+
+  @override
+  Future<void> enableRecordAudio() async {
+    if (!_controller.enableAudio) {
+      _controller = CameraController(
+        _controller.description,
+        _resolutionPreset,
+      );
+      await _controller.initialize();
+    }
+  }
 }
