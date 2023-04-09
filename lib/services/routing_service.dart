@@ -28,6 +28,7 @@ import 'package:deliver/screen/room/widgets/share_box/camera_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/video_viewer_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
+import 'package:deliver/screen/settings/pages/about_software.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
 import 'package:deliver/screen/settings/pages/call_settings.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
@@ -81,6 +82,9 @@ const _securitySettings =
 
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
+const _aboutSoftwarePage =
+    AboutSoftwarePage(key: ValueKey("/about-software-page"));
+
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
 const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
@@ -92,7 +96,6 @@ const _contacts = ContactsPage(key: ValueKey("/contacts"));
 const _newContact = NewContact(key: ValueKey("/new-contact"));
 
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
-
 
 const _showcase = ShowcasePage(key: ValueKey("/showcase"));
 
@@ -193,6 +196,13 @@ class RoutingService {
       "callSettingsPage_open",
     );
     _push(_callSettings);
+  }
+
+  void openAboutSoftwarePage() {
+    _analyticsService.sendLogEvent(
+      "aboutSoftwarePage_open",
+    );
+    _push(_aboutSoftwarePage);
   }
 
   void openContacts() {

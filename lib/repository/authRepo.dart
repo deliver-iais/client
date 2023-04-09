@@ -70,7 +70,7 @@ class AuthRepo {
     try {
       if (retry) {
         // Run just first time...
-        await calculateServerTimeDiff();
+        await syncTimeWithServer();
       }
 
       if (accessToken.isNotEmpty) {
@@ -183,6 +183,7 @@ class AuthRepo {
         ..refreshToken =
             refreshToken ?? this.refreshToken(checkDaoFirst: checkDaoFirst)
         ..platform = await getPlatformPB(),
+      options: CallOptions(timeout: const Duration(seconds: 10)),
     );
   }
 
@@ -261,23 +262,32 @@ class AuthRepo {
     );
   }
 
-  Future<void> calculateServerTimeDiff() async {
-    final startTime = clock.now().millisecondsSinceEpoch; // 1000
-
+  Future<void> syncTimeWithServer() async {
     try {
-      final response =
-          await _sdr.queryServiceClient.getTime(GetTimeReq()); // 1100
-
-      final now = clock.now().millisecondsSinceEpoch; // 1200
-
-      final estimatedRoundTripTime = (now - startTime) ~/ 2; // 100
-
-      _serverTimeDiff = (now - estimatedRoundTripTime) -
-          response.currentTime.toInt(); // 1200 - 100 - 1100
+      return calculateServerTimeDiff(timeout: const Duration(seconds: 2));
     } catch (_) {
-      // Just ignore this option
+      // Just ignore this option and set "Zero"
       _serverTimeDiff = 0;
+
+      // Retry with more timeout duration
+      unawaited(calculateServerTimeDiff(timeout: const Duration(seconds: 20)));
     }
+  }
+
+  Future<void> calculateServerTimeDiff({required Duration timeout}) async {
+    final startTime = clock.now().millisecondsSinceEpoch; // eg. 1000
+
+    final response = await _sdr.queryServiceClient.getTime(
+      GetTimeReq(),
+      options: CallOptions(timeout: timeout),
+    ); // eg. 1100
+
+    final now = clock.now().millisecondsSinceEpoch; // eg. 1200
+
+    final estimatedRoundTripTime = (now - startTime) ~/ 2; // eg. 100
+
+    _serverTimeDiff = (now - estimatedRoundTripTime) -
+        response.currentTime.toInt(); // eg. 1200 - 100 - 1100
   }
 
   Future<bool> login({
@@ -395,6 +405,7 @@ class AuthRepo {
       await _sdr.queryServiceClient.getUserLastDeliveryAck(
         GetUserLastDeliveryAckReq(),
         options: CallOptions(
+          timeout: const Duration(seconds: 5),
           metadata: {"access_token": accessToken ?? this.accessToken},
         ),
       );

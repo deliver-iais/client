@@ -23,6 +23,8 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = "2.0.4";
+const BUILD_NUMBER = "1680983892";
+const INSTALL_FROM = "سایت";
 
 //messageRepo
 const RANDOM_SIZE = 100000;
@@ -267,7 +269,7 @@ const CALL_FEATURE = 'CALL_FEATURE';
 final MAIN_SEARCH_BOX_FOCUS_NODE = FocusNode(canRequestFocus: false);
 
 // UI
-const double APPBAR_HEIGHT = 52.0;
+const double APPBAR_HEIGHT = 56.0;
 const double BAR_HEIGHT = 50.0;
 const double FLUID_MAX_WIDTH = 500.0;
 const double FLUID_MAX_HEIGHT = 640.0;

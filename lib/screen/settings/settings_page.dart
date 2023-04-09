@@ -23,12 +23,9 @@ import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -38,7 +35,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  static final _logger = GetIt.I.get<Logger>();
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
@@ -47,9 +43,8 @@ class SettingsPageState extends State<SettingsPage> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _backgroundService = GetIt.I.get<BackgroundService>();
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
-  StreamSubscription<Account?>? subscription;
+  StreamSubscription<dynamic>? subscription;
 
-  int developerModeCounterCountDown = kDebugMode ? 1 : 10;
   final account = BehaviorSubject<Account?>.seeded(null);
 
   @override
@@ -57,9 +52,10 @@ class SettingsPageState extends State<SettingsPage> {
     _accountRepo
       ..getUserProfileFromServer()
       ..fetchCurrentUserId();
-    subscription = _accountRepo.getAccountAsStream().listen((event) {
-      account.add(event);
-    });
+    subscription = MergeStream([
+      _accountRepo.getAccountAsStream().map(account.add),
+      settings.showDeveloperPage.stream.map((event) => setState(() {}))
+    ]).listen((value) {});
     super.initState();
   }
 
@@ -356,9 +352,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: 'Developer Page',
                     subtitle: "Log Level: ${settings.logLevel.value.name}",
                     leading: const Icon(Icons.bug_report_rounded),
-                    onPressed: (context) {
-                      _routingService.openDeveloperPage();
-                    },
+                    onPressed: (context) => _routingService.openDeveloperPage(),
                   )
                 ],
               ),
@@ -366,23 +360,10 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile(
                   title: _i18n.get("version"),
-                  leading:
-                      const Icon(CupertinoIcons.square_stack_3d_down_right),
-                  trailing: settings.showDeveloperPage.value
-                      ? FutureBuilder<String?>(
-                          future: SmsAutoFill().getAppSignature,
-                          builder: (c, sms) => Text(sms.data ?? VERSION),
-                        )
-                      : const Text(VERSION),
-                  onPressed: (_) async {
-                    _logger.d(developerModeCounterCountDown);
-                    developerModeCounterCountDown--;
-                    if (developerModeCounterCountDown < 1) {
-                      setState(() {
-                        settings.showDeveloperPage.set(true);
-                      });
-                    }
-                  },
+                  subtitle: "v$VERSION",
+                  leading: const Icon(Icons.info_outline_rounded),
+                  onPressed: (context) =>
+                      _routingService.openAboutSoftwarePage(),
                 ),
                 SettingsTile(
                   title: _i18n.get("logout"),

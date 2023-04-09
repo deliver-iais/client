@@ -40,6 +40,8 @@ class CoreServices {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _uptimeStartTime = BehaviorSubject.seeded(0);
+  final _reconnectCount = BehaviorSubject.seeded(0);
 
   @visibleForTesting
   bool responseChecked = false;
@@ -101,10 +103,14 @@ class CoreServices {
       _connectionStatus.add(ConnectionStatus.Disconnected);
       _clientPacketStream?.close();
       if (_connectionTimer != null) _connectionTimer!.cancel();
+      _uptimeStartTime.add(0);
     } catch (e) {
       _logger.e(e);
     }
   }
+
+  ValueStream<int> get uptimeStartTime => _uptimeStartTime;
+  ValueStream<int> get reconnectCount => _reconnectCount;
 
   @visibleForTesting
   void startCheckerTimer() {
@@ -145,6 +151,10 @@ class CoreServices {
     responseChecked = true;
     disconnectedTime.add(0);
     connectionError.add("");
+    if (_uptimeStartTime.value == 0) {
+      _reconnectCount.add(_reconnectCount.value + 1);
+      _uptimeStartTime.add(clock.now().millisecondsSinceEpoch);
+    }
   }
 
   @visibleForTesting
@@ -234,6 +244,7 @@ class CoreServices {
   void _changeStateToDisconnected() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
     disconnectedTime.add(backoffTime - 1);
+    _uptimeStartTime.add(0);
   }
 
   Future<void> sendMessage(MessageByClient message) async {
