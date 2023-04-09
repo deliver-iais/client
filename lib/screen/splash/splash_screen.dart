@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -16,6 +18,7 @@ import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
+import 'package:rive/rive.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -57,7 +60,9 @@ class SplashScreenState extends State<SplashScreen>
       await _accountRepo.checkUpdatePlatformSessionInformation();
       return _authRepo.init(retry: true).then((_) {
         if (!_authRepo.isLocalLockEnabled()) {
-          navigateToApp();
+          Timer(const Duration(milliseconds: 510), () {
+            navigateToApp();
+          });
         } else {
           _locked.add(true);
         }
@@ -91,9 +96,16 @@ class SplashScreenState extends State<SplashScreen>
     if (hasProfile) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (c) {
-            return const HomePage();
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const HomePage(),
+          transitionDuration: const Duration(milliseconds: 1000),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeThroughTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            );
           },
         ),
       ).ignore();
@@ -124,7 +136,7 @@ class SplashScreenState extends State<SplashScreen>
             if (s.hasData && s.data!) {
               return desktopLock();
             }
-            return loading();
+            return loading(context);
           },
         ),
       ),
@@ -215,7 +227,27 @@ class SplashScreenState extends State<SplashScreen>
     }
   }
 
-  Widget loading() {
-    return Container();
+  void _onRiveInit(Artboard artboard) {
+    final controller = StateMachineController(artboard.stateMachines.first);
+    artboard.addController(controller);
+  }
+
+  Widget loading(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: SizedBox(
+          width: min(200, size.width / 2),
+          height: min(200, size.height / 2),
+          child: RiveAnimation.asset(
+            'assets/animations/intro.riv',
+            fit: BoxFit.cover,
+            onInit: _onRiveInit,
+          ),
+        ),
+      ),
+    );
   }
 }

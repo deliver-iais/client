@@ -75,12 +75,23 @@ class SearchBoxState extends State<SearchBox> {
   }
 
   double get height =>
-      widget.animationValue != null ? (43 - (widget.animationValue! / 4)) : 40;
+      widget.animationValue != null ? (40 - (widget.animationValue! / 3.5)) : 40;
+
+  double get bottomPadding =>
+      widget.animationValue != null ? widget.animationValue! / 10 : 4;
+
+  double get topPadding =>
+      widget.animationValue != null ? (8 - (widget.animationValue! / 5)) : 4;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsetsDirectional.only(
+        start: 8,
+        end: 8,
+        top: topPadding,
+        bottom: bottomPadding,
+      ),
       child: Row(
         children: [
           Expanded(

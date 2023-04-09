@@ -211,359 +211,359 @@ class _FakeGetMembersRes_7 extends _i1.SmartFake implements _i7.GetMembersRes {
         );
 }
 
-class _FakeResponseFuture_8<R> extends _i1.SmartFake
-    implements _i8.ResponseFuture<R> {
-  _FakeResponseFuture_8(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeClientCall_9<Q, R> extends _i1.SmartFake
-    implements _i9.ClientCall<Q, R> {
-  _FakeClientCall_9(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeResponseStream_10<R> extends _i1.SmartFake
-    implements _i8.ResponseStream<R> {
-  _FakeResponseStream_10(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeLocale_11 extends _i1.SmartFake implements _i10.Locale {
-  _FakeLocale_11(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeRole_12 extends _i1.SmartFake implements _i11.Role {
-  _FakeRole_12(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeChannelType_13 extends _i1.SmartFake implements _i12.ChannelType {
-  _FakeChannelType_13(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeBotInfo_14 extends _i1.SmartFake implements _i13.BotInfo {
-  _FakeBotInfo_14(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeMetaGroup_15 extends _i1.SmartFake implements _i14.MetaGroup {
-  _FakeMetaGroup_15(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeRTCVideoRenderer_16 extends _i1.SmartFake
-    implements _i15.RTCVideoRenderer {
-  _FakeRTCVideoRenderer_16(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeCallEvent_CallType_17 extends _i1.SmartFake
-    implements _i16.CallEvent_CallType {
-  _FakeCallEvent_CallType_17(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeCallEvent_CallStatus_18 extends _i1.SmartFake
-    implements _i16.CallEvent_CallStatus {
-  _FakeCallEvent_CallStatus_18(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeVideoCallQualityDetails_19 extends _i1.SmartFake
-    implements _i17.VideoCallQualityDetails {
-  _FakeVideoCallQualityDetails_19(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeBatteryMonitor_20 extends _i1.SmartFake
-    implements _i18.BatteryMonitor {
-  _FakeBatteryMonitor_20(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeEnumPersistent_21<T extends Enum> extends _i1.SmartFake
-    implements _i18.EnumPersistent<T> {
-  _FakeEnumPersistent_21(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeIntPersistent_22 extends _i1.SmartFake
-    implements _i18.IntPersistent {
-  _FakeIntPersistent_22(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeStringPersistent_23 extends _i1.SmartFake
-    implements _i18.StringPersistent {
-  _FakeStringPersistent_23(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeDoublePersistent_24 extends _i1.SmartFake
-    implements _i18.DoublePersistent {
-  _FakeDoublePersistent_24(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeBooleanPersistent_25 extends _i1.SmartFake
-    implements _i18.BooleanPersistent {
-  _FakeBooleanPersistent_25(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeJsonMapPersistent_26<T> extends _i1.SmartFake
-    implements _i18.JsonMapPersistent<T> {
-  _FakeJsonMapPersistent_26(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeProtoPersistent_27<T extends _i19.GeneratedMessage>
-    extends _i1.SmartFake implements _i18.ProtoPersistent<T> {
-  _FakeProtoPersistent_27(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeOncePersistent_28 extends _i1.SmartFake
-    implements _i18.OncePersistent {
-  _FakeOncePersistent_28(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakePerformanceBooleanPersistent_29 extends _i1.SmartFake
-    implements _i18.PerformanceBooleanPersistent {
-  _FakePerformanceBooleanPersistent_29(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeBuildContext_30 extends _i1.SmartFake implements _i20.BuildContext {
-  _FakeBuildContext_30(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeThemeScheme_31 extends _i1.SmartFake implements _i21.ThemeScheme {
-  _FakeThemeScheme_31(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeThemeData_32 extends _i1.SmartFake implements _i20.ThemeData {
-  _FakeThemeData_32(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-
-  @override
-  String toString(
-          {_i22.DiagnosticLevel? minLevel = _i22.DiagnosticLevel.info}) =>
-      super.toString();
-}
-
-class _FakeExtraThemeData_33 extends _i1.SmartFake
-    implements _i23.ExtraThemeData {
-  _FakeExtraThemeData_33(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeCorePalette_34 extends _i1.SmartFake implements _i24.CorePalette {
-  _FakeCorePalette_34(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeGlobalKey_35<T extends _i20.State<_i20.StatefulWidget>>
-    extends _i1.SmartFake implements _i20.GlobalKey<T> {
-  _FakeGlobalKey_35(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakePageRouteBuilder_36<T> extends _i1.SmartFake
-    implements _i20.PageRouteBuilder<T> {
-  _FakePageRouteBuilder_36(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeWidget_37 extends _i1.SmartFake implements _i20.Widget {
-  _FakeWidget_37(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-
-  @override
-  String toString(
-          {_i22.DiagnosticLevel? minLevel = _i22.DiagnosticLevel.info}) =>
-      super.toString();
-}
-
-class _FakeStatsReport_38 extends _i1.SmartFake implements _i15.StatsReport {
-  _FakeStatsReport_38(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeLogger_39 extends _i1.SmartFake implements _i25.Logger {
-  _FakeLogger_39(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeValueStream_40<T> extends _i1.SmartFake
+class _FakeValueStream_8<T> extends _i1.SmartFake
     implements _i4.ValueStream<T> {
-  _FakeValueStream_40(
+  _FakeValueStream_8(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeResponseFuture_9<R> extends _i1.SmartFake
+    implements _i8.ResponseFuture<R> {
+  _FakeResponseFuture_9(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeClientCall_10<Q, R> extends _i1.SmartFake
+    implements _i9.ClientCall<Q, R> {
+  _FakeClientCall_10(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeResponseStream_11<R> extends _i1.SmartFake
+    implements _i8.ResponseStream<R> {
+  _FakeResponseStream_11(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeLocale_12 extends _i1.SmartFake implements _i10.Locale {
+  _FakeLocale_12(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeRole_13 extends _i1.SmartFake implements _i11.Role {
+  _FakeRole_13(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeChannelType_14 extends _i1.SmartFake implements _i12.ChannelType {
+  _FakeChannelType_14(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeBotInfo_15 extends _i1.SmartFake implements _i13.BotInfo {
+  _FakeBotInfo_15(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeMetaGroup_16 extends _i1.SmartFake implements _i14.MetaGroup {
+  _FakeMetaGroup_16(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeRTCVideoRenderer_17 extends _i1.SmartFake
+    implements _i15.RTCVideoRenderer {
+  _FakeRTCVideoRenderer_17(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeCallEvent_CallType_18 extends _i1.SmartFake
+    implements _i16.CallEvent_CallType {
+  _FakeCallEvent_CallType_18(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeCallEvent_CallStatus_19 extends _i1.SmartFake
+    implements _i16.CallEvent_CallStatus {
+  _FakeCallEvent_CallStatus_19(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeVideoCallQualityDetails_20 extends _i1.SmartFake
+    implements _i17.VideoCallQualityDetails {
+  _FakeVideoCallQualityDetails_20(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeBatteryMonitor_21 extends _i1.SmartFake
+    implements _i18.BatteryMonitor {
+  _FakeBatteryMonitor_21(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeEnumPersistent_22<T extends Enum> extends _i1.SmartFake
+    implements _i18.EnumPersistent<T> {
+  _FakeEnumPersistent_22(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeIntPersistent_23 extends _i1.SmartFake
+    implements _i18.IntPersistent {
+  _FakeIntPersistent_23(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeStringPersistent_24 extends _i1.SmartFake
+    implements _i18.StringPersistent {
+  _FakeStringPersistent_24(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeDoublePersistent_25 extends _i1.SmartFake
+    implements _i18.DoublePersistent {
+  _FakeDoublePersistent_25(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeBooleanPersistent_26 extends _i1.SmartFake
+    implements _i18.BooleanPersistent {
+  _FakeBooleanPersistent_26(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeJsonMapPersistent_27<T> extends _i1.SmartFake
+    implements _i18.JsonMapPersistent<T> {
+  _FakeJsonMapPersistent_27(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeProtoPersistent_28<T extends _i19.GeneratedMessage>
+    extends _i1.SmartFake implements _i18.ProtoPersistent<T> {
+  _FakeProtoPersistent_28(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeOncePersistent_29 extends _i1.SmartFake
+    implements _i18.OncePersistent {
+  _FakeOncePersistent_29(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakePerformanceBooleanPersistent_30 extends _i1.SmartFake
+    implements _i18.PerformanceBooleanPersistent {
+  _FakePerformanceBooleanPersistent_30(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeBuildContext_31 extends _i1.SmartFake implements _i20.BuildContext {
+  _FakeBuildContext_31(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeThemeScheme_32 extends _i1.SmartFake implements _i21.ThemeScheme {
+  _FakeThemeScheme_32(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeThemeData_33 extends _i1.SmartFake implements _i20.ThemeData {
+  _FakeThemeData_33(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+
+  @override
+  String toString(
+          {_i22.DiagnosticLevel? minLevel = _i22.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
+class _FakeExtraThemeData_34 extends _i1.SmartFake
+    implements _i23.ExtraThemeData {
+  _FakeExtraThemeData_34(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeCorePalette_35 extends _i1.SmartFake implements _i24.CorePalette {
+  _FakeCorePalette_35(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeGlobalKey_36<T extends _i20.State<_i20.StatefulWidget>>
+    extends _i1.SmartFake implements _i20.GlobalKey<T> {
+  _FakeGlobalKey_36(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakePageRouteBuilder_37<T> extends _i1.SmartFake
+    implements _i20.PageRouteBuilder<T> {
+  _FakePageRouteBuilder_37(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeWidget_38 extends _i1.SmartFake implements _i20.Widget {
+  _FakeWidget_38(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+
+  @override
+  String toString(
+          {_i22.DiagnosticLevel? minLevel = _i22.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
+class _FakeStatsReport_39 extends _i1.SmartFake implements _i15.StatsReport {
+  _FakeStatsReport_39(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeLogger_40 extends _i1.SmartFake implements _i25.Logger {
+  _FakeLogger_40(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -1832,10 +1832,21 @@ class MockAuthRepo extends _i1.Mock implements _i37.AuthRepo {
         returnValueForMissingStub: _i29.Future<void>.value(),
       ) as _i29.Future<void>);
   @override
-  _i29.Future<void> calculateServerTimeDiff() => (super.noSuchMethod(
+  _i29.Future<void> syncTimeWithServer() => (super.noSuchMethod(
+        Invocation.method(
+          #syncTimeWithServer,
+          [],
+        ),
+        returnValue: _i29.Future<void>.value(),
+        returnValueForMissingStub: _i29.Future<void>.value(),
+      ) as _i29.Future<void>);
+  @override
+  _i29.Future<void> calculateServerTimeDiff({required Duration? timeout}) =>
+      (super.noSuchMethod(
         Invocation.method(
           #calculateServerTimeDiff,
           [],
+          {#timeout: timeout},
         ),
         returnValue: _i29.Future<void>.value(),
         returnValueForMissingStub: _i29.Future<void>.value(),
@@ -3119,6 +3130,22 @@ class MockCoreServices extends _i1.Mock implements _i53.CoreServices {
         returnValueForMissingStub: null,
       );
   @override
+  _i4.ValueStream<int> get uptimeStartTime => (super.noSuchMethod(
+        Invocation.getter(#uptimeStartTime),
+        returnValue: _FakeValueStream_8<int>(
+          this,
+          Invocation.getter(#uptimeStartTime),
+        ),
+      ) as _i4.ValueStream<int>);
+  @override
+  _i4.ValueStream<int> get reconnectCount => (super.noSuchMethod(
+        Invocation.getter(#reconnectCount),
+        returnValue: _FakeValueStream_8<int>(
+          this,
+          Invocation.getter(#reconnectCount),
+        ),
+      ) as _i4.ValueStream<int>);
+  @override
   void retryConnection({bool? forced = false}) => super.noSuchMethod(
         Invocation.method(
           #retryConnection,
@@ -3266,7 +3293,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetTimeRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetTimeRes>(
           this,
           Invocation.method(
             #getTime,
@@ -3286,7 +3313,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.IdIsAvailableRes>(
+        returnValue: _FakeResponseFuture_9<_i54.IdIsAvailableRes>(
           this,
           Invocation.method(
             #idIsAvailable,
@@ -3306,7 +3333,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.SetIdRes>(
+        returnValue: _FakeResponseFuture_9<_i54.SetIdRes>(
           this,
           Invocation.method(
             #setId,
@@ -3326,7 +3353,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.BlockUidRes>(
+        returnValue: _FakeResponseFuture_9<_i54.BlockUidRes>(
           this,
           Invocation.method(
             #blockUid,
@@ -3346,7 +3373,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.UnblockUidRes>(
+        returnValue: _FakeResponseFuture_9<_i54.UnblockUidRes>(
           this,
           Invocation.method(
             #unblockUid,
@@ -3366,7 +3393,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.ReportRes>(
+        returnValue: _FakeResponseFuture_9<_i54.ReportRes>(
           this,
           Invocation.method(
             #report,
@@ -3386,7 +3413,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetBlockedListRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetBlockedListRes>(
           this,
           Invocation.method(
             #getBlockedList,
@@ -3406,7 +3433,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetIdByUidRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetIdByUidRes>(
           this,
           Invocation.method(
             #getIdByUid,
@@ -3426,7 +3453,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetUidByIdRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetUidByIdRes>(
           this,
           Invocation.method(
             #getUidById,
@@ -3446,7 +3473,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.SearchUidRes>(
+        returnValue: _FakeResponseFuture_9<_i54.SearchUidRes>(
           this,
           Invocation.method(
             #searchUid,
@@ -3466,7 +3493,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetLastActivityRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetLastActivityRes>(
           this,
           Invocation.method(
             #getLastActivity,
@@ -3486,7 +3513,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMessagesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMessagesRes>(
           this,
           Invocation.method(
             #fetchMessages,
@@ -3506,7 +3533,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.CountIsHiddenMessagesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.CountIsHiddenMessagesRes>(
           this,
           Invocation.method(
             #countIsHiddenMessages,
@@ -3526,7 +3553,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetAllUserRoomMetaRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetAllUserRoomMetaRes>(
           this,
           Invocation.method(
             #getAllUserRoomMeta,
@@ -3546,7 +3573,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetUserRoomMetaRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetUserRoomMetaRes>(
           this,
           Invocation.method(
             #getUserRoomMeta,
@@ -3566,7 +3593,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetUserLastDeliveryAckRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetUserLastDeliveryAckRes>(
           this,
           Invocation.method(
             #getUserLastDeliveryAck,
@@ -3586,7 +3613,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetMediaMetadataRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetMediaMetadataRes>(
           this,
           Invocation.method(
             #getMediaMetadata,
@@ -3606,7 +3633,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMediasRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMediasRes>(
           this,
           Invocation.method(
             #fetchMedias,
@@ -3626,7 +3653,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetMetaCountsRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetMetaCountsRes>(
           this,
           Invocation.method(
             #getMetaCounts,
@@ -3646,7 +3673,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMetaListRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMetaListRes>(
           this,
           Invocation.method(
             #fetchMetaList,
@@ -3666,7 +3693,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMessageMetaIndexRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMessageMetaIndexRes>(
           this,
           Invocation.method(
             #fetchMessageMetaIndex,
@@ -3686,7 +3713,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMetaDeletedIndexesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMetaDeletedIndexesRes>(
           this,
           Invocation.method(
             #fetchMetaDeletedIndexes,
@@ -3706,7 +3733,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchMentionListRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchMentionListRes>(
           this,
           Invocation.method(
             #fetchMentionList,
@@ -3726,7 +3753,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchCurrentUserSeenDataRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchCurrentUserSeenDataRes>(
           this,
           Invocation.method(
             #fetchCurrentUserSeenData,
@@ -3748,7 +3775,7 @@ class MockQueryServiceClient extends _i1.Mock
               {#options: options},
             ),
             returnValue:
-                _FakeResponseFuture_8<_i54.FetchLastOtherUserSeenDataRes>(
+                _FakeResponseFuture_9<_i54.FetchLastOtherUserSeenDataRes>(
               this,
               Invocation.method(
                 #fetchLastOtherUserSeenData,
@@ -3770,7 +3797,7 @@ class MockQueryServiceClient extends _i1.Mock
               {#options: options},
             ),
             returnValue:
-                _FakeResponseFuture_8<_i54.FetchSeenCountOfChannelMessageRes>(
+                _FakeResponseFuture_9<_i54.FetchSeenCountOfChannelMessageRes>(
               this,
               Invocation.method(
                 #fetchSeenCountOfChannelMessage,
@@ -3790,7 +3817,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.FetchUserCallsRes>(
+        returnValue: _FakeResponseFuture_9<_i54.FetchUserCallsRes>(
           this,
           Invocation.method(
             #fetchUserCalls,
@@ -3810,7 +3837,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.UpdateMessageRes>(
+        returnValue: _FakeResponseFuture_9<_i54.UpdateMessageRes>(
           this,
           Invocation.method(
             #updateMessage,
@@ -3830,7 +3857,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.DeleteMessageRes>(
+        returnValue: _FakeResponseFuture_9<_i54.DeleteMessageRes>(
           this,
           Invocation.method(
             #deleteMessage,
@@ -3850,7 +3877,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.ForwardMessagesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.ForwardMessagesRes>(
           this,
           Invocation.method(
             #forwardMessages,
@@ -3870,7 +3897,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.AddAvatarRes>(
+        returnValue: _FakeResponseFuture_9<_i54.AddAvatarRes>(
           this,
           Invocation.method(
             #addAvatar,
@@ -3890,7 +3917,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.RemoveAvatarRes>(
+        returnValue: _FakeResponseFuture_9<_i54.RemoveAvatarRes>(
           this,
           Invocation.method(
             #removeAvatar,
@@ -3910,7 +3937,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.RemovePrivateRoomRes>(
+        returnValue: _FakeResponseFuture_9<_i54.RemovePrivateRoomRes>(
           this,
           Invocation.method(
             #removePrivateRoom,
@@ -3930,7 +3957,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.SearchInMessagesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.SearchInMessagesRes>(
           this,
           Invocation.method(
             #searchInMessages,
@@ -3950,7 +3977,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.SendGlitchRes>(
+        returnValue: _FakeResponseFuture_9<_i54.SendGlitchRes>(
           this,
           Invocation.method(
             #sendGlitch,
@@ -3970,7 +3997,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.CreateGroupCallRes>(
+        returnValue: _FakeResponseFuture_9<_i54.CreateGroupCallRes>(
           this,
           Invocation.method(
             #createGroupCall,
@@ -3990,7 +4017,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.EndGroupCallRes>(
+        returnValue: _FakeResponseFuture_9<_i54.EndGroupCallRes>(
           this,
           Invocation.method(
             #endGroupCall,
@@ -4010,7 +4037,7 @@ class MockQueryServiceClient extends _i1.Mock
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i54.GetShowcasesRes>(
+        returnValue: _FakeResponseFuture_9<_i54.GetShowcasesRes>(
           this,
           Invocation.method(
             #getShowcases,
@@ -4034,7 +4061,7 @@ class MockQueryServiceClient extends _i1.Mock
           ],
           {#options: options},
         ),
-        returnValue: _FakeClientCall_9<Q, R>(
+        returnValue: _FakeClientCall_10<Q, R>(
           this,
           Invocation.method(
             #$createCall,
@@ -4061,7 +4088,7 @@ class MockQueryServiceClient extends _i1.Mock
           ],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<R>(
+        returnValue: _FakeResponseFuture_9<R>(
           this,
           Invocation.method(
             #$createUnaryCall,
@@ -4088,7 +4115,7 @@ class MockQueryServiceClient extends _i1.Mock
           ],
           {#options: options},
         ),
-        returnValue: _FakeResponseStream_10<R>(
+        returnValue: _FakeResponseStream_11<R>(
           this,
           Invocation.method(
             #$createStreamingCall,
@@ -4121,7 +4148,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.GetVerificationCodeRes>(
+        returnValue: _FakeResponseFuture_9<_i5.GetVerificationCodeRes>(
           this,
           Invocation.method(
             #getVerificationCode,
@@ -4141,7 +4168,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.AccessTokenRes>(
+        returnValue: _FakeResponseFuture_9<_i5.AccessTokenRes>(
           this,
           Invocation.method(
             #verifyAndGetToken,
@@ -4161,7 +4188,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.AccessTokenRes>(
+        returnValue: _FakeResponseFuture_9<_i5.AccessTokenRes>(
           this,
           Invocation.method(
             #checkQrCodeIsVerifiedAndLogin,
@@ -4181,7 +4208,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.RenewAccessTokenRes>(
+        returnValue: _FakeResponseFuture_9<_i5.RenewAccessTokenRes>(
           this,
           Invocation.method(
             #renewAccessToken,
@@ -4201,7 +4228,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.VerifyEmailAddressRes>(
+        returnValue: _FakeResponseFuture_9<_i5.VerifyEmailAddressRes>(
           this,
           Invocation.method(
             #verifyEmailAddress,
@@ -4221,7 +4248,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.SendErasePasswordEmailRes>(
+        returnValue: _FakeResponseFuture_9<_i5.SendErasePasswordEmailRes>(
           this,
           Invocation.method(
             #sendErasePasswordEmail,
@@ -4241,7 +4268,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           [request],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<_i5.ErasePasswordRes>(
+        returnValue: _FakeResponseFuture_9<_i5.ErasePasswordRes>(
           this,
           Invocation.method(
             #erasePassword,
@@ -4265,7 +4292,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ],
           {#options: options},
         ),
-        returnValue: _FakeClientCall_9<Q, R>(
+        returnValue: _FakeClientCall_10<Q, R>(
           this,
           Invocation.method(
             #$createCall,
@@ -4292,7 +4319,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ],
           {#options: options},
         ),
-        returnValue: _FakeResponseFuture_8<R>(
+        returnValue: _FakeResponseFuture_9<R>(
           this,
           Invocation.method(
             #$createUnaryCall,
@@ -4319,7 +4346,7 @@ class MockAuthServiceClient extends _i1.Mock implements _i5.AuthServiceClient {
           ],
           {#options: options},
         ),
-        returnValue: _FakeResponseStream_10<R>(
+        returnValue: _FakeResponseStream_11<R>(
           this,
           Invocation.method(
             #$createStreamingCall,
@@ -4557,7 +4584,7 @@ class MockI18N extends _i1.Mock implements _i60.I18N {
   @override
   _i10.Locale get locale => (super.noSuchMethod(
         Invocation.getter(#locale),
-        returnValue: _FakeLocale_11(
+        returnValue: _FakeLocale_12(
           this,
           Invocation.getter(#locale),
         ),
@@ -5590,7 +5617,7 @@ class MockMucRepo extends _i1.Mock implements _i71.MucRepo {
           #getRole,
           [role],
         ),
-        returnValue: _FakeRole_12(
+        returnValue: _FakeRole_13(
           this,
           Invocation.method(
             #getRole,
@@ -5636,7 +5663,7 @@ class MockMucRepo extends _i1.Mock implements _i71.MucRepo {
           #hiveMucTypeToPbMucType,
           [mucType],
         ),
-        returnValue: _FakeChannelType_13(
+        returnValue: _FakeChannelType_14(
           this,
           Invocation.method(
             #hiveMucTypeToPbMucType,
@@ -5661,7 +5688,7 @@ class MockBotRepo extends _i1.Mock implements _i75.BotRepo {
           #fetchBotInfo,
           [botUid],
         ),
-        returnValue: _i29.Future<_i13.BotInfo>.value(_FakeBotInfo_14(
+        returnValue: _i29.Future<_i13.BotInfo>.value(_FakeBotInfo_15(
           this,
           Invocation.method(
             #fetchBotInfo,
@@ -6056,7 +6083,7 @@ class MockMetaRepo extends _i1.Mock implements _i82.MetaRepo {
           #convertMetaTypeToMetaGroup,
           [metaType],
         ),
-        returnValue: _FakeMetaGroup_15(
+        returnValue: _FakeMetaGroup_16(
           this,
           Invocation.method(
             #convertMetaTypeToMetaGroup,
@@ -6294,7 +6321,7 @@ class MockCallService extends _i1.Mock implements _i17.CallService {
   @override
   _i15.RTCVideoRenderer get getLocalRenderer => (super.noSuchMethod(
         Invocation.getter(#getLocalRenderer),
-        returnValue: _FakeRTCVideoRenderer_16(
+        returnValue: _FakeRTCVideoRenderer_17(
           this,
           Invocation.getter(#getLocalRenderer),
         ),
@@ -6302,7 +6329,7 @@ class MockCallService extends _i1.Mock implements _i17.CallService {
   @override
   _i15.RTCVideoRenderer get getRemoteRenderer => (super.noSuchMethod(
         Invocation.getter(#getRemoteRenderer),
-        returnValue: _FakeRTCVideoRenderer_16(
+        returnValue: _FakeRTCVideoRenderer_17(
           this,
           Invocation.getter(#getRemoteRenderer),
         ),
@@ -6427,7 +6454,7 @@ class MockCallService extends _i1.Mock implements _i17.CallService {
           #findProtoCallEventType,
           [eventCallType],
         ),
-        returnValue: _FakeCallEvent_CallType_17(
+        returnValue: _FakeCallEvent_CallType_18(
           this,
           Invocation.method(
             #findProtoCallEventType,
@@ -6443,7 +6470,7 @@ class MockCallService extends _i1.Mock implements _i17.CallService {
           #findCallEventStatusDB,
           [eventCallStatus],
         ),
-        returnValue: _FakeCallEvent_CallStatus_18(
+        returnValue: _FakeCallEvent_CallStatus_19(
           this,
           Invocation.method(
             #findCallEventStatusDB,
@@ -6552,7 +6579,7 @@ class MockCallService extends _i1.Mock implements _i17.CallService {
           #getVideoCallQualityDetails,
           [videoCallQuality],
         ),
-        returnValue: _FakeVideoCallQualityDetails_19(
+        returnValue: _FakeVideoCallQualityDetails_20(
           this,
           Invocation.method(
             #getVideoCallQualityDetails,
@@ -6847,7 +6874,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BatteryMonitor get batteryMonitor => (super.noSuchMethod(
         Invocation.getter(#batteryMonitor),
-        returnValue: _FakeBatteryMonitor_20(
+        returnValue: _FakeBatteryMonitor_21(
           this,
           Invocation.getter(#batteryMonitor),
         ),
@@ -6856,7 +6883,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.EnumPersistent<_i18.PerformanceMode> get performanceMode =>
       (super.noSuchMethod(
         Invocation.getter(#performanceMode),
-        returnValue: _FakeEnumPersistent_21<_i18.PerformanceMode>(
+        returnValue: _FakeEnumPersistent_22<_i18.PerformanceMode>(
           this,
           Invocation.getter(#performanceMode),
         ),
@@ -6864,7 +6891,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get powerSaverBatteryLevel => (super.noSuchMethod(
         Invocation.getter(#powerSaverBatteryLevel),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#powerSaverBatteryLevel),
         ),
@@ -6872,7 +6899,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get accessToken => (super.noSuchMethod(
         Invocation.getter(#accessToken),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#accessToken),
         ),
@@ -6880,7 +6907,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get refreshToken => (super.noSuchMethod(
         Invocation.getter(#refreshToken),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#refreshToken),
         ),
@@ -6888,7 +6915,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get refreshTokenDao => (super.noSuchMethod(
         Invocation.getter(#refreshTokenDao),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#refreshTokenDao),
         ),
@@ -6896,7 +6923,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get localPassword => (super.noSuchMethod(
         Invocation.getter(#localPassword),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#localPassword),
         ),
@@ -6904,7 +6931,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get applicationVersion => (super.noSuchMethod(
         Invocation.getter(#applicationVersion),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#applicationVersion),
         ),
@@ -6912,7 +6939,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get dbHashCode => (super.noSuchMethod(
         Invocation.getter(#dbHashCode),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#dbHashCode),
         ),
@@ -6920,7 +6947,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get themeColorIndex => (super.noSuchMethod(
         Invocation.getter(#themeColorIndex),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#themeColorIndex),
         ),
@@ -6928,7 +6955,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get backgroundPatternIndex => (super.noSuchMethod(
         Invocation.getter(#backgroundPatternIndex),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#backgroundPatternIndex),
         ),
@@ -6936,7 +6963,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.DoublePersistent get textScale => (super.noSuchMethod(
         Invocation.getter(#textScale),
-        returnValue: _FakeDoublePersistent_24(
+        returnValue: _FakeDoublePersistent_25(
           this,
           Invocation.getter(#textScale),
         ),
@@ -6944,7 +6971,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get sendByEnter => (super.noSuchMethod(
         Invocation.getter(#sendByEnter),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#sendByEnter),
         ),
@@ -6952,7 +6979,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get allRoomFetched => (super.noSuchMethod(
         Invocation.getter(#allRoomFetched),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#allRoomFetched),
         ),
@@ -6961,7 +6988,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.BooleanPersistent get foregroundNotificationIsEnabled =>
       (super.noSuchMethod(
         Invocation.getter(#foregroundNotificationIsEnabled),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#foregroundNotificationIsEnabled),
         ),
@@ -6969,7 +6996,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showShowcasePage => (super.noSuchMethod(
         Invocation.getter(#showShowcasePage),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showShowcasePage),
         ),
@@ -6977,7 +7004,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get firebaseSettingIsSet => (super.noSuchMethod(
         Invocation.getter(#firebaseSettingIsSet),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#firebaseSettingIsSet),
         ),
@@ -6985,7 +7012,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get firebaseToken => (super.noSuchMethod(
         Invocation.getter(#firebaseToken),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#firebaseToken),
         ),
@@ -6994,7 +7021,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.JsonMapPersistent<_i97.WindowFrame> get windowsFrame =>
       (super.noSuchMethod(
         Invocation.getter(#windowsFrame),
-        returnValue: _FakeJsonMapPersistent_26<_i97.WindowFrame>(
+        returnValue: _FakeJsonMapPersistent_27<_i97.WindowFrame>(
           this,
           Invocation.getter(#windowsFrame),
         ),
@@ -7003,7 +7030,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.ProtoPersistent<_i50.MessageDeliveryAck> get lastMessageDeliveryAck =>
       (super.noSuchMethod(
         Invocation.getter(#lastMessageDeliveryAck),
-        returnValue: _FakeProtoPersistent_27<_i50.MessageDeliveryAck>(
+        returnValue: _FakeProtoPersistent_28<_i50.MessageDeliveryAck>(
           this,
           Invocation.getter(#lastMessageDeliveryAck),
         ),
@@ -7011,7 +7038,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showTextsJustified => (super.noSuchMethod(
         Invocation.getter(#showTextsJustified),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showTextsJustified),
         ),
@@ -7020,7 +7047,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.JsonMapPersistent<_i91.CallData> get LAST_CALL_DATA_SLOT_1 =>
       (super.noSuchMethod(
         Invocation.getter(#LAST_CALL_DATA_SLOT_1),
-        returnValue: _FakeJsonMapPersistent_26<_i91.CallData>(
+        returnValue: _FakeJsonMapPersistent_27<_i91.CallData>(
           this,
           Invocation.getter(#LAST_CALL_DATA_SLOT_1),
         ),
@@ -7029,7 +7056,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.JsonMapPersistent<_i91.CallData> get LAST_CALL_DATA_SLOT_2 =>
       (super.noSuchMethod(
         Invocation.getter(#LAST_CALL_DATA_SLOT_2),
-        returnValue: _FakeJsonMapPersistent_26<_i91.CallData>(
+        returnValue: _FakeJsonMapPersistent_27<_i91.CallData>(
           this,
           Invocation.getter(#LAST_CALL_DATA_SLOT_2),
         ),
@@ -7038,7 +7065,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.JsonMapPersistent<_i91.CallData> get LAST_CALL_DATA_SLOT_3 =>
       (super.noSuchMethod(
         Invocation.getter(#LAST_CALL_DATA_SLOT_3),
-        returnValue: _FakeJsonMapPersistent_26<_i91.CallData>(
+        returnValue: _FakeJsonMapPersistent_27<_i91.CallData>(
           this,
           Invocation.getter(#LAST_CALL_DATA_SLOT_3),
         ),
@@ -7046,7 +7073,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showColorfulMessages => (super.noSuchMethod(
         Invocation.getter(#showColorfulMessages),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showColorfulMessages),
         ),
@@ -7054,7 +7081,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showEvents => (super.noSuchMethod(
         Invocation.getter(#showEvents),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showEvents),
         ),
@@ -7062,7 +7089,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get playInChatSounds => (super.noSuchMethod(
         Invocation.getter(#playInChatSounds),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#playInChatSounds),
         ),
@@ -7070,7 +7097,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get isAllNotificationDisabled => (super.noSuchMethod(
         Invocation.getter(#isAllNotificationDisabled),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#isAllNotificationDisabled),
         ),
@@ -7079,7 +7106,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.BooleanPersistent get isNotificationAdvanceModeDisabled =>
       (super.noSuchMethod(
         Invocation.getter(#isNotificationAdvanceModeDisabled),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#isNotificationAdvanceModeDisabled),
         ),
@@ -7087,7 +7114,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get isAutoNightModeEnable => (super.noSuchMethod(
         Invocation.getter(#isAutoNightModeEnable),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#isAutoNightModeEnable),
         ),
@@ -7095,7 +7122,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showDeveloperPage => (super.noSuchMethod(
         Invocation.getter(#showDeveloperPage),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showDeveloperPage),
         ),
@@ -7103,7 +7130,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get themeIsDark => (super.noSuchMethod(
         Invocation.getter(#themeIsDark),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#themeIsDark),
         ),
@@ -7111,7 +7138,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get showDeveloperDetails => (super.noSuchMethod(
         Invocation.getter(#showDeveloperDetails),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#showDeveloperDetails),
         ),
@@ -7119,7 +7146,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.DoublePersistent get keyboardSizePortrait => (super.noSuchMethod(
         Invocation.getter(#keyboardSizePortrait),
-        returnValue: _FakeDoublePersistent_24(
+        returnValue: _FakeDoublePersistent_25(
           this,
           Invocation.getter(#keyboardSizePortrait),
         ),
@@ -7127,7 +7154,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.DoublePersistent get keyboardSizeLandscape => (super.noSuchMethod(
         Invocation.getter(#keyboardSizeLandscape),
-        returnValue: _FakeDoublePersistent_24(
+        returnValue: _FakeDoublePersistent_25(
           this,
           Invocation.getter(#keyboardSizeLandscape),
         ),
@@ -7135,7 +7162,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get iceCandidateNumbers => (super.noSuchMethod(
         Invocation.getter(#iceCandidateNumbers),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#iceCandidateNumbers),
         ),
@@ -7143,7 +7170,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get iceCandidateTimeLimit => (super.noSuchMethod(
         Invocation.getter(#iceCandidateTimeLimit),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#iceCandidateTimeLimit),
         ),
@@ -7151,7 +7178,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.IntPersistent get videoFrameRateLimitation => (super.noSuchMethod(
         Invocation.getter(#videoFrameRateLimitation),
-        returnValue: _FakeIntPersistent_22(
+        returnValue: _FakeIntPersistent_23(
           this,
           Invocation.getter(#videoFrameRateLimitation),
         ),
@@ -7159,7 +7186,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.EnumPersistent<_i61.Language> get language => (super.noSuchMethod(
         Invocation.getter(#language),
-        returnValue: _FakeEnumPersistent_21<_i61.Language>(
+        returnValue: _FakeEnumPersistent_22<_i61.Language>(
           this,
           Invocation.getter(#language),
         ),
@@ -7167,7 +7194,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.EnumPersistent<_i25.Level> get logLevel => (super.noSuchMethod(
         Invocation.getter(#logLevel),
-        returnValue: _FakeEnumPersistent_21<_i25.Level>(
+        returnValue: _FakeEnumPersistent_22<_i25.Level>(
           this,
           Invocation.getter(#logLevel),
         ),
@@ -7176,7 +7203,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.EnumPersistent<_i18.VideoCallQuality> get videoCallQuality =>
       (super.noSuchMethod(
         Invocation.getter(#videoCallQuality),
-        returnValue: _FakeEnumPersistent_21<_i18.VideoCallQuality>(
+        returnValue: _FakeEnumPersistent_22<_i18.VideoCallQuality>(
           this,
           Invocation.getter(#videoCallQuality),
         ),
@@ -7184,7 +7211,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get logInFileEnable => (super.noSuchMethod(
         Invocation.getter(#logInFileEnable),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#logInFileEnable),
         ),
@@ -7192,7 +7219,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.BooleanPersistent get useBadCertificateConnection => (super.noSuchMethod(
         Invocation.getter(#useBadCertificateConnection),
-        returnValue: _FakeBooleanPersistent_25(
+        returnValue: _FakeBooleanPersistent_26(
           this,
           Invocation.getter(#useBadCertificateConnection),
         ),
@@ -7200,7 +7227,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.StringPersistent get hostSetByUser => (super.noSuchMethod(
         Invocation.getter(#hostSetByUser),
-        returnValue: _FakeStringPersistent_23(
+        returnValue: _FakeStringPersistent_24(
           this,
           Invocation.getter(#hostSetByUser),
         ),
@@ -7208,7 +7235,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.OncePersistent get onceShowNewVersionInformation => (super.noSuchMethod(
         Invocation.getter(#onceShowNewVersionInformation),
-        returnValue: _FakeOncePersistent_28(
+        returnValue: _FakeOncePersistent_29(
           this,
           Invocation.getter(#onceShowNewVersionInformation),
         ),
@@ -7216,7 +7243,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.OncePersistent get onceShowContactDialog => (super.noSuchMethod(
         Invocation.getter(#onceShowContactDialog),
-        returnValue: _FakeOncePersistent_28(
+        returnValue: _FakeOncePersistent_29(
           this,
           Invocation.getter(#onceShowContactDialog),
         ),
@@ -7224,7 +7251,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.OncePersistent get onceShowMicrophoneDialog => (super.noSuchMethod(
         Invocation.getter(#onceShowMicrophoneDialog),
-        returnValue: _FakeOncePersistent_28(
+        returnValue: _FakeOncePersistent_29(
           this,
           Invocation.getter(#onceShowMicrophoneDialog),
         ),
@@ -7232,7 +7259,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.OncePersistent get onceShowCameraDialog => (super.noSuchMethod(
         Invocation.getter(#onceShowCameraDialog),
-        returnValue: _FakeOncePersistent_28(
+        returnValue: _FakeOncePersistent_29(
           this,
           Invocation.getter(#onceShowCameraDialog),
         ),
@@ -7240,7 +7267,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.OncePersistent get onceShowMediaLibraryDialog => (super.noSuchMethod(
         Invocation.getter(#onceShowMediaLibraryDialog),
-        returnValue: _FakeOncePersistent_28(
+        returnValue: _FakeOncePersistent_29(
           this,
           Invocation.getter(#onceShowMediaLibraryDialog),
         ),
@@ -7248,7 +7275,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.PerformanceBooleanPersistent get showLinkPreview => (super.noSuchMethod(
         Invocation.getter(#showLinkPreview),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showLinkPreview),
         ),
@@ -7257,7 +7284,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get repeatAnimatedEmoji =>
       (super.noSuchMethod(
         Invocation.getter(#repeatAnimatedEmoji),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#repeatAnimatedEmoji),
         ),
@@ -7266,7 +7293,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showAnimatedEmoji =>
       (super.noSuchMethod(
         Invocation.getter(#showAnimatedEmoji),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showAnimatedEmoji),
         ),
@@ -7275,7 +7302,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showRoomBackground =>
       (super.noSuchMethod(
         Invocation.getter(#showRoomBackground),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showRoomBackground),
         ),
@@ -7284,7 +7311,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showBlurredComponents =>
       (super.noSuchMethod(
         Invocation.getter(#showBlurredComponents),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showBlurredComponents),
         ),
@@ -7293,7 +7320,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showMessageDetails =>
       (super.noSuchMethod(
         Invocation.getter(#showMessageDetails),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showMessageDetails),
         ),
@@ -7301,7 +7328,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.PerformanceBooleanPersistent get showAnimations => (super.noSuchMethod(
         Invocation.getter(#showAnimations),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showAnimations),
         ),
@@ -7310,7 +7337,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showAnimatedAvatars =>
       (super.noSuchMethod(
         Invocation.getter(#showAnimatedAvatars),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showAnimatedAvatars),
         ),
@@ -7318,7 +7345,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.PerformanceBooleanPersistent get showAvatarImages => (super.noSuchMethod(
         Invocation.getter(#showAvatarImages),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showAvatarImages),
         ),
@@ -7326,7 +7353,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.PerformanceBooleanPersistent get showAvatars => (super.noSuchMethod(
         Invocation.getter(#showAvatars),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showAvatars),
         ),
@@ -7335,7 +7362,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get parseAndShowGoogleEmojis =>
       (super.noSuchMethod(
         Invocation.getter(#parseAndShowGoogleEmojis),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#parseAndShowGoogleEmojis),
         ),
@@ -7344,7 +7371,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get showWsWithHighFrameRate =>
       (super.noSuchMethod(
         Invocation.getter(#showWsWithHighFrameRate),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#showWsWithHighFrameRate),
         ),
@@ -7353,7 +7380,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get lowNetworkUsageVideoCall =>
       (super.noSuchMethod(
         Invocation.getter(#lowNetworkUsageVideoCall),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#lowNetworkUsageVideoCall),
         ),
@@ -7362,7 +7389,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   _i18.PerformanceBooleanPersistent get lowNetworkUsageVoiceCall =>
       (super.noSuchMethod(
         Invocation.getter(#lowNetworkUsageVoiceCall),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#lowNetworkUsageVoiceCall),
         ),
@@ -7370,7 +7397,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i18.PerformanceBooleanPersistent get highQualityCall => (super.noSuchMethod(
         Invocation.getter(#highQualityCall),
-        returnValue: _FakePerformanceBooleanPersistent_29(
+        returnValue: _FakePerformanceBooleanPersistent_30(
           this,
           Invocation.getter(#highQualityCall),
         ),
@@ -7378,7 +7405,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i20.BuildContext get appContext => (super.noSuchMethod(
         Invocation.getter(#appContext),
-        returnValue: _FakeBuildContext_30(
+        returnValue: _FakeBuildContext_31(
           this,
           Invocation.getter(#appContext),
         ),
@@ -7391,7 +7418,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i21.ThemeScheme get themeScheme => (super.noSuchMethod(
         Invocation.getter(#themeScheme),
-        returnValue: _FakeThemeScheme_31(
+        returnValue: _FakeThemeScheme_32(
           this,
           Invocation.getter(#themeScheme),
         ),
@@ -7399,7 +7426,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i20.ThemeData get themeData => (super.noSuchMethod(
         Invocation.getter(#themeData),
-        returnValue: _FakeThemeData_32(
+        returnValue: _FakeThemeData_33(
           this,
           Invocation.getter(#themeData),
         ),
@@ -7407,7 +7434,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i23.ExtraThemeData get extraThemeData => (super.noSuchMethod(
         Invocation.getter(#extraThemeData),
-        returnValue: _FakeExtraThemeData_33(
+        returnValue: _FakeExtraThemeData_34(
           this,
           Invocation.getter(#extraThemeData),
         ),
@@ -7415,7 +7442,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
   @override
   _i24.CorePalette get corePalette => (super.noSuchMethod(
         Invocation.getter(#corePalette),
-        returnValue: _FakeCorePalette_34(
+        returnValue: _FakeCorePalette_35(
           this,
           Invocation.getter(#corePalette),
         ),
@@ -7636,7 +7663,7 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
   _i20.GlobalKey<_i20.NavigatorState> get mainNavigatorState =>
       (super.noSuchMethod(
         Invocation.getter(#mainNavigatorState),
-        returnValue: _FakeGlobalKey_35<_i20.NavigatorState>(
+        returnValue: _FakeGlobalKey_36<_i20.NavigatorState>(
           this,
           Invocation.getter(#mainNavigatorState),
         ),
@@ -7734,6 +7761,14 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
   void openCallSetting() => super.noSuchMethod(
         Invocation.method(
           #openCallSetting,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void openAboutSoftwarePage() => super.noSuchMethod(
+        Invocation.method(
+          #openAboutSoftwarePage,
           [],
         ),
         returnValueForMissingStub: null,
@@ -8132,7 +8167,7 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
             builder,
           ],
         ),
-        returnValue: _FakePageRouteBuilder_36<dynamic>(
+        returnValue: _FakePageRouteBuilder_37<dynamic>(
           this,
           Invocation.method(
             #customPageRoute,
@@ -8204,7 +8239,7 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
           #outlet,
           [context],
         ),
-        returnValue: _FakeWidget_37(
+        returnValue: _FakeWidget_38(
           this,
           Invocation.method(
             #outlet,
@@ -8236,7 +8271,7 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
           [],
           {#color: color},
         ),
-        returnValue: _FakeWidget_37(
+        returnValue: _FakeWidget_38(
           this,
           Invocation.method(
             #backButtonLeading,
@@ -8509,7 +8544,7 @@ class MockCallRepo extends _i1.Mock implements _i90.CallRepo {
   @override
   _i15.StatsReport get selectedCandidate => (super.noSuchMethod(
         Invocation.getter(#selectedCandidate),
-        returnValue: _FakeStatsReport_38(
+        returnValue: _FakeStatsReport_39(
           this,
           Invocation.getter(#selectedCandidate),
         ),
@@ -8828,7 +8863,7 @@ class MockAnalyticsService extends _i1.Mock implements _i104.AnalyticsService {
   @override
   _i25.Logger get logger => (super.noSuchMethod(
         Invocation.getter(#logger),
-        returnValue: _FakeLogger_39(
+        returnValue: _FakeLogger_40(
           this,
           Invocation.getter(#logger),
         ),
@@ -8861,7 +8896,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   _i4.ValueStream<_i105.AudioPlayerState> get playerState =>
       (super.noSuchMethod(
         Invocation.getter(#playerState),
-        returnValue: _FakeValueStream_40<_i105.AudioPlayerState>(
+        returnValue: _FakeValueStream_8<_i105.AudioPlayerState>(
           this,
           Invocation.getter(#playerState),
         ),
@@ -8875,7 +8910,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<Duration> get playerPosition => (super.noSuchMethod(
         Invocation.getter(#playerPosition),
-        returnValue: _FakeValueStream_40<Duration>(
+        returnValue: _FakeValueStream_8<Duration>(
           this,
           Invocation.getter(#playerPosition),
         ),
@@ -8883,7 +8918,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<Duration> get temporaryPlayerPosition => (super.noSuchMethod(
         Invocation.getter(#temporaryPlayerPosition),
-        returnValue: _FakeValueStream_40<Duration>(
+        returnValue: _FakeValueStream_8<Duration>(
           this,
           Invocation.getter(#temporaryPlayerPosition),
         ),
@@ -8896,7 +8931,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<_i105.AudioTrack?> get track => (super.noSuchMethod(
         Invocation.getter(#track),
-        returnValue: _FakeValueStream_40<_i105.AudioTrack?>(
+        returnValue: _FakeValueStream_8<_i105.AudioTrack?>(
           this,
           Invocation.getter(#track),
         ),
@@ -8904,7 +8939,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<bool> get recorderIsRecording => (super.noSuchMethod(
         Invocation.getter(#recorderIsRecording),
-        returnValue: _FakeValueStream_40<bool>(
+        returnValue: _FakeValueStream_8<bool>(
           this,
           Invocation.getter(#recorderIsRecording),
         ),
@@ -8912,7 +8947,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<bool> get recorderIsLocked => (super.noSuchMethod(
         Invocation.getter(#recorderIsLocked),
-        returnValue: _FakeValueStream_40<bool>(
+        returnValue: _FakeValueStream_8<bool>(
           this,
           Invocation.getter(#recorderIsLocked),
         ),
@@ -8920,7 +8955,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<bool> get recorderIsPaused => (super.noSuchMethod(
         Invocation.getter(#recorderIsPaused),
-        returnValue: _FakeValueStream_40<bool>(
+        returnValue: _FakeValueStream_8<bool>(
           this,
           Invocation.getter(#recorderIsPaused),
         ),
@@ -8933,7 +8968,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<Duration> get recordingDuration => (super.noSuchMethod(
         Invocation.getter(#recordingDuration),
-        returnValue: _FakeValueStream_40<Duration>(
+        returnValue: _FakeValueStream_8<Duration>(
           this,
           Invocation.getter(#recordingDuration),
         ),
@@ -8941,7 +8976,7 @@ class MockAudioService extends _i1.Mock implements _i105.AudioService {
   @override
   _i4.ValueStream<double> get recordingAmplitude => (super.noSuchMethod(
         Invocation.getter(#recordingAmplitude),
-        returnValue: _FakeValueStream_40<double>(
+        returnValue: _FakeValueStream_8<double>(
           this,
           Invocation.getter(#recordingAmplitude),
         ),

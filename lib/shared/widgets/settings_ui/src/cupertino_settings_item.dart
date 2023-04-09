@@ -15,9 +15,7 @@ class CupertinoSettingsItem extends StatefulWidget {
     super.key,
     required this.type,
     required this.label,
-    this.labelMaxLines,
     this.subtitle,
-    this.subtitleMaxLines,
     this.leading,
     this.trailing,
     this.value,
@@ -33,13 +31,10 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.valueTextStyle,
     this.switchActiveColor,
     this.releaseState,
-  })  : assert(labelMaxLines == null || labelMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0);
+  });
 
   final String label;
-  final int? labelMaxLines;
   final String? subtitle;
-  final int? subtitleMaxLines;
   final Widget? leading;
   final Widget? trailing;
   final SettingsItemType type;
@@ -126,7 +121,6 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           const SizedBox(height: p2),
           Text(
             widget.subtitle!,
-            maxLines: widget.subtitleMaxLines,
             overflow: TextOverflow.ellipsis,
             textDirection: widget.subtitleDirection,
             style: widget.subtitleTextStyle ??

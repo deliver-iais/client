@@ -5,11 +5,11 @@ import 'cupertino_settings_item.dart';
 
 enum _SettingsTileType { simple, switchTile }
 
+typedef CallbackFunction = void Function();
+
 class SettingsTile extends StatelessWidget {
   final String title;
-  final int? titleMaxLines;
   final String? subtitle;
-  final int? subtitleMaxLines;
   final Widget? leading;
   final Widget? trailing;
   final ReleaseState? releaseState;
@@ -24,11 +24,9 @@ class SettingsTile extends StatelessWidget {
   final _SettingsTileType _tileType;
 
   const SettingsTile({
-    Key? key,
+    super.key,
     required this.title,
-    this.titleMaxLines,
     this.subtitle,
-    this.subtitleMaxLines,
     this.releaseState,
     this.leading,
     this.trailing,
@@ -40,17 +38,12 @@ class SettingsTile extends StatelessWidget {
     this.switchActiveColor,
   })  : _tileType = _SettingsTileType.simple,
         onToggle = null,
-        switchValue = null,
-        assert(titleMaxLines == null || titleMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0),
-        super(key: key);
+        switchValue = null;
 
   const SettingsTile.switchTile({
     super.key,
     required this.title,
-    this.titleMaxLines,
     this.subtitle,
-    this.subtitleMaxLines,
     this.releaseState,
     this.leading,
     this.enabled = true,
@@ -62,9 +55,7 @@ class SettingsTile extends StatelessWidget {
     this.switchActiveColor,
     this.subtitleDirection,
     this.onPressed,
-  })  : _tileType = _SettingsTileType.switchTile,
-        assert(titleMaxLines == null || titleMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0);
+  }) : _tileType = _SettingsTileType.switchTile;
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +64,12 @@ class SettingsTile extends StatelessWidget {
         enabled: enabled,
         type: SettingsItemType.toggle,
         label: title,
-        labelMaxLines: titleMaxLines,
         leading: leading,
         subtitle: subtitle,
-        subtitleMaxLines: subtitleMaxLines,
         switchValue: switchValue,
         releaseState: releaseState,
         onToggle: onToggle,
-        onPress: onTapFunction(context) as void Function()?,
+        onPress: onTapFunction(context),
         labelTextStyle: titleTextStyle,
         switchActiveColor: switchActiveColor,
         subtitleTextStyle: subtitleTextStyle,
@@ -93,13 +82,12 @@ class SettingsTile extends StatelessWidget {
         enabled: enabled,
         type: SettingsItemType.modal,
         label: title,
-        labelMaxLines: titleMaxLines,
         value: subtitle,
         valueDirection: subtitleDirection,
         releaseState: releaseState,
         trailing: trailing,
         leading: leading,
-        onPress: onTapFunction(context) as void Function()?,
+        onPress: onTapFunction(context),
         labelTextStyle: titleTextStyle,
         subtitleTextStyle: subtitleTextStyle,
         subtitleDirection: subtitleDirection,
@@ -108,9 +96,6 @@ class SettingsTile extends StatelessWidget {
     }
   }
 
-  Function? onTapFunction(BuildContext context) => onPressed != null
-      ? () {
-          onPressed?.call(context);
-        }
-      : null;
+  CallbackFunction? onTapFunction(BuildContext context) =>
+      onPressed != null ? () => onPressed?.call(context) : null;
 }
