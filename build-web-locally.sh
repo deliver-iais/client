@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Comment some code until new flutter release come out
+# https://gitlab.iais.co/deliver/wiki/-/issues/1086#note_27607
+
+# flutter build web --release
+
 export LC_CTYPE=C
 WEB_VERSION="local-$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)"
 
