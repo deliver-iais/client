@@ -9,6 +9,9 @@ class AnalyticsRepo {
   /// All type of GRPC requests in application
   static final Map<String, int> _requestsFrequency = {};
 
+  /// All core stream client and server packets frequency
+  static final Map<String, int> _coreStreamPacketFrequency = {};
+
   /// All type of DAO requests in application
   static final Map<String, int> _daoFrequency = {};
 
@@ -18,15 +21,23 @@ class AnalyticsRepo {
   /// All type of GRPC requests in application
   Map<String, int> get requestsFrequency => _requestsFrequency;
 
+  /// All core stream client and server packets frequency
+  Map<String, int> get coreStreamPacketFrequency => _coreStreamPacketFrequency;
+
   /// Rooms or all other pages in app will be count in times of seeing
   Map<String, int> get pageViewFrequency => _pageViewFrequency;
 
   /// All type of DAO requests in application
   Map<String, int> get daoFrequency => _daoFrequency;
 
+  final StreamController<void> _coreStreamEvents = StreamController.broadcast();
+
   final StreamController<void> _events = StreamController.broadcast();
 
   final StreamController<void> _daoEvents = StreamController.broadcast();
+
+  /// All core stream events of changes
+  Stream<void> get coreStreamEvents => _coreStreamEvents.stream;
 
   /// All events of changes except dao changes
   Stream<void> get events => _events.stream;
@@ -37,6 +48,12 @@ class AnalyticsRepo {
   /// CountUp
   static void countUp(Map<String, int> map, String key) =>
       map[key] = (map[key] ?? 0) + 1;
+
+  void incCSF(String key) {
+    if (!kDebugMode) return;
+    _coreStreamEvents.add(null);
+    countUp(_coreStreamPacketFrequency, key);
+  }
 
   void incRF(String key) {
     if (!kDebugMode) return;

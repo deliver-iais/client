@@ -283,7 +283,6 @@ class SettingsPageState extends State<SettingsPage> {
                 if (_featureFlags.isVoiceCallAvailable())
                   SettingsTile(
                     title: _i18n.get("call"),
-                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     leading: const Icon(CupertinoIcons.phone),
                     releaseState: ReleaseState.NEW,
                     onPressed: (context) => _routingService.openCallSetting(),
@@ -327,17 +326,11 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile(
                   title: _i18n.get("automatic_download"),
-                  subtitleTextStyle: TextStyle(
-                    color: theme.colorScheme.primary,
-                  ),
                   leading: const Icon(CupertinoIcons.cloud_download),
                   onPressed: (context) => _routingService.openAutoDownload(),
                 ),
                 SettingsTile(
                   title: _i18n.get("connection_settings"),
-                  subtitleTextStyle: TextStyle(
-                    color: theme.colorScheme.primary,
-                  ),
                   leading: const Icon(CupertinoIcons.settings),
                   onPressed: (context) =>
                       _routingService.openConnectionSettingPage(),
@@ -360,7 +353,7 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile(
                   title: _i18n.get("version"),
-                  subtitle: "v$VERSION",
+                  subtitle: VERSION,
                   leading: const Icon(Icons.info_outline_rounded),
                   onPressed: (context) =>
                       _routingService.openAboutSoftwarePage(),

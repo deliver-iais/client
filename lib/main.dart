@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
 import 'package:deliver/box/account.dart';
@@ -324,9 +325,15 @@ Future initializeFirebase() async {
   );
 }
 
+// Ignore for this specific time variable
+// ignore: avoid-global-state
+int AppStartTime = 0;
+
 // There is an exceptional for main function
 // ignore: avoid_void_async
 void main() async {
+  AppStartTime = clock.now().millisecondsSinceEpoch;
+
   if (isWindowsNative || isLinuxNative) {
     DartVLC.initialize();
   }

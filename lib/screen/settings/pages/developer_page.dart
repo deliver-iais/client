@@ -372,6 +372,68 @@ class DeveloperPageState extends State<DeveloperPage> {
               ],
             ),
             Section(
+              title: "Analytics - Core Stream Packets Frequency",
+              children: [
+                StreamBuilder(
+                  stream: _analyticsRepo.coreStreamEvents,
+                  builder: (context, snapshot) {
+                    return Table(
+                      border: TableBorder.all(borderRadius: mainBorder),
+                      columnWidths: const {
+                        0: FlexColumnWidth(0.8),
+                        1: FlexColumnWidth(0.2)
+                      },
+                      children: [
+                        const TableRow(
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Packet Type"),
+                              ),
+                            ),
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Frequency"),
+                              ),
+                            )
+                          ],
+                        ),
+                        for (final e
+                            in _analyticsRepo.coreStreamPacketFrequency.entries)
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 8,
+                                  ),
+                                  child: Text(e.key),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Text(e.value.toString()),
+                                ),
+                              )
+                            ],
+                          )
+                      ],
+                    );
+                  },
+                )
+              ],
+            ),
+            Section(
               title: "Analytics - Dao Frequency",
               children: [
                 StreamBuilder(

@@ -194,7 +194,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
                 textDirection: widget.valueDirection,
                 style: widget.valueTextStyle ??
                     TextStyle(
-                      color: inActiveColor.withOpacity(0.8),
+                      color: theme.colorScheme.outline,
                       fontSize: 16,
                     ),
               ),
