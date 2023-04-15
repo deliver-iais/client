@@ -1,4 +1,3 @@
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_context_menu/methods/custom_text_selection_methods.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
@@ -28,21 +27,21 @@ class CustomMaterialContextMenu {
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.cut,
               )
-              .onPressed
+              .onPressed()
           : null,
       handleCopy: editableTextState.copyEnabled
           ? () => editableTextState.contextMenuButtonItems
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.copy,
               )
-              .onPressed
+              .onPressed()
           : null,
       handleSelectAll: editableTextState.selectAllEnabled
           ? () => editableTextState.contextMenuButtonItems
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.selectAll,
               )
-              .onPressed
+              .onPressed()
           : null,
       handlePaste: editableTextState.pasteEnabled
           ? editableTextState.contextMenuButtonItems
@@ -85,19 +84,18 @@ class CustomMaterialContextMenu {
 class _TextSelectionControlsToolbar extends StatefulWidget {
   const _TextSelectionControlsToolbar({
     required this.clipboardStatus,
-
     required this.handleCut,
     required this.handleCopy,
     required this.handlePaste,
     required this.handleSelectAll,
-
     required this.handleBold,
     required this.handleItalic,
     required this.handleStrikethrough,
     required this.handleSpoiler,
     required this.handleUnderline,
     required this.handleCreateLink,
-    required this.isAnyThingSelected, required this.textSelectionToolbarAnchors,
+    required this.isAnyThingSelected,
+    required this.textSelectionToolbarAnchors,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -165,7 +163,6 @@ class _TextSelectionControlsToolbarState
         widget.clipboardStatus?.value == ClipboardStatus.unknown) {
       return const SizedBox.shrink();
     }
-
 
     // Determine which buttons will appear so that the order and total number is
     // known. A button's position in the menu can slightly affect its
