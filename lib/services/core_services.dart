@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
@@ -38,6 +39,7 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _analyticRepo = GetIt.I.get<AnalyticsRepo>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _uptimeStartTime = BehaviorSubject.seeded(0);
@@ -110,6 +112,7 @@ class CoreServices {
   }
 
   ValueStream<int> get uptimeStartTime => _uptimeStartTime;
+
   ValueStream<int> get reconnectCount => _reconnectCount;
 
   @visibleForTesting
@@ -166,12 +169,18 @@ class CoreServices {
               EstablishServerSideStreamReq(),
             )
           : _services.coreServiceClient?.establishStream(
-              _clientPacketStream!.stream,
+              _clientPacketStream!.stream.map((event) {
+                _analyticRepo.incCSF("client/${event.whichType().name}");
+
+                return event;
+              }),
             );
 
       _responseStream?.listen(
         (serverPacket) {
           _logger.d(serverPacket);
+
+          _analyticRepo.incCSF("server/${serverPacket.whichType().name}");
 
           gotResponse();
           switch (serverPacket.whichType()) {
