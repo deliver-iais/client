@@ -18,15 +18,11 @@ class ColorUtils {
 
   static String stringToHexColor(String value) {
     final c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
-    // Ignore because there is no emoji in this string
-    // ignore: avoid-substring
     return "0xFF00000".substring(0, 10 - c.length) + c;
   }
 
   static int stringToHexInt(String value) {
     final c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
-    // Ignore because there is no emoji in this string
-    // ignore: avoid-substring
     final hex = "FF00000".substring(0, 8 - c.length) + c;
     return int.parse(hex, radix: 16);
   }

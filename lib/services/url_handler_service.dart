@@ -156,8 +156,6 @@ class UrlHandlerService {
 
   String normalizeApplicationUrl(String uri) {
     if (uri.startsWith("we://")) {
-      // Ignore because there is no emoji in this string
-      // ignore: avoid-substring
       return "https://$APPLICATION_DOMAIN${uri.substring(4)}";
     } else {
       return uri;

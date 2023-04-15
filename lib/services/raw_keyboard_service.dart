@@ -74,9 +74,9 @@ class RawKeyboardService {
       final start = controller.selection.start;
       final end = controller.selection.end;
       controller
-        ..text = controller.text.characters.getRange(0, start).string +
+        ..text = controller.text.substring(0, start) +
             data!.text!.replaceAll("\r", "") +
-            controller.text.characters.getRange(end).string
+            controller.text.substring(end)
         ..selection = TextSelection.fromPosition(
           TextPosition(offset: start + data.text!.replaceAll("\r", "").length),
         );

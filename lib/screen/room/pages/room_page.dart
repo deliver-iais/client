@@ -1817,8 +1817,6 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
-      // Ignore because there is no emoji in this string
-      // ignore: avoid-substring
       final roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
     } else {

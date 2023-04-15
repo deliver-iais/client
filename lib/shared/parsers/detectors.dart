@@ -3,7 +3,6 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
-import 'package:flutter/material.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       noFormattingRegionDetector(),
@@ -69,13 +68,13 @@ List<Partition> _grayOutDetector(
   final partitions = <Partition>[];
 
   for (final p in pList) {
-    if (text.characters.getRange(p.start, p.end).isNotEmpty) {
-      final actualText = text.characters.getRange(p.start, p.end).string;
+    if (text.substring(p.start, p.end).isNotEmpty) {
+      final actualText = text.substring(p.start, p.end);
       if (p.replacedText != null && p.replacedText!.isNotEmpty) {
         final match = p.replacedText!.allMatches(actualText).firstOrNull;
 
         if (match != null) {
-          if (actualText.characters.getRange(0, match.start).isNotEmpty) {
+          if (actualText.substring(0, match.start).isNotEmpty) {
             partitions.add(
               Partition(
                 p.start,
@@ -85,9 +84,7 @@ List<Partition> _grayOutDetector(
               ),
             );
           }
-          if (actualText.characters
-              .getRange(match.start, match.end)
-              .isNotEmpty) {
+          if (actualText.substring(match.start, match.end).isNotEmpty) {
             partitions.add(
               Partition(
                 p.start + match.start,
@@ -96,9 +93,7 @@ List<Partition> _grayOutDetector(
               ),
             );
           }
-          if (actualText.characters
-              .getRange(match.end, actualText.length)
-              .isNotEmpty) {
+          if (actualText.substring(match.end, actualText.length).isNotEmpty) {
             partitions.add(
               Partition(
                 p.start + match.end,
@@ -132,11 +127,10 @@ Detector noFormattingRegionDetector() => simpleRegexDetectorWithGenerator(
       NoFormattingRegion.regex,
       (match) => {
         NoFormattingRegion(
-          match.characters.getRange(3, match.length - 3).string,
+          match.substring(3, match.length - 3),
         )
       },
-      replacer: (match) =>
-          match.characters.getRange(3, match.length - 3).string,
+      replacer: (match) => match.substring(3, match.length - 3),
       lockToMoreParsing: true,
     );
 
@@ -144,14 +138,11 @@ Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
       UrlFeature.inlineUrlRegex,
       (match) => {
         UrlFeature(
-          match.characters
-              .getRange(match.indexOf("]") + 2, match.indexOf(")"))
-              .string,
+          match.substring(match.indexOf("]") + 2, match.indexOf(")")),
         )
       },
-      replacer: (match) => match.characters
-          .getRange(match.indexOf("[") + 1, match.indexOf("]"))
-          .string,
+      replacer: (match) =>
+          match.substring(match.indexOf("[") + 1, match.indexOf("]")),
     );
 
 Detector idDetector() => idRegexDetector(IdFeature.regex, {IdFeature()});
@@ -198,36 +189,31 @@ Detector ignoreCharacterDetector() => (block) {
 Detector boldDetector() => simpleStyleDetectorTwoCharacter(
       BoldFeature.specialSingleChar,
       {BoldFeature()},
-      replacer: (match) =>
-          match.characters.getRange(2, match.length - 2).string,
+      replacer: (match) => match.substring(2, match.length - 2),
     );
 
 Detector italicDetector() => simpleStyleDetectorTwoCharacter(
       ItalicFeature.specialSingleChar,
       {ItalicFeature()},
-      replacer: (match) =>
-          match.characters.getRange(2, match.length - 2).string,
+      replacer: (match) => match.substring(2, match.length - 2),
     );
 
 Detector underlineDetector() => simpleStyleDetectorThreeCharacter(
       UnderlineFeature.specialSingleChar,
       {UnderlineFeature()},
-      replacer: (match) =>
-          match.characters.getRange(3, match.length - 3).string,
+      replacer: (match) => match.substring(3, match.length - 3),
     );
 
 Detector strikethroughDetector() => simpleStyleDetector(
       StrikethroughFeature.specialSingleChar,
       {StrikethroughFeature()},
-      replacer: (match) =>
-          match.characters.getRange(1, match.length - 1).string,
+      replacer: (match) => match.substring(1, match.length - 1),
     );
 
 Detector spoilerDetector() => simpleStyleDetectorTwoCharacter(
       SpoilerFeature.specialSingleChar,
       {SpoilerFeature()},
-      replacer: (match) =>
-          match.characters.getRange(2, match.length - 2).string,
+      replacer: (match) => match.substring(2, match.length - 2),
     );
 
 Detector simpleRegexDetector(
@@ -243,7 +229,7 @@ Detector simpleRegexDetector(
             e.end,
             features,
             replacedText: replacer?.call(
-              block.text.characters.getRange(e.start, e.end).string,
+              block.text.substring(e.start, e.end),
             ),
           ),
         )
@@ -267,7 +253,7 @@ Detector idRegexDetector(
             e.end,
             features,
             replacedText: replacer?.call(
-              block.text.characters.getRange(e.start, e.end).string,
+              block.text.substring(e.start, e.end),
             ),
           ),
         )
@@ -286,10 +272,10 @@ Detector simpleRegexDetectorWithGenerator(
             e.start,
             e.end,
             generateFeatures(
-              block.text.characters.getRange(e.start, e.end).string,
+              block.text.substring(e.start, e.end),
             ),
             replacedText: replacer?.call(
-              block.text.characters.getRange(e.start, e.end).string,
+              block.text.substring(e.start, e.end),
             ),
             lockToMoreParsing: lockToMoreParsing,
           ),
@@ -326,7 +312,7 @@ Detector simpleStyleDetector(
                   idx + 1,
                   features,
                   replacedText: replacer?.call(
-                    block.text.characters.getRange(start, idx + 1).string,
+                    block.text.substring(start, idx + 1),
                   ),
                 ),
               );
@@ -373,7 +359,7 @@ Detector simpleStyleDetectorTwoCharacter(
                   idx + 2,
                   features,
                   replacedText: replacer?.call(
-                    block.text.characters.getRange(start, idx + 2).string,
+                    block.text.substring(start, idx + 2),
                   ),
                 ),
               );
@@ -424,7 +410,7 @@ Detector simpleStyleDetectorThreeCharacter(
                   idx + 3,
                   features,
                   replacedText: replacer?.call(
-                    block.text.characters.getRange(start, idx + 3).string,
+                    block.text.substring(start, idx + 3),
                   ),
                 ),
               );
