@@ -27,8 +27,6 @@ String trimRecorderSavedPath(String path) => p.prettyUri(path);
 String _normalizePath(String path) => p.normalize(path).replaceAll("\\", "/");
 
 String getFileExtension(String path) =>
-// Ignore because there is no emoji in this string
-// ignore: avoid-substring
     p.extension(path).substring(1).toLowerCase();
 
 String getFileName(String path) => p.basename(path);

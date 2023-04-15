@@ -212,14 +212,12 @@ class InputMessageWidgetState extends State<InputMessage> {
               widget.textController.selection.end &&
           widget.textController.selection.start >= 1 &&
           botCommandRegexp.hasMatch(
-            widget.textController.text.characters
-                .getRange(0 + 1, widget.textController.selection.start)
-                .string,
+            widget.textController.text
+                .substring(0 + 1, widget.textController.selection.start),
           )) {
         _botCommandQuery.add(
-          widget.textController.text.characters
-              .getRange(0 + 1, widget.textController.selection.start)
-              .string,
+          widget.textController.text
+              .substring(0 + 1, widget.textController.selection.start),
         );
       } else {
         _botCommandQuery.add("-");
@@ -244,23 +242,20 @@ class InputMessageWidgetState extends State<InputMessage> {
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               (idRegexp.hasMatch(
-                    widget.textController.text.characters
-                        .getRange(
-                          start + 1,
-                          widget.textController.selection.start,
-                        )
-                        .string,
+                    widget.textController.text.substring(
+                      start + 1,
+                      widget.textController.selection.start,
+                    ),
                   ) ||
-                  widget.textController.text.characters
-                      .getRange(
+                  widget.textController.text
+                      .substring(
                         start + 1,
                         widget.textController.selection.start,
                       )
                       .isEmpty)) {
             _mentionQuery.add(
-              widget.textController.text.characters
-                  .getRange(start + 1, widget.textController.selection.start)
-                  .string,
+              widget.textController.text
+                  .substring(start + 1, widget.textController.selection.start),
             );
           } else {
             _mentionQuery.add(null);
@@ -511,14 +506,11 @@ class InputMessageWidgetState extends State<InputMessage> {
   void _onEmojiSelected(String emoji) {
     if (widget.textController.text.isNotEmpty) {
       final start = widget.textController.selection.baseOffset;
-      final block_1 =
-          widget.textController.text.characters.getRange(0, start).string;
-      final block_2 = widget.textController.text.characters
-          .getRange(
-            start,
-            widget.textController.text.length,
-          )
-          .string;
+      final block_1 = widget.textController.text.substring(0, start);
+      final block_2 = widget.textController.text.substring(
+        start,
+        widget.textController.text.length,
+      );
       widget.textController.text = block_1 + emoji + block_2;
       widget.textController.selection = TextSelection.fromPosition(
         TextPosition(
@@ -825,13 +817,11 @@ class InputMessageWidgetState extends State<InputMessage> {
   void onMentionSelected(String? s) {
     final start = widget.textController.selection.baseOffset;
 
-    var block_1 =
-        widget.textController.text.characters.getRange(0, start).string;
+    var block_1 = widget.textController.text.substring(0, start);
     final indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.characters.getRange(0, indexOf + 1).string;
-    final block_2 = widget.textController.text.characters
-        .getRange(start, widget.textController.text.length)
-        .string;
+    block_1 = block_1.substring(0, indexOf + 1);
+    final block_2 = widget.textController.text
+        .substring(start, widget.textController.text.length);
     widget.textController.text = "$block_1${s ?? ""} $block_2";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(

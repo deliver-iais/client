@@ -38,8 +38,6 @@ class TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                   builder: (context, snapshot2) {
                     if (snapshot2.hasData && snapshot2.data != null) {
                       return Text(
-                        // Ignore because there is no emoji in this string
-                        // ignore: avoid-substring
                         "${snapshot2.data.toString().substring(0, 7)} / ${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
                         style: const TextStyle(fontSize: 11),
                       );
@@ -62,8 +60,6 @@ class TimeProgressIndicatorState extends State<TimeProgressIndicator> {
 
   Text buildText(BuildContext context) {
     return Text(
-      // Ignore because there is no emoji in this string
-      // ignore: avoid-substring
       "00:00:00 / ${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
       style: const TextStyle(fontSize: 11),
     );

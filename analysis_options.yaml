@@ -150,7 +150,6 @@ dart_code_metrics:
     - avoid-double-slash-imports: true
     - avoid-global-state: true
 #    - avoid-non-null-assertion: true
-    - avoid-substring: true
     - avoid-non-ascii-symbols:
       exclude:
         - lib/screen/room/messageWidgets/animation_emoji.dart
