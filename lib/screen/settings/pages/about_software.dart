@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/main.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -9,6 +10,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
   final _coreServices = GetIt.I.get<CoreServices>();
   final _uptime = BehaviorSubject.seeded(0);
+  final _startTime = BehaviorSubject.seeded(0);
   final _i18n = GetIt.I.get<I18N>();
   late final Timer timerSubscription;
 
@@ -41,6 +44,8 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
   }
 
   void updateUptime() {
+    _startTime.add(clock.now().millisecondsSinceEpoch - AppStartTime);
+
     final uptimeStartTime = _coreServices.uptimeStartTime.value;
 
     if (uptimeStartTime == 0) {
@@ -79,40 +84,130 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                 builder: (c, sms) => Section(
                   title: "Software information",
                   children: [
-                    SettingsTile(
-                      title: _i18n.get("version"),
-                      subtitle: "v$VERSION",
-                      leading: const Icon(
-                        CupertinoIcons.square_stack_3d_down_right,
-                      ),
-                      onPressed: (_) async {
-                        developerModeCounterCountDown--;
-                        if (developerModeCounterCountDown < 1 &&
-                            !settings.showDeveloperPage.value) {
-                          setState(() {
-                            settings.showDeveloperPage.set(true);
+                    Column(
+                      children: [
+                        SettingsTile(
+                          title: _i18n.get("version"),
+                          subtitleTextStyle: const TextStyle(),
+                          subtitle: VERSION,
+                          leading: const Icon(
+                            CupertinoIcons.square_stack_3d_down_right,
+                          ),
+                          onPressed: (_) async {
+                            developerModeCounterCountDown--;
+                            if (developerModeCounterCountDown < 1 &&
+                                !settings.showDeveloperPage.value) {
+                              setState(() {
+                                settings.showDeveloperPage.set(true);
 
-                            ToastDisplay.showToast(
-                              toastContext: context,
-                              showWarningAnimation: true,
-                              toastText: "Developer Page enabled",
-                            );
-                          });
-                        }
-                      },
-                      trailing: const SizedBox.shrink(),
+                                ToastDisplay.showToast(
+                                  toastContext: context,
+                                  showWarningAnimation: true,
+                                  toastText: "Developer Page enabled",
+                                );
+                              });
+                            }
+                          },
+                          trailing: const SizedBox.shrink(),
+                        ),
+                        Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("You have latest version"),
+                                  Text(
+                                    "2.0.5 - Last Check on 12:00:04",
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.outline,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      elevation: 10,
+                                      surfaceTintColor: Colors.red,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: tertiaryBorder,
+                                      ),
+                                    ),
+                                    child:
+                                        const Text("Download Latest Version"),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 16),
+                              Container(
+                                margin: const EdgeInsetsDirectional.only(
+                                  top: p8,
+                                  bottom: p16,
+                                  start: p16,
+                                ),
+                                // color: Colors.red,
+                                width: 70,
+                                height: 70,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Image(
+                                      image:
+                                          AssetImage('assets/images/logo.webp'),
+                                    ),
+                                    PositionedDirectional(
+                                      start: 0,
+                                      bottom: -2,
+                                      child: Container(
+                                        width: 22,
+                                        height: 22,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: ACTIVE_COLOR,
+                                        ),
+                                        child: const Icon(
+                                          Icons.done,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                     const SettingsTile(
                       title: "Build Number",
                       subtitle: BUILD_NUMBER,
+                      subtitleTextStyle: TextStyle(),
                       leading: Icon(CupertinoIcons.number_square),
                       trailing: SizedBox.shrink(),
                     ),
                     const SettingsTile(
                       title: "Install From",
                       subtitle: INSTALL_FROM,
-                      leading: Icon(Icons.shopping_basket_outlined),
+                      subtitleTextStyle: TextStyle(),
+                      leading: Icon(Icons.install_desktop),
                       trailing: SizedBox.shrink(),
+                    ),
+                    SettingsTile(
+                      title: "App Uptime",
+                      leading: const Icon(CupertinoIcons.time),
+                      trailing: StreamBuilder<int>(
+                        stream: _startTime,
+                        builder: (context, snapshot) {
+                          final duration =
+                              Duration(milliseconds: snapshot.data ?? 0);
+
+                          return Text(duration.toString().split(".")[0]);
+                        },
+                      ),
                     ),
                     SettingsTile(
                       title: "Connection Uptime",

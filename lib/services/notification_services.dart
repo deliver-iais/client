@@ -954,8 +954,6 @@ class AndroidNotifier implements Notifier {
     if (newLines.length > 1) {
       list = newLines.map((e) {
         if (e.length > 100) {
-          // Ignore because not important
-          // ignore: avoid-substring
           return "${e.substring(0, 30)}...";
         } else {
           return e;

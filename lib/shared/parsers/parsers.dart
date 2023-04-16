@@ -79,7 +79,7 @@ class GrayOutFeature extends Feature {
 
 class EmojiFeature extends Feature {
   static const regex =
-      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+';
+      r'(\u00a9|\u00ae|[\u2000-\u200b]|[\u200d-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+';
 
   @override
   bool operator ==(Object other) =>
@@ -204,6 +204,7 @@ List<Block> partitioner(Block block, Detector detector) {
     return [block];
   }
 
+  // TODO(any): later find better solution on our partitioner for less pointless check on detector with 0 partitions
   try {
     final partitions = detector(block);
 
@@ -213,21 +214,24 @@ List<Block> partitioner(Block block, Detector detector) {
 
     var start = 0;
 
+    //this issue for charset problem that use utf16 human readable form but our regEx system detect emojis more than one char
+    // and its make problem when we used characters and better for us use subString here
     for (final p in partitions) {
-      if (text.characters.getRange(start, p.start).isNotEmpty) {
+      if (text.substring(start, p.start).isNotEmpty) {
         blocks.add(
           Block(
-            text: text.characters.getRange(start, p.start).string,
+            text: text.substring(start, p.start),
             features: block.features,
           ),
         );
       }
 
-      if (text.characters.getRange(p.start, p.end).isNotEmpty) {
+      //this issue for charset problem that use utf16 human readable form but our regEx system detect emojis more than one char
+      // and its make problem when we used characters and better for us use subString here
+      if (text.substring(p.start, p.end).isNotEmpty) {
         blocks.add(
           Block(
-            text: p.replacedText ??
-                text.characters.getRange(p.start, p.end).string,
+            text: p.replacedText ?? text.substring(p.start, p.end),
             features: {...block.features, ...p.features},
             lockToMoreParsing: p.lockToMoreParsing,
           ),
@@ -237,10 +241,12 @@ List<Block> partitioner(Block block, Detector detector) {
       start = p.end;
     }
 
-    if (text.characters.getRange(start).isNotEmpty) {
+    //this issue for charset problem that use utf16 human readable form but our regEx system detect emojis more than one char
+    // and its make problem when we used characters and better for us use subString here
+    if (text.substring(start).isNotEmpty) {
       blocks.add(
         Block(
-          text: text.characters.getRange(start).string,
+          text: text.substring(start),
           features: block.features,
         ),
       );

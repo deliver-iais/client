@@ -133,8 +133,6 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                         copyText =
                             "$copyText${await _roomRepo.getName(message.from.asUid())}:\n$fileTypeEmoji\n${message.json.toFile().caption}";
                       }
-                      // Ignore because there is no emoji in this string
-                      // ignore: avoid-substring
                       final timeString = DateTime.fromMillisecondsSinceEpoch(
                         message.time,
                       ).toString().substring(0, 19);
