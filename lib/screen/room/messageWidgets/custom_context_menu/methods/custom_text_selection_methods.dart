@@ -4,6 +4,7 @@ import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class CustomContextMenuMethods {
@@ -59,6 +60,21 @@ class CustomContextMenuMethods {
       return true;
     } else {
       return false;
+    }
+  }
+
+  static Future<void> handlePaste(TextEditingController controller) async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data != null) {
+      final start = controller.selection.start;
+      final end = controller.selection.end;
+      controller
+        ..text = controller.text.characters.getRange(0, start).string +
+            data.text!.replaceAll("\r", "") +
+            controller.text.characters.getRange(end).string
+        ..selection = TextSelection.fromPosition(
+          TextPosition(offset: start + data.text!.replaceAll("\r", "").length),
+        );
     }
   }
 
