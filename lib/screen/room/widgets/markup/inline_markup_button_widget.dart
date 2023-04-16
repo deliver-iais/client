@@ -31,8 +31,11 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
         for (final button in row.buttons) {
           widgetRows.add(
             Container(
-              padding:
-                  const EdgeInsetsDirectional.only(bottom: 2.0, end: 2.0, start: 2.0),
+              padding: const EdgeInsetsDirectional.only(
+                bottom: 2.0,
+                end: 2.0,
+                start: 2.0,
+              ),
               child: BlurContainer(
                 skew: 3,
                 color: theme.dividerColor.withOpacity(0.2),
@@ -47,6 +50,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                         pinCodeSettings: button.callback.pinCodeSettings,
                         data: button.callback.data,
                         botUid: message.roomUid,
+                        packetId: message.packetId,
                       );
                     } else {
                       _botRepo.handleInlineMarkUpMessageCallBack(

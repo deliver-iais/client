@@ -126,6 +126,7 @@ class BotRepo {
           data: button.callback.data,
           id: message.id,
           to: message.from.asUid(),
+          packetId: message.packetId,
         ),
       );
     }
