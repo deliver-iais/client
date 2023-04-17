@@ -25,6 +25,7 @@ void inputPin({
   required String data,
   required String botUid,
   bool showHelper = false,
+  String? packetId,
 }) {
   final pinController = TextEditingController();
   final pinFormKey = GlobalKey<FormState>();
@@ -80,6 +81,7 @@ void inputPin({
                       pinController.clear();
                     }
                   },
+                  packetId: packetId,
                   isRepeatNeeded: pinCodeSettings.isRepeatNeeded,
                   botUid: botUid,
                   pin: pinController.text,
@@ -130,6 +132,7 @@ void inputPin({
                       pinController.clear();
                     }
                   },
+                  packetId: packetId,
                   isRepeatNeeded: pinCodeSettings.isRepeatNeeded,
                   botUid: botUid,
                   pin: pinController.text,
@@ -199,6 +202,7 @@ Widget buildContent(
   required String data,
   required String botUid,
   required GlobalKey<FormState> confirmPinFormKey,
+  String? packetId,
   bool showHelper = false,
 }) {
   final theme = Theme.of(context);
@@ -235,6 +239,7 @@ Widget buildContent(
                     botUid: botUid,
                     pin: pinController.text,
                     data: data,
+                    packetId: packetId,
                     pinFormKey: pinFormKey,
                     confirmPinFormKey: confirmPinFormKey,
                   );
@@ -289,6 +294,7 @@ Widget buildContent(
                       pin: pinController.text,
                       data: data,
                       pinFormKey: pinFormKey,
+                      packetId: packetId,
                       confirmPinFormKey: confirmPinFormKey,
                     );
                   },
@@ -381,6 +387,7 @@ void _submit(
   required GlobalKey<FormState> pinFormKey,
   required GlobalKey<FormState> confirmPinFormKey,
   required bool isRepeatNeeded,
+  String? packetId,
 }) {
   final theme = Theme.of(context);
   if ((pinFormKey.currentState?.validate() ?? false) &&
@@ -393,6 +400,7 @@ void _submit(
           data: data,
           to: botUid.asUid(),
           pinCode: pin,
+          packetId: packetId,
         )
         .then(
       (callbackRes) {

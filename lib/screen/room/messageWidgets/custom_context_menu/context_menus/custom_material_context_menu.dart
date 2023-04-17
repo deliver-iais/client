@@ -44,11 +44,10 @@ class CustomMaterialContextMenu {
               .onPressed()
           : null,
       handlePaste: editableTextState.pasteEnabled
-          ? editableTextState.contextMenuButtonItems
-              .firstWhere(
-                (element) => element.type == ContextMenuButtonType.paste,
-              )
-              .onPressed
+          ? () async {
+              await CustomContextMenuMethods.handlePaste(textController);
+              editableTextState.hideToolbar();
+            }
           : null,
       handleUnderline: () => CustomContextMenuMethods.handleFormatting(
         UnderlineFeature.specialChar,

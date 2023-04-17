@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/models/file.dart' as model;
+import 'package:deliver/screen/room/messageWidgets/custom_context_menu/methods/custom_text_selection_methods.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
@@ -70,16 +71,7 @@ class RawKeyboardService {
         controller.clear();
       });
     } else {
-      final data = await Clipboard.getData(Clipboard.kTextPlain);
-      final start = controller.selection.start;
-      final end = controller.selection.end;
-      controller
-        ..text = controller.text.substring(0, start) +
-            data!.text!.replaceAll("\r", "") +
-            controller.text.substring(end)
-        ..selection = TextSelection.fromPosition(
-          TextPosition(offset: start + data.text!.replaceAll("\r", "").length),
-        );
+      await CustomContextMenuMethods.handlePaste(controller);
     }
   }
 
