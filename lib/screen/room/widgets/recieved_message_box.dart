@@ -21,6 +21,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final bool isFirstMessageInGroupedMessages;
   final void Function() onEdit;
   final bool showMenuDisable;
+  final double width;
 
   const ReceivedMessageBox({
     super.key,
@@ -30,6 +31,7 @@ class ReceivedMessageBox extends StatelessWidget {
     required this.onUsernameClick,
     required this.onArrowIconClick,
     required this.storePosition,
+    required this.width,
     required this.isFirstMessageInGroupedMessages,
     this.messageReplyBrief,
     this.pattern,
@@ -42,8 +44,8 @@ class ReceivedMessageBox extends StatelessWidget {
     final boxContent = BoxContent(
       message: message,
       messageReplyBrief: messageReplyBrief,
-      maxWidth: maxWidthOfMessage(context),
-      minWidth: minWidthOfMessage(context),
+      maxWidth: maxWidthOfMessage(width),
+      minWidth: minWidthOfMessage(width),
       onBotCommandClick: onBotCommandClick,
       isSender: false,
       scrollToMessage: scrollToMessage,
@@ -82,7 +84,6 @@ class ReceivedMessageBox extends StatelessWidget {
   }
 
   bool doNotNeedsWrapper() {
-    return message.type == MessageType.STICKER ||
-        isOnlyEmojiMessage(message);
+    return message.type == MessageType.STICKER || isOnlyEmojiMessage(message);
   }
 }

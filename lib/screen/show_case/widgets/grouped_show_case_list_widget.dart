@@ -1,9 +1,17 @@
-import 'dart:async';
-
-import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/show_case/widgets/ads.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad
+      };
+}
 
 class GroupedShowCaseListWidget extends StatelessWidget {
   final String title;
@@ -14,8 +22,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
   final int listItemsLength;
   final Widget Function(int) listItems;
   final double height;
-  static final _i18n = GetIt.I.get<I18N>();
-  final ScrollController scrollController;
+  final double width;
 
   const GroupedShowCaseListWidget({
     Key? key,
@@ -23,123 +30,71 @@ class GroupedShowCaseListWidget extends StatelessWidget {
     this.onArrowButtonPressed,
     required this.listItems,
     required this.listItemsLength,
-    this.height = 140,
+    required this.height,
+    required this.width,
     required this.isAdvertisement,
     required this.isPrimary,
     this.needArrowIcon = true,
-    required this.scrollController,
   }) : super(key: key);
-
-  void animateToMaxMin(
-    double max,
-    double min,
-    double direction,
-    int seconds,
-    ScrollController scrollController,
-  ) {
-    scrollController
-        .animateTo(
-      direction,
-      duration: Duration(seconds: seconds),
-      curve: Curves.easeInOut,
-    )
-        .then((value) {
-      Timer(const Duration(seconds: 5), () {
-        direction = direction >= max ? min : direction + 275;
-        animateToMaxMin(max, min, direction, seconds, scrollController);
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (scrollController.hasClients) {
-        final minScrollExtent = scrollController.position.minScrollExtent;
-        final maxScrollExtent = scrollController.position.maxScrollExtent;
-        animateToMaxMin(
-          maxScrollExtent,
-          minScrollExtent,
-          275,
-          2,
-          scrollController,
-        );
-      }
-    });
-
     final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: needArrowIcon ? 0 : 8,
-              ),
-              child: Row(
-                children: [
-                  if (isAdvertisement) ...[
+    return Container(
+      padding: const EdgeInsets.only(top: p8, bottom: p12),
+      color: isPrimary
+          ? theme.colorScheme.tertiaryContainer
+          : theme.colorScheme.surface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: isAdvertisement ? p8 : p16,
+                  end: p16,
+                  top: p8,
+                  bottom: needArrowIcon ? 0 : p8,
+                ),
+                child: Row(
+                  children: [
+                    if (isAdvertisement) const Ads(),
+                    if (isAdvertisement) const SizedBox(width: p4),
                     Text(
-                      _i18n.get("ads"),
+                      title,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(5.0),
-                      height: 5,
-                      width: 5,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.primary.withOpacity(0.7),
-                      ),
-                    ),
                   ],
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            if (needArrowIcon)
-              IconButton(
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: () => onArrowButtonPressed?.call(),
-              ),
-          ],
-        ),
-        _buildGroupedRoomsList(theme)
-      ],
+              if (needArrowIcon)
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  onPressed: () => onArrowButtonPressed?.call(),
+                ),
+            ],
+          ),
+          _buildGroupedRoomsList(theme)
+        ],
+      ),
     );
   }
 
   Widget _buildGroupedRoomsList(ThemeData theme) {
-    return SizedBox(
-      height: height,
-      child: ListView.builder(
-        itemCount: listItemsLength,
-        scrollDirection: Axis.horizontal,
-        controller: scrollController,
-        itemBuilder: (ctx, index) {
-          return isPrimary
-              ? Container(
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.2),
-                    borderRadius: tertiaryBorder,
-                  ),
-                  child: listItems(index),
-                )
-              : listItems(index);
-        },
+    return ScrollConfiguration(
+      behavior: MyCustomScrollBehavior(),
+      child: SizedBox(
+        height: height,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: listItemsLength,
+          itemBuilder: (ctx, index) => listItems(index),
+        ),
       ),
     );
   }

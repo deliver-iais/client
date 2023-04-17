@@ -198,6 +198,7 @@ enum SharedKeys {
   LOW_NETWORK_USAGE_VOICE_CALL,
   LOW_NETWORK_USAGE_VIDEO_CALL,
   HIGH_QUALITY_CALL,
+  NAVIGATION_PANEL_SIZE,
   SHOW_WS_WITH_HIGH_FRAME_RATE;
 }
 
@@ -277,7 +278,7 @@ const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
 const double LARGE_BREAKDOWN_SIZE_WIDTH = 768.0;
 const double LARGE_BREAKDOWN_SIZE_HEIGHT = 550.0;
 const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
-const double NAVIGATION_PANEL_SIZE = 320.0;
+const double NAVIGATION_PANEL_MIN_WIDTH = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2000;
 const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
@@ -322,13 +323,14 @@ double animationSquareSize(BuildContext context) => isLarge(context)
         MediaQuery.of(context).size.height * 0.7,
       );
 
-double maxWidthOfMessage(BuildContext context) => min(
-      (MediaQuery.of(context).size.width -
-                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-              0.8 -
-          SELECTED_MESSAGE_CHECKBOX_WIDTH,
-      450,
-    );
+double maxWidthOfMessage(double width) =>
+    min(width * 0.9 - SELECTED_MESSAGE_CHECKBOX_WIDTH, 450);
 
-double minWidthOfMessage(BuildContext context) =>
-    min(maxWidthOfMessage(context), 200 - SELECTED_MESSAGE_CHECKBOX_WIDTH);
+double minWidthOfMessage(double width) =>
+    min(maxWidthOfMessage(width), 200 - SELECTED_MESSAGE_CHECKBOX_WIDTH);
+
+double showcaseBoxWidth() =>
+    max(min(280.0, NAVIGATION_PANEL_MIN_WIDTH * 0.9), 220.0);
+
+double showcaseBoxSingleBannerWidth() =>
+    min(304.0, NAVIGATION_PANEL_MIN_WIDTH * 0.98);

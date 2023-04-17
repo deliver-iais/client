@@ -61,6 +61,10 @@ class Settings {
     SharedKeys.SHARED_DAO_THEME_FONT_SIZE.inSharedDaoStorage(),
     defaultValue: 1.0,
   );
+  final navigationPanelSize = DoublePersistent(
+    SharedKeys.NAVIGATION_PANEL_SIZE.inMemoryStorage(),
+    defaultValue: NAVIGATION_PANEL_MIN_WIDTH,
+  );
   final sendByEnter = BooleanPersistent(
     SharedKeys.SHARED_DAO_SEND_BY_ENTER.inSharedDaoStorage(),
     defaultValue: isDesktopDevice,
@@ -346,6 +350,6 @@ class FeatureFlags {
 
   bool hasVoiceCallPermission(String roomUid) =>
       roomUid.asUid().isUser() &&
-          !_authRepo.isCurrentUser(roomUid) &&
-          isVoiceCallAvailable();
+      !_authRepo.isCurrentUser(roomUid) &&
+      isVoiceCallAvailable();
 }
