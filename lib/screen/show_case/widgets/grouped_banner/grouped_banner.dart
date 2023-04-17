@@ -5,6 +5,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 
+const _SHOWCASE_BOX_HEIGHT = 270.0;
+
 class GroupedBanner extends StatelessWidget {
   final Showcase showCase;
 
@@ -13,44 +15,47 @@ class GroupedBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GroupedShowCaseListWidget(
-      height: 270,
+      height: _SHOWCASE_BOX_HEIGHT,
+      width: showcaseBoxWidth(),
       isPrimary: showCase.primary,
       isAdvertisement: showCase.isAdvertisement,
       title: showCase.groupedBanners.name,
       listItemsLength: showCase.groupedBanners.bannersList.length,
-      listItems: (index) => _buildGroupedBannerItem(index, context, width: 285),
-      scrollController: ScrollController(),
+      listItems: (index) => _buildGroupedBannerItem(index, context),
       needArrowIcon: false,
     );
   }
 
-  Widget _buildGroupedBannerItem(
-    int index,
-    BuildContext context, {
-    double? width,
-  }) {
+  Widget _buildGroupedBannerItem(int index, BuildContext context) {
+    final isLast = index == showCase.groupedBanners.bannersList.length - 1;
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: secondaryBorder,
-        border: Border.all(color: theme.dividerColor),
+
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        start: p8,
+        end: isLast ? p16 * 2 : p8,
+        // This calculation is for some back and force animation bug in last item of list, we should padding at least exactly two time of sum normal padding
+        bottom: p2,
       ),
-      child: SizedBox(
-        width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SingleBannerWidget(
-              bannerCase: showCase.groupedBanners.bannersList[index],
-              width: 280,
-              height: 170,
-              padding: 0,
-            ),
-            GroupedBannerItem(
-              uid: showCase.groupedBanners.bannersList[index].uid,
-            ),
-          ],
+      child: Material(
+        elevation: 1,
+        borderRadius: secondaryBorder,
+        surfaceTintColor: theme.colorScheme.tertiary,
+        child: SizedBox(
+          width: showcaseBoxWidth(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleBannerWidget(
+                bannerCase: showCase.groupedBanners.bannersList[index],
+                width: showcaseBoxWidth(),
+                height: _SHOWCASE_BOX_HEIGHT - 100 - p2,
+              ),
+              GroupedBannerItem(
+                uid: showCase.groupedBanners.bannersList[index].uid,
+              ),
+            ],
+          ),
         ),
       ),
     );

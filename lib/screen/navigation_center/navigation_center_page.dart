@@ -23,6 +23,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/ws.dart';
@@ -134,148 +135,150 @@ class NavigationCenterState extends State<NavigationCenter>
     return NotificationListener<SizeChangedLayoutNotification>(
       onNotification: onWindowSizeChange,
       child: SizeChangedLayoutNotifier(
-        child: Scaffold(
-          backgroundColor: theme.colorScheme.background,
-          appBar: _buildAppBar(),
-          floatingActionButton: MouseRegion(
-            hitTestBehavior: HitTestBehavior.translucent,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onPanDown: storeDragDownPosition,
-              child: FloatingActionButton(
-                heroTag: "navigation-center-fab",
-                onPressed: () {
-                  this.showMenu(
-                    context: context,
-                    items: [
-                      PopupMenuItem<String>(
-                        key: const Key("contacts"),
-                        value: "contacts",
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.person_2_alt),
-                            const SizedBox(width: p8),
-                            Text(_i18n.get("contacts"))
-                          ],
+        child: FluidContainerWidget(
+          child: Scaffold(
+            backgroundColor: theme.colorScheme.background,
+            appBar: _buildAppBar(),
+            floatingActionButton: MouseRegion(
+              hitTestBehavior: HitTestBehavior.translucent,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanDown: storeDragDownPosition,
+                child: FloatingActionButton(
+                  heroTag: "navigation-center-fab",
+                  onPressed: () {
+                    this.showMenu(
+                      context: context,
+                      items: [
+                        PopupMenuItem<String>(
+                          key: const Key("contacts"),
+                          value: "contacts",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.person_2_alt),
+                              const SizedBox(width: p8),
+                              Text(_i18n.get("contacts"))
+                            ],
+                          ),
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        key: const Key("new_group"),
-                        value: "new_group",
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.group),
-                            const SizedBox(width: p8),
-                            Text(_i18n.get("new_group")),
-                          ],
+                        PopupMenuItem<String>(
+                          key: const Key("new_group"),
+                          value: "new_group",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.group),
+                              const SizedBox(width: p8),
+                              Text(_i18n.get("new_group")),
+                            ],
+                          ),
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        key: const Key("new_channel"),
-                        value: "new_channel",
-                        child: Row(
-                          children: [
-                            const Icon(CupertinoIcons.news),
-                            const SizedBox(width: p8),
-                            Text(_i18n.get("new_channel"))
-                          ],
-                        ),
-                      )
-                    ],
-                  ).then((value) => selectChatMenu(value ?? ""));
-                },
-                child: const Icon(Icons.add),
+                        PopupMenuItem<String>(
+                          key: const Key("new_channel"),
+                          value: "new_channel",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.news),
+                              const SizedBox(width: p8),
+                              Text(_i18n.get("new_channel"))
+                            ],
+                          ),
+                        )
+                      ],
+                    ).then((value) => selectChatMenu(value ?? ""));
+                  },
+                  child: const Icon(Icons.add),
+                ),
               ),
             ),
-          ),
-          body: RepaintBoundary(
-            child: Column(
-              children: <Widget>[
-                StreamBuilder<bool>(
-                  stream: settings.showEvents.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!) {
-                      return const HasEventsRow();
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                const HasCallRow(),
-                RepaintBoundary(
-                  child: AnimatedBuilder(
-                    animation: _searchBoxAnimation,
-                    builder: (c, w) {
-                      return SearchBox(
-                        focusNode: MAIN_SEARCH_BOX_FOCUS_NODE,
-                        animationValue: _searchBoxAnimation.value,
-                        controller: _searchBoxController,
-                        onChange: (c) {
-                          _searchMode.add(true);
-                        },
-                        onCancel: () {
-                          _searchMode.add(true);
-                        },
-                        onSearchEnd: () {
-                          _searchBoxAnimationController.reverse();
-                          _searchMode.add(false);
-                        },
-                        onTap: () {
-                          _searchBoxAnimationController.forward();
-                          _searchMode.add(true);
-                        },
-                      );
+            body: RepaintBoundary(
+              child: Column(
+                children: <Widget>[
+                  StreamBuilder<bool>(
+                    stream: settings.showEvents.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!) {
+                        return const HasEventsRow();
+                      } else {
+                        return const SizedBox.shrink();
+                      }
                     },
                   ),
-                ),
-                if (!isLarge(context)) const AudioPlayerAppBar(),
-                Expanded(
-                  child: PageTransitionSwitcher(
-                    duration: AnimationSettings.standard,
-                    transitionBuilder: (
-                      child,
-                      animation,
-                      secondaryAnimation,
-                    ) {
-                      return SharedAxisTransition(
-                        fillColor: Colors.transparent,
-                        animation: animation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.scaled,
-                        child: child,
-                      );
-                    },
-                    child: StreamBuilder<bool>(
-                      stream: _searchMode,
-                      builder: (c, s) {
-                        if (s.hasData && s.data != null && s.data!) {
-                          _onNavigationCenterBackPressed = () {
-                            if (_searchBoxController.text.isNotEmpty) {
-                              _searchMode.add(true);
-                              _searchBoxController.clear();
-                            } else {
-                              _searchBoxAnimationController.reverse();
-                              _searchMode.add(false);
-                            }
-                          };
-                          return SearchRoomsWidget(
-                            searchBoxController: _searchBoxController,
-                          );
-                        } else {
-                          _onNavigationCenterBackPressed = null;
-                          return !showShowcase
-                              ? ChatsPage(
-                                  scrollController: _scrollController,
-                                )
-                              : const ShowcasePage();
-                        }
+                  const HasCallRow(),
+                  RepaintBoundary(
+                    child: AnimatedBuilder(
+                      animation: _searchBoxAnimation,
+                      builder: (c, w) {
+                        return SearchBox(
+                          focusNode: MAIN_SEARCH_BOX_FOCUS_NODE,
+                          animationValue: _searchBoxAnimation.value,
+                          controller: _searchBoxController,
+                          onChange: (c) {
+                            _searchMode.add(true);
+                          },
+                          onCancel: () {
+                            _searchMode.add(true);
+                          },
+                          onSearchEnd: () {
+                            _searchBoxAnimationController.reverse();
+                            _searchMode.add(false);
+                          },
+                          onTap: () {
+                            _searchBoxAnimationController.forward();
+                            _searchMode.add(true);
+                          },
+                        );
                       },
                     ),
                   ),
-                ),
-                _newVersionInfo(),
-                _outOfDateWidget()
-              ],
+                  if (!isLarge(context)) const AudioPlayerAppBar(),
+                  Expanded(
+                    child: PageTransitionSwitcher(
+                      duration: AnimationSettings.standard,
+                      transitionBuilder: (
+                        child,
+                        animation,
+                        secondaryAnimation,
+                      ) {
+                        return SharedAxisTransition(
+                          fillColor: Colors.transparent,
+                          animation: animation,
+                          secondaryAnimation: secondaryAnimation,
+                          transitionType: SharedAxisTransitionType.scaled,
+                          child: child,
+                        );
+                      },
+                      child: StreamBuilder<bool>(
+                        stream: _searchMode,
+                        builder: (c, s) {
+                          if (s.hasData && s.data != null && s.data!) {
+                            _onNavigationCenterBackPressed = () {
+                              if (_searchBoxController.text.isNotEmpty) {
+                                _searchMode.add(true);
+                                _searchBoxController.clear();
+                              } else {
+                                _searchBoxAnimationController.reverse();
+                                _searchMode.add(false);
+                              }
+                            };
+                            return SearchRoomsWidget(
+                              searchBoxController: _searchBoxController,
+                            );
+                          } else {
+                            _onNavigationCenterBackPressed = null;
+                            return !showShowcase
+                                ? ChatsPage(
+                                    scrollController: _scrollController,
+                                  )
+                                : const ShowcasePage();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  _newVersionInfo(),
+                  _outOfDateWidget()
+                ],
+              ),
             ),
           ),
         ),
@@ -380,7 +383,8 @@ class NavigationCenterState extends State<NavigationCenter>
                                   in snapshot.data!.downloadLinks)
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsetsDirectional.symmetric(
+                                    padding:
+                                        const EdgeInsetsDirectional.symmetric(
                                       horizontal: 16,
                                       vertical: 8,
                                     ),
@@ -396,7 +400,8 @@ class NavigationCenterState extends State<NavigationCenter>
                                 ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsetsDirectional.symmetric(
+                                  padding:
+                                      const EdgeInsetsDirectional.symmetric(
                                     horizontal: 16,
                                     vertical: 8,
                                   ),
@@ -647,7 +652,10 @@ class NavigationCenterState extends State<NavigationCenter>
                           child: GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             onTap: () => setState(
-                              () => settings.showShowcasePage.toggleValue(),
+                              () {
+                                settings.showShowcasePage.toggleValue();
+                                _routingService.animateResizablePanels();
+                              },
                             ),
                             child: Stack(
                               alignment: AlignmentDirectional.center,

@@ -131,7 +131,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     );
   }
 
-  BuildMessageBox buildMessageBox(int msgId) {
+  Widget buildMessageBox(int msgId) {
     final msg = messages[msgId - 1];
     final replyId = msg.replyToId;
     Message? bMsg;
@@ -140,25 +140,28 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       bMsg = messages[msgId - 2];
     }
 
-    return BuildMessageBox(
-      message: msg,
-      messageReplyBrief: cfm(replyId),
-      messageBefore: bMsg,
-      roomId: FAKE_USER_UID.asString(),
-      lastSeenMessageId: messages.length - 1,
-      pinMessages: const [],
-      selectMultiMessageSubject: BehaviorSubject.seeded(false),
-      hasPermissionInGroup: false,
-      hasPermissionInChannel: BehaviorSubject.seeded(false),
-      menuDisabled: true,
-      onEdit: () {},
-      onPin: () {},
-      onUnPin: () {},
-      onReply: () {},
-      addForwardMessage: () {},
-      scrollToMessage: (a, b) {},
-      onDelete: () {},
-      selectedMessageListIndex: BehaviorSubject(),
+    return LayoutBuilder(
+      builder: (context, snapshot) => BuildMessageBox(
+        message: msg,
+        messageReplyBrief: cfm(replyId),
+        messageBefore: bMsg,
+        roomId: FAKE_USER_UID.asString(),
+        lastSeenMessageId: messages.length - 1,
+        pinMessages: const [],
+        selectMultiMessageSubject: BehaviorSubject.seeded(false),
+        hasPermissionInGroup: false,
+        hasPermissionInChannel: BehaviorSubject.seeded(false),
+        width: snapshot.maxWidth,
+        menuDisabled: true,
+        onEdit: () {},
+        onPin: () {},
+        onUnPin: () {},
+        onReply: () {},
+        addForwardMessage: () {},
+        scrollToMessage: (a, b) {},
+        onDelete: () {},
+        selectedMessageListIndex: BehaviorSubject(),
+      ),
     );
   }
 

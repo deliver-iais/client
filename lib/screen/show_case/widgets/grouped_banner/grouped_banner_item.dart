@@ -6,6 +6,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
@@ -29,103 +30,108 @@ class GroupedBannerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: p8),
       child: GestureDetector(
         onTap: () => _routingService.openRoom(uid.asString()),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Column(
           children: [
-            CircleAvatarWidget(
-              uid,
-              25,
-            ),
-            const SizedBox(width: 8),
-            if (uid.category == Categories.GROUP)
-              const SizedBox(
-                width: 16,
-                child: Icon(
-                  CupertinoIcons.person_2_fill,
-                  size: 16,
+            const SizedBox(height: p4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CircleAvatarWidget(
+                  uid,
+                  20,
                 ),
-              ),
-            if (uid.category == Categories.CHANNEL)
-              const SizedBox(
-                width: 16,
-                child: Icon(
-                  CupertinoIcons.news_solid,
-                  size: 16,
-                ),
-              ),
-            if (uid.category == Categories.BOT)
-              const SizedBox(
-                width: 16,
-                child: Icon(
-                  Icons.smart_toy,
-                  size: 16,
-                ),
-              ),
-            if (uid.category == Categories.GROUP ||
-                uid.category == Categories.CHANNEL ||
-                uid.category == Categories.BOT)
-              const SizedBox(width: 6),
-            FutureBuilder<String>(
-              initialData: _roomRepo.fastForwardName(
-                uid,
-              ),
-              future: _roomRepo.getName(uid),
-              builder: (context, snapshot) {
-                _roomName = snapshot.data ?? _i18n.get("loading");
-                return SizedBox(
-                  width: 100,
-                  child: RoomName(
-                    uid: uid,
-                    name: _roomName,
+                const SizedBox(width: 8),
+                if (uid.category == Categories.GROUP)
+                  const SizedBox(
+                    width: 16,
+                    child: Icon(
+                      CupertinoIcons.person_2_fill,
+                      size: 16,
+                    ),
                   ),
-                );
-              },
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            FutureBuilder<Room?>(
-              future: _roomRepo.getRoom(uid.asString()),
-              builder: (context, snapshot) {
-                if (snapshot.data != null && !snapshot.data!.deleted) {
-                  return OutlinedButton(
-                    onPressed: () {
-                      _routingService.openRoom(uid.asString());
+                if (uid.category == Categories.CHANNEL)
+                  const SizedBox(
+                    width: 16,
+                    child: Icon(
+                      CupertinoIcons.news_solid,
+                      size: 16,
+                    ),
+                  ),
+                if (uid.category == Categories.BOT)
+                  const SizedBox(
+                    width: 16,
+                    child: Icon(
+                      Icons.smart_toy,
+                      size: 16,
+                    ),
+                  ),
+                if (uid.category == Categories.GROUP ||
+                    uid.category == Categories.CHANNEL ||
+                    uid.category == Categories.BOT)
+                  const SizedBox(width: 6),
+                Expanded(
+                  child: FutureBuilder<String>(
+                    initialData: _roomRepo.fastForwardName(
+                      uid,
+                    ),
+                    future: _roomRepo.getName(uid),
+                    builder: (context, snapshot) {
+                      _roomName = snapshot.data ?? _i18n.get("loading");
+                      return RoomName(
+                        uid: uid,
+                        name: _roomName,
+                      );
                     },
-                    child: Text(_i18n.get("open")),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: p4),
+            SizedBox(
+              width: double.infinity,
+              child: FutureBuilder<Room?>(
+                future: _roomRepo.getRoom(uid.asString()),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null && !snapshot.data!.deleted) {
+                    return OutlinedButton(
+                      onPressed: () {
+                        _routingService.openRoom(uid.asString());
+                      },
+                      child: Text(_i18n.get("open")),
+                    );
+                  }
+                  return OutlinedButton(
+                    onPressed: () async {
+                      if (uid.category == Categories.GROUP) {
+                        final res = await _mucRepo.joinGroup(
+                          uid,
+                          "",
+                        );
+                        if (res != null) {
+                          _routingService.openRoom(uid.asString());
+                        }
+                      } else if (uid.category == Categories.CHANNEL) {
+                        final res = await _mucRepo.joinChannel(
+                          uid,
+                          "",
+                        );
+                        if (res != null) {
+                          _routingService.openRoom(uid.asString());
+                        }
+                      } else if (uid.category == Categories.BOT) {
+                        unawaited(_messageRepo.sendTextMessage(uid, "/start"));
+                        _routingService.openRoom(uid.asString());
+                      }
+                    },
+                    child: uid.category == Categories.BOT
+                        ? Text(_i18n.get("start"))
+                        : Text(_i18n.get("join")),
                   );
-                }
-                return OutlinedButton(
-                  onPressed: () async {
-                    if (uid.category == Categories.GROUP) {
-                      final res = await _mucRepo.joinGroup(
-                        uid,
-                        "",
-                      );
-                      if (res != null) {
-                        _routingService.openRoom(uid.asString());
-                      }
-                    } else if (uid.category == Categories.CHANNEL) {
-                      final res = await _mucRepo.joinChannel(
-                        uid,
-                        "",
-                      );
-                      if (res != null) {
-                        _routingService.openRoom(uid.asString());
-                      }
-                    } else if (uid.category == Categories.BOT) {
-                      unawaited(_messageRepo.sendTextMessage(uid, "/start"));
-                      _routingService.openRoom(uid.asString());
-                    }
-                  },
-                  child: uid.category == Categories.BOT
-                      ? Text(_i18n.get("start"))
-                      : Text(_i18n.get("join")),
-                );
-              },
+                },
+              ),
             )
           ],
         ),

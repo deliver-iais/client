@@ -360,59 +360,61 @@ class RoomPageState extends State<RoomPage> {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Expanded(
-        child: Stack(
-          children: [
-            StreamBuilder(
-              stream: pendingAndRoomMessagesStream,
-              builder: (context, event) {
-                // Set Item Count
-                _itemCount = room.lastMessageId +
-                    pendingMessages.length -
-                    room.firstMessageId;
-                _itemCountSubject.add(_itemCount);
-                if (_itemCount < 50) _defaultMessageHeight = 50;
+        child: LayoutBuilder(
+          builder: (context, snapshot) => Stack(
+            children: [
+              StreamBuilder(
+                stream: pendingAndRoomMessagesStream,
+                builder: (context, event) {
+                  // Set Item Count
+                  _itemCount = room.lastMessageId +
+                      pendingMessages.length -
+                      room.firstMessageId;
+                  _itemCountSubject.add(_itemCount);
+                  if (_itemCount < 50) _defaultMessageHeight = 50;
 
-                return PageTransitionSwitcher(
-                  duration: AnimationSettings.standard,
-                  transitionBuilder: (
-                    child,
-                    animation,
-                    secondaryAnimation,
-                  ) {
-                    return SharedAxisTransition(
-                      fillColor: Colors.transparent,
-                      animation: animation,
-                      secondaryAnimation: secondaryAnimation,
-                      transitionType: SharedAxisTransitionType.vertical,
-                      child: child,
-                    );
-                  },
-                  child: event.connectionState == ConnectionState.waiting
-                      ? const SizedBox.shrink()
-                      : buildMessagesListView(),
-                );
-              },
-            ),
-            StreamBuilder<ScrollingState>(
-              stream: _isScrolling,
-              builder: (context, snapshot) {
-                final showArrow = checkShowArrowDown(snapshot);
-
-                return Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: AnimatedSwitcher(
-                    duration: AnimationSettings.slow,
-                    switchInCurve: Curves.easeInOut,
-                    switchOutCurve: Curves.easeInOut,
-                    child: !showArrow
+                  return PageTransitionSwitcher(
+                    duration: AnimationSettings.standard,
+                    transitionBuilder: (
+                      child,
+                      animation,
+                      secondaryAnimation,
+                    ) {
+                      return SharedAxisTransition(
+                        fillColor: Colors.transparent,
+                        animation: animation,
+                        secondaryAnimation: secondaryAnimation,
+                        transitionType: SharedAxisTransitionType.vertical,
+                        child: child,
+                      );
+                    },
+                    child: event.connectionState == ConnectionState.waiting
                         ? const SizedBox.shrink()
-                        : scrollDownButtonWidget(),
-                  ),
-                );
-              },
-            ),
-          ],
+                        : buildMessagesListView(snapshot),
+                  );
+                },
+              ),
+              StreamBuilder<ScrollingState>(
+                stream: _isScrolling,
+                builder: (context, snapshot) {
+                  final showArrow = checkShowArrowDown(snapshot);
+
+                  return Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: AnimatedSwitcher(
+                      duration: AnimationSettings.slow,
+                      switchInCurve: Curves.easeInOut,
+                      switchOutCurve: Curves.easeInOut,
+                      child: !showArrow
+                          ? const SizedBox.shrink()
+                          : scrollDownButtonWidget(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1412,7 +1414,9 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  Widget buildMessagesListView() {
+  Widget buildMessagesListView(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth;
+
     if (_itemCount <= 0) return const SizedBox.shrink();
 
     final scrollIndex = (_itemCount > 0
@@ -1473,7 +1477,7 @@ class RoomPageState extends State<RoomPage> {
         itemPositionsListener: _itemPositionsListener,
         itemScrollController: _itemScrollController,
         itemBuilder: (context, index) =>
-            _buildMessage(index + room.firstMessageId),
+            _buildMessage(index + room.firstMessageId, maxWidth),
         separatorBuilder: (context, index) {
           final firstIndex = index + room.firstMessageId;
 
@@ -1626,7 +1630,7 @@ class RoomPageState extends State<RoomPage> {
     return null;
   }
 
-  Widget _buildMessage(int index) {
+  Widget _buildMessage(int index, double maxWidth) {
     if (index >= _itemCount + room.firstMessageId) {
       return const SizedBox.shrink();
     }
@@ -1635,13 +1639,13 @@ class RoomPageState extends State<RoomPage> {
 
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
     if (tuple != null) {
-      widget = _cachedBuildMessage(index, tuple);
+      widget = _cachedBuildMessage(index, tuple, maxWidth);
     } else {
       widget = FutureBuilder<Tuple2<Message?, Message?>>(
         initialData: _fastForwardFetchMessageAndMessageBefore(index),
         future: _fetchMessageAndMessageBefore(index),
         builder: (context, ms) {
-          return _cachedBuildMessage(index, ms.data);
+          return _cachedBuildMessage(index, ms.data, maxWidth);
         },
       );
     }
@@ -1664,7 +1668,11 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
-  Widget _cachedBuildMessage(int index, Tuple2<Message?, Message?>? tuple) {
+  Widget _cachedBuildMessage(
+    int index,
+    Tuple2<Message?, Message?>? tuple,
+    double maxWidth,
+  ) {
     if (tuple == null || tuple.item2 == null) {
       return SizedBox(height: _defaultMessageHeight);
     }
@@ -1676,7 +1684,7 @@ class RoomPageState extends State<RoomPage> {
     }
 
     if (w == null) {
-      w = _buildMessageBox(index, tuple);
+      w = _buildMessageBox(index, tuple, maxWidth);
       if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
         _cachingRepo.setMessageWidget(widget.roomId, index, w);
       }
@@ -1685,7 +1693,11 @@ class RoomPageState extends State<RoomPage> {
     return w;
   }
 
-  Widget _buildMessageBox(int index, Tuple2<Message?, Message?> tuple) {
+  Widget _buildMessageBox(
+    int index,
+    Tuple2<Message?, Message?> tuple,
+    double maxWidth,
+  ) {
     final messageBefore = tuple.item1;
     final message = tuple.item2!;
 
@@ -1716,6 +1728,7 @@ class RoomPageState extends State<RoomPage> {
       onPin: () => onPin(message),
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
+      width: maxWidth,
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,

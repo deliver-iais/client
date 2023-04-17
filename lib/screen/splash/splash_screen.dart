@@ -239,11 +239,11 @@ class SplashScreenState extends State<SplashScreen>
       color: Colors.black,
       child: Center(
         child: SizedBox(
-          width: min(200, size.width / 2),
-          height: min(200, size.height / 2),
+          width: min(220, size.width * 0.4),
+          height: min(220, size.height * 0.4),
           child: RiveAnimation.asset(
             'assets/animations/intro.riv',
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             onInit: _onRiveInit,
           ),
         ),

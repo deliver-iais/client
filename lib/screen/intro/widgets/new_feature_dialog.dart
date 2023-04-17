@@ -17,7 +17,7 @@ class NewFeatureDialog extends StatelessWidget {
 
     return AlertDialog(
       content: SizedBox(
-        width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
+        width: min(LARGE_BREAKDOWN_SIZE_WIDTH, pageSize.width - 50),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

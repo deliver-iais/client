@@ -5,11 +5,10 @@ import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/triangle_clipper.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+// TODO(any): there is some bugs after direction and resizable navigation bar size
 class SkinToneOverlay {
   static final _recentEmojisDao = GetIt.I.get<RecentEmojiDao>();
   static final _emojiSkinToneDao = GetIt.I.get<EmojiSkinToneDao>();
@@ -29,7 +28,6 @@ class SkinToneOverlay {
       offset,
       hideHeaderAndFooter: hideHeaderAndFooter,
     );
-    final theme = Theme.of(context);
     return OverlayEntry(
       builder: (context) => Positioned(
         left: positionRect.left,
@@ -38,49 +36,20 @@ class SkinToneOverlay {
           onHover: (val) {
             onSkinToneOverlay!();
           },
-          child: Container(
-            height: positionRect.width + 10,
-            decoration: const BoxDecoration(
-              boxShadow: DEFAULT_BOX_SHADOWS,
-              borderRadius: tertiaryBorder,
-            ),
-            child: Stack(
+          child: Material(
+            elevation: 10,
+            borderRadius: tertiaryBorder,
+            child: Row(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.cardColor,
-                    boxShadow: DEFAULT_BOX_SHADOWS,
-                    borderRadius: tertiaryBorder,
-                  ),
-                  child: Row(
-                    children: [
-                      ...List.generate(
-                        FITZPATRICK.values.length,
-                        (i) => _buildSkinToneEmoji(
-                          i,
-                          emoji.toString(),
-                          positionRect.width,
-                          onEmojiSelected,
-                        ),
-                      ),
-                    ],
+                ...List.generate(
+                  FITZPATRICK.values.length,
+                  (i) => _buildSkinToneEmoji(
+                    i,
+                    emoji.toString(),
+                    positionRect.width,
+                    onEmojiSelected,
                   ),
                 ),
-                Positioned(
-                  top: positionRect.width,
-                  left: (positionRect.width *
-                          (index % Emoji.getColumnsCount(context)) -
-                      positionRect.left +
-                      10),
-                  child: ClipPath(
-                    clipper: TriangleClipper(),
-                    child: Container(
-                      color: theme.cardColor,
-                      height: 10,
-                      width: 15,
-                    ),
-                  ),
-                )
               ],
             ),
           ),
@@ -115,10 +84,7 @@ class SkinToneOverlay {
       FITZPATRICK.values.length,
       columns,
     );
-    final left = offset.dx -
-        (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) +
-        column * emojiSpace +
-        leftOffset;
+    final left = 600 + offset.dx - column * emojiSpace + leftOffset;
     final top = (hideHeaderAndFooter && hasVirtualKeyboardCapability ? 1 : 2) *
             PERSISTENT_EMOJI_HEADER_HEIGHT +
         (hasVirtualKeyboardCapability ? 15 : 0) +
@@ -126,7 +92,7 @@ class SkinToneOverlay {
         (row) * emojiSpace -
         scrollOffset -
         topOffset;
-    return Rect.fromLTWH(left, top, emojiSpace, 0.0);
+    return Rect.fromLTWH(left, top, emojiSpace, 45);
   }
 
   static Widget _buildSkinToneEmoji(
