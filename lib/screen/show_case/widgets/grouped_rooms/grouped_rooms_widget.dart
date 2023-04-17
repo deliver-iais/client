@@ -21,9 +21,10 @@ class GroupedRoomsWidget extends StatelessWidget {
       onArrowButtonPressed: () => _routingService.openAllGroupedRoomsGridPage(
         groupedRooms: showCase.groupedRooms,
       ),
+      height: 180,
+      width: 180,
       listItemsLength: showCase.groupedRooms.roomsList.length,
       listItems: _buildGroupedRoomsItems,
-      scrollController: ScrollController(),
     );
   }
 

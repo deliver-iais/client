@@ -76,7 +76,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                         )
                       else if (button.hasCallback())
                         const Icon(
-                          Icons.call_made_rounded,
+                          Icons.open_in_new,
                           size: 20,
                           color: Colors.white,
                         )

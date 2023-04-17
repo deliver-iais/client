@@ -9,7 +9,6 @@ import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/emoji/footer/search_bar_footer.dart';
 import 'package:deliver/screen/room/widgets/emoji/header/emoji_selection_header.dart';
-import 'package:deliver/screen/room/widgets/emoji/skin_tone_overlay/skin_tone_overlay.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -169,60 +168,63 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Expanded(
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      slivers: <Widget>[
-                        //selection header
-                        if (hasVirtualKeyboardCapability &&
-                            widget.keyboardStatus ==
-                                KeyboardStatus.EMOJI_KEYBOARD)
-                          StreamBuilder<bool>(
-                            stream: _pinHeader,
-                            builder: (context, snapshot) {
-                              return _buildSelectionHeaderWidget(
-                                pinHeader: snapshot.data ?? true,
-                              );
-                            },
-                          ),
-                        if (!hasVirtualKeyboardCapability)
-                          _buildSelectionHeaderWidget(),
+                    child: Directionality(
+                      textDirection: _i18n.defaultTextDirection,
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        shrinkWrap: true,
+                        slivers: <Widget>[
+                          //selection header
+                          if (hasVirtualKeyboardCapability &&
+                              widget.keyboardStatus ==
+                                  KeyboardStatus.EMOJI_KEYBOARD)
+                            StreamBuilder<bool>(
+                              stream: _pinHeader,
+                              builder: (context, snapshot) {
+                                return _buildSelectionHeaderWidget(
+                                  pinHeader: snapshot.data ?? true,
+                                );
+                              },
+                            ),
+                          if (!hasVirtualKeyboardCapability)
+                            _buildSelectionHeaderWidget(),
 
-                        // TODO(chitsaz): fix overlay problem with text field and add search box
-                        //search box
-                        if (hasVirtualKeyboardCapability)
-                          _buildEmojiSearchBox(theme),
+                          // TODO(chitsaz): fix overlay problem with text field and add search box
+                          //search box
+                          if (hasVirtualKeyboardCapability)
+                            _buildEmojiSearchBox(theme),
 
-                        //emoji grid
-                        if (_isSearchModeEnable)
-                          StreamBuilder<List<Emoji>?>(
-                            stream: _searchEmojiResult,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                if (snapshot.data!.isNotEmpty) {
-                                  return _buildEmojiGrid(
-                                    snapshot.data!.toList(),
-                                  );
-                                } else {
-                                  return SliverToBoxAdapter(
-                                    child: SizedBox(
-                                      height: 50,
-                                      child: Center(
-                                        child: Text(_i18n.get("no_results")),
+                          //emoji grid
+                          if (_isSearchModeEnable)
+                            StreamBuilder<List<Emoji>?>(
+                              stream: _searchEmojiResult,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  if (snapshot.data!.isNotEmpty) {
+                                    return _buildEmojiGrid(
+                                      snapshot.data!.toList(),
+                                    );
+                                  } else {
+                                    return SliverToBoxAdapter(
+                                      child: SizedBox(
+                                        height: 50,
+                                        child: Center(
+                                          child: Text(_i18n.get("no_results")),
+                                        ),
                                       ),
-                                    ),
+                                    );
+                                  }
+                                } else {
+                                  return const SliverToBoxAdapter(
+                                    child: SizedBox.shrink(),
                                   );
                                 }
-                              } else {
-                                return const SliverToBoxAdapter(
-                                  child: SizedBox.shrink(),
-                                );
-                              }
-                            },
-                          )
-                        else
-                          ..._buildEmojiList()
-                      ],
+                              },
+                            )
+                          else
+                            ..._buildEmojiList()
+                        ],
+                      ),
                     ),
                   ),
 
@@ -407,23 +409,26 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   }
 
   void _onLongTap(int index, Emoji emoji) {
-    _closeSkinToneOverlay();
+    // TODO(any): there is some bugs after direction and resizable navigation bar size
+    // _closeSkinToneOverlay();
     if (emoji.emojiGroup == EmojiGroup.recentEmoji) {
       _showClearRecentEmojiDialog();
-    } else if (emoji.modifiable) {
-      _skinToneOverlay = SkinToneOverlay.getSkinToneOverlay(
-        index,
-        emoji,
-        context,
-        _scrollController.offset,
-        _onEmojiSelected,
-        widget.onSkinToneOverlay,
-        hideHeaderAndFooter: _hideHeaderAndFooter.value,
-      );
-      if (_skinToneOverlay != null) {
-        Overlay.of(context).insert(_skinToneOverlay!);
-      }
     }
+    // TODO(any): there is some bugs after direction and resizable navigation bar size
+    // else if (emoji.modifiable) {
+    //   _skinToneOverlay = SkinToneOverlay.getSkinToneOverlay(
+    //     index,
+    //     emoji,
+    //     context,
+    //     _scrollController.offset,
+    //     _onEmojiSelected,
+    //     widget.onSkinToneOverlay,
+    //     hideHeaderAndFooter: _hideHeaderAndFooter.value,
+    //   );
+    //   if (_skinToneOverlay != null) {
+    //     Overlay.of(context).insert(_skinToneOverlay!);
+    //   }
+    // }
   }
 
   void _showClearRecentEmojiDialog() {

@@ -57,6 +57,7 @@ class BuildMessageBox extends StatefulWidget {
   final void Function() onPin;
   final void Function() onUnPin;
   final bool menuDisabled;
+  final double width;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
   final bool hasPermissionInGroup;
@@ -80,6 +81,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.selectMultiMessageSubject,
     required this.selectedMessageListIndex,
     required this.hasPermissionInGroup,
+    required this.width,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
     this.menuDisabled = false,
@@ -215,7 +217,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             ),
             child: PersistentEventMessage(
               message: msg,
-              maxWidth: maxWidthOfMessage(context),
+              maxWidth: maxWidthOfMessage(widget.width),
               onPinMessageClick: widget.scrollToMessage,
             ),
           ),
@@ -319,6 +321,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       storePosition: storeTapDownPosition,
+      width: widget.width,
       onEdit: widget.onEdit,
       showMenuDisable: widget.selectMultiMessageSubject.value,
     );
@@ -435,6 +438,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storeTapDownPosition,
       onEdit: widget.onEdit,
+      width: widget.width,
       showMenuDisable: widget.selectMultiMessageSubject.value,
     );
 

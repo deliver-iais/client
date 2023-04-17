@@ -606,6 +606,11 @@ class MockAnalyticsRepo extends _i1.Mock implements _i28.AnalyticsRepo {
         returnValue: <String, int>{},
       ) as Map<String, int>);
   @override
+  Map<String, int> get coreStreamPacketFrequency => (super.noSuchMethod(
+        Invocation.getter(#coreStreamPacketFrequency),
+        returnValue: <String, int>{},
+      ) as Map<String, int>);
+  @override
   Map<String, int> get pageViewFrequency => (super.noSuchMethod(
         Invocation.getter(#pageViewFrequency),
         returnValue: <String, int>{},
@@ -616,6 +621,11 @@ class MockAnalyticsRepo extends _i1.Mock implements _i28.AnalyticsRepo {
         returnValue: <String, int>{},
       ) as Map<String, int>);
   @override
+  _i29.Stream<void> get coreStreamEvents => (super.noSuchMethod(
+        Invocation.getter(#coreStreamEvents),
+        returnValue: _i29.Stream<void>.empty(),
+      ) as _i29.Stream<void>);
+  @override
   _i29.Stream<void> get events => (super.noSuchMethod(
         Invocation.getter(#events),
         returnValue: _i29.Stream<void>.empty(),
@@ -625,6 +635,14 @@ class MockAnalyticsRepo extends _i1.Mock implements _i28.AnalyticsRepo {
         Invocation.getter(#daoEvents),
         returnValue: _i29.Stream<void>.empty(),
       ) as _i29.Stream<void>);
+  @override
+  void incCSF(String? key) => super.noSuchMethod(
+        Invocation.method(
+          #incCSF,
+          [key],
+        ),
+        returnValueForMissingStub: null,
+      );
   @override
   void incRF(String? key) => super.noSuchMethod(
         Invocation.method(
@@ -6969,6 +6987,14 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i18.DoublePersistent);
   @override
+  _i18.DoublePersistent get navigationPanelSize => (super.noSuchMethod(
+        Invocation.getter(#navigationPanelSize),
+        returnValue: _FakeDoublePersistent_25(
+          this,
+          Invocation.getter(#navigationPanelSize),
+        ),
+      ) as _i18.DoublePersistent);
+  @override
   _i18.BooleanPersistent get sendByEnter => (super.noSuchMethod(
         Invocation.getter(#sendByEnter),
         returnValue: _FakeBooleanPersistent_26(
@@ -8123,9 +8149,17 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
         returnValueForMissingStub: null,
       );
   @override
-  bool notInRoom() => (super.noSuchMethod(
+  bool prevIsEmpty() => (super.noSuchMethod(
         Invocation.method(
-          #notInRoom,
+          #prevIsEmpty,
+          [],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  bool isEmpty() => (super.noSuchMethod(
+        Invocation.method(
+          #isEmpty,
           [],
         ),
         returnValue: false,
@@ -8233,6 +8267,14 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
         ),
         returnValue: false,
       ) as bool);
+  @override
+  void animateResizablePanels() => super.noSuchMethod(
+        Invocation.method(
+          #animateResizablePanels,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
   @override
   _i20.Widget outlet(_i20.BuildContext? context) => (super.noSuchMethod(
         Invocation.method(

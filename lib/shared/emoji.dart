@@ -1,7 +1,6 @@
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11495,10 +11494,7 @@ class Emoji {
 
   static int getColumnsCount(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return (hasVirtualKeyboardCapability
-            ? width - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)
-            : DESKTOP_EMOJI_OVERLAY_WIDTH) ~/
-        45;
+    return isLarge(context) ? width ~/ 65 : width ~/ 45;
   }
 
   /// Modify skin tone of [emoji] by requested [skinTone]

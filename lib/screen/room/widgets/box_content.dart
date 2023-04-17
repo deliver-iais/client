@@ -196,8 +196,9 @@ class BoxContentState extends State<BoxContent> {
               roomId: widget.message.roomUid,
               replyToId: widget.message.replyToId,
               messageReplyBrief: widget.messageReplyBrief,
-              maxWidth:
-                  isOnlyEmojiMessage(widget.message) ? 120 : (snapshot.data ?? 0),
+              maxWidth: isOnlyEmojiMessage(widget.message)
+                  ? 120
+                  : (snapshot.data ?? 0),
               backgroundColor: colorScheme.onPrimary,
               foregroundColor: colorScheme.primary,
             );
@@ -212,7 +213,8 @@ class BoxContentState extends State<BoxContent> {
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
       margin: const EdgeInsetsDirectional.all(4),
-      padding: const EdgeInsetsDirectional.only(start: 4, end: 8, top: 4, bottom: 2),
+      padding:
+          const EdgeInsetsDirectional.only(start: 4, end: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
@@ -432,9 +434,8 @@ class BoxContentState extends State<BoxContent> {
   }
 
   Widget senderNameBox(CustomColorScheme colorScheme) {
-    final minWidth = minWidthOfMessage(context);
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
+      constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       height: 18,
       margin: const EdgeInsetsDirectional.symmetric(vertical: 4, horizontal: 8),
       child: Row(

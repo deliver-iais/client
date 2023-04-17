@@ -20,6 +20,7 @@ class SentMessageBox extends StatelessWidget {
   final void Function(TapDownDetails) storePosition;
   final void Function() onEdit;
   final bool showMenuDisable;
+  final double width;
 
   const SentMessageBox({
     super.key,
@@ -31,6 +32,7 @@ class SentMessageBox extends StatelessWidget {
     required this.onUsernameClick,
     required this.storePosition,
     required this.onArrowIconClick,
+    required this.width,
     required this.onEdit,
     this.pattern,
     this.showMenuDisable = false,
@@ -41,8 +43,8 @@ class SentMessageBox extends StatelessWidget {
     final boxContent = BoxContent(
       message: message,
       messageReplyBrief: messageReplyBrief,
-      maxWidth: maxWidthOfMessage(context),
-      minWidth: minWidthOfMessage(context),
+      maxWidth: maxWidthOfMessage(width),
+      minWidth: minWidthOfMessage(width),
       isSender: true,
       scrollToMessage: scrollToMessage,
       onBotCommandClick: (str) => {},
@@ -81,7 +83,6 @@ class SentMessageBox extends StatelessWidget {
   }
 
   bool doNotNeedsWrapper() {
-    return message.type == MessageType.STICKER ||
-        isOnlyEmojiMessage(message);
+    return message.type == MessageType.STICKER || isOnlyEmojiMessage(message);
   }
 }

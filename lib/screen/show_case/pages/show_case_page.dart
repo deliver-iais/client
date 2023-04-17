@@ -5,6 +5,7 @@ import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_wid
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_url/single_url_widget.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -59,16 +60,16 @@ class _ShowcasePageState extends State<ShowcasePage> {
             if (snapshot.hasData && snapshot.data != null) {
               return ListView.separated(
                 separatorBuilder: (context, index) {
-                  return const Padding(
-                    padding:
-                        EdgeInsetsDirectional.only(start: 20, end: 20, top: 10),
-                    child: Divider(),
+                  return const Divider(
+                    height: 1,
+                    thickness: 1,
                   );
                 },
                 itemCount: snapshot.data!.length,
                 itemBuilder: (ctx, index) {
                   return _buildShowCaseItem(
                     snapshot.data![index].json,
+                    isLast: (snapshot.data!.length == index + 1),
                   );
                 },
               );
@@ -80,7 +81,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
     );
   }
 
-  Widget _buildShowCaseItem(String showCaseJson) {
+  Widget _buildShowCaseItem(String showCaseJson, {required bool isLast}) {
     final showCaseType = _showCaseRepo.findShowCaseType(showCaseJson);
     final showCase = showCaseJson.toShowCase();
     switch (showCaseType) {
@@ -97,6 +98,8 @@ class _ShowcasePageState extends State<ShowcasePage> {
           bannerCase: showCase.singleBanner,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
+          height: 200,
+          width: showcaseBoxSingleBannerWidth(),
           showDescription: true,
         );
       case Showcase_Type.singleUrl:
@@ -104,6 +107,8 @@ class _ShowcasePageState extends State<ShowcasePage> {
           urlCase: showCase.singleUrl,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
+          imageHeight: 180,
+          width: 350,
         );
       case Showcase_Type.groupedUrl:
         return GroupedUrlWidget(

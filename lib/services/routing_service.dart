@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
@@ -45,11 +48,13 @@ import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -60,6 +65,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
+
+const _animationCurves = Curves.linearToEaseOut;
 
 // Pages
 final _globalKeyNavigationCenter = GlobalKey();
@@ -121,7 +128,9 @@ class RoutingService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
-  final _navigatorObserver = RoutingServiceNavigatorObserver();
+  final _resizableWidgetState = GlobalKey<ResizableWidgetState>();
+  late final _navigatorObserver =
+      RoutingServiceNavigatorObserver(animateResizablePanels);
   final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -512,7 +521,7 @@ class RoutingService {
         ),
       );
 
-  bool notInRoom() => _path().startsWith("/room");
+  bool isEmpty() => _path() == "/";
 
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
@@ -603,51 +612,144 @@ class RoutingService {
 
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
+  void animateResizablePanels() {
+    final currentSize =
+        _resizableWidgetState.currentState?.controller.children.first.size ??
+            NAVIGATION_PANEL_MIN_WIDTH;
+
+    const showcasePageLargeSize = LARGE_BREAKDOWN_SIZE_WIDTH;
+    const showcasePageMiniSize = NAVIGATION_PANEL_MIN_WIDTH;
+    final chatsPageDesireSize = settings.navigationPanelSize.value;
+
+    late final double direction;
+    late final double distance;
+
+    if (isEmpty()) {
+      if (settings.showShowcasePage.value &&
+          currentSize < showcasePageLargeSize) {
+        distance = showcasePageLargeSize - currentSize;
+        direction = -1;
+      } else if (!settings.showShowcasePage.value &&
+          currentSize < chatsPageDesireSize) {
+        distance = chatsPageDesireSize - currentSize;
+        direction = -1;
+      } else if (!settings.showShowcasePage.value &&
+          currentSize > chatsPageDesireSize) {
+        distance = currentSize - chatsPageDesireSize;
+        direction = 1;
+      } else {
+        return;
+      }
+    } else {
+      if (settings.showShowcasePage.value &&
+          currentSize > showcasePageMiniSize) {
+        distance = currentSize - showcasePageMiniSize;
+        direction = 1;
+      } else if (!settings.showShowcasePage.value &&
+          currentSize < chatsPageDesireSize) {
+        distance = chatsPageDesireSize - currentSize;
+        direction = -1;
+      } else if (!settings.showShowcasePage.value &&
+          currentSize > chatsPageDesireSize) {
+        distance = currentSize - chatsPageDesireSize;
+        direction = 1;
+      } else {
+        return;
+      }
+    }
+
+    if (!settings.showAnimations.value) {
+      _resizableWidgetState.currentState?.controller.resize(
+        1,
+        Offset(
+          direction * distance,
+          0,
+        ),
+        shouldCallOnResize: false,
+      );
+
+      return;
+    }
+
+    final steps = AnimationSettings.actualSuperSlow.inMilliseconds;
+    var first = 0.0;
+
+    Timer.periodic(
+      const Duration(milliseconds: 2),
+      (timer) {
+        if (timer.tick < steps) {
+          final second = min(timer.tick / steps, 1.0);
+
+          final delta = distance *
+              (_animationCurves.transform(second) -
+                  _animationCurves.transform(first));
+
+          first = second;
+
+          _resizableWidgetState.currentState?.controller.resize(
+            1,
+            Offset(direction * delta, 0),
+            shouldCallOnResize: false,
+          );
+        } else {
+          timer.cancel();
+        }
+      },
+    );
+  }
+
   Widget outlet(BuildContext context) {
-    return SafeArea(
-      child: Row(
-        children: [
-          if (isLarge(context)) ...[
-            SizedBox(
-              width: NAVIGATION_PANEL_SIZE,
-              child: _navigationCenter,
-            ),
-            const VerticalDivider(
-              thickness: 1,
-              width: 1,
-            )
-          ],
-          Expanded(
-            child: ClipRect(
-              child: Navigator(
-                key: _homeNavigatorState,
-                observers: [
-                  HeroController(
-                    createRectTween: (begin, end) {
-                      return MaterialRectArcTween(begin: begin, end: end);
-                    },
-                  ),
-                  _navigatorObserver
-                ],
-                onGenerateRoute: (r) => customPageRoute(
-                    RouteSettings(arguments: r.arguments, name: "/"),
-                    (c, animation, secondaryAnimation) {
-                  try {
-                    if (isLarge(c)) {
-                      return _empty;
-                    } else {
-                      return _navigationCenter;
-                    }
-                  } catch (_) {
-                    return _empty;
-                  }
-                }),
-              ),
-            ),
+    final widget = ClipRect(
+      child: Navigator(
+        key: _homeNavigatorState,
+        observers: [
+          HeroController(
+            createRectTween: (begin, end) {
+              return MaterialRectArcTween(begin: begin, end: end);
+            },
           ),
+          _navigatorObserver
         ],
+        onGenerateRoute: (r) =>
+            customPageRoute(RouteSettings(arguments: r.arguments, name: "/"),
+                (c, animation, secondaryAnimation) {
+          try {
+            if (isLarge(c)) {
+              return _empty;
+            } else {
+              return _navigationCenter;
+            }
+          } catch (_) {
+            return _empty;
+          }
+        }),
       ),
     );
+
+    if (isLarge(context)) {
+      return SafeArea(
+        child: ResizableWidget(
+          key: _resizableWidgetState,
+          minPercentages: const [0.2, 0.5],
+          maxPercentages: const [0.5, double.infinity],
+          percentages: settings.showShowcasePage.value
+              ? const [0.5, 0.5]
+              : const [0.2, 0.8],
+          separatorSize: 3,
+          children: [
+            _navigationCenter,
+            widget,
+          ],
+          onResized: (info) {
+            if (!settings.showShowcasePage.value) {
+              settings.navigationPanelSize.set(info.first.size);
+            }
+          },
+        ),
+      );
+    } else {
+      return SafeArea(child: widget);
+    }
   }
 
   void selectChatMenu(String key) {
@@ -730,10 +832,12 @@ class RouteEvent {
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
+  final void Function() animateFunction;
+
   final currentRoute =
       BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
-  RoutingServiceNavigatorObserver();
+  RoutingServiceNavigatorObserver(this.animateFunction);
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -743,6 +847,8 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
         previousRoute?.settings.name ?? _emptyRoute,
       ),
     );
+
+    animateFunction();
   }
 
   @override
@@ -753,6 +859,8 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
         route.settings.name ?? _emptyRoute,
       ),
     );
+
+    animateFunction();
   }
 }
 
@@ -765,28 +873,63 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Stack(
-        children: [
-          Background(),
-          Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onPrimary,
-                borderRadius: secondaryBorder,
-              ),
-              padding: const EdgeInsetsDirectional.only(
-                end: 10,
-                start: 10,
-                top: 6,
-                bottom: 4,
-              ),
-              child: Text(
-                _i18n.get("please_select_a_chat_to_start_messaging"),
-                style: theme.primaryTextTheme.bodyMedium,
-              ),
+      body: StreamBuilder<bool>(
+        stream: settings.showShowcasePage.stream,
+        builder: (context, snapshot) {
+          final isInShowcasePage = snapshot.data != null && snapshot.data!;
+
+          return AnimatedScale(
+            duration: AnimationSettings.standard,
+            curve: _animationCurves,
+            scale: isInShowcasePage ? 1 : 1.1,
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.black54,
+                ),
+                AnimatedOpacity(
+                  duration: AnimationSettings.standard,
+                  curve: _animationCurves,
+                  opacity: isInShowcasePage ? 0.8 : 1,
+                  child: Background(),
+                ),
+                AnimatedOpacity(
+                  duration: AnimationSettings.standard,
+                  curve: _animationCurves,
+                  opacity: isInShowcasePage ? 0.5 : 1,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: AnimationSettings.standard,
+                      curve: _animationCurves,
+                      decoration: BoxDecoration(
+                        color: isInShowcasePage
+                            ? theme.colorScheme.secondaryContainer
+                            : theme.colorScheme.onPrimary,
+                        borderRadius: secondaryBorder,
+                      ),
+                      padding: const EdgeInsetsDirectional.only(
+                        end: p8,
+                        start: p8,
+                        top: p8,
+                        bottom: p4,
+                      ),
+                      child: Text(
+                        _i18n.get("please_select_a_chat_to_start_messaging"),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: isInShowcasePage
+                              ? theme.colorScheme.onSecondaryContainer
+                              : theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -49,6 +49,7 @@ class ShowCaseRepo {
       //   ),
       // ),
       Showcase(
+        isAdvertisement: true,
         singleBanner: BannerCase(
           bannerImg: File(
             uuid: "a3a22351-872c-4332-99d9-90119821f8d1",
@@ -58,6 +59,8 @@ class ShowCaseRepo {
         ),
       ),
       Showcase(
+        isAdvertisement: true,
+        primary: true,
         groupedUrl: GroupedUrls(
           name: "خدمات الکترونیک مالیاتی",
           urlsList: [
@@ -111,7 +114,6 @@ class ShowCaseRepo {
         ),
       ),
       Showcase(
-        isAdvertisement: false,
         groupedUrl: GroupedUrls(
           name: "اطلاع رسانی های مالیاتی",
           urlsList: [
@@ -200,6 +202,7 @@ class ShowCaseRepo {
         ),
       ),
       Showcase(
+        isAdvertisement: true,
         groupedBanners: GroupedBanners(
           name: "سایر خدمات مالیاتی",
           bannersList: [
@@ -222,6 +225,83 @@ class ShowCaseRepo {
               bannerImg: File(
                 uuid: "3ce1cd63-2ce5-4402-ae15-f9209386cf0a",
                 name: "1669073638421.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "4:ittax_bot".asUid(),
+              bannerImg: File(
+                uuid: "4476d1ff-a1ea-4fb6-8387-6b9af9feb398",
+                name: "1669073684490.webp",
               ),
             ),
             BannerCase(
@@ -274,6 +354,8 @@ class ShowCaseRepo {
       //   ),
       // ),
       Showcase(
+        isAdvertisement: true,
+        primary: true,
         groupedBanners: GroupedBanners(
           bannersList: [
             // BannerCase(
