@@ -52,7 +52,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      if (settings.firebaseSettingIsSet.value) {
+      if (!settings.firebaseSettingIsSet.value) {
         try {
           String? token;
           try {
