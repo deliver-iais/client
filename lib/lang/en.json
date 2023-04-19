@@ -198,6 +198,7 @@
   "firstName": "First name",
   "firstname_not_empty": "Firstname should not be empty",
   "flags": "Flags",
+  "full_screen": "Full Screen",
   "foodDrink": "Food & Drink",
   "forget_password": "Forget password?",
   "forget_password_send_link": "we send forget link to",
