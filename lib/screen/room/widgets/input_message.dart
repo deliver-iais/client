@@ -602,7 +602,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     _desktopEmojiKeyboardOverlayEntry = OverlayEntry(
       builder: (context) {
         return Positioned(
-          left: 20,
+          left: DESKTOP_EMOJI_OVERLAY_PADDING,
           bottom: 40,
           child: MouseRegion(
             onHover: (val) {

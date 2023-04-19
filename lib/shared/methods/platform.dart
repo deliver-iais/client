@@ -47,7 +47,7 @@ final hasFirebaseCapability = isAndroidNative || isWeb;
 
 final hasVibrationCapability = isAndroidNative || isIOSNative;
 
-final hasVirtualKeyboardCapability = isMobileNative;
+final hasVirtualKeyboardCapability = isMobileDevice;
 
 final hasContactCapability = isMobileNative;
 

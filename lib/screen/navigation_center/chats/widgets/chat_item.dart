@@ -363,24 +363,22 @@ class ChatItemState extends State<ChatItem> {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Expanded(
-          child: RichText(
-            maxLines: 1,
-            softWrap: false,
-            overflow: TextOverflow.fade,
-            textDirection: TextDirection.ltr,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: "${i18n.get("draft")}: ",
-                  style: theme.primaryTextTheme.bodyMedium,
-                ),
-                TextSpan(
-                  text: widget.room.draft,
-                  style: theme.textTheme.bodyMedium,
-                )
-              ],
-            ),
+        RichText(
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.fade,
+          textDirection: TextDirection.ltr,
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: "${i18n.get("draft")}: ",
+                style: theme.primaryTextTheme.bodyMedium,
+              ),
+              TextSpan(
+                text: widget.room.draft,
+                style: theme.textTheme.bodyMedium,
+              )
+            ],
           ),
         ),
       ],
