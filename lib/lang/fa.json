@@ -198,6 +198,7 @@
   "firstName": "نام",
   "firstname_not_empty": "نام نباید خالی باشد",
   "flags": "پرچم ها",
+  "full_screen": "تمام صفحه",
   "foodDrink": "غذا و نوشیدنی",
   "forget_password": "زمز را فراموش کردید ؟",
   "forget_password_send_link": "ما لینک  فراموشی رمز را فرستادیم به ",

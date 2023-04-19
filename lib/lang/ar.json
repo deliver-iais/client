@@ -198,6 +198,7 @@
   "firstName": "الاسم الاول",
   "firstname_not_empty": "لا يمكن للاسم الاول ان يبقى فارغا",
   "flags": "الاعلام",
+  "full_screen": "ملء الشاشة",
   "foodDrink": "الطعام والشراب",
   "forget_password": "نسيت كلمة المرور ",
   "forget_password_send_link": "إرسال رابط كلمة المرور إلى",
