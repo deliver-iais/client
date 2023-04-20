@@ -7450,6 +7450,14 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i21.ThemeScheme);
   @override
+  _i20.ThemeData get introThemeData => (super.noSuchMethod(
+        Invocation.getter(#introThemeData),
+        returnValue: _FakeThemeData_33(
+          this,
+          Invocation.getter(#introThemeData),
+        ),
+      ) as _i20.ThemeData);
+  @override
   _i20.ThemeData get themeData => (super.noSuchMethod(
         Invocation.getter(#themeData),
         returnValue: _FakeThemeData_33(
@@ -8148,14 +8156,6 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
         ),
         returnValueForMissingStub: null,
       );
-  @override
-  bool prevIsEmpty() => (super.noSuchMethod(
-        Invocation.method(
-          #prevIsEmpty,
-          [],
-        ),
-        returnValue: false,
-      ) as bool);
   @override
   bool isEmpty() => (super.noSuchMethod(
         Invocation.method(

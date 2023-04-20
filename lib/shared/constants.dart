@@ -126,6 +126,8 @@ const ICE_CANDIDATE_TIME_LIMIT = 1500;
 const CALL_DATA_EXPIRE_CHECK_TIME_MS = 100000;
 
 //Colors
+const INTRO_COLOR_BACKGROUND = Color(0xff010e17);
+const INTRO_COLOR_FOREGROUND = Color(0xff78b7ee);
 const grayColor = Color.fromRGBO(55, 58, 62, 1.0);
 const backgroundColorCard = Color.fromRGBO(44, 99, 45, 1.0);
 
@@ -292,6 +294,8 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 ////////////////////// Functions //////////////////////
 
 // Screen Breakdown
+bool isLargeWidthForIntro(double width) => width > FLUID_MAX_WIDTH * 1.7;
+
 bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE_WIDTH;
 
 bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
@@ -316,13 +320,6 @@ bool isVeryLarge(BuildContext context) => isVeryLargeWidth(
     );
 
 // Dynamics
-double animationSquareSize(BuildContext context) => isLarge(context)
-    ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(
-        MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7,
-      );
-
 double maxWidthOfMessage(double width) =>
     min(width * 0.9 - SELECTED_MESSAGE_CHECKBOX_WIDTH, 450);
 

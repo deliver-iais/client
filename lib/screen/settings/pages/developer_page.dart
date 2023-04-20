@@ -68,16 +68,11 @@ class DeveloperPageState extends State<DeveloperPage> {
                       title: level.name,
                       leading: Icon(
                         level == GetIt.I.get<DeliverLogFilter>().level
-                            ? Icons.circle
+                            ? Icons.check_circle_rounded
                             : Icons.circle_outlined,
                         color: theme.colorScheme.primary,
                       ),
-                      trailing: level == GetIt.I.get<DeliverLogFilter>().level
-                          ? Icon(
-                              Icons.done,
-                              color: theme.colorScheme.primary,
-                            )
-                          : const SizedBox.shrink(),
+                      trailing: const SizedBox.shrink(),
                       onPressed: (context) {
                         setState(() => settings.logLevel.set(level));
                       },

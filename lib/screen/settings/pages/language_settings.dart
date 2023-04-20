@@ -52,19 +52,14 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
                       title: lang.languageName,
                       leading: Icon(
                         _i18n.locale.languageCode == lang.languageCode
-                            ? Icons.circle
+                            ? Icons.check_circle_rounded
                             : Icons.circle_outlined,
                         color: _i18n.locale.languageCode == lang.languageCode
                             ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.secondary,
                       ),
                       releaseState: lang.releaseState,
-                      trailing: _i18n.locale.languageCode == lang.languageCode
-                          ? Icon(
-                              Icons.done,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : const SizedBox.shrink(),
+                      trailing: const SizedBox.shrink(),
                       onPressed: (context) => setState(
                         () => _i18n.changeLanguage(lang),
                       ),

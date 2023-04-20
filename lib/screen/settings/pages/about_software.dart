@@ -10,7 +10,6 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -84,103 +83,109 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                 builder: (c, sms) => Section(
                   title: "Software information",
                   children: [
-                    Column(
-                      children: [
-                        SettingsTile(
-                          title: _i18n.get("version"),
-                          subtitleTextStyle: const TextStyle(),
-                          subtitle: VERSION,
-                          leading: const Icon(
-                            CupertinoIcons.square_stack_3d_down_right,
-                          ),
-                          onPressed: (_) async {
-                            developerModeCounterCountDown--;
-                            if (developerModeCounterCountDown < 1 &&
-                                !settings.showDeveloperPage.value) {
-                              setState(() {
-                                settings.showDeveloperPage.set(true);
+                    // Center(
+                    //   child: Row(
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: [
+                    //       Column(
+                    //         crossAxisAlignment: CrossAxisAlignment.start,
+                    //         children: [
+                    //           const Padding(
+                    //             padding: EdgeInsetsDirectional.only(
+                    //               start: p8,
+                    //               top: p8,
+                    //             ),
+                    //             child: Text("You have latest version"),
+                    //           ),
+                    //           Padding(
+                    //             padding: const EdgeInsetsDirectional.only(
+                    //               start: p8,
+                    //               top: p2,
+                    //             ),
+                    //             child: Text(
+                    //               "2.0.4 - Last Check on 12:00:04",
+                    //               style: TextStyle(
+                    //                 color:
+                    //                     Theme.of(context).colorScheme.outline,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           TextButton(
+                    //             onPressed: () {},
+                    //             style: TextButton.styleFrom(
+                    //               padding: const EdgeInsets.symmetric(
+                    //                 horizontal: 8.0,
+                    //               ),
+                    //               shape: const RoundedRectangleBorder(
+                    //                 borderRadius: tertiaryBorder,
+                    //               ),
+                    //             ),
+                    //             child: const Text("Download Latest Version"),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       const SizedBox(width: 16),
+                    //       Container(
+                    //         margin: const EdgeInsetsDirectional.only(
+                    //           top: p8,
+                    //           bottom: p16,
+                    //           start: p16,
+                    //         ),
+                    //         // color: Colors.red,
+                    //         width: 90,
+                    //         height: 90,
+                    //         child: Stack(
+                    //           clipBehavior: Clip.none,
+                    //           children: [
+                    //             const Image(
+                    //               image: AssetImage('assets/images/logo.webp'),
+                    //             ),
+                    //             PositionedDirectional(
+                    //               start: 0,
+                    //               bottom: -2,
+                    //               child: Container(
+                    //                 width: 22,
+                    //                 height: 22,
+                    //                 decoration: BoxDecoration(
+                    //                   shape: BoxShape.circle,
+                    //                   color: ACTIVE_COLOR,
+                    //                 ),
+                    //                 child: const Icon(
+                    //                   Icons.done,
+                    //                   size: 20,
+                    //                   color: Colors.white,
+                    //                 ),
+                    //               ),
+                    //             )
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    SettingsTile(
+                      title: _i18n.get("version"),
+                      subtitleTextStyle: const TextStyle(),
+                      subtitle: VERSION,
+                      leading: const Icon(
+                        CupertinoIcons.square_stack_3d_down_right,
+                      ),
+                      onPressed: (_) async {
+                        developerModeCounterCountDown--;
+                        if (developerModeCounterCountDown < 1 &&
+                            !settings.showDeveloperPage.value) {
+                          setState(() {
+                            settings.showDeveloperPage.set(true);
 
-                                ToastDisplay.showToast(
-                                  toastContext: context,
-                                  showWarningAnimation: true,
-                                  toastText: "Developer Page enabled",
-                                );
-                              });
-                            }
-                          },
-                          trailing: const SizedBox.shrink(),
-                        ),
-                        Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text("You have latest version"),
-                                  Text(
-                                    "2.0.5 - Last Check on 12:00:04",
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.outline,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {},
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      elevation: 10,
-                                      surfaceTintColor: Colors.red,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: tertiaryBorder,
-                                      ),
-                                    ),
-                                    child:
-                                        const Text("Download Latest Version"),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 16),
-                              Container(
-                                margin: const EdgeInsetsDirectional.only(
-                                  top: p8,
-                                  bottom: p16,
-                                  start: p16,
-                                ),
-                                // color: Colors.red,
-                                width: 70,
-                                height: 70,
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const Image(
-                                      image:
-                                          AssetImage('assets/images/logo.webp'),
-                                    ),
-                                    PositionedDirectional(
-                                      start: 0,
-                                      bottom: -2,
-                                      child: Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: ACTIVE_COLOR,
-                                        ),
-                                        child: const Icon(
-                                          Icons.done,
-                                          size: 20,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
+                            ToastDisplay.showToast(
+                              toastContext: context,
+                              showWarningAnimation: true,
+                              toastText: "Developer Page enabled",
+                            );
+                          });
+                        }
+                      },
+                      trailing: const SizedBox.shrink(),
                     ),
                     const SettingsTile(
                       title: "Build Number",

@@ -12,13 +12,14 @@ import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/intro_widget.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
@@ -185,20 +186,22 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return FluidWidget(
-      child: Form(
-        key: _formKey,
-        child: Scaffold(
-          backgroundColor: theme.colorScheme.background,
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text(_i18n.get("login")),
-            backgroundColor: theme.colorScheme.background,
+    final theme = settings.introThemeData;
+    return Theme(
+      data: theme,
+      child: IntroWidget(
+        child: Form(
+          key: _formKey,
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(_i18n.get("login")),
+              backgroundColor: theme.scaffoldBackgroundColor,
+            ),
+            body: loginWithQrCode
+                ? buildLoginWithQrCode(_i18n, context)
+                : buildNormalLogin(_i18n, context),
           ),
-          body: loginWithQrCode
-              ? buildLoginWithQrCode(_i18n, context)
-              : buildNormalLogin(_i18n, context),
         ),
       ),
     );

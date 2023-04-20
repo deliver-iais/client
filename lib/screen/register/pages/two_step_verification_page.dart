@@ -2,7 +2,8 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/widgets/intro_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
@@ -51,10 +52,9 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return FluidWidget(
+    final theme = settings.introThemeData;
+    return IntroWidget(
       child: Scaffold(
-        backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.buttonTheme.colorScheme?.onPrimary,
@@ -111,7 +111,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
           },
         ),
         appBar: AppBar(
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: theme.scaffoldBackgroundColor,
           title: Text(
             _i18n.get("two_step_verification"),
             style: TextStyle(
@@ -150,8 +150,11 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                   ),
                   const SizedBox(height: 30),
                   Padding(
-                    padding:
-                        const EdgeInsetsDirectional.only(end: 30, start: 30, bottom: 30),
+                    padding: const EdgeInsetsDirectional.only(
+                      end: 30,
+                      start: 30,
+                      bottom: 30,
+                    ),
                     child: StreamBuilder<bool>(
                       stream: _showPasswordHint,
                       builder: (context, snapshot) {
