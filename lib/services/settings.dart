@@ -329,6 +329,10 @@ class Settings {
 
   ThemeScheme get themeScheme => getThemeScheme(themeColorIndex.value);
 
+  ThemeData get introThemeData => settings.themeScheme
+      .theme(isDark: true)
+      .copyWith(scaffoldBackgroundColor: INTRO_COLOR_BACKGROUND);
+
   ThemeData get themeData => themeScheme.theme(isDark: themeIsDark.value);
 
   ExtraThemeData get extraThemeData =>

@@ -9,9 +9,10 @@ import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/string_extension.dart';
 import 'package:deliver/shared/methods/number_input_formatter.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/intro_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -44,8 +45,8 @@ class VerificationPageState extends State<VerificationPage> {
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    final result = _authRepo.sendVerificationCode(_verificationCode!
-        .replaceFarsiNumber(),
+    final result = _authRepo.sendVerificationCode(
+      _verificationCode!.replaceFarsiNumber(),
     );
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
@@ -113,10 +114,9 @@ class VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return FluidWidget(
+    final theme = settings.introThemeData;
+    return IntroWidget(
       child: Scaffold(
-        backgroundColor: theme.colorScheme.background,
         floatingActionButton: TextButton(
           onPressed: _sendVerificationCode,
           child: Text(
@@ -130,7 +130,7 @@ class VerificationPageState extends State<VerificationPage> {
           ),
         ),
         appBar: AppBar(
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: theme.scaffoldBackgroundColor,
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(
@@ -163,15 +163,23 @@ class VerificationPageState extends State<VerificationPage> {
                   ),
                   const SizedBox(height: 30),
                   Padding(
-                    padding:
-                        const EdgeInsetsDirectional.only(end: 30, start: 30, bottom: 30),
+                    padding: const EdgeInsetsDirectional.only(
+                      end: 30,
+                      start: 30,
+                      bottom: 30,
+                    ),
                     child: PinFieldAutoFill(
                       key: const Key("verificationCode"),
                       autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
                       inputFormatters: [NumberInputFormatter],
-                      cursor: Cursor(color: theme.focusColor, enabled: true, width: 1, height: 32),
+                      cursor: Cursor(
+                        color: theme.focusColor,
+                        enabled: true,
+                        width: 1,
+                        height: 32,
+                      ),
                       decoration: UnderlineDecoration(
                         colorBuilder: PinListenColorBuilder(
                           theme.colorScheme.primary,

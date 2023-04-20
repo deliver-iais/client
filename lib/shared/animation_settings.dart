@@ -1,6 +1,9 @@
 import 'package:deliver/services/settings.dart';
+import 'package:flutter/material.dart';
 
 class AnimationSettings {
+  static Curve get standardCurve => Curves.ease;
+
   static Duration? get animationOverrideDuration =>
       !settings.showAnimations.value ? const Duration(milliseconds: 1) : null;
 

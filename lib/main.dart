@@ -62,6 +62,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -390,21 +391,16 @@ void main() async {
 }
 
 Future<void> _setWindowSize() async {
-  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  setWindowMinSize(
+    WindowFrame.minSize.toSize(),
+  );
   final windowFrame = settings.windowsFrame.value;
 
   try {
-    setWindowFrame(
-      Rect.fromLTRB(
-        windowFrame.left,
-        windowFrame.top,
-        windowFrame.right,
-        windowFrame.bottom,
-      ),
-    );
+    setWindowFrame(windowFrame.toRect());
   } catch (e) {
     setWindowMinSize(
-      const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+      WindowFrame.minSize.toSize(),
     );
   }
 
