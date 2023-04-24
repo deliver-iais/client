@@ -140,7 +140,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                         values: [
                           ValueDelegate.color(
                             const ['**'],
-                            value: Theme.of(context).colorScheme.primary,
+                            value: theme.colorScheme.primary,
                           ),
                         ],
                       ),

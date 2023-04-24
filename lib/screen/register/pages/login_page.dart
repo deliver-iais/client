@@ -199,15 +199,15 @@ class LoginPageState extends State<LoginPage> {
               backgroundColor: theme.scaffoldBackgroundColor,
             ),
             body: loginWithQrCode
-                ? buildLoginWithQrCode(_i18n, context)
-                : buildNormalLogin(_i18n, context),
+                ? buildLoginWithQrCode(_i18n, theme)
+                : buildNormalLogin(_i18n, theme),
           ),
         ),
       ),
     );
   }
 
-  Widget buildLoginWithQrCode(I18N i18n, BuildContext context) {
+  Widget buildLoginWithQrCode(I18N i18n, ThemeData theme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -281,8 +281,7 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildNormalLogin(I18N i18n, BuildContext context) {
-    final theme = Theme.of(context);
+  Widget buildNormalLogin(I18N i18n, ThemeData theme) {
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
       stream: _isLoading,
@@ -371,7 +370,7 @@ class LoginPageState extends State<LoginPage> {
                                   text: TextSpan(
                                     children: buildText(
                                       "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
-                                      context,
+                                      theme,
                                     ),
                                     style: theme.textTheme.bodyMedium,
                                   ),
@@ -485,12 +484,7 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  List<InlineSpan> buildText(
-    String text,
-    BuildContext context,
-  ) {
-    final theme = Theme.of(context);
-
+  List<InlineSpan> buildText(String text, ThemeData theme) {
     return onePath(
       [Block(text: text, features: {})],
       detectorsWithSearchTermDetector(),
