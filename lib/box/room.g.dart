@@ -31,13 +31,14 @@ class RoomAdapter extends TypeAdapter<Room> {
       seenSynced: fields[12] as bool,
       replyKeyboardMarkup: fields[13] as String?,
       mentionsId: (fields[14] as List?)?.cast<int>(),
+      shouldUpdateMediaCount: fields[15] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Room obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..writeByte(13)
       ..write(obj.replyKeyboardMarkup)
       ..writeByte(14)
-      ..write(obj.mentionsId);
+      ..write(obj.mentionsId)
+      ..writeByte(15)
+      ..write(obj.shouldUpdateMediaCount);
   }
 
   @override

@@ -1038,6 +1038,7 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
     String? replyKeyboardMarkup,
     bool? forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
+    bool? shouldUpdateMediaCount,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1060,6 +1061,7 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
             #replyKeyboardMarkup: replyKeyboardMarkup,
             #forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
             #mentionsId: mentionsId,
+            #shouldUpdateMediaCount: shouldUpdateMediaCount,
           },
         ),
         returnValue: _i29.Future<void>.value(),

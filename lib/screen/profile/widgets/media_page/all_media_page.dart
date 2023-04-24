@@ -5,9 +5,11 @@ import 'package:dcache/dcache.dart';
 
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
@@ -82,6 +84,7 @@ class _AllMediaPageState extends State<AllMediaPage>
   final _messageDao = GetIt.I.get<MessageDao>();
   final _videoPlayerService = GetIt.I.get<VideoPlayerService>();
   final _autRepo = GetIt.I.get<AuthRepo>();
+  final _roomDao = GetIt.I.get<RoomDao>();
   final _metaDao = GetIt.I.get<MetaDao>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -94,7 +97,6 @@ class _AllMediaPageState extends State<AllMediaPage>
   final List<int> _showingDeletedIndexList = [];
   final LruCache<int, String> _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
-  final BehaviorSubject<Widget?> _widget = BehaviorSubject.seeded(null);
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   StreamSubscription<int>? _getIndexOfMediaStream;
   late List<Animation<double>> animationList;
@@ -102,10 +104,12 @@ class _AllMediaPageState extends State<AllMediaPage>
   late AnimationController controller;
   Animation<double>? _animation;
   late DoubleClickAnimationListener _animationListener;
-  final List<double> doubleTapScales = <double>[1.0, 2.0];
+  final List<double> _doubleTapScales = <double>[1.0, 2.0];
   int _differenceBetweenActualIndexAndShowingIndex = 0;
-  int animationIndex = 0;
-  bool disableRotate = false;
+  int? _initialMediaIndex;
+  Widget? _initialMediaUiFromMessageWidget;
+  int _animationIndex = 0;
+  bool _disableRotate = false;
 
   Future<Meta?> _getMedia(
     int index,
@@ -155,14 +159,15 @@ class _AllMediaPageState extends State<AllMediaPage>
 
   @override
   void initState() {
+    _initialMediaIndex = widget.initialMediaIndex;
     controller = AnimationController(
       duration: AnimationSettings.normal,
       vsync: this,
     )..addStatusListener((status) async {
         if (status == AnimationStatus.completed) {
           await Future.delayed(AnimationSettings.normal);
-          animationIndex = (animationIndex + 1) % 4;
-          disableRotate = false;
+          _animationIndex = (_animationIndex + 1) % 4;
+          _disableRotate = false;
         }
       });
     _animationController = AnimationController(
@@ -212,19 +217,28 @@ class _AllMediaPageState extends State<AllMediaPage>
     }
   }
 
+  Future<MetaCount?> getMetaCount() async {
+    final shouldUpdateMediaCount =
+        (await _roomDao.getRoom(widget.roomUid))?.shouldUpdateMediaCount ??
+            true;
+    if (shouldUpdateMediaCount) {
+      final metaCount = await _metaRepo.fetchMetaCountFromServer(
+        widget.roomUid.asUid(),
+      );
+      if (metaCount != null) {
+        return metaCount;
+      }
+    }
+    return _metaRepo.getMetaCount(widget.roomUid);
+  }
+
   Future<int?> _getMediaIndex() async {
-    if (widget.initialMediaIndex != null && widget.mediaCount != null) {
+    if (_initialMediaIndex != null && widget.mediaCount != null) {
       await _getAndSetDeletedIndexList();
       _allMediaCount.add(widget.mediaCount!);
-      final index =
-          _convertActualIndexToShowingIndex(widget.initialMediaIndex!);
-      _currentIndex.add(index);
-      return index;
+      return _covertIndexAndSetAsCurrentIndex(_initialMediaIndex!);
     }
-    final metaCount = await _metaRepo.fetchMetaCountFromServer(
-          widget.roomUid.asUid(),
-        ) ??
-        await _metaRepo.getMetaCount(widget.roomUid);
+    final metaCount = await getMetaCount();
 
     if (metaCount != null) {
       await _getAndSetDeletedIndexList();
@@ -236,9 +250,7 @@ class _AllMediaPageState extends State<AllMediaPage>
       );
 
       if (metaIndex != null && metaIndex >= 0) {
-        final index = _convertActualIndexToShowingIndex(metaIndex);
-        _currentIndex.add(index);
-        return index;
+        return _covertIndexAndSetAsCurrentIndex(metaIndex);
       } else {
         final mediaIndex = await _metaRepo.getMetaIndexFromMessageId(
           messageId: widget.message!.id ?? 0,
@@ -254,16 +266,21 @@ class _AllMediaPageState extends State<AllMediaPage>
             meta_pb.MetaGroup.MEDIA,
           );
           _saveFetchedMediaInCache(res);
-          final index = _convertActualIndexToShowingIndex(mediaIndex);
-          _currentIndex.add(index);
-          return index;
+          return _covertIndexAndSetAsCurrentIndex(mediaIndex);
         }
       }
     }
     return null;
   }
 
-  Widget buildAnimation() {
+  int _covertIndexAndSetAsCurrentIndex(int mediaIndex) {
+    final index = _convertActualIndexToShowingIndex(mediaIndex);
+    _initialMediaIndex = index;
+    _currentIndex.add(index);
+    return index;
+  }
+
+  Widget buildAnimation(Widget widget) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       transitionBuilder: (child, animation) {
@@ -289,21 +306,7 @@ class _AllMediaPageState extends State<AllMediaPage>
             color: Colors.black,
           );
         },
-        child: StreamBuilder<Widget?>(
-          stream: _widget,
-          initialData: const Center(
-            child: CircularProgressIndicator(),
-          ),
-          builder: (c, w) {
-            if (w.hasData && w.data != null) {
-              return w.data!;
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
+        child: widget,
       ),
     );
   }
@@ -325,15 +328,7 @@ class _AllMediaPageState extends State<AllMediaPage>
         body: FutureBuilder<int?>(
           future: _getMediaIndex(),
           builder: (c, index) {
-            if (index.hasData) {
-              if (index.data != null) {
-                _widget.add(buildMediaByIndex());
-              } else if (widget.message != null) {
-                _widget.add(_buildSingleMedia());
-              }
-            }
-
-            return buildAnimation();
+            return buildAnimation(buildMediaByIndex(index));
           },
         ),
       ),
@@ -356,9 +351,13 @@ class _AllMediaPageState extends State<AllMediaPage>
     );
   }
 
-  Widget _buildSingleMedia() {
+  Widget _buildSingleMediaIfMessageExist({bool hasData = false}) {
+    if (widget.message == null ||
+        (!hasData && widget.message!.json.toFile().isVideoFileProto())) {
+      return _buildLoading();
+    }
     final file = widget.message!.json.toFile();
-    return buildMediaUi(
+    return _initialMediaUiFromMessageWidget = buildMediaUi(
       filePath: widget.filePath!,
       file: file,
       createdOn: widget.message!.time,
@@ -374,97 +373,105 @@ class _AllMediaPageState extends State<AllMediaPage>
     required String createdBy,
     required int createdOn,
   }) {
-    return Stack(
-      children: [
-        GestureDetector(
-          onTapUp: (_) {
-            if (_isBarShowing.value) {
-              _isBarShowing.add(false);
-            } else {
-              _isBarShowing.add(true);
-            }
-          },
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: AnimatedBuilder(
-                animation: animationList[animationIndex],
-                child: (file.isImageFileProto())
-                    ? ImageMediaWidget(
-                        onDoubleTap: (state) {
-                          ///you can use define pointerDownPosition as you can,
-                          ///default value is double tap pointer down postion.
-                          final pointerDownPosition = state.pointerDownPosition;
-                          final begin = state.gestureDetails?.totalScale ?? 1.0;
-                          double end;
+    return HeroMode(
+      enabled: settings.showAnimations.value,
+      child: Hero(
+        tag: file.uuid,
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTapUp: (_) {
+                if (_isBarShowing.value) {
+                  _isBarShowing.add(false);
+                } else {
+                  _isBarShowing.add(true);
+                }
+              },
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: AnimatedBuilder(
+                    animation: animationList[_animationIndex],
+                    child: (file.isImageFileProto())
+                        ? ImageMediaWidget(
+                            onDoubleTap: (state) {
+                              ///you can use define pointerDownPosition as you can,
+                              ///default value is double tap pointer down postion.
+                              final pointerDownPosition =
+                                  state.pointerDownPosition;
+                              final begin =
+                                  state.gestureDetails?.totalScale ?? 1.0;
+                              double end;
 
-                          //remove old
-                          _animation?.removeListener(_animationListener);
+                              //remove old
+                              _animation?.removeListener(_animationListener);
 
-                          //stop pre
-                          //reset to use
-                          _animationController
-                            ..stop()
-                            ..reset();
+                              //stop pre
+                              //reset to use
+                              _animationController
+                                ..stop()
+                                ..reset();
 
-                          if (begin == doubleTapScales[0]) {
-                            end = doubleTapScales[1];
-                          } else {
-                            end = doubleTapScales[0];
-                          }
+                              if (begin == _doubleTapScales[0]) {
+                                end = _doubleTapScales[1];
+                              } else {
+                                end = _doubleTapScales[0];
+                              }
 
-                          _animationListener = () {
-                            //print(_animation.value);
-                            state.handleDoubleTap(
-                              scale: _animation?.value,
-                              doubleTapPosition: pointerDownPosition,
-                            );
-                          };
-                          _animation = _animationController
-                              .drive(Tween<double>(begin: begin, end: end));
+                              _animationListener = () {
+                                //print(_animation.value);
+                                state.handleDoubleTap(
+                                  scale: _animation?.value,
+                                  doubleTapPosition: pointerDownPosition,
+                                );
+                              };
+                              _animation = _animationController
+                                  .drive(Tween<double>(begin: begin, end: end));
 
-                          _animation?.addListener(_animationListener);
+                              _animation?.addListener(_animationListener);
 
-                          _animationController.forward();
-                        },
-                        filePath: filePath,
-                      )
-                    : VideoMediaWidget(
-                        caption: file.caption,
-                        videoFilePath: filePath,
-                      ),
-                builder: (context, child) => Transform.rotate(
-                  angle: animationList[animationIndex].value,
-                  child: child,
+                              _animationController.forward();
+                            },
+                            filePath: filePath,
+                          )
+                        : VideoMediaWidget(
+                            caption: file.caption,
+                            videoFilePath: filePath,
+                          ),
+                    builder: (context, child) => Transform.rotate(
+                      angle: animationList[_animationIndex].value,
+                      child: child,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: StreamBuilder<bool>(
+                initialData: true,
+                stream: _isBarShowing,
+                builder: (context, snapshot) {
+                  return AnimatedOpacity(
+                    duration: AnimationSettings.slow,
+                    opacity: snapshot.data! ? 1 : 0,
+                    child: buildBottomSection(
+                      createdOn: createdOn,
+                      createdBy: createdBy,
+                      messageId: messageId,
+                      file: file,
+                    ),
+                  );
+                },
+              ),
+            )
+          ],
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: StreamBuilder<bool>(
-            initialData: true,
-            stream: _isBarShowing,
-            builder: (context, snapshot) {
-              return AnimatedOpacity(
-                duration: AnimationSettings.slow,
-                opacity: snapshot.data! ? 1 : 0,
-                child: buildBottomSection(
-                  createdOn: createdOn,
-                  createdBy: createdBy,
-                  messageId: messageId,
-                  file: file,
-                ),
-              );
-            },
-          ),
-        )
-      ],
+      ),
     );
   }
 
-  Stack buildMediaByIndex() {
+  Stack buildMediaByIndex(AsyncSnapshot<int?> indexData) {
     return Stack(
       children: [
         Row(
@@ -474,123 +481,126 @@ class _AllMediaPageState extends State<AllMediaPage>
               StreamBuilder<int>(
                 stream: _currentIndex,
                 builder: (context, indexSnapShot) {
-                  if (indexSnapShot.hasData &&
-                      indexSnapShot.data != -1 &&
-                      indexSnapShot.data != _allMediaCount.value) {
-                    return IconButton(
-                      onPressed: () {
-                        _pageController.nextPage(
-                          duration: AnimationSettings.slow,
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_outlined),
-                      color: theme.primaryColorLight,
-                    );
-                  } else {
-                    return const SizedBox(
-                      width: 40,
-                    );
-                  }
+                  return AnimatedSwitcher(
+                    duration: AnimationSettings.standard,
+                    child: (indexSnapShot.hasData &&
+                            indexSnapShot.data != -1 &&
+                            indexSnapShot.data != _allMediaCount.value &&
+                            !_isInvalidIndex())
+                        ? IconButton(
+                            onPressed: () {
+                              _pageController.nextPage(
+                                duration: AnimationSettings.slow,
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            icon: const Icon(Icons.arrow_back_ios_outlined),
+                            color: theme.primaryColorLight,
+                          )
+                        : const SizedBox(
+                            width: 40,
+                          ),
+                  );
                 },
               ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
-                child: ExtendedImageGesturePageView.builder(
-                  itemBuilder: (context, index) {
-                    return FutureBuilder<Meta?>(
-                      future: _getMedia(index),
-                      builder: (c, mediaSnapShot) {
-                        if (mediaSnapShot.hasData) {
-                          final file = mediaSnapShot.data!.json.toFile();
-                          return HeroMode(
-                            enabled: settings.showAnimations.value,
-                            child: Hero(
-                              tag: file.uuid,
-                              child: FutureBuilder<String?>(
-                                initialData: _fileCache.get(index),
-                                future: _fileRepo.getFile(
-                                  file.uuid,
-                                  file.name,
-                                ),
-                                builder: (c, filePath) {
-                                  if (filePath.hasData &&
-                                      filePath.data != null) {
-                                    _fileCache.set(
-                                      index,
-                                      filePath.data!,
-                                    );
+                child: indexData.data == null || _isInvalidIndex()
+                    ? _buildSingleMediaIfMessageExist(
+                        hasData: indexData.hasData,
+                      )
+                    : ExtendedImageGesturePageView.builder(
+                        itemBuilder: (context, index) {
+                          return FutureBuilder<Meta?>(
+                            future: _getMedia(index),
+                            builder: (c, mediaSnapShot) {
+                              if (_initialMediaIndex == index &&
+                                  widget.message != null &&
+                                  _initialMediaUiFromMessageWidget != null) {
+                                return _initialMediaUiFromMessageWidget!;
+                              }
+                              if (mediaSnapShot.hasData) {
+                                final file = mediaSnapShot.data!.json.toFile();
+                                return FutureBuilder<String?>(
+                                  initialData: _fileCache.get(index),
+                                  future: _fileRepo.getFile(
+                                    file.uuid,
+                                    file.name,
+                                  ),
+                                  builder: (c, filePath) {
+                                    if (filePath.hasData &&
+                                        filePath.data != null) {
+                                      _fileCache.set(
+                                        index,
+                                        filePath.data!,
+                                      );
 
-                                    final mediaUi = buildMediaUi(
-                                      filePath: filePath.data!,
-                                      file: file,
-                                      createdOn: mediaSnapShot.data!.createdOn,
-                                      createdBy: mediaSnapShot.data!.createdBy,
-                                      messageId: mediaSnapShot.data!.messageId,
-                                    );
-                                    return isDesktopDevice
-                                        ? InteractiveViewer(
-                                            child: mediaUi,
-                                          )
-                                        : mediaUi;
-                                  } else {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
+                                      final mediaUi = buildMediaUi(
+                                        filePath: filePath.data!,
+                                        file: file,
+                                        createdOn:
+                                            mediaSnapShot.data!.createdOn,
+                                        createdBy:
+                                            mediaSnapShot.data!.createdBy,
+                                        messageId:
+                                            mediaSnapShot.data!.messageId,
+                                      );
+                                      return isDesktopDevice
+                                          ? InteractiveViewer(
+                                              child: mediaUi,
+                                            )
+                                          : mediaUi;
+                                    } else {
+                                      return _buildLoading();
+                                    }
+                                  },
+                                );
+                              } else {
+                                return _buildLoading();
+                              }
+                            },
                           );
-                        } else {
-                          return Center(
-                            child: CircularProgressIndicator(
-                              color: theme.colorScheme.primary,
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  },
-                  itemCount: (_allMediaCount.value) + 1,
-                  onPageChanged: (index) {
-                    _videoPlayerService.desktopPlayers[
-                            _fileCache.get(_currentIndex.value).hashCode]
-                        ?.stop();
-                    _currentIndex.add(index);
-                    _videoPlayerService
-                        .desktopPlayers[_fileCache.get(index).hashCode]
-                        ?.play();
-                  },
-                  controller: _pageController,
-                ),
+                        },
+                        itemCount: (_allMediaCount.value) + 1,
+                        onPageChanged: (index) {
+                          _videoPlayerService.desktopPlayers[
+                                  _fileCache.get(_currentIndex.value).hashCode]
+                              ?.stop();
+                          _currentIndex.add(index);
+                          _videoPlayerService
+                              .desktopPlayers[_fileCache.get(index).hashCode]
+                              ?.play();
+                        },
+                        controller: _pageController,
+                      ),
               ),
             ),
             if (isDesktopDevice)
               StreamBuilder<int>(
                 stream: _currentIndex,
                 builder: (context, indexSnapShot) {
-                  if (indexSnapShot.hasData && indexSnapShot.data! > 1) {
-                    return IconButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: AnimationSettings.slow,
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      icon: Icon(
-                        Icons.arrow_forward_ios_outlined,
-                        color: theme.primaryColorLight,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox(
-                      width: 40,
-                    );
-                  }
+                  return AnimatedSwitcher(
+                    duration: AnimationSettings.standard,
+                    child: (indexSnapShot.hasData &&
+                            indexSnapShot.data! > 1 &&
+                            !_isInvalidIndex())
+                        ? IconButton(
+                            onPressed: () {
+                              _pageController.previousPage(
+                                duration: AnimationSettings.slow,
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            icon: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              color: theme.primaryColorLight,
+                            ),
+                          )
+                        : const SizedBox(
+                            width: 40,
+                          ),
+                  );
                 },
               )
           ],
@@ -598,6 +608,8 @@ class _AllMediaPageState extends State<AllMediaPage>
       ],
     );
   }
+
+  bool _isInvalidIndex() => _currentIndex.value > _allMediaCount.value;
 
   Widget buildBottomSection({
     required int messageId,
@@ -627,6 +639,9 @@ class _AllMediaPageState extends State<AllMediaPage>
   }
 
   Future<Message?> getMessage() async {
+    if (_currentIndex.value == _initialMediaIndex && widget.message != null) {
+      return widget.message;
+    }
     final media = await _getMedia(_currentIndex.value);
     final message = await _messageDao.getMessage(
       widget.roomUid,
@@ -642,84 +657,78 @@ class _AllMediaPageState extends State<AllMediaPage>
   }) {
     return Container(
       color: Colors.black.withAlpha(120),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: MediaTimeAndNameStatusWidget(
-                createdBy: createdBy,
-                createdOn: createdOn,
-                roomUid: widget.roomUid,
-              ),
+      child: Row(
+        children: [
+          Expanded(
+            child: MediaTimeAndNameStatusWidget(
+              createdBy: createdBy,
+              createdOn: createdOn,
+              roomUid: widget.roomUid,
             ),
-            // const Spacer(),
-            if (widget.onEdit != null)
-              FutureBuilder<Message?>(
-                future: _messageDao.getMessage(
-                  widget.roomUid,
-                  messageId,
-                ),
-                builder: (context, message) {
-                  if (message.hasData &&
-                      message.data != null &&
-                      checkMessageTime(message.data!) &&
-                      _autRepo.isCurrentUserSender(message.data!)) {
-                    return IconButton(
-                      onPressed: () async {
-                        await OperationOnMessageSelection(
-                          message: message.data!,
-                          context: context,
-                          onEdit: widget.onEdit,
-                        ).selectOperation(OperationOnMessage.EDIT);
-                        _routingService.pop();
-                      },
-                      tooltip: _i18n.get("edit"),
-                      icon: const Icon(
-                        Icons.edit_rounded,
-                        color: Colors.white,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            IconButton(
-              onPressed: () {
-                if (!disableRotate) {
-                  disableRotate = true;
-                  controller.forward(from: 0);
+          ),
+          // const Spacer(),
+          if (widget.onEdit != null)
+            FutureBuilder<Message?>(
+              future: getMessage(),
+              builder: (context, message) {
+                if (message.hasData &&
+                    message.data != null &&
+                    checkMessageTime(message.data!) &&
+                    _autRepo.isCurrentUserSender(message.data!)) {
+                  return IconButton(
+                    onPressed: () async {
+                      await OperationOnMessageSelection(
+                        message: message.data!,
+                        context: context,
+                        onEdit: widget.onEdit,
+                      ).selectOperation(OperationOnMessage.EDIT);
+                      _routingService.pop();
+                    },
+                    tooltip: _i18n.get("edit"),
+                    icon: const Icon(
+                      Icons.edit_rounded,
+                      color: Colors.white,
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
                 }
               },
-              tooltip: _i18n.get("rotate"),
+            ),
+          IconButton(
+            onPressed: () {
+              if (!_disableRotate) {
+                _disableRotate = true;
+                controller.forward(from: 0);
+              }
+            },
+            tooltip: _i18n.get("rotate"),
+            icon: const Icon(
+              Icons.rotate_right_rounded,
+              color: Colors.white,
+            ),
+          ),
+          if (isAndroidNative)
+            IconButton(
+              tooltip: _i18n.get("share"),
+              onPressed: () async {
+                final message = await getMessage();
+                if (context.mounted) {
+                  return OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                  ).selectOperation(
+                    OperationOnMessage.SHARE,
+                  );
+                }
+              },
               icon: const Icon(
-                Icons.rotate_right_rounded,
+                Icons.share_rounded,
                 color: Colors.white,
               ),
             ),
-            if (isAndroidNative)
-              IconButton(
-                tooltip: _i18n.get("share"),
-                onPressed: () async {
-                  final message = await getMessage();
-                  if (context.mounted) {
-                    return OperationOnMessageSelection(
-                      message: message!,
-                      context: context,
-                    ).selectOperation(
-                      OperationOnMessage.SHARE,
-                    );
-                  }
-                },
-                icon: const Icon(
-                  Icons.share_rounded,
-                  color: Colors.white,
-                ),
-              ),
-            if (isDesktopNative) _buildPopupMenuButton(),
-          ],
-        ),
+          if (isDesktopNative) _buildPopupMenuButton(),
+        ],
       ),
     );
   }
@@ -823,6 +832,14 @@ class _AllMediaPageState extends State<AllMediaPage>
           getMessage: getMessage,
         ),
       ],
+    );
+  }
+
+  Widget _buildLoading() {
+    return Center(
+      child: CircularProgressIndicator(
+        color: theme.colorScheme.primary,
+      ),
     );
   }
 }

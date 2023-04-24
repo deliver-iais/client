@@ -25,12 +25,15 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
@@ -74,6 +77,9 @@ class DataStreamServices {
     final roomUid = getRoomUid(_authRepo, message);
     if (isOnlineMessage) {
       await _checkForReplyKeyBoard(message);
+    }
+    if (message.whichType() == Message_Type.file) {
+      await _checkForNewMedia(message.file, roomUid.asString());
     }
 
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -342,7 +348,7 @@ class DataStreamServices {
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
     final msg = await saveMessageInMessagesDB(res.messages.first);
-    if (msg != null && msg.id != null && _metaRepo.isMessageContainMeta(msg) ) {
+    if (msg != null && msg.id != null && _metaRepo.isMessageContainMeta(msg)) {
       await _metaRepo.updateMeta(msg);
     }
     if (isOnlineMessage) {
@@ -453,6 +459,10 @@ class DataStreamServices {
     final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       final msg = pm.msg.copyWith(id: id, time: time);
+      if (msg.type == MessageType.FILE) {
+        final file = msg.json.toFile();
+        await _checkForNewMedia(file, msg.roomUid);
+      }
       try {
         await _messageDao.deletePendingMessage(packetId);
       } catch (e) {
@@ -484,6 +494,15 @@ class DataStreamServices {
         parameters: {
           "packetId": messageDeliveryAck.packetId,
         },
+      );
+    }
+  }
+
+  Future<void> _checkForNewMedia(File file, String roomUid) async {
+    if (file.isImageFileProto() || file.isVideoFileProto()) {
+      await _roomDao.updateRoom(
+        uid: roomUid,
+        shouldUpdateMediaCount: true,
       );
     }
   }

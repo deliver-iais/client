@@ -1,10 +1,8 @@
-import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 class MediaTimeAndNameStatusWidget extends StatelessWidget {
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final String createdBy;
   final int createdOn;
@@ -24,21 +22,8 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        FutureBuilder<String>(
-          future: _roomRepo.getName(
-            (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid(),
-          ),
-          builder: (c, name) {
-            if (name.hasData && name.data != null) {
-              return Text(
-                name.data!,
-                overflow: TextOverflow.fade,
-                style: theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
+        RoomName(
+          uid: (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid(),
         ),
         const SizedBox(
           height: 10,
