@@ -115,105 +115,108 @@ class VerificationPageState extends State<VerificationPage> {
   @override
   Widget build(BuildContext context) {
     final theme = settings.introThemeData;
-    return IntroWidget(
-      child: Scaffold(
-        floatingActionButton: TextButton(
-          onPressed: _sendVerificationCode,
-          child: Text(
-            _i18n.get("start"),
-            key: const Key('start'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-              fontSize: 14.5,
-            ),
-          ),
-        ),
-        appBar: AppBar(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          title: Text(
-            _i18n.get("verification"),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  const SizedBox(height: 30),
-                  const Icon(Icons.message, size: 50),
-                  const SizedBox(height: 10),
-                  Text(
-                    _i18n.get("enter_code"),
-                    style: const TextStyle(fontSize: 17),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    textDirection: _i18n.defaultTextDirection,
-                    _i18n.get("we_have_send_a_code"),
-                    style: const TextStyle(fontSize: 17),
-                  ),
-                  const SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(
-                      end: 30,
-                      start: 30,
-                      bottom: 30,
-                    ),
-                    child: PinFieldAutoFill(
-                      key: const Key("verificationCode"),
-                      autoFocus: true,
-                      focusNode: _focusNode,
-                      codeLength: 5,
-                      inputFormatters: [NumberInputFormatter],
-                      cursor: Cursor(
-                        color: theme.focusColor,
-                        enabled: true,
-                        width: 1,
-                        height: 32,
-                      ),
-                      decoration: UnderlineDecoration(
-                        colorBuilder: PinListenColorBuilder(
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ),
-                        textStyle: theme.primaryTextTheme.headlineSmall!
-                            .copyWith(color: theme.colorScheme.primary),
-                      ),
-                      currentCode: _verificationCode,
-                      onCodeSubmitted: (code) {
-                        _verificationCode = code;
-                        _logger.d(_verificationCode);
-                        _sendVerificationCode();
-                      },
-                      onCodeChanged: (code) {
-                        if (code != null) {
-                          _logger.d(_verificationCode);
-                          _verificationCode = code;
-                          if (code.length == 5) {
-                            _sendVerificationCode();
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                  if (_showError)
-                    Text(
-                      _i18n.get("wrong_code"),
-                      style: theme.primaryTextTheme.titleMedium!
-                          .copyWith(color: theme.colorScheme.error),
-                    ),
-                ],
+    return Theme(
+      data: theme,
+      child: IntroWidget(
+        child: Scaffold(
+          floatingActionButton: TextButton(
+            onPressed: _sendVerificationCode,
+            child: Text(
+              _i18n.get("start"),
+              key: const Key('start'),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+                fontSize: 14.5,
               ),
-            ],
+            ),
+          ),
+          appBar: AppBar(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            title: Text(
+              _i18n.get("verification"),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    const SizedBox(height: 30),
+                    const Icon(Icons.message, size: 50),
+                    const SizedBox(height: 10),
+                    Text(
+                      _i18n.get("enter_code"),
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                      textDirection: _i18n.defaultTextDirection,
+                      _i18n.get("we_have_send_a_code"),
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        end: 30,
+                        start: 30,
+                        bottom: 30,
+                      ),
+                      child: PinFieldAutoFill(
+                        key: const Key("verificationCode"),
+                        autoFocus: true,
+                        focusNode: _focusNode,
+                        codeLength: 5,
+                        inputFormatters: [NumberInputFormatter],
+                        cursor: Cursor(
+                          color: theme.focusColor,
+                          enabled: true,
+                          width: 1,
+                          height: 32,
+                        ),
+                        decoration: UnderlineDecoration(
+                          colorBuilder: PinListenColorBuilder(
+                            theme.colorScheme.primary,
+                            theme.colorScheme.secondary,
+                          ),
+                          textStyle: theme.primaryTextTheme.headlineSmall!
+                              .copyWith(color: theme.colorScheme.primary),
+                        ),
+                        currentCode: _verificationCode,
+                        onCodeSubmitted: (code) {
+                          _verificationCode = code;
+                          _logger.d(_verificationCode);
+                          _sendVerificationCode();
+                        },
+                        onCodeChanged: (code) {
+                          if (code != null) {
+                            _logger.d(_verificationCode);
+                            _verificationCode = code;
+                            if (code.length == 5) {
+                              _sendVerificationCode();
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    if (_showError)
+                      Text(
+                        _i18n.get("wrong_code"),
+                        style: theme.primaryTextTheme.titleMedium!
+                            .copyWith(color: theme.colorScheme.error),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

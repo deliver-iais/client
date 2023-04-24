@@ -81,7 +81,10 @@ class AuthRepo {
         ..phoneNumber = p
         ..type = VerificationType.SMS
         ..platform = platform,
-      options: CallOptions(timeout: const Duration(seconds: 10)),
+      options: CallOptions(
+        timeout: const Duration(seconds: 10),
+        metadata: {"no_access_token": ""},
+      ),
     );
 
     emitNewVersionInformationIfNeeded(res.newerVersionInformation);
@@ -101,6 +104,7 @@ class AuthRepo {
         ..device = device
         ..platform = platform
         ..password = password ?? "",
+      options: CallOptions(metadata: {"no_access_token": ""}),
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -129,6 +133,7 @@ class AuthRepo {
         ..device = device
         ..platform = platform
         ..password = password ?? "",
+      options: CallOptions(metadata: {"no_access_token": ""}),
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -429,6 +434,11 @@ class DeliverClientInterceptor implements ClientInterceptor {
     Map<String, String> metadata,
     String uri,
   ) async {
+    if (metadata['no_access_token'] != null) {
+      metadata.remove('no_access_token');
+      return;
+    }
+
     if (metadata['access_token']?.isEmpty ?? true) {
       metadata['access_token'] = await _authRepo.getAccessToken();
     }
