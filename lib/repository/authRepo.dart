@@ -222,6 +222,7 @@ class AuthRepo {
     try {
       settings.accessToken.set("");
       settings.refreshToken.set("");
+      settings.refreshTokenDao.set("");
       settings.localPassword.set("");
     } catch (e) {
       _logger.e(e);
@@ -336,7 +337,9 @@ class AuthRepo {
 
   void handleGrpcError(GrpcError e) {
     if (e.code == StatusCode.unauthenticated) {
-      unawaited(GetIt.I.get<RoutingService>().logout());
+      if (isLoggedIn()) {
+        unawaited(GetIt.I.get<RoutingService>().logout());
+      }
     } else if (e.code == StatusCode.aborted) {
       emitOutOfDateIfNeeded();
     }
