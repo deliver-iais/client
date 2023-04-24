@@ -132,14 +132,16 @@ class SettingsPageState extends State<SettingsPage> {
                                     style: theme.primaryTextTheme.titleMedium,
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    buildPhoneNumber(
-                                      snapshot.data!.countryCode!,
-                                      snapshot.data!.nationalNumber!,
-                                    ),
-                                    textDirection: TextDirection.ltr,
-                                    style: theme.textTheme.titleMedium,
-                                  )
+                                  if (snapshot.data!.countryCode != null &&
+                                      snapshot.data!.nationalNumber != null)
+                                    Text(
+                                      buildPhoneNumber(
+                                        snapshot.data!.countryCode!,
+                                        snapshot.data!.nationalNumber!,
+                                      ),
+                                      textDirection: TextDirection.ltr,
+                                      style: theme.textTheme.titleMedium,
+                                    )
                                 ],
                               );
                             } else {
