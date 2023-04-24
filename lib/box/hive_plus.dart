@@ -74,4 +74,9 @@ class BoxPlus<E> {
     if (kDebugMode) _analyticsRepo.incDao("values/${box.name}");
     return box.values;
   }
+
+  Map<dynamic, E> toMap() {
+    if (kDebugMode) _analyticsRepo.incDao("toMap()/${box.name}");
+    return box.toMap();
+  }
 }

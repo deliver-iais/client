@@ -1,14 +1,9 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
-import 'package:deliver/screen/intro/pages/intro_page.dart';
-import 'package:deliver/screen/settings/account_settings.dart';
-import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/input_pin.dart';
@@ -18,134 +13,33 @@ import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
-import 'package:rive/rive.dart';
-import 'package:rxdart/rxdart.dart';
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class LockPage extends StatefulWidget {
+  const LockPage({super.key});
 
   @override
-  SplashScreenState createState() => SplashScreenState();
+  State<LockPage> createState() => _LockPageState();
 }
 
-class SplashScreenState extends State<SplashScreen>
+class _LockPageState extends State<LockPage>
     with TickerProviderStateMixin {
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _textEditingController = TextEditingController();
   final _shakeController = ShakeWidgetController();
   final _focusNode = FocusNode();
-
   late AnimationController _animationController;
-  final _locked = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
     _animationController = AnimationController(vsync: this, value: 1);
-    tryInitAccountRepo();
     super.initState();
   }
 
   @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> tryInitAccountRepo() async {
-    try {
-      await _accountRepo.checkUpdatePlatformSessionInformation();
-      return _authRepo.init(retry: true).then((_) {
-        if (!_authRepo.isLocalLockEnabled()) {
-          Timer(const Duration(milliseconds: 510), () {
-            navigateToApp();
-          });
-        } else {
-          _locked.add(true);
-        }
-      });
-    } catch (_) {}
-  }
-
-  Future<void> navigateToApp() async {
-    if (_authRepo.isLoggedIn()) {
-      unawaited(_navigateToHomePage());
-    } else {
-      _navigateToIntroPage();
-    }
-  }
-
-  void _navigateToIntroPage() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (c) {
-          return const IntroPage();
-        },
-      ),
-    );
-  }
-
-  Future<void> _navigateToHomePage() async {
-    _fireBaseServices.sendFireBaseToken().ignore();
-    final hasProfile = await _accountRepo.hasProfile(retry: true);
-    if (!mounted) return;
-    if (hasProfile) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const HomePage(),
-          transitionDuration: const Duration(milliseconds: 1000),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeThroughTransition(
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              child: child,
-            );
-          },
-        ),
-      ).ignore();
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (c) {
-            return const AccountSettings(
-              forceToSetName: true,
-            );
-          },
-        ),
-      ).ignore();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 100),
-        child: StreamBuilder<bool>(
-          initialData: false,
-          stream: _locked,
-          builder: (c, s) {
-            if (s.hasData && s.data!) {
-              return desktopLock();
-            }
-            return loading(context);
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget desktopLock() {
     final theme = settings.themeScheme.theme(isDark: true);
-
     return Theme(
       data: theme,
       child: Scaffold(
@@ -215,9 +109,25 @@ class SplashScreenState extends State<SplashScreen>
   void checkPassword(String pass) {
     if (_authRepo.localPasswordIsCorrect(pass)) {
       _animationController.reverse(from: 1);
-      Timer(const Duration(milliseconds: 650), () {
-        navigateToApp();
-      });
+      Timer(
+        const Duration(milliseconds: 650),
+        () => Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomePage(),
+            transitionDuration: const Duration(milliseconds: 500),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeThroughTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                child: child,
+              );
+            },
+          ),
+        ),
+      );
     } else {
       setState(() {
         _shakeController.shake();
@@ -225,29 +135,5 @@ class SplashScreenState extends State<SplashScreen>
         _focusNode.requestFocus();
       });
     }
-  }
-
-  void _onRiveInit(Artboard artboard) {
-    final controller = StateMachineController(artboard.stateMachines.first);
-    artboard.addController(controller);
-  }
-
-  Widget loading(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Container(
-      color: Colors.black,
-      child: Center(
-        child: SizedBox(
-          width: min(220, size.width * 0.4),
-          height: min(220, size.height * 0.4),
-          child: RiveAnimation.asset(
-            'assets/animations/intro.riv',
-            fit: BoxFit.contain,
-            onInit: _onRiveInit,
-          ),
-        ),
-      ),
-    );
   }
 }

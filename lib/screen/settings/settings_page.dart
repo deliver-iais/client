@@ -5,7 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -193,7 +193,7 @@ class SettingsPageState extends State<SettingsPage> {
                             settings.appContext,
                             MaterialPageRoute(
                               builder: (c) {
-                                return const SplashScreen();
+                                return const LockPage();
                               },
                             ),
                           );

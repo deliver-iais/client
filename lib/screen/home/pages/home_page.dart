@@ -6,11 +6,13 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/core_services.dart';
+import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -48,6 +50,7 @@ class HomePageState extends State<HomePage> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   @override
   void initState() {
@@ -96,6 +99,7 @@ class HomePageState extends State<HomePage> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        checkHasProfile();
         checkIfVersionChange();
       }
     });
@@ -111,8 +115,27 @@ class HomePageState extends State<HomePage> {
 
     _contactRepo.sendNotSyncedContactInStartTime();
     if (isAndroidNative) _backgroundService.startBackgroundService();
-
+    _fireBaseServices.sendFireBaseToken().ignore();
     super.initState();
+  }
+
+  Future<void> checkHasProfile() async {
+    if (!await _accountRepo.hasProfile()) {
+      if (context.mounted) {
+        unawaited(
+          (Navigator.pushReplacement(
+            settings.appContext,
+            MaterialPageRoute(
+              builder: (c) {
+                return const AccountSettings(
+                  forceToSetName: true,
+                );
+              },
+            ),
+          )),
+        );
+      }
+    }
   }
 
   Future<void> checkAddToHomeInWeb(BuildContext context) async {

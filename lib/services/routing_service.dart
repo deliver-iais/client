@@ -505,9 +505,9 @@ class RoutingService {
         ),
       );
 
-  void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
+  void openMucInfoDeterminationPage({required bool isChannel}) => _push(
         MucInfoDeterminationPage(
-          key: const ValueKey("/group-info-determination-page"),
+          key: const ValueKey("/muc-info-determination-page"),
           isChannel: isChannel,
         ),
       );

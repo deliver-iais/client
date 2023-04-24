@@ -21,6 +21,11 @@ import 'package:rxdart/rxdart.dart';
 final settings = GetIt.I.get<Settings>();
 
 class Settings {
+  static Future<void> init() async {
+    await SharedPreferenceStorage.init();
+    await SharedDaoStorage.init();
+  }
+
   final batteryMonitor = PerformanceMonitor.batteryMonitor;
   final performanceMode = PerformanceMonitor.performanceModeSetting;
   final powerSaverBatteryLevel = PerformanceMonitor.powerSaverBatteryLevel;
@@ -68,6 +73,10 @@ class Settings {
   final sendByEnter = BooleanPersistent(
     SharedKeys.SHARED_DAO_SEND_BY_ENTER.inSharedDaoStorage(),
     defaultValue: isDesktopDevice,
+  );
+  final hasProfile = BooleanPersistent(
+    SharedKeys.HAS_PROFILE.inSharedDaoStorage(),
+    defaultValue: false,
   );
   final allRoomFetched = BooleanPersistent(
     SharedKeys.SHARED_DAO_ALL_ROOMS_FETCHED.inSharedDaoStorage(),
@@ -148,7 +157,7 @@ class Settings {
     defaultValue: true,
   );
   final showDeveloperPage = BooleanPersistent(
-    SharedKeys.SHOW_DEVELOPER_PAGE.inMemoryStorage(),
+    SharedKeys.SHOW_DEVELOPER_PAGE.inSharedDaoStorage(),
     defaultValue: false,
   );
   late final themeIsDark = BooleanPersistent(
@@ -158,7 +167,7 @@ class Settings {
   );
   late final showDeveloperDetails = BooleanPersistent(
     SharedKeys.SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS
-        .inSharedDaoStorage(),
+        .inMemoryStorage(),
     defaultValue: false,
   );
   final keyboardSizePortrait = DoublePersistent(

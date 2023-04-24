@@ -72,20 +72,19 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
           widget.isChannel ? _i18n.get("new_channel") : _i18n.get("new_group"),
         ),
       ),
-      body: SingleChildScrollView(
-        child: FluidContainerWidget(
-          showStandardContainer: true,
-          backGroundColor: elevation(
-            theme.colorScheme.surface,
-            theme.colorScheme.primary,
-            2,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
+      body: FluidContainerWidget(
+        showStandardContainer: true,
+        backGroundColor: elevation(
+          theme.colorScheme.surface,
+          theme.colorScheme.primary,
+          2,
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: SingleChildScrollView(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
@@ -241,7 +240,13 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     ),
                   ],
                 ),
-                Row(
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
@@ -328,10 +333,10 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                   ],
-                )
-              ],
-            ),
-          ),
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
