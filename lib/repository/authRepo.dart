@@ -2,7 +2,6 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
@@ -23,7 +22,6 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -66,41 +64,12 @@ class AuthRepo {
 
   Duration get serverTimeDiff => Duration(milliseconds: _serverTimeDiff);
 
-  Future<void> init({bool retry = false}) async {
-    try {
-      if (retry) {
-        // Run just first time...
-        await syncTimeWithServer();
-      }
-
-      if (accessToken.isNotEmpty) {
-        _setCurrentUserUidFromAccessToken(accessToken);
-      }
-    } catch (e) {
-      _logger.e(e);
-
-      await restoreSharedPreferenceFile();
-
-      if (retry) {
-        return init();
-      }
+  Future<void> init() async {
+    if (accessToken.isNotEmpty) {
+      _setCurrentUserUidFromAccessToken(accessToken);
     }
-  }
-
-  Future<void> restoreSharedPreferenceFile() async {
-    try {
-      //delete shared pref file
-      if (isWindowsNative || isLinuxNative) {
-        final path =
-            "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
-        if (File(path).existsSync()) {
-          await (File(path)).delete(recursive: true);
-          _logger.i("delete $path");
-        }
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
+    // Run just first time...
+    await syncTimeWithServer();
   }
 
   Future<void> getVerificationCode(PhoneNumber p) async {
@@ -264,13 +233,19 @@ class AuthRepo {
 
   Future<void> syncTimeWithServer() async {
     try {
-      return calculateServerTimeDiff(timeout: const Duration(seconds: 2));
+      return await calculateServerTimeDiff(timeout: const Duration(seconds: 1));
     } catch (_) {
       // Just ignore this option and set "Zero"
       _serverTimeDiff = 0;
 
       // Retry with more timeout duration
-      unawaited(calculateServerTimeDiff(timeout: const Duration(seconds: 20)));
+      try {
+        unawaited(
+          calculateServerTimeDiff(timeout: const Duration(seconds: 20)),
+        );
+      } catch (_) {
+        // Ignore
+      }
     }
   }
 

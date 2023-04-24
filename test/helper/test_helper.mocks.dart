@@ -1661,19 +1661,9 @@ class MockAuthRepo extends _i1.Mock implements _i37.AuthRepo {
         returnValue: '',
       ) as String);
   @override
-  _i29.Future<void> init({bool? retry = false}) => (super.noSuchMethod(
+  _i29.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
-          [],
-          {#retry: retry},
-        ),
-        returnValue: _i29.Future<void>.value(),
-        returnValueForMissingStub: _i29.Future<void>.value(),
-      ) as _i29.Future<void>);
-  @override
-  _i29.Future<void> restoreSharedPreferenceFile() => (super.noSuchMethod(
-        Invocation.method(
-          #restoreSharedPreferenceFile,
           [],
         ),
         returnValue: _i29.Future<void>.value(),
@@ -4410,6 +4400,14 @@ class MockSharedDao extends _i1.Mock implements _i55.SharedDao {
         returnValue: _i29.Future<void>.value(),
         returnValueForMissingStub: _i29.Future<void>.value(),
       ) as _i29.Future<void>);
+  @override
+  _i29.Future<Map<String, String>> toMap() => (super.noSuchMethod(
+        Invocation.method(
+          #toMap,
+          [],
+        ),
+        returnValue: _i29.Future<Map<String, String>>.value(<String, String>{}),
+      ) as _i29.Future<Map<String, String>>);
 }
 
 /// A class which mocks [AvatarRepo].
@@ -7003,6 +7001,14 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i18.BooleanPersistent);
   @override
+  _i18.BooleanPersistent get hasProfile => (super.noSuchMethod(
+        Invocation.getter(#hasProfile),
+        returnValue: _FakeBooleanPersistent_26(
+          this,
+          Invocation.getter(#hasProfile),
+        ),
+      ) as _i18.BooleanPersistent);
+  @override
   _i18.BooleanPersistent get allRoomFetched => (super.noSuchMethod(
         Invocation.getter(#allRoomFetched),
         returnValue: _FakeBooleanPersistent_26(
@@ -8131,10 +8137,10 @@ class MockRoutingService extends _i1.Mock implements _i100.RoutingService {
         returnValueForMissingStub: null,
       );
   @override
-  void openGroupInfoDeterminationPage({required bool? isChannel}) =>
+  void openMucInfoDeterminationPage({required bool? isChannel}) =>
       super.noSuchMethod(
         Invocation.method(
-          #openGroupInfoDeterminationPage,
+          #openMucInfoDeterminationPage,
           [],
           {#isChannel: isChannel},
         ),

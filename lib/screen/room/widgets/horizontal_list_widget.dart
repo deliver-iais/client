@@ -34,13 +34,13 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
       }
     });
     widget.controller.addListener(() {
-      if (widget.controller.position.maxScrollExtent ==
+      if (widget.controller.position.maxScrollExtent <=
           widget.controller.position.pixels) {
         setState(() {
           _isFirstOfTheList = false;
           _isEndOfTheList = true;
         });
-      } else if (widget.controller.position.pixels == 0) {
+      } else if (widget.controller.position.pixels <= 0) {
         setState(() {
           _isFirstOfTheList = true;
           _isEndOfTheList = false;
@@ -61,10 +61,7 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
       alignment: Alignment.center,
       children: [
         widget.child,
-        if (!_isFirstOfTheList)
-          fadeLayout(
-            isLeftPosition: true,
-          ),
+        if (!_isFirstOfTheList) fadeLayout(isLeftPosition: true),
         if (!_isFirstOfTheList)
           arrowIcon(
             arrowIcon: Icons.arrow_back_ios_outlined,
@@ -85,29 +82,26 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
       return Positioned(
         left: isLeftPosition ? 0 : null,
         right: isLeftPosition ? null : 0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: widget.primaryColor.withAlpha(100),
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-          padding: const EdgeInsets.all(8.0),
-          child: IconButton(
+        child: IconButton(
+          style: IconButton.styleFrom(
+            backgroundColor: widget.primaryColor.withOpacity(0.25),
+            foregroundColor: widget.primaryColor.withOpacity(0.9),
+            minimumSize: const Size.square(20),
+            maximumSize: const Size.square(30),
+            fixedSize: const Size.square(30),
             padding: const EdgeInsets.all(5),
-            constraints: const BoxConstraints(),
-            icon: Icon(
-              arrowIcon,
-              color: widget.primaryColor,
-            ),
-            onPressed: () {
-              widget.controller.animateTo(
-                isLeftPosition
-                    ? widget.controller.position.pixels - widget.maxWidth * 0.7
-                    : widget.controller.position.pixels + widget.maxWidth * 0.7,
-                duration: AnimationSettings.superSlow,
-                curve: Curves.ease,
-              );
-            },
           ),
+          iconSize: 20,
+          icon: Icon(arrowIcon),
+          onPressed: () {
+            widget.controller.animateTo(
+              isLeftPosition
+                  ? widget.controller.position.pixels - widget.maxWidth * 0.7
+                  : widget.controller.position.pixels + widget.maxWidth * 0.7,
+              duration: AnimationSettings.superSlow,
+              curve: Curves.ease,
+            );
+          },
         ),
       );
     }
@@ -130,9 +124,11 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
                   isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
               end:
                   isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
+              stops: const [0, 0.6, 1],
               colors: [
                 widget.fadeLayoutColor,
-                widget.fadeLayoutColor.withAlpha(80),
+                widget.fadeLayoutColor.withOpacity(0.5),
+                widget.fadeLayoutColor.withOpacity(0),
               ],
             ),
           ),

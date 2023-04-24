@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/dao/box_dao.dart';
+import 'package:deliver/repository/contactRepo.dart';
+import 'package:get_it/get_it.dart';
 
 enum TableInfo {
   ACCOUNT_TABLE_NAME("ACCOUNT", 1),
@@ -49,7 +51,7 @@ enum TableInfo {
   SHARED_TABLE_NAME("SHARED", 1),
   SCROLL_POSITION_TABLE_NAME("SCROLL_POSITION", 1),
   ROOM_SEEN_TABLE_NAME("ROOM_SEEN", 1),
-  REGISTERED_BOT_TABLE_NAME("REGISTERED_BOT",1),
+  REGISTERED_BOT_TABLE_NAME("REGISTERED_BOT", 1),
   META_DELETED_INDEX_TABLE_NAME("META_DELETED_INDEX", 1),
   MESSAGE_ID_TO_META_INDEX_TABLE_NAME("MESSAGE_ID_TO_META_INDEX", 1),
   SHOULD_FETCH_DELETED_INDEX_TABLE_NAME("SHOULD_FETCH_DELETED_INDEX", 1);
@@ -96,6 +98,9 @@ class DBManager {
     for (final boxInfo in boxes) {
       if (boxInfo.version != getTableInfo(boxInfo.name)?.version) {
         unawaited(BoxDao.deleteBox(boxInfo.dbKey));
+        if (boxInfo.name == TableInfo.CONTACT_TABLE_NAME.name) {
+          unawaited(GetIt.I.get<ContactRepo>().getContacts());
+        }
       }
     }
   }

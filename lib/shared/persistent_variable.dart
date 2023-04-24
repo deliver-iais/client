@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:battery_plus/battery_plus.dart';
@@ -9,13 +10,13 @@ import 'package:deliver/models/time_counter.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
 
 // TODO(bitbeter): add in package.yaml
 // ignore: depend_on_referenced_packages
 import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:synchronized/synchronized.dart';
 
 /// Variable Interface
 abstract class _Variable<T> {
@@ -51,9 +52,9 @@ abstract class Storage {
 
   const Storage(this.key);
 
-  Future<void> save(String value);
+  void save(String value);
 
-  Future<String?> get();
+  String? get();
 }
 
 /// Persistent Variable Interface
@@ -65,21 +66,26 @@ abstract class _PersistentVariable<T> extends _Variable<T> {
   }
 
   Future<void> init() async {
-    final val = await storage.get();
-
+    final val = storage.get();
     if (val != null) {
       _value.add(stringToType(val, defaultValue: defaultValue));
     }
   }
 
   @override
-  bool set(T value) {
-    if (super.set(value)) {
-      storage.save(typeToString(value));
-      return true;
+  bool set(T value, {bool retry = true}) {
+    try {
+      if (super.set(value)) {
+        storage.save(typeToString(value));
+        return true;
+      }
+      return false;
+    } catch (_) {
+      if (retry) {
+        return set(value, retry: false);
+      }
+      return false;
     }
-
-    return false;
   }
 
   String get name => storage.key.name;
@@ -191,57 +197,81 @@ abstract class _EnumPersistent<T extends Enum> extends _PersistentVariable<T> {
 
 // Storages Definitions
 
+class MemoryStorage {
+  final map = <SharedKeys, String?>{};
+
+  String? get(SharedKeys key) => map[key];
+
+  void save(SharedKeys key, String? value) {
+    map[key] = value;
+  }
+}
+
 /// In Memory Implementation of Storage
 class InMemoryStorage extends Storage {
-  static final map = <SharedKeys, String>{};
+  static final _mem = MemoryStorage();
 
   InMemoryStorage(super.key);
 
   @override
-  Future<String?> get() => Future.value(map[key]);
+  String? get() => _mem.get(key);
 
   @override
-  Future<void> save(String value) async {
-    map[key] = value;
-    return;
-  }
+  void save(String value) => _mem.save(key, value);
 }
 
 /// ShareDao Implementation of Storage
 class SharedDaoStorage extends Storage {
+  static final _mem = MemoryStorage();
   static final _sharedDao = GetIt.I.get<SharedDao>();
 
   SharedDaoStorage(super.key);
 
-  @override
-  Future<String?> get() => _sharedDao.get(key);
+  static Future<void> init() async {
+    final m = await _sharedDao.toMap();
+
+    for (final e in SharedKeys.values) {
+      _mem.save(e, m[e.name]);
+    }
+  }
 
   @override
-  Future<void> save(String value) => _sharedDao.put(key, value);
+  String? get() => _mem.get(key);
+
+  @override
+  void save(String value) => _sharedDao.put(key, value);
 }
 
 /// SharedPreference Implementation of Storage
 class SharedPreferenceStorage extends Storage {
-  static final _initLock = Lock();
-  static bool _isInitiated = false;
   static late SharedPreferences _prefs;
 
   SharedPreferenceStorage(super.key);
 
   static Future<void> init() async {
-    if (_isInitiated) return;
+    try {
+      _prefs = await SharedPreferences.getInstance();
+    } catch (_) {
+      await _restoreSharedPreferenceFile();
+      _prefs = await SharedPreferences.getInstance();
+    }
+  }
 
-    return _initLock.synchronized(() async {
-      if (!_isInitiated) _prefs = await SharedPreferences.getInstance();
-      _isInitiated = true;
-    });
+  static Future<void> _restoreSharedPreferenceFile() async {
+    try {
+      //delete shared pref file
+      if (isWindowsNative || isLinuxNative) {
+        final path =
+            "${(await getApplicationSupportDirectory()).path}\\shared_preferences.json";
+        if (File(path).existsSync()) {
+          await (File(path)).delete(recursive: true);
+        }
+      }
+    } catch (_) {}
   }
 
   @override
-  Future<String?> get() async {
-    await init();
-    return _prefs.getString(key.name);
-  }
+  String? get() => _prefs.getString(key.name);
 
   @override
   Future<void> save(String value) => _prefs.setString(key.name, value);

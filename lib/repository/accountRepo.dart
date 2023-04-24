@@ -7,7 +7,6 @@ import 'package:deliver/box/account.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -29,8 +28,12 @@ class AccountRepo {
   final _dbManager = GetIt.I.get<DBManager>();
 
   Future<bool> hasProfile({bool retry = false}) async {
+    if (settings.hasProfile.value) {
+      return true;
+    }
     final account = await _accountDao.getAccount();
     if (account != null && account.firstname != null) {
+      settings.hasProfile.set(true);
       return true;
     }
     try {
@@ -61,6 +64,7 @@ class AccountRepo {
         description: result.profile.description,
         twoStepVerificationEnabled: result.profile.isPasswordProtected,
       );
+      settings.hasProfile.set(true);
       return true;
     } else {
       return false;
@@ -227,22 +231,24 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final applicationVersion = settings.applicationVersion.value;
-    final dbHashCode = settings.dbHashCode.value;
-    if (applicationVersion.isEmpty || applicationVersion != VERSION) {
-      if (dbHashCode != _dbManager.getDbVersionHashcode()) {
-        try {
-          await _dbManager.migrate(removeOld: true);
-          settings.allRoomFetched.set(false);
-          settings.onceShowNewVersionInformation.reset();
-          // TODO(dansi): why is here, it should be safer place in code instead of here
-          unawaited(GetIt.I.get<ContactRepo>().getContacts());
-        } catch (e) {
-          _logger.e(e);
+    try {
+      final applicationVersion = settings.applicationVersion.value;
+      final dbHashCode = settings.dbHashCode.value;
+      if (applicationVersion.isEmpty || applicationVersion != VERSION) {
+        if (dbHashCode != _dbManager.getDbVersionHashcode()) {
+          try {
+            await _dbManager.migrate(removeOld: true);
+            settings.allRoomFetched.set(false);
+            settings.onceShowNewVersionInformation.reset();
+          } catch (e) {
+            _logger.e(e);
+          }
+          settings.dbHashCode.set(_dbManager.getDbVersionHashcode());
         }
-        settings.dbHashCode.set(_dbManager.getDbVersionHashcode());
+        unawaited(_updateSessionInformationIfNeed());
       }
-      unawaited(_updateSessionInformationIfNeed());
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

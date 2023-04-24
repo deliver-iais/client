@@ -231,7 +231,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         ),
                         label: Text(_i18n["next"]),
                         onPressed: () {
-                          _routingService.openGroupInfoDeterminationPage(
+                          _routingService.openMucInfoDeterminationPage(
                             isChannel: widget.isChannel,
                           );
                         },

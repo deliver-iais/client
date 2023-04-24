@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:clock/clock.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
@@ -79,7 +82,9 @@ import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/intro/pages/intro_page.dart';
+import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_auto_play_service.dart';
@@ -123,6 +128,7 @@ import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
+import 'package:rive/rive.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart';
 import 'package:window_size/window_size.dart';
@@ -137,9 +143,12 @@ import 'repository/caching_repo.dart';
 import 'repository/mucRepo.dart';
 import 'repository/show_case_repo.dart';
 
-void registerSingleton<T extends Object>(T instance) {
+T registerSingleton<T extends Object>(T instance) {
   if (!GetIt.I.isRegistered<T>()) {
     GetIt.I.registerSingleton<T>(instance);
+    return instance;
+  } else {
+    return GetIt.I.get<T>();
   }
 }
 
@@ -149,13 +158,13 @@ Future<void> setupDI() async {
   // Setup Logger
   registerSingleton<DeliverLogFilter>(DeliverLogFilter());
   registerSingleton<DeliverLogOutput>(DeliverLogOutput());
-  registerSingleton<Logger>(
+  final logger = registerSingleton<Logger>(
     Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
       level: kDebugMode ? Level.info : Level.nothing,
       output: GetIt.I.get<DeliverLogOutput>(),
     ),
-  );
+  )..i("db and log initialized");
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
@@ -165,14 +174,18 @@ Future<void> setupDI() async {
   registerSingleton<AuthRepo>(AuthRepo());
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<FeatureFlags>(FeatureFlags());
-  await GetIt.I.get<AuthRepo>().init(retry: true);
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+
+  await GetIt.I.get<AuthRepo>().init();
+  logger.i("Auth repo init successfully");
+
   GetIt.I.get<ServicesDiscoveryRepo>().initClientChannels();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
   registerSingleton<EventService>(EventService());
   registerSingleton<AccountRepo>(AccountRepo());
+  await GetIt.I.get<AccountRepo>().checkUpdatePlatformSessionInformation();
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<FileService>(FileService());
@@ -235,6 +248,8 @@ Future<void> setupDI() async {
   if (isMobileNative) {
     registerSingleton<CameraService>(MobileCameraService());
   }
+
+  logger.i("DI setup done successfully");
 }
 
 Future<void> dbSetupDI() async {
@@ -312,11 +327,8 @@ Future<void> dbSetupDI() async {
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
   registerSingleton<CallDataUsageDao>(CallDataUsageDaoImpl());
-
+  await Settings.init();
   registerSingleton<Settings>(Settings());
-
-  /// Initiating Settings Variables
-  await Future.delayed(const Duration(milliseconds: 500));
 }
 
 Future initializeFirebase() async {
@@ -343,6 +355,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (isDesktopNative) {
+    setWindowTitle(APPLICATION_NAME);
+
     FlutterWindowClose.setWindowShouldCloseHandler(() async {
       return true;
     });
@@ -358,141 +372,248 @@ void main() async {
     // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
 
-  logger.i("OS based setups done.");
-
-  try {
-    await setupDI();
-  } catch (e) {
-    logger.e(e);
-  }
-
-  logger.i("Dependency Injection setup done.");
-
-  if (isDesktopNative) {
-    try {
-      await _setWindowSize();
-
-      setWindowTitle(APPLICATION_NAME);
-    } catch (e) {
-      logger.e(e);
-    }
-  }
   if (isWeb) {
     document.onContextMenu.listen((e) => e.preventDefault());
   }
 
   Paint.enableDithering = true;
   runApp(
-    FeatureDiscovery.withProvider(
-      persistenceProvider: const NoPersistenceProvider(),
+    const FeatureDiscovery.withProvider(
+      persistenceProvider: NoPersistenceProvider(),
       child: MyApp(),
     ),
   );
 }
 
-Future<void> _setWindowSize() async {
-  setWindowMinSize(
-    WindowFrame.minSize.toSize(),
-  );
-  final windowFrame = settings.windowsFrame.value;
+class MyApp extends StatefulWidget {
+  const MyApp({
+    super.key,
+  });
 
-  try {
-    setWindowFrame(windowFrame.toRect());
-  } catch (e) {
-    setWindowMinSize(
-      WindowFrame.minSize.toSize(),
-    );
-  }
-
-  // setWindowMaxSize(const Size(3000, 3000));
-
-  // Showcase Creation Values
-  // Tablet
-  // const width = 1139.0;
-  // const height = 755.0;
-  // setWindowMinSize(const Size(width, height));
-  // setWindowMaxSize(const Size(width, height));
-  // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
-
-  // Mobile
-  // const width = 362.0;
-  // const height = 688.0;
-  // setWindowMinSize(const Size(width, height));
-  // setWindowMaxSize(const Size(width, height));
-  // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
+  @override
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyApp extends StatelessWidget {
-  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
-
-  MyApp({super.key});
+class _MyAppState extends State<MyApp> {
+  final _animating = BehaviorSubject.seeded(true);
+  final _initiating = BehaviorSubject.seeded(true);
+  late final Stream<bool> _loading = MergeStream([_initiating, _animating])
+      .shareValueSeeded(true)
+      .map((event) => _initiating.value || _animating.value)
+      .distinct();
 
   @override
   Widget build(BuildContext context) {
-    settings.updateMainContext(context);
-    return StreamBuilder(
-      stream: MergeStream([
-        settings.themeColorIndex.stream,
-        settings.backgroundPatternIndex.stream,
-        settings.themeIsDark.stream,
-        settings.showColorfulMessages.stream,
-        settings.textScale.stream,
-        _appLifecycleService.lifecycleStream,
-        _i18n.localeStream,
-      ]),
-      builder: (ctx, snapshot) {
-        return Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: ExtraTheme(
-            extraThemeData: settings.extraThemeData,
-            child: AnnotatedRegion<SystemUiOverlayStyle>(
-              value: SystemUiOverlayStyle(
-                statusBarIconBrightness: settings.brightnessOpposite,
-                systemNavigationBarColor:
-                    settings.themeData.colorScheme.onInverseSurface,
-                systemNavigationBarIconBrightness: settings.brightnessOpposite,
-              ),
-              child: RawKeyboardListener(
-                focusNode:
-                    FocusNode(skipTraversal: true, canRequestFocus: false),
-                onKey: (event) {
-                  _rawKeyboardService
-                    ..escapeHandling(event)
-                    ..searchHandling(event);
-                },
-                child: MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: APPLICATION_NAME,
-                  locale: _i18n.locale,
-                  theme: settings.themeData,
-                  navigatorKey: _routingService.mainNavigatorState,
-                  supportedLocales: Language.values.map((e) => e.locale),
-                  localizationsDelegates: [
-                    I18N.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate
-                  ],
-                  home: const SplashScreen(),
-                  localeResolutionCallback: (deviceLocale, supportedLocale) {
-                    for (final locale in supportedLocale) {
-                      if (locale.languageCode == deviceLocale!.languageCode &&
-                          locale.countryCode == deviceLocale.countryCode) {
-                        return deviceLocale;
-                      }
-                    }
-                    return supportedLocale.first;
-                  },
-                  // builder: (x, c) => c!,
-                ),
-              ),
+    return StreamBuilder<bool>(
+      initialData: true,
+      stream: _loading,
+      builder: (c, loadingSnapshot) {
+        if (loadingSnapshot.data ?? true) {
+          return buildLoading();
+        }
+
+        // App now initialized and can be configure
+        settings.updateMainContext(context);
+
+        return NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: onWindowSizeChange,
+          child: SizeChangedLayoutNotifier(
+            child: StreamBuilder(
+              stream: MergeStream([
+                settings.themeColorIndex.stream,
+                settings.backgroundPatternIndex.stream,
+                settings.themeIsDark.stream,
+                settings.showColorfulMessages.stream,
+                settings.textScale.stream,
+                GetIt.I.get<AppLifecycleService>().lifecycleStream,
+                GetIt.I.get<I18N>().localeStream,
+              ]),
+              builder: (ctx, snapshot) {
+                return Directionality(
+                  textDirection: GetIt.I.get<I18N>().defaultTextDirection,
+                  child: ExtraTheme(
+                    extraThemeData: settings.extraThemeData,
+                    child: AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: SystemUiOverlayStyle(
+                        statusBarIconBrightness: settings.brightnessOpposite,
+                        systemNavigationBarColor:
+                            settings.themeData.colorScheme.onInverseSurface,
+                        systemNavigationBarIconBrightness:
+                            settings.brightnessOpposite,
+                      ),
+                      child: RawKeyboardListener(
+                        focusNode: FocusNode(
+                          skipTraversal: true,
+                          canRequestFocus: false,
+                        ),
+                        onKey: (event) {
+                          GetIt.I.get<RawKeyboardService>()
+                            ..escapeHandling(event)
+                            ..searchHandling(event);
+                        },
+                        child: MaterialApp(
+                          debugShowCheckedModeBanner: false,
+                          title: APPLICATION_NAME,
+                          onGenerateRoute: (_) {
+                            return MaterialPageRoute(
+                              builder: (context) {
+                                settings.updateMainContext(context);
+
+                                final authRepo = GetIt.I.get<AuthRepo>();
+
+                                if (authRepo.isLocalLockEnabled()) {
+                                  return const LockPage();
+                                }
+                                if (authRepo.isLoggedIn()) {
+                                  return const HomePage();
+                                }
+                                return const IntroPage();
+                              },
+                            );
+                          },
+                          locale: GetIt.I.get<I18N>().locale,
+                          theme: settings.themeData,
+                          navigatorKey:
+                              GetIt.I.get<RoutingService>().mainNavigatorState,
+                          supportedLocales:
+                              Language.values.map((e) => e.locale),
+                          localizationsDelegates: [
+                            I18N.delegate,
+                            GlobalMaterialLocalizations.delegate,
+                            GlobalWidgetsLocalizations.delegate,
+                            GlobalCupertinoLocalizations.delegate
+                          ],
+                          // home: const SplashScreen(),
+                          localeResolutionCallback:
+                              (deviceLocale, supportedLocale) {
+                            for (final locale in supportedLocale) {
+                              if (locale.languageCode ==
+                                      deviceLocale!.languageCode &&
+                                  locale.countryCode ==
+                                      deviceLocale.countryCode) {
+                                return deviceLocale;
+                              }
+                            }
+                            return supportedLocale.first;
+                          },
+                          // builder: (x, c) => c!,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    _init();
+    super.initState();
+  }
+
+  void _setWindowSize() {
+    final windowFrame = settings.windowsFrame.value;
+
+    try {
+      setWindowFrame(windowFrame.toRect());
+    } catch (e) {
+      setWindowMinSize(
+        WindowFrame.minSize.toSize(),
+      );
+    }
+
+    // setWindowMaxSize(const Size(3000, 3000));
+
+    // Showcase Creation Values
+    // Tablet
+    // const width = 1139.0;
+    // const height = 755.0;
+    // setWindowMinSize(const Size(width, height));
+    // setWindowMaxSize(const Size(width, height));
+    // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
+
+    // Mobile
+    // const width = 362.0;
+    // const height = 688.0;
+    // setWindowMinSize(const Size(width, height));
+    // setWindowMaxSize(const Size(width, height));
+    // setWindowFrame(const Rect.fromLTRB(0, 0, width, height));
+  }
+
+  Future<void> _init() async {
+    await setupDI();
+
+    // Init anyway after some time - no more than 2 seconds
+    Timer(const Duration(seconds: 2000), () {
+      _animating.add(false);
+      _initiating.add(false);
+    });
+
+    try {
+      if (isDesktopNative) {
+        _setWindowSize();
+      }
+    } catch (_) {}
+
+    // Initiating is done
+    _initiating.add(false);
+  }
+
+  MaterialApp buildLoading() {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Builder(
+        builder: (context) {
+          return Container(
+            color: Colors.black,
+            child: Center(
+              child: SizedBox(
+                width: min(220, MediaQuery.of(context).size.width * 0.4),
+                height: min(220, MediaQuery.of(context).size.height * 0.4),
+                child: RiveAnimation.asset(
+                  'assets/animations/intro.riv',
+                  fit: BoxFit.contain,
+                  onInit: _onRiveInit,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
+    if (isDesktopNative) {
+      getWindowInfo().then((size) {
+        settings.windowsFrame.set(
+          WindowFrame(
+            left: size.frame.left,
+            top: size.frame.top,
+            right: size.frame.right,
+            bottom: size.frame.bottom,
+          ),
+        );
+      });
+    }
+    return true;
+  }
+
+  void _onRiveInit(Artboard artBoard) {
+    final controller = StateMachineController(artBoard.stateMachines.first);
+
+    controller.isActiveChanged.addListener(() async {
+      if (!controller.isActive) {
+        // Animating is done
+        _animating.add(false);
+      }
+    });
+
+    artBoard.addController(controller);
   }
 }

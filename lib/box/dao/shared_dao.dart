@@ -9,6 +9,8 @@ abstract class SharedDao {
   Future<String?> get(SharedKeys key);
 
   Future<void> put(SharedKeys key, String value);
+
+  Future<Map<String, String>> toMap();
 }
 
 class SharedDaoImpl extends SharedDao {
@@ -28,8 +30,14 @@ class SharedDaoImpl extends SharedDao {
 
   static String _key() => "shared";
 
-  Future<BoxPlus> _open() {
+  Future<BoxPlus<String>> _open() {
     DBManager.open(_key(), TableInfo.SHARED_TABLE_NAME);
     return gen(Hive.openBox(_key()));
+  }
+
+  @override
+  Future<Map<String, String>> toMap() async {
+    final box = await _open();
+    return box.toMap().map((key, value) => MapEntry(key.toString(), value));
   }
 }
