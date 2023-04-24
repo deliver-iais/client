@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/meta_count_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
+import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta.dart';
@@ -25,6 +26,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pb.dart' as query_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 
 import '../shared/parsers/parsers.dart';
@@ -33,6 +35,7 @@ class MetaRepo {
   final _logger = GetIt.I.get<Logger>();
   final _metaDao = GetIt.I.get<MetaDao>();
   final _metaCountDao = GetIt.I.get<MetaCountDao>();
+  final _roomDao = GetIt.I.get<RoomDao>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<MetaCount?> fetchMetaCountFromServer(
@@ -41,7 +44,11 @@ class MetaRepo {
     try {
       final metaCountsResponse = await _sdr.queryServiceClient.getMetaCounts(
         GetMetaCountsReq()..roomUid = uid,
+        options: CallOptions(
+          timeout: const Duration(seconds: 2),
+        ),
       );
+      unawaited(_roomDao.updateRoom(uid: uid.asString(),shouldUpdateMediaCount: false));
       await fetchDeletedIndexFromServerIFNeeded(
         uid.asString(),
         metaCountsResponse.allMediaDeletedCount.toInt(),
@@ -52,8 +59,8 @@ class MetaRepo {
       );
     } catch (e) {
       _logger.e(e);
+      return null;
     }
-    return null;
   }
 
   Future<void> fetchDeletedIndexFromServerIFNeeded(
@@ -62,7 +69,7 @@ class MetaRepo {
   ) async {
     final shouldFetchDeletedIndex =
         await _metaDao.shouldFetchMetaDeletedIndex(roomUid);
-    if (shouldFetchDeletedIndex && deletedCount>0) {
+    if (shouldFetchDeletedIndex && deletedCount > 0) {
       try {
         final deletedIndex =
             await _sdr.queryServiceClient.fetchMetaDeletedIndexes(
@@ -72,6 +79,9 @@ class MetaRepo {
             ..pointer = Int64()
             ..limit = deletedCount
             ..direction = QueryDirection.FORWARD_INCLUSIVE,
+          options: CallOptions(
+            timeout: const Duration(seconds: 2),
+          ),
         );
         await _metaDao.setShouldFetchMetaDeletedIndex(roomUid);
         if (deletedIndex.deletedIndexes.isNotEmpty) {
@@ -487,6 +497,10 @@ class MetaRepo {
           await _metaDao.setShouldFetchMetaDeletedIndex(
             message.roomUid,
             shouldFetchDeletedIndex: true,
+          );
+          await _roomDao.updateRoom(
+            uid: message.roomUid,
+            shouldUpdateMediaCount: true,
           );
         }
       }

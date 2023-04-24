@@ -22,7 +22,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "2.0.4";
+const VERSION = "2.0.5";
 const BUILD_NUMBER = "1680983892";
 const INSTALL_FROM = "سایت";
 

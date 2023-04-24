@@ -28,6 +28,7 @@ abstract class RoomDao {
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
+    bool? shouldUpdateMediaCount,
   });
 
   Future<List<Room>> getAllRooms();
@@ -128,6 +129,7 @@ class RoomDaoImpl extends RoomDao {
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
+    bool? shouldUpdateMediaCount,
   }) async {
     final box = await _openRoom();
 
@@ -152,6 +154,7 @@ class RoomDaoImpl extends RoomDao {
       replyKeyboardMarkup: replyKeyboardMarkup,
       forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
       mentionsId: mentionsId,
+      shouldUpdateMediaCount: shouldUpdateMediaCount,
     );
 
     if (clone != r) return box.put(uid, clone);

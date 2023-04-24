@@ -51,6 +51,9 @@ class Room {
   @HiveField(14)
   List<int>? mentionsId;
 
+  @HiveField(15)
+  bool shouldUpdateMediaCount;
+
   Room({
     required this.uid,
     this.lastMessage,
@@ -66,6 +69,7 @@ class Room {
     this.seenSynced = false,
     this.replyKeyboardMarkup,
     this.mentionsId,
+    this.shouldUpdateMediaCount = true,
   });
 
   Room copyWith({
@@ -86,6 +90,7 @@ class Room {
     String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
+    bool? shouldUpdateMediaCount,
   }) =>
       Room(
         uid: uid ?? this.uid,
@@ -106,6 +111,8 @@ class Room {
                 ? null
                 : this.replyKeyboardMarkup),
         mentionsId: mentionsId ?? this.mentionsId,
+        shouldUpdateMediaCount:
+            shouldUpdateMediaCount ?? this.shouldUpdateMediaCount,
       );
 
   @override
@@ -134,6 +141,8 @@ class Room {
           const DeepCollectionEquality().equals(other.seenSynced, seenSynced) &&
           const DeepCollectionEquality()
               .equals(other.replyKeyboardMarkup, replyKeyboardMarkup) &&
+          const DeepCollectionEquality()
+              .equals(other.shouldUpdateMediaCount, shouldUpdateMediaCount) &&
           const DeepCollectionEquality().equals(other.mentionsId, mentionsId));
 
   @override
@@ -151,6 +160,7 @@ class Room {
         const DeepCollectionEquality().hash(synced),
         const DeepCollectionEquality().hash(lastCurrentUserSentMessageId),
         const DeepCollectionEquality().hash(seenSynced),
+        const DeepCollectionEquality().hash(shouldUpdateMediaCount),
         const DeepCollectionEquality().hash(replyKeyboardMarkup),
         const DeepCollectionEquality().hash(mentionsId),
       );
