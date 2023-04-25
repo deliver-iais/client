@@ -648,8 +648,8 @@ class AndroidNotifier implements Notifier {
     );
     _setupAndroidDidNotificationLaunchApp();
   }
-
   //should always in top or static
+  @pragma('vm:entry-point')
   static Future<void> androidNotificationTapBackground(
     NotificationResponse? notificationResponse,
   ) async {
