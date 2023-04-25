@@ -5,12 +5,23 @@ class SearchBarFooter extends StatelessWidget {
   final VoidCallback onSearchIconTap;
   final VoidCallback onEmojiDeleted;
 
-  const SearchBarFooter({Key? key, required this.onSearchIconTap, required this.onEmojiDeleted})
-      : super(key: key);
+  const SearchBarFooter({
+    Key? key,
+    required this.onSearchIconTap,
+    required this.onEmojiDeleted,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = IconButton.styleFrom(
+      maximumSize: const Size.square(36),
+      minimumSize: const Size.square(36),
+      fixedSize: const Size.square(36),
+      padding: const EdgeInsets.all(4),
+      alignment: Alignment.topCenter,
+      iconSize: 24,
+    );
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.onInverseSurface,
@@ -23,22 +34,25 @@ class SearchBarFooter extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        verticalDirection: VerticalDirection.up,
         children: [
           const SizedBox(
             width: 10,
           ),
           IconButton(
+            style: style,
             onPressed: () => onSearchIconTap(),
             icon: const Icon(CupertinoIcons.search),
-            visualDensity: VisualDensity.compact,
           ),
           const Spacer(),
           IconButton(
-            onPressed: () =>   onEmojiDeleted(),
+            style: style,
+            onPressed: () => onEmojiDeleted(),
+            padding: EdgeInsets.zero,
             icon: const Icon(
               Icons.backspace_outlined,
             ),
-            visualDensity: VisualDensity.compact,
           ),
           const SizedBox(
             width: 10,

@@ -172,11 +172,22 @@ class Settings {
   );
   final keyboardSizePortrait = DoublePersistent(
     SharedKeys.SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT.inSharedDaoStorage(),
-    defaultValue: 254.0,
+    defaultValue: 0,
   );
+
+  final keyboardSizePortraitInMemory = DoublePersistent(
+    SharedKeys.SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT_IN_MEMORY.inMemoryStorage(),
+    defaultValue: 0,
+  );
+
   final keyboardSizeLandscape = DoublePersistent(
     SharedKeys.SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE.inSharedDaoStorage(),
-    defaultValue: 200.0,
+    defaultValue: 0,
+  );
+  final keyboardSizeLandscapeInMemory = DoublePersistent(
+    SharedKeys.SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE_IN_MEMORY
+        .inSharedDaoStorage(),
+    defaultValue: 0,
   );
   final iceCandidateNumbers = IntPersistent(
     SharedKeys.ICE_CANDIDATE_NUMBERS.inSharedDaoStorage(),
