@@ -107,6 +107,8 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
+  final BehaviorSubject<double?> _keyboardBottomOffsetStream =
+      BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   TextEditingController captionTextController = TextEditingController();
   bool isMentionSelected = false;
@@ -114,6 +116,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
   final keyboardVisibilityController = KeyboardVisibilityController();
+  StreamSubscription<bool>? _keyboardVisibilityControllerStream;
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -170,7 +173,9 @@ class InputMessageWidgetState extends State<InputMessage> {
         }
       });
     } else {
-      keyboardVisibilityController.onChange.listen((visible) {
+      _keyboardVisibilityControllerStream =
+          keyboardVisibilityController.onChange.listen((visible) {
+        setKeyBoardSizeInMemoryIfNeeded(context);
         if (visible) {
           if (_keyboardStatus.value != KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
             _keyboardStatus.add(KeyboardStatus.DEFAULT_KEYBOARD);
@@ -272,6 +277,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   @override
   void dispose() {
+    _keyboardVisibilityControllerStream?.cancel();
     if (widget.editableMessage == null) {
       _roomRepo.updateRoomDraft(currentRoom.uid, widget.textController.text);
     }
@@ -292,11 +298,6 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
-    if (hasVirtualKeyboardCapability) {
-      setKeyBoardSize(bottomOffset, mq);
-    }
     final theme = Theme.of(context);
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -484,15 +485,22 @@ class InputMessageWidgetState extends State<InputMessage> {
                       );
                     }
 
-                    return AnimatedContainer(
-                      duration: AnimationSettings.normal,
-                      curve: Curves.easeInOut,
-                      height: riseKeyboard
-                          ? searchKeyboard
-                              ? getKeyboardSize() + 100
-                              : getKeyboardSize()
-                          : 0,
-                      child: child,
+                    return StreamBuilder<double?>(
+                      stream: _keyboardBottomOffsetStream.stream
+                          .distinct()
+                          .debounceTime(AnimationSettings.actualNormal),
+                      builder: (context, snapshot) {
+                        return AnimatedContainer(
+                          duration: AnimationSettings.normal,
+                          curve: Curves.easeInOut,
+                          height: riseKeyboard
+                              ? searchKeyboard
+                                  ? getKeyboardSize(snapshot.data) + 100
+                                  : getKeyboardSize(snapshot.data)
+                              : 0,
+                          child: child,
+                        );
+                      },
                     );
                   },
                 ),
@@ -527,23 +535,33 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  double getKeyboardSize() {
-    final mq = MediaQuery.of(context);
-    if (mq.orientation == Orientation.landscape) {
-      return settings.keyboardSizeLandscape.value;
-    } else {
-      return settings.keyboardSizePortrait.value;
+  double getKeyboardSize(double? size) {
+    final keyBoardSizeFromShredDao = getKeyboardSizeFromSharedDao(context);
+    if (keyBoardSizeFromShredDao != 0) {
+      return keyBoardSizeFromShredDao;
     }
-  }
-
-  void setKeyBoardSize(double bottomOffset, MediaQueryData mq) {
-    if (bottomOffset > 0) {
-      if (mq.orientation == Orientation.portrait) {
-        settings.keyboardSizePortrait.max(bottomOffset);
-      } else {
-        settings.keyboardSizeLandscape.max(bottomOffset);
+    final mq = MediaQuery.of(context);
+    if (_keyboardStatus.value == KeyboardStatus.DEFAULT_KEYBOARD) {
+      final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
+      if (bottomOffset != 0 &&
+          _keyboardBottomOffsetStream.value != bottomOffset) {
+        _keyboardBottomOffsetStream.add(bottomOffset);
+      }
+      if (size != null) {
+        return size;
+      } else if (bottomOffset != 0) {
+        return bottomOffset;
       }
     }
+    final keyboardSizeFromMemory = getKeyboardSizeFromMemory(context);
+    if (keyboardSizeFromMemory == 0) {
+      if (mq.orientation == Orientation.landscape) {
+        return KEYBOARD_DEFAULT_SIZE_LANDSCAPE;
+      } else {
+        return KEYBOARD_DEFAULT_SIZE_PORTRAIT;
+      }
+    }
+    return keyboardSizeFromMemory;
   }
 
   Widget buildEmojiKeyboardActions() {
@@ -797,6 +815,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               ],
               style: theme.textTheme.bodyMedium,
               onChanged: (str) {
+                setKeyBoardSizeInSharedDaoStorageIfNeeded(context);
                 if (str.isNotEmpty) {
                   isTypingActivitySubject.add(
                     ActivityType.TYPING,

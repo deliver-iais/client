@@ -252,7 +252,8 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
   Widget _buildFooter({bool hideHeader = false}) {
     return AnimatedContainer(
       duration: AnimationSettings.verySlow,
-      height: hideHeader ? 0 : 30,
+      height: hideHeader ? 0 : 36,
+
       child: SearchBarFooter(
         onEmojiDeleted: widget.onEmojiDeleted,
         onSearchIconTap: () {
@@ -290,19 +291,18 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
 
   Widget _buildEmojiSearchBox(ThemeData theme) {
     return SliverToBoxAdapter(
-      child: Container(
-        height: 60,
-        color: theme.colorScheme.onInverseSurface,
+      child: SizedBox(
+        height: 50,
         child: Focus(
           onFocusChange: (hasFocus) {
             widget.onSearchEmoji(hasFocus);
           },
           child: Padding(
             padding: const EdgeInsetsDirectional.only(
-              start: 25.0,
-              end: 25,
-              top: 15,
-              bottom: 8,
+              start: p8,
+              end: p8,
+              top: p12,
+              bottom: p2,
             ),
             child: AutoDirectionTextField(
               controller: _searchController,

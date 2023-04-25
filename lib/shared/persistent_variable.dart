@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:clock/clock.dart';
@@ -120,8 +119,6 @@ abstract class _BooleanPersistent extends _PersistentVariable<bool> {
 /// Number Persistent Variable Interface
 abstract class _NumberPersistent<T extends num> extends _PersistentVariable<T> {
   _NumberPersistent(super.storage, {required super.defaultValue});
-
-  void max(T newValue) => set(math.max(value, newValue));
 
   @override
   T stringToType(String? value, {required T defaultValue}) {
