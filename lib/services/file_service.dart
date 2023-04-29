@@ -522,8 +522,10 @@ class FileService {
     filePath = normalizePath(filePath);
 
     final String size;
+    late final Uint8List webBytes;
     if (isWeb) {
-      size = filePath.length.toString();
+      webBytes = UriData.parse(filePath).contentAsBytes();
+      size = webBytes.length.toString();
     } else {
       size = (File(filePath).lengthSync()).toString();
     }
@@ -551,14 +553,13 @@ class FileService {
         }
         FormData? formData;
         if (isWeb) {
-          final bytes = UriData.parse(filePath).contentAsBytes();
           formData = FormData.fromMap({
             "file": MultipartFile.fromBytes(
-              bytes,
+              webBytes,
               filename: filename,
               contentType: filename.getMediaType(),
               headers: {
-                Headers.contentLengthHeader: [bytes.length.toString()],
+                Headers.contentLengthHeader: [webBytes.length.toString()],
               },
             )
           });
