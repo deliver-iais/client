@@ -3140,6 +3140,11 @@ class MockCoreServices extends _i1.Mock implements _i53.CoreServices {
         returnValueForMissingStub: null,
       );
   @override
+  int get lastRoomMetadataUpdateTime => (super.noSuchMethod(
+        Invocation.getter(#lastRoomMetadataUpdateTime),
+        returnValue: 0,
+      ) as int);
+  @override
   _i4.ValueStream<int> get uptimeStartTime => (super.noSuchMethod(
         Invocation.getter(#uptimeStartTime),
         returnValue: _FakeValueStream_8<int>(
@@ -3206,10 +3211,11 @@ class MockCoreServices extends _i1.Mock implements _i53.CoreServices {
         returnValueForMissingStub: null,
       );
   @override
-  void gotResponse() => super.noSuchMethod(
+  void gotResponse({required bool? isPong}) => super.noSuchMethod(
         Invocation.method(
           #gotResponse,
           [],
+          {#isPong: isPong},
         ),
         returnValueForMissingStub: null,
       );
@@ -4036,26 +4042,6 @@ class MockQueryServiceClient extends _i1.Mock
           ),
         ),
       ) as _i8.ResponseFuture<_i54.EndGroupCallRes>);
-  @override
-  _i8.ResponseFuture<_i54.GetShowcasesRes> getShowcases(
-    _i54.GetShowcasesReq? request, {
-    _i8.CallOptions? options,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getShowcases,
-          [request],
-          {#options: options},
-        ),
-        returnValue: _FakeResponseFuture_9<_i54.GetShowcasesRes>(
-          this,
-          Invocation.method(
-            #getShowcases,
-            [request],
-            {#options: options},
-          ),
-        ),
-      ) as _i8.ResponseFuture<_i54.GetShowcasesRes>);
   @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
@@ -6979,6 +6965,14 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i18.IntPersistent);
   @override
+  _i18.IntPersistent get lastRoomMetadataUpdateTime => (super.noSuchMethod(
+        Invocation.getter(#lastRoomMetadataUpdateTime),
+        returnValue: _FakeIntPersistent_23(
+          this,
+          Invocation.getter(#lastRoomMetadataUpdateTime),
+        ),
+      ) as _i18.IntPersistent);
+  @override
   _i18.DoublePersistent get textScale => (super.noSuchMethod(
         Invocation.getter(#textScale),
         returnValue: _FakeDoublePersistent_25(
@@ -7186,11 +7180,28 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         ),
       ) as _i18.DoublePersistent);
   @override
+  _i18.DoublePersistent get keyboardSizePortraitInMemory => (super.noSuchMethod(
+        Invocation.getter(#keyboardSizePortraitInMemory),
+        returnValue: _FakeDoublePersistent_25(
+          this,
+          Invocation.getter(#keyboardSizePortraitInMemory),
+        ),
+      ) as _i18.DoublePersistent);
+  @override
   _i18.DoublePersistent get keyboardSizeLandscape => (super.noSuchMethod(
         Invocation.getter(#keyboardSizeLandscape),
         returnValue: _FakeDoublePersistent_25(
           this,
           Invocation.getter(#keyboardSizeLandscape),
+        ),
+      ) as _i18.DoublePersistent);
+  @override
+  _i18.DoublePersistent get keyboardSizeLandscapeInMemory =>
+      (super.noSuchMethod(
+        Invocation.getter(#keyboardSizeLandscapeInMemory),
+        returnValue: _FakeDoublePersistent_25(
+          this,
+          Invocation.getter(#keyboardSizeLandscapeInMemory),
         ),
       ) as _i18.DoublePersistent);
   @override

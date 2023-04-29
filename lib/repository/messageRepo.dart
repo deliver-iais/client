@@ -114,26 +114,19 @@ class MessageRepo {
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
       BehaviorSubject.seeded(TitleStatusConditions.Connected);
-  bool updateState = false;
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<void> createConnectionStatusHandler() async {
-    if (_authRepo.isLoggedIn()) {
-      await update();
-    }
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          unawaited(update());
-          updateState = true;
+          unawaited(_update());
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          if (updatingStatus.value != TitleStatusConditions.Connected) {
-            updatingStatus.add(TitleStatusConditions.Connecting);
-          }
+          updatingStatus.add(TitleStatusConditions.Connecting);
           break;
       }
     });
@@ -141,8 +134,7 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
-  Future<void> update() async {
-    _logger.i('updating -----------------');
+  Future<void> _update() async {
     updatingStatus.add(TitleStatusConditions.Connected);
     await updatingRooms();
     _roomRepo.fetchBlockedRoom().ignore();
@@ -155,80 +147,80 @@ class MessageRepo {
   }
 
   // @visibleForTesting
-  Future<bool> updatingRooms() async {
-    var finished = false;
-    var pointer = 0;
-    final allRoomFetched = settings.allRoomFetched.value;
-    final appRunInForeground = !_appLifecycleService.isActive;
-    if (!allRoomFetched && updateState) {
-      updatingStatus.add(TitleStatusConditions.Syncing);
-      _logger.i('syncing');
-    }
-    while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
-      try {
-        var isFetchCorrectly = false;
-        var getAllUserRoomMetaRes = GetAllUserRoomMetaRes.getDefault();
-        var reTryFailedFetch = 3;
-        while (!isFetchCorrectly && reTryFailedFetch > 0) {
-          try {
-            getAllUserRoomMetaRes =
-                await _sdr.queryServiceClient.getAllUserRoomMeta(
-              GetAllUserRoomMetaReq()
-                ..pointer = pointer
-                ..limit = FETCH_ROOM_METADATA_LIMIT,
-            );
-            if (getAllUserRoomMetaRes.finished ||
-                getAllUserRoomMetaRes.roomsMeta.length ==
-                    FETCH_ROOM_METADATA_LIMIT) {
-              isFetchCorrectly = true;
-            } else {
-              reTryFailedFetch--;
-            }
-          } on GrpcError catch (e) {
-            reTryFailedFetch--;
-            _logger.e(e);
-          } catch (e) {
-            reTryFailedFetch--;
-            _logger.e(e);
-          }
-        }
-
-        for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-          if (await _updateRoom(
-            roomMetadata,
-            appRunInForeground: appRunInForeground,
-            indexOfRoom: getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
-          )) {
-            if (allRoomFetched && updateState) {
-              updatingStatus.add(TitleStatusConditions.Updating);
-            }
-          } else {
-            if (allRoomFetched &&
-                updateState &&
-                updatingStatus.value != TitleStatusConditions.Connected) {
-              updatingStatus.add(TitleStatusConditions.Connected);
-            }
-          }
-        }
-
-        if (!finished) {
-          finished = getAllUserRoomMetaRes.finished;
-          if (finished) {
-            settings.allRoomFetched.set(true);
-          }
-        }
-      } on GrpcError catch (e) {
-        _logger.e(e);
-        if (!updateState) {
-          updateState = true;
-          return false;
-        }
-      } catch (e) {
-        _logger.e(e);
+  Future<void> updatingRooms() async {
+    if (settings.lastRoomMetadataUpdateTime.value == 0 ||
+        settings.lastRoomMetadataUpdateTime.value <
+            _coreServices.lastRoomMetadataUpdateTime) {
+      _logger.i('updating -----------------');
+      settings.lastRoomMetadataUpdateTime
+          .set(_coreServices.lastRoomMetadataUpdateTime);
+      var finished = false;
+      var pointer = 0;
+      final allRoomFetched = settings.allRoomFetched.value;
+      final appRunInForeground = !_appLifecycleService.isActive;
+      if (!allRoomFetched) {
+        updatingStatus.add(TitleStatusConditions.Syncing);
+        _logger.i('syncing');
       }
-      pointer += FETCH_ROOM_METADATA_LIMIT;
+      while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
+        try {
+          var isFetchCorrectly = false;
+          var getAllUserRoomMetaRes = GetAllUserRoomMetaRes.getDefault();
+          var reTryFailedFetch = 3;
+          while (!isFetchCorrectly && reTryFailedFetch > 0) {
+            try {
+              getAllUserRoomMetaRes =
+                  await _sdr.queryServiceClient.getAllUserRoomMeta(
+                GetAllUserRoomMetaReq()
+                  ..pointer = pointer
+                  ..limit = FETCH_ROOM_METADATA_LIMIT,
+              );
+              if (getAllUserRoomMetaRes.finished ||
+                  getAllUserRoomMetaRes.roomsMeta.length ==
+                      FETCH_ROOM_METADATA_LIMIT) {
+                isFetchCorrectly = true;
+              } else {
+                reTryFailedFetch--;
+              }
+            } on GrpcError catch (e) {
+              reTryFailedFetch--;
+              _logger.e(e);
+            } catch (e) {
+              reTryFailedFetch--;
+              _logger.e(e);
+            }
+          }
+
+          for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+            if (await _updateRoom(
+              roomMetadata,
+              appRunInForeground: appRunInForeground,
+              indexOfRoom:
+                  getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
+            )) {
+              if (allRoomFetched) {
+                updatingStatus.add(TitleStatusConditions.Updating);
+              }
+            } else {
+              if (allRoomFetched &&
+                  updatingStatus.value != TitleStatusConditions.Connected) {
+                updatingStatus.add(TitleStatusConditions.Connected);
+              }
+            }
+          }
+
+          if (!finished) {
+            finished = getAllUserRoomMetaRes.finished;
+            if (finished) {
+              settings.allRoomFetched.set(true);
+            }
+          }
+        } catch (e) {
+          _logger.e(e);
+        }
+        pointer += FETCH_ROOM_METADATA_LIMIT;
+      }
     }
-    return true;
   }
 
   /// return true if have new room or new message

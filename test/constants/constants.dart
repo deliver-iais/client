@@ -43,7 +43,7 @@ final testCallInfo = CallInfo(
   from: testUid,
   time: Int64(),
   to: testUid,
-  callEvent: CallEvent(
+  callEventOld: CallEvent(
     callDuration: Int64(),
     callId: "test",
     callStatus: CallEvent_CallStatus.CREATED,

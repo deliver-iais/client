@@ -70,12 +70,12 @@ class CallDetailsState extends State<CallDetails> {
                 children: [
                   CallState(
                     textStyle: const TextStyle(fontSize: 17),
-                    callStatus: widget.callEvent.callEvent.callStatus,
-                    time: widget.callEvent.callEvent.callDuration.toInt(),
+                    callStatus: widget.callEvent.callEventOld.callStatus,
+                    time: widget.callEvent.callEventOld.callDuration.toInt(),
                     isIncomingCall: _authRepo
                         .isCurrentUser(widget.callEvent.from.toString()),
                   ),
-                  if (widget.callEvent.callEvent.callDuration != 0)
+                  if (widget.callEvent.callEventOld.callDuration != 0)
                     DefaultTextStyle(
                       style: TextStyle(
                         color: theme.colorScheme.primary.withAlpha(130),
@@ -83,7 +83,7 @@ class CallDetailsState extends State<CallDetails> {
                       ),
                       child: CallTime(
                         time: DateTime.fromMillisecondsSinceEpoch(
-                          widget.callEvent.callEvent.callDuration.toInt(),
+                          widget.callEvent.callEventOld.callDuration.toInt(),
                           isUtc: true,
                         ),
                       ),
