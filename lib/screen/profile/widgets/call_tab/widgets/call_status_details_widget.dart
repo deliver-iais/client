@@ -39,7 +39,7 @@ class CallStatusDetailsWidget extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    callEvent.callEvent.callType == CallEvent_CallType.VIDEO
+                    callEvent.callEventOld.callType == CallEvent_CallType.VIDEO
                         ? Icons.videocam_rounded
                         : Icons.call,
                     size: 20,
@@ -47,20 +47,20 @@ class CallStatusDetailsWidget extends StatelessWidget {
                   const SizedBox(width: 8),
                   CallState(
                     textStyle: theme.textTheme.titleMedium,
-                    callStatus: callEvent.callEvent.callStatus,
-                    time: callEvent.callEvent.callDuration.toInt(),
+                    callStatus: callEvent.callEventOld.callStatus,
+                    time: callEvent.callEventOld.callDuration.toInt(),
                     isIncomingCall: isIncomingCall,
                   ),
                 ],
               ),
-              if (callEvent.callEvent.callDuration != 0)
+              if (callEvent.callEventOld.callDuration != 0)
                 DefaultTextStyle(
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.primary.withAlpha(130),
                   ),
                   child: CallTime(
                     time: DateTime.fromMillisecondsSinceEpoch(
-                      callEvent.callEvent.callDuration.toInt(),
+                      callEvent.callEventOld.callDuration.toInt(),
                       isUtc: true,
                     ),
                   ),
@@ -75,7 +75,7 @@ class CallStatusDetailsWidget extends StatelessWidget {
                 children: [
                   Icon(
                     isIncomingCall ? Icons.call_made : Icons.call_received,
-                    color: callEvent.callEvent.callDuration == 0
+                    color: callEvent.callEventOld.callDuration == 0
                         ? Colors.red
                         : Colors.green,
                     size: 16,
@@ -90,10 +90,10 @@ class CallStatusDetailsWidget extends StatelessWidget {
                   )
                 ],
               ),
-              if (callEvent.callEvent.callDuration != 0)
+              if (callEvent.callEventOld.callDuration != 0)
                 FutureBuilder<String>(
                   future:
-                      _callService.getCallDataUsage(callEvent.callEvent.callId),
+                      _callService.getCallDataUsage(callEvent.callEventOld.callId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&

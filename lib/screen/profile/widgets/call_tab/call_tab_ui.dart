@@ -48,7 +48,7 @@ class CallTabUiState extends State<CallTabUi> {
                 callInfo.time.toInt(),
               );
               final isIncomingCall =
-                  callInfo.callEvent.callStatus == CallEvent_CallStatus.DECLINED
+                  callInfo.callEventOld.callStatus == CallEvent_CallStatus.DECLINED
                       ? _authRepo.isCurrentUser(callInfo.to.asString())
                       : _authRepo.isCurrentUser(callInfo.from.asString());
               final caller = _authRepo.isCurrentUser(callInfo.to.asString())

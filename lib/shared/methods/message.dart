@@ -88,6 +88,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
     case MessageType.TABLE:
     case MessageType.FORM:
     case MessageType.PAYMENT_INFORMATION:
+    case MessageType.CALL_LOG:
       return false;
 
     case MessageType.PERSISTENT_EVENT:
@@ -138,6 +139,7 @@ bool isHiddenMessage(Message message) {
     case MessageType.TABLE:
     case MessageType.FORM:
     case MessageType.PAYMENT_INFORMATION:
+    case MessageType.CALL_LOG:
       return false;
 
     case MessageType.PERSISTENT_EVENT:
@@ -225,6 +227,8 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.PAYMENT_INFORMATION:
       return message.paymentInformation.writeToJson();
 
+    case MessageType.CALL_LOG:
+      return message.callLog.writeToJson();
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
   }
@@ -268,6 +272,8 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.NOT_SET;
     case message_pb.Message_Type.paymentInformation:
       return MessageType.PAYMENT_INFORMATION;
+    case message_pb.Message_Type.callLog:
+      return MessageType.CALL_LOG;
   }
 }
 

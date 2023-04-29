@@ -63,6 +63,10 @@ class CoreServices {
 
   var _lastPongTime = 0;
 
+  var _lastRoomMetadataUpdateTime = settings.lastRoomMetadataUpdateTime.value;
+
+  int get lastRoomMetadataUpdateTime => _lastRoomMetadataUpdateTime;
+
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
@@ -146,10 +150,13 @@ class CoreServices {
     }
   }
 
-  void gotResponse() {
+  void gotResponse({required bool isPong}) {
     _disconnected = false;
     _disconnectedTimer?.cancel();
-    _connectionStatus.add(ConnectionStatus.Connected);
+    if (isPong || _lastPongTime != 0) {
+      _connectionStatus.add(ConnectionStatus.Connected);
+    }
+
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
     disconnectedTime.add(0);
@@ -178,55 +185,62 @@ class CoreServices {
 
       _responseStream?.listen(
         (serverPacket) {
-          _logger.d(serverPacket);
+          try {
+            _logger.d(serverPacket);
 
-          _analyticRepo.incCSF("server/${serverPacket.whichType().name}");
+            _analyticRepo.incCSF("server/${serverPacket.whichType().name}");
 
-          gotResponse();
-          switch (serverPacket.whichType()) {
-            case ServerPacket_Type.message:
-              _dataStreamServices.handleIncomingMessage(
-                serverPacket.message,
-                isOnlineMessage: true,
-              );
-              break;
-            case ServerPacket_Type.messageDeliveryAck:
-              _dataStreamServices
-                  .handleAckMessage(serverPacket.messageDeliveryAck);
-              break;
-            case ServerPacket_Type.seen:
-              _dataStreamServices.handleSeen(serverPacket.seen);
-              break;
-            case ServerPacket_Type.activity:
-              _dataStreamServices.handleActivity(serverPacket.activity);
-              break;
-            case ServerPacket_Type.roomPresenceTypeChanged:
-              _dataStreamServices.handleRoomPresenceTypeChange(
-                serverPacket.roomPresenceTypeChanged,
-              );
-              break;
-            case ServerPacket_Type.callOffer:
-              _dataStreamServices.handleCallOffer(serverPacket.callOffer);
-              break;
-            case ServerPacket_Type.callAnswer:
-              _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
-              break;
-            case ServerPacket_Type.pong:
-              _lastPongTime = serverPacket.pong.serverTime.toInt();
-              //update last message delivery ack on sharedPref
-              final latMessageDeliveryAck =
-                  serverPacket.pong.lastMessageDeliveryAck;
+            switch (serverPacket.whichType()) {
+              case ServerPacket_Type.message:
+                _dataStreamServices.handleIncomingMessage(
+                  serverPacket.message,
+                  isOnlineMessage: true,
+                );
+                break;
+              case ServerPacket_Type.messageDeliveryAck:
+                _dataStreamServices
+                    .handleAckMessage(serverPacket.messageDeliveryAck);
+                break;
+              case ServerPacket_Type.seen:
+                _dataStreamServices.handleSeen(serverPacket.seen);
+                break;
+              case ServerPacket_Type.activity:
+                _dataStreamServices.handleActivity(serverPacket.activity);
+                break;
+              case ServerPacket_Type.roomPresenceTypeChanged:
+                _dataStreamServices.handleRoomPresenceTypeChange(
+                  serverPacket.roomPresenceTypeChanged,
+                );
+                break;
+              case ServerPacket_Type.callOffer:
+                _dataStreamServices.handleCallOffer(serverPacket.callOffer);
+                break;
+              case ServerPacket_Type.callAnswer:
+                _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+                break;
+              case ServerPacket_Type.pong:
+                _lastPongTime = serverPacket.pong.serverTime.toInt();
+                _lastRoomMetadataUpdateTime =
+                    serverPacket.pong.lastRoomMetadataUpdateTime.toInt();
+                //update last message delivery ack on sharedPref
+                final latMessageDeliveryAck =
+                    serverPacket.pong.lastMessageDeliveryAck;
 
-              settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
-              break;
-            case ServerPacket_Type.liveLocationStatusChanged:
-            case ServerPacket_Type.error:
-              // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
-              break;
-            case ServerPacket_Type.notSet:
-            case ServerPacket_Type.expletivePacket:
-              break;
-          }
+                settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
+                break;
+              case ServerPacket_Type.liveLocationStatusChanged:
+              case ServerPacket_Type.error:
+                // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
+                break;
+              case ServerPacket_Type.notSet:
+              case ServerPacket_Type.expletivePacket:
+                break;
+              case ServerPacket_Type.callEvent:
+                // TODO: Handle this case.
+                break;
+            }
+          } catch (_) {}
+          gotResponse(isPong: serverPacket.hasPong());
         },
         onError: (e) {
           _logger.e(e);

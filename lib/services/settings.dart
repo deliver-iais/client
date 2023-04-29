@@ -62,6 +62,11 @@ class Settings {
     SharedKeys.SHARED_DAO_THEME_PATTERN.inSharedDaoStorage(),
     defaultValue: 0,
   );
+  final lastRoomMetadataUpdateTime = IntPersistent(
+    SharedKeys.SHARED_DAO_KEY_LAST_ROOM_METADATA_UPDATE_TIME
+        .inSharedDaoStorage(),
+    defaultValue: 0,
+  );
   final textScale = DoublePersistent(
     SharedKeys.SHARED_DAO_THEME_FONT_SIZE.inSharedDaoStorage(),
     defaultValue: 1.0,
