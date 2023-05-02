@@ -152,8 +152,6 @@ class MessageRepo {
         settings.lastRoomMetadataUpdateTime.value <
             _coreServices.lastRoomMetadataUpdateTime) {
       _logger.i('updating -----------------');
-      settings.lastRoomMetadataUpdateTime
-          .set(_coreServices.lastRoomMetadataUpdateTime);
       var finished = false;
       var pointer = 0;
       final allRoomFetched = settings.allRoomFetched.value;
@@ -220,6 +218,9 @@ class MessageRepo {
         }
         pointer += FETCH_ROOM_METADATA_LIMIT;
       }
+
+      settings.lastRoomMetadataUpdateTime
+          .set(_coreServices.lastRoomMetadataUpdateTime);
     }
   }
 

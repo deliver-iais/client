@@ -152,7 +152,9 @@ class CoreServices {
 
   void gotResponse({required bool isPong}) {
     _disconnected = false;
-    _disconnectedTimer?.cancel();
+    try {
+      _disconnectedTimer?.cancel();
+    } catch (_) {}
     if (isPong || _lastPongTime != 0) {
       _connectionStatus.add(ConnectionStatus.Connected);
     }
