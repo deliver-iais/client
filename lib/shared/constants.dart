@@ -23,8 +23,8 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = "2.0.5";
-const BUILD_NUMBER = "1680983892";
-const INSTALL_FROM = "سایت";
+const BUILD_NUMBER = "1683015615552";
+// const INSTALL_FROM = "سایت";
 
 //messageRepo
 const RANDOM_SIZE = 100000;

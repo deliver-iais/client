@@ -194,13 +194,13 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                       leading: Icon(CupertinoIcons.number_square),
                       trailing: SizedBox.shrink(),
                     ),
-                    const SettingsTile(
-                      title: "Install From",
-                      subtitle: INSTALL_FROM,
-                      subtitleTextStyle: TextStyle(),
-                      leading: Icon(Icons.install_desktop),
-                      trailing: SizedBox.shrink(),
-                    ),
+                    // const SettingsTile(
+                    //   title: "Install From",
+                    //   subtitle: INSTALL_FROM,
+                    //   subtitleTextStyle: TextStyle(),
+                    //   leading: Icon(Icons.install_desktop),
+                    //   trailing: SizedBox.shrink(),
+                    // ),
                     SettingsTile(
                       title: "App Uptime",
                       leading: const Icon(CupertinoIcons.time),
