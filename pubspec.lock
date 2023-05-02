@@ -1316,6 +1316,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.2"
+  idb_shim:
+    dependency: "direct main"
+    description:
+      name: idb_shim
+      sha256: e22cbec15c3732ce53ad79927f106e7be7d4a66f836eb6270b51450c15bd7b84
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.1"
   image:
     dependency: "direct main"
     description:
@@ -2066,6 +2074,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.2"
+  sembast:
+    dependency: transitive
+    description:
+      name: sembast
+      sha256: a784dbcf313ff38a7f57249694c64a6bcf79f704dbec127958459a7737716830
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.4.4"
   sensors_plus:
     dependency: "direct main"
     description:

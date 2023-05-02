@@ -77,6 +77,12 @@ class DBManager {
     } catch (_) {}
   }
 
+  Future<void> deleteDBNativeInWeb({bool deleteSharedDao = true}) async {
+    try {
+      return BoxDao.deleteAllBoxNativeInWeb(deleteSharedDao: deleteSharedDao);
+    } catch (_) {}
+  }
+
   TableInfo? getTableInfo(String name) =>
       TableInfo.values.firstWhereOrNull((ti) => ti.name == name);
 

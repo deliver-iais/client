@@ -3,6 +3,8 @@ import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:idb_shim/idb_browser.dart';
+import 'package:idb_shim/idb_shim.dart';
 import 'package:logger/logger.dart';
 
 class BoxDao {
@@ -48,6 +50,17 @@ class BoxDao {
       }
     });
     return deleteBox(_key());
+  }
+
+  static Future<void> deleteAllBoxNativeInWeb(
+      {bool deleteSharedDao = true}) async {
+    IdbFactory? idbFactory = getIdbFactory();
+    final box = await Hive.openBox<BoxInfo>(_key());
+    box.values.toList().forEach((boxInfo) async {
+      idbFactory?.deleteDatabase(boxInfo.dbKey);
+    });
+
+    idbFactory?.deleteDatabase(_key());
   }
 
   static Future<void> removeOldDb() async {

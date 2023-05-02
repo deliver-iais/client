@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/account.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -366,6 +367,13 @@ class SettingsPageState extends State<SettingsPage> {
                   onPressed: (context) => openLogoutAlertDialog(context, _i18n),
                   trailing: const SizedBox.shrink(),
                 ),
+                if (isWeb)
+                  SettingsTile(
+                    title: "Delete Web Storage",
+                    leading: const Icon(CupertinoIcons.delete),
+                    onPressed: (context) => deleteDBNativeInWeb(),
+                    trailing: const SizedBox.shrink(),
+                  ),
               ],
             ),
           ],
@@ -402,6 +410,10 @@ class SettingsPageState extends State<SettingsPage> {
         );
       },
     );
+  }
+
+  Future<void> deleteDBNativeInWeb() async {
+    await GetIt.I.get<DBManager>().deleteDBNativeInWeb();
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
