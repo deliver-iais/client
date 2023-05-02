@@ -65,8 +65,8 @@ class AuthRepo {
   Duration get serverTimeDiff => Duration(milliseconds: _serverTimeDiff);
 
   Future<void> init() async {
-    if (accessToken.isNotEmpty) {
-      _setCurrentUserUidFromAccessToken(accessToken);
+    if (refreshToken().isNotEmpty) {
+      _setCurrentUserUidFromRefreshToken(refreshToken());
     }
     // Run just first time...
     await syncTimeWithServer();
@@ -197,8 +197,8 @@ class AuthRepo {
       isDeliverTokenValid(refreshToken()) ||
       isDeliverTokenValid(refreshToken(checkDaoFirst: true));
 
-  void _setCurrentUserUidFromAccessToken(String accessToken) {
-    final decodedToken = JwtDecoder.decode(accessToken);
+  void _setCurrentUserUidFromRefreshToken(String refreshToken) {
+    final decodedToken = JwtDecoder.decode(refreshToken);
 
     currentUserUid = Uid()
       ..category = Categories.USER
@@ -366,7 +366,7 @@ class AuthRepo {
     settings.accessToken.set(accessToken);
     settings.refreshToken.set(refreshToken);
     settings.refreshTokenDao.set(refreshToken);
-    _setCurrentUserUidFromAccessToken(accessToken);
+    _setCurrentUserUidFromRefreshToken(refreshToken);
   }
 
   bool checkTokensTimes({
