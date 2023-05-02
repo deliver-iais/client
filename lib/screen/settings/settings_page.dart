@@ -23,6 +23,8 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import "package:deliver/web_classes/html.dart"
+    if (dart.library.html) 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -414,6 +416,10 @@ class SettingsPageState extends State<SettingsPage> {
 
   Future<void> deleteDBNativeInWeb() async {
     await GetIt.I.get<DBManager>().deleteDBNativeInWeb();
+
+    // Ignore window dynamic type for web
+    // ignore: avoid_dynamic_calls
+    html.window.location.reload();
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
