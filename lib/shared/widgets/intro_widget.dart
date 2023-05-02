@@ -17,27 +17,30 @@ class IntroWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AnimatedContainer(
-                curve: Curves.ease,
-                constraints: BoxConstraints(
-                  maxWidth: isLargeWidthForIntro(constraints.maxWidth)
-                      ? FLUID_MAX_WIDTH
-                      : size.width,
+        return Container(
+          color: Colors.black,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AnimatedContainer(
+                  curve: Curves.ease,
+                  constraints: BoxConstraints(
+                    maxWidth: isLargeWidthForIntro(constraints.maxWidth)
+                        ? FLUID_MAX_WIDTH
+                        : size.width,
+                  ),
+                  duration: AnimationSettings.standard,
+                  child: child,
                 ),
-                duration: AnimationSettings.standard,
-                child: child,
-              ),
-              const Flexible(
-                child: RiveAnimation.asset(
-                  'assets/animations/fun_time.riv',
-                  fit: BoxFit.cover,
+                const Flexible(
+                  child: RiveAnimation.asset(
+                    'assets/animations/fun_time.riv',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
