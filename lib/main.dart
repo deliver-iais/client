@@ -518,6 +518,9 @@ class _MyAppState extends State<MyApp> {
 
   void _setWindowSize() {
     final windowFrame = settings.windowsFrame.value;
+    setWindowMinSize(
+      WindowFrame.minSize.toSize(),
+    );
 
     try {
       setWindowFrame(windowFrame.toRect());

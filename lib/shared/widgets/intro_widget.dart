@@ -1,6 +1,7 @@
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:rive/rive.dart';
 
 class IntroWidget extends StatelessWidget {
@@ -33,10 +34,21 @@ class IntroWidget extends StatelessWidget {
                   duration: AnimationSettings.standard,
                   child: child,
                 ),
-                const Flexible(
-                  child: RiveAnimation.asset(
-                    'assets/animations/fun_time.riv',
-                    fit: BoxFit.cover,
+                Flexible(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: material.LinearGradient(
+                        colors: [
+                          Color(0xff23FFF7),
+                          Color(0xff0799DF),
+                        ],
+                        begin: Alignment.topLeft,
+                      ),
+                    ),
+                    child: const RiveAnimation.asset(
+                      'assets/animations/weather_icon.riv',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ],

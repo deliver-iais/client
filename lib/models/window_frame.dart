@@ -21,15 +21,15 @@ class WindowFrame {
   static const defaultInstance = WindowFrame(
     left: 0,
     top: 0,
-    right: LARGE_BREAKDOWN_SIZE_WIDTH + 100,
-    bottom: LARGE_BREAKDOWN_SIZE_WIDTH + 100,
+    right: LARGE_BREAKDOWN_SIZE_WIDTH + 330,
+    bottom: LARGE_BREAKDOWN_SIZE_WIDTH,
   );
 
   static const minSize = WindowFrame(
     left: 0,
     top: 0,
-    right: FLUID_MAX_WIDTH + 100,
-    bottom: FLUID_MAX_HEIGHT + 100,
+    right: FLUID_MAX_WIDTH + 50,
+    bottom: FLUID_MAX_HEIGHT + 50,
   );
 
   Rect toRect() {

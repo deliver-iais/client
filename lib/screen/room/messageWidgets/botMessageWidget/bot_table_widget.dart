@@ -47,35 +47,34 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             columnWidths: columnWidths,
           ),
         ),
-        Positioned(
-          left: 3,
-          top: 3,
-          child: IconButton(
-            style: IconButton.styleFrom(
-              maximumSize: const Size.square(24),
-              backgroundColor: widget.colorScheme.primary,
-              foregroundColor: widget.colorScheme.onPrimary,
-              minimumSize: const Size.square(22),
-            ),
-            tooltip: _i18n.get("full_screen"),
-            icon: const Icon(
-              Icons.fullscreen,
-              size: 16,
-            ),
-            padding: EdgeInsets.zero,
-            // iconSize: 20,
-            onPressed: () => showInDialog(
-              buildTableWidget(
-                context: context,
-                controller: ScrollController(),
-                maxWidth: MediaQuery.of(context).size.width * 2 / 3,
-                rows: rows,
-                columnWidths: columnWidths,
+        if (isLarge(context))
+          Positioned(
+            left: 3,
+            top: 3,
+            child: IconButton(
+              style: IconButton.styleFrom(
+                maximumSize: const Size.square(24),
+                backgroundColor: widget.colorScheme.primary,
+                foregroundColor: widget.colorScheme.onPrimary,
+                minimumSize: const Size.square(22),
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              context,
+              tooltip: _i18n.get("full_screen"),
+              icon: const Icon(Icons.fullscreen, size: 16),
+              onPressed: () => showInDialog(
+                buildTableWidget(
+                  context: context,
+                  controller: ScrollController(),
+                  maxWidth: MediaQuery.of(context).size.width * 2 / 3,
+                  rows: rows,
+                  radius: buttonBorder,
+                  columnWidths: columnWidths,
+                ),
+                context,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -86,10 +85,12 @@ class _BotTableWidgetState extends State<BotTableWidget> {
       builder: (c) {
         return AlertDialog(
           scrollable: true,
-          contentPadding: const EdgeInsets.all(p12),
-          actionsPadding: const EdgeInsets.all(p12),
+          contentPadding:
+              const EdgeInsets.all(p8),
+          actionsPadding:
+              const EdgeInsets.only(left: p8, bottom: p8, right: p8),
           titlePadding: EdgeInsets.zero,
-          content: ClipRRect(borderRadius: tertiaryBorder, child: table),
+          content: ClipRRect(borderRadius: buttonBorder, child: table),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(c),
@@ -107,6 +108,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
     required double maxWidth,
     required List<TableRow> rows,
     required Map<int, TableColumnWidth> columnWidths,
+    BorderRadius radius = tertiaryBorder,
   }) {
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -126,7 +128,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             child: Table(
               border: TableBorder.all(
                 color: widget.colorScheme.primary,
-                borderRadius: tertiaryBorder,
+                borderRadius: radius,
               ),
               columnWidths: columnWidths,
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
