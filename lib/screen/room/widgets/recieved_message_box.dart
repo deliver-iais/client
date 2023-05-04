@@ -4,6 +4,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/material.dart';
 
 import 'markup/inline_markup_button_widget.dart';
@@ -59,7 +60,7 @@ class ReceivedMessageBox extends StatelessWidget {
       showMenuDisable: showMenuDisable,
     );
 
-    return doNotNeedsWrapper()
+    return message.doNotNeedsWrapper()
         ? boxContent
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,9 +82,5 @@ class ReceivedMessageBox extends StatelessWidget {
                 ),
             ],
           );
-  }
-
-  bool doNotNeedsWrapper() {
-    return message.type == MessageType.STICKER || isOnlyEmojiMessage(message);
   }
 }

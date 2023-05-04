@@ -104,3 +104,61 @@ class Ws extends StatelessWidget {
     );
   }
 }
+
+class WsFilePreview extends StatefulWidget {
+  final File file;
+  final double width;
+  final double height;
+
+  const WsFilePreview({
+    Key? key,
+    required this.file,
+    required this.width,
+    required this.height,
+  }) : super(key: key);
+
+  @override
+  State<WsFilePreview> createState() => _WsFilePreviewState();
+}
+
+class _WsFilePreviewState extends State<WsFilePreview>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    try {
+      return GestureDetector(
+        onTap: () => !settings.repeatAnimatedStickers.value
+            ? _controller.forward(from: 0)
+            : null,
+        child: Ws.file(
+          widget.file,
+          controller:
+              !settings.repeatAnimatedStickers.value ? _controller : null,
+          repeat: settings.repeatAnimatedStickers.value,
+          width: widget.width,
+          height: widget.height,
+        ),
+      );
+    } catch (_) {
+      return Container(
+        height: widget.height,
+        width: widget.width,
+        color: Colors.red,
+      );
+    }
+  }
+}

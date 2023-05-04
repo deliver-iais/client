@@ -143,6 +143,8 @@ extension FileProtoExtensions on file_proto.File {
   bool isImageFileProto() =>
       isImageFileType(type) && isFileNameMimeMatchFileType(name, type);
 
+  bool isWsFileProto() => name.endsWith(".ws");
+
   bool isVideoFileProto() =>
       isVideoFileType(type) && isFileNameMimeMatchFileType(name, type);
 

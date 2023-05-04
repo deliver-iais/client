@@ -266,6 +266,10 @@ class Settings {
     SharedKeys.REPEAT_ANIMATED_EMOJI.inSharedDaoStorage(),
     PerformanceMode.HIGH,
   );
+  final repeatAnimatedStickers = PerformanceBooleanPersistent(
+    SharedKeys.REPEAT_ANIMATED_STICKERS.inSharedDaoStorage(),
+    PerformanceMode.BALANCED,
+  );
   final showAnimatedEmoji = PerformanceBooleanPersistent(
     SharedKeys.SHOW_ANIMATED_EMOJI.inSharedDaoStorage(),
     PerformanceMode.BALANCED,

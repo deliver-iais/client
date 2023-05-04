@@ -4,6 +4,7 @@ import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_message/ws_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
@@ -100,7 +101,17 @@ class FileMessageUiState extends State<FileMessageUi> {
   }
 
   Widget _buildMainUi() {
-    if (_isImageFile()) {
+    if (_isWsFile()) {
+      return WsUi(
+        message: widget.message,
+        maxWidth: widget.maxWidth,
+        minWidth: widget.minWidth,
+        isSender: widget.isSender,
+        isSeen: widget.isSeen,
+        colorScheme: widget.colorScheme,
+        onEdit: widget.onEdit,
+      );
+    } else if (_isImageFile()) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -188,6 +199,8 @@ class FileMessageUiState extends State<FileMessageUi> {
       }
     }
   }
+
+  bool _isWsFile() => widget.file.isWsFileProto();
 
   bool _isImageFile() => widget.file.isImageFileProto();
 

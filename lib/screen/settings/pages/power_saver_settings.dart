@@ -241,6 +241,17 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     },
                   ),
                   SettingsTile.switchTile(
+                    title: _i18n["repeat_animated_stickers"],
+                    leading: const Icon(Icons.animation),
+                    switchValue: settings.repeatAnimatedStickers.value,
+                    enabled: settings.repeatAnimatedStickers.enabled,
+                    onToggle: (value) {
+                      setState(
+                        () => settings.repeatAnimatedStickers.toggleValue(),
+                      );
+                    },
+                  ),
+                  SettingsTile.switchTile(
                     title: _i18n["show_animated_emojis"],
                     leading: const Icon(Icons.emoji_emotions_outlined),
                     switchValue: settings.showAnimatedEmoji.value,

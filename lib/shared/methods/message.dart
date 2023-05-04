@@ -2,8 +2,10 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
@@ -282,3 +284,10 @@ Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) =>
 
 Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) =>
     authRepo.isCurrentUser(from.asString()) ? to : (to.isUser() ? from : to);
+
+extension MessageExtention on Message {
+  bool doNotNeedsWrapper() =>
+      type == MessageType.STICKER ||
+      isOnlyEmojiMessage(this) ||
+      (type == MessageType.FILE && json.toFile().isWsFileProto());
+}
