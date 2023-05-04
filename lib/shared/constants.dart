@@ -130,8 +130,8 @@ const KEYBOARD_DEFAULT_SIZE_LANDSCAPE = 254.0;
 const KEYBOARD_DEFAULT_SIZE_PORTRAIT = 200.0;
 
 //Colors
-const INTRO_COLOR_BACKGROUND = Color(0xff010e17);
-const INTRO_COLOR_FOREGROUND = Color(0xff78b7ee);
+const INTRO_COLOR_BACKGROUND = Color(0xffa8d2f5);
+const INTRO_COLOR_FOREGROUND = Color(0xff095da4);
 const grayColor = Color.fromRGBO(55, 58, 62, 1.0);
 const backgroundColorCard = Color.fromRGBO(44, 99, 45, 1.0);
 

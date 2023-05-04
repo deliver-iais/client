@@ -105,7 +105,7 @@ class Settings {
   );
   final windowsFrame = JsonMapPersistent<WindowFrame>(
     SharedKeys.WINDOW_FRAME.inSharedDaoStorage(),
-    defaultValue: WindowFrame.defaultInstance,
+    defaultValue: WindowFrame.empty,
     fromJsonMap: WindowFrameFromJson,
     toJsonMap: WindowFrameToJson,
   );
@@ -359,7 +359,7 @@ class Settings {
   ThemeScheme get themeScheme => getThemeScheme(themeColorIndex.value);
 
   ThemeData get introThemeData => settings.themeScheme
-      .theme(isDark: true)
+      .theme()
       .copyWith(scaffoldBackgroundColor: INTRO_COLOR_BACKGROUND);
 
   ThemeData get themeData => themeScheme.theme(isDark: themeIsDark.value);

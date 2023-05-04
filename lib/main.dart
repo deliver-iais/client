@@ -516,14 +516,21 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  void _setWindowSize() {
-    final windowFrame = settings.windowsFrame.value;
+  void _setWindowSize() async {
     setWindowMinSize(
       WindowFrame.minSize.toSize(),
     );
 
+    final windowFrame = settings.windowsFrame.value;
+    var rect = windowFrame.toRect();
+    if (windowFrame == WindowFrame.empty) {
+      final currentScreen = await getCurrentScreen();
+      rect = currentScreen?.visibleFrame ??
+          WindowFrame.defaultInstance.toRect();
+    }
+
     try {
-      setWindowFrame(windowFrame.toRect());
+      setWindowFrame(rect);
     } catch (e) {
       setWindowMinSize(
         WindowFrame.minSize.toSize(),

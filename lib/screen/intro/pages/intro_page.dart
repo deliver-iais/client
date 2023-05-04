@@ -37,7 +37,7 @@ class IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = settings.themeData;
+    final theme = settings.introThemeData;
     final size = MediaQuery.of(context).size;
 
     final width = min(LARGE_BREAKDOWN_SIZE_WIDTH, size.width);
