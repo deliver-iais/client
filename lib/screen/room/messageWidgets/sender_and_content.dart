@@ -61,39 +61,52 @@ class SenderAndContent extends StatelessWidget {
 
         return Container(
           constraints: maxWidth != null
-              ? BoxConstraints(maxWidth: max(maxWidth!, 100) - 8.0)
+              ? BoxConstraints(maxWidth: max(maxWidth!, 100) - 12)
               : null,
           decoration: showBackgroundColor
-              ? BoxDecoration(
-                  borderRadius: secondaryBorder,
-                  color: messageColorScheme.primaryContainer,
-                  border: Border.all(
-                    color: messageColorScheme.primary,
-                    width: 2,
-                  ),
+              ? const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
                 )
               : null,
-          padding: const EdgeInsetsDirectional.all(4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (iconData != null)
-                Icon(
-                  iconData,
-                  size: 22,
-                  color: messageColorScheme.primary,
+          clipBehavior: showBackgroundColor ? Clip.hardEdge : Clip.none,
+          child: Container(
+            decoration: showBackgroundColor
+                ? BoxDecoration(
+                    border: Border(
+                      left: BorderSide(
+                        color: messageColorScheme.primary,
+                        width: 3,
+                      ),
+                    ),
+                    color: Color.lerp(
+                      theme.colorScheme.surface,
+                      messageColorScheme.primary,
+                      0.1,
+                    ),
+                  )
+                : null,
+            padding: const EdgeInsetsDirectional.all(p4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (iconData != null)
+                  Icon(
+                    iconData,
+                    size: 18,
+                    color: messageColorScheme.primary,
+                  ),
+                if (iconData != null) const SizedBox(width: 4),
+                Flexible(
+                  child: LastMessage(
+                    messageSR: snapshot.data!,
+                    showSender: true,
+                    useMultiLineText: true,
+                    highlightColor: messageColorScheme.primary,
+                    expandContent: expandContent,
+                  ),
                 ),
-              if (iconData != null) const SizedBox(width: 4),
-              Flexible(
-                child: LastMessage(
-                  messageSR: snapshot.data!,
-                  showSender: true,
-                  showSeenStatus: false,
-                  highlightColor: messageColorScheme.primary,
-                  expandContent: expandContent,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

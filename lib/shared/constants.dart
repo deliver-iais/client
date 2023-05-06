@@ -294,6 +294,7 @@ const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2000;
 const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
 const MAIN_BORDER_RADIUS_SIZE = 28.0;
+const CHAT_AVATAR_RADIUS = 26.0;
 const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));

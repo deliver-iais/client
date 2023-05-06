@@ -45,11 +45,12 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     final theme = Theme.of(context);
 
-    final color = theme.colorScheme.surfaceTint;
+    final color = theme.colorScheme.outline;
+    final iconColor = theme.colorScheme.surfaceTint;
 
     return RepaintBoundary(
       child: Container(
-        margin: const EdgeInsetsDirectional.all(4),
+        margin: const EdgeInsetsDirectional.all(p2),
         padding: needsPadding
             ? const EdgeInsetsDirectional.only(top: 3, end: 6, start: 4)
             : null,
@@ -58,8 +59,8 @@ class TimeAndSeenStatus extends StatelessWidget {
           borderRadius: mainBorder,
         ),
         child: DefaultTextStyle(
-          style: (theme.textTheme.bodySmall ?? const TextStyle())
-              .copyWith(color: color, fontSize: 11),
+          style: (theme.textTheme.labelSmall ?? const TextStyle())
+              .copyWith(color: color),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -75,7 +76,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                     message.packetId,
                     messageId: message.id,
                     isSeen: isSeen,
-                    iconColor: color,
+                    iconColor: iconColor,
                   ),
                 )
             ],

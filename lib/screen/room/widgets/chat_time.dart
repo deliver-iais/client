@@ -29,7 +29,7 @@ class ChatTime extends StatelessWidget {
         currentMonth == currentMessageTime.month) {
       outT = _i18n.get("yesterday");
     } else {
-      outT = dateTimeFromNowFormat(currentMessageTime, weekFormat: 'l');
+      outT = dateTimeFromNowFormat(currentMessageTime);
     }
     return BlurContainer(
       skew: 5,

@@ -32,9 +32,12 @@ class ReplyPreview extends StatelessWidget {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsetsDirectional.all(2.0),
-                      child: SenderAndContent.viaMessage(
-                        iconData: CupertinoIcons.reply,
-                        message: message!,
+                      child: SizedBox(
+                        height: 44,
+                        child: SenderAndContent.viaMessage(
+                          iconData: CupertinoIcons.reply,
+                          message: message!,
+                        ),
                       ),
                     ),
                   ),

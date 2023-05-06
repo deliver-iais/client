@@ -134,7 +134,7 @@ class BoxContentState extends State<BoxContent> {
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 // Reply box in animated emoji has different UI
                 if (!isOnlyEmojiMessage(widget.message) && hasReply())
-                  replyToIdBox(),
+                  replyToIdBox(showTopPadding: !shouldShowSenderName()),
                 if (isForwarded()) forwardedFromBox(),
                 Container(key: _messageBoxKey, child: messageBox())
               ],
@@ -176,7 +176,7 @@ class BoxContentState extends State<BoxContent> {
     );
   }
 
-  Widget replyToIdBox() {
+  Widget replyToIdBox({bool showTopPadding = false}) {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
 
@@ -192,15 +192,22 @@ class BoxContentState extends State<BoxContent> {
         child: StreamBuilder<double>(
           stream: messageBoxWidth,
           builder: (context, snapshot) {
-            return ReplyBrief(
-              roomId: widget.message.roomUid,
-              replyToId: widget.message.replyToId,
-              messageReplyBrief: widget.messageReplyBrief,
-              maxWidth: isOnlyEmojiMessage(widget.message)
-                  ? 120
-                  : (snapshot.data ?? 0),
-              backgroundColor: colorScheme.onPrimary,
-              foregroundColor: colorScheme.primary,
+            return Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: 6.0,
+                end: 6.0,
+                top: showTopPadding ? 6 : 0,
+              ),
+              child: ReplyBrief(
+                roomId: widget.message.roomUid,
+                replyToId: widget.message.replyToId,
+                messageReplyBrief: widget.messageReplyBrief,
+                maxWidth: isOnlyEmojiMessage(widget.message)
+                    ? 120
+                    : (snapshot.data ?? 0),
+                backgroundColor: colorScheme.onPrimary,
+                foregroundColor: colorScheme.primary,
+              ),
             );
           },
         ),
@@ -212,13 +219,13 @@ class BoxContentState extends State<BoxContent> {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
-      margin: const EdgeInsetsDirectional.all(4),
+      margin: const EdgeInsetsDirectional.symmetric(horizontal: p8, vertical: p2),
       padding:
-          const EdgeInsetsDirectional.only(start: 4, end: 8, top: 4, bottom: 2),
+          const EdgeInsetsDirectional.all(p4),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
-        color: colorScheme.primary,
+        color: colorScheme.primaryContainer,
       ),
       child: FutureBuilder<String>(
         future: forwarderName,
@@ -232,8 +239,8 @@ class BoxContentState extends State<BoxContent> {
                 children: [
                   Icon(
                     CupertinoIcons.arrowshape_turn_up_right,
-                    size: 15,
-                    color: colorScheme.onPrimary,
+                    size: 14,
+                    color: colorScheme.onPrimaryContainer,
                   ),
                   Flexible(
                     child: Text(
@@ -242,7 +249,7 @@ class BoxContentState extends State<BoxContent> {
                       maxLines: 1,
                       overflow: TextOverflow.fade,
                       style: TextStyle(
-                        color: colorScheme.onPrimary,
+                        color: colorScheme.onPrimaryContainer,
                         fontSize: 12,
                       ),
                     ),
@@ -435,9 +442,14 @@ class BoxContentState extends State<BoxContent> {
 
   Widget senderNameBox(CustomColorScheme colorScheme) {
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
+      constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - p16)),
       height: 18,
-      margin: const EdgeInsetsDirectional.symmetric(vertical: 4, horizontal: 8),
+      margin: const EdgeInsetsDirectional.only(
+        top: p4,
+        bottom: p2,
+        end: p8,
+        start: p8,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
