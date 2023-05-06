@@ -21,11 +21,9 @@ class ActivityStatus extends StatelessWidget {
     required this.roomUid,
   });
 
-  TextStyle textStyle(BuildContext context) {
-    return TextStyle(
-      fontSize: 14,
-      color: Theme.of(context).colorScheme.primary,
-    );
+  TextStyle? textStyle(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.primaryTextTheme.bodySmall;
   }
 
   @override

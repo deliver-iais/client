@@ -23,7 +23,7 @@ String durationTimeFormat(Duration duration) {
   return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
 }
 
-String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
+String dateTimeFromNowFormat(DateTime time, {bool summery = false}) {
   final now = clock.now();
   final difference = now.difference(time);
   final isInSameYear = _i18n.isPersian
@@ -33,16 +33,16 @@ String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
     return DateTimeFormat.format(time, format: 'H:i');
   } else if (isInSameYear) {
     if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).deliverFormat();
+      return Jalali.fromDateTime(time).deliverFormat(summery: summery);
     } else {
-      return DateTimeFormat.format(time, format: 'l, F j');
-      // return DateTimeFormat.format(time, format: 'l, F j, Y');
+      return DateTimeFormat.format(time, format: 'D, F j');
     }
   } else {
     if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).formatFullDate();
+      return Jalali.fromDateTime(time)
+          .deliverFormat(summery: summery, showYear: true);
     } else {
-      return DateTimeFormat.format(time, format: 'l, F j, Y');
+      return DateTimeFormat.format(time, format: 'D, F j, Y');
     }
   }
 }
@@ -54,30 +54,7 @@ String dateTimeFormat(DateTime time) {
   );
 }
 
-String sameDayTitle(DateTime time) {
-  final now = clock.now();
-  final difference = now.difference(time);
-  if (difference.inDays < 1 && time.day == now.day) {
-    return _i18n.get("today");
-  }
-  if (difference.inDays <= 1 && time.day == now.day - 1) {
-    return _i18n.get("yesterday");
-  } else if (difference.inDays <= 7) {
-    if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).formatter.wN;
-    } else {
-      return DateTimeFormat.format(time, format: 'l');
-    }
-  } else {
-    if (_i18n.isPersian) {
-      return Jalali.fromDateTime(time).formatShortMonthDay();
-    } else {
-      return DateTimeFormat.format(time, format: 'M j');
-    }
-  }
-}
-
-List<String> _deliverShortDayName = [
+List<String> _deliverDayName = [
   'شنبه',
   'یکشنبه',
   'دوشنبه',
@@ -87,9 +64,23 @@ List<String> _deliverShortDayName = [
   'جمعه',
 ];
 
+List<String> _deliverShortDayName = [
+  'ش',
+  'ی',
+  'د',
+  'س',
+  'چ',
+  'پ',
+  'ج',
+];
+
 extension DeliverJalaliFormats on Jalali {
-  String deliverFormat() {
+  String deliverFormat({bool showYear = false, bool summery = false}) {
     final f = formatter;
-    return '${_deliverShortDayName[weekDay - 1]}, ${f.d} ${f.mN}';
+    if (summery) {
+      return '${_deliverShortDayName[weekDay - 1]}, ${f.d} ${f.mN}${showYear ? ",${f.yyyy}" : ""}';
+    } else {
+      return '${_deliverDayName[weekDay - 1]}, ${f.d} ${f.mN}';
+    }
   }
 }

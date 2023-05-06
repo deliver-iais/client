@@ -88,7 +88,9 @@ class PinMessageAppBar extends StatelessWidget {
                                     pinMessages.length.toDouble(),
                                     2.5,
                                   )),
-                              margin: EdgeInsetsDirectional.only(top: index > 0 ? 2.0 : 0),
+                              margin: EdgeInsetsDirectional.only(
+                                top: index > 0 ? 2.0 : 0,
+                              ),
                             );
                           },
                           itemCount: pinMessages.length,
@@ -96,7 +98,7 @@ class PinMessageAppBar extends StatelessWidget {
                           // shrinkWrap: true,
                         ),
                       ),
-                      const SizedBox(width: 8.0),
+                      const SizedBox(width: p8),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -124,8 +126,6 @@ class PinMessageAppBar extends StatelessWidget {
                               ),
                               AsyncLastMessage(
                                 message: mes,
-                                showSeenStatus: false,
-                                maxLine: 1,
                               ),
                             ]
                           ],

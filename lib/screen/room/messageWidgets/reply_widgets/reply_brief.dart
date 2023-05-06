@@ -9,7 +9,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shimmer/shimmer.dart';
@@ -39,10 +38,13 @@ class ReplyBrief extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = theme.primaryTextTheme;
+    final height = (textTheme.bodySmall?.fontSize ?? 12) +
+        (textTheme.bodySmall?.fontSize ?? 12) +
+        18;
 
-    return Container(
-      height: theme.textTheme.displayMedium!.height,
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4.0),
+    return SizedBox(
+      height: height,
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
@@ -60,12 +62,11 @@ class ReplyBrief extends StatelessWidget {
                   color: theme.colorScheme.surface,
                 ),
                 width: max(maxWidth - 8, 0),
-                height: 44,
+                height: height,
               ),
             );
           } else {
             widget = SenderAndContent(
-              iconData: CupertinoIcons.reply,
               maxWidth: max(maxWidth, 0),
               showBackgroundColor: true,
               messageSRF: future,

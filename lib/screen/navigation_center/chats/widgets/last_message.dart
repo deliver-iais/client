@@ -1,13 +1,12 @@
 import 'package:deliver/box/message.dart';
-import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/message_extractor_services.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
-import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,19 +16,17 @@ class AsyncLastMessage extends StatelessWidget {
 
   final Future<MessageSimpleRepresentative> messageSRF;
   final bool showSender;
-  final bool showSeenStatus;
   final bool expandContent;
   final Color? highlightColor;
-  final int? maxLine;
+  final bool useMultiLineText;
 
   AsyncLastMessage({
     super.key,
     required Message message,
     this.showSender = false,
-    this.showSeenStatus = true,
     this.expandContent = true,
     this.highlightColor,
-    this.maxLine,
+    this.useMultiLineText = false,
   }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
@@ -44,15 +41,13 @@ class AsyncLastMessage extends StatelessWidget {
         if (!snapshot.hasData) {
           return Container(height: theme.textTheme.bodyMedium!.fontSize! + 7);
         }
-
         return LastMessage(
           key: key,
           messageSR: snapshot.data!,
           showSender: showSender,
-          showSeenStatus: showSeenStatus,
           expandContent: expandContent,
           highlightColor: highlightColor,
-          maxLine: maxLine,
+          useMultiLineText: useMultiLineText,
         );
       },
     );
@@ -60,13 +55,11 @@ class AsyncLastMessage extends StatelessWidget {
 }
 
 class LastMessage extends StatelessWidget {
-  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final MessageSimpleRepresentative messageSR;
-
   final bool showSender;
-  final int? maxLine;
-  final bool showSeenStatus;
+  final bool useMultiLineText;
   final bool expandContent;
   final Color? highlightColor;
 
@@ -74,91 +67,76 @@ class LastMessage extends StatelessWidget {
     super.key,
     required this.messageSR,
     this.showSender = false,
-    this.showSeenStatus = true,
     this.expandContent = true,
     this.highlightColor,
-    this.maxLine,
+    this.useMultiLineText = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final mb = messageSR;
-    final isReceivedMessage = !_authRepo.isCurrentUser(mb.from.asString());
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (mb.senderIsAUserOrBot && showSender)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  mb.sender.trim(),
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.primaryTextTheme.bodySmall?.copyWith(
-                    color: highlightColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showSeenStatus && !isReceivedMessage)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: p4),
-                child: SeenStatus(
-                  mb.roomUid.asString(),
-                  mb.packetId,
-                  messageId: mb.id,
-                ),
-              ),
-            Flexible(
-              fit: expandContent ? FlexFit.tight : FlexFit.loose,
-              child: RichText(
-                maxLines: maxLine ?? (showSender ? 1 : 2),
-                text: TextSpan(
-                  children: [
-                    if (mb.typeDetails.isNotEmpty)
-                      TextSpan(
-                        text: mb.typeDetails,
-                        style: theme.primaryTextTheme.bodySmall,
-                      ),
-                    if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
-                      TextSpan(
-                        text: ", ",
-                        style: theme.primaryTextTheme.bodySmall,
-                      ),
-                    if (mb.text.isNotEmpty)
-                      TextSpan(
-                        children: buildText(mb, context),
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: highlightColor),
-                      ),
-                  ],
-                ),
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: Flex(
+        direction: useMultiLineText ? Axis.vertical : Axis.horizontal,
+        mainAxisSize: MainAxisSize.min,
+        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (messageSR.senderIsAUserOrBot && showSender)
+            Text(
+              "${messageSR.sender.trim()}${useMultiLineText ? "" : ": "}",
+              style: theme.primaryTextTheme.bodySmall?.copyWith(
+                color: highlightColor,
               ),
             ),
-          ],
+          _buildLastMessageTextUi(theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLastMessageTextUi(ThemeData theme) {
+    return Flexible(
+      fit: FlexFit.tight,
+      child: SizedBox(
+        width: double.infinity,
+        child: RichText(
+          textDirection: _i18n.defaultTextDirection,
+          maxLines: 1,
+          text: TextSpan(
+            children: [
+              if (messageSR.typeDetails.isNotEmpty)
+                TextSpan(
+                  text: messageSR.typeDetails,
+                  style: theme.primaryTextTheme.bodySmall,
+                ),
+              if (messageSR.typeDetails.isNotEmpty && messageSR.text.isNotEmpty)
+                TextSpan(
+                  text: ", ",
+                  style: theme.primaryTextTheme.bodySmall,
+                ),
+              if (messageSR.text.isNotEmpty)
+                TextSpan(
+                  children: buildText(theme),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
   List<InlineSpan> buildText(
-    MessageSimpleRepresentative mb,
-    BuildContext context,
+    ThemeData theme,
   ) {
-    final theme = Theme.of(context);
-
-    return onePath(
+    final paths = onePath(
       [
         Block(
-          text: mb.text
+          text: messageSR.text
               .split("\n")
               .map((e) => e.trim())
               .where((e) => e.isNotEmpty)
@@ -172,5 +150,6 @@ class LastMessage extends StatelessWidget {
         linkColor: theme.colorScheme.primary,
       ),
     );
+    return paths;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -24,7 +25,7 @@ class ChatAvatar extends StatelessWidget {
       children: <Widget>[
         CircleAvatarWidget(
           userUid,
-          26,
+          CHAT_AVATAR_RADIUS,
           isHeroEnabled: false,
           showSavedMessageLogoIfNeeded: true,
         ),

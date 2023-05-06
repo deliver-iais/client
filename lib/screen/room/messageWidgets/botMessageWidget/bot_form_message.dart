@@ -171,7 +171,9 @@ class BotFormMessageState extends State<BotFormMessage> {
                             titlePadding:
                                 const EdgeInsets.symmetric(vertical: 8),
                             contentPadding:
-                                const EdgeInsetsDirectional.symmetric(horizontal: 8),
+                                const EdgeInsetsDirectional.symmetric(
+                              horizontal: 8,
+                            ),
                             actionsPadding: const EdgeInsetsDirectional.only(
                               end: 4,
                               start: 4,
@@ -223,11 +225,12 @@ class BotFormMessageState extends State<BotFormMessage> {
                   }
                 },
                 child: Container(
+                  margin: const EdgeInsetsDirectional.all(p8),
                   padding: EdgeInsetsDirectional.only(
-                    top: form.lockAfter.isZero ? 5 : 50,
-                    end: 5,
-                    start: 5,
-                    bottom: 5,
+                    top: form.lockAfter.isZero ? p8 : 50,
+                    end: p8,
+                    start: p8,
+                    bottom: p8,
                   ),
                   decoration: BoxDecoration(
                     color: widget.colorScheme.primaryContainer,
