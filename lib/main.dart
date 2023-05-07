@@ -413,7 +413,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         // App now initialized and can be configure
-        settings.updateMainContext(context);
+        settings.updateAppContext(context);
 
         return NotificationListener<SizeChangedLayoutNotification>(
           onNotification: onWindowSizeChange,
@@ -457,7 +457,7 @@ class _MyAppState extends State<MyApp> {
                           onGenerateRoute: (_) {
                             return MaterialPageRoute(
                               builder: (context) {
-                                settings.updateMainContext(context);
+                                settings.updateAppContext(context);
 
                                 final authRepo = GetIt.I.get<AuthRepo>();
 
@@ -516,7 +516,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  void _setWindowSize() async {
+  Future<void> _setWindowSize() async {
     setWindowMinSize(
       WindowFrame.minSize.toSize(),
     );
@@ -525,8 +525,8 @@ class _MyAppState extends State<MyApp> {
     var rect = windowFrame.toRect();
     if (windowFrame == WindowFrame.empty) {
       final currentScreen = await getCurrentScreen();
-      rect = currentScreen?.visibleFrame ??
-          WindowFrame.defaultInstance.toRect();
+      rect =
+          currentScreen?.visibleFrame ?? WindowFrame.defaultInstance.toRect();
     }
 
     try {
@@ -566,7 +566,7 @@ class _MyAppState extends State<MyApp> {
 
     try {
       if (isDesktopNative) {
-        _setWindowSize();
+        unawaited(_setWindowSize());
       }
     } catch (_) {}
 

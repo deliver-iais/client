@@ -110,10 +110,13 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                       setState(() {
                         filteredCountries = countries
                             .where(
-                              (country) => country['label']
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()),
+                              (country) =>
+                                  country['label']
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains(value.toLowerCase()) ||
+                                  country["phone"].toString().contains(value) ||
+                                  country["code"].toString().contains(value),
                             )
                             .toList();
                       });

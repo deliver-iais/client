@@ -188,7 +188,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    settings.updateHomeContext(context);
+    settings.updateAppContext(context);
 
     final theme = Theme.of(context);
     return WillPopScope(
