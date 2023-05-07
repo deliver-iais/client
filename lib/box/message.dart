@@ -1,11 +1,21 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'message.g.dart';
 
+const MessageJsonKey = JsonKey(fromJson: getMessageFromJson, toJson: messageToJson);
+
+String messageToJson(Message model) {
+  return model.toJson();
+}
+
+@JsonSerializable()
 @HiveType(typeId: MESSAGE_TRACK_ID)
 class Message {
   @HiveField(0)
@@ -144,4 +154,9 @@ class Message {
   String toString() {
     return "Message([roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json] [markup:$markup]}";
   }
+
+  String toJson() => jsonEncode(_$MessageToJson(this));
 }
+
+Message getMessageFromJson(String msgJson) =>
+    _$MessageFromJson(jsonDecode(msgJson));

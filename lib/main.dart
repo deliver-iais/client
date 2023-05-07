@@ -30,6 +30,7 @@ import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/meta_count_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
+import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/dao/recent_search_dao.dart';
@@ -54,7 +55,6 @@ import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
-import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/box/recent_rooms.dart';
 import 'package:deliver/box/recent_search.dart';
@@ -109,6 +109,7 @@ import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/services/storage_path_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/video_player_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -158,6 +159,7 @@ Future<void> setupDI() async {
   // Setup Logger
   registerSingleton<DeliverLogFilter>(DeliverLogFilter());
   registerSingleton<DeliverLogOutput>(DeliverLogOutput());
+
   final logger = registerSingleton<Logger>(
     Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
@@ -187,7 +189,6 @@ Future<void> setupDI() async {
   registerSingleton<AccountRepo>(AccountRepo());
   await GetIt.I.get<AccountRepo>().checkUpdatePlatformSessionInformation();
 
-  registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
@@ -257,6 +258,10 @@ Future<void> dbSetupDI() async {
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
+  //setup Permission check and StoragePath Service
+  registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  registerSingleton<StoragePathService>(StoragePathService());
+
   await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
   Hive
@@ -272,7 +277,6 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MemberAdapter())
     ..registerAdapter(BotInfoAdapter())
     ..registerAdapter(RoomAdapter())
-    ..registerAdapter(PendingMessageAdapter())
     ..registerAdapter(MessageAdapter())
     ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
@@ -311,6 +315,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<MucDao>(MucDaoImpl());
   registerSingleton<BotDao>(BotDaoImpl());
   registerSingleton<ContactDao>(ContactDaoImpl());
+  registerSingleton<PendingMessageDao>(PendingMessageDaoImpl());
   registerSingleton<MessageDao>(MessageDaoImpl());
   registerSingleton<RoomDao>(RoomDaoImpl());
   registerSingleton<MetaDao>(MetaDaoImpl());
@@ -332,10 +337,18 @@ Future<void> dbSetupDI() async {
 }
 
 Future initializeFirebase() async {
-  await Firebase.initializeApp(
-    name: isAndroidNative ? APPLICATION_NAME : null,
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (hasFirebaseCapability) {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        name: isAndroidNative ? APPLICATION_NAME : null,
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Pass all uncaught errors from the framework to Crashlytics.
+      // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      // Force enable crashlytics collection enabled if we're testing it.
+      // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    }
+  }
 }
 
 // Ignore for this specific time variable
@@ -364,13 +377,7 @@ void main() async {
 
   logger.i("Application has been started.");
 
-  if (hasFirebaseCapability) {
-    await initializeFirebase();
-    // Pass all uncaught errors from the framework to Crashlytics.
-    // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-    // Force enable crashlytics collection enabled if we're testing it.
-    // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  }
+  await initializeFirebase();
 
   if (isWeb) {
     document.onContextMenu.listen((e) => e.preventDefault());

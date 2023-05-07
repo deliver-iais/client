@@ -18,6 +18,7 @@
 #include <flutter_window_close/flutter_window_close_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
 #include <image_compression_flutter/image_compression_flutter_plugin.h>
+#include <isar_flutter_libs/isar_flutter_libs_plugin.h>
 #include <livekit_client/live_kit_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
@@ -53,6 +54,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
   ImageCompressionFlutterPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ImageCompressionFlutterPlugin"));
+  IsarFlutterLibsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("IsarFlutterLibsPlugin"));
   LiveKitPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LiveKitPlugin"));
   PasteboardPluginRegisterWithRegistrar(

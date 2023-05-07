@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -41,7 +41,7 @@ class CoreServices {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _analyticRepo = GetIt.I.get<AnalyticsRepo>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
-  final _messageDao = GetIt.I.get<MessageDao>();
+  final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _uptimeStartTime = BehaviorSubject.seeded(0);
   final _reconnectCount = BehaviorSubject.seeded(0);
 
@@ -238,7 +238,7 @@ class CoreServices {
               case ServerPacket_Type.expletivePacket:
                 break;
               case ServerPacket_Type.callEvent:
-                // TODO: Handle this case.
+                // TODO(any): Handle this case.
                 break;
             }
           } catch (_) {}
@@ -299,9 +299,9 @@ class CoreServices {
   }
 
   Future<void> _checkPendingStatus(String packetId) async {
-    final pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _pendingMessageDao.getPendingMessage(packetId);
     if (pm != null) {
-      await _messageDao.savePendingMessage(
+      await _pendingMessageDao.savePendingMessage(
         pm.copyWith(
           failed: _connectionStatus.value == ConnectionStatus.Connected,
         ),

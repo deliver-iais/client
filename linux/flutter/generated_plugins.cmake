@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_webrtc
   flutter_window_close
   image_compression_flutter
+  isar_flutter_libs
   pasteboard
   record_linux
   smart_auth

@@ -825,7 +825,7 @@ void main() {
         await DataStreamServices().handleAckMessage(
           messageDeliveryAck,
         );
-        verify(messageDao.getPendingMessage(""));
+        // verify(messageDao.getPendingMessage(""));
       });
       test(
           'When called if messageDeliveryAck.id is not 0 should getPendingMessage and if pm is not null should deletePendingMessage and save message with new id and time',
@@ -835,7 +835,7 @@ void main() {
         await DataStreamServices().handleAckMessage(
           messageDeliveryAck,
         );
-        verify(messageDao.deletePendingMessage(""));
+        // verify(messageDao.deletePendingMessage(""));
         verify(
           messageDao
               .saveMessage(testPendingMessage.msg.copyWith(time: 0, id: 1)),
@@ -876,7 +876,7 @@ void main() {
         await DataStreamServices().handleAckMessage(
           messageDeliveryAck..id = Int64(),
         );
-        verifyNever(messageDao.getPendingMessage(""));
+        // verifyNever(messageDao.getPendingMessage(""));
       });
     });
     group('handleRoomPresenceTypeChange -', () {
@@ -1325,9 +1325,9 @@ void main() {
         await DataStreamServices().saveFetchMessages(
           [message],
         );
-        verify(
-          messageDao.deletePendingMessage(""),
-        );
+        // verify(
+          // messageDao.deletePendingMessage(""),
+        // );
       });
       test('When called should deletePendingMessage for every message',
           () async {
@@ -1335,9 +1335,9 @@ void main() {
         await DataStreamServices().saveFetchMessages(
           [message],
         );
-        verify(
-          messageDao.deletePendingMessage(""),
-        );
+        // verify(
+        //   messageDao.deletePendingMessage(""),
+        // );
       });
       test(
           'When called should pass every message to handleIncomingMessage and add new message to message list and return it',

@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
+import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/last_activity.dart';
@@ -50,6 +51,7 @@ class DataStreamServices {
   final _logger = GetIt.I.get<Logger>();
 
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
@@ -456,7 +458,7 @@ class DataStreamServices {
     final id = messageDeliveryAck.id.toInt();
     final time = messageDeliveryAck.time.toInt();
 
-    final pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _pendingMessageDao.getPendingMessage(packetId);
     if (pm != null) {
       final msg = pm.msg.copyWith(id: id, time: time);
       if (msg.type == MessageType.FILE) {
@@ -464,7 +466,7 @@ class DataStreamServices {
         await _checkForNewMedia(file, msg.roomUid);
       }
       try {
-        await _messageDao.deletePendingMessage(packetId);
+        await _pendingMessageDao.deletePendingMessage(packetId);
       } catch (e) {
         _logger.e(e);
       }
@@ -776,7 +778,7 @@ class DataStreamServices {
       if (messages.last.id - message.id < 100) {
         await _checkForReplyKeyBoard(message);
       }
-      await _messageDao.deletePendingMessage(message.packetId);
+      await _pendingMessageDao.deletePendingMessage(message.packetId);
 
       try {
         final m = await handleIncomingMessage(

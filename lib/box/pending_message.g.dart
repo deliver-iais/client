@@ -3,51 +3,30 @@
 part of 'pending_message.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class PendingMessageAdapter extends TypeAdapter<PendingMessage> {
-  @override
-  final int typeId = 13;
-
-  @override
-  PendingMessage read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return PendingMessage(
-      roomUid: fields[0] as String,
-      packetId: fields[1] as String,
-      msg: fields[2] as Message,
-      failed: fields[3] as bool,
-      status: fields[5] as SendingStatus,
+_$_PendingMessage _$$_PendingMessageFromJson(Map<String, dynamic> json) =>
+    _$_PendingMessage(
+      roomUid: uidFromJson(json['roomUid'] as String),
+      packetId: json['packetId'] as String,
+      msg: getMessageFromJson(json['msg'] as String),
+      failed: json['failed'] as bool? ?? false,
+      status: $enumDecode(_$SendingStatusEnumMap, json['status']),
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, PendingMessage obj) {
-    writer
-      ..writeByte(5)
-      ..writeByte(0)
-      ..write(obj.roomUid)
-      ..writeByte(1)
-      ..write(obj.packetId)
-      ..writeByte(2)
-      ..write(obj.msg)
-      ..writeByte(3)
-      ..write(obj.failed)
-      ..writeByte(5)
-      ..write(obj.status);
-  }
+Map<String, dynamic> _$$_PendingMessageToJson(_$_PendingMessage instance) =>
+    <String, dynamic>{
+      'roomUid': uidToJson(instance.roomUid),
+      'packetId': instance.packetId,
+      'msg': messageToJson(instance.msg),
+      'failed': instance.failed,
+      'status': _$SendingStatusEnumMap[instance.status]!,
+    };
 
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PendingMessageAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+const _$SendingStatusEnumMap = {
+  SendingStatus.UPLOAD_FILE_COMPLETED: 'UPLOAD_FILE_COMPLETED',
+  SendingStatus.UPLOAD_FILE_FAIL: 'UPLOAD_FILE_FAIL',
+  SendingStatus.UPLOAD_FILE_IN_PROGRESS: 'UPLOAD_FILE_IN_PROGRESS',
+  SendingStatus.PENDING: 'PENDING',
+};

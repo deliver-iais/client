@@ -15,6 +15,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_window_close
   geolocator_windows
   image_compression_flutter
+  isar_flutter_libs
   livekit_client
   pasteboard
   permission_handler_windows

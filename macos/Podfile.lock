@@ -135,6 +135,8 @@ PODS:
     - GoogleUtilities/Logger
   - image_compression_flutter (1.0.0):
     - FlutterMacOS
+  - isar_flutter_libs (1.0.0):
+    - FlutterMacOS
   - just_audio (0.0.1):
     - FlutterMacOS
   - livekit_client (1.1.14):
@@ -194,6 +196,7 @@ DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
+  - isar_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - livekit_client (from `Flutter/ephemeral/.symlinks/plugins/livekit_client/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
@@ -263,6 +266,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos
   image_compression_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
+  isar_flutter_libs:
+    :path: Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
   livekit_client:
@@ -319,6 +324,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
+  isar_flutter_libs: 43385c99864c168fadba7c9adeddc5d38838ca6a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   livekit_client: 5be7db46f878e52ac66dfa155d4fc2482ceac7a3
   mobile_scanner: ed7618fb749adc6574563e053f3b8e5002c13994
@@ -329,7 +335,7 @@ SPEC CHECKSUMS:
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   record_macos: 937889e0f2a7a12b6fc14e97a3678e5a18943de6
-  rive_common: e966d74ca90edb3761cfc559d0f4c884ee947576
+  rive_common: fab8476ce8352bf54152a913f393a8696d3dc98c
   shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451

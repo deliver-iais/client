@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -93,6 +94,8 @@ class MessageRepo {
   final _i18n = GetIt.I.get<I18N>();
 
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
 
@@ -806,7 +809,7 @@ class MessageRepo {
       } catch (e) {
         _logger.e(e);
       }
-      return _messageDao.savePendingMessage(m);
+      return _pendingMessageDao.savePendingMessage(m);
     }
   }
 
@@ -922,20 +925,20 @@ class MessageRepo {
   ) async {
     file_pb.File? updatedFile;
     final file = file_pb.File.fromJson(pm.msg.json);
-    await _savePendingEditedMessage(
+    await _savePendingMessage(
       pm.copyWith(status: SendingStatus.UPLOAD_FILE_IN_PROGRESS),
     );
     updatedFile = await _fileRepo
         .uploadClonedFile(file.uuid, file.name, packetIds: [pm.packetId]);
     if (updatedFile != null) {
-      await _savePendingEditedMessage(
+      await _savePendingMessage(
         pm.copyWith(
           msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
           status: SendingStatus.UPLOAD_FILE_COMPLETED,
         ),
       );
     } else {
-      await _savePendingEditedMessage(
+      await _savePendingMessage(
         pm.copyWith(
           status: SendingStatus.UPLOAD_FILE_FAIL,
         ),
@@ -980,7 +983,7 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-      final p = await _messageDao.getPendingMessage(
+      final p = await _pendingMessageDao.getPendingMessage(
         pm.packetId,
       ); //check pending message  delete when  file  uploading
       if (p != null) {
@@ -1053,10 +1056,10 @@ class MessageRepo {
 
   @visibleForTesting
   Future<void> sendPendingMessages() async {
-    final pendingMessages = await _messageDao.getAllPendingMessages();
+    final pendingMessages = await _pendingMessageDao.getAllPendingMessages();
     final pendingFailedByRoom = <String>{};
     for (final pendingMessage in pendingMessages) {
-      if (pendingFailedByRoom.contains(pendingMessage.roomUid)) {
+      if (pendingFailedByRoom.contains(pendingMessage.roomUid.asString())) {
         await _savePendingMessage(pendingMessage.copyWith(failed: true));
       } else {
         final status = await checkMessageRepeated(pendingMessage);
@@ -1081,7 +1084,7 @@ class MessageRepo {
             deletePendingMessage(pendingMessage.packetId);
             break;
           case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
-            pendingFailedByRoom.add(pendingMessage.roomUid);
+            pendingFailedByRoom.add(pendingMessage.roomUid.asString());
             await _savePendingMessage(pendingMessage.copyWith(failed: true));
             break;
         }
@@ -1099,7 +1102,7 @@ class MessageRepo {
   }
 
   Future<void> sendPendingEditedMessages() async {
-    final pendingMessages = await _messageDao.getAllPendingEditedMessages();
+    final pendingMessages = await _pendingMessageDao.getAllPendingEditedMessages();
 
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
@@ -1160,7 +1163,7 @@ class MessageRepo {
         final timeLastMessageDeliveryAck =
             int.parse(lastDeliveryAckPacketId.split("-")[0]);
         final lastMessageIdLastMessageDeliveryAck =
-            await _roomRepo.getRoomLastMessageId(pm.roomUid);
+            await _roomRepo.getRoomLastMessageId(pm.roomUid.asString());
         final timeMessage = int.parse(msg.packetId.split("-")[0]);
         final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
         if ((timeLastMessageDeliveryAck - timeMessage) >=
@@ -1189,12 +1192,12 @@ class MessageRepo {
           ..messageId = Int64(pendingMessage.msg.id ?? 0),
       );
       deletePendingEditedMessage(
-        pendingMessage.roomUid,
+        pendingMessage.roomUid.asString(),
         pendingMessage.msg.id,
       );
     } catch (e) {
       _logger.e(e);
-      await _savePendingEditedMessage(
+      await _savePendingMessage(
         pendingMessage.copyWith(
           failed: true,
         ),
@@ -1207,17 +1210,14 @@ class MessageRepo {
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(
-        roomUid: msg.roomUid,
+        roomUid: msg.roomUid.asUid(),
         packetId: msg.packetId,
         msg: msg.copyWith(isHidden: isHiddenMessage(msg)),
         status: status,
       );
 
-  Future<void> _savePendingMessage(PendingMessage pm) =>
-      _messageDao.savePendingMessage(pm);
-
-  Future<void> _savePendingEditedMessage(PendingMessage pm) =>
-      _messageDao.savePendingEditedMessage(pm);
+  Future<void> _savePendingMessage(PendingMessage pm) async =>
+      _pendingMessageDao.savePendingMessage(pm);
 
   Future<void> sendSeen(
     int messageId,
@@ -1235,7 +1235,7 @@ class MessageRepo {
   }
 
   Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
-        uid: pm.roomUid,
+        uid: pm.roomUid.asString(),
         lastMessage: pm.msg.isHidden ? null : pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
@@ -1460,37 +1460,31 @@ class MessageRepo {
       _messageDao.getMessage(roomUid, id);
 
   Future<PendingMessage?> getPendingMessage(String packetId) =>
-      _messageDao.getPendingMessage(packetId);
+      _pendingMessageDao.getPendingMessage(packetId);
 
   Future<PendingMessage?> getPendingEditedMessage(String roomUid, int? index) =>
-      _messageDao.getPendingEditedMessage(roomUid, index);
-
-  Stream<PendingMessage?> watchPendingMessage(String packetId) =>
-      _messageDao.watchPendingMessage(packetId);
+      _pendingMessageDao.getPendingEditedMessage(roomUid, index);
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
-      _messageDao.watchPendingMessages(roomUid);
+      _pendingMessageDao.watchPendingMessages(roomUid);
 
   Stream<List<PendingMessage>> watchPendingEditedMessages(String roomUid) =>
-      _messageDao.watchPendingEditedMessages(roomUid);
-
-  Stream<PendingMessage?> watchPendingEditedMessage(String roomUid, int? id) =>
-      _messageDao.watchPendingEditedMessage(roomUid, id);
+      _pendingMessageDao.watchPendingEditedMessages(roomUid);
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
-      _messageDao.getPendingMessages(roomUid);
+      _pendingMessageDao.getPendingMessages(roomUid);
 
   Future<void> resendMessage(Message msg) async {
-    final pm = await _messageDao.getPendingMessage(msg.packetId);
+    final pm = await _pendingMessageDao.getPendingMessage(msg.packetId);
     unawaited(_saveAndSend(pm!));
   }
 
   void deletePendingMessage(String packetId) {
-    _messageDao.deletePendingMessage(packetId);
+    _pendingMessageDao.deletePendingMessage(packetId);
   }
 
   void deletePendingEditedMessage(String roomUid, int? index) {
-    _messageDao.deletePendingEditedMessage(roomUid, index);
+    _pendingMessageDao.deletePendingEditedMessage(roomUid, index);
     messageEventSubject.add(
       MessageEvent(
         roomUid,
@@ -1618,7 +1612,7 @@ class MessageRepo {
         ),
         SendingStatus.PENDING,
       );
-      await _savePendingEditedMessage(pm);
+      await _savePendingMessage(pm);
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
@@ -1722,7 +1716,7 @@ class MessageRepo {
           ),
           SendingStatus.PENDING,
         );
-        await _savePendingEditedMessage(pm);
+        await _savePendingMessage(pm);
         messageEventSubject.add(
           MessageEvent(
             editableMessage.roomUid,

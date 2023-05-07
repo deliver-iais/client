@@ -10,7 +10,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/services/storage_path_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -30,14 +30,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart' as html;
 
-import 'ext_storage_services.dart';
-
 enum ThumbnailSize { medium, large, frame }
 
 enum FileStatus { NONE, STARTED, CANCELED, COMPLETED }
 
 class FileService {
-  final _checkPermission = GetIt.I.get<CheckPermissionsService>();
+  final _storagePathService = GetIt.I.get<StoragePathService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
@@ -99,26 +97,8 @@ class FileService {
     }
   }
 
-  Future<String> get _localPath async {
-    if (isDesktopNative ||
-        isIOSNative ||
-        await _checkPermission.checkMediaLibraryPermission()) {
-      final directory = await getApplicationDocumentsDirectory();
-      if (!Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
-          .existsSync()) {
-        await Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
-            .create(recursive: true);
-      }
-      if (isWindowsNative) {
-        return "${directory.path}\\$APPLICATION_FOLDER_NAME";
-      }
-      return "${directory.path}/$APPLICATION_FOLDER_NAME";
-    }
-    throw Exception("There is no Storage Permission!");
-  }
-
   Future<String> localFilePath(String fileUuid, String fileType) async {
-    final path = await _localPath;
+    final path = await _storagePathService.localPath;
     if (isWindowsNative) {
       return '$path\\$fileUuid.$fileType';
     }
@@ -130,12 +110,12 @@ class FileService {
     String fileType,
     ThumbnailSize size,
   ) async {
-    final path = await _localPath;
+    final path = await _storagePathService.localPath;
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
 
   Future<File> localFile(String fileUuid, String fileType) async {
-    final path = await _localPath;
+    final path = await _storagePathService.localPath;
     return File('$path/$fileUuid.$fileType');
   }
 
@@ -270,7 +250,7 @@ class FileService {
     } else {
       final res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      final f = File("${await _localPath}/we-icon.png");
+      final f = File("${await _storagePathService.localPath}/we-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -290,28 +270,21 @@ class FileService {
       if (!isMobileNative) {
         return;
       }
-      if (await _checkPermission.checkStoragePermission()) {
-        if (isAndroidNative) {
-          final downloadDir =
-              await ExtStorage.getExternalStoragePublicDirectory(directory);
-          await Directory('$downloadDir/$APPLICATION_FOLDER_NAME')
-              .create(recursive: true);
-          File(
-            '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(
-              ".webp",
-              ".jpg",
-            )}',
-          ).writeAsBytesSync(
-            name.endsWith(".webp")
-                ? await convertImageToJpg(File(path))
-                : File(path).readAsBytesSync(),
-          );
+      if (isAndroidNative) {
+        final downloadDir =
+            await _storagePathService.downloadDirPath(name, directory);
+        File(
+          downloadDir,
+        ).writeAsBytesSync(
+          name.endsWith(".webp")
+              ? await convertImageToJpg(File(path))
+              : File(path).readAsBytesSync(),
+        );
+      } else {
+        if (isVideo(path)) {
+          await GallerySaver.saveVideo(path);
         } else {
-          if (isVideo(path)) {
-            await GallerySaver.saveVideo(path);
-          } else {
-            await GallerySaver.saveImage(path);
-          }
+          await GallerySaver.saveImage(path);
         }
       }
     } catch (_) {

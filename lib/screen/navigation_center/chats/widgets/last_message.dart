@@ -1,8 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/message_extractor_services.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';

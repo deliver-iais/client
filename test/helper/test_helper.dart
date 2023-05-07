@@ -458,24 +458,24 @@ MockMessageDao getAndRegisterMessageDao({
   when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
     (realInvocation) => Future.value([testMessage.copyWith(id: 0)]),
   );
-  when(service.getAllPendingMessages()).thenAnswer(
-    (realInvocation) => allPendingMessage != null
-        ? Future.value([allPendingMessage])
-        : Future.value([]),
-  );
-  when(service.getPendingMessage(any)).thenAnswer(
-    (realInvocation) =>
-        pendingMessage != null ? Future.value(pendingMessage) : Future.value(),
-  );
-  when(service.watchPendingMessage(""))
-      .thenAnswer((realInvocation) => Stream.value(testPendingMessage));
-  when(service.watchPendingMessages(testUid.asString()))
-      .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
-  when(service.getPendingMessages(testUid.asString()))
-      .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
-  when(
-    service.getPendingMessage("94667220000013418"),
-  ).thenAnswer((realInvocation) => Future.value(filePendingMessage));
+  // when(service.getAllPendingMessages()).thenAnswer(
+  //   (realInvocation) => allPendingMessage != null
+  //       ? Future.value([allPendingMessage])
+  //       : Future.value([]),
+  // );
+  // when(service.getPendingMessage(any)).thenAnswer(
+  //   (realInvocation) =>
+  //       pendingMessage != null ? Future.value(pendingMessage) : Future.value(),
+  // );
+  // when(service.watchPendingMessage(""))
+  //     .thenAnswer((realInvocation) => Stream.value(testPendingMessage));
+  // when(service.watchPendingMessages(testUid.asString()))
+  //     .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
+  // when(service.getPendingMessages(testUid.asString()))
+  //     .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
+  // when(
+  //   service.getPendingMessage("94667220000013418"),
+  // ).thenAnswer((realInvocation) => Future.value(filePendingMessage));
 
   return service;
 }

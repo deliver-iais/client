@@ -78,3 +78,64 @@ class MessageAdapter extends TypeAdapter<Message> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+Message _$MessageFromJson(Map<String, dynamic> json) => Message(
+      roomUid: json['roomUid'] as String,
+      packetId: json['packetId'] as String,
+      time: json['time'] as int,
+      from: json['from'] as String,
+      to: json['to'] as String,
+      json: json['json'] as String,
+      isHidden: json['isHidden'] as bool,
+      id: json['id'] as int?,
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+          MessageType.NOT_SET,
+      replyToId: json['replyToId'] as int? ?? 0,
+      edited: json['edited'] as bool? ?? false,
+      encrypted: json['encrypted'] as bool? ?? false,
+      forwardedFrom: json['forwardedFrom'] as String?,
+      markup: json['markup'] as String?,
+    );
+
+Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
+      'roomUid': instance.roomUid,
+      'id': instance.id,
+      'packetId': instance.packetId,
+      'time': instance.time,
+      'from': instance.from,
+      'to': instance.to,
+      'replyToId': instance.replyToId,
+      'forwardedFrom': instance.forwardedFrom,
+      'edited': instance.edited,
+      'encrypted': instance.encrypted,
+      'type': _$MessageTypeEnumMap[instance.type]!,
+      'json': instance.json,
+      'isHidden': instance.isHidden,
+      'markup': instance.markup,
+    };
+
+const _$MessageTypeEnumMap = {
+  MessageType.TEXT: 'TEXT',
+  MessageType.FILE: 'FILE',
+  MessageType.STICKER: 'STICKER',
+  MessageType.LOCATION: 'LOCATION',
+  MessageType.LIVE_LOCATION: 'LIVE_LOCATION',
+  MessageType.POLL: 'POLL',
+  MessageType.FORM: 'FORM',
+  MessageType.PERSISTENT_EVENT: 'PERSISTENT_EVENT',
+  MessageType.NOT_SET: 'NOT_SET',
+  MessageType.BUTTONS: 'BUTTONS',
+  MessageType.SHARE_UID: 'SHARE_UID',
+  MessageType.FORM_RESULT: 'FORM_RESULT',
+  MessageType.SHARE_PRIVATE_DATA_REQUEST: 'SHARE_PRIVATE_DATA_REQUEST',
+  MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE: 'SHARE_PRIVATE_DATA_ACCEPTANCE',
+  MessageType.CALL: 'CALL',
+  MessageType.TABLE: 'TABLE',
+  MessageType.TRANSACTION: 'TRANSACTION',
+  MessageType.PAYMENT_INFORMATION: 'PAYMENT_INFORMATION',
+  MessageType.CALL_LOG: 'CALL_LOG',
+};

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:deliver/services/storage_path.dart';
+import 'package:deliver/services/storage_path_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -13,11 +13,13 @@ class FileBasic {
 
 class AudioItem extends FileBasic {
   final String title;
+  static final StoragePathService _storagePathService =
+      GetIt.I.get<StoragePathService>();
 
   AudioItem({required super.path, required this.title});
 
   static Future<List<File>> getAudios() async {
-    final storageFiles = await StoragePath.audioPath;
+    final storageFiles = await _storagePathService.audioPath;
     final List<dynamic> paths = json.decode(storageFiles);
 
     final files = <File>[];
@@ -35,9 +37,12 @@ class AudioItem extends FileBasic {
 class FileItem extends FileBasic {
   FileItem({required super.path});
 
+  static final StoragePathService _storagePathService =
+      GetIt.I.get<StoragePathService>();
+
   static Future<List<String>> getFiles() async {
     try {
-      final storageFiles = await StoragePath.filePath;
+      final storageFiles = await _storagePathService.filePath;
       final List<dynamic> filesPath = json.decode(storageFiles);
       final result = <String>[];
       for (final path in filesPath) {
