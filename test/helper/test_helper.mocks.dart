@@ -7509,7 +7509,7 @@ class MockSettings extends _i1.Mock implements _i96.Settings {
         returnValueForMissingStub: null,
       );
   @override
-  void updateMainContext(_i20.BuildContext? context) => super.noSuchMethod(
+  void updateAppContext(_i20.BuildContext? context) => super.noSuchMethod(
         Invocation.method(
           #updateMainContext,
           [context],

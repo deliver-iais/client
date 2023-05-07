@@ -27,6 +27,7 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -54,7 +55,8 @@ class LoginPageState extends State<LoginPage> {
   final _acceptPrivacyKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktopDevice;
-  bool _acceptPrivacy = false;
+  final BehaviorSubject<bool> _acceptPrivacy =
+      BehaviorSubject.seeded(kDebugMode);
   final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -186,6 +188,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    settings.updateAppContext(context);
     final theme = settings.introThemeData;
     return Theme(
       data: theme,
@@ -320,7 +323,7 @@ class LoginPageState extends State<LoginPage> {
                           },
                           onSubmitted: (p) {
                             phoneNumber = p;
-                            if (_acceptPrivacy) checkAndGoNext();
+                            if (_acceptPrivacy.value) checkAndGoNext();
                           },
                           key: const Key("IntlPhoneField"),
                         ),
@@ -340,18 +343,19 @@ class LoginPageState extends State<LoginPage> {
                               key: _acceptPrivacyKey,
                               child: FormField<bool>(
                                 builder: (state) {
-                                  return Checkbox(
-                                    value: _acceptPrivacy,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _acceptPrivacy = value ?? false;
-                                        state.didChange(value);
-                                      });
+                                  return StreamBuilder<bool>(
+                                    stream: _acceptPrivacy.stream,
+                                    builder: (context, snapshot) {
+                                      return Checkbox(
+                                        value: snapshot.data ?? false,
+                                        onChanged: (value) =>
+                                            _acceptPrivacy.add(value ?? false),
+                                      );
                                     },
                                   );
                                 },
                                 validator: (value) {
-                                  if (!_acceptPrivacy) {
+                                  if (!_acceptPrivacy.value) {
                                     return 'You need to accept terms';
                                   } else {
                                     return null;
@@ -361,11 +365,8 @@ class LoginPageState extends State<LoginPage> {
                             ),
                             Flexible(
                               child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _acceptPrivacy = !_acceptPrivacy;
-                                  });
-                                },
+                                onTap: () =>
+                                    _acceptPrivacy.add(!_acceptPrivacy.value),
                                 child: RichText(
                                   text: TextSpan(
                                     children: buildText(

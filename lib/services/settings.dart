@@ -328,8 +328,7 @@ class Settings {
     defaultValue: false,
   );
 
-  final _homeContext = BehaviorSubject<BuildContext?>.seeded(null);
-  final _mainContext = BehaviorSubject<BuildContext?>.seeded(null);
+  final _appContext = BehaviorSubject<BuildContext?>.seeded(null);
 
   // StreamSubscription<bool>? _isAllNotificationDisabledSubscribe;
 
@@ -346,12 +345,9 @@ class Settings {
     };
   }
 
-  void updateMainContext(BuildContext context) => _mainContext.add(context);
+  void updateAppContext(BuildContext context) => _appContext.add(context);
 
-  void updateHomeContext(BuildContext context) => _homeContext.add(context);
-
-  BuildContext get appContext =>
-      _homeContext.valueOrNull ?? _mainContext.valueOrNull!;
+  BuildContext get appContext => _appContext.value!;
 
   Brightness get brightnessOpposite =>
       !themeIsDark.value ? Brightness.dark : Brightness.light;
