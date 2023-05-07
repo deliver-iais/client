@@ -15,6 +15,7 @@
 #include <flutter_webrtc/flutter_web_r_t_c_plugin.h>
 #include <flutter_window_close/flutter_window_close_plugin.h>
 #include <image_compression_flutter/image_compression_flutter_plugin.h>
+#include <isar_flutter_libs/isar_flutter_libs_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <record_linux/record_linux_plugin.h>
 #include <smart_auth/smart_auth_plugin.h>
@@ -49,6 +50,9 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) image_compression_flutter_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "ImageCompressionFlutterPlugin");
   image_compression_flutter_plugin_register_with_registrar(image_compression_flutter_registrar);
+  g_autoptr(FlPluginRegistrar) isar_flutter_libs_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "IsarFlutterLibsPlugin");
+  isar_flutter_libs_plugin_register_with_registrar(isar_flutter_libs_registrar);
   g_autoptr(FlPluginRegistrar) pasteboard_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "PasteboardPlugin");
   pasteboard_plugin_register_with_registrar(pasteboard_registrar);

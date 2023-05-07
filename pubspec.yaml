@@ -23,6 +23,9 @@ environment:
   sdk: ">=2.17.0 <3.0.0"
   flutter: ">=3.0.0"
 
+dependency_overrides:
+  freezed_annotation: 2.2.0
+
 dependencies:
   all_sensors: 0.4.2
   android_intent_plus: 3.1.6
@@ -40,7 +43,6 @@ dependencies:
   clock: 1.1.1
   collection: 1.17.0
   confetti: 0.7.0
-  idb_shim: 2.3.1
   connectivity_plus: 3.0.3
   connectycube_flutter_call_kit:
     git:
@@ -96,6 +98,7 @@ dependencies:
   flutter_window_close: 0.2.2
   fluttertoast: 8.2.1
   font_awesome_flutter: 10.4.0
+  freezed_annotation: 2.2.0
   fuzzy: 0.4.0-nullsafety.0
   gallery_saver: 2.3.2
   geolocator: 9.0.2
@@ -111,15 +114,17 @@ dependencies:
   hovering: 1.0.4
   http: 0.13.5
   http_parser: 4.0.2
+  idb_shim: 2.3.1
   image: 3.3.0
   image_compression: 1.0.3
   image_compression_flutter: 1.0.2
   image_cropper: 3.0.1
   image_size_getter: 2.1.2
   intl: 0.17.0
+  isar: 3.1.0+1
+  isar_flutter_libs : 3.1.0+1
   js: 0.6.5
   json_annotation: 4.8.0
-  json_serializable: 6.6.1
   just_audio: 0.9.31
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
@@ -137,8 +142,8 @@ dependencies:
   open_filex: 4.3.2
   pasteboard: 0.2.0
   path: 1.8.2
-  path_provider: 2.0.13
-  path_provider_android: 2.0.23
+  path_provider: 2.0.14
+  path_provider_android: 2.0.27
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.3
   permission_handler: 10.2.0
@@ -204,10 +209,12 @@ dev_dependencies:
   flutter_lints: 2.0.1
   flutter_test:
     sdk: flutter
+  freezed: 2.3.3
   hive_generator: 2.0.0
-
   integration_test:
     sdk: flutter
+  isar_generator: 3.1.0+1
+  json_serializable: 6.6.1
   mockito: 5.3.2
 
 

@@ -1,27 +1,16 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/services/file_service.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/settings.dart';
-import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
-import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 
 class WsUi extends StatefulWidget {

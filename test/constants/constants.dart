@@ -97,7 +97,7 @@ final testLastMessage = Message(
 );
 
 final testPendingMessage = PendingMessage(
-  roomUid: testUid.asString(),
+  roomUid: testUid,
   packetId: "946672200000-0-13418",
   msg: testMessage.copyWith(
     time: 946672200000,

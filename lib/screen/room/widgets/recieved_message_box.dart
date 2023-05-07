@@ -1,7 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/box/message_type.dart';
-import 'package:deliver/screen/room/messageWidgets/animation_emoji.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';

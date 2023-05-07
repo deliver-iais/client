@@ -1,5 +1,16 @@
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+const UidJsonKey = JsonKey(fromJson: uidFromJson, toJson: uidToJson);
+
+Uid uidFromJson(String json) {
+  return Uid.fromJson(json);
+}
+
+String uidToJson(Uid protobufModel) {
+  return protobufModel.writeToJson();
+}
 
 extension UidExtension on Uid {
   bool isSameEntity(String entityString) {

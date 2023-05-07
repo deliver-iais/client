@@ -1,3 +1,4 @@
+import 'package:deliver/main.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:logger/logger.dart';
@@ -11,6 +12,7 @@ class AnalyticsService {
   }) async {
     if (hasFirebaseCapability) {
       try {
+        await initializeFirebase();
         await FirebaseAnalytics.instance.logEvent(
           name: name,
           parameters: parameters,
