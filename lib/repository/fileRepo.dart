@@ -303,13 +303,13 @@ class FileRepo {
   }
 
   Future<FileInfo> _saveFileInfo(
-    String fileId,
+    String fileUuid,
     String filePath,
     String name,
     String sizeType,
   ) {
     final fileInfo = FileInfo(
-      uuid: fileId,
+      uuid: fileUuid,
       name: name,
       path: filePath,
       sizeType: sizeType,

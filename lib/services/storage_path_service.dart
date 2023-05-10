@@ -70,7 +70,7 @@ class StoragePathService {
   Future<String> _getSupportedDirectoryPath({
     String additionalPath = "",
   }) async {
-    final directory = await getApplicationSupportDirectory();
+    final directory = await getApplicationDocumentsDirectory();
     if (!Directory('${directory.path}/$additionalPath').existsSync()) {
       await Directory(
         '${directory.path}/$additionalPath',

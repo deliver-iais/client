@@ -3,48 +3,20 @@
 part of 'file_info.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class FileInfoAdapter extends TypeAdapter<FileInfo> {
-  @override
-  final int typeId = 6;
-
-  @override
-  FileInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return FileInfo(
-      sizeType: fields[0] as String,
-      uuid: fields[1] as String,
-      name: fields[2] as String,
-      path: fields[3] as String,
+_$_FileInfo _$$_FileInfoFromJson(Map<String, dynamic> json) => _$_FileInfo(
+      name: json['name'] as String,
+      uuid: json['uuid'] as String,
+      sizeType: json['sizeType'] as String,
+      path: json['path'] as String,
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, FileInfo obj) {
-    writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.sizeType)
-      ..writeByte(1)
-      ..write(obj.uuid)
-      ..writeByte(2)
-      ..write(obj.name)
-      ..writeByte(3)
-      ..write(obj.path);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FileInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+Map<String, dynamic> _$$_FileInfoToJson(_$_FileInfo instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'uuid': instance.uuid,
+      'sizeType': instance.sizeType,
+      'path': instance.path,
+    };

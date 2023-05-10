@@ -8,7 +8,6 @@ import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
-import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_data_usage.dart';
@@ -265,13 +264,11 @@ Future<void> dbSetupDI() async {
   await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
   Hive
-    ..registerAdapter(AvatarAdapter())
     ..registerAdapter(AccountAdapter())
     ..registerAdapter(LastActivityAdapter())
     ..registerAdapter(ContactAdapter())
     ..registerAdapter(UidIdNameAdapter())
     ..registerAdapter(SeenAdapter())
-    ..registerAdapter(FileInfoAdapter())
     ..registerAdapter(MucAdapter())
     ..registerAdapter(MucRoleAdapter())
     ..registerAdapter(MemberAdapter())

@@ -1102,7 +1102,8 @@ class MessageRepo {
   }
 
   Future<void> sendPendingEditedMessages() async {
-    final pendingMessages = await _pendingMessageDao.getAllPendingEditedMessages();
+    final pendingMessages =
+        await _pendingMessageDao.getAllPendingEditedMessages();
 
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {

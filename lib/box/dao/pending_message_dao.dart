@@ -1,9 +1,8 @@
 import 'dart:async';
+import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/isar/helpers.dart';
 import 'package:deliver/isar/pending_message_isar.dart';
-import 'package:deliver/services/storage_path_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 
 abstract class PendingMessageDao {
@@ -29,18 +28,7 @@ abstract class PendingMessageDao {
 }
 
 class PendingMessageDaoImpl extends PendingMessageDao {
-  Isar? pendingMessageIsar;
-  final StoragePathService _storagePathService =
-      GetIt.I.get<StoragePathService>();
-
-  Future<Isar> _openPendingMessageIsar() async {
-    final dir = await _storagePathService.localPathIsar;
-    return pendingMessageIsar ??= Isar.openSync(
-      [PendingMessageIsarSchema],
-      name: _keyPending(),
-      directory: dir,
-    );
-  }
+  Future<Isar> _openPendingMessageIsar() => IsarManager.open();
 
   @override
   Future<void> deletePendingMessage(String packetId) async {
@@ -181,6 +169,4 @@ class PendingMessageDaoImpl extends PendingMessageDao {
         .watch()
         .map((event) => event.map((e) => e.fromIsar()).toList());
   }
-
-  static String _keyPending() => "pending";
 }

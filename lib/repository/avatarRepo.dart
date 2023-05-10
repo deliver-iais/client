@@ -36,8 +36,8 @@ class AvatarRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
-  final Cache<String, Avatar> _avatarCache =
-      LruCache<String, Avatar>(storage: InMemoryStorage(50));
+  final Cache<String, Avatar?> _avatarCache =
+      LruCache<String, Avatar?>(storage: InMemoryStorage(50));
 
   final Cache<String, String> _avatarFilePathCache =
       LruCache<String, String>(storage: InMemoryStorage(50));
@@ -70,17 +70,16 @@ class AvatarRepo {
       final avatars = getAvatars.avatar
           .map(
             (e) => Avatar(
-              uid: userUid.asString(),
+              uid: userUid,
               createdOn: e.createdOn.toInt(),
-              fileId: e.fileUuid,
-              lastUpdate: clock.now().millisecondsSinceEpoch,
+              fileUuid: e.fileUuid,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
               fileName: e.fileName,
             ),
           )
           .toList();
-
+      await _avatarDao.clearAllAvatars(userUid.asString());
       if (avatars.isNotEmpty) {
-        await _avatarDao.clearAllAvatars(userUid.asString());
         await _avatarDao.saveAvatars(userUid.asString(), avatars);
       } else {
         await _avatarDao.saveLastAvatarAsNull(userUid.asString());
@@ -89,6 +88,7 @@ class AvatarRepo {
     } on GrpcError catch (e) {
       _logger.e("grpc error for $userUid", e);
       if (e.code == StatusCode.notFound) {
+        await _avatarDao.clearAllAvatars(userUid.asString());
         await _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
       return completer.complete();
@@ -106,9 +106,9 @@ class AvatarRepo {
 
     final ac = _avatarCache.get(key);
 
-    if (ac != null && (nowTime - ac.lastUpdate) > AVATAR_CACHE_TIME) {
+    if (ac != null && (nowTime - ac.lastUpdateTime) > AVATAR_CACHE_TIME) {
       _logger.v(
-        "exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdate}",
+        "exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdateTime}",
       );
       return true;
     } else if (ac != null) {
@@ -120,14 +120,14 @@ class AvatarRepo {
     if (lastAvatar == null) {
       _logger.v("last avatar is null - $userUid");
       return true;
-    } else if ((lastAvatar.fileId == null || lastAvatar.fileId!.isEmpty) &&
-        (nowTime - lastAvatar.lastUpdate) > NULL_AVATAR_CACHE_TIME) {
+    } else if ((lastAvatar.avatarIsEmpty) &&
+        (nowTime - lastAvatar.lastUpdateTime) > NULL_AVATAR_CACHE_TIME) {
       // has no avatar and exceeded from 4 hours
       _logger.v(
         "exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid",
       );
       return true;
-    } else if ((nowTime - lastAvatar.lastUpdate) > AVATAR_CACHE_TIME) {
+    } else if ((nowTime - lastAvatar.lastUpdateTime) > AVATAR_CACHE_TIME) {
       // 24 hours
       _logger.v("exceeded from $AVATAR_CACHE_TIME in DAO - $userUid");
       return true;
@@ -137,12 +137,11 @@ class AvatarRepo {
     }
   }
 
-  Stream<List<Avatar?>> getAvatar(
+  Stream<List<Avatar?>> watchAvatars(
     Uid userUid, {
     bool forceToUpdate = false,
   }) async* {
     await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
-
     yield* _avatarDao.watchAvatars(userUid.asString());
   }
 
@@ -158,16 +157,13 @@ class AvatarRepo {
       return ac;
     }
 
-    if (ac == null || (ac.fileId == null || ac.fileId!.isEmpty)) {
+    if (ac == null || (ac.fileUuid.isEmpty)) {
       return null;
     }
 
     ac = await _avatarDao.getLastAvatar(userUid.asString());
-    _avatarCache.set(key, ac!);
+    _avatarCache.set(key, ac);
 
-    if (ac.fileId == null || ac.fileId!.isEmpty) {
-      return null;
-    }
     return ac;
   }
 
@@ -181,7 +177,7 @@ class AvatarRepo {
   String _getAvatarCacheKey(Uid userUid) =>
       "${userUid.category}-${userUid.node}";
 
-  Stream<String> getLastAvatarFilePathStream(
+  Stream<String?> getLastAvatarFilePathStream(
     Uid userUid, {
     bool forceToUpdate = false,
   }) async* {
@@ -200,25 +196,26 @@ class AvatarRepo {
 
     final subscription =
         _avatarDao.watchLastAvatar(userUid.asString()).listen((event) async {
-      if (event != null) {
-        if (event.fileId != null && event.fileName != null) {
-          _avatarCache.set(key, event);
-          final path = await _fileRepo.getFile(
-            event.fileId!,
-            event.fileName!,
-            thumbnailSize:
-                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
-          );
-          if (path != null) {
-            _avatarFilePathCache.set(key, path);
-            bs.sink.add(path);
-          }
+      if (event != null && !event.avatarIsEmpty) {
+        _avatarCache.set(key, event);
+        final path = await _fileRepo.getFile(
+          event.fileUuid,
+          event.fileName,
+          thumbnailSize:
+              event.fileName.endsWith(".gif") ? null : ThumbnailSize.medium,
+        );
+        if (path != null) {
+          _avatarFilePathCache.set(key, path);
+          bs.sink.add(path);
         } else if (event.createdOn == 0) {
           final key = _getAvatarCacheKey(userUid);
           _avatarFilePathCache.set(key, "");
           _avatarCache.set(key, event);
           bs.add("");
         }
+      } else {
+        _avatarCache.set(key, null);
+        bs.add("");
       }
     });
 
@@ -257,11 +254,11 @@ class AvatarRepo {
       if (setAvatarReqAccepted) {
         await _avatarDao.saveAvatars(uid.asString(), [
           Avatar(
-            uid: uid.asString(),
+            uid: uid,
             createdOn: createOn,
-            fileId: fileInfo.uuid,
+            fileUuid: fileInfo.uuid,
             fileName: fileInfo.name,
-            lastUpdate: clock.now().millisecondsSinceEpoch,
+            lastUpdateTime: clock.now().millisecondsSinceEpoch,
           )
         ]);
       }
@@ -288,11 +285,11 @@ class AvatarRepo {
 
   Future<void> deleteAvatar(Avatar avatar) async {
     final deleteAvatar = avatar_pb.Avatar()
-      ..fileUuid = avatar.fileId!
-      ..fileName = avatar.fileName!
-      ..node = avatar.uid.asUid().node
+      ..fileUuid = avatar.fileUuid
+      ..fileName = avatar.fileName
+      ..node = avatar.uid.node
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10))
-      ..category = avatar.uid.asUid().category;
+      ..category = avatar.uid.category;
     if (avatar.uid.isBot()) {
       await _sdr.botServiceClient
           .removeAvatar(bot_pb.RemoveAvatarReq()..avatar = deleteAvatar);

@@ -40,7 +40,7 @@ const p2 = 2.0; // 4nd Most usable padding
 // Time Constants
 const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
-const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
+const NULL_AVATAR_CACHE_TIME = 12 * 60 * 60 * 1000;
 const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 const REPEATED_DETECTION_TIME = 60 * 10 * 1000; // 10 min
 const REPEATED_DETECTION_COUNT = 5; // 5 message Id
