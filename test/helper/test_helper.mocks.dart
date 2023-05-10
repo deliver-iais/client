@@ -7375,15 +7375,7 @@ class MockSettings extends _i1.Mock implements _i95.Settings {
   @override
   void updateAppContext(_i20.BuildContext? context) => super.noSuchMethod(
         Invocation.method(
-          #updateMainContext,
-          [context],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  void updateHomeContext(_i20.BuildContext? context) => super.noSuchMethod(
-        Invocation.method(
-          #updateHomeContext,
+          #updateAppContext,
           [context],
         ),
         returnValueForMissingStub: null,
@@ -9315,6 +9307,23 @@ class MockFileService extends _i1.Mock implements _i42.FileService {
         returnValue: _i29.Future<String?>.value(),
       ) as _i29.Future<String?>);
   @override
+  _i29.Future<String> saveFileInAppDirectory(
+    _i26.File? file,
+    String? name,
+    String? type,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveFileInAppDirectory,
+          [
+            file,
+            name,
+            type,
+          ],
+        ),
+        returnValue: _i29.Future<String>.value(''),
+      ) as _i29.Future<String>);
+  @override
   void saveDownloadedFile(
     String? url,
     String? filename,
@@ -9357,7 +9366,6 @@ class MockFileService extends _i1.Mock implements _i42.FileService {
       ) as _i29.Future<void>);
   @override
   _i29.Future<void> saveFileInDesktopDownloadFolder(
-    String? uuid,
     String? name,
     String? filePath,
   ) =>
@@ -9365,7 +9373,6 @@ class MockFileService extends _i1.Mock implements _i42.FileService {
         Invocation.method(
           #saveFileInDesktopDownloadFolder,
           [
-            uuid,
             name,
             filePath,
           ],
