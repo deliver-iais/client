@@ -353,7 +353,7 @@ class FileRepo {
   ) {
     getFileIfExist(uuid, name).then(
       (path) => isDesktopNative
-          ? _fileService.saveFileInDesktopDownloadFolder(uuid, name, path!)
+          ? _fileService.saveFileInDesktopDownloadFolder(name, path!)
           : _fileService.saveFileInMobileDownloadFolder(path!, name, dir),
     );
   }

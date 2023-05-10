@@ -177,6 +177,19 @@ class FileService {
     );
   }
 
+  Future<String> saveFileInAppDirectory(
+    File file,
+    String name,
+    String type,
+  ) async {
+    final newFile = await localFile(
+      name,
+      type,
+    );
+    newFile.writeAsBytesSync(file.readAsBytesSync());
+    return newFile.path;
+  }
+
   Future<String?> _getFile(
     String uuid,
     String filename, {
@@ -293,7 +306,6 @@ class FileService {
   }
 
   Future<void> saveFileInDesktopDownloadFolder(
-    String uuid,
     String name,
     String filePath,
   ) async {

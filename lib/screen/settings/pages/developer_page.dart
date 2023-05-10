@@ -1,12 +1,20 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/debug/commons_widgets.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/ext_storage_services.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -16,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:share/share.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -24,12 +33,14 @@ class DeveloperPage extends StatefulWidget {
   DeveloperPageState createState() => DeveloperPageState();
 }
 
-class DeveloperPageState extends State<DeveloperPage> {
+class DeveloperPageState extends State<DeveloperPage> with CustomPopupMenu {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _callRepo = GetIt.I.get<CallRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _fileService = GetIt.I.get<FileService>();
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +103,64 @@ class DeveloperPageState extends State<DeveloperPage> {
                 ),
                 Column(
                   children: [
-                    SettingsTile(
-                      title: "Share Log File",
-                      onPressed: (context) async {
-                        final path = await GetIt.I
-                            .get<DeliverLogOutput>()
-                            .getLogFilePath();
-
-                        _routingService.openShareInput(paths: [path]);
-                      },
+                    GestureDetector(
+                      onPanDown: storeDragDownPosition,
+                      child: SettingsTile(
+                        title: "Share Log File",
+                        onPressed: (c) {
+                          this.showMenu(
+                            context: context,
+                            items: [
+                              PopupMenuItem<String>(
+                                key: const Key("send"),
+                                value: "send",
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.send,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _i18n.get("send"),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              if (isMobileNative)
+                                PopupMenuItem<String>(
+                                  key: const Key("share"),
+                                  value: "share",
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        CupertinoIcons.share,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(_i18n.get("share")),
+                                    ],
+                                  ),
+                                ),
+                              PopupMenuItem<String>(
+                                key: const Key("save_to_downloads"),
+                                value: "save_to_downloads",
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      CupertinoIcons.arrow_down_circle,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _i18n.get("save_to_downloads"),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ).then(
+                            (value) => _selectContactMenu(value ?? ""),
+                          );
+                        },
+                      ),
                     ),
                     const Text(
                       "You can share your log file with us for debugging and later improvements",
@@ -555,5 +615,40 @@ class DeveloperPageState extends State<DeveloperPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectContactMenu(String key) async {
+    final path = await GetIt.I.get<DeliverLogOutput>().getLogFilePath();
+    const name = "log.txt";
+    switch (key) {
+      case "share":
+        await Share.shareFiles([path]);
+        break;
+      case "send":
+        final copiedFilePath = await _fileService.saveFileInAppDirectory(
+          File(path),
+          "my_log",
+          "txt",
+        );
+        _routingService.openShareInput(paths: [copiedFilePath]);
+        break;
+      case "save_to_downloads":
+        await (isDesktopNative
+            ? _fileService.saveFileInDesktopDownloadFolder(name, path)
+            : _fileService.saveFileInMobileDownloadFolder(
+                path,
+                name,
+                ExtStorage.download,
+              ));
+        if (context.mounted) {
+          ToastDisplay.showToast(
+            toastContext: context,
+            toastText: _i18n.get("file_saved"),
+            showDoneAnimation: true,
+          );
+        }
+
+        break;
+    }
   }
 }
