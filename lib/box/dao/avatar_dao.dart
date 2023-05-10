@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/avatar.dart';
-import 'package:deliver/box/db_manager.dart';
-import 'package:deliver/box/hive_plus.dart';
-import 'package:hive/hive.dart';
+import 'package:deliver/box/dao/isar_manager.dart';
+import 'package:deliver/isar/avatar_isar.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:isar/isar.dart';
 
 abstract class AvatarDao {
   Stream<List<Avatar?>> watchAvatars(String uid);
@@ -19,150 +20,110 @@ abstract class AvatarDao {
 
   Future<void> removeAvatar(Avatar avatar);
 
-  Future<void> closeAvatarBox(String uid);
-
   Future<void> clearAllAvatars(String uid);
 }
 
 class AvatarDaoImpl extends AvatarDao {
   @override
   Stream<List<Avatar>> watchAvatars(String uid) async* {
-    final box = await _open(uid);
+    final box = await _openAvatarIsar();
 
-    yield sorted(box.values.toList());
+    final query = box.avatarIsars
+        .filter()
+        .uidEqualTo(uid)
+        .avatarIsEmptyEqualTo(false)
+        .sortByCreatedOnDesc()
+        .build();
 
-    yield* box.watch().map((event) => sorted(box.values.toList()));
-  }
+    yield query.findAllSync().map((e) => e.fromIsar()).toList();
 
-  List<Avatar> sorted(List<Avatar> list) {
-    list.sort((a, b) => (b.createdOn) - (a.createdOn));
-    return list;
+    yield* query
+        .watch()
+        .map((event) => event.map((e) => e.fromIsar()).toList());
   }
 
   @override
   Future<void> saveAvatars(String uid, List<Avatar> avatars) async {
     if (avatars.isEmpty) return;
 
-    final box = await _open(uid);
+    final box = await _openAvatarIsar();
 
-    for (final value in avatars) {
-      box.put(value.createdOn.toString(), value).ignore();
+    for (final avatar in avatars) {
+      box.writeTxnSync(() {
+        box.avatarIsars.putSync(avatar.toIsar());
+      });
     }
-
-    return saveLastAvatar(avatars, uid);
-  }
-
-  Future<void> saveLastAvatar(List<Avatar> avatars, String uid) async {
-    final box2 = await _open2();
-    final box = await _open(uid);
-
-    final lastAvatarOfList = avatars.fold<Avatar?>(
-      null,
-      (value, element) => value == null
-          ? element
-          : value.createdOn > element.createdOn
-              ? value
-              : element,
-    );
-
-    final lastAvatar = box2.get(uid);
-
-    if (lastAvatar == null ||
-        lastAvatar.createdOn <= lastAvatarOfList!.createdOn ||
-        box.values.length == 1) {
-      return box2.put(
-        lastAvatarOfList!.uid,
-        lastAvatarOfList.copyWith(
-          lastUpdate: clock.now().millisecondsSinceEpoch,
-        ),
-      );
-    }
-  }
-
-  @override
-  Future<void> saveLastAvatarAsNull(String uid) async {
-    final box2 = await _open2();
-
-    return box2.put(
-      uid,
-      Avatar(
-        uid: uid,
-        createdOn: 0,
-        lastUpdate: clock.now().millisecondsSinceEpoch,
-      ),
-    );
   }
 
   @override
   Future<void> removeAvatar(Avatar avatar) async {
-    final box = await _open(avatar.uid);
-
-    await box.delete(avatar.createdOn.toString());
-
-    final box2 = await _open2();
-
-    final lastAvatar = box2.get(avatar.uid);
-
-    if (avatar.createdOn == lastAvatar!.createdOn) {
-      await box2.delete(lastAvatar.uid);
-
-      if (box.values.isNotEmpty) {
-        final lastAvatarOfList = box.values.fold<Avatar?>(
-          null,
-          (value, element) => value == null
-              ? element
-              : value.createdOn > element.createdOn
-                  ? value
-                  : element,
-        );
-
-        return box2.put(
-          lastAvatarOfList!.uid,
-          lastAvatarOfList.copyWith(
-            lastUpdate: clock.now().millisecondsSinceEpoch,
-          ),
-        );
-      }
-    }
+    final box = await _openAvatarIsar();
+    final query = box.avatarIsars
+        .filter()
+        .uidEqualTo(avatar.uid.asString())
+        .fileUuidEqualTo(avatar.fileUuid)
+        .fileNameEqualTo(avatar.fileName)
+        .build();
+    return box.writeTxnSync(() {
+      query.deleteAllSync();
+    });
   }
 
   @override
   Future<Avatar?> getLastAvatar(String uid) async {
-    final box = await _open2();
-
-    return box.get(uid);
+    final box = await _openAvatarIsar();
+    return box.avatarIsars
+        .filter()
+        .uidEqualTo(uid)
+        .sortByCreatedOnDesc()
+        .build()
+        .findFirstSync()
+        ?.fromIsar();
   }
 
   @override
   Stream<Avatar?> watchLastAvatar(String uid) async* {
-    final box = await _open2();
+    final box = await _openAvatarIsar();
 
-    yield box.get(uid);
+    final query =
+        box.avatarIsars.filter().uidEqualTo(uid).sortByCreatedOnDesc().build();
 
-    yield* box.watch(key: uid).map((event) => box.get(uid));
+    yield query.findFirstSync()?.fromIsar();
+
+    yield* query
+        .watch()
+        .where((event) => event.isNotEmpty)
+        .map((event) => event.map((e) => e.fromIsar()).first);
   }
 
-  static String _key(uid) => "avatar-$uid";
-
-  static String _key2() => "last-avatar";
-
-  Future<BoxPlus<Avatar>> _open(String uid) {
-    DBManager.open(_key(uid.replaceAll(":", "-")), TableInfo.AVATAR_TABLE_NAME);
-    return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
-  }
-
-  @override
-  Future<void> closeAvatarBox(String uid) =>
-      Hive.box<Avatar>(_key(uid)).close();
-
-  Future<BoxPlus<Avatar>> _open2() {
-    DBManager.open(_key2(), TableInfo.AVATAR_TABLE_NAME);
-    return gen(Hive.openBox<Avatar>(_key2()));
-  }
+  Future<Isar> _openAvatarIsar() => IsarManager.open();
 
   @override
   Future<void> clearAllAvatars(String uid) async {
-    final box = await _open(uid);
-    return box.clear();
+    final box = await _openAvatarIsar();
+    final query = box.avatarIsars.filter().uidEqualTo(uid).build();
+    return box.writeTxnSync(() {
+      query.deleteAllSync();
+    });
+  }
+
+  @override
+  Future<void> saveLastAvatarAsNull(String uid) async {
+    final box = await _openAvatarIsar();
+    final lastAvatar = await getLastAvatar(uid);
+    if (lastAvatar == null) {
+      return box.writeTxnSync(() {
+        box.avatarIsars.putSync(
+          Avatar(
+            uid: uid.asUid(),
+            fileName: "",
+            fileUuid: "",
+            lastUpdateTime: clock.now().millisecondsSinceEpoch,
+            createdOn: 0,
+            avatarIsEmpty: true,
+          ).toIsar(),
+        );
+      });
+    }
   }
 }

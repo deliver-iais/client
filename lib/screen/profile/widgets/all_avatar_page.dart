@@ -63,7 +63,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
         tag: widget.heroTag!,
         child: StreamBuilder<List<Avatar?>>(
           key: _streamKey,
-          stream: _avatarRepo.getAvatar(widget.userUid),
+          stream: _avatarRepo.watchAvatars(widget.userUid),
           builder: (cont, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               _avatars = snapshot.data!;
@@ -124,8 +124,8 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                     _isBarShowing.add(!_isBarShowing.value),
                                 child: FutureBuilder<String?>(
                                   future: _fileRepo.getFile(
-                                    snapshot.data![index]!.fileId!,
-                                    snapshot.data![index]!.fileName!,
+                                    snapshot.data![index]!.fileUuid,
+                                    snapshot.data![index]!.fileName,
                                   ),
                                   builder: (c, filePath) {
                                     if (filePath.hasData &&
@@ -225,7 +225,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                         builder: (c, position) {
                           if (position.hasData && position.data != null) {
                             return Text(
-                              "${position.data! + 1} of $totalLength",
+                              "${position.data! + 1} ${_i18n.get("of")} $totalLength",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -297,13 +297,13 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                 });
               } else if (isWeb) {
                 _fileRepo.saveDownloadedFileInWeb(
-                  _avatars[_swipePositionSubject.value]!.fileId!,
-                  _avatars[_swipePositionSubject.value]!.fileName!,
+                  _avatars[_swipePositionSubject.value]!.fileUuid,
+                  _avatars[_swipePositionSubject.value]!.fileName,
                 );
               } else {
                 _fileRepo.saveFileInDownloadDir(
-                  _avatars[_swipePositionSubject.value]!.fileId!,
-                  _avatars[_swipePositionSubject.value]!.fileName!,
+                  _avatars[_swipePositionSubject.value]!.fileUuid,
+                  _avatars[_swipePositionSubject.value]!.fileName,
                   ExtStorage.pictures,
                 );
                 ToastDisplay.showToast(

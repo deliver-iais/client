@@ -1,47 +1,21 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:hive/hive.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'avatar.freezed.dart';
 
 part 'avatar.g.dart';
 
-@HiveType(typeId: AVATAR_TRACK_ID)
-class Avatar {
-  // Table ID
-  @HiveField(0)
-  String uid;
+@freezed
+class Avatar with _$Avatar {
+  const factory Avatar({
+    @UidJsonKey required Uid uid,
+    required String fileName,
+    required String fileUuid,
+    required int lastUpdateTime,
+    @Default(false) bool avatarIsEmpty,
+    required int createdOn,
+  }) = _Avatar;
 
-  // DbId
-  @HiveField(1)
-  int createdOn;
-
-  @HiveField(2)
-  String? fileId;
-
-  @HiveField(3)
-  String? fileName;
-
-  @HiveField(4)
-  int lastUpdate;
-
-  Avatar({
-    required this.uid,
-    required this.createdOn,
-    this.fileId,
-    this.fileName,
-    required this.lastUpdate,
-  });
-
-  Avatar copyWith({
-    String? uid,
-    int? createdOn,
-    String? fileId,
-    String? fileName,
-    int? lastUpdate,
-  }) =>
-      Avatar(
-        uid: uid ?? this.uid,
-        createdOn: createdOn ?? this.createdOn,
-        fileId: fileId ?? this.fileId,
-        fileName: fileName ?? this.fileName,
-        lastUpdate: lastUpdate ?? this.lastUpdate,
-      );
+  factory Avatar.fromJson(Map<String, Object?> json) => _$AvatarFromJson(json);
 }

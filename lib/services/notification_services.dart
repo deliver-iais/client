@@ -333,10 +333,10 @@ class WindowsNotifier implements Notifier {
     }
     try {
       final lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid);
-      if (lastAvatar != null && lastAvatar.fileId != null) {
+      if (lastAvatar != null && !lastAvatar.avatarIsEmpty) {
         final file = await _fileRepo.getFile(
-          lastAvatar.fileId!,
-          lastAvatar.fileName!,
+          lastAvatar.fileUuid,
+          lastAvatar.fileName,
           thumbnailSize: ThumbnailSize.medium,
         );
         toast = await WinToast.instance().showToast(
@@ -388,10 +388,10 @@ class WindowsNotifier implements Notifier {
       final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
       final callType = callEventJson?.toCallEvent().callType;
       final subtitle = "Incoming ${callType?.name} Call";
-      if (lastAvatar != null && lastAvatar.fileId != null) {
+      if (lastAvatar != null && !lastAvatar.avatarIsEmpty) {
         final file = await _fileRepo.getFile(
-          lastAvatar.fileId!,
-          lastAvatar.fileName!,
+          lastAvatar.fileUuid,
+          lastAvatar.fileName,
           thumbnailSize: ThumbnailSize.medium,
         );
 
@@ -535,10 +535,10 @@ class LinuxNotifier implements Notifier {
 
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
-    if (la != null && la.fileId != null) {
+    if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
+        la.fileUuid,
+        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -648,6 +648,7 @@ class AndroidNotifier implements Notifier {
     );
     _setupAndroidDidNotificationLaunchApp();
   }
+
   //should always in top or static
   @pragma('vm:entry-point')
   static Future<void> androidNotificationTapBackground(
@@ -974,10 +975,10 @@ class AndroidNotifier implements Notifier {
         shouldBeQuiet ? "no_sound" : "that_was_quick";
     final selectedSound = await _roomRepo.getRoomCustomNotification(roomUid);
     final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
-    if (la != null && la.fileId != null && la.fileName != null) {
+    if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
+        la.fileUuid,
+        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -1027,10 +1028,10 @@ class AndroidNotifier implements Notifier {
   ) async {
     final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     String? path;
-    if (la != null && la.fileId != null && la.fileName != null) {
+    if (la != null && !la.avatarIsEmpty) {
       path = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
+        la.fileUuid,
+        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
     }
@@ -1151,10 +1152,10 @@ class IOSNotifier implements Notifier {
 
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
-    if (la != null && la.fileId != null && la.fileName != null) {
+    if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
+        la.fileUuid,
+        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -1272,10 +1273,10 @@ class MacOSNotifier implements Notifier {
 
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
-    if (la != null && la.fileId != null && la.fileName != null) {
+    if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
+        la.fileUuid,
+        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 

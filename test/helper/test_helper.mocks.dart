@@ -4276,13 +4276,13 @@ class MockAvatarRepo extends _i1.Mock implements _i56.AvatarRepo {
         returnValueForMissingStub: _i29.Future<void>.value(),
       ) as _i29.Future<void>);
   @override
-  _i29.Stream<List<_i57.Avatar?>> getAvatar(
+  _i29.Stream<List<_i57.Avatar?>> watchAvatars(
     _i3.Uid? userUid, {
     bool? forceToUpdate = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAvatar,
+          #watchAvatars,
           [userUid],
           {#forceToUpdate: forceToUpdate},
         ),
@@ -4324,7 +4324,7 @@ class MockAvatarRepo extends _i1.Mock implements _i56.AvatarRepo {
         [userUid],
       )) as String?);
   @override
-  _i29.Stream<String> getLastAvatarFilePathStream(
+  _i29.Stream<String?> getLastAvatarFilePathStream(
     _i3.Uid? userUid, {
     bool? forceToUpdate = false,
   }) =>
@@ -4334,8 +4334,8 @@ class MockAvatarRepo extends _i1.Mock implements _i56.AvatarRepo {
           [userUid],
           {#forceToUpdate: forceToUpdate},
         ),
-        returnValue: _i29.Stream<String>.empty(),
-      ) as _i29.Stream<String>);
+        returnValue: _i29.Stream<String?>.empty(),
+      ) as _i29.Stream<String?>);
   @override
   _i29.Future<void> uploadAvatar(
     String? path,

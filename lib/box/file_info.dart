@@ -1,41 +1,18 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:hive/hive.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'file_info.freezed.dart';
 
 part 'file_info.g.dart';
 
-@HiveType(typeId: FILE_INFO_TRACK_ID)
-class FileInfo {
-  // Table Name
-  @HiveField(0)
-  String sizeType;
-
-  // DbId
-  @HiveField(1)
-  String uuid;
-
-  @HiveField(2)
-  String name;
-
-  @HiveField(3)
-  String path;
-
-  FileInfo({
-    required this.sizeType,
-    required this.uuid,
-    required this.name,
-    required this.path,
-  });
-
-  FileInfo copyWith({
-    String? sizeType,
+@freezed
+class FileInfo with _$FileInfo {
+  const factory FileInfo({
+    required String name,
     required String uuid,
-    String? name,
-    String? path,
-  }) =>
-      FileInfo(
-        sizeType: sizeType ?? this.sizeType,
-        uuid: uuid,
-        name: name ?? this.name,
-        path: path ?? this.path,
-      );
+    required String sizeType,
+    required String path,
+  }) = _FileInfo;
+
+  factory FileInfo.fromJson(Map<String, Object?> json) =>
+      _$FileInfoFromJson(json);
 }
