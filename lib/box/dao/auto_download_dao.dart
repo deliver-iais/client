@@ -110,6 +110,7 @@ class AutoDownloadDaoImpl extends AutoDownloadDao {
       case Categories.BOT:
       case Categories.SYSTEM:
       case Categories.STORE:
+      case Categories.BROADCAST:
         return AutoDownloadRoomCategory.IN_PRIVATE_CHATS;
       case Categories.CHANNEL:
         return AutoDownloadRoomCategory.IN_CHANNEL;

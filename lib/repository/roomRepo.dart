@@ -7,12 +7,14 @@ import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
+import 'package:deliver/box/dao/is_verified_dao.dart';
 import 'package:deliver/box/dao/meta_count_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/is_verified.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -44,6 +46,7 @@ class RoomRepo {
   final _muteDao = GetIt.I.get<MuteDao>();
   final _blockDao = GetIt.I.get<BlockDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
+  final _isVerifiedDao = GetIt.I.get<IsVerifiedDao>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -54,6 +57,9 @@ class RoomRepo {
   final _metaDao = GetIt.I.get<MetaDao>();
   final _metaCount = GetIt.I.get<MetaCountDao>();
 
+  // TODO(any): should refactor and move to cache repo!
+  final _isVerifiedCache =
+      LruCache<String, IsVerified>(storage: InMemoryStorage(100));
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
@@ -75,9 +81,31 @@ class RoomRepo {
       uid.isSystem() ||
       (uid.isBot() && (uid.node == "father_bot" || uid.node == "auth_bot"));
 
-  Future<bool> isVerified(Uid uid) async =>
-      uid.isSystem() ||
-      (uid.isBot() && uid.node == "father_bot" || uid.node == "auth_bot");
+  Future<bool> isVerified(Uid uid) async {
+    if (fastForwardIsVerified(uid)) {
+      return true;
+    }
+    final info = await _getIsVerified(uid);
+    if (info != null &&
+        info.expireTime != 0 &&
+        info.expireTime > clock.now().millisecondsSinceEpoch) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<IsVerified?> _getIsVerified(Uid uid) async {
+    final roomId = uid.asString();
+    final cacheValue = _isVerifiedCache.get(roomId);
+    if (cacheValue != null) {
+      return cacheValue;
+    }
+    final isVerified = await _isVerifiedDao.getIsVerified(uid);
+    if (isVerified != null) {
+      _isVerifiedCache.set(uid.asString(), isVerified);
+    }
+    return isVerified;
+  }
 
   String? fastForwardName(Uid uid) {
     final name = roomNameCache.get(uid.asString());
@@ -85,6 +113,37 @@ class RoomRepo {
       return name;
     }
     return null;
+  }
+
+  Future<void> _checkIsVerifiedIfNeeded(
+    Uid uid,
+  ) async {
+    final nowTime = clock.now().millisecondsSinceEpoch;
+    final info = await _getIsVerified(uid);
+    if (info?.lastUpdate == null ||
+        (nowTime - info!.lastUpdate) > IS_VERIFIED_CACHE_TIME) {
+      final isVerifiedRes = await _fetchIsVerified(uid);
+      final expireTime = isVerifiedRes.expireTime.toInt();
+      return _updateIsVerified(uid, expireTime);
+    }
+  }
+
+  Future<void> _updateIsVerified(
+    Uid uid,
+    int expireTime,
+  ) {
+    _isVerifiedCache.set(
+      uid.asString(),
+      IsVerified(
+        uid: uid,
+        expireTime: expireTime,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
+      ),
+    );
+    return _isVerifiedDao.update(
+      uid,
+      expireTime,
+    );
   }
 
   Future<String> getName(
@@ -100,6 +159,7 @@ class RoomRepo {
     if (uid.isSameEntity(FAKE_USER_UID.asString())) {
       return FAKE_USER_NAME;
     }
+    await _checkIsVerifiedIfNeeded(uid);
 
     // Is System Id
     if (uid.category == Categories.SYSTEM &&
@@ -220,7 +280,12 @@ class RoomRepo {
     try {
       final result =
           await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      _uidIdNameDao.update(uid.asString(), id: result.id).ignore();
+      _uidIdNameDao
+          .update(
+            uid.asString(),
+            id: result.id,
+          )
+          .ignore();
       return result.id;
     } catch (e) {
       _logger.e(e);
@@ -251,6 +316,7 @@ class RoomRepo {
       // Is User
       if (uid.category == Categories.USER) {
         final name = await _contactRepo.getContactFromServer(uid);
+        // TODO(chitsaz): this code was removed in you isVerified branch but it was unclear and i get it back again, (e.dansi should tell about this line)
         await getIdByUid(uid);
         if (name != null) {
           roomNameCache.set(uid.asString(), name);
@@ -453,9 +519,14 @@ class RoomRepo {
     if (uid != null) {
       return uid;
     } else {
-      final uid = await fetchUidById(synthesizeId);
-      unawaited(_uidIdNameDao.update(uid.asString(), id: synthesizeId));
-      return uid.asString();
+      final info = await fetchUidById(synthesizeId);
+      unawaited(
+        _uidIdNameDao.update(
+          info.uid.asString(),
+          id: synthesizeId,
+        ),
+      );
+      return info.uid.asString();
     }
   }
 
@@ -469,11 +540,12 @@ class RoomRepo {
     }
   }
 
-  Future<Uid> fetchUidById(String username) async {
-    final result = await _sdr.queryServiceClient
-        .getUidById(GetUidByIdReq()..id = username);
+  Future<GetUidByIdRes> fetchUidById(String username) async {
+    return _sdr.queryServiceClient.getUidById(GetUidByIdReq()..id = username);
+  }
 
-    return result.uid;
+  Future<GetIsVerifiedRes> _fetchIsVerified(Uid uid) async {
+    return _sdr.queryServiceClient.getIsVerified(GetIsVerifiedReq()..uid = uid);
   }
 
   Future<void> reportRoom(Uid roomUid) =>

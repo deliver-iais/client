@@ -1,5 +1,6 @@
 import 'package:deliver/isar/avatar_isar.dart';
 import 'package:deliver/isar/file_info_isar.dart';
+import 'package:deliver/isar/is_verified_isar.dart';
 import 'package:deliver/isar/pending_message_isar.dart';
 import 'package:deliver/services/storage_path_service.dart';
 import 'package:get_it/get_it.dart';
@@ -13,7 +14,7 @@ class IsarManager {
   static Future<Isar> open() async {
     final dir = await _storagePathService.localPathIsar;
     return _isar ??= Isar.openSync(
-      [AvatarIsarSchema, PendingMessageIsarSchema, FileInfoIsarSchema],
+      [AvatarIsarSchema, PendingMessageIsarSchema, FileInfoIsarSchema,IsVerifiedIsarSchema],
       directory: dir,
     );
   }
