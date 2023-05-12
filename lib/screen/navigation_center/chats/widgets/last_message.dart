@@ -73,24 +73,35 @@ class LastMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Flex(
-        direction: useMultiLineText ? Axis.vertical : Axis.horizontal,
-        mainAxisSize: MainAxisSize.min,
-        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (messageSR.senderIsAUserOrBot && showSender)
-            Text(
-              "${messageSR.sender.trim()}${useMultiLineText ? "" : ": "}",
-              style: theme.primaryTextTheme.bodySmall?.copyWith(
-                color: highlightColor,
-              ),
-            ),
-          _buildLastMessageTextUi(theme),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Directionality(
+          textDirection: _i18n.defaultTextDirection,
+          child: Flex(
+            direction: useMultiLineText ? Axis.vertical : Axis.horizontal,
+            mainAxisSize: MainAxisSize.min,
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (messageSR.senderIsAUserOrBot && showSender)
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth * 0.8,
+                  ),
+                  child: Text(
+                    "${messageSR.sender.trim()}${useMultiLineText ? "" : ": "}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.primaryTextTheme.bodySmall?.copyWith(
+                      color: highlightColor,
+                    ),
+                  ),
+                ),
+              _buildLastMessageTextUi(theme),
+            ],
+          ),
+        );
+      },
     );
   }
 

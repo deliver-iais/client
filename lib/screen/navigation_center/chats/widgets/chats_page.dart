@@ -59,7 +59,9 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         )
       ],
     ).then<void>((opr) async {
-      if (opr == null) return;
+      if (opr == null) {
+        return;
+      }
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
           pinTheRoom(room);

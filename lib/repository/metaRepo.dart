@@ -19,6 +19,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart' as meta_pb;
 import 'package:deliver_public_protocol/pub/v1/models/meta.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -28,8 +29,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-
-import '../shared/parsers/parsers.dart';
 
 class MetaRepo {
   final _logger = GetIt.I.get<Logger>();

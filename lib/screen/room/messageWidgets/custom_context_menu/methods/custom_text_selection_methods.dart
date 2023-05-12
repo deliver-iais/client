@@ -194,7 +194,9 @@ class CustomContextMenuMethods {
   }
 
   static String? validateTextLink(String? value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     if (value.isEmpty) {
       return _i18n.get("text_empty");
     } else {

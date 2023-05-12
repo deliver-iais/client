@@ -632,7 +632,9 @@ class OperationOnMessageSelection {
           message.json.toFile().uuid,
           message.json.toFile().name,
         );
-        if (path != null) onShowInFolder(path);
+        if (path != null) {
+          onShowInFolder(path);
+        }
         break;
       case OperationOnMessage.REPORT:
         onReportMessage();

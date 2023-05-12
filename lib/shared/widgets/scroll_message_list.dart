@@ -35,7 +35,9 @@ class ScrollMessageListState extends State<ScrollMessageList> {
   void initState() {
     super.initState();
     widget.itemPositionsListener.itemPositions.addListener(() {
-      if (!_startScroll) _restPosition();
+      if (!_startScroll) {
+        _restPosition();
+      }
     });
   }
 

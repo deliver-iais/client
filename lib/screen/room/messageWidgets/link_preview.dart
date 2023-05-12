@@ -65,7 +65,9 @@ class LinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (link.isEmpty) return const SizedBox.shrink();
+    if (link.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return FutureBuilder<Metadata?>(
       initialData: cache.get(link),
       future: _fetchMetadata(link),
@@ -121,7 +123,10 @@ class LinkPreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 8.0, vertical: 2.0),
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 8.0,
+              vertical: 2.0,
+            ),
             child: Text(
               data!.title!,
               textDirection: data.title!.isPersian()

@@ -57,7 +57,9 @@ class RoomRepo {
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
-    if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
+    if (uid.isUser() && uid.node.isEmpty) {
+      return ""; // Empty Uid
+    }
     if (_authRepo.isCurrentUserUid(uid)) {
       return _i18n.get("you");
     } else {
@@ -90,7 +92,9 @@ class RoomRepo {
     String? unknownName,
     bool forceToReturnSavedMessage = false,
   }) async {
-    if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
+    if (uid.isUser() && uid.node.isEmpty) {
+      return ""; // Empty Uid
+    }
 
     // Fake user name needed for theming page.
     if (uid.isSameEntity(FAKE_USER_UID.asString())) {
@@ -186,7 +190,9 @@ class RoomRepo {
   }
 
   Stream<String?> watchId(Uid uid) {
-    if (uid.isBot()) return Stream.value(uid.node);
+    if (uid.isBot()) {
+      return Stream.value(uid.node);
+    }
     return _uidIdNameDao.watchIdByUid(uid.asString());
   }
 

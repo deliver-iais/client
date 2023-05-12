@@ -8,6 +8,7 @@ import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/file_service.dart';
@@ -26,8 +27,6 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'authRepo.dart';
 
 class AvatarRepo {
   final _logger = GetIt.I.get<Logger>();

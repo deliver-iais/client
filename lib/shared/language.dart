@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:deliver/shared/changelog.dart';
 
-import 'widgets/release_badge.dart';
+import 'package:deliver/shared/widgets/release_badge.dart';
 
 enum Language {
   FARSI(

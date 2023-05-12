@@ -1,6 +1,6 @@
+import 'package:deliver/shared/widgets/resizable/separator_args_info.dart';
+import 'package:deliver/shared/widgets/resizable/separator_controller.dart';
 import 'package:flutter/material.dart';
-import 'separator_args_info.dart';
-import 'separator_controller.dart';
 
 class Separator extends StatefulWidget {
   final SeparatorArgsInfo info;

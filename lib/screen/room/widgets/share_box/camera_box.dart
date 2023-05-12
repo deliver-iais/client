@@ -53,7 +53,9 @@ class _CameraBoxState extends State<CameraBox> {
           builder: (context, snapshot) {
             var scale = MediaQuery.of(context).size.aspectRatio *
                 _cameraService.getAspectRatio();
-            if (scale < 1) scale = 1 / scale;
+            if (scale < 1) {
+              scale = 1 / scale;
+            }
             return Center(
               child: Transform.scale(
                 scale: scale,

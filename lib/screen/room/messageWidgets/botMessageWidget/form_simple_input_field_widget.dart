@@ -122,7 +122,9 @@ class FormSimpleInputFieldWidgetState
   }
 
   String? validateFormTextField(String? value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     if (value.isEmpty && !widget.formField.isOptional) {
       shakeWidgetController.shake();
       return _i18n.get("this_filed_not_empty");

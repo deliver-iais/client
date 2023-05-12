@@ -340,7 +340,9 @@ class DataStreamServices {
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
-    if (savedMsg == null) return;
+    if (savedMsg == null) {
+      return;
+    }
 
     final res = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
@@ -786,7 +788,9 @@ class DataStreamServices {
           isOnlineMessage: appRunInForeground,
         );
 
-        if (m == null) continue;
+        if (m == null) {
+          continue;
+        }
 
         msgList.add(m);
       } catch (e) {

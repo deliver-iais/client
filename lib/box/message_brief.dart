@@ -1,8 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
-
-import 'message_type.dart';
 
 part 'message_brief.g.dart';
 

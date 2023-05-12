@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:deliver/models/file.dart' as file_model;
+import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'helper_classes.dart';
 
 class MusicBox extends StatefulWidget {
   final ScrollController scrollController;

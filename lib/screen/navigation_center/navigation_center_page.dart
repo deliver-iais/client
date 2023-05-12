@@ -4,6 +4,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
+import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
@@ -33,8 +34,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'events/has_event_row.dart';
 
 final modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");

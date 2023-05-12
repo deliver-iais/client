@@ -54,7 +54,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   @override
   void initState() {
     editingController = TextEditingController();
-    if (widget.mucUid != null) getMembers();
+    if (widget.mucUid != null) {
+      getMembers();
+    }
     _createMucService.reset();
     super.initState();
   }
@@ -150,7 +152,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         children: [
                           const EmptyContacts(),
                           Padding(
-                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 32),
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 32,
+                            ),
                             child: TextButton(
                               onPressed: _routingService.openContacts,
                               child: Row(

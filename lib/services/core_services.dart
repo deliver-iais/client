@@ -108,7 +108,9 @@ class CoreServices {
     try {
       _connectionStatus.add(ConnectionStatus.Disconnected);
       _clientPacketStream?.close();
-      if (_connectionTimer != null) _connectionTimer!.cancel();
+      if (_connectionTimer != null) {
+        _connectionTimer!.cancel();
+      }
       _uptimeStartTime.add(0);
     } catch (e) {
       _logger.e(e);
@@ -336,14 +338,12 @@ class CoreServices {
       ..id = seen.id.toString();
     await _sendClientPacket(clientPacket)
         .onError(
-          (error, stackTrace) async => {
-            await _analyticsService.sendLogEvent(
-              "failedSeen",
-              parameters: {
-                'error': error.toString(),
-              },
-            )
-          },
+          (error, stackTrace) async => _analyticsService.sendLogEvent(
+            "failedSeen",
+            parameters: {
+              'error': error.toString(),
+            },
+          ),
         )
         .then(
           (value) async => {

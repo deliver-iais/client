@@ -1,9 +1,8 @@
 import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_type.dart';
-
 import 'package:deliver/repository/fileRepo.dart';
-
 import 'package:deliver/repository/metaRepo.dart';
+import 'package:deliver/screen/profile/widgets/music_play_progress.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -12,8 +11,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'music_play_progress.dart';
 
 class MusicAndAudioUi extends StatefulWidget {
   final Uid roomUid;

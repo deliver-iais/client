@@ -153,7 +153,9 @@ class AccountSettingsState extends State<AccountSettings> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (widget.forceToSetName) return false;
+        if (widget.forceToSetName) {
+          return false;
+        }
         return true;
       },
       child: Scaffold(
@@ -476,7 +478,9 @@ class AccountSettingsState extends State<AccountSettings> {
             .replaceAll(RegExp(r"[^\s\w]"), "")
             .replaceAll(" ", "");
 
-    if (name.isEmpty && lastName.isEmpty) return [];
+    if (name.isEmpty && lastName.isEmpty) {
+      return [];
+    }
 
     final u1 = name + lastName;
     final u2 = "${name}_$lastName";
@@ -530,7 +534,9 @@ class AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateUsername(String? value) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
     if (value.contains(".")) {

@@ -1,10 +1,11 @@
 import 'dart:async';
+
+import 'package:deliver/shared/widgets/resizable/resizable_widget_args_info.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_child_data.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_model.dart';
+import 'package:deliver/shared/widgets/resizable/separator.dart';
+import 'package:deliver/shared/widgets/resizable/separator_args_info.dart';
 import 'package:flutter/material.dart';
-import 'resizable_widget_args_info.dart';
-import 'resizable_widget_child_data.dart';
-import 'resizable_widget_model.dart';
-import 'separator.dart';
-import 'separator_args_info.dart';
 
 class ResizableWidgetController {
   final eventStream = StreamController<Object>();

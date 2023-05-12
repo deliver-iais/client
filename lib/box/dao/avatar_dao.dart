@@ -44,7 +44,9 @@ class AvatarDaoImpl extends AvatarDao {
 
   @override
   Future<void> saveAvatars(String uid, List<Avatar> avatars) async {
-    if (avatars.isEmpty) return;
+    if (avatars.isEmpty) {
+      return;
+    }
 
     final box = await _openAvatarIsar();
 

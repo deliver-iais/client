@@ -1,7 +1,7 @@
 import 'package:deliver/shared/widgets/release_badge.dart';
+import 'package:deliver/shared/widgets/settings_ui/src/cupertino_settings_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'cupertino_settings_item.dart';
 
 enum _SettingsTileType { simple, switchTile }
 

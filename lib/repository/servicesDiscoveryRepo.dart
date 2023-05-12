@@ -47,7 +47,9 @@ class ServicesDiscoveryRepo {
   String ipOrAddress(String address) {
     final ip = settings.hostSetByUser.value;
 
-    if (ip.isEmpty) return address;
+    if (ip.isEmpty) {
+      return address;
+    }
     return ip;
   }
 

@@ -1,11 +1,11 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_args_info.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_child_data.dart';
+import 'package:deliver/shared/widgets/resizable/separator.dart';
+import 'package:deliver/shared/widgets/resizable/separator_args_info.dart';
+import 'package:deliver/shared/widgets/resizable/widget_size_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'resizable_widget_args_info.dart';
-import 'resizable_widget_child_data.dart';
-import 'separator.dart';
-import 'separator_args_info.dart';
-import 'widget_size_info.dart';
 
 typedef SeparatorFactory = Widget Function(SeparatorArgsBasicInfo basicInfo);
 

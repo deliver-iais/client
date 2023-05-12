@@ -6,14 +6,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
 import 'package:deliver/services/audio_auto_play_service.dart';
+import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'audio_modules/recorder_module.dart';
 
 class AudioSourcePath {
   final String path;

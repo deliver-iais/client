@@ -31,7 +31,9 @@ void showCaptionDialog({
   String? caption,
   bool showSelectedImage = false,
 }) {
-  if (editableMessage == null && files.isEmpty) return;
+  if (editableMessage == null && files.isEmpty) {
+    return;
+  }
   showDialog(
     context: context,
     builder: (context) {

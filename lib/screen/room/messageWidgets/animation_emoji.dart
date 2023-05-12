@@ -21,7 +21,9 @@ bool isOnlyEmojiContent(String content) {
 }
 
 bool isOnlyEmojiMessage(Message message) {
-  if (message.type != MessageType.TEXT) return false;
+  if (message.type != MessageType.TEXT) {
+    return false;
+  }
   final content = message.json.toText().text;
 
   return isOnlyEmojiContent(content);
@@ -298,7 +300,9 @@ class AnimatedEmoji extends StatefulWidget {
   });
 
   static bool isAnimatedEmojiMessage(Message message) {
-    if (message.type != MessageType.TEXT) return false;
+    if (message.type != MessageType.TEXT) {
+      return false;
+    }
     final content = message.json.toText().text;
 
     return isAnimatedEmoji(content);

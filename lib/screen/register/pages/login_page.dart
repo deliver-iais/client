@@ -92,8 +92,12 @@ class LoginPageState extends State<LoginPage> {
         await _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        if (!mounted) return;
-        if (checkTimer != null) checkTimer!.cancel();
+        if (!mounted) {
+          return;
+        }
+        if (checkTimer != null) {
+          checkTimer!.cancel();
+        }
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -135,8 +139,12 @@ class LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     loginToken.close();
-    if (checkTimer != null) checkTimer!.cancel();
-    if (tokenGeneratorTimer != null) tokenGeneratorTimer!.cancel();
+    if (checkTimer != null) {
+      checkTimer!.cancel();
+    }
+    if (tokenGeneratorTimer != null) {
+      tokenGeneratorTimer!.cancel();
+    }
     super.dispose();
   }
 
@@ -323,7 +331,9 @@ class LoginPageState extends State<LoginPage> {
                           },
                           onSubmitted: (p) {
                             phoneNumber = p;
-                            if (_acceptPrivacy.value) checkAndGoNext();
+                            if (_acceptPrivacy.value) {
+                              checkAndGoNext();
+                            }
                           },
                           key: const Key("IntlPhoneField"),
                         ),

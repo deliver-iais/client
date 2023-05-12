@@ -371,7 +371,9 @@ class RoomPageState extends State<RoomPage> {
                       pendingMessages.length -
                       room.firstMessageId;
                   _itemCountSubject.add(_itemCount);
-                  if (_itemCount < 50) _defaultMessageHeight = 50;
+                  if (_itemCount < 50) {
+                    _defaultMessageHeight = 50;
+                  }
 
                   return PageTransitionSwitcher(
                     duration: AnimationSettings.standard,
@@ -771,7 +773,9 @@ class RoomPageState extends State<RoomPage> {
         event = room.lastMessageId;
       }
       final msg = await _getMessage(event);
-      if (msg == null) return;
+      if (msg == null) {
+        return;
+      }
       if (_appIsActive) {
         _sendSeenMessage([msg]);
       } else {
@@ -825,7 +829,9 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {
-    if (id <= 0) return null;
+    if (id <= 0) {
+      return null;
+    }
     final msg = _cachingRepo.getMessage(widget.roomId, id);
     if (msg != null && useCache) {
       return msg;
@@ -1417,7 +1423,9 @@ class RoomPageState extends State<RoomPage> {
   Widget buildMessagesListView(BoxConstraints constraints) {
     final maxWidth = constraints.maxWidth;
 
-    if (_itemCount <= 0) return const SizedBox.shrink();
+    if (_itemCount <= 0) {
+      return const SizedBox.shrink();
+    }
 
     final scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
@@ -1601,7 +1609,9 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<int?> _timeAt(int index) async {
-    if (index < 0) return null;
+    if (index < 0) {
+      return null;
+    }
 
     var searchedIndex = 0;
 
@@ -1807,7 +1817,9 @@ class RoomPageState extends State<RoomPage> {
 
       _currentScrollIndex = max(0, index);
 
-      if (!shouldHighlight) return;
+      if (!shouldHighlight) {
+        return;
+      }
 
       if (index != -1) {
         highlightMessageTimer?.cancel();
