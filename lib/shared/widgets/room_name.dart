@@ -69,7 +69,7 @@ class RoomName extends StatelessWidget {
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    padding: const EdgeInsetsDirectional.only(start: p4,bottom: 3),
                     child: Icon(
                       CupertinoIcons.checkmark_seal,
                       size: ((style ?? theme.textTheme.titleSmall)?.fontSize ??

@@ -390,6 +390,7 @@ class DataStreamServices {
             : roomId = seen.to;
         break;
       case Categories.STORE:
+      case Categories.BROADCAST:
       case Categories.SYSTEM:
       case Categories.GROUP:
       case Categories.CHANNEL:

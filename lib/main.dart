@@ -28,6 +28,7 @@ import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
+import 'package:deliver/box/dao/is_verified_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -326,6 +327,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
   registerSingleton<CallDataUsageDao>(CallDataUsageDaoImpl());
+  registerSingleton<IsVerifiedDao>(IsVerifiedDaoImpl());
   await Settings.init();
   registerSingleton<Settings>(Settings());
 }
