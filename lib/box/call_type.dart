@@ -1,6 +1,5 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
-
-import '../shared/constants.dart';
 
 part 'call_type.g.dart';
 

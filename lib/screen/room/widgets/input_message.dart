@@ -971,7 +971,9 @@ class InputMessageWidgetState extends State<InputMessage> {
             (value) => {
               if (value != null)
                 value.commands!.forEach((key, value) {
-                  if (key.contains(_botCommandData)) length++;
+                  if (key.contains(_botCommandData)) {
+                    length++;
+                  }
                 }),
               botCommandSelectedIndex = length - 1,
             },
@@ -1012,7 +1014,9 @@ class InputMessageWidgetState extends State<InputMessage> {
           (value) => {
             if (value != null)
               value.commands!.forEach((key, value) {
-                if (key.contains(_botCommandData)) length++;
+                if (key.contains(_botCommandData)) {
+                  length++;
+                }
               }),
             if (botCommandSelectedIndex >= length)
               botCommandSelectedIndex = 0
@@ -1140,7 +1144,9 @@ class InputMessageWidgetState extends State<InputMessage> {
     String? type,
     required List<File> files,
   }) {
-    if (files.isEmpty) return;
+    if (files.isEmpty) {
+      return;
+    }
 
     showDialog(
       context: context,

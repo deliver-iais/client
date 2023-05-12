@@ -381,6 +381,8 @@ class FileRepo {
     String filePath,
   ) async {
     if (isWeb) {
+      // isWeb Checked
+      // ignore: unsafe_html
       html.window.open(filePath, "_");
     } else {
       OpenFilex.open(filePath).ignore();

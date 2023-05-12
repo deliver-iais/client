@@ -25,7 +25,9 @@ class MaxLinesTextInputFormatter extends TextInputFormatter {
         final iterator = RuneIterator(newValue.text);
         if (iterator.moveNext()) {
           for (var count = 0; count < maxLength; ++count) {
-            if (!iterator.moveNext()) break;
+            if (!iterator.moveNext()) {
+              break;
+            }
           }
         }
         final truncated = newValue.text.substring(0, iterator.rawIndex);

@@ -96,7 +96,9 @@ class ActiveNotificationDaoImpl extends ActiveNotificationDao {
     String editedText,
   ) async {
     final activeNotification = await getActiveNotification(roomUid, messageId);
-    if (activeNotification == null) return;
+    if (activeNotification == null) {
+      return;
+    }
     activeNotification.messageText = editedText;
     return save(activeNotification);
   }

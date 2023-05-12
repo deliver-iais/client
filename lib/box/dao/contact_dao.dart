@@ -120,7 +120,9 @@ class ContactDaoImpl extends ContactDao {
       uid: uid,
       syncHash: syncHash,
     );
-    if (c != clone) return box.put(nationalNumber.toString(), c);
+    if (c != clone) {
+      return box.put(nationalNumber.toString(), c);
+    }
   }
 
   @override

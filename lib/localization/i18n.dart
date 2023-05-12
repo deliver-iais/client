@@ -70,7 +70,9 @@ class I18N {
 
   TextDirection getDirection(String v) {
     final string = v.trim();
-    if (string.isEmpty) return TextDirection.ltr;
+    if (string.isEmpty) {
+      return TextDirection.ltr;
+    }
     // TODO(any): add arabic detection
     if (string.isPersian()) {
       return TextDirection.rtl;

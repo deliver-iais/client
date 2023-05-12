@@ -27,7 +27,9 @@ abstract class _Variable<T> {
       : _value = BehaviorSubject.seeded(defaultValue);
 
   bool set(T value) {
-    if (_value.value == value) return false;
+    if (_value.value == value) {
+      return false;
+    }
 
     _value.add(value);
 

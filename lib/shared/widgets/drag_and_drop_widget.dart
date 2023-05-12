@@ -79,7 +79,9 @@ class DragDropWidgetState extends State<DragDropWidget> {
                                   ),
                                 );
                               }
-                              if (!mounted) return;
+                              if (!mounted) {
+                                return;
+                              }
                               unawaited(_sendInputFiles(inputFiles, context));
                             }
                           } catch (e) {

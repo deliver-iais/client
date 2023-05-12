@@ -315,7 +315,9 @@ class MucRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     final member = await _mucDao.getMember(mucUid, memberUid);
-    if (member == null) return false;
+    if (member == null) {
+      return false;
+    }
     if (member.role == MucRole.OWNER || member.role == MucRole.ADMIN) {
       return true;
     } else if (mucUid.asUid().category == Categories.CHANNEL) {
@@ -751,7 +753,9 @@ class MucRepo {
     List<Int64> newPinedMessages,
     List<int> pinMessages,
   ) {
-    if (newPinedMessages.isEmpty || lastCancelMessageId == 0) return;
+    if (newPinedMessages.isEmpty || lastCancelMessageId == 0) {
+      return;
+    }
     if (lastCancelMessageId != newPinedMessages.last.toInt() ||
         newPinedMessages.last.toInt() > pinMessages.last) {
       _mucDao.updateMuc(

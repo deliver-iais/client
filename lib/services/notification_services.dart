@@ -18,6 +18,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/analytics_service.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -46,8 +47,6 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
-
-import 'app_lifecycle_service.dart';
 
 abstract class Notifier {
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -527,7 +526,9 @@ class LinuxNotifier implements Notifier {
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification) {
+      return;
+    }
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
       'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png',
@@ -872,7 +873,9 @@ class AndroidNotifier implements Notifier {
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification) {
+      return;
+    }
 
     final lines = <String>[];
 
@@ -1146,7 +1149,9 @@ class IOSNotifier implements Notifier {
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification) {
+      return;
+    }
 
     final attachments = <DarwinNotificationAttachment>[];
 
@@ -1267,7 +1272,9 @@ class MacOSNotifier implements Notifier {
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
-    if (message.ignoreNotification) return;
+    if (message.ignoreNotification) {
+      return;
+    }
 
     final attachments = <DarwinNotificationAttachment>[];
 

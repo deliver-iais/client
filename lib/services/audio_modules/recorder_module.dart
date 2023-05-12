@@ -91,7 +91,9 @@ class RecorderModule {
       if (!(isPaused.valueOrNull ?? false)) {
         yield i++;
       }
-      if (i == maxCount) break;
+      if (i == maxCount) {
+        break;
+      }
     }
   }
 

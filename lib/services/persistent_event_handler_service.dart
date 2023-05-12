@@ -75,7 +75,9 @@ class PersistentEventHandlerService {
       _messageExtractorServices.extractProtocolBufferMessage(message!),
     );
     var content = "";
-    if (messageSRF.typeDetails.isNotEmpty) content = messageSRF.typeDetails;
+    if (messageSRF.typeDetails.isNotEmpty) {
+      content = messageSRF.typeDetails;
+    }
     if (messageSRF.typeDetails.isNotEmpty && messageSRF.text.isNotEmpty) {
       content += ", ";
     }

@@ -50,25 +50,33 @@ class AnalyticsRepo {
       map[key] = (map[key] ?? 0) + 1;
 
   void incCSF(String key) {
-    if (!kDebugMode) return;
+    if (!kDebugMode) {
+      return;
+    }
     _coreStreamEvents.add(null);
     countUp(_coreStreamPacketFrequency, key);
   }
 
   void incRF(String key) {
-    if (!kDebugMode) return;
+    if (!kDebugMode) {
+      return;
+    }
     _events.add(null);
     countUp(_requestsFrequency, key);
   }
 
   void incPVF(String key) {
-    if (!kDebugMode) return;
+    if (!kDebugMode) {
+      return;
+    }
     _events.add(null);
     countUp(_pageViewFrequency, key);
   }
 
   void incDao(String key) {
-    if (!kDebugMode) return;
+    if (!kDebugMode) {
+      return;
+    }
     _daoEvents.add(null);
     countUp(_daoFrequency, key);
   }

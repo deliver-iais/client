@@ -1,5 +1,5 @@
+import 'package:deliver/shared/widgets/resizable/resizable_widget_controller.dart';
 import 'package:flutter/material.dart';
-import 'resizable_widget_controller.dart';
 
 class SeparatorArgsInfo extends SeparatorArgsBasicInfo {
   final ResizableWidgetController parentController;

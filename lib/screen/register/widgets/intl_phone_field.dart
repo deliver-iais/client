@@ -2,6 +2,7 @@ library intl_phone_field;
 
 import 'package:deliver/fonts/fonts.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/register/widgets/countries.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import './countries.dart';
 
 class IntlPhoneField extends StatefulWidget {
   final bool obscureText;

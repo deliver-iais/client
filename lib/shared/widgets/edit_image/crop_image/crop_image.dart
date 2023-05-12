@@ -70,7 +70,9 @@ class _CropImageState extends State<CropImage> {
                       outPutFile.writeAsBytesSync(image.bytes);
                       widget.crop(outPutFile.path);
 
-                      if (!mounted) return;
+                      if (!mounted) {
+                        return;
+                      }
                       Navigator.pop(context);
                     }
                   },

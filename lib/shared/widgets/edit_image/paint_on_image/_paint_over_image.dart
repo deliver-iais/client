@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_image_painter.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_mode_widget.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_range_slider.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_text_dialog.dart';
@@ -12,9 +14,6 @@ import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-
-import '_image_painter.dart';
-import '_ported_interactive_viewer.dart';
 
 export '_image_painter.dart';
 
@@ -593,7 +592,9 @@ class ImagePainterState extends State<ImagePainter> {
         _inDrag = true;
         _start ??= onUpdate.focalPoint;
         _end = onUpdate.focalPoint;
-        if (ctrl.mode == PaintMode.freeStyle) _points.add(_end);
+        if (ctrl.mode == PaintMode.freeStyle) {
+          _points.add(_end);
+        }
         if (ctrl.mode == PaintMode.text &&
             _paintHistory
                 .where((element) => element.mode == PaintMode.text)
@@ -831,7 +832,6 @@ class ImagePainterState extends State<ImagePainter> {
                   );
                 },
               ),
-
               const Spacer(),
               TextButton(
                 onPressed: () {
@@ -880,7 +880,9 @@ class Controller {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) return true;
+    if (identical(this, other)) {
+      return true;
+    }
 
     return other is Controller &&
         other.strokeWidth == strokeWidth &&

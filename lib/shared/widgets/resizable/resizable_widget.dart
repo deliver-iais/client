@@ -1,10 +1,10 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_args_info.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_child_data.dart';
+import 'package:deliver/shared/widgets/resizable/resizable_widget_controller.dart';
+import 'package:deliver/shared/widgets/resizable/separator.dart';
+import 'package:deliver/shared/widgets/resizable/widget_size_info.dart';
 import 'package:flutter/material.dart';
-import 'resizable_widget_args_info.dart';
-import 'resizable_widget_child_data.dart';
-import 'resizable_widget_controller.dart';
-import 'separator.dart';
-import 'widget_size_info.dart';
 
 /// The callback argument type of [ResizableWidget.onResized].
 typedef OnResizedFunc = void Function(List<WidgetSizeInfo> infoList);

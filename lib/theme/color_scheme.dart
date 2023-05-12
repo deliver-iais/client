@@ -195,7 +195,9 @@ class Material3ColorScheme {
 }
 
 Color _harmonizeColor(Color from, Color to) {
-  if (from == to) return from;
+  if (from == to) {
+    return from;
+  }
   return Color(Blend.harmonize(from.value, to.value));
 }
 

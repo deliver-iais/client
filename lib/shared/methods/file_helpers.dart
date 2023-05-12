@@ -131,7 +131,9 @@ Uint8List _getWebFileData(String fileByte) => Uint8List.fromList(
     );
 
 String byteFormat(int bytes, {int decimals = 2}) {
-  if (bytes == 0) return '0.0 KB';
+  if (bytes == 0) {
+    return '0.0 KB';
+  }
   const k = 1024;
   final dm = decimals <= 0 ? 0 : decimals;
   final sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];

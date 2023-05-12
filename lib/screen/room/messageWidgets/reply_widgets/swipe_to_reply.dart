@@ -105,7 +105,9 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
         });
       }
     }
-    if (_dragExtent < 0) _moveController.value = newPos;
+    if (_dragExtent < 0) {
+      _moveController.value = newPos;
+    }
   }
 
   void _handleDragEnd(DragEndDetails details) {

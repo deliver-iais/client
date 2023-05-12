@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -168,7 +166,7 @@ class Settings {
   late final themeIsDark = BooleanPersistent(
     SharedKeys.SHARED_DAO_THEME_IS_DARK.inSharedDaoStorage(),
     defaultValue: isAutoNightModeEnable.value &&
-        window.platformBrightness == Brightness.dark,
+        PlatformDispatcher.instance.platformBrightness == Brightness.dark,
   );
   late final showDeveloperDetails = BooleanPersistent(
     SharedKeys.SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS
@@ -338,9 +336,11 @@ class Settings {
   }
 
   Settings() {
-    window.onPlatformBrightnessChanged = () {
+    PlatformDispatcher.instance.onPlatformBrightnessChanged = () {
       if (isAutoNightModeEnable.value) {
-        themeIsDark.set(window.platformBrightness == Brightness.dark);
+        themeIsDark.set(
+          PlatformDispatcher.instance.platformBrightness == Brightness.dark,
+        );
       }
     };
   }

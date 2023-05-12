@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
-
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_count.dart';
@@ -15,11 +13,12 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-
 import 'package:deliver/repository/metaRepo.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/image/image_media_widget.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/media_app_bar_counter_widget.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/media_caption_widget.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/media_time_and_name_status_widget.dart';
+import 'package:deliver/screen/profile/widgets/media_page/widget/video/video_media_widget.dart';
 import 'package:deliver/screen/profile/widgets/operation_on_media.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
@@ -35,16 +34,12 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart' as meta_pb;
-
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'widget/image/image_media_widget.dart';
-import 'widget/video/video_media_widget.dart';
 
 class AllMediaPage extends StatefulWidget {
   final String roomUid;

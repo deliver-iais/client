@@ -8,6 +8,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/music_box.dart';
+import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -19,8 +20,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'share_box/share_box_input_caption.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomUid;
@@ -242,8 +241,10 @@ class ShareBoxState extends State<ShareBox> {
                           height: topPadding,
                           width: double.infinity,
                           child: Padding(
-                            padding:
-                                const EdgeInsetsDirectional.only(end: 20.0, start: 4),
+                            padding: const EdgeInsetsDirectional.only(
+                              end: 20.0,
+                              start: 4,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

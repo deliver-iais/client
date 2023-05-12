@@ -114,7 +114,9 @@ class HomePageState extends State<HomePage> {
       });
 
     _contactRepo.sendNotSyncedContactInStartTime();
-    if (isAndroidNative) _backgroundService.startBackgroundService();
+    if (isAndroidNative) {
+      _backgroundService.startBackgroundService();
+    }
     _fireBaseServices.sendFireBaseToken().ignore();
     super.initState();
   }

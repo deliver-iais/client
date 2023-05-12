@@ -1,5 +1,5 @@
+import 'package:deliver/shared/widgets/resizable/resizable_widget.dart';
 import 'package:flutter/material.dart';
-import 'resizable_widget.dart';
 
 class ResizableWidgetArgsInfo {
   final List<Widget> children;

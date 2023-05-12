@@ -51,8 +51,6 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
           "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}";
     }
 
-    !widget.roomUid.isMuc();
-
     return Focus(
       autofocus: true,
       child: Container(

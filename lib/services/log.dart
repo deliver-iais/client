@@ -46,7 +46,9 @@ class DeliverLogOutput extends LogOutput {
   @override
   void output(OutputEvent event) {
     consoleOutput.output(event);
-    if (settings.logInFileEnable.value) fileOutput?.output(event);
+    if (settings.logInFileEnable.value) {
+      fileOutput?.output(event);
+    }
   }
 
   @override

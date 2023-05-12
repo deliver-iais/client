@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../../services/check_permissions_service.dart';
-import 'ext_storage_services.dart';
 
 class StoragePathService {
   final MethodChannel _channel = const MethodChannel('read_external');

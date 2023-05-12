@@ -325,7 +325,9 @@ class ContactRepo {
   }
 
   Future<void> fetchMemberId(Member member) async {
-    if (!member.memberUid.asUid().isUser()) return;
+    if (!member.memberUid.asUid().isUser()) {
+      return;
+    }
     final m = await _uidIdNameDao.getByUid(member.memberUid);
     if (m == null || m.id == null) {
       return getUserIdByUid(member.memberUid.asUid());

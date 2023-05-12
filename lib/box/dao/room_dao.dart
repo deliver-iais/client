@@ -157,7 +157,9 @@ class RoomDaoImpl extends RoomDao {
       shouldUpdateMediaCount: shouldUpdateMediaCount,
     );
 
-    if (clone != r) return box.put(uid, clone);
+    if (clone != r) {
+      return box.put(uid, clone);
+    }
   }
 
   @override

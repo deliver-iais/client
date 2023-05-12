@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/call_status.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -8,8 +9,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'call_status.dart';
 
 class HasCallRow extends StatefulWidget {
   const HasCallRow({super.key});

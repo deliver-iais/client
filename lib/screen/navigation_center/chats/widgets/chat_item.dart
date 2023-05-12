@@ -10,6 +10,7 @@ import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chat_avatar.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -26,8 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'last_message.dart';
 
 class RoomWrapper {
   final Room room;

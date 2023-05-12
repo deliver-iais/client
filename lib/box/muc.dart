@@ -1,8 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
-
-import 'muc_type.dart';
 
 part 'muc.g.dart';
 

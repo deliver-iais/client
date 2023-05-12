@@ -698,7 +698,9 @@ class MucManagePageState extends State<MucManagePage>
   }
 
   String? validateChannelId(String? value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
     if (value.isEmpty) {

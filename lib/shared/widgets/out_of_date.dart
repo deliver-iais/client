@@ -1,10 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../constants.dart';
 
 void showOutOfDateDialog(BuildContext context) {
   final i18n = GetIt.I.get<I18N>();
