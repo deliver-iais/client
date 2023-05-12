@@ -28,6 +28,7 @@ class IsVerifiedDaoImpl extends IsVerifiedDao {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
     final box = await _openIsVerifiedIsar();
     box.writeTxnSync(() {
+      box.isVerifiedIsars.filter().uidEqualTo(uid.asString()).deleteAllSync();
       box.isVerifiedIsars.putSync(
         IsVerifiedIsar(
           uid: uid.asString(),

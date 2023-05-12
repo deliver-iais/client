@@ -71,7 +71,7 @@ class RoomName extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsetsDirectional.only(start: p4,bottom: 3),
                     child: Icon(
-                      CupertinoIcons.checkmark_seal,
+                      CupertinoIcons.checkmark_seal_fill,
                       size: ((style ?? theme.textTheme.titleSmall)?.fontSize ??
                           14),
                       color: ACTIVE_COLOR,
