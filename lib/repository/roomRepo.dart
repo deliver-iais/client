@@ -78,8 +78,7 @@ class RoomRepo {
   }
 
   bool fastForwardIsVerified(Uid uid) =>
-      uid.isSystem() ||
-      (uid.isBot() && (uid.node == "father_bot" || uid.node == "auth_bot"));
+      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
 
   Future<bool> isVerified(Uid uid) async {
     if (fastForwardIsVerified(uid)) {
