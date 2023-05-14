@@ -69,6 +69,18 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/hive/avatar_hive.dart';
+import 'package:deliver/hive/file_info_hive.dart';
+import 'package:deliver/hive/is_verified_hive.dart';
+import 'package:deliver/hive/pending_message_hive.dart';
+import 'package:deliver/isar/dao/avatar_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/avatar_hive_dao.dart';
+import 'package:deliver/isar/dao/file_info_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/file_info_hive_dao.dart';
+import 'package:deliver/isar/dao/is_verified_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/is_verified_hive_dao.dart';
+import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/pending_message_hive_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -276,10 +288,13 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
     ..registerAdapter(SendingStatusAdapter())
+    ..registerAdapter(AvatarHiveAdapter())
+    ..registerAdapter(FileInfoHiveAdapter())
     ..registerAdapter(MetaAdapter())
     ..registerAdapter(MetaCountAdapter())
     ..registerAdapter(MetaTypeAdapter())
     ..registerAdapter(LiveLocationAdapter())
+    ..registerAdapter(PendingMessageHiveAdapter())
     ..registerAdapter(CallEventAdapter())
     ..registerAdapter(CallStatusAdapter())
     ..registerAdapter(CallTypeAdapter())
@@ -288,6 +303,7 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MucTypeAdapter())
     ..registerAdapter(AutoDownloadAdapter())
     ..registerAdapter(BoxInfoAdapter())
+    ..registerAdapter(IsVerifiedHiveAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter())
     ..registerAdapter(RecentEmojiAdapter())
@@ -304,7 +320,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<ScrollPositionDao>(ScrollPositionDaoImpl());
   registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   registerSingleton<SeenDao>(SeenDaoImpl());
-  registerSingleton<FileDao>(FileDaoImpl());
+  registerSingleton<FileDao>(FileInfoDaoImpl());
   registerSingleton<BlockDao>(BlockDaoImpl());
   registerSingleton<MuteDao>(MuteDaoImpl());
   registerSingleton<MucDao>(MucDaoImpl());
