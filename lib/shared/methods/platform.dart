@@ -43,7 +43,9 @@ final isMobileNative = isAndroidNative || isIOSNative;
 
 final isMobileDevice = isAndroidDevice || isIOSDevice;
 
-final hasFirebaseCapability = isAndroidNative || isWeb;
+// TODO(any): enable web firebase after bug fix in firebase
+// final hasFirebaseCapability = isAndroidNative || isWeb;
+final hasFirebaseCapability = isAndroidNative;
 
 final hasVibrationCapability = isAndroidNative || isIOSNative;
 

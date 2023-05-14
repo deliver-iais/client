@@ -77,9 +77,9 @@ void _isVerifiedIsarSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer..writeLong(offsets[0], object.expireTime)
-  ..writeLong(offsets[1], object.lastUpdate)
-  ..writeString(offsets[2], object.uid);
+  writer.writeLong(offsets[0], object.expireTime);
+  writer.writeLong(offsets[1], object.lastUpdate);
+  writer.writeString(offsets[2], object.uid);
 }
 
 IsVerifiedIsar _isVerifiedIsarDeserialize(
