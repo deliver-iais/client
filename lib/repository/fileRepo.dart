@@ -4,8 +4,7 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
-import 'package:deliver/box/dao/file_dao.dart';
-import 'package:deliver/box/file_info.dart';
+import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -13,7 +12,6 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/enum.dart';
-import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
@@ -26,22 +24,20 @@ import 'package:universal_html/html.dart' as html;
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
-  final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
+  final _fileCache = GetIt.I.get<FileInfoCache>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
 
   final _i18N = GetIt.I.get<I18N>();
 
   Map<String, String> localUploadedFilePath = {};
-  Map<String, String> webDownloadFileBlob = {};
-  Map<String, String> webThumbnailFileBlob = {};
 
   Future<void> saveInFileInfo(
     io.File file,
     String uploadKey,
     String name,
   ) {
-    return _saveFileInfo(uploadKey, file.path, name, "real");
+    return _fileCache.saveFileInfo(uploadKey, file.path, name, "real");
   }
 
   Future<file_pb.File?> uploadClonedFile(
@@ -51,12 +47,16 @@ class FileRepo {
     void Function(int)? sendActivity,
     bool isVoice = false,
   }) async {
-    final clonedFilePath = await _fileDao.get(uploadKey, "real");
+    final clonedFilePath = await _fileCache.getFilePath(
+      "real",
+      uploadKey,
+      convertToDataByteInWeb: true,
+    );
 
     Response? value;
     try {
       value = await _fileService.uploadFile(
-        clonedFilePath!.path,
+        clonedFilePath!,
         name,
         uploadKey: uploadKey,
         sendActivity: sendActivity,
@@ -142,8 +142,8 @@ class FileRepo {
         }
         _logger.v(uploadedFile);
 
-        localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!.path;
-        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
+        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid, name);
         _fileService.updateFileStatus(uploadedFile.uuid, FileStatus.COMPLETED);
         return uploadedFile;
       } catch (e) {
@@ -166,48 +166,18 @@ class FileRepo {
     );
   }
 
-  String? getFileFromWebCacheBlob(
-    String uuid, {
-    ThumbnailSize? thumbnailSize,
-  }) {
-    if (isWeb) {
-      if (thumbnailSize == null) {
-        return webDownloadFileBlob[uuid];
-      }
-      return webThumbnailFileBlob[uuid];
-    }
-    return null;
-  }
-
-  String? saveWebBlobToFileCache(
-    String blob,
-    String uuid, {
-    ThumbnailSize? thumbnailSize,
-  }) {
-    if (isWeb) {
-      if (thumbnailSize == null) {
-        return webDownloadFileBlob[uuid] = blob;
-      }
-      return webThumbnailFileBlob[uuid] = blob;
-    }
-    return null;
-  }
-
   Future<bool> isExist(
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
-    if (isWeb) {
-      return getFileFromWebCacheBlob(uuid, thumbnailSize: thumbnailSize) !=
-          null;
-    }
-    final fileInfo = await _getFileInfoInDB(
+    final fileInfo = await _fileService.getFile(
       (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
       uuid,
     );
     if (fileInfo != null) {
-      final file = io.File(fileInfo.path);
+      if (isWeb) return fileInfo.isNotEmpty;
+      final file = io.File(fileInfo);
       return file.existsSync();
     }
     return false;
@@ -226,20 +196,21 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
-    if (isWeb) {
-      return getFileFromWebCacheBlob(uuid, thumbnailSize: thumbnailSize);
-    }
     if (thumbnailSize == null && fileExitInCache(uuid)) {
       return localUploadedFilePath[uuid];
     }
-    final fileInfo = await _getFileInfoInDB(
+    final filePath = await _fileCache.getFilePath(
       (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
       uuid,
     );
-    if (fileInfo != null) {
-      final file = io.File(fileInfo.path);
-      if (file.existsSync()) {
-        return file.path;
+    if (filePath != null) {
+      if (isWeb) {
+        return filePath;
+      } else {
+        final file = io.File(filePath);
+        if (file.existsSync()) {
+          return file.path;
+        }
       }
     }
     return null;
@@ -265,19 +236,7 @@ class FileRepo {
       showAlertOnError: showAlertOnError,
     );
     if (downloadedFileUri != null) {
-      if (isWeb) {
-        if (intiProgressbar) {
-          _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
-        }
-        final blob = _convertDataByteToBlobUrl(
-          downloadedFileUri,
-          filename.getMimeString(),
-        );
-        saveWebBlobToFileCache(blob, uuid, thumbnailSize: thumbnailSize);
-        return blob;
-      }
-
-      await _saveFileInfo(
+      final filePath = await _fileCache.saveFileInfo(
         uuid,
         downloadedFileUri,
         filename,
@@ -287,56 +246,33 @@ class FileRepo {
         _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
       }
 
-      return downloadedFileUri;
+      return filePath;
     } else {
       return null;
     }
   }
 
-  String _convertDataByteToBlobUrl(String dataByte, String type) {
-    final blob = html.Blob(
-      <Object>[UriData.parse(dataByte).contentAsBytes()],
-      type,
-    );
-
-    return html.Url.createObjectUrlFromBlob(blob);
-  }
-
-  Future<FileInfo> _saveFileInfo(
-    String fileUuid,
-    String filePath,
-    String name,
-    String sizeType,
-  ) {
-    final fileInfo = FileInfo(
-      uuid: fileUuid,
-      name: name,
-      path: filePath,
-      sizeType: sizeType,
-    );
-    return _fileDao.save(fileInfo).then((value) => fileInfo);
-  }
-
   Future<void> _updateFileInfoWithRealUuid(
     String uploadKey,
     String uuid,
+    String name,
   ) async {
-    final real = await _getFileInfoInDB("real", uploadKey);
-    final medium = await _getFileInfoInDB("medium", uploadKey);
+    final real = await _fileCache.getFilePath("real", uploadKey);
 
-    await _fileDao.remove(real!);
-    if (medium != null) {
-      await _fileDao.remove(medium);
+    if (real != null) {
+      await _fileCache.updateFileInfoUuid(uploadKey, uuid, name, "real", real);
     }
-
-    await _fileDao.save(real.copyWith(uuid: uuid));
+    final medium = await _fileCache.getFilePath("medium", uploadKey);
     if (medium != null) {
-      await _fileDao.save(medium.copyWith(uuid: uuid));
+      await _fileCache.updateFileInfoUuid(
+        uploadKey,
+        uuid,
+        name,
+        "medium",
+        medium,
+      );
     }
   }
-
-  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
-      _fileDao.get(uuid, enumToString(size));
 
   void saveDownloadedFileInWeb(String uuid, String name) {
     getFileIfExist(uuid, name).then((url) {

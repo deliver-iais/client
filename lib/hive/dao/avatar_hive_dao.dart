@@ -16,7 +16,9 @@ class AvatarDaoImpl extends AvatarDao {
 
     yield* box
         .watch()
-        .map((event) => sorted(box.values.map((e) => e.fromHive()).toList()));
+        .map((event) {
+      return sorted(box.values.map((e) => e.fromHive()).toList());
+    });
   }
 
   List<Avatar> sorted(List<Avatar> list) {
@@ -58,7 +60,7 @@ class AvatarDaoImpl extends AvatarDao {
         lastAvatar.createdOn < lastAvatarOfList!.createdOn ||
         box.values.length == 1) {
       return box2.put(
-        lastAvatarOfList!.uid,
+        lastAvatarOfList!.uid.asString(),
         lastAvatarOfList
             .copyWith(
               lastUpdateTime: clock.now().millisecondsSinceEpoch,
@@ -129,7 +131,9 @@ class AvatarDaoImpl extends AvatarDao {
 
     yield box.get(uid)?.fromHive();
 
-    yield* box.watch(key: uid).map((event) => box.get(uid)?.fromHive());
+    yield* box.watch(key: uid).map((event) {
+      return box.get(uid)?.fromHive();
+    });
   }
 
   static String _key(uid) => "avatar-$uid";

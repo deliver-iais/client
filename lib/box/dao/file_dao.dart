@@ -6,6 +6,6 @@ abstract class FileDao {
 
   Future<void> save(FileInfo fileInfo);
 
-  Future<void> remove(FileInfo fileInfo);
+  Future<void> remove(String size, String uuid);
 }
 

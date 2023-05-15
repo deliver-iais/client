@@ -42,6 +42,7 @@ file_model.File filePickerPlatformFileToFileModel(PlatformFile f) =>
       isWeb
           ? Uri.dataFromBytes(
               (Uint8List.fromList(f.bytes!)).toList(),
+              mimeType: "application/${f.extension ?? "octet-stream"}",
             ).toString()
           : f.path ?? "",
       f.name,
@@ -265,20 +266,32 @@ extension ImagePath on String {
     Map<String, String>? headers,
     int? cacheWidth,
     int? cacheHeight,
+    bool evict = false,
   }) {
-    return ResizeImage.resizeIfNeeded(
+    final imgP = ResizeImage.resizeIfNeeded(
       cacheWidth,
       cacheHeight,
       (isWeb
           ? NetworkImage(this, scale: scale, headers: headers)
           : FileImage(File(this), scale: scale)) as ImageProvider<Object>,
     );
+    if (evict) {
+      return imgP..evict();
+    } else {
+      return imgP;
+    }
   }
 }
 
-String lookupMimeTypeFromPath(String path, {List<int>? headerBytes}) =>
-    _deliverMimeTypeResolver.lookup(path, headerBytes: headerBytes) ??
-    DEFAULT_FILE_TYPE;
+String lookupMimeTypeFromPath(String path, {List<int>? headerBytes}) {
+  return _deliverMimeTypeResolver.lookup(
+        path,
+        headerBytes: isWeb && path.startsWith("data:")
+            ? UriData.parse(path).contentAsBytes()
+            : headerBytes,
+      ) ??
+      DEFAULT_FILE_TYPE;
+}
 
 final _deliverMimeTypeResolver = MimeTypeResolver()
   ..addExtension("jfif", "image/jpeg");

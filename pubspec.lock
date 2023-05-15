@@ -217,6 +217,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.5.0"
+  browser_image_compression:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "457d33fa377bd35e0e1fc83d6b02908c9a99c614"
+      url: "https://github.com/deliveriais/browser_image_compression.git"
+    source: git
+    version: "1.0.5"
   build:
     dependency: transitive
     description:

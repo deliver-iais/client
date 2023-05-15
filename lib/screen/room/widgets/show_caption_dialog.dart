@@ -132,6 +132,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   bool isImageFile(int index) {
     final type = _editedFile?.path.getMimeString() ??
         _editableMessageFile?.type ??
+        getWidgetFilesIndex(index)?.extension ??
         getWidgetFilesIndex(index)?.path.getMimeString();
 
     return type != null && isImageFileType(type);
@@ -271,8 +272,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     }
   }
 
-  Widget _buildImageWidget(String path) =>
-      Image(image: path.imageProvider(cacheWidth: 180), width: 180);
+  Widget _buildImageWidget(String path) => Image(
+        image: path.imageProvider(cacheWidth: 180, evict: true),
+        width: 180,
+      );
 
   Widget _buildCaptionInputBox() {
     return RawKeyboardListener(
