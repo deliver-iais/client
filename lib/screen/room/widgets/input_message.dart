@@ -1135,7 +1135,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
       showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);
     } catch (e) {
-      _logger.d(e.toString());
+      _logger.i(e.toString());
     }
   }
 
@@ -1199,6 +1199,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
+      case MessageType.CALL_LOG:
     }
     return "$text ";
   }

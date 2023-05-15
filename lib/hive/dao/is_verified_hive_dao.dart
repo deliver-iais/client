@@ -12,7 +12,7 @@ class IsVerifiedDaoImpl extends IsVerifiedDao {
   @override
   Future<IsVerified?> getIsVerified(Uid uid) async {
     final box = await _open();
-    return box.get(uid)?.fromHive();
+    return box.get(uid.asString())?.fromHive();
   }
 
   @override
@@ -20,7 +20,7 @@ class IsVerifiedDaoImpl extends IsVerifiedDao {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
     final box = await _open();
     await box.put(
-      uid.asString,
+      uid.asString(),
       IsVerifiedHive(
         uid: uid.asString(),
         lastUpdate: lastUpdateTime,

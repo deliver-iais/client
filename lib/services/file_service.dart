@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:browser_image_compression/browser_image_compression.dart'
+    as web_compression;
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/file_dao.dart';
-import 'package:deliver/box/file_info.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
@@ -37,7 +37,6 @@ enum FileStatus { NONE, STARTED, CANCELED, COMPLETED }
 class FileService {
   final _storagePathService = GetIt.I.get<StoragePathService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -447,6 +446,30 @@ class FileService {
     }
   }
 
+  Future<String> compressImageInWeb(
+    model.File file,
+  ) async {
+    try {
+      final bytes = await web_compression.BrowserImageCompression.compressImage(
+        file.name,
+        UriData.parse(file.path).contentAsBytes(),
+        "image/webp",
+        web_compression.Options(
+          initialQuality: 0.1,
+          fileType: 'image/webp',
+          maxIteration: 1,
+          alwaysKeepResolution: true,
+        ),
+      );
+      return Uri.dataFromBytes(
+        (Uint8List.fromList(bytes)).toList(),
+        mimeType: "image/webp",
+      ).toString();
+    } catch (_) {
+      return file.path;
+    }
+  }
+
   String? getExtensionFromContentType(String? contentType) {
     if (contentType == null) {
       return null;
@@ -459,42 +482,11 @@ class FileService {
     return null;
   }
 
-  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
-      _fileDao.get(uuid, enumToString(size));
-
-  Future<void> _updateFileInfoWithNewPath(
-    String uploadKey,
-    String path,
-  ) async {
-    final real = await _getFileInfoInDB("real", uploadKey);
-    final medium = await _getFileInfoInDB("medium", uploadKey);
-
-    await _fileDao.remove(real!);
-    if (medium != null) {
-      await _fileDao.remove(medium);
-    }
-
-    await _fileDao.save(real.copyWith(path: path, uuid: real.uuid));
-
-    if (medium != null) {
-      await _fileDao.save(medium.copyWith(path: path, uuid: medium.uuid));
-    }
-  }
-
   bool fileInProgress() {
     return false;
   }
 
-  Future<void> _concurrentCloneFileInLocalDirectory(
-    File file,
-    String uploadKey,
-    String fileExtension,
-  ) async {
-    final f = await localFile(uploadKey, fileExtension);
-    await f.writeAsBytes(file.readAsBytesSync());
-    await _updateFileInfoWithNewPath(uploadKey, f.path);
-  }
-
+  /// file path is path of file in native device and data byte in web
   Future<Response<dynamic>?> uploadFile(
     String filePath,
     String filename, {
@@ -526,16 +518,6 @@ class FileService {
       try {
         final cancelToken = CancelToken();
         _addCancelToken(cancelToken, uploadKey);
-        //concurrent save file in local directory
-        if (isDesktopNative) {
-          unawaited(
-            _concurrentCloneFileInLocalDirectory(
-              File(filePath),
-              uploadKey,
-              getFileExtension(filePath),
-            ),
-          );
-        }
         FormData? formData;
         if (isWeb) {
           formData = FormData.fromMap({
@@ -595,33 +577,41 @@ class FileService {
   }
 
   Future<model.File> compressFile(model.File file) async {
-    if (!isWeb) {
-      try {
-        var filePath = file.path;
-        if (isCompressibleImageFileType(file.path.getMimeString())) {
+    try {
+      var filePath = file.path;
+      if (isCompressibleImageFileType(file.path.getMimeString())) {
+        final time = clock.now().millisecondsSinceEpoch;
+        if (isWeb) {
+          filePath = await compressImageInWeb(file);
+          file = file.copyWith(
+            name: "${clock.now().millisecondsSinceEpoch}.webp",
+            path: filePath,
+            size: filePath.length,
+            extension: "webp",
+          );
+        } else {
           if (isMobileNative) {
             filePath = await compressImageInMobile(File(file.path));
           } else {
-            final time = clock.now().millisecondsSinceEpoch;
             if (isWindowsNative) {
               filePath = await compressImageInWindows(File(file.path));
             } else {
               filePath = await compressImageInMacOrLinux(File(file.path));
             }
-            _logger.i(
-              "compressTime : ${clock.now().millisecondsSinceEpoch - time}",
-            );
           }
+          file = file.copyWith(
+            name: getFileName(filePath),
+            path: filePath,
+            size: File(filePath).lengthSync(),
+            extension: getFileExtension(filePath),
+          );
         }
-        file = file.copyWith(
-          name: getFileName(filePath),
-          path: filePath,
-          size: File(filePath).lengthSync(),
-          extension: getFileExtension(filePath),
+        _logger.i(
+          "compressTime : ${clock.now().millisecondsSinceEpoch - time}",
         );
-      } catch (_) {
-        _logger.e(_);
       }
+    } catch (_) {
+      _logger.e(_);
     }
     return file;
   }

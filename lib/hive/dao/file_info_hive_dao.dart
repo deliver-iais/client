@@ -25,10 +25,10 @@ class FileInfoDaoImpl extends FileDao {
   }
 
   @override
-  Future<void> remove(FileInfo fileInfo) async {
-    final box = await _open(fileInfo.sizeType);
+  Future<void> remove(String size, String uuid) async {
+    final box = await _open(size);
 
-    return box.delete(fileInfo.uuid);
+    return box.delete(uuid);
   }
 
   String _key(String size) => "file-info-$size";

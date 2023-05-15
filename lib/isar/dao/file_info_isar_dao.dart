@@ -29,12 +29,12 @@ class FileInfoDaoImpl extends FileDao {
   }
 
   @override
-  Future<void> remove(FileInfo fileInfo) async {
+  Future<void> remove(String size, String uuid) async {
     final box = await _openFileInfoIsar();
     final query = box.fileInfoIsars
         .filter()
-        .sizeTypeEqualTo(fileInfo.sizeType)
-        .uuidEqualTo(fileInfo.uuid)
+        .sizeTypeEqualTo(size)
+        .uuidEqualTo(uuid)
         .build();
     return box.writeTxnSync(() {
       query.deleteAllSync();

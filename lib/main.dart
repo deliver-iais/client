@@ -69,6 +69,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/hive/avatar_hive.dart';
 import 'package:deliver/hive/file_info_hive.dart';
 import 'package:deliver/hive/is_verified_hive.dart';
@@ -138,7 +139,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -206,6 +206,7 @@ Future<void> setupDI() async {
   );
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
+  registerSingleton<FileInfoCache>(FileInfoCache());
   registerSingleton<FileRepo>(FileRepo());
   registerSingleton<ContactRepo>(ContactRepo());
   registerSingleton<AvatarRepo>(AvatarRepo());

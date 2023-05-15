@@ -77,7 +77,119 @@
         overflow: hidden;
     }
 </style>
-<style id="style-loading">.container{display:flex;justify-content:center;align-items:center;flex-direction:column;height:100vh}.container img{height:100px;width:auto;display:flex;margin-bottom:20px}.statuses{height:13px;line-height:13px;margin:20px;width:100%}p{position:absolute;margin:0 auto;font-family:Roboto,Vazirmatn,sans-serif;font-size:13px;width:100%;text-align:center;color:#fff}p.p1{animation:20s ease-in-out p1-animation;opacity:0}p.p2{animation:20s ease-in-out p2-animation;opacity:1}.container .loading-bar{display:flex;height:5px;margin-top:-5px;width:100%;max-width:320px;box-shadow:inset 0 0 0 1px #c8c8cd;border-radius:50px;opacity:1;overflow:hidden;animation:10s ease-in-out loading-bar-animation}.container .loading-bar .progress-bar{display:flex;height:100%;width:90%;background:#409be9;animation:10s ease-in-out progress-animation}@keyframes progress-animation{0%{width:0}20%{width:10%}30%{width:15%}40%{width:30%}50%{width:60%}100%{width:90%}}@keyframes loading-bar-animation{0%,20%{opacity:0}25%,40%{opacity:.3}100%,45%{opacity:1}}@keyframes p1-animation{0%,20%,95%{opacity:0}23%,92%{opacity:1}}@keyframes p2-animation{0%,95%{opacity:0}98%{opacity:1}}</style>
+<style id="style-loading">.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh
+}
+
+.container img {
+    height: 100px;
+    width: auto;
+    display: flex;
+    margin-bottom: 20px
+}
+
+.statuses {
+    height: 13px;
+    line-height: 13px;
+    margin: 20px;
+    width: 100%
+}
+
+p {
+    position: absolute;
+    margin: 0 auto;
+    font-family: Roboto, Vazirmatn, sans-serif;
+    font-size: 13px;
+    width: 100%;
+    text-align: center;
+    color: #fff
+}
+
+p.p1 {
+    animation: 20s ease-in-out p1-animation;
+    opacity: 0
+}
+
+p.p2 {
+    animation: 20s ease-in-out p2-animation;
+    opacity: 1
+}
+
+.container .loading-bar {
+    display: flex;
+    height: 5px;
+    margin-top: -5px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: inset 0 0 0 1px #c8c8cd;
+    border-radius: 50px;
+    opacity: 1;
+    overflow: hidden;
+    animation: 10s ease-in-out loading-bar-animation
+}
+
+.container .loading-bar .progress-bar {
+    display: flex;
+    height: 100%;
+    width: 90%;
+    background: #409be9;
+    animation: 10s ease-in-out progress-animation
+}
+
+@keyframes progress-animation {
+    0% {
+        width: 0
+    }
+    20% {
+        width: 10%
+    }
+    30% {
+        width: 15%
+    }
+    40% {
+        width: 30%
+    }
+    50% {
+        width: 60%
+    }
+    100% {
+        width: 90%
+    }
+}
+
+@keyframes loading-bar-animation {
+    0%, 20% {
+        opacity: 0
+    }
+    25%, 40% {
+        opacity: .3
+    }
+    100%, 45% {
+        opacity: 1
+    }
+}
+
+@keyframes p1-animation {
+    0%, 20%, 95% {
+        opacity: 0
+    }
+    23%, 92% {
+        opacity: 1
+    }
+}
+
+@keyframes p2-animation {
+    0%, 95% {
+        opacity: 0
+    }
+    98% {
+        opacity: 1
+    }
+}</style>
 
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js"></script>
@@ -97,7 +209,8 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 </script>
-
+<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
 <script>
     window.addEventListener('load', function (ev) {
         // Download main.dart.js
