@@ -37,7 +37,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            _roomRepo.createRoomIfNotExist(widget.uid.asString());
+            _roomRepo.createRoomIfNotExist(widget.uid);
             _recentSearch.addRecentSearch(
               widget.uid.asString(),
               clock.now().millisecondsSinceEpoch,

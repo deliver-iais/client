@@ -136,7 +136,7 @@ class BotFormMessageState extends State<BotFormMessage> {
   Widget buildTimer() => CountDownTimer(
         message: widget.message,
         lockAfter: form.lockAfter.toInt(),
-        lock: (l) => _locked.add(l),
+        lock: () => _locked.add(true),
       );
 
   @override

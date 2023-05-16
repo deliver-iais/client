@@ -52,7 +52,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () {
-                    _routingServices.openProfile(member!.memberUid);
+                    _routingServices.openProfile(member.memberUid);
                   },
                   child: Padding(
                     padding: const EdgeInsetsDirectional.all(8.0),
@@ -122,7 +122,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                     ),
                                   ],
                                   onSelected: (key) {
-                                    onSelected(key.toString(), member);
+                                    onSelected(key, member);
                                   },
                                 ),
                               if (_authRepo.isCurrentUser(

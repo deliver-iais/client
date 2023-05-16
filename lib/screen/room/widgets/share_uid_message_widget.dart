@@ -90,7 +90,7 @@ class ShareUidMessageWidget extends StatelessWidget {
             onPressed: () async {
               if ((shareUid.uid.category == Categories.GROUP ||
                   shareUid.uid.category == Categories.CHANNEL)) {
-                final room = await _roomRepo.getRoom(shareUid.uid.asString());
+                final room = await _roomRepo.getRoom(shareUid.uid);
                 if (room != null && !room.deleted) {
                   _routingServices.openRoom(shareUid.uid.asString());
                 } else {

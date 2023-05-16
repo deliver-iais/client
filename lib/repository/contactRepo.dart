@@ -309,7 +309,7 @@ class ContactRepo {
         contact.uid.asString(),
         name: buildName(contact.firstName, contact.lastName),
       );
-      _roomDao.updateRoom(uid: contact.uid.asString());
+      _roomDao.updateRoom(uid: contact.uid);
     }
   }
 

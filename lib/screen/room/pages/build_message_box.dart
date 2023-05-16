@@ -691,6 +691,7 @@ class OperationOnMessageSelection {
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
+      case MessageType.CALL_LOG:
         break;
     }
   }
@@ -798,10 +799,10 @@ class OperationOnMessageSelection {
 
   Future<void> onDeletePendingMessage() async {
     _messageRepo.deletePendingMessage(message.packetId);
-    final room = (await _roomRepo.getRoom(message.roomUid));
+    final room = (await _roomRepo.getRoom(message.roomUid.asUid()));
     if (room != null) {
       await _dataStreamServices.fetchLastNotHiddenMessage(
-        room.uid.asUid(),
+        room.uid,
         room.lastMessageId,
         room.firstMessageId,
       );

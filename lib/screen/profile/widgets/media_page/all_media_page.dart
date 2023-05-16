@@ -214,7 +214,7 @@ class _AllMediaPageState extends State<AllMediaPage>
 
   Future<MetaCount?> getMetaCount() async {
     final shouldUpdateMediaCount =
-        (await _roomDao.getRoom(widget.roomUid))?.shouldUpdateMediaCount ??
+        (await _roomDao.getRoom(widget.roomUid.asUid()))?.shouldUpdateMediaCount ??
             true;
     if (shouldUpdateMediaCount) {
       final metaCount = await _metaRepo.fetchMetaCountFromServer(

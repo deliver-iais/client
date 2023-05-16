@@ -63,4 +63,6 @@ extension JsonMapper on String {
   }
 
   Link toLink() => Link.fromJson(this);
+
+  CallLog toCallLog() => CallLog.fromJson(this);
 }

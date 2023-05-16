@@ -163,7 +163,7 @@ class RoomPageState extends State<RoomPage> {
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
 
-  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
+  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId.asUid());
 
   // Streams and Futures
   late Stream<Object> pendingAndRoomMessagesStream;
@@ -226,7 +226,7 @@ class RoomPageState extends State<RoomPage> {
                 stream: _room,
                 builder: (c, s) {
                   if (s.hasData &&
-                      s.data!.uid.asUid().category == Categories.BOT &&
+                      s.data!.uid.category == Categories.BOT &&
                       s.data!.lastMessageId - s.data!.firstMessageId == 0) {
                     return Expanded(
                       child: Center(
@@ -680,7 +680,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
+    _roomRepo.watchRoom(widget.roomId.asUid()).distinct().listen((event) {
       if (event.lastMessageId != room.lastMessageId &&
           _isScrolling.valueOrNull != null) {
         _fireScrollEvent(
@@ -695,7 +695,7 @@ class RoomPageState extends State<RoomPage> {
       _room.add(event);
       if (!event.synced) {
         _messageRepo.fetchRoomLastMessage(
-          event.uid,
+          event.uid.asString(),
           event.lastMessageId,
           event.firstMessageId,
         );
@@ -739,11 +739,11 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void _updateRoomMentionIds(List<ItemPosition> items) {
-    if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+    if (room.mentionsId.isNotEmpty) {
       unawaited(
         _roomRepo.updateMentionIds(
           room.uid,
-          room.mentionsId!
+          room.mentionsId
               .where(
                 (element) => !items
                     .map((e) => e.index + room.firstMessageId + 1)
@@ -942,7 +942,7 @@ class RoomPageState extends State<RoomPage> {
   Future<void> _getLastShowMessageId() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
 
-    final room = await _roomRepo.getRoom(widget.roomId);
+    final room = await _roomRepo.getRoom(widget.roomId.asUid());
 
     _lastShowedMessageId = seen.messageId;
     if (room != null) {
@@ -1059,7 +1059,7 @@ class RoomPageState extends State<RoomPage> {
         stream: _room,
         builder: (c, s) {
           if (s.hasData &&
-              s.data!.uid.asUid().category == Categories.BOT &&
+              s.data!.uid.category == Categories.BOT &&
               s.data!.lastMessageId - s.data!.firstMessageId == 0) {
             return BotStartWidget(botUid: widget.roomId.asUid());
           } else {
@@ -1146,7 +1146,7 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        if (_featureFlags.hasVoiceCallPermission(room.uid))
+        if (_featureFlags.hasVoiceCallPermission(room.uid.asString()))
           StreamBuilder<bool>(
             stream: _selectMultiMessageSubject,
             builder: (context, snapshot) {
@@ -1268,7 +1268,7 @@ class RoomPageState extends State<RoomPage> {
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
                               context,
-                              room.uid.asUid(),
+                              room.uid,
                               isVideoCall: true,
                             ),
                             icon: const Icon(Icons.videocam_rounded),
@@ -1276,7 +1276,7 @@ class RoomPageState extends State<RoomPage> {
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
                               context,
-                              room.uid.asUid(),
+                              room.uid,
                             ),
                             icon: const Icon(Icons.local_phone_rounded),
                           ),

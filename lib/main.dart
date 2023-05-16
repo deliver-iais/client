@@ -64,7 +64,6 @@ import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/box/recent_rooms.dart';
 import 'package:deliver/box/recent_search.dart';
 import 'package:deliver/box/role.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/show_case.dart';
@@ -74,6 +73,7 @@ import 'package:deliver/hive/avatar_hive.dart';
 import 'package:deliver/hive/file_info_hive.dart';
 import 'package:deliver/hive/is_verified_hive.dart';
 import 'package:deliver/hive/pending_message_hive.dart';
+import 'package:deliver/hive/room_hive.dart';
 import 'package:deliver/isar/dao/avatar_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/avatar_hive_dao.dart';
 import 'package:deliver/isar/dao/file_info_isar_dao.dart'
@@ -82,6 +82,8 @@ import 'package:deliver/isar/dao/is_verified_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/is_verified_hive_dao.dart';
 import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/pending_message_hive_dao.dart';
+import 'package:deliver/isar/dao/room_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/room_hive_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -284,7 +286,7 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MucRoleAdapter())
     ..registerAdapter(MemberAdapter())
     ..registerAdapter(BotInfoAdapter())
-    ..registerAdapter(RoomAdapter())
+    ..registerAdapter(RoomHiveAdapter())
     ..registerAdapter(MessageAdapter())
     ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())

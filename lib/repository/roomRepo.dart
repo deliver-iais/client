@@ -259,12 +259,12 @@ class RoomRepo {
     try {
       await _sdr.queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
-      final room = await _roomDao.getRoom(roomUid.asString());
+      final room = await _roomDao.getRoom(roomUid);
       // TODO(any): handle this case for metas
       await _metaDao.clearAllMetas(roomUid.asString());
       await _metaCount.clear(roomUid.asString());
       await _roomDao.updateRoom(
-        uid: roomUid.asString(),
+        uid: roomUid,
         deleted: true,
         firstMessageId: room!.lastMessageId,
       );
@@ -379,11 +379,11 @@ class RoomRepo {
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
-  Stream<bool> watchIsRoomMuted(String uid) => _muteDao.watchIsMuted(uid);
+  Stream<bool> watchIsRoomMuted(Uid uid) => _muteDao.watchIsMuted(uid.asString());
 
-  void mute(String uid) => _muteDao.mute(uid);
+  void mute(Uid uid) => _muteDao.mute(uid.asString());
 
-  void unMute(String uid) => _muteDao.unMute(uid);
+  void unMute(Uid uid) => _muteDao.unMute(uid.asString());
 
   Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
 
@@ -391,25 +391,25 @@ class RoomRepo {
 
   Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
 
-  Stream<Room> watchRoom(String roomUid) => _roomDao.watchRoom(roomUid);
+  Stream<Room> watchRoom(Uid roomUid) => _roomDao.watchRoom(roomUid);
 
-  Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
+  Future<Room?> getRoom(Uid roomUid) => _roomDao.getRoom(roomUid);
 
-  Future<int> getRoomLastMessageId(String roomUid) async =>
+  Future<int> getRoomLastMessageId(Uid roomUid) async =>
       (await getRoom(roomUid))?.lastMessageId ?? -1;
 
-  Future<void> updateMentionIds(String roomUid, List<int> mentionsId) =>
+  Future<void> updateMentionIds(Uid roomUid, List<int> mentionsId) =>
       _roomDao.updateRoom(
         uid: roomUid,
         mentionsId: mentionsId,
       );
 
-  Future<void> processMentionIds(String roomUid, List<int> mentionsId) async {
+  Future<void> processMentionIds(Uid roomUid, List<int> mentionsId) async {
     try {
       final ids = <int>[];
       final room = await _roomDao.getRoom(roomUid);
-      if (room != null && room.mentionsId != null) {
-        ids.addAll(room.mentionsId!);
+      if (room != null) {
+        ids.addAll(room.mentionsId);
       }
       ids.addAll(mentionsId);
       unawaited(
@@ -423,7 +423,7 @@ class RoomRepo {
     }
   }
 
-  Future<void> createRoomIfNotExist(String roomUid) =>
+  Future<void> createRoomIfNotExist(Uid roomUid) =>
       _roomDao.updateRoom(uid: roomUid);
 
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
@@ -446,7 +446,7 @@ class RoomRepo {
 
   Future<void> updateReplyKeyboard(
     String? replyKeyboardMarkup,
-    String uid,
+    Uid uid,
   ) =>
       _roomDao.updateRoom(
         uid: uid,
@@ -477,7 +477,7 @@ class RoomRepo {
     final finalList = <Uid, Uid>{};
     final res = await _roomDao.getAllRooms();
     for (final room in res) {
-      final uid = room.uid.asUid();
+      final uid = room.uid;
       finalList[uid] = uid;
     }
     return finalList.values.toList();
@@ -489,16 +489,16 @@ class RoomRepo {
     }
     final searchResult = <Uid>[];
     for (final element in await _roomDao.getAllRooms()) {
-      final name = await getName(element.uid.asUid(), unknownName: "");
+      final name = await getName(element.uid, unknownName: "");
       //search by name
       if (name.toLowerCase().contains(text.toLowerCase()) && name.isNotEmpty) {
-        searchResult.add(element.uid.asUid());
+        searchResult.add(element.uid);
       }
       //search by id;
       else {
-        final id = (await _uidIdNameDao.getByUid(element.uid))?.id;
+        final id = (await _uidIdNameDao.getByUid(element.uid.asString()))?.id;
         if (id != null && id.toLowerCase().contains(text.toLowerCase())) {
-          searchResult.add(element.uid.asUid());
+          searchResult.add(element.uid);
         }
       }
     }
@@ -552,11 +552,11 @@ class RoomRepo {
 
   Future<List<Room>> getAllGroups() async => _roomDao.getAllGroups();
 
-  void updateRoomDraft(String roomUid, String draft) {
+  void updateRoomDraft(Uid roomUid, String draft) {
     _roomDao.updateRoom(uid: roomUid, draft: draft);
   }
 
-  Future<bool> isDeletedRoom(String roomUid) async {
+  Future<bool> isDeletedRoom(Uid roomUid) async {
     final room = await _roomDao.getRoom(roomUid);
     return room?.deleted ?? false;
   }

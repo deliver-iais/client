@@ -183,7 +183,7 @@ Future<void> _backgroundRemoteMessageHandler(
 
       //check is message repeated or not
       final lastRoomMessageId =
-          (await GetIt.I.get<RoomDao>().getRoom(roomUid.asString()))
+          (await GetIt.I.get<RoomDao>().getRoom(roomUid))
                   ?.lastMessageId ??
               0;
 

@@ -4,6 +4,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
@@ -94,7 +95,7 @@ class SeenDaoImpl extends SeenDao {
       final seenRoomBox = await _openRoomSeen();
       final seenRoom = seenRoomBox.get(uid);
       final roomDao = GetIt.I.get<RoomDao>();
-      final room = await roomDao.getRoom(uid);
+      final room = await roomDao.getRoom(uid.asUid());
 
       if (room != null && (messageId ?? seen.messageId) > -1) {
         final unreadCount = room.lastMessageId -

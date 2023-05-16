@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class CountDownTimer extends StatelessWidget {
   final Message message;
   final int lockAfter;
-  final Function(bool) lock;
+  final Function() lock;
 
   const CountDownTimer({
     super.key,
@@ -43,7 +43,7 @@ class CountDownTimer extends StatelessWidget {
         isReverse: true,
         // autoStart: !lockData.data!,
         isReverseAnimation: true,
-        onComplete: () => lock(true),
+        onComplete: () => lock(),
       ),
     );
   }

@@ -47,7 +47,7 @@ class MetaRepo {
           timeout: const Duration(seconds: 2),
         ),
       );
-      unawaited(_roomDao.updateRoom(uid: uid.asString(),shouldUpdateMediaCount: false));
+      unawaited(_roomDao.updateRoom(uid: uid, shouldUpdateMediaCount: false));
       await fetchDeletedIndexFromServerIFNeeded(
         uid.asString(),
         metaCountsResponse.allMediaDeletedCount.toInt(),
@@ -498,7 +498,7 @@ class MetaRepo {
             shouldFetchDeletedIndex: true,
           );
           await _roomDao.updateRoom(
-            uid: message.roomUid,
+            uid: message.roomUid.asUid(),
             shouldUpdateMediaCount: true,
           );
         }

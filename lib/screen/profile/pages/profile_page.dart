@@ -612,7 +612,7 @@ class ProfilePageState extends State<ProfilePage>
                 ),
               ),
             StreamBuilder<bool>(
-              stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
+              stream: _roomRepo.watchIsRoomMuted(widget.roomUid),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   return Padding(
@@ -628,9 +628,9 @@ class ProfilePageState extends State<ProfilePage>
                       },
                       onToggle: (state) {
                         if (state) {
-                          _roomRepo.unMute(widget.roomUid.asString());
+                          _roomRepo.unMute(widget.roomUid);
                         } else {
-                          _roomRepo.mute(widget.roomUid.asString());
+                          _roomRepo.mute(widget.roomUid);
                         }
                       },
                     ),
@@ -987,7 +987,7 @@ class ProfilePageState extends State<ProfilePage>
                           mucs.data!.isNotEmpty) {
                         final s = <String>[];
                         for (final room in mucs.data!) {
-                          s.add(room.uid);
+                          s.add(room.uid.asString());
                         }
                         groups.add(s);
 

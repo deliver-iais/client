@@ -887,7 +887,7 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
 
   @override
   _i30.Future<void> updateRoom({
-    required String? uid,
+    required _i5.Uid? uid,
     _i32.Message? lastMessage,
     int? lastMessageId,
     bool? deleted,
@@ -896,7 +896,6 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
     int? firstMessageId,
     bool? pinned,
     int? pinId,
-    int? hiddenMessageCount,
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
@@ -919,7 +918,6 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
             #firstMessageId: firstMessageId,
             #pinned: pinned,
             #pinId: pinId,
-            #hiddenMessageCount: hiddenMessageCount,
             #synced: synced,
             #lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
             #seenSynced: seenSynced,
@@ -949,7 +947,7 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
         returnValue: _i30.Stream<List<_i34.Room>>.empty(),
       ) as _i30.Stream<List<_i34.Room>>);
   @override
-  _i30.Future<_i34.Room?> getRoom(String? roomUid) => (super.noSuchMethod(
+  _i30.Future<_i34.Room?> getRoom(_i5.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #getRoom,
           [roomUid],
@@ -957,7 +955,7 @@ class MockRoomDao extends _i1.Mock implements _i33.RoomDao {
         returnValue: _i30.Future<_i34.Room?>.value(),
       ) as _i30.Future<_i34.Room?>);
   @override
-  _i30.Stream<_i34.Room> watchRoom(String? roomUid) => (super.noSuchMethod(
+  _i30.Stream<_i34.Room> watchRoom(_i5.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #watchRoom,
           [roomUid],
@@ -1169,7 +1167,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValue: _i30.Future<bool>.value(false),
       ) as _i30.Future<bool>);
   @override
-  _i30.Stream<bool> watchIsRoomMuted(String? uid) => (super.noSuchMethod(
+  _i30.Stream<bool> watchIsRoomMuted(_i5.Uid? uid) => (super.noSuchMethod(
         Invocation.method(
           #watchIsRoomMuted,
           [uid],
@@ -1177,7 +1175,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValue: _i30.Stream<bool>.empty(),
       ) as _i30.Stream<bool>);
   @override
-  void mute(String? uid) => super.noSuchMethod(
+  void mute(_i5.Uid? uid) => super.noSuchMethod(
         Invocation.method(
           #mute,
           [uid],
@@ -1185,7 +1183,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValueForMissingStub: null,
       );
   @override
-  void unMute(String? uid) => super.noSuchMethod(
+  void unMute(_i5.Uid? uid) => super.noSuchMethod(
         Invocation.method(
           #unMute,
           [uid],
@@ -1217,7 +1215,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValue: _i30.Stream<List<_i34.Room>>.empty(),
       ) as _i30.Stream<List<_i34.Room>>);
   @override
-  _i30.Stream<_i34.Room> watchRoom(String? roomUid) => (super.noSuchMethod(
+  _i30.Stream<_i34.Room> watchRoom(_i5.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #watchRoom,
           [roomUid],
@@ -1225,7 +1223,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValue: _i30.Stream<_i34.Room>.empty(),
       ) as _i30.Stream<_i34.Room>);
   @override
-  _i30.Future<_i34.Room?> getRoom(String? roomUid) => (super.noSuchMethod(
+  _i30.Future<_i34.Room?> getRoom(_i5.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #getRoom,
           [roomUid],
@@ -1233,7 +1231,8 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValue: _i30.Future<_i34.Room?>.value(),
       ) as _i30.Future<_i34.Room?>);
   @override
-  _i30.Future<int> getRoomLastMessageId(String? roomUid) => (super.noSuchMethod(
+  _i30.Future<int> getRoomLastMessageId(_i5.Uid? roomUid) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getRoomLastMessageId,
           [roomUid],
@@ -1242,7 +1241,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
       ) as _i30.Future<int>);
   @override
   _i30.Future<void> updateMentionIds(
-    String? roomUid,
+    _i5.Uid? roomUid,
     List<int>? mentionsId,
   ) =>
       (super.noSuchMethod(
@@ -1258,7 +1257,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
       ) as _i30.Future<void>);
   @override
   _i30.Future<void> processMentionIds(
-    String? roomUid,
+    _i5.Uid? roomUid,
     List<int>? mentionsId,
   ) =>
       (super.noSuchMethod(
@@ -1273,7 +1272,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
   @override
-  _i30.Future<void> createRoomIfNotExist(String? roomUid) =>
+  _i30.Future<void> createRoomIfNotExist(_i5.Uid? roomUid) =>
       (super.noSuchMethod(
         Invocation.method(
           #createRoomIfNotExist,
@@ -1334,7 +1333,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
   @override
   _i30.Future<void> updateReplyKeyboard(
     String? replyKeyboardMarkup,
-    String? uid,
+    _i5.Uid? uid,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1428,7 +1427,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
       ) as _i30.Future<List<_i34.Room>>);
   @override
   void updateRoomDraft(
-    String? roomUid,
+    _i5.Uid? roomUid,
     String? draft,
   ) =>
       super.noSuchMethod(
@@ -1442,7 +1441,7 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i30.Future<bool> isDeletedRoom(String? roomUid) => (super.noSuchMethod(
+  _i30.Future<bool> isDeletedRoom(_i5.Uid? roomUid) => (super.noSuchMethod(
         Invocation.method(
           #isDeletedRoom,
           [roomUid],

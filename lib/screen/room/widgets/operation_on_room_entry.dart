@@ -40,12 +40,12 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   static final _i18n = GetIt.I.get<I18N>();
 
   void onDeleteRoom(String selected) =>
-      _roomRepo.getName(widget.room.uid.asUid()).then((roomName) {
+      _roomRepo.getName(widget.room.uid).then((roomName) {
         showDialog(
           context: context,
           builder: (context) {
             return OnDeletePopupDialog(
-              roomUid: widget.room.uid.asUid(),
+              roomUid: widget.room.uid,
               selected: selected,
               roomName: roomName,
             );
@@ -116,7 +116,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         FutureBuilder<bool>(
           future: _mucRepo.isMucOwner(
             _authRepo.currentUserUid.asString(),
-            widget.room.uid,
+            widget.room.uid.asString(),
           ),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
@@ -126,15 +126,15 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                   child: Row(
                     children: [
                       Icon(
-                        widget.room.uid.asUid().isMuc()
+                        widget.room.uid.isMuc()
                             ? CupertinoIcons.arrow_turn_up_left
                             : CupertinoIcons.delete,
                       ),
                       const SizedBox(width: p12),
                       Text(
-                        !widget.room.uid.asUid().isMuc()
+                        !widget.room.uid.isMuc()
                             ? _i18n.get("delete_chat")
-                            : widget.room.uid.asUid().isGroup()
+                            : widget.room.uid.isGroup()
                                 ? _i18n.get("left_group")
                                 : _i18n.get("left_channel"),
                       ),
@@ -149,7 +149,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                       const Icon(CupertinoIcons.delete),
                       const SizedBox(width: p12),
                       Text(
-                        widget.room.uid.asUid().isGroup()
+                        widget.room.uid.isGroup()
                             ? _i18n.get("delete_group")
                             : _i18n.get("delete_channel"),
                       ),

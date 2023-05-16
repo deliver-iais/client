@@ -234,7 +234,7 @@ class MessageRepo {
     int indexOfRoom = 0,
   }) async {
     try {
-      final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+      final room = await _roomDao.getRoom(roomMetadata.roomUid);
       if (roomMetadata.presenceType == PresenceType.ACTIVE) {
         if (room != null &&
             room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
@@ -258,7 +258,7 @@ class MessageRepo {
                 room.deleted)) {
           unawaited(
             _roomDao.updateRoom(
-              uid: roomMetadata.roomUid.asString(),
+              uid: roomMetadata.roomUid,
               deleted: false,
               synced: false,
               lastCurrentUserSentMessageId:
@@ -281,7 +281,7 @@ class MessageRepo {
       } else {
         _roomDao
             .updateRoom(
-              uid: roomMetadata.roomUid.asString(),
+              uid: roomMetadata.roomUid,
               deleted: true,
               lastMessageId: roomMetadata.lastMessageId.toInt(),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
@@ -329,7 +329,7 @@ class MessageRepo {
           needFetchHiddenMessageCountAndMentions,
         );
       } else {
-        final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
+        final room = await _roomDao.getRoom(roomMetadata.roomUid);
         if (room == null || !room.seenSynced) {
           unawaited(
             _fetchSeen(
@@ -413,7 +413,7 @@ class MessageRepo {
 
   Future<void> _updateOtherSeen(String roomUid) async {
     try {
-      final room = await _roomDao.getRoom(roomUid);
+      final room = await _roomDao.getRoom(roomUid.asUid());
       if (room != null && room.lastMessage != null) {
         final othersSeen = await _seenDao.getOthersSeen(roomUid);
         if (othersSeen == null ||
@@ -519,14 +519,12 @@ class MessageRepo {
 
   Future<void> _updateRoomMention(int messageId, String roomUid) async {
     try {
-      final room = await _roomRepo.getRoom(roomUid);
-      if (room != null &&
-          room.mentionsId != null &&
-          room.mentionsId!.isNotEmpty) {
+      final room = await _roomRepo.getRoom(roomUid.asUid());
+      if (room != null && room.mentionsId.isNotEmpty) {
         unawaited(
           _roomRepo.updateMentionIds(
             room.uid,
-            room.mentionsId!.where((element) => element > messageId).toList(),
+            room.mentionsId.where((element) => element > messageId).toList(),
           ),
         );
       }
@@ -548,7 +546,7 @@ class MessageRepo {
         .then((mentionResult) async {
       if (mentionResult.idList.isNotEmpty) {
         await _roomRepo.processMentionIds(
-          roomUid,
+          roomUid.asUid(),
           mentionResult.idList.map((e) => e.toInt()).toList(),
         );
       }
@@ -1051,6 +1049,7 @@ class MessageRepo {
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
+      case MessageType.CALL_LOG:
         break;
     }
     return byClient;
@@ -1166,7 +1165,7 @@ class MessageRepo {
         final timeLastMessageDeliveryAck =
             int.parse(lastDeliveryAckPacketId.split("-")[0]);
         final lastMessageIdLastMessageDeliveryAck =
-            await _roomRepo.getRoomLastMessageId(pm.roomUid.asString());
+            await _roomRepo.getRoomLastMessageId(pm.roomUid);
         final timeMessage = int.parse(msg.packetId.split("-")[0]);
         final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
         if ((timeLastMessageDeliveryAck - timeMessage) >=
@@ -1240,7 +1239,7 @@ class MessageRepo {
   }
 
   Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
-        uid: pm.roomUid.asString(),
+        uid: pm.roomUid,
         lastMessage: pm.msg.isHidden ? null : pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
@@ -1318,7 +1317,7 @@ class MessageRepo {
 
   Future<String> _getPacketIdWithLastMessageId(String roomUid) async {
     //get roomUid LastMessageId
-    final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid);
+    final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid.asUid());
 
     return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-${randomVM.nextInt(RANDOM_SIZE)}";
   }
@@ -1572,21 +1571,21 @@ class MessageRepo {
               ),
             );
 
-            final room = (await _roomRepo.getRoom(msg.roomUid))!;
+            final room = (await _roomRepo.getRoom(msg.roomUid.asUid()))!;
 
             Message? lastNotHiddenMessage;
 
             if (msg.id == room.lastMessage?.id) {
               lastNotHiddenMessage =
                   await _dataStreamServices.fetchLastNotHiddenMessage(
-                room.uid.asUid(),
+                room.uid,
                 room.lastMessageId,
                 room.firstMessageId,
               );
             }
 
             await _roomDao.updateRoom(
-              uid: msg.roomUid,
+              uid: msg.roomUid.asUid(),
               lastMessage: lastNotHiddenMessage,
             );
           }
@@ -1647,11 +1646,11 @@ class MessageRepo {
           MessageEventAction.EDIT,
         ),
       );
-      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+      final room = (await _roomDao.getRoom(editableMessage.roomUid.asUid()))!;
 
       if (editableMessage.id == room.lastMessage?.id) {
         await _roomDao.updateRoom(
-          uid: roomUid.asString(),
+          uid: roomUid,
           lastMessage: editableMessage,
         );
       }
@@ -1753,11 +1752,11 @@ class MessageRepo {
         ),
       );
 
-      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+      final room = (await _roomDao.getRoom(editableMessage.roomUid.asUid()))!;
 
       if (editableMessage.id == room.lastMessage?.id) {
         await _roomDao.updateRoom(
-          uid: roomUid.asString(),
+          uid: roomUid,
           lastMessage: editableMessage,
         );
       }

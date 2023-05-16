@@ -10,6 +10,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/chat_item.dart';
 import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -143,7 +144,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
         _routingService.openRoom(
-          rw.room.uid,
+          rw.room.uid.asString(),
           popAllBeforePush: true,
         );
       },
@@ -199,7 +200,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                 .map(
                   (r) => RoomWrapper(
                     room: r,
-                    isInRoom: _routingService.isInRoom(r.uid),
+                    isInRoom: _routingService.isInRoom(r.uid.asString()),
                   ),
                 )
                 .toList();

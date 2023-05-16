@@ -207,7 +207,7 @@ class MucRepo {
       if (group != null) {
         if (createNewRoom) {
           await _roomDao.updateRoom(
-            uid: mucUid.asString(),
+            uid: mucUid,
             deleted: false,
             lastMessageId: group.lastMessageId.toInt(),
           );
@@ -244,7 +244,7 @@ class MucRepo {
         final cType = pbMucTypeToHiveMucType(channel.info.type);
         if (createNewRoom) {
           await _roomDao.updateRoom(
-            uid: mucUid.asString(),
+            uid: mucUid,
             lastMessageId: channel.lastMessageId.toInt(),
             deleted: false,
           );
@@ -257,10 +257,10 @@ class MucRepo {
               )
               .ignore();
         } else if (cType == MucType.Public) {
-          final room = await _roomDao.getRoom(mucUid.asString());
+          final room = await _roomDao.getRoom(mucUid);
           if (room == null || createNewRoom) {
             await _roomDao.updateRoom(
-              uid: mucUid.asString(),
+              uid: mucUid,
               lastMessageId: channel.lastMessageId.toInt(),
               deleted: true,
             );
@@ -367,7 +367,7 @@ class MucRepo {
     final result = await _mucServices.removeGroup(groupUid);
     if (result) {
       await _mucDao.delete(groupUid.asString());
-      await _roomDao.updateRoom(uid: groupUid.asString(), deleted: true);
+      await _roomDao.updateRoom(uid: groupUid, deleted: true);
       await _mucDao.deleteAllMembers(groupUid.asString());
       return true;
     }
@@ -378,7 +378,7 @@ class MucRepo {
     final result = await _mucServices.removeChannel(channelUid);
     if (result) {
       await _mucDao.delete(channelUid.asString());
-      await _roomDao.updateRoom(uid: channelUid.asString(), deleted: true);
+      await _roomDao.updateRoom(uid: channelUid, deleted: true);
       await _mucDao.deleteAllMembers(channelUid.asString());
       return true;
     }
@@ -428,7 +428,7 @@ class MucRepo {
     final result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       await _mucDao.delete(groupUid.asString());
-      await _roomDao.updateRoom(uid: groupUid.asString(), deleted: true);
+      await _roomDao.updateRoom(uid: groupUid, deleted: true);
       return true;
     }
     return false;
@@ -438,7 +438,7 @@ class MucRepo {
     final result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       await _mucDao.delete(channelUid.asString());
-      await _roomDao.updateRoom(uid: channelUid.asString(), deleted: true);
+      await _roomDao.updateRoom(uid: channelUid, deleted: true);
       return true;
     }
     return false;
@@ -613,7 +613,7 @@ class MucRepo {
       id: channelId,
       mucType: mucType,
     );
-    await _roomDao.updateRoom(uid: mucUid.asString());
+    await _roomDao.updateRoom(uid: mucUid);
   }
 
   Future<int> sendMembers(Uid mucUid, List<Uid> memberUids) async {

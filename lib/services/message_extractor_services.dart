@@ -67,6 +67,8 @@ class MessageExtractorServices {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_UID:
+      // TODO(amirhossein): complete this
+      case MessageType.CALL_LOG:
         break;
     }
 
@@ -227,6 +229,13 @@ class MessageExtractorServices {
               isIncomingCall: fromCurrentUser,
             ) ??
             "";
+        break;
+      case message_pb.Message_Type.callLog:
+        // TODO(amirhossein): complete this
+        ignoreNotification = true;
+        if (kDebugMode) {
+          text = "____NOT_SUPPORTED_YET____";
+        }
         break;
 
       case message_pb.Message_Type.table:
@@ -424,6 +433,9 @@ class MessageExtractorServices {
         break;
       case MessageType.PAYMENT_INFORMATION:
         msg.paymentInformation = message.json.toPaymentInformation();
+        break;
+      case MessageType.CALL_LOG:
+        msg.callLog = message.json.toCallLog();
         break;
       case MessageType.NOT_SET:
         break;

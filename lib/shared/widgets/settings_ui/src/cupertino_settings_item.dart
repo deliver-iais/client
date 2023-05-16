@@ -44,6 +44,7 @@ class CupertinoSettingsItem extends StatefulWidget {
   final bool enabled;
   final PressOperationCallback? onPress;
   final bool? switchValue;
+  // ignore: avoid_positional_boolean_parameters
   final Function(bool value)? onToggle;
   final TextStyle? labelTextStyle;
   final ReleaseState? releaseState;
