@@ -458,9 +458,9 @@ class _LocationPageState extends State<LocationPage> {
                               future: _distance(widget.message),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
-                                  var distance = snapshot.data;
-                                  distance = double.parse("$distance")
-                                      .toStringAsFixed(3);
+                                  final distance =
+                                      double.parse("${snapshot.data}")
+                                          .toStringAsFixed(3);
                                   return Text(
                                     "$distance ${_i18n.get("away")}",
                                   );

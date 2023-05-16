@@ -3,81 +3,45 @@
 part of 'room.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class RoomAdapter extends TypeAdapter<Room> {
-  @override
-  final int typeId = 14;
-
-  @override
-  Room read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Room(
-      uid: fields[0] as String,
-      lastMessage: fields[1] as Message?,
-      draft: fields[5] as String?,
-      lastUpdateTime: fields[6] as int,
-      lastMessageId: fields[4] as int,
-      firstMessageId: fields[7] as int,
-      deleted: fields[2] as bool,
-      pinned: fields[8] as bool,
-      pinId: fields[9] as int,
-      synced: fields[10] as bool,
-      lastCurrentUserSentMessageId: fields[11] as int,
-      seenSynced: fields[12] as bool,
-      replyKeyboardMarkup: fields[13] as String?,
-      mentionsId: (fields[14] as List?)?.cast<int>(),
-      shouldUpdateMediaCount: fields[15] as bool,
+_$_Room _$$_RoomFromJson(Map<String, dynamic> json) => _$_Room(
+      uid: uidFromJson(json['uid'] as String),
+      lastMessage: getMessageFromJson(json['lastMessage'] as String),
+      replyKeyboardMarkup: json['replyKeyboardMarkup'] as String?,
+      draft: json['draft'] as String? ?? "",
+      mentionsId: (json['mentionsId'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          const [],
+      lastUpdateTime: json['lastUpdateTime'] as int? ?? 0,
+      lastMessageId: json['lastMessageId'] as int? ?? 0,
+      firstMessageId: json['firstMessageId'] as int? ?? 0,
+      pinId: json['pinId'] as int? ?? 0,
+      lastCurrentUserSentMessageId:
+          json['lastCurrentUserSentMessageId'] as int? ?? 0,
+      deleted: json['deleted'] as bool? ?? false,
+      pinned: json['pinned'] as bool? ?? false,
+      synced: json['synced'] as bool? ?? false,
+      seenSynced: json['seenSynced'] as bool? ?? false,
+      shouldUpdateMediaCount: json['shouldUpdateMediaCount'] as bool? ?? true,
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, Room obj) {
-    writer
-      ..writeByte(15)
-      ..writeByte(0)
-      ..write(obj.uid)
-      ..writeByte(1)
-      ..write(obj.lastMessage)
-      ..writeByte(2)
-      ..write(obj.deleted)
-      ..writeByte(4)
-      ..write(obj.lastMessageId)
-      ..writeByte(5)
-      ..write(obj.draft)
-      ..writeByte(6)
-      ..write(obj.lastUpdateTime)
-      ..writeByte(7)
-      ..write(obj.firstMessageId)
-      ..writeByte(8)
-      ..write(obj.pinned)
-      ..writeByte(9)
-      ..write(obj.pinId)
-      ..writeByte(10)
-      ..write(obj.synced)
-      ..writeByte(11)
-      ..write(obj.lastCurrentUserSentMessageId)
-      ..writeByte(12)
-      ..write(obj.seenSynced)
-      ..writeByte(13)
-      ..write(obj.replyKeyboardMarkup)
-      ..writeByte(14)
-      ..write(obj.mentionsId)
-      ..writeByte(15)
-      ..write(obj.shouldUpdateMediaCount);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RoomAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+Map<String, dynamic> _$$_RoomToJson(_$_Room instance) => <String, dynamic>{
+      'uid': uidToJson(instance.uid),
+      'lastMessage': nullableMessageToJson(instance.lastMessage),
+      'replyKeyboardMarkup': instance.replyKeyboardMarkup,
+      'draft': instance.draft,
+      'mentionsId': instance.mentionsId,
+      'lastUpdateTime': instance.lastUpdateTime,
+      'lastMessageId': instance.lastMessageId,
+      'firstMessageId': instance.firstMessageId,
+      'pinId': instance.pinId,
+      'lastCurrentUserSentMessageId': instance.lastCurrentUserSentMessageId,
+      'deleted': instance.deleted,
+      'pinned': instance.pinned,
+      'synced': instance.synced,
+      'seenSynced': instance.seenSynced,
+      'shouldUpdateMediaCount': instance.shouldUpdateMediaCount,
+    };

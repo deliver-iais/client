@@ -71,11 +71,11 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       width: double.infinity,
       height: 42,
       child: StreamBuilder<bool>(
-        stream: _roomRepo.watchIsRoomMuted(widget.roomId),
+        stream: _roomRepo.watchIsRoomMuted(widget.roomId.asUid()),
         builder: (context, isMuted) {
           if (isMuted.data != null) {
             return FutureBuilder<Room?>(
-              future: _roomRepo.getRoom(widget.roomId),
+              future: _roomRepo.getRoom(widget.roomId.asUid()),
               builder: (c, room) {
                 if (room.data != null) {
                   if (!room.data!.deleted) {
@@ -92,9 +92,9 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
                       ),
                       onPressed: () {
                         if (isMuted.data!) {
-                          _roomRepo.unMute(widget.roomId);
+                          _roomRepo.unMute(widget.roomId.asUid());
                         } else {
-                          _roomRepo.mute(widget.roomId);
+                          _roomRepo.mute(widget.roomId.asUid());
                         }
                       },
                     );
@@ -112,8 +112,8 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
                           "",
                         );
                         // TODO(bitbeter): This line of code is for rebuilding the future builder, but should be refactored!
-                        _roomRepo..mute(widget.roomId)
-                        ..unMute(widget.roomId);
+                        _roomRepo..mute(widget.roomId.asUid())
+                        ..unMute(widget.roomId.asUid());
                       },
                     );
                   }

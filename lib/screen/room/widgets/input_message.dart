@@ -128,7 +128,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   final _desktopEmojiKeyboardFocusNode = FocusNode();
 
   bool get _isRecordingInCurrentRoom =>
-      _audioService.recordingRoom == widget.currentRoom.uid;
+      _audioService.recordingRoom.isSameEntity(widget.currentRoom.uid);
 
   void _attachFile() {
     if (isDesktopNativeOrWeb) {
@@ -142,7 +142,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return ShareBox(
-            currentRoomUid: currentRoom.uid.asUid(),
+            currentRoomUid: currentRoom.uid,
             replyMessageId: _replyMessageId,
             resetRoomPageDetails: widget.resetRoomPageDetails!,
             scrollToLastSentMessage: widget.scrollToLastSentMessage,
@@ -190,27 +190,26 @@ class InputMessageWidgetState extends State<InputMessage> {
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
     currentRoom = widget.currentRoom;
-    widget.textController.text = (currentRoom.draft ?? "");
+    widget.textController.text = currentRoom.draft;
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {
-      _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
+      _messageRepo.sendActivity(widget.currentRoom.uid, activityType);
     });
     noActivitySubject.listen((event) {
-      _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
+      _messageRepo.sendActivity(widget.currentRoom.uid, event);
     });
     _audioService.recordingDuration.listen((value) {
       if (value.compareTo(Duration.zero) > 0 &&
-          _audioService.recordingRoom == widget.currentRoom.uid) {
+          _audioService.recordingRoom.isSameEntity(widget.currentRoom.uid)) {
         isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       }
     });
 
-    _showSendIcon
-        .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
+    _showSendIcon.add(currentRoom.draft.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
-      if (currentRoom.uid.asUid().category == Categories.BOT &&
+      if (currentRoom.uid.category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
           widget.textController.selection.start ==
@@ -228,7 +227,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         _botCommandQuery.add("-");
       }
 
-      if (currentRoom.uid.asUid().category == Categories.GROUP &&
+      if (currentRoom.uid.category == Categories.GROUP &&
           widget.textController.selection.start > 0) {
         final str = widget.textController.text;
         final start =
@@ -327,7 +326,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       onSelected: (s) {
                         onMentionSelected(s);
                       },
-                      roomUid: widget.currentRoom.uid,
+                      roomUid: widget.currentRoom.uid.asString(),
                       mentionSelectedIndex: mentionSelectedIndex,
                     );
                   }
@@ -343,7 +342,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     botCommandSelectedIndex = 0;
                   }
                   return BotCommands(
-                    botUid: widget.currentRoom.uid.asUid(),
+                    botUid: widget.currentRoom.uid,
                     query: _botCommandData,
                     onCommandClick: (command) {
                       onCommandSelected(command);
@@ -420,7 +419,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                 if (res != null) {
                                   unawaited(
                                     _messageRepo.sendFileMessage(
-                                      widget.currentRoom.uid.asUid(),
+                                      widget.currentRoom.uid,
                                       File(
                                         res,
                                         res,
@@ -434,7 +433,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                   }
                                 }
                               },
-                              roomUid: widget.currentRoom.uid.asUid(),
+                              roomUid: widget.currentRoom.uid,
                             );
                           },
                         )
@@ -480,7 +479,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                             .toReplyKeyboardMarkup(),
                         closeReplyKeyboard: () =>
                             _keyboardStatus.add(KeyboardStatus.OFF),
-                        roomUid: widget.currentRoom.uid,
+                        roomUid: widget.currentRoom.uid.asString(),
                         textController: widget.textController,
                       );
                     }
@@ -665,8 +664,8 @@ class InputMessageWidgetState extends State<InputMessage> {
         final showSendButton =
             (snapshot.data ?? false) || widget.waitingForForward;
 
-        final showCommandsButton = !showSendButton &&
-            currentRoom.uid.asUid().category == Categories.BOT;
+        final showCommandsButton =
+            !showSendButton && currentRoom.uid.category == Categories.BOT;
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -725,7 +724,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
                 onPressed: () => AttachLocation(
                   context,
-                  currentRoom.uid.asUid(),
+                  currentRoom.uid,
                 ).attachLocationInWindows(),
               ),
             if (!showSendButton && !widget.waitingForForward)
@@ -774,7 +773,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   editableTextState: editableTextState,
                   buildContext: context,
                   textController: widget.textController,
-                  roomUid: currentRoom.uid.asUid(),
+                  roomUid: currentRoom.uid,
                 ).getCustomTextSelectionController();
               },
               focusNode: widget.focusNode,
@@ -911,9 +910,9 @@ class InputMessageWidgetState extends State<InputMessage> {
       widget.textController,
       event,
       context,
-      currentRoom.uid.asUid(),
+      currentRoom.uid,
     );
-    if (widget.currentRoom.uid.asUid().isGroup()) {
+    if (widget.currentRoom.uid.isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
           _mentionQuery.value,
@@ -924,7 +923,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         );
       });
     }
-    if (widget.currentRoom.uid.asUid().isBot()) {
+    if (widget.currentRoom.uid.isBot()) {
       setState(() {
         _rawKeyboardService.navigateInBotCommand(
           event,
@@ -943,7 +942,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       _rawKeyboardService.controlVHandle(
         widget.textController,
         context,
-        widget.currentRoom.uid.asUid(),
+        widget.currentRoom.uid,
       ),
     );
   }
@@ -967,7 +966,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     });
     var length = 0;
     if (botCommandSelectedIndex <= 0) {
-      _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
+      _botRepo.getBotInfo(widget.currentRoom.uid).then(
             (value) => {
               if (value != null)
                 value.commands!.forEach((key, value) {
@@ -984,7 +983,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   Future<void> addBotCommandByEnter() async {
-    final value = await _botRepo.getBotInfo(widget.currentRoom.uid.asUid());
+    final value = await _botRepo.getBotInfo(widget.currentRoom.uid);
     if (value != null && value.commands!.isNotEmpty) {
       onCommandSelected(
         value.commands!.keys
@@ -998,7 +997,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   Future<void> addMentionByEnter() async {
     final value = await _mucRepo.getFilteredMember(
-      widget.currentRoom.uid,
+      widget.currentRoom.uid.asString(),
       query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
@@ -1010,7 +1009,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   void scrollDownInBotCommand() {
     var length = 0;
-    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
+    _botRepo.getBotInfo(widget.currentRoom.uid).then(
           (value) => {
             if (value != null)
               value.commands!.forEach((key, value) {
@@ -1058,7 +1057,8 @@ class InputMessageWidgetState extends State<InputMessage> {
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
-          .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+          .getFilteredMember(currentRoom.uid.asString(),
+              query: _mentionQuery.value)
           .then(
             (value) => {
               mentionSelectedIndex = value.length,
@@ -1088,7 +1088,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
         _messageRepo.sendTextMessage(
-          currentRoom.uid.asUid(),
+          currentRoom.uid,
           text,
           replyId: _replyMessageId,
         );
@@ -1096,12 +1096,12 @@ class InputMessageWidgetState extends State<InputMessage> {
       } else {
         if (widget.editableMessage != null) {
           _messageRepo.editTextMessage(
-            currentRoom.uid.asUid(),
+            currentRoom.uid,
             widget.editableMessage!,
             text,
           );
         } else {
-          _messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
+          _messageRepo.sendTextMessage(currentRoom.uid, text);
         }
       }
 
@@ -1135,7 +1135,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
       showCaptionDialog(files: res, icons: CupertinoIcons.cloud_upload);
     } catch (e) {
-      _logger.i(e.toString());
+      _logger.d(e.toString());
     }
   }
 
@@ -1155,7 +1155,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           resetRoomPageDetails: widget.resetRoomPageDetails,
           replyMessageId: _replyMessageId,
           files: files,
-          currentRoom: currentRoom.uid.asUid(),
+          currentRoom: currentRoom.uid,
         );
       },
     );
@@ -1163,7 +1163,8 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   void scrollDownInMentions() {
     _mucRepo
-        .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+        .getFilteredMember(currentRoom.uid.asString(),
+            query: _mentionQuery.value,)
         .then(
           (value) => {
             if (mentionSelectedIndex >= value.length)
@@ -1200,6 +1201,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
       case MessageType.CALL_LOG:
+        break;
     }
     return "$text ";
   }

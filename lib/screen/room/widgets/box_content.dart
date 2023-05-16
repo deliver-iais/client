@@ -421,6 +421,12 @@ class BoxContentState extends State<BoxContent> {
       case MessageType.PERSISTENT_EVENT:
         // we show persistent event message in room page
         break;
+      case MessageType.CALL_LOG:
+        // TODO(amirhossein): complete this
+        return NotSupportedMessage(
+          maxWidth: widget.maxWidth,
+          colorScheme: colorScheme,
+        );
     }
     return Container();
   }

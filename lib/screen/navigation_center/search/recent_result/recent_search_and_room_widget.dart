@@ -86,7 +86,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
                             ),
                             StreamBuilder<Room?>(
                               stream: _roomRepo.watchRoom(
-                                recentRooms.data![i].roomId,
+                                recentRooms.data![i].roomId.asUid(),
                               ),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {

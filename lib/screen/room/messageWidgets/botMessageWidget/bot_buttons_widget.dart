@@ -71,7 +71,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                 CountDownTimer(
                   message: widget.message,
                   lockAfter: buttons.lockAfter.toInt(),
-                  lock: (l) => _locked.add(l),
+                  lock: () => _locked.add(true),
                 ),
               Container(
                 padding: EdgeInsetsDirectional.only(

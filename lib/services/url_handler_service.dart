@@ -456,7 +456,7 @@ class UrlHandlerService {
     String token, {
     String? name,
   }) async {
-    final room = await _roomRepo.getRoom(roomUid.asString());
+    final room = await _roomRepo.getRoom(roomUid);
     if (room != null && !room.deleted) {
       _routingService.openRoom(roomUid.asString());
     } else {

@@ -3,6 +3,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -41,7 +42,7 @@ class NewMessageInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Room?>(
-      stream: _roomRepo.watchRoom(currentRoomId),
+      stream: _roomRepo.watchRoom(currentRoomId.asUid()),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return InputMessage(
@@ -58,7 +59,7 @@ class NewMessageInput extends StatelessWidget {
             textController: textController,
           );
         } else {
-          _roomRepo.createRoomIfNotExist(currentRoomId);
+          _roomRepo.createRoomIfNotExist(currentRoomId.asUid());
           return const SizedBox.shrink();
         }
       },

@@ -81,7 +81,7 @@ class DataStreamServices {
       await _checkForReplyKeyBoard(message);
     }
     if (message.whichType() == Message_Type.file) {
-      await _checkForNewMedia(message.file, roomUid.asString());
+      await _checkForNewMedia(message.file, roomUid);
     }
 
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -95,7 +95,7 @@ class DataStreamServices {
           }
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
-              await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+              await _roomDao.updateRoom(uid: roomUid, deleted: true);
               return null;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               break;
@@ -105,7 +105,7 @@ class DataStreamServices {
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
-                  uid: message.from.asString(),
+                  uid: message.from,
                   deleted: true,
                 );
               }
@@ -116,7 +116,7 @@ class DataStreamServices {
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
-                  uid: message.from.asString(),
+                  uid: message.from,
                   deleted: false,
                 );
               }
@@ -127,7 +127,7 @@ class DataStreamServices {
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
-                  uid: message.from.asString(),
+                  uid: message.from,
                   deleted: true,
                 );
               }
@@ -198,7 +198,7 @@ class DataStreamServices {
       // Check if Mentioned.
 
       await _roomDao.updateRoom(
-        uid: roomUid.asString(),
+        uid: roomUid,
         lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
         lastUpdateTime: msg.time,
@@ -209,7 +209,7 @@ class DataStreamServices {
             .replaceAll("\n", " ")
             .split(" ")
             .contains("@${(await _accountRepo.getAccount())!.username}")) {
-          unawaited(_roomRepo.processMentionIds(roomUid.asString(), [msg.id!]));
+          unawaited(_roomRepo.processMentionIds(roomUid, [msg.id!]));
         }
       }
 
@@ -253,12 +253,12 @@ class DataStreamServices {
     if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
       await _roomRepo.updateReplyKeyboard(
         message.messageMarkup.replyKeyboardMarkup.writeToJson(),
-        roomUid.asString(),
+        roomUid,
       );
     } else if (message.messageMarkup.removeReplyKeyboardMarkup) {
       await _roomRepo.updateReplyKeyboard(
         null,
-        roomUid.asString(),
+        roomUid,
       );
     }
   }
@@ -300,7 +300,7 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
 
       if (isOnlineMessage) {
-        final room = await _roomDao.getRoom(roomUid.asString());
+        final room = await _roomDao.getRoom(roomUid);
         if (room!.lastMessage != null && room.lastMessage!.id == id) {
           final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
             roomUid,
@@ -309,7 +309,7 @@ class DataStreamServices {
           );
 
           await _roomDao.updateRoom(
-            uid: roomUid.asString(),
+            uid: roomUid,
             lastMessage: lastNotHiddenMessage ?? savedMsg,
           );
         }
@@ -356,7 +356,7 @@ class DataStreamServices {
       await _metaRepo.updateMeta(msg);
     }
     if (isOnlineMessage) {
-      final room = await _roomDao.getRoom(roomUid.asString());
+      final room = await _roomDao.getRoom(roomUid);
       if (room != null && room.lastMessage?.id == id) {
         await _roomDao.updateRoom(
           uid: room.uid,
@@ -399,7 +399,7 @@ class DataStreamServices {
         break;
     }
     if (_authRepo.isCurrentUser(seen.from.asString())) {
-      final room = await _roomDao.getRoom(roomId!.asString());
+      final room = await _roomDao.getRoom(roomId!);
       int? hiddenMessageCount;
 
       if (room != null &&
@@ -417,11 +417,11 @@ class DataStreamServices {
       _notificationServices.cancelRoomNotifications(roomId.asString());
 
       if (room != null && room.uid.isGroup()) {
-        if (room.mentionsId != null && room.mentionsId!.isNotEmpty) {
+        if (room.mentionsId.isNotEmpty) {
           unawaited(
             _roomRepo.updateMentionIds(
               room.uid,
-              room.mentionsId!
+              room.mentionsId
                   .where((element) => element > seen.id.toInt())
                   .toList(),
             ),
@@ -466,7 +466,7 @@ class DataStreamServices {
       final msg = pm.msg.copyWith(id: id, time: time);
       if (msg.type == MessageType.FILE) {
         final file = msg.json.toFile();
-        await _checkForNewMedia(file, msg.roomUid);
+        await _checkForNewMedia(file, msg.roomUid.asUid());
       }
       try {
         await _pendingMessageDao.deletePendingMessage(packetId);
@@ -475,7 +475,7 @@ class DataStreamServices {
       }
       await _messageDao.saveMessage(msg);
       await _roomDao.updateRoom(
-        uid: msg.roomUid,
+        uid: msg.roomUid.asUid(),
         lastMessage: msg.isHidden ? null : msg,
         lastMessageId: msg.id,
       );
@@ -503,7 +503,7 @@ class DataStreamServices {
     }
   }
 
-  Future<void> _checkForNewMedia(File file, String roomUid) async {
+  Future<void> _checkForNewMedia(File file, Uid roomUid) async {
     if (file.isImageFileProto() || file.isVideoFileProto()) {
       await _roomDao.updateRoom(
         uid: roomUid,
@@ -531,7 +531,7 @@ class DataStreamServices {
   ) {
     final type = roomPresenceTypeChanged.presenceType;
     _roomDao.updateRoom(
-      uid: roomPresenceTypeChanged.uid.asString(),
+      uid: roomPresenceTypeChanged.uid,
       deleted: type == PresenceType.BANNED ||
           type == PresenceType.DELETED ||
           type == PresenceType.KICKED ||
@@ -619,7 +619,7 @@ class DataStreamServices {
               (msg.isHidden && msg.id == firstMessageId + 1)) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
             // _roomDao
-            //     .updateRoom(uid: roomUid.asString(), deleted: true)
+            //     .updateRoom(uid: roomUid(), deleted: true)
             //     .ignore();
             await _roomRepo.deleteRoom(roomUid);
             break;
@@ -643,7 +643,7 @@ class DataStreamServices {
 
     if (lastNotHiddenMessage != null) {
       await _roomDao.updateRoom(
-        uid: roomUid.asString(),
+        uid: roomUid,
         firstMessageId: firstMessageId,
         lastMessageId: lastMessageId,
         synced: true,
@@ -682,7 +682,7 @@ class DataStreamServices {
         for (final msg in messages) {
           if (msg.id! <= firstMessageId) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
-            // await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+            // await _roomDao.updateRoom(uid: roomUid(), deleted: true);
             await _roomRepo.deleteRoom(roomUid);
             return null;
           } else if (!msg.isHidden) {
@@ -694,7 +694,7 @@ class DataStreamServices {
         if (e.code == StatusCode.notFound) {
           unawaited(
             _roomDao.updateRoom(
-              uid: roomUid.asString(),
+              uid: roomUid,
               deleted: true,
             ),
           );

@@ -93,7 +93,7 @@ class GroupedBannerItem extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FutureBuilder<Room?>(
-                future: _roomRepo.getRoom(uid.asString()),
+                future: _roomRepo.getRoom(uid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null && !snapshot.data!.deleted) {
                     return OutlinedButton(

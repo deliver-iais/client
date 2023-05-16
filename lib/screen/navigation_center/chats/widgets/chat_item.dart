@@ -89,14 +89,14 @@ class ChatItemState extends State<ChatItem> {
       settings.showAvatars.stream,
       settings.showAvatarImages.stream,
     ]).listen((_) => setState(() {}));
-    nameFuture = _roomRepo.getName(widget.room.uid.asUid());
+    nameFuture = _roomRepo.getName(widget.room.uid);
     if (!widget.room.synced) {
       _fetchRoomLastMessage();
     }
-    if (widget.room.uid.asUid().category == Categories.USER) {
-      _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
+    if (widget.room.uid.category == Categories.USER) {
+      _lastActivityRepo.updateLastActivity(widget.room.uid);
     }
-    futureRoomName = _roomRepo.getName(widget.room.uid.asUid());
+    futureRoomName = _roomRepo.getName(widget.room.uid);
     super.initState();
   }
 
@@ -108,14 +108,14 @@ class ChatItemState extends State<ChatItem> {
   }
 
   void _fetchRoomLastMessage() => _messageRepo.fetchRoomLastMessage(
-        widget.room.uid,
+        widget.room.uid.asString(),
         widget.room.lastMessageId,
         widget.room.firstMessageId,
       );
 
   @override
   Widget build(BuildContext context) {
-    _roomRepo.initActivity(widget.room.uid.asUid().node);
+    _roomRepo.initActivity(widget.room.uid.node);
     return buildLastMessageWidget();
   }
 
@@ -174,10 +174,10 @@ class ChatItemState extends State<ChatItem> {
           ),
           height: chatItemHeight,
           child: FutureBuilder<String>(
-            initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
+            initialData: _roomRepo.fastForwardName(widget.room.uid),
             future: futureRoomName,
             builder: (c, nameSnapshot) {
-              final name = _authRepo.isCurrentUser(widget.room.uid)
+              final name = _authRepo.isCurrentUser(widget.room.uid.asString())
                   ? _i18n.get("saved_message")
                   : nameSnapshot.data ?? "";
               return buildChatItemWidget(name);
@@ -222,7 +222,7 @@ class ChatItemState extends State<ChatItem> {
 
     return Row(
       children: <Widget>[
-        if (settings.showAvatars.value) ChatAvatar(widget.room.uid.asUid()),
+        if (settings.showAvatars.value) ChatAvatar(widget.room.uid),
         if (settings.showAvatars.value) const SizedBox(width: p8),
         Expanded(
           child: Column(
@@ -230,28 +230,28 @@ class ChatItemState extends State<ChatItem> {
             children: <Widget>[
               Row(
                 children: [
-                  if (widget.room.uid.asUid().category == Categories.GROUP)
+                  if (widget.room.uid.category == Categories.GROUP)
                     const Icon(
                       CupertinoIcons.person_2_fill,
                       size: 16,
                     ),
-                  if (widget.room.uid.asUid().category == Categories.CHANNEL)
+                  if (widget.room.uid.category == Categories.CHANNEL)
                     const Icon(
                       CupertinoIcons.news_solid,
                       size: 16,
                     ),
-                  if (widget.room.uid.asUid().category == Categories.BOT)
+                  if (widget.room.uid.category == Categories.BOT)
                     const Icon(
                       Icons.smart_toy,
                       size: 16,
                     ),
-                  if (widget.room.uid.asUid().isGroup() ||
-                      widget.room.uid.asUid().isChannel() ||
-                      widget.room.uid.asUid().isBot())
+                  if (widget.room.uid.isGroup() ||
+                      widget.room.uid.isChannel() ||
+                      widget.room.uid.isBot())
                     const SizedBox(width: p4),
                   Expanded(
                     child: RoomName(
-                      uid: widget.room.uid.asUid(),
+                      uid: widget.room.uid,
                       name: name,
                     ),
                   ),
@@ -267,8 +267,7 @@ class ChatItemState extends State<ChatItem> {
               Row(
                 children: [
                   StreamBuilder<Activity>(
-                    stream:
-                        _roomRepo.activityObject[widget.room.uid.asUid().node],
+                    stream: _roomRepo.activityObject[widget.room.uid.node],
                     builder: (c, roomActivityStream) {
                       return Expanded(
                         child: AnimatedSwitcher(
@@ -282,10 +281,11 @@ class ChatItemState extends State<ChatItem> {
                                     "activity-status${widget.room.uid}",
                                   ),
                                   activity: roomActivityStream.data!,
-                                  roomUid: widget.room.uid.asUid(),
+                                  roomUid: widget.room.uid,
                                 )
                               : FutureBuilder<Seen>(
-                                  future: _roomRepo.getMySeen(widget.room.uid),
+                                  future: _roomRepo
+                                      .getMySeen(widget.room.uid.asString()),
                                   key: ValueKey(
                                     "future-builder${widget.room.uid}-${widget.room.lastMessageId}",
                                   ),
@@ -303,8 +303,7 @@ class ChatItemState extends State<ChatItem> {
                                       }
                                     }
 
-                                    if (widget.room.draft != null &&
-                                        widget.room.draft!.isNotEmpty &&
+                                    if (widget.room.draft.isNotEmpty &&
                                         unreadCount == 0) {
                                       return buildDraftMessageWidget(
                                         _i18n,
@@ -327,8 +326,7 @@ class ChatItemState extends State<ChatItem> {
                       );
                     },
                   ),
-                  if (widget.room.mentionsId != null &&
-                      widget.room.mentionsId!.isNotEmpty)
+                  if (widget.room.mentionsId.isNotEmpty)
                     Container(
                       width: 20,
                       height: 20,

@@ -9,10 +9,18 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'message.g.dart';
 
-const MessageJsonKey = JsonKey(fromJson: getMessageFromJson, toJson: messageToJson);
+const MessageJsonKey =
+    JsonKey(fromJson: getMessageFromJson, toJson: messageToJson);
+
+const NullableMessageJsonKey =
+    JsonKey(fromJson: getMessageFromJson, toJson: nullableMessageToJson);
 
 String messageToJson(Message model) {
   return model.toJson();
+}
+
+String? nullableMessageToJson(Message? model) {
+  return model?.toJson();
 }
 
 @JsonSerializable()
