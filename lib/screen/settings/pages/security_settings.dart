@@ -63,8 +63,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   title: _i18n.get("enable_local_lock"),
                   leading: const Icon(CupertinoIcons.lock),
                   switchValue: _authRepo.isLocalLockEnabled(),
-                  onToggle: (enabled) {
-                    if (enabled) {
+                  onToggle: ({required newValue}) {
+                    if (newValue) {
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -110,8 +110,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                           leading: const Icon(CupertinoIcons.lock_shield),
                           switchValue:
                               accountData.data!.passwordProtected ?? false,
-                          onToggle: (enabled) async {
-                            if (enabled) {
+                          onToggle: ({required newValue}) async {
+                            if (newValue) {
                               if (accountData.data!.email != null &&
                                   accountData.data!.email!.isNotEmpty) {
                                 showDialog(

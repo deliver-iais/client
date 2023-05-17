@@ -44,8 +44,7 @@ class CupertinoSettingsItem extends StatefulWidget {
   final bool enabled;
   final PressOperationCallback? onPress;
   final bool? switchValue;
-  // ignore: avoid_positional_boolean_parameters
-  final Function(bool value)? onToggle;
+  final Function({required bool newValue})? onToggle;
   final TextStyle? labelTextStyle;
   final ReleaseState? releaseState;
   final TextStyle? subtitleTextStyle;
@@ -177,7 +176,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             child: Switch(
               value: widget.switchValue!,
               onChanged:
-                  !widget.enabled ? null : (value) => widget.onToggle!(value),
+                  !widget.enabled ? null : (value) => widget.onToggle!(newValue: value),
             ),
           ),
         );
@@ -268,7 +267,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
               if (widget.onPress == null) {
                 setState(() {
                   _checked = !_checked!;
-                  widget.onToggle!(_checked!);
+                  widget.onToggle!(newValue: _checked!);
                 });
               }
             }

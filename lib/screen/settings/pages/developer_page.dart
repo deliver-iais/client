@@ -63,7 +63,7 @@ class DeveloperPageState extends State<DeveloperPage> with CustomPopupMenu {
                 SettingsTile.switchTile(
                   title: "Show Special Debugging Details",
                   switchValue: settings.showDeveloperDetails.value,
-                  onToggle: (value) {
+                  onToggle: ({required newValue}) {
                     setState(() {
                       settings.showDeveloperDetails.toggleValue();
                     });
@@ -97,7 +97,7 @@ class DeveloperPageState extends State<DeveloperPage> with CustomPopupMenu {
                 SettingsTile.switchTile(
                   title: "Log in file is Enabled",
                   switchValue: settings.logInFileEnable.value,
-                  onToggle: (value) {
+                  onToggle: ({required newValue}) {
                     setState(() => settings.logInFileEnable.toggleValue());
                   },
                 ),

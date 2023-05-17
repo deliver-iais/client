@@ -1212,6 +1212,24 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  google_api_availability_android:
+    dependency: "direct main"
+    description:
+      path: google_api_availability_android
+      ref: "6b3c18b8b615146488a2d5b8ea468416144252d5"
+      resolved-ref: "6b3c18b8b615146488a2d5b8ea468416144252d5"
+      url: "https://github.com/deliveriais/flutter-google-api-availability"
+    source: git
+    version: "1.0.0+1"
+  google_api_availability_platform_interface:
+    dependency: "direct main"
+    description:
+      path: google_api_availability_platform_interface
+      ref: "1ebed7a8874f1581fcf24adaa9483cd62662734d"
+      resolved-ref: "1ebed7a8874f1581fcf24adaa9483cd62662734d"
+      url: "https://github.com/deliveriais/flutter-google-api-availability"
+    source: git
+    version: "1.0.1"
   google_fonts:
     dependency: "direct main"
     description:

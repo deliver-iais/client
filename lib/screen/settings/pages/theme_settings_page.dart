@@ -258,7 +258,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       title: _i18n.get("text_justification"),
                       leading: const Icon(CupertinoIcons.text_append),
                       switchValue: settings.showTextsJustified.value,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         _analyticsService.sendLogEvent(
                           "toggleShowTextsJustified",
                         );
@@ -273,7 +273,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                         leading: const Icon(CupertinoIcons.link),
                         switchValue: settings.showLinkPreview.value,
                         enabled: settings.showLinkPreview.enabled,
-                        onToggle: (value) {
+                        onToggle: ({required newValue}) {
                           _analyticsService.sendLogEvent(
                             "toggleShowLinkPreview",
                           );
@@ -288,7 +288,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       releaseState: ReleaseState.NEW,
                       switchValue: settings.showAnimatedEmoji.value,
                       enabled: settings.showAnimatedEmoji.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.showAnimatedEmoji.toggleValue(),
                         );
@@ -370,7 +370,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       switchValue: settings.showRoomBackground.value,
                       releaseState: ReleaseState.NEW,
                       enabled: settings.showRoomBackground.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.showRoomBackground.toggleValue(),
                         );
@@ -438,7 +438,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       releaseState: ReleaseState.NEW,
                       switchValue: settings.repeatAnimatedEmoji.value,
                       enabled: settings.repeatAnimatedEmoji.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.repeatAnimatedEmoji.toggleValue(),
                         );
@@ -450,7 +450,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       releaseState: ReleaseState.NEW,
                       switchValue: settings.showWsWithHighFrameRate.value,
                       enabled: settings.showWsWithHighFrameRate.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.showWsWithHighFrameRate.toggleValue(),
                         );
@@ -460,7 +460,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       title: _i18n.get("colorful_messages"),
                       leading: const Icon(CupertinoIcons.paintbrush),
                       switchValue: settings.showColorfulMessages.value,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         _analyticsService.sendLogEvent(
                           "themeColorfulMessageToggle",
                         );
@@ -477,7 +477,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       title: _i18n.get("play_in_chat_sounds"),
                       leading: const Icon(CupertinoIcons.bell),
                       switchValue: settings.playInChatSounds.value,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         _analyticsService.sendLogEvent(
                           "togglePlayInChatSounds",
                         );

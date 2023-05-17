@@ -66,7 +66,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                       title: _i18n.get("connect_on_bad_certificate"),
                       leading: const Icon(CupertinoIcons.shield_slash),
                       switchValue: settings.useBadCertificateConnection.value,
-                      onToggle: (value) => setState(() {
+                      onToggle: ({required newValue}) => setState(() {
                         settings.useBadCertificateConnection.toggleValue();
                       }),
                     ),
@@ -113,13 +113,13 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                             size: 20,
                           ),
                           switchValue: ipSnapshot.data,
-                          onToggle: (value) {
-                            if (!value) {
+                          onToggle: ({required newValue}) {
+                            if (!newValue) {
                               settings.hostSetByUser.set("");
                               _textEditingController.text = "";
                               _servicesDiscoveryRepo.initClientChannels();
                             }
-                            _useCustomIp.add(value);
+                            _useCustomIp.add(newValue);
                             _coreServices.retryConnection(forced: true);
                           },
                         ),

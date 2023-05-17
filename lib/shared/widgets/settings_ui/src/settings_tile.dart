@@ -14,8 +14,7 @@ class SettingsTile extends StatelessWidget {
   final Widget? trailing;
   final ReleaseState? releaseState;
   final Function(BuildContext context)? onPressed;
-  // ignore: avoid_positional_boolean_parameters
-  final Function(bool value)? onToggle;
+  final Function({required bool newValue})? onToggle;
   final bool? switchValue;
   final bool enabled;
   final TextStyle? titleTextStyle;

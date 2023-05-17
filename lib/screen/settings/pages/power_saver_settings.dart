@@ -223,7 +223,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(CupertinoIcons.link),
                     switchValue: settings.showLinkPreview.value,
                     enabled: settings.showLinkPreview.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showLinkPreview.toggleValue(),
                       );
@@ -234,7 +234,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.animation),
                     switchValue: settings.repeatAnimatedEmoji.value,
                     enabled: settings.repeatAnimatedEmoji.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.repeatAnimatedEmoji.toggleValue(),
                       );
@@ -245,7 +245,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.animation),
                     switchValue: settings.repeatAnimatedStickers.value,
                     enabled: settings.repeatAnimatedStickers.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.repeatAnimatedStickers.toggleValue(),
                       );
@@ -256,7 +256,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.emoji_emotions_outlined),
                     switchValue: settings.showAnimatedEmoji.value,
                     enabled: settings.showAnimatedEmoji.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showAnimatedEmoji.toggleValue(),
                       );
@@ -267,7 +267,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.image_not_supported_outlined),
                     switchValue: settings.showRoomBackground.value,
                     enabled: settings.showRoomBackground.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showRoomBackground.toggleValue(),
                       );
@@ -278,7 +278,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.flip_to_back),
                     switchValue: settings.showBlurredComponents.value,
                     enabled: settings.showBlurredComponents.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showBlurredComponents.toggleValue(),
                       );
@@ -289,7 +289,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.message_outlined),
                     switchValue: settings.showMessageDetails.value,
                     enabled: settings.showMessageDetails.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showMessageDetails.toggleValue(),
                       );
@@ -300,7 +300,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(Icons.animation),
                     switchValue: settings.showAnimations.value,
                     enabled: settings.showAnimations.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showAnimations.toggleValue(),
                       );
@@ -314,7 +314,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                       leading: const Icon(Icons.person_4_rounded),
                       switchValue: settings.showAnimatedAvatars.value,
                       enabled: settings.showAnimatedAvatars.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.showAnimatedAvatars.toggleValue(),
                         );
@@ -325,7 +325,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(CupertinoIcons.profile_circled),
                     switchValue: settings.showAvatarImages.value,
                     enabled: settings.showAvatarImages.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showAvatarImages.toggleValue(),
                       );
@@ -337,7 +337,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                         const Icon(CupertinoIcons.circle_bottomthird_split),
                     switchValue: settings.showAvatars.value,
                     enabled: settings.showAvatars.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showAvatars.toggleValue(),
                       );
@@ -349,7 +349,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                       leading: const Icon(Icons.emoji_events_outlined),
                       switchValue: settings.parseAndShowGoogleEmojis.value,
                       enabled: settings.parseAndShowGoogleEmojis.enabled,
-                      onToggle: (value) {
+                      onToggle: ({required newValue}) {
                         setState(
                           () => settings.parseAndShowGoogleEmojis.toggleValue(),
                         );
@@ -360,7 +360,7 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                     leading: const Icon(CupertinoIcons.flame),
                     switchValue: settings.showWsWithHighFrameRate.value,
                     enabled: settings.showWsWithHighFrameRate.enabled,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(
                         () => settings.showWsWithHighFrameRate.toggleValue(),
                       );

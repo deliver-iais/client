@@ -1057,8 +1057,10 @@ class InputMessageWidgetState extends State<InputMessage> {
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
-          .getFilteredMember(currentRoom.uid.asString(),
-              query: _mentionQuery.value)
+          .getFilteredMember(
+            currentRoom.uid.asString(),
+            query: _mentionQuery.value,
+          )
           .then(
             (value) => {
               mentionSelectedIndex = value.length,
@@ -1163,8 +1165,10 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   void scrollDownInMentions() {
     _mucRepo
-        .getFilteredMember(currentRoom.uid.asString(),
-            query: _mentionQuery.value,)
+        .getFilteredMember(
+          currentRoom.uid.asString(),
+          query: _mentionQuery.value,
+        )
         .then(
           (value) => {
             if (mentionSelectedIndex >= value.length)

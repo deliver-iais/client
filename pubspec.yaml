@@ -108,6 +108,16 @@ dependencies:
   gallery_saver: 2.3.2
   geolocator: 9.0.2
   get_it: 7.2.0
+  google_api_availability_android:
+    git:
+      path: google_api_availability_android
+      ref: 6b3c18b8b615146488a2d5b8ea468416144252d5
+      url: https://github.com/deliveriais/flutter-google-api-availability
+  google_api_availability_platform_interface:
+    git:
+      path: google_api_availability_platform_interface
+      ref: 1ebed7a8874f1581fcf24adaa9483cd62662734d
+      url: https://github.com/deliveriais/flutter-google-api-availability
   google_fonts: 4.0.3
   great_list_view: 0.2.3
   grpc:

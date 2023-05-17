@@ -626,8 +626,8 @@ class ProfilePageState extends State<ProfilePage>
                           widget.roomUid.asString(),
                         );
                       },
-                      onToggle: (state) {
-                        if (state) {
+                      onToggle: ({required newValue}) {
+                        if (newValue) {
                           _roomRepo.unMute(widget.roomUid);
                         } else {
                           _roomRepo.mute(widget.roomUid);

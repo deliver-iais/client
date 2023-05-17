@@ -45,6 +45,7 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 const IS_VERIFIED_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 const REPEATED_DETECTION_TIME = 60 * 10 * 1000; // 10 min
 const REPEATED_DETECTION_COUNT = 5; // 5 message Id
+const RESEND_SMS_TIMER = 2 * 60;
 
 // Paging Constants
 const META_PAGE_SIZE = 30;
