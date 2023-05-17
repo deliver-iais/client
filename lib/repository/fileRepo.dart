@@ -176,7 +176,9 @@ class FileRepo {
       uuid,
     );
     if (fileInfo != null) {
-      if (isWeb) return fileInfo.isNotEmpty;
+      if (isWeb) {
+        return fileInfo.isNotEmpty;
+      }
       final file = io.File(fileInfo);
       return file.existsSync();
     }

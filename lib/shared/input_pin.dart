@@ -16,8 +16,8 @@ import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
 import 'package:rxdart/rxdart.dart';
 
-const _PIN_CODE_HEIGHT = 100.0;
-const _PIN_CODE_WIDTH = 70.0;
+const _PIN_CODE_HEIGHT = 80.0;
+const _PIN_CODE_WIDTH = 60.0;
 
 void inputPin({
   required BuildContext context,
@@ -435,17 +435,18 @@ void _submit(
   }
 }
 
-PinTheme focusedPinTheme(ThemeData theme) =>
-    defaultPinTheme(theme).copyDecorationWith(
-      color: theme.colorScheme.tertiary.withOpacity(0.2),
-      border: Border.all(color: theme.colorScheme.tertiary, width: 8),
-      borderRadius: BorderRadius.circular(48),
+PinTheme focusedPinTheme(ThemeData theme, {double fontSize = 0}) =>
+    defaultPinTheme(theme, fontSize: fontSize).copyDecorationWith(
+      color: theme.colorScheme.primary.withOpacity(0.2),
+      border: Border.all(color: theme.colorScheme.primary, width: 8),
+      borderRadius: BorderRadius.circular(_PIN_CODE_WIDTH / 2),
     );
 
-PinTheme submittedPinTheme(ThemeData theme) => defaultPinTheme(theme).copyWith(
-      decoration: defaultPinTheme(theme)
+PinTheme submittedPinTheme(ThemeData theme, {double fontSize = 0}) =>
+    defaultPinTheme(theme, fontSize: fontSize).copyWith(
+      decoration: defaultPinTheme(theme, fontSize: fontSize)
           .decoration!
-          .copyWith(color: theme.colorScheme.tertiary),
+          .copyWith(color: theme.colorScheme.primary),
     );
 
 Widget obscuringPinWidget(ThemeData theme) {
@@ -465,13 +466,34 @@ Widget obscuringPinWidget(ThemeData theme) {
   );
 }
 
-PinTheme defaultPinTheme(ThemeData theme) => PinTheme(
+PinTheme errorPinTheme(ThemeData theme, {double fontSize = 0}) => PinTheme(
+  width: _PIN_CODE_WIDTH,
+  height: _PIN_CODE_HEIGHT,
+  textStyle: TextStyle(
+    fontSize: fontSize,
+    fontWeight: FontWeight.bold,
+    height: 2,
+    color: theme.colorScheme.onError,
+  ),
+  decoration: BoxDecoration(
+    color: theme.colorScheme.error,
+    border: Border.all(color: theme.focusColor, width: 2),
+    borderRadius: BorderRadius.circular(_PIN_CODE_WIDTH / 2),
+  ),
+);
+
+PinTheme defaultPinTheme(ThemeData theme, {double fontSize = 0}) => PinTheme(
       width: _PIN_CODE_WIDTH,
       height: _PIN_CODE_HEIGHT,
-      textStyle: const TextStyle(fontSize: 0),
+      textStyle: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        color: theme.colorScheme.onPrimary,
+        height: 2,
+      ),
       decoration: BoxDecoration(
         color: theme.hoverColor,
         border: Border.all(color: theme.focusColor, width: 2),
-        borderRadius: BorderRadius.circular(48),
+        borderRadius: BorderRadius.circular(_PIN_CODE_WIDTH / 2),
       ),
     );

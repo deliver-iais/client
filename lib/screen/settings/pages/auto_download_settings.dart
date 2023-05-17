@@ -64,9 +64,9 @@ class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
             title: _i18n.get("photos"),
             leading: const Icon(CupertinoIcons.photo),
             switchValue: snapshot.data ?? false,
-            onToggle: (value) {
+            onToggle: ({required newValue}) {
               setState(() {
-                if (value) {
+                if (newValue) {
                   _autoDownloadDao.enablePhotoAutoDownload(category);
                 } else {
                   _autoDownloadDao.disablePhotoAutoDownload(category);
@@ -83,9 +83,9 @@ class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
             title: _i18n.get("files"),
             leading: const Icon(CupertinoIcons.folder),
             switchValue: snapshot.data ?? false,
-            onToggle: (value) {
+            onToggle: ({required newValue}) {
               setState(() {
-                if (value) {
+                if (newValue) {
                   _autoDownloadDao.enableFileAutoDownload(category);
                 } else {
                   _autoDownloadDao.disableFileAutoDownload(category);

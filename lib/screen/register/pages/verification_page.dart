@@ -1,26 +1,32 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
-import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/string_extension.dart';
+import 'package:deliver/shared/input_pin.dart';
+import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/methods/number_input_formatter.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/intro_widget.dart';
+import 'package:deliver/shared/widgets/ws.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_api_availability_android/google_api_availability_android.dart';
+import 'package:google_api_availability_platform_interface/google_api_availability_platform_interface.dart';
 import 'package:logger/logger.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+import 'package:pinput/pinput.dart';
+import 'package:rxdart/rxdart.dart';
 
 class VerificationPage extends StatefulWidget {
-  const VerificationPage({super.key});
+  final VerificationType verificationType;
+
+  const VerificationPage({super.key, required this.verificationType});
 
   @override
   VerificationPageState createState() => VerificationPageState();
@@ -29,28 +35,44 @@ class VerificationPage extends StatefulWidget {
 class VerificationPageState extends State<VerificationPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _focusNode = FocusNode();
-  bool _showError = false;
+  final _showError = BehaviorSubject.seeded(false);
+  final _isLoading = BehaviorSubject.seeded(false);
+  late final Future<bool> googleApiAvailabilityAndroidFuture;
+  final _pinController = TextEditingController();
 
-  String? _verificationCode;
+  @override
+  void initState() {
+    if (isAndroidNative) {
+      googleApiAvailabilityAndroidFuture = _checkGoogleApiServiceAvailability();
+    } else {
+      googleApiAvailabilityAndroidFuture = Future.value(false);
+    }
+    super.initState();
+  }
+
+  Future<bool> _checkGoogleApiServiceAvailability() async {
+    try {
+      return (await GoogleApiAvailabilityAndroid
+              .checkGooglePlayServicesAvailability()) ==
+          GooglePlayServicesAvailability.success;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
 
   void _sendVerificationCode() {
-    if ((_verificationCode!.length) < 5) {
-      setState(() => _showError = true);
-      return;
-    }
-    setState(() => _showError = false);
-    FocusScope.of(context).requestFocus(FocusNode());
+    _showError.add(false);
+    _isLoading.add(true);
+
+    FocusScope.of(context).requestFocus(_focusNode);
     final result = _authRepo.sendVerificationCode(
-      _verificationCode!.replaceFarsiNumber(),
+      _pinController.text.replaceFarsiNumber(),
     );
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
-        _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
@@ -59,7 +81,7 @@ class VerificationPageState extends State<VerificationPage> {
           MaterialPageRoute(
             builder: (c) {
               return TwoStepVerificationPage(
-                verificationCode: _verificationCode,
+                verificationCode: _pinController.text,
                 accessTokenRes: accessTokenResponse,
                 navigationToHomePage: _navigationToHome,
               );
@@ -79,37 +101,17 @@ class VerificationPageState extends State<VerificationPage> {
     });
   }
 
-  Future<void> _navigationToHome() async {
-    final navigatorState = Navigator.of(context);
-    _contactRepo.getContacts().ignore();
-
-    if (await _accountRepo.hasProfile(retry: true)) {
-      unawaited(_accountRepo.fetchCurrentUserId(retry: true));
-      navigatorState.pushAndRemoveUntil(
+  Future<void> _navigationToHome() => Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (c) {
-            return const HomePage();
-          },
+          builder: (c) => const HomePage(),
         ),
         (r) => false,
-      ).ignore();
-    } else {
-      navigatorState.push(
-        MaterialPageRoute(
-          builder: (c) {
-            return const AccountSettings(forceToSetName: true);
-          },
-        ),
-      ).ignore();
-    }
-  }
+      );
 
   void _setErrorAndResetCode() {
-    setState(() {
-      _showError = true;
-      _verificationCode = "";
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
+    _showError.add(true);
+    _isLoading.add(false);
+    FocusScope.of(context).requestFocus(_focusNode);
   }
 
   @override
@@ -119,17 +121,34 @@ class VerificationPageState extends State<VerificationPage> {
       data: theme,
       child: IntroWidget(
         child: Scaffold(
-          floatingActionButton: TextButton(
-            onPressed: _sendVerificationCode,
-            child: Text(
-              _i18n.get("start"),
-              key: const Key('start'),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.primary,
-                fontSize: 14.5,
-              ),
-            ),
+          floatingActionButton: StreamBuilder<bool>(
+            stream: _isLoading,
+            builder: (context, snapshot) {
+              return TextButton(
+                onPressed: snapshot.data == true
+                    ? null
+                    : () => _sendVerificationCode(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (snapshot.data == true)
+                      Container(
+                        width: p16,
+                        height: p16,
+                        margin: const EdgeInsetsDirectional.only(end: p8),
+                        child: CircularProgressIndicator(
+                          color: theme.disabledColor,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    Text(
+                      _i18n.get("start"),
+                      key: const Key('start'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           appBar: AppBar(
             backgroundColor: theme.scaffoldBackgroundColor,
@@ -146,74 +165,117 @@ class VerificationPageState extends State<VerificationPage> {
               horizontal: 16,
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    const SizedBox(height: 30),
-                    const Icon(Icons.message, size: 50),
-                    const SizedBox(height: 10),
-                    Text(
-                      _i18n.get("enter_code"),
-                      style: const TextStyle(fontSize: 17),
-                    ),
-                    const SizedBox(height: 30),
-                    Text(
-                      textDirection: _i18n.defaultTextDirection,
-                      _i18n.get("we_have_send_a_code"),
-                      style: const TextStyle(fontSize: 17),
-                    ),
-                    const SizedBox(height: 30),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        end: 30,
-                        start: 30,
-                        bottom: 30,
-                      ),
-                      child: PinFieldAutoFill(
-                        key: const Key("verificationCode"),
-                        autoFocus: true,
-                        focusNode: _focusNode,
-                        codeLength: 5,
-                        inputFormatters: [NumberInputFormatter],
-                        cursor: Cursor(
-                          color: theme.focusColor,
-                          enabled: true,
-                          width: 1,
-                          height: 32,
-                        ),
-                        decoration: UnderlineDecoration(
-                          colorBuilder: PinListenColorBuilder(
-                            theme.colorScheme.primary,
-                            theme.colorScheme.secondary,
-                          ),
-                          textStyle: theme.primaryTextTheme.headlineSmall!
-                              .copyWith(color: theme.colorScheme.primary),
-                        ),
-                        currentCode: _verificationCode,
-                        onCodeSubmitted: (code) {
-                          _verificationCode = code;
-                          _logger.d(_verificationCode);
-                          _sendVerificationCode();
+                const Center(
+                  child: Ws.asset(
+                    "assets/animations/code.ws",
+                    repeat: false,
+                    height: 150,
+                    width: 150,
+                  ),
+                ),
+                Text(
+                  "${_i18n.get("enter_code")}. ${widget.verificationType == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
+                  textDirection: _i18n.defaultTextDirection,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: p16),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(bottom: p8),
+                  child: StreamBuilder<bool>(
+                    stream: _isLoading,
+                    builder: (context, snapshot) {
+                      return FutureBuilder<bool>(
+                        future: googleApiAvailabilityAndroidFuture,
+                        builder: (context, smsAutofillSnapshot) {
+                          if (!smsAutofillSnapshot.hasData) {
+                            return const SizedBox();
+                          }
+                          return StreamBuilder<bool>(
+                            stream: _showError,
+                            builder: (context, showError) {
+                              final forceErrorState = showError.data ?? false;
+                              return Center(
+                                child: Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Pinput(
+                                    controller: _pinController,
+                                    length: 5,
+                                    focusNode: _focusNode,
+                                    autofocus: true,
+                                    androidSmsAutofillMethod:
+                                        smsAutofillSnapshot.data!
+                                            ? AndroidSmsAutofillMethod
+                                                .smsUserConsentApi
+                                            : AndroidSmsAutofillMethod.none,
+                                    listenForMultipleSmsOnAndroid: true,
+                                    inputFormatters: [NumberInputFormatter],
+                                    hapticFeedbackType:
+                                        HapticFeedbackType.lightImpact,
+                                    onCompleted: (_) => _sendVerificationCode(),
+                                    cursor: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          margin:
+                                              const EdgeInsets.only(bottom: 9),
+                                          width: 22,
+                                          height: 1,
+                                          // color: focusedBorderColor,
+                                        ),
+                                      ],
+                                    ),
+                                    forceErrorState: forceErrorState,
+                                    errorText: _i18n.get("wrong_code"),
+                                    errorPinTheme:
+                                        errorPinTheme(theme, fontSize: 43),
+                                    defaultPinTheme:
+                                        defaultPinTheme(theme, fontSize: 43),
+                                    focusedPinTheme:
+                                        focusedPinTheme(theme, fontSize: 43),
+                                    submittedPinTheme:
+                                        submittedPinTheme(theme, fontSize: 43),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         },
-                        onCodeChanged: (code) {
-                          if (code != null) {
-                            _logger.d(_verificationCode);
-                            _verificationCode = code;
-                            if (code.length == 5) {
-                              _sendVerificationCode();
-                            }
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: p16),
+                  child: StreamBuilder<int>(
+                    stream: _authRepo.watchResendTimer(),
+                    builder: (c, timer) {
+                      if (timer.hasData &&
+                          timer.data != null &&
+                          timer.data! > 0) {
+                        return Text("${_i18n.get(
+                          "you_can_request_an_sms_after",
+                        )} ${formatDuration(
+                          Duration(seconds: timer.data!),
+                        )}");
+                      }
+                      return TextButton(
+                        onPressed: () async {
+                          try {
+                            await _authRepo.getVerificationCode(
+                              forceToSendSms: true,
+                            );
+                          } catch (_) {
+                            // _sendVerificationCodeBySms.add(true);
+                            _logger.e(_);
                           }
                         },
-                      ),
-                    ),
-                    if (_showError)
-                      Text(
-                        _i18n.get("wrong_code"),
-                        style: theme.primaryTextTheme.titleMedium!
-                            .copyWith(color: theme.colorScheme.error),
-                      ),
-                  ],
+                        child: Text(
+                          _i18n.get("get_verification_code_by_sms"),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

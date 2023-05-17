@@ -52,9 +52,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    _accountRepo
-      ..getUserProfileFromServer()
-      ..fetchCurrentUserId();
+    _accountRepo.getUserProfileFromServer();
     subscription = MergeStream([
       _accountRepo.getAccountAsStream().map(account.add),
       settings.showDeveloperPage.stream.map((event) => setState(() {}))
@@ -230,7 +228,7 @@ class SettingsPageState extends State<SettingsPage> {
                   title: _i18n.get("notification"),
                   leading: const Icon(CupertinoIcons.bell),
                   switchValue: !settings.isAllNotificationDisabled.value,
-                  onToggle: (value) => setState(
+                  onToggle: ({required newValue}) => setState(
                     () => settings.isAllNotificationDisabled.toggleValue(),
                   ),
                 ),
@@ -238,7 +236,7 @@ class SettingsPageState extends State<SettingsPage> {
                   title: _i18n.get("events"),
                   leading: const Icon(CupertinoIcons.calendar),
                   switchValue: settings.showEvents.value,
-                  onToggle: (value) => setState(
+                  onToggle: ({required newValue}) => setState(
                     () => settings.showEvents.toggleValue(),
                   ),
                 ),
@@ -248,7 +246,7 @@ class SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(CupertinoIcons.bell_circle_fill),
                     switchValue:
                         !settings.isNotificationAdvanceModeDisabled.value,
-                    onToggle: (value) => value
+                    onToggle: ({required newValue}) => newValue
                         ? _showNotificationAdvanceModeDialog()
                         : setState(() {
                             settings.isNotificationAdvanceModeDisabled
@@ -281,7 +279,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("send_by_shift_enter"),
                     leading: const Icon(CupertinoIcons.keyboard),
                     switchValue: !settings.sendByEnter.value,
-                    onToggle: (value) {
+                    onToggle: ({required newValue}) {
                       setState(() => settings.sendByEnter.toggleValue());
                     },
                   ),
@@ -309,7 +307,7 @@ class SettingsPageState extends State<SettingsPage> {
                   title: _i18n.get("dark_mode"),
                   leading: const Icon(CupertinoIcons.moon),
                   switchValue: settings.themeIsDark.value,
-                  onToggle: (value) {
+                  onToggle: ({required newValue}) {
                     setState(() {
                       settings.isAutoNightModeEnable.set(false);
                       settings.themeIsDark.toggleValue();

@@ -31,6 +31,12 @@ class AuthRepo {
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
   static final _accessTokenLock = Lock();
 
+  Timer? _resendSmsTimer;
+
+  final BehaviorSubject<int> _resendSmsTime = BehaviorSubject.seeded(0);
+
+  Stream<int> watchResendTimer() => _resendSmsTime.stream;
+
   int _serverTimeDiff = 0;
 
   final BehaviorSubject<bool> isOutOfDate = BehaviorSubject.seeded(false);
@@ -42,7 +48,25 @@ class AuthRepo {
     ..category = Categories.USER
     ..node = "";
 
-  late PhoneNumber _tmpPhoneNumber;
+  PhoneNumber? _tmpPhoneNumber;
+
+  void _startResendTimer() {
+    _resendSmsTimer?.cancel();
+    _resendSmsTime.add(RESEND_SMS_TIMER);
+    _resendSmsTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (t.tick < RESEND_SMS_TIMER) {
+        _resendSmsTime.add(RESEND_SMS_TIMER - t.tick);
+      } else {
+        _resendSmsTime.add(0);
+        _resendSmsTimer?.cancel();
+      }
+    });
+  }
+
+  void resetTimer() {
+    _resendSmsTimer?.cancel();
+    _resendSmsTime.add(0);
+  }
 
   String refreshToken({bool checkDaoFirst = false}) {
     if (checkDaoFirst) {
@@ -72,14 +96,25 @@ class AuthRepo {
     await syncTimeWithServer();
   }
 
-  Future<void> getVerificationCode(PhoneNumber p) async {
+  Future<VerificationType> getVerificationCode({
+    PhoneNumber? phoneNumber,
+    bool forceToSendSms = false,
+  }) async {
     final platform = await getPlatformPB();
 
-    _tmpPhoneNumber = p;
+    final phone = (phoneNumber ?? _tmpPhoneNumber)!;
+
+    if (_tmpPhoneNumber == phone && _resendSmsTime.value > 0) {
+      return VerificationType.SMS;
+    }
+
+    _tmpPhoneNumber = phone;
+
     final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
-        ..phoneNumber = p
-        ..type = VerificationType.SMS
+        ..phoneNumber = phone
+        ..type =
+            forceToSendSms ? VerificationType.SMS : VerificationType.MESSAGE
         ..platform = platform,
       options: CallOptions(
         timeout: const Duration(seconds: 10),
@@ -87,7 +122,10 @@ class AuthRepo {
       ),
     );
 
+    _startResendTimer();
+
     emitNewVersionInformationIfNeeded(res.newerVersionInformation);
+    return res.type;
   }
 
   Future<AccessTokenRes> sendVerificationCode(
@@ -99,7 +137,7 @@ class AuthRepo {
 
     final res = await _sdr.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
-        ..phoneNumber = _tmpPhoneNumber
+        ..phoneNumber = _tmpPhoneNumber!
         ..code = code
         ..device = device
         ..platform = platform
@@ -108,6 +146,7 @@ class AuthRepo {
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
+      resetTimer();
       await login(
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,

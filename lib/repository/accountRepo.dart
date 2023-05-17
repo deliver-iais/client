@@ -7,6 +7,7 @@ import 'package:deliver/box/account.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -37,7 +38,7 @@ class AccountRepo {
       return true;
     }
     try {
-      return getUserProfileFromServer();
+      return _checkHasProfileByServer();
     } catch (e) {
       _logger.e(e);
       if (retry) {
@@ -46,6 +47,14 @@ class AccountRepo {
         return false;
       }
     }
+  }
+
+  Future<bool> _checkHasProfileByServer() async {
+    if (await getUserProfileFromServer()) {
+      unawaited(GetIt.I.get<ContactRepo>().getContacts());
+      return true;
+    }
+    return false;
   }
 
   Future<bool> getUserProfileFromServer() async {
@@ -64,6 +73,7 @@ class AccountRepo {
         description: result.profile.description,
         twoStepVerificationEnabled: result.profile.isPasswordProtected,
       );
+      unawaited(_fetchCurrentUserId());
       settings.hasProfile.set(true);
       return true;
     } else {
@@ -71,7 +81,7 @@ class AccountRepo {
     }
   }
 
-  Future<void> fetchCurrentUserId({
+  Future<void> _fetchCurrentUserId({
     bool retry = false,
   }) async {
     try {
@@ -85,7 +95,7 @@ class AccountRepo {
     } catch (e) {
       _logger.e(e);
       if (retry) {
-        unawaited(fetchCurrentUserId());
+        unawaited(_fetchCurrentUserId());
       }
     }
   }

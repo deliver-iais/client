@@ -76,7 +76,7 @@ class _CallSettingsPageState extends State<CallSettingsPage> {
                           ),
                           switchValue: settings.lowNetworkUsageVoiceCall.value,
                           enabled: !settings.lowNetworkUsageVoiceCall.enabled,
-                          onToggle: (value) {
+                          onToggle: ({required newValue}) {
                             setState(() {
                               if (settings.highQualityCall.value) {
                                 settings.highQualityCall.toggleValue();
@@ -125,7 +125,7 @@ class _CallSettingsPageState extends State<CallSettingsPage> {
                           ),
                           switchValue: settings.highQualityCall.value,
                           enabled: settings.highQualityCall.enabled,
-                          onToggle: (value) {
+                          onToggle: ({required newValue}) {
                             setState(() {
                               if (settings.lowNetworkUsageVoiceCall.value) {
                                 settings.lowNetworkUsageVoiceCall.toggleValue();
@@ -277,7 +277,7 @@ class _CallSettingsPageState extends State<CallSettingsPage> {
                         ),
                         switchValue: settings.lowNetworkUsageVideoCall.value,
                         enabled: !settings.lowNetworkUsageVoiceCall.enabled,
-                        onToggle: (value) {
+                        onToggle: ({required newValue}) {
                           settings.lowNetworkUsageVideoCall.toggleValue();
                           if (settings.lowNetworkUsageVideoCall.value) {
                             setState(() {

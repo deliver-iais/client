@@ -59,14 +59,20 @@ class ActivityStatus extends StatelessWidget {
   Widget _buildStatusWidget(String status, BuildContext context) {
     if (status.isNotEmpty) {
       if (roomUid.category == Categories.GROUP) {
-        return FutureBuilder<String>(
-          future: _roomRepo.getName(activity.from),
-          builder: (c, s) => RoomName(
-            uid: activity.from,
-            name: s.data ?? "",
-            status: status,
-            style: textStyle(context),
-          ),
+        return Row(
+          children: [
+            Flexible(
+              child: FutureBuilder<String>(
+                future: _roomRepo.getName(activity.from),
+                builder: (c, s) => RoomName(
+                  uid: activity.from,
+                  name: s.data ?? "",
+                  status: status,
+                  style: textStyle(context),
+                ),
+              ),
+            ),
+          ],
         );
       } else {
         return Row(

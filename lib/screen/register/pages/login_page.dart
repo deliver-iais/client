@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
@@ -47,9 +45,7 @@ class LoginPageState extends State<LoginPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
-  static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  static final _accountRepo = GetIt.I.get<AccountRepo>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _formKey = GlobalKey<FormState>();
   final _acceptPrivacyKey = GlobalKey<FormState>();
@@ -120,21 +116,15 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _navigationToHome() {
-    _contactRepo.getContacts();
-    _accountRepo
-      ..hasProfile(retry: true)
-      ..fetchCurrentUserId(retry: true);
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (c) {
-          return const HomePage();
-        },
-      ),
-      (r) => false,
-    );
-  }
+  void _navigationToHome() => Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const HomePage();
+          },
+        ),
+        (r) => false,
+      );
 
   @override
   void dispose() {
@@ -157,10 +147,15 @@ class LoginPageState extends State<LoginPage> {
         if (phoneNumber != null) {
           _isLoading.add(true);
           try {
-            await _authRepo.getVerificationCode(phoneNumber!);
+            final verificationType =
+                await _authRepo.getVerificationCode(phoneNumber: phoneNumber);
             navigatorState
                 .push(
-                  MaterialPageRoute(builder: (c) => const VerificationPage()),
+                  MaterialPageRoute(
+                    builder: (c) => VerificationPage(
+                      verificationType: verificationType,
+                    ),
+                  ),
                 )
                 .ignore();
             _isLoading.add(false);

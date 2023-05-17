@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -37,7 +36,6 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final _logger = GetIt.I.get<Logger>();
   final _i18n = GetIt.I.get<I18N>();
 
   final _routingService = GetIt.I.get<RoutingService>();
@@ -99,11 +97,10 @@ class HomePageState extends State<HomePage> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        checkHasProfile();
+        _checkHasProfile();
         checkIfVersionChange();
       }
     });
-    checkAddToHomeInWeb(context);
 
     _appLifecycleService
       ..startLifeCycListener()
@@ -121,7 +118,7 @@ class HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Future<void> checkHasProfile() async {
+  Future<void> _checkHasProfile() async {
     if (!await _accountRepo.hasProfile()) {
       if (context.mounted) {
         unawaited(
@@ -138,23 +135,6 @@ class HomePageState extends State<HomePage> {
         );
       }
     }
-  }
-
-  Future<void> checkAddToHomeInWeb(BuildContext context) async {
-    Timer(const Duration(seconds: 3), () {
-      try {
-        // final bool isDeferredNotNull =
-        //     js.context.callMethod("isDeferredNotNull", []) as bool;
-        // TODO(any): add to home web
-        // if (isDeferredNotNull != nnulisDeferredNotNull) {
-        //   //   ujs.context.callMethod("presentAddToHome");
-        //   // return true;
-        //
-        // }
-      } catch (e) {
-        _logger.e(e);
-      }
-    });
   }
 
   void _shareInputFile(List<SharedMediaFile> files) {
