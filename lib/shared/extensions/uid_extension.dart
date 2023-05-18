@@ -1,3 +1,4 @@
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -22,6 +23,23 @@ extension UidExtension on Uid {
     }
   }
 
+  MucCategories asMucCategories() {
+    switch (category) {
+      case Categories.BROADCAST:
+        return MucCategories.BROADCAST;
+      case Categories.CHANNEL:
+        return MucCategories.CHANNEL;
+      case Categories.GROUP:
+        return MucCategories.GROUP;
+      case Categories.BOT:
+      case Categories.STORE:
+      case Categories.SYSTEM:
+      case Categories.USER:
+        return MucCategories.NONE;
+    }
+    return MucCategories.NONE;
+  }
+
   String asString() => "${category.value}:$node";
 
   bool isUser() => category == Categories.USER;
@@ -32,9 +50,13 @@ extension UidExtension on Uid {
 
   bool isChannel() => category == Categories.CHANNEL;
 
+  bool isBroadcast() => category == Categories.BROADCAST;
+
   bool isSystem() => category == Categories.SYSTEM;
 
-  bool isMuc() => isGroup() || isChannel();
+  bool isMuc() => isGroup() || isChannel() || isBroadcast();
+
+  bool isPrivateBaseMuc() => isChannel() || isBroadcast();
 
   bool isEqual(Uid uid) => asString() == uid.asString();
 }
@@ -71,9 +93,11 @@ extension StringUidExtension on String {
 
   bool isChannel() => asUid().isChannel();
 
+  bool isBroadcast() => asUid().isBroadcast();
+
   bool isSystem() => asUid().isSystem();
 
-  bool isMuc() => isGroup() || isChannel();
+  bool isMuc() => isGroup() || isChannel() || isBroadcast();
 
   bool isEmptyUid() => asUid().node.isEmpty;
 }

@@ -5,60 +5,33 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
-class MuteAndUnMuteRoomWidget extends StatefulWidget {
-  final String roomId;
-  final Widget inputMessage;
-  final void Function(int dir, bool ctrlIsPressed, bool per) scrollToMessage;
-
-  const MuteAndUnMuteRoomWidget({
-    super.key,
-    required this.roomId,
-    required this.scrollToMessage,
-    required this.inputMessage,
-  });
-
-  @override
-  State<MuteAndUnMuteRoomWidget> createState() =>
-      _MuteAndUnMuteRoomWidgetState();
-}
-
-class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
+class MuteAndUnMuteRoomWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final FocusNode _focusNode = FocusNode();
+  final String roomId;
+  final Widget inputMessage;
 
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.onKey = (c, event) {
-      if (event is RawKeyUpEvent &&
-          event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-        widget.scrollToMessage(-1, false, false);
-      }
-      if (event is RawKeyUpEvent &&
-          event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-        widget.scrollToMessage(1, false, false);
-      }
-      return KeyEventResult.handled;
-    };
-  }
+  const MuteAndUnMuteRoomWidget({
+    super.key,
+    required this.roomId,
+    required this.inputMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
       future: _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
-        widget.roomId,
+        roomId,
       ),
       builder: (c, s) {
         if (s.hasData && s.data!) {
-          return widget.inputMessage;
+          return inputMessage;
         } else {
           return Focus(focusNode: _focusNode, child: buildStreamBuilder());
         }
@@ -71,11 +44,11 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       width: double.infinity,
       height: 42,
       child: StreamBuilder<bool>(
-        stream: _roomRepo.watchIsRoomMuted(widget.roomId.asUid()),
+        stream: _roomRepo.watchIsRoomMuted(roomId.asUid()),
         builder: (context, isMuted) {
           if (isMuted.data != null) {
             return FutureBuilder<Room?>(
-              future: _roomRepo.getRoom(widget.roomId.asUid()),
+              future: _roomRepo.getRoom(roomId.asUid()),
               builder: (c, room) {
                 if (room.data != null) {
                   if (!room.data!.deleted) {
@@ -92,9 +65,9 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
                       ),
                       onPressed: () {
                         if (isMuted.data!) {
-                          _roomRepo.unMute(widget.roomId.asUid());
+                          _roomRepo.unMute(roomId.asUid());
                         } else {
-                          _roomRepo.mute(widget.roomId.asUid());
+                          _roomRepo.mute(roomId.asUid());
                         }
                       },
                     );
@@ -108,12 +81,13 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
                       ),
                       onPressed: () async {
                         await _mucRepo.joinChannel(
-                          widget.roomId.asUid(),
+                          roomId.asUid(),
                           "",
                         );
                         // TODO(bitbeter): This line of code is for rebuilding the future builder, but should be refactored!
-                        _roomRepo..mute(widget.roomId.asUid())
-                        ..unMute(widget.roomId.asUid());
+                        _roomRepo
+                          ..mute(roomId.asUid())
+                          ..unMute(roomId.asUid());
                       },
                     );
                   }

@@ -237,10 +237,11 @@ class PersistentEventMessage extends StatelessWidget {
         }
 
         final issueWidget = Text(
-          _persistentEventHandlerService.getMucSpecificPersistentEventIssue(
+          (await _persistentEventHandlerService
+                  .getMucSpecificPersistentEventIssue(
                 persistentEventMessage,
                 isChannel: isChannel,
-              ) +
+              )) +
               (persistentEventMessage.mucSpecificPersistentEvent.issue ==
                       MucSpecificPersistentEvent_Issue.NAME_CHANGED
                   ? " \"${persistentEventMessage.mucSpecificPersistentEvent.name}\""

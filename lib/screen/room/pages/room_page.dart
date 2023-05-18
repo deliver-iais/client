@@ -36,8 +36,9 @@ import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_start_information_box_widget.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
+import 'package:deliver/screen/room/widgets/broadcast_status_bar.dart';
+import 'package:deliver/screen/room/widgets/channel_bottom_bar.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
-import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
@@ -77,6 +78,7 @@ import 'package:tuple/tuple.dart';
 
 class RoomPage extends StatefulWidget {
   final String roomId;
+  final int? initialIndex;
   final List<Message>? forwardedMessages;
   final proto.ShareUid? shareUid;
   final List<Meta>? forwardedMeta;
@@ -87,6 +89,7 @@ class RoomPage extends StatefulWidget {
     this.forwardedMessages,
     this.forwardedMeta,
     this.shareUid,
+    this.initialIndex,
   });
 
   @override
@@ -171,6 +174,7 @@ class RoomPageState extends State<RoomPage> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _inputMessageTextController.dispose();
     _shouldScrollToLastMessageInRoom?.cancel();
 
     super.dispose();
@@ -451,15 +455,25 @@ class RoomPageState extends State<RoomPage> {
         _scrollToLastMessage(isForced: true);
       }
     });
+    if (widget.initialIndex != null) {
+      _lastScrollPositionIndex = widget.initialIndex!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(
+          Future.delayed(const Duration(milliseconds: 500)).then((value) {
+            _scrollToMessageWithHighlight(widget.initialIndex!);
+          }),
+        );
+      });
+    } else {
+      final scrollPosition = await _scrollPositionDao.get(
+        '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
+      );
 
-    final scrollPosition = await _scrollPositionDao.get(
-      '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
-    );
-
-    if (scrollPosition != null) {
-      final arr = scrollPosition.split("-");
-      _lastScrollPositionIndex = int.parse(arr[0]);
-      _lastScrollPositionAlignment = double.parse(arr[1]);
+      if (scrollPosition != null) {
+        final arr = scrollPosition.split("-");
+        _lastScrollPositionIndex = int.parse(arr[0]);
+        _lastScrollPositionAlignment = double.parse(arr[1]);
+      }
     }
   }
 
@@ -540,8 +554,7 @@ class RoomPageState extends State<RoomPage> {
       }
     });
 
-    if (widget.roomId.asUid().category == Categories.CHANNEL ||
-        widget.roomId.asUid().category == Categories.GROUP) {
+    if (widget.roomId.isMuc()) {
       fetchMucInfo(widget.roomId.asUid());
     } else if (widget.roomId.asUid().isBot()) {
       _botRepo.fetchBotInfo(widget.roomId.asUid());
@@ -927,9 +940,11 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void onReply(Message message) {
-    _repliedMessage.add(message);
-    _waitingForForwardedMessage.add(false);
-    FocusScope.of(context).requestFocus(_inputMessageFocusNode);
+    if (!widget.roomId.isBroadcast()) {
+      _repliedMessage.add(message);
+      _waitingForForwardedMessage.add(false);
+      FocusScope.of(context).requestFocus(_inputMessageFocusNode);
+    }
   }
 
   Future<void> _getLastSeen() =>
@@ -1000,13 +1015,18 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget keyboardWidget() {
-    return widget.roomId.asUid().category != Categories.CHANNEL
-        ? buildNewMessageInput()
-        : MuteAndUnMuteRoomWidget(
+    return widget.roomId.isChannel() || widget.roomId.isBroadcast()
+        ? MucBottomBar(
             roomId: widget.roomId,
             scrollToMessage: _handleScrollToMsg,
             inputMessage: buildNewMessageInput(),
-          );
+          )
+        : widget.roomId.isBroadcast()
+            ? BroadcastStatusBar(
+                roomId: widget.roomId,
+                inputMessage: buildNewMessageInput(),
+              )
+            : buildNewMessageInput();
   }
 
   Widget scrollDownButtonWidget() {

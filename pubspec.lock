@@ -169,14 +169,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.3"
-  aurora:
+  background_sms:
     dependency: "direct main"
     description:
-      name: aurora
-      sha256: a47eb54aec3efcbc95c56c55ccc58a76e957e262e91588de4760c52454e4e63c
+      name: background_sms
+      sha256: "680edd2b7c4e487c2799e337d40ed166158ba15369eb0578ac804c3aa1845226"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.0"
+    version: "0.0.4"
   badges:
     dependency: "direct main"
     description:
@@ -1620,6 +1620,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.0"
+  material_design_icons_flutter:
+    dependency: "direct main"
+    description:
+      name: material_design_icons_flutter
+      sha256: "8ef8562d16e747b2d93e5da5c2508931588939c5c00ebc8e2768e803db7dfd3c"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "6.0.7096"
   meta:
     dependency: "direct main"
     description:

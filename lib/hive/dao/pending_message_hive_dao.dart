@@ -145,4 +145,11 @@ class PendingMessageDaoImpl extends PendingMessageDao {
 
   String _generatePendingEditedMessageKey(String roomUid, int index) =>
       "$roomUid-$index";
+
+  @override
+  Future<void> deleteAllPendingMessageForRoom(String roomUid) async {
+    final box = await _openPendingMessages();
+
+    return box.clear();
+  }
 }

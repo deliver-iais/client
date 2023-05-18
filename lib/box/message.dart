@@ -68,6 +68,9 @@ class Message {
   @HiveField(13)
   String? markup;
 
+  @HiveField(14)
+  String? generatedBy;
+
   Message({
     required this.roomUid,
     required this.packetId,
@@ -83,6 +86,7 @@ class Message {
     this.encrypted = false,
     this.forwardedFrom,
     this.markup,
+    this.generatedBy,
   });
 
   Message copyDeleted() => copyWith(json: EMPTY_MESSAGE, isHidden: true);
@@ -102,6 +106,7 @@ class Message {
     MessageType? type,
     String? json,
     String? markup,
+    String? generatedBy,
   }) =>
       Message(
         roomUid: roomUid ?? this.roomUid,
@@ -118,6 +123,7 @@ class Message {
         type: type ?? this.type,
         json: json ?? this.json,
         markup: markup ?? this.markup,
+        generatedBy: generatedBy ?? this.generatedBy,
       );
 
   @override
@@ -138,6 +144,8 @@ class Message {
           const DeepCollectionEquality().equals(other.edited, edited) &&
           const DeepCollectionEquality().equals(other.encrypted, encrypted) &&
           const DeepCollectionEquality().equals(other.type, type) &&
+          const DeepCollectionEquality()
+              .equals(other.generatedBy, generatedBy) &&
           const DeepCollectionEquality().equals(other.json, json));
 
   @override
@@ -155,6 +163,7 @@ class Message {
         const DeepCollectionEquality().hash(edited),
         const DeepCollectionEquality().hash(encrypted),
         const DeepCollectionEquality().hash(type),
+        const DeepCollectionEquality().hash(generatedBy),
         const DeepCollectionEquality().hash(json),
       );
 

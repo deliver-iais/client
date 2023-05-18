@@ -18,7 +18,6 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -203,9 +202,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   }
                 },
           onDoubleTap:
-              !isDesktopDevice || widget.selectMultiMessageSubject.value
-                  ? null
-                  : widget.onReply,
+              _hasPermissionForDoubleClickReply() ? widget.onReply : null,
           onLongPress: () async {
             await selectMessage();
           },
@@ -225,6 +222,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       ],
     );
   }
+
+  bool _hasPermissionToReply() =>
+      !widget.roomId.isBroadcast() && !widget.selectMultiMessageSubject.value;
+
+  bool _hasPermissionForDoubleClickReply() =>
+      isDesktopDevice && _hasPermissionToReply();
 
   Future<void> selectMessage() async {
     if (widget.message.id != null &&
@@ -267,8 +270,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (!widget.message.roomUid.asUid().isChannel() &&
         widget.message.id != null) {
       messageWidget = Swipe(
-        onSwipeLeft:
-            !widget.selectMultiMessageSubject.value ? widget.onReply : null,
+        onSwipeLeft: _hasPermissionToReply() ? widget.onReply : null,
         child: Container(
           width: double.infinity,
           color: Colors.transparent,
@@ -294,9 +296,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 _showCustomMenu(context, message);
               }
             },
-      onDoubleTap: !isDesktopDevice || widget.selectMultiMessageSubject.value
-          ? null
-          : widget.onReply,
+      onDoubleTap: _hasPermissionForDoubleClickReply() ? widget.onReply : null,
       onLongPress: () async {
         await selectMessage();
       },
@@ -558,7 +558,6 @@ class OperationOnMessageSelection {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
 
   final void Function()? onReply;
   final void Function()? onSelect;
@@ -799,17 +798,7 @@ class OperationOnMessageSelection {
 
   Future<void> onDeletePendingMessage() async {
     _messageRepo.deletePendingMessage(message.packetId);
-    final room = (await _roomRepo.getRoom(message.roomUid.asUid()));
-    if (room != null) {
-      await _dataStreamServices.fetchLastNotHiddenMessage(
-        room.uid,
-        room.lastMessageId,
-        room.firstMessageId,
-      );
-    }
-    if (message.type == MessageType.FILE) {
-      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
-    }
+    await _messageRepo.onDeletePendingMessage(message);
   }
 
   void onDeletePendingEditedMessage() {

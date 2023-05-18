@@ -7,6 +7,7 @@ import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -15,6 +16,8 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/contacts/contacts_page.dart';
 import 'package:deliver/screen/contacts/new_contact.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
+import 'package:deliver/screen/muc/pages/broadcast_status_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
@@ -67,7 +70,6 @@ import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
 
 const _animationCurves = Curves.linearToEaseOut;
-
 // Pages
 final _globalKeyNavigationCenter = GlobalKey();
 final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
@@ -255,6 +257,7 @@ class RoutingService {
 
   void openRoom(
     String roomId, {
+    int? initialIndex,
     List<Message> forwardedMessages = const [],
     List<Meta> forwardedMeta = const [],
     bool popAllBeforePush = false,
@@ -277,6 +280,7 @@ class RoutingService {
           forwardedMessages: forwardedMessages,
           forwardedMeta: forwardedMeta,
           shareUid: shareUid,
+          initialIndex: initialIndex,
         ),
         popAllBeforePush: popAllBeforePush,
       );
@@ -289,7 +293,7 @@ class RoutingService {
   void openCameraBox({
     Function(String)? onAvatarSelected,
     required bool selectAsAvatar,
-    required Uid roomUid,
+    Uid? roomUid,
   }) =>
       _push(
         CameraBox(
@@ -373,9 +377,14 @@ class RoutingService {
         ),
       );
 
-  Future<dynamic>? openManageMuc(String roomId) => _push(
+  Future<dynamic>? openManageMuc(
+    String roomId, {
+    MucType mucType = MucType.Public,
+  }) =>
+      _push(
         MucManagePage(
           roomId.asUid(),
+          mucType: mucType,
           key: ValueKey("/room/$roomId/manage"),
         ),
       );
@@ -462,21 +471,31 @@ class RoutingService {
     );
   }
 
-  void openMemberSelection({required bool isChannel, Uid? mucUid}) {
-    if (isChannel) {
-      _analyticsService.sendLogEvent(
-        "newChannelPage_open",
-      );
-    } else {
-      _analyticsService.sendLogEvent(
-        "newGroupPage_open",
-      );
-    }
+  void openMemberSelection({
+    required MucCategories categories,
+    Uid? mucUid,
+    bool useSmsBroadcastList = false,
+    bool resetSelectedMemberOnDispose = true,
+  }) {
+    _analyticsService.sendLogEvent(
+      "new $categories open",
+    );
     _push(
       MemberSelectionPage(
         key: const ValueKey("/member-selection-page"),
-        isChannel: isChannel,
+        categories: categories,
         mucUid: mucUid,
+        useSmsBroadcastList: useSmsBroadcastList,
+        resetSelectedMemberOnDispose: resetSelectedMemberOnDispose,
+      ),
+    );
+  }
+
+  void openBroadcastStatsPage(String roomUid) {
+    _push(
+      BroadcastStatusPage(
+        key: const ValueKey("/broadcast-status-page"),
+        roomUid: roomUid,
       ),
     );
   }
@@ -505,10 +524,11 @@ class RoutingService {
         ),
       );
 
-  void openMucInfoDeterminationPage({required bool isChannel}) => _push(
+  void openMucInfoDeterminationPage({required MucCategories categories}) =>
+      _push(
         MucInfoDeterminationPage(
           key: const ValueKey("/muc-info-determination-page"),
-          isChannel: isChannel,
+          categories: categories,
         ),
       );
 
@@ -749,17 +769,6 @@ class RoutingService {
       );
     } else {
       return SafeArea(child: widget);
-    }
-  }
-
-  void selectChatMenu(String key) {
-    switch (key) {
-      case "new_group":
-        openMemberSelection(isChannel: false);
-        break;
-      case "new_channel":
-        openMemberSelection(isChannel: true);
-        break;
     }
   }
 

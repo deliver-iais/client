@@ -6,6 +6,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
+import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -133,57 +134,7 @@ class NavigationCenterState extends State<NavigationCenter>
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
         appBar: _buildAppBar(),
-        floatingActionButton: MouseRegion(
-          hitTestBehavior: HitTestBehavior.translucent,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onPanDown: storeDragDownPosition,
-            child: FloatingActionButton(
-              heroTag: "navigation-center-fab",
-              onPressed: () {
-                this.showMenu(
-                  context: context,
-                  items: [
-                    PopupMenuItem<String>(
-                      key: const Key("contacts"),
-                      value: "contacts",
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.person_2_alt),
-                          const SizedBox(width: p8),
-                          Text(_i18n.get("contacts"))
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem<String>(
-                      key: const Key("new_group"),
-                      value: "new_group",
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.group),
-                          const SizedBox(width: p8),
-                          Text(_i18n.get("new_group")),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem<String>(
-                      key: const Key("new_channel"),
-                      value: "new_channel",
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.news),
-                          const SizedBox(width: p8),
-                          Text(_i18n.get("new_channel"))
-                        ],
-                      ),
-                    )
-                  ],
-                ).then((value) => selectChatMenu(value ?? ""));
-              },
-              child: const Icon(Icons.add),
-            ),
-          ),
-        ),
+        floatingActionButton: const CreateMucFloatingActionButton(),
         body: RepaintBoundary(
           child: Column(
             children: <Widget>[
@@ -428,20 +379,6 @@ class NavigationCenterState extends State<NavigationCenter>
   //     child:
   //   );
   // }
-
-  void selectChatMenu(String key) {
-    switch (key) {
-      case "contacts":
-        _routingService.openContacts();
-        break;
-      case "new_group":
-        _routingService.openMemberSelection(isChannel: false);
-        break;
-      case "new_channel":
-        _routingService.openMemberSelection(isChannel: true);
-        break;
-    }
-  }
 
   PreferredSizeWidget _buildAppBar() {
     final theme = Theme.of(context);

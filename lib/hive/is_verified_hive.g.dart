@@ -8,7 +8,7 @@ part of 'is_verified_hive.dart';
 
 class IsVerifiedHiveAdapter extends TypeAdapter<IsVerifiedHive> {
   @override
-  final int typeId = 39;
+  final int typeId = 42;
 
   @override
   IsVerifiedHive read(BinaryReader reader) {

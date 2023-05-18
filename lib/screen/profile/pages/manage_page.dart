@@ -1,11 +1,13 @@
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/operation_on_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/muc/widgets/select_muc_type.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
@@ -26,10 +28,16 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
+// TODO(ch): refactor tis class
 class MucManagePage extends StatefulWidget {
   final Uid roomUid;
+  final MucType mucType;
 
-  const MucManagePage(this.roomUid, {super.key});
+  const MucManagePage(
+    this.roomUid, {
+    super.key,
+    this.mucType = MucType.Public,
+  });
 
   @override
   MucManagePageState createState() => MucManagePageState();
@@ -40,6 +48,7 @@ class MucManagePageState extends State<MucManagePage>
   final _logger = GetIt.I.get<Logger>();
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _mucHelper = GetIt.I.get<MucHelperService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -50,6 +59,7 @@ class MucManagePageState extends State<MucManagePage>
   final _channelIdFormKey = GlobalKey<FormState>();
   final _nameFormKey = GlobalKey<FormState>();
 
+// TODO(ch): unnecessary fields
   bool _isMucAdminOrOwner = false;
   bool _isBotOwner = false;
   bool _isMucOwner = false;
@@ -60,7 +70,6 @@ class MucManagePageState extends State<MucManagePage>
   String? _mucName;
   String _mucInfo = "";
   String _channelId = "";
-  String _botDescription = "";
   String changingToken = "";
   String changingInviteLink = "";
 
@@ -69,7 +78,9 @@ class MucManagePageState extends State<MucManagePage>
 
   @override
   void initState() {
+    _mucType = widget.mucType;
     _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
+    // TODO(ch): check if need that much req
     _setupRoomSettings();
 
     super.initState();
@@ -111,8 +122,9 @@ class MucManagePageState extends State<MucManagePage>
                       ],
                     ),
                   ),
-                buildOtherMucSettingsCard(theme),
-                buildCreateInviteLinkCard(theme),
+                if (!widget.roomUid.isBot()) buildOtherMucSettingsCard(theme),
+                if (!widget.roomUid.isBroadcast())
+                  buildCreateInviteLinkCard(theme),
                 buildDeleteMucBtn(theme),
               ],
             )
@@ -139,53 +151,33 @@ class MucManagePageState extends State<MucManagePage>
                             final navigatorState = Navigator.of(context);
                             if (_nameFormKey.currentState != null &&
                                 _nameFormKey.currentState!.validate()) {
-                              if (widget.roomUid.category == Categories.GROUP) {
-                                await _mucRepo.modifyGroup(
-                                  widget.roomUid.asString(),
-                                  _mucName ?? _currentName,
-                                  _mucInfo,
-                                );
-                                _roomRepo.updateRoomName(
-                                  widget.roomUid,
-                                  _mucName ?? _currentName,
-                                );
-                                // setState(() {});
-                                navigatorState.pop();
-                              } else {
-                                if (_channelId.isEmpty) {
-                                  await _mucRepo.modifyChannel(
-                                    widget.roomUid.asString(),
-                                    _mucName ?? _currentName,
-                                    _currentId,
-                                    _mucInfo,
+                              await _mucHelper.modifyMuc(
+                                widget.roomUid,
+                                _mucName ?? _currentName,
+                                _mucInfo,
+                                channelId: _channelId.isEmpty
+                                    ? _currentId
+                                    : _channelId,
+                                channelType:
                                     _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                                  );
-                                  _roomRepo.updateRoomName(
-                                    widget.roomUid,
-                                    _mucName ?? _currentName,
-                                  );
-                                  navigatorState.pop();
-                                } else if (_channelIdFormKey.currentState !=
-                                        null &&
-                                    _channelIdFormKey.currentState!
-                                        .validate()) {
-                                  if (await checkChannelD(_channelId)) {
-                                    await _mucRepo.modifyChannel(
-                                      widget.roomUid.asString(),
-                                      _mucName ?? _currentName,
-                                      _channelId,
-                                      _mucInfo,
-                                      _mucRepo.hiveMucTypeToPbMucType(_mucType),
-                                    );
-                                    _roomRepo.updateRoomName(
-                                      widget.roomUid,
-                                      _mucName ?? _currentName,
-                                    );
+                                checkChannelId: (
+                                  id,
+                                ) async {
+                                  return _channelId.isEmpty ||
+                                      (_channelIdFormKey.currentState != null &&
+                                          _channelIdFormKey.currentState!
+                                              .validate() &&
+                                          await _checkChannelD(_channelId));
+                                },
+                              );
+                              // TODO(ch): check if is necessary to update room name every time
+                              // TODO(ch): check if  modifyMuc get error from server
+                              _roomRepo.updateRoomName(
+                                widget.roomUid,
+                                _mucName ?? _currentName,
+                              );
 
-                                    navigatorState.pop();
-                                  }
-                                }
-                              }
+                              navigatorState.pop();
                             }
                           }
                         : () {
@@ -257,11 +249,9 @@ class MucManagePageState extends State<MucManagePage>
                             decoration: buildInputDecoration(
                               widget.roomUid.isBot()
                                   ? _i18n.get("bot_name")
-                                  : widget.roomUid.isGroup()
-                                      ? _i18n.get("enter_group_name")
-                                      : _i18n.get(
-                                          "enter_channel_name",
-                                        ),
+                                  : _mucHelper.enterNewMucNameTitle(
+                                      widget.roomUid.asMucCategories(),
+                                    ),
                             ),
                           ),
                         );
@@ -500,7 +490,7 @@ class MucManagePageState extends State<MucManagePage>
                                                         " ",
                                                         "",
                                                       )) {
-                                                checkChannelD(_channelId);
+                                                _checkChannelD(_channelId);
                                                 newChange.add(true);
                                               }
                                               _channelId = str;
@@ -522,119 +512,66 @@ class MucManagePageState extends State<MucManagePage>
                               },
                             ),
                           const SizedBox(height: 10),
-                          if (!widget.roomUid.isBot())
-                            StreamBuilder<Muc?>(
-                              stream:
-                                  _mucRepo.watchMuc(widget.roomUid.asString()),
-                              builder: (c, muc) {
-                                if (muc.hasData && muc.data != null) {
-                                  _mucInfo = muc.data!.info;
-                                  return AutoDirectionTextForm(
-                                    controller: TextEditingController(
-                                      text: muc.data!.info,
+                          StreamBuilder<Muc?>(
+                            stream:
+                                _mucRepo.watchMuc(widget.roomUid.asString()),
+                            builder: (c, muc) {
+                              if (muc.hasData && muc.data != null) {
+                                _mucInfo = muc.data!.info;
+                                return AutoDirectionTextForm(
+                                  controller: TextEditingController(
+                                    text: muc.data!.info,
+                                  ),
+                                  textDirection: _i18n.defaultTextDirection,
+                                  minLines: muc.data!.info.isNotEmpty
+                                      ? muc.data!.info.split("\n").length
+                                      : 1,
+                                  maxLines: muc.data!.info.isNotEmpty
+                                      ? muc.data!.info.split("\n").length + 4
+                                      : 4,
+                                  onChanged: (str) {
+                                    _mucInfo = str;
+                                    newChange.add(true);
+                                  },
+                                  keyboardType: TextInputType.multiline,
+                                  decoration: buildInputDecoration(
+                                    _mucHelper.enterNewMucDescriptionTitle(
+                                      widget.roomUid.asMucCategories(),
                                     ),
-                                    textDirection: _i18n.defaultTextDirection,
-                                    minLines: muc.data!.info.isNotEmpty
-                                        ? muc.data!.info.split("\n").length
-                                        : 1,
-                                    maxLines: muc.data!.info.isNotEmpty
-                                        ? muc.data!.info.split("\n").length + 4
-                                        : 4,
-                                    onChanged: (str) {
-                                      _mucInfo = str;
-                                      newChange.add(true);
-                                    },
-                                    keyboardType: TextInputType.multiline,
-                                    decoration: buildInputDecoration(
-                                      widget.roomUid.category ==
-                                              Categories.GROUP
-                                          ? _i18n.get(
-                                              "enter_group_desc",
-                                            )
-                                          : _i18n.get(
-                                              "enter_channel_desc",
-                                            ),
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              },
-                            )
-                          else
-                            AutoDirectionTextForm(
-                              enabled: !widget.roomUid.isBot(),
-                              controller: TextEditingController(
-                                text: _botDescription,
-                              ),
-                              textDirection: _i18n.defaultTextDirection,
-                              minLines: _botDescription.isNotEmpty
-                                  ? _botDescription.split("\n").length
-                                  : 1,
-                              maxLines: _botDescription.isNotEmpty
-                                  ? _botDescription.split("\n").length + 4
-                                  : 4,
-                              onChanged: (str) {
-                                _mucInfo = str;
-                                newChange.add(true);
-                              },
-                              keyboardType: TextInputType.multiline,
-                              decoration: buildInputDecoration(
-                                _i18n.get(
-                                  "enter_bot_desc",
-                                ),
-                              ),
-                            ),
-                          if (widget.roomUid.isBot())
-                            Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.only(top: 8.0),
-                              child: Text(
-                                _i18n.get("bot_desc_change_hint"),
-                                style: TextStyle(color: theme.hintColor),
-                              ),
-                            ),
+                                  ),
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          ),
                           if (widget.roomUid.category == Categories.CHANNEL)
                             Column(
                               children: [
-                                const SizedBox(height: 20),
-                                StreamBuilder<Muc?>(
-                                  stream: _mucRepo.watchMuc(
-                                    widget.roomUid.asString(),
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    top: 15.0,
                                   ),
-                                  builder: (c, muc) {
-                                    if (muc.hasData && muc.data != null) {
-                                      _mucType = muc.data!.mucType;
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                          top: 15.0,
-                                        ),
-                                        child: SelectMucType(
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).dialogBackgroundColor,
-                                          onMucTypeChange: (value) {
-                                            _mucType =
-                                                _mucRepo.pbMucTypeToHiveMucType(
-                                              value,
-                                            );
-                                            if (_mucRepo.pbMucTypeToHiveMucType(
-                                                  value,
-                                                ) !=
-                                                muc.data!.mucType) {
-                                              newChange.add(true);
-                                            }
-                                          },
-                                          mucType:
-                                              _mucRepo.hiveMucTypeToPbMucType(
-                                            _mucType,
-                                          ),
-                                        ),
+                                  child: SelectMucType(
+                                    backgroundColor: theme.cardColor,
+                                    onMucTypeChange: (value) {
+                                      _mucType =
+                                          _mucRepo.pbMucTypeToHiveMucType(
+                                        value,
                                       );
-                                    }
-                                    return const SizedBox.shrink();
-                                  },
+                                      // TODO(ch): this line is so weird
+                                      if (_mucRepo.pbMucTypeToHiveMucType(
+                                            value,
+                                          ) !=
+                                          _mucType) {
+                                        // TODO(ch): what!!
+                                        newChange.add(true);
+                                      }
+                                    },
+                                    mucType: _mucRepo.hiveMucTypeToPbMucType(
+                                      _mucType,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -666,7 +603,7 @@ class MucManagePageState extends State<MucManagePage>
                     builder: (context) {
                       return OnDeletePopupDialog(
                         roomUid: widget.roomUid,
-                        selected: "deleteMuc",
+                        selected: OperationOnRoom.DELETE_ROOM,
                         roomName: _roomName,
                       );
                     },
@@ -684,9 +621,9 @@ class MucManagePageState extends State<MucManagePage>
                     const Icon(Icons.delete),
                     const SizedBox(width: 8),
                     Text(
-                      widget.roomUid.isGroup()
-                          ? _i18n.get("delete_group")
-                          : _i18n.get("delete_channel"),
+                      _mucHelper.deleteMucTitle(
+                        widget.roomUid,
+                      ),
                     )
                   ],
                 ),
@@ -738,6 +675,7 @@ class MucManagePageState extends State<MucManagePage>
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),
         );
+        // TODO(ch): delete setState
         setState(() {
           _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
@@ -749,7 +687,6 @@ class MucManagePageState extends State<MucManagePage>
     } else if (widget.roomUid.isBot()) {
       try {
         final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
-        _botDescription = botAvatarPermission.description ?? "";
         _roomName = botAvatarPermission.name ?? "";
         setState(() {
           _isBotOwner = botAvatarPermission.isOwner;
@@ -767,6 +704,7 @@ class MucManagePageState extends State<MucManagePage>
       _logger.e(e);
     }
     await initChangingToken();
+// TODO(ch): delete setState
     setState(() {});
   }
 
@@ -801,13 +739,9 @@ class MucManagePageState extends State<MucManagePage>
     }
   }
 
-  Future<bool> checkChannelD(String id) async {
+  Future<bool> _checkChannelD(String id) async {
     final res = await _mucRepo.channelIdIsAvailable(id);
-    if (res) {
-      _showChannelIdError = false;
-    } else {
-      _showChannelIdError = true;
-    }
-    return false;
+    _showChannelIdError = false;
+    return res;
   }
 }

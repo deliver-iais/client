@@ -1,6 +1,6 @@
 import 'package:deliver/box/muc.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -11,8 +11,7 @@ import 'package:get_it/get_it.dart';
 class MucAppbarTitle extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
-
+  static final _mucHelper = GetIt.I.get<MucHelperService>();
   final String mucUid;
 
   const MucAppbarTitle({super.key, required this.mucUid});
@@ -48,7 +47,8 @@ class MucAppbarTitle extends StatelessWidget {
                         TitleStatus(
                           style: theme.textTheme.bodySmall!,
                           normalConditionWidget: Text(
-                            "${snapshot.data!.population} ${_i18n.get("members")}",
+                            "${_mucHelper.calculateMucPopulation(snapshot.data!.uid.asUid(), snapshot.data!.population)}"
+                            " ${_mucHelper.mucAppBarMemberTitle(snapshot.data!.uid.asUid())}",
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,

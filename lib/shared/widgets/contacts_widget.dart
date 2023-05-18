@@ -2,14 +2,16 @@ import 'package:deliver/box/contact.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/textx.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData? circleIcon;
+  final Color? circleIconColor;
   final void Function()? onCircleIcon;
   final bool isSelected;
   final bool currentMember;
@@ -18,6 +20,7 @@ class ContactWidget extends StatelessWidget {
     super.key,
     required this.contact,
     this.circleIcon,
+    this.circleIconColor,
     this.isSelected = false,
     this.currentMember = false,
     this.onCircleIcon,
@@ -48,13 +51,60 @@ class ContactWidget extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: [
-                  if (contact.uid != null)
-                    CircleAvatarWidget(
-                      contact.uid!.asUid(),
-                      37,
-                      borderRadius: secondaryBorder,
-                      showSavedMessageLogoIfNeeded: true,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (contact.uid != null)
+                        CircleAvatarWidget(
+                          contact.uid!.asUid(),
+                          37,
+                          borderRadius: secondaryBorder,
+                          showSavedMessageLogoIfNeeded: true,
+                        )
+                      else
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: secondaryBorder,
+                            color: theme.colorScheme.primary,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.person,
+                                size: 35,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      Flexible(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: isLarge(context)
+                                ? MediaQuery.of(context).size.width / 2
+                                : (circleIcon != null)
+                                    ? MediaQuery.of(context).size.width / 2.3
+                                    : MediaQuery.of(context).size.width / 1.7,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: p8),
+                            child: TextLoader(
+                              text: Text(
+                                buildName(contact.firstName, contact.lastName),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                softWrap: false,
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              width: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   AnimatedOpacity(
                     duration: AnimationSettings.normal,
                     opacity: isSelected ? 1 : 0,
@@ -78,18 +128,6 @@ class ContactWidget extends StatelessWidget {
                   )
                 ],
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: p8),
-                  child: TextX(
-                    buildName(contact.firstName, contact.lastName),
-                    overflow: TextOverflow.fade,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-              ),
               if (circleIcon != null)
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: p8),
@@ -99,7 +137,7 @@ class ContactWidget extends StatelessWidget {
                     onPressed: () => onCircleIcon?.call(),
                     icon: Icon(
                       circleIcon,
-                      color: theme.colorScheme.primary,
+                      color: circleIconColor ?? theme.colorScheme.primary,
                     ),
                   ),
                 ),

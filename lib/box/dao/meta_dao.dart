@@ -5,6 +5,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/string_extension.dart';
 import 'package:hive/hive.dart';
 
 abstract class MetaDao {
@@ -170,42 +171,38 @@ class MetaDaoImpl extends MetaDao {
   }
 
   static String _deletedIndexTableKey(String roomUid) =>
-      "meta-deleted-index-$roomUid";
+      "meta-deleted-index-${roomUid.convertUidStringToDaoKey()}";
 
   static String _messageIdToMetaIndexBoxTableKey(String roomUid) =>
-      "message-id-to-meta-index-$roomUid";
+      "message-id-to-meta-index-${roomUid.convertUidStringToDaoKey()}";
 
   static String _metaTableKey(String roomUid, MetaType type) =>
-      "meta-$roomUid-$type";
+      "meta-${roomUid.convertUidStringToDaoKey()}-$type";
 
   static String _ShouldFetchDeletedIndexKey() => "should-fetch-deleted-index";
 
   Future<BoxPlus<Meta>> _openMetaBox(String uid, MetaType type) {
     DBManager.open(
-      _metaTableKey(_covertUidToUidKey(uid), type),
+      _metaTableKey(uid, type),
       TableInfo.META_TABLE_NAME,
     );
     return gen(
       Hive.openBox<Meta>(
-        _metaTableKey(_covertUidToUidKey(uid), type),
+        _metaTableKey(uid, type),
       ),
     );
-  }
-
-  String _covertUidToUidKey(String uid) {
-    return uid.replaceAll(":", "-");
   }
 
   Future<BoxPlus<int>> _openMessageIdToMetaIndexBox(
     String uid,
   ) {
     DBManager.open(
-      _messageIdToMetaIndexBoxTableKey(_covertUidToUidKey(uid)),
+      _messageIdToMetaIndexBoxTableKey(uid),
       TableInfo.MESSAGE_ID_TO_META_INDEX_TABLE_NAME,
     );
     return gen(
       Hive.openBox<int>(
-        _messageIdToMetaIndexBoxTableKey(_covertUidToUidKey(uid)),
+        _messageIdToMetaIndexBoxTableKey(uid),
       ),
     );
   }
@@ -222,12 +219,12 @@ class MetaDaoImpl extends MetaDao {
 
   Future<BoxPlus<int>> _openDeletedIndexBox(String uid) {
     DBManager.open(
-      _deletedIndexTableKey(_covertUidToUidKey(uid)),
+      _deletedIndexTableKey(uid),
       TableInfo.META_DELETED_INDEX_TABLE_NAME,
     );
     return gen(
       Hive.openBox<int>(
-        _deletedIndexTableKey(_covertUidToUidKey(uid)),
+        _deletedIndexTableKey(uid),
       ),
     );
   }

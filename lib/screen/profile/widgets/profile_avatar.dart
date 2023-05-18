@@ -2,23 +2,19 @@ import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/avatar.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  @required
   final Uid roomUid;
   final bool canSetAvatar;
   final bool showSetAvatar;
@@ -114,71 +110,13 @@ class ProfileAvatar extends StatelessWidget {
     _newAvatarPath.add("");
   }
 
-  Future<void> selectAvatar(BuildContext context) async {
-    void openCropAvatar(String imagePath) {
-      _routingService.openViewImagePage(
-        imagePath: imagePath,
-        onEditEnd: (path) {
-          imagePath = path;
-          Navigator.pop(context);
-          _setAvatar(imagePath, context);
-        },
-      );
-    }
-
-    if (isDesktopNativeOrWeb) {
-      if (isLinuxNative) {
-        const typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
-        final file = await openFile(
-          acceptedTypeGroups: [typeGroup],
-        );
-        if (file != null && file.path.isNotEmpty) {
-          openCropAvatar(file.path);
-        }
-      } else {
-        final result =
-            await FilePicker.platform.pickFiles(type: FileType.image);
-        if (result!.files.isNotEmpty) {
-          openCropAvatar(
-            isWeb
-                ? Uri.dataFromBytes(result.files.first.bytes!.toList())
-                    .toString()
-                : result.files.first.path!,
-          );
-        }
-      }
-    } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.2,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                color: Colors.white,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      child: GalleryBox.setAvatar(
-                        scrollController: scrollController,
-                        onAvatarSelected: openCropAvatar,
-                        roomUid: roomUid,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ).ignore();
-    }
+  void selectAvatar(BuildContext context) {
+    AvatarHelper.attachAvatarFile(
+      context: context,
+      onAvatarAttached: (path) {
+        Navigator.pop(context);
+        _setAvatar(path, context);
+      },
+    );
   }
 }

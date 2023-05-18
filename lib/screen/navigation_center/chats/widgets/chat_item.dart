@@ -22,10 +22,12 @@ import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RoomWrapper {
@@ -222,7 +224,12 @@ class ChatItemState extends State<ChatItem> {
 
     return Row(
       children: <Widget>[
-        if (settings.showAvatars.value) ChatAvatar(widget.room.uid),
+        if (settings.showAvatars.value)
+          ChatAvatar(
+            widget.room.uid,
+            borderColor:
+                widget.isInRoom ? theme.colorScheme.primaryContainer : null,
+          ),
         if (settings.showAvatars.value) const SizedBox(width: p8),
         Expanded(
           child: Column(
@@ -230,24 +237,10 @@ class ChatItemState extends State<ChatItem> {
             children: <Widget>[
               Row(
                 children: [
-                  if (widget.room.uid.category == Categories.GROUP)
-                    const Icon(
-                      CupertinoIcons.person_2_fill,
-                      size: 16,
-                    ),
-                  if (widget.room.uid.category == Categories.CHANNEL)
-                    const Icon(
-                      CupertinoIcons.news_solid,
-                      size: 16,
-                    ),
-                  if (widget.room.uid.category == Categories.BOT)
-                    const Icon(
-                      Icons.smart_toy,
-                      size: 16,
-                    ),
-                  if (widget.room.uid.isGroup() ||
-                      widget.room.uid.isChannel() ||
-                      widget.room.uid.isBot())
+                  _buildChatIcon(
+                    _getChatIconDataByUid(widget.room.uid),
+                  ),
+                  if (widget.room.uid.isMuc() || widget.room.uid.isBot())
                     const SizedBox(width: p4),
                   Expanded(
                     child: RoomName(
@@ -394,6 +387,35 @@ class ChatItemState extends State<ChatItem> {
         textDirection: _i18n.defaultTextDirection,
       ),
     ];
+  }
+
+  IconData? _getChatIconDataByUid(Uid uid) {
+    switch (uid.category) {
+      case Categories.BOT:
+        return MdiIcons.robotOutline;
+      case Categories.BROADCAST:
+        return MdiIcons.broadcast;
+      case Categories.CHANNEL:
+        return Icons.campaign_outlined;
+      case Categories.GROUP:
+        return CupertinoIcons.person_2_fill;
+      case Categories.STORE:
+      case Categories.SYSTEM:
+      case Categories.USER:
+        return null;
+    }
+    return null;
+  }
+
+  Widget _buildChatIcon(IconData? iconData) {
+    if (iconData != null) {
+      return Icon(
+        iconData,
+        size: 16,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Widget buildDraftMessageWidget(I18N i18n, BuildContext context) {

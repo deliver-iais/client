@@ -61,5 +61,4 @@ enum MessageType {
 
   @HiveField(18)
   CALL_LOG
-
 }

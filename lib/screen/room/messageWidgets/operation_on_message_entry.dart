@@ -13,7 +13,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -85,10 +84,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ],
                 ),
               ),
-            if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
+            if ((widget.message.roomUid.isGroup() &&
                     widget.hasPermissionInGroup) ||
-                (widget.message.roomUid.asUid().category ==
-                        Categories.CHANNEL &&
+                (widget.message.roomUid.isChannel() &&
                     widget.hasPermissionInChannel))
               if (widget.message.type != MessageType.PERSISTENT_EVENT)
                 if (!widget.isPinned)
@@ -288,28 +286,31 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   }
                 },
               ),
-            if (_hasPermissionToDeleteMsg)
-              widget.message.id != null
-                  ? deleteMenuWidget(
-                      context,
-                      isPendingEditedMessage: pendingEditedMessage.data != null,
-                    )
-                  : FutureBuilder<PendingMessage?>(
-                      future: _messageRepo
-                          .getPendingMessage(widget.message.packetId),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            _isDeletablePendingMessage(snapshot.data!)) {
-                          return deleteMenuWidget(
-                            context,
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-            if (!isPendingMessage &&
+            if (!widget.message.roomUid.isBroadcast())
+              if (_hasPermissionToDeleteMsg)
+                widget.message.id != null
+                    ? deleteMenuWidget(
+                        context,
+                        isPendingEditedMessage:
+                            pendingEditedMessage.data != null,
+                      )
+                    : FutureBuilder<PendingMessage?>(
+                        future: _messageRepo
+                            .getPendingMessage(widget.message.packetId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData &&
+                              snapshot.data != null &&
+                              _isDeletablePendingMessage(snapshot.data!)) {
+                            return deleteMenuWidget(
+                              context,
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+            if (!widget.message.roomUid.isBroadcast() &&
+                !isPendingMessage &&
                 (widget.message.type == MessageType.TEXT ||
                     widget.message.type == MessageType.FILE) &&
                 _autRepo.isCurrentUserSender(widget.message) &&

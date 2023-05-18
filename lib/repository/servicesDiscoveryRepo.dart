@@ -12,6 +12,7 @@ import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/broadcast.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
@@ -33,6 +34,7 @@ class ServicesDiscoveryRepo {
   FirebaseServiceClient? _firebaseServiceClient;
   AvatarServiceClient? _avatarServiceClient;
   GroupServiceClient? _groupServiceClient;
+  BroadcastServiceClient? _broadcastServiceClient;
   ChannelServiceClient? _channelServiceClient;
   LiveLocationServiceClient? _liveLocationServiceClient;
   UserServiceClient? _userServiceClient;
@@ -68,6 +70,9 @@ class ServicesDiscoveryRepo {
       grpcClientInterceptors: grpcClientInterceptors,
     );
     _initGroupClientChannelServices(
+      grpcClientInterceptors: grpcClientInterceptors,
+    );
+    _initBroadcastClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
     );
     _initChannelClientChannelServices(
@@ -190,6 +195,30 @@ class ServicesDiscoveryRepo {
     );
 
     return _groupServiceClient!;
+  }
+
+  BroadcastServiceClient _initBroadcastClientChannelServices({
+    List<ClientInterceptor>? grpcClientInterceptors,
+  }) {
+    final mucServicesClientChannel = ClientChannel(
+      ipOrAddress("query.$APPLICATION_DOMAIN"),
+      options: ChannelOptions(
+        credentials: channelCredentials,
+        connectionTimeout: const Duration(seconds: 2),
+      ),
+    );
+
+    final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
+      Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
+    );
+
+    _broadcastServiceClient = BroadcastServiceClient(
+      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+      options: _getCallOption("query"),
+    );
+
+    return _broadcastServiceClient!;
   }
 
   ChannelServiceClient _initChannelClientChannelServices({
@@ -446,4 +475,7 @@ class ServicesDiscoveryRepo {
 
   AuthServiceClient get authServiceClient =>
       _authServiceClient ?? _initAuthServiceClintChannelServices();
+
+  BroadcastServiceClient get broadcastServiceClient =>
+      _broadcastServiceClient ?? _initBroadcastClientChannelServices();
 }

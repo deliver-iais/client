@@ -18,7 +18,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 class GalleryFolder extends StatefulWidget {
   final AssetPathEntity folder;
-  final Uid roomUid;
+  final Uid? roomUid;
   final void Function() pop;
   final void Function(String)? onAvatarSelected;
   final int replyMessageId;
@@ -27,9 +27,9 @@ class GalleryFolder extends StatefulWidget {
 
   const GalleryFolder(
     this.folder,
-    this.roomUid,
     this.pop, {
     super.key,
+    this.roomUid,
     this.onAvatarSelected,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
@@ -154,7 +154,10 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                     _selectedImage.contains(imagePath);
                                 return GestureDetector(
                                   onTap: () => widget.selectAsAvatar
-                                      ? widget.onAvatarSelected!(imagePath)
+                                      ? {
+                                   Navigator.pop(context),
+                                    widget.pop(),
+                                    widget.onAvatarSelected!(imagePath),}
                                       : _routingService.openViewImagePage(
                                           imagePath: imagePath,
                                           onEditEnd: (path) => imagePath = path,
@@ -264,7 +267,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
   void _sendMessage(String caption) {
     widget.pop();
     _messageRepo.sendMultipleFilesMessages(
-      widget.roomUid,
+      widget.roomUid!,
       _selectedImage.map(pathToFileModel).toList(),
       replyToId: widget.replyMessageId,
       caption: caption,

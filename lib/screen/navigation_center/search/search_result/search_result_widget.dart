@@ -78,6 +78,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                               roomAndContacts.isEmpty &&
                               contacts.isEmpty) {
                             return SizedBox(
+                              width:  MediaQuery.of(context).size.width,
                               height: MediaQuery.of(context).size.height,
                               child: const NoResultWidget(),
                             );

@@ -10,8 +10,8 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ConnectionSettingPage extends StatefulWidget {
@@ -108,8 +108,8 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                       children: [
                         SettingsTile.switchTile(
                           title: _i18n.get("use_custom_ip"),
-                          leading: const FaIcon(
-                            FontAwesomeIcons.networkWired,
+                          leading: const Icon(
+                            MdiIcons.ipNetworkOutline,
                             size: 20,
                           ),
                           switchValue: ipSnapshot.data,

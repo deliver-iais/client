@@ -52,16 +52,16 @@ class RoomName extends StatelessWidget {
                   softWrap: false,
                   overflow: overflow,
                 ),
-                width: 170,
-                borderRadius: mainBorder,
               ),
             ),
             if (status != null) ...[
               Text(
-                 " $status",
+                " $status",
                 style: style,
               ),
-              LoadingDotAnimation(dotsColor: Theme.of(context).colorScheme.primary)
+              LoadingDotAnimation(
+                dotsColor: Theme.of(context).colorScheme.primary,
+              )
             ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),

@@ -92,8 +92,8 @@ class CallStatusDetailsWidget extends StatelessWidget {
               ),
               if (callEvent.callEventOld.callDuration != 0)
                 FutureBuilder<String>(
-                  future:
-                      _callService.getCallDataUsage(callEvent.callEventOld.callId),
+                  future: _callService
+                      .getCallDataUsage(callEvent.callEventOld.callId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&

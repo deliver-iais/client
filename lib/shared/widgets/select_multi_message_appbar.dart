@@ -58,7 +58,9 @@ class SelectMultiMessageAppBar extends StatelessWidget {
     var hasPermissionToDeleteMsg = true;
     var shareType = MessageType.FILE;
     var canShareMessage = true;
-
+    if (selectedMessages.values.isNotEmpty && selectedMessages.values.first.roomUid.isBroadcast()) {
+      hasPermissionToDeleteMsg = false;
+    }
     for (final message in selectedMessages.values.toList()) {
       if (!(_authRepo.isCurrentUserSender(message) ||
           (message.roomUid.isChannel() && hasPermissionInChannel) ||

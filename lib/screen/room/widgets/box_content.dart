@@ -219,9 +219,9 @@ class BoxContentState extends State<BoxContent> {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
-      margin: const EdgeInsetsDirectional.symmetric(horizontal: p8, vertical: p2),
-      padding:
-          const EdgeInsetsDirectional.all(p4),
+      margin:
+          const EdgeInsetsDirectional.symmetric(horizontal: p8, vertical: p2),
+      padding: const EdgeInsetsDirectional.all(p4),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
@@ -413,6 +413,7 @@ class BoxContentState extends State<BoxContent> {
         );
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
+      case MessageType.CALL_LOG:
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,
@@ -421,12 +422,6 @@ class BoxContentState extends State<BoxContent> {
       case MessageType.PERSISTENT_EVENT:
         // we show persistent event message in room page
         break;
-      case MessageType.CALL_LOG:
-        // TODO(amirhossein): complete this
-        return NotSupportedMessage(
-          maxWidth: widget.maxWidth,
-          colorScheme: colorScheme,
-        );
     }
     return Container();
   }

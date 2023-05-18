@@ -9,6 +9,8 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+enum NotificationForegroundServiceType { NOTIFICATION, BROADCAST, CALL }
+
 class NotificationForegroundService {
   static final _i18n = GetIt.I.get<I18N>();
   final _logger = GetIt.I.get<Logger>();
@@ -16,6 +18,9 @@ class NotificationForegroundService {
   ReceivePort? _receivePort;
 
   SendPort? _sendPort;
+
+  NotificationForegroundServiceType foregroundServiceType =
+      NotificationForegroundServiceType.NOTIFICATION;
 
   ReceivePort? get getReceivePort => _receivePort;
 
@@ -41,16 +46,29 @@ class NotificationForegroundService {
 
   Future<bool> callForegroundServiceStart() async {
     if (!settings.foregroundNotificationIsEnabled.value) {
+      foregroundServiceType = NotificationForegroundServiceType.CALL;
       return foregroundTaskInitializing();
     }
     return false;
   }
 
-  Future<void> callForegroundServiceStop() async {
+  Future<bool> broadcastForegroundServiceStart() async {
     if (!settings.foregroundNotificationIsEnabled.value) {
-      await _stopForegroundTask();
+      foregroundServiceType = NotificationForegroundServiceType.BROADCAST;
+      return foregroundTaskInitializing();
+    }
+    return false;
+  }
+
+  Future<void> foregroundServiceStop() async {
+    if (!settings.foregroundNotificationIsEnabled.value) {
+      foregroundServiceType=NotificationForegroundServiceType.NOTIFICATION;
+      if(hasForegroundServiceCapability) {
+        await _stopForegroundTask();
+      }
     }
   }
+
 
   Future<bool> _foregroundTaskInitializing() async {
     if (hasForegroundServiceCapability) {
@@ -67,8 +85,8 @@ class NotificationForegroundService {
   Future<void> _initForegroundTask() async {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'notification_channel_id',
-        channelName: 'Foreground Notification',
+        channelId: 'notification_channel_id $foregroundServiceType',
+        channelName: 'Foreground Notification $foregroundServiceType',
         channelDescription:
             'This notification appears when the foreground service is running.',
         isSticky: false,
@@ -85,7 +103,8 @@ class NotificationForegroundService {
               id: 'stopForegroundNotification',
               text: _i18n.get("notification_foreground_stop"),
             )
-          else
+          else if (foregroundServiceType ==
+              NotificationForegroundServiceType.CALL)
             NotificationButton(
               id: 'stopForegroundNotification',
               text: _i18n.get("end_call"),
@@ -124,9 +143,7 @@ class NotificationForegroundService {
       reqResult = await FlutterForegroundTask.restartService();
     } else {
       reqResult = await FlutterForegroundTask.startService(
-        notificationTitle: foregroundNotification
-            ? _i18n.get("notification_foreground")
-            : _i18n.get("notification_foreground_call"),
+        notificationTitle: getNotificationTitle(),
         notificationText: _i18n.get("notification_tap_to_return"),
         callback: foregroundNotification
             ? startCallbackNotification
@@ -154,6 +171,17 @@ class NotificationForegroundService {
     }
 
     return false;
+  }
+
+  String getNotificationTitle() {
+    switch (foregroundServiceType) {
+      case NotificationForegroundServiceType.NOTIFICATION:
+        return _i18n.get("notification_foreground");
+      case NotificationForegroundServiceType.BROADCAST:
+        return _i18n.get("notification_foreground_broadcast");
+      case NotificationForegroundServiceType.CALL:
+        return _i18n.get("notification_foreground_call");
+    }
   }
 
   Future<bool> _stopForegroundTask() async =>

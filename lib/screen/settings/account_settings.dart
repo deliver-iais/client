@@ -6,19 +6,16 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery_box.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/avatar.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -51,75 +48,6 @@ class AccountSettingsState extends State<AccountSettings> {
   bool _usernameIsAvailable = true;
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
-
-  Future<void> attachFile() async {
-    String? path;
-    if (isDesktopNativeOrWeb) {
-      if (isLinuxNative) {
-        const typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
-        final file = await openFile(
-          acceptedTypeGroups: [typeGroup],
-        );
-        if (file != null) {
-          path = file.path;
-        }
-      } else {
-        final result = await FilePicker.platform
-            .pickFiles(type: FileType.image, allowMultiple: true);
-        if (result != null && result.files.isNotEmpty) {
-          path = isWeb
-              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
-              : result.files.first.path;
-        }
-      }
-
-      if (path != null) {
-        viewSelectedImage(path);
-      }
-    } else {
-      unawaited(
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                  color: Colors.white,
-                  child: Stack(
-                    children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: GalleryBox.setAvatar(
-                          scrollController: scrollController,
-                          onAvatarSelected: (path) => viewSelectedImage(path),
-                          roomUid: _authRepo.currentUserUid,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      );
-    }
-  }
-
-  void viewSelectedImage(String imagePath) => _routingService.openViewImagePage(
-        imagePath: imagePath,
-        onEditEnd: (path) {
-          Navigator.pop(context);
-          setAvatar(path);
-        },
-      );
 
   Future<void> setAvatar(String path) async {
     _newAvatarPath.add(path);
@@ -259,7 +187,14 @@ class AccountSettingsState extends State<AccountSettings> {
                                         icon: const Icon(
                                           Icons.add_a_photo,
                                         ),
-                                        onPressed: () => attachFile(),
+                                        onPressed: () =>
+                                              AvatarHelper.attachAvatarFile(
+                                            context: context,
+                                            onAvatarAttached: (path) {
+                                              Navigator.pop(context);
+                                              setAvatar(path);
+                                            },
+                                          ),
                                       ),
                                     ),
                                   )

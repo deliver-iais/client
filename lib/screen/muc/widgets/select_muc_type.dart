@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -50,7 +51,7 @@ class SelectMucTypeState extends State<SelectMucType> {
               0.0,
             ),
             padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 5,
+              horizontal: p4,
             ),
             decoration: BoxDecoration(
               color: widget.backgroundColor,
@@ -89,7 +90,7 @@ class SelectMucTypeState extends State<SelectMucType> {
   }) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsetsDirectional.all(8.0),
+      padding: const EdgeInsetsDirectional.all(p8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -14,12 +15,21 @@ class MemberSelectionPage extends StatelessWidget {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _mucHelper = GetIt.I.get<MucHelperService>();
   final _i18n = GetIt.I.get<I18N>();
 
   final Uid? mucUid;
-  final bool isChannel;
+  final MucCategories categories;
+  final bool useSmsBroadcastList;
+  final bool resetSelectedMemberOnDispose;
 
-  MemberSelectionPage({super.key, required this.isChannel, this.mucUid});
+  MemberSelectionPage({
+    super.key,
+    required this.categories,
+    this.mucUid,
+    this.useSmsBroadcastList = false,
+    this.resetSelectedMemberOnDispose = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +59,17 @@ class MemberSelectionPage extends StatelessWidget {
                       )
                     else
                       Text(
-                        isChannel
-                            ? _i18n.get("new_channel")
-                            : _i18n.get("new_group"),
+                        useSmsBroadcastList
+                            ? _i18n.get("new_sms_recipient")
+                            : _mucHelper.createNewMucTitle(
+                                categories,
+                              ),
                         style: theme.primaryTextTheme.bodyMedium,
                       ),
                     StreamBuilder<int>(
-                      stream: _createMucService.selectedLengthStream(),
+                      stream: _createMucService.selectedMembersLengthStream(
+                        useBroadcastSmsContacts: useSmsBroadcastList,
+                      ),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
                           return const SizedBox.shrink();
@@ -63,8 +77,8 @@ class MemberSelectionPage extends StatelessWidget {
                         final members = snapshot.data!;
                         return Text(
                           members >= 1
-                              ? '$members ${_i18n.get("of_max_member")}'
-                              : _i18n.get("max_member"),
+                              ? '$members ${_i18n["of"]} ${_createMucService.getMaxMemberLength(categories)}'
+                              : '${_i18n["up_to"]} ${_createMucService.getMaxMemberLength(categories)} ${_i18n["members"]}',
                           style: theme.textTheme.labelSmall,
                         );
                       },
@@ -79,8 +93,10 @@ class MemberSelectionPage extends StatelessWidget {
       body: FluidContainerWidget(
         showStandardContainer: true,
         child: SelectiveContactsList(
-          isChannel: isChannel,
+          categories: categories,
           mucUid: mucUid,
+          useSmsBroadcastList: useSmsBroadcastList,
+          resetSelectedMemberOnDispose: resetSelectedMemberOnDispose,
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -25,6 +26,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _mucHelper = GetIt.I.get<MucHelperService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -44,7 +46,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
             snapshot.data!.isNotEmpty) {
           obtainMyRole(snapshot.data!);
           final widgets = <Widget>[];
-
+          // TODO(ch): refactor and change member list to list view
           for (final member in snapshot.data!) {
             widgets
               ..add(const Divider())
@@ -97,7 +99,8 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                 PopupMenuButton(
                                   icon: const Icon(Icons.more_vert, size: 18),
                                   itemBuilder: (_) => <PopupMenuItem<String>>[
-                                    if (_myRoleInThisRoom == MucRole.OWNER)
+                                    if (!widget.mucUid.isBroadcast() &&
+                                        _myRoleInThisRoom == MucRole.OWNER)
                                       PopupMenuItem<String>(
                                         value: CHANGE_ROLE,
                                         child: member.role == MucRole.MEMBER
@@ -116,10 +119,11 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                       value: DELETE,
                                       child: Text(_i18n.get("kick")),
                                     ),
-                                    PopupMenuItem<String>(
-                                      value: BAN,
-                                      child: Text(_i18n.get("ban")),
-                                    ),
+                                    if (!widget.mucUid.isBroadcast())
+                                      PopupMenuItem<String>(
+                                        value: BAN,
+                                        child: Text(_i18n.get("ban")),
+                                      ),
                                   ],
                                   onSelected: (key) {
                                     onSelected(key, member);
@@ -133,6 +137,8 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                   (_myRoleInThisRoom == MucRole.ADMIN &&
                                       member.role == MucRole.OWNER))
                                 const SizedBox(width: 40)
+                              else
+                                const SizedBox.shrink(),
                             ],
                           ),
                         )
@@ -208,29 +214,17 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
           );
         }
 
-        widget.mucUid.isGroup()
-            ? _mucRepo.changeGroupMemberRole(m)
-            : _mucRepo.changeChannelMemberRole(m);
+        _mucHelper.changeMucMemberRole(m);
         break;
       case DELETE:
-        if (widget.mucUid.isGroup()) {
-          _mucRepo.kickGroupMembers([member]).then((res) {
-            if (res) {
-              setState(() {});
-            }
-          });
-        } else {
-          _mucRepo.kickChannelMembers([member]).then((res) {
-            if (res) {
-              setState(() {});
-            }
-          });
-        }
+        _mucHelper.kickMucMember(member).then((res) {
+          if (res) {
+            setState(() {});
+          }
+        });
         break;
       case BAN:
-        widget.mucUid.isGroup()
-            ? _mucRepo.banGroupMember(member)
-            : _mucRepo.banChannelMember(member);
+        _mucHelper.banMucMember(member);
         break;
     }
   }
