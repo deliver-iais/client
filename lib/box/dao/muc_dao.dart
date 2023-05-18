@@ -1,8 +1,10 @@
+import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
+import 'package:deliver/shared/extensions/string_extension.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {
@@ -28,11 +30,21 @@ abstract class MucDao {
 
   Future<Member?> getMember(String mucUid, String memberUid);
 
+  Future<List<Contact?>> getAllBroadcastSmsMembers(String mucUid);
+
+  Future<int> getAllBroadcastSmsMembersCount(String mucUid);
+
   Future<List<Member?>> getAllMembers(String mucUid);
+
+  Future<int> getAllMembersCount(String mucUid);
 
   Stream<List<Member?>> watchAllMembers(String mucUid);
 
   Future<void> saveMember(Member member);
+
+  Future<void> saveSmsBroadcastContact(Contact member, String uid);
+
+  Future<void> deleteSmsBroadcastContact(Contact member, String uid);
 
   Future<void> deleteMember(Member member);
 
@@ -98,6 +110,12 @@ class MucDaoImpl extends MucDao {
   }
 
   @override
+  Future<List<Contact?>> getAllBroadcastSmsMembers(String mucUid) async {
+    final box = await _openSmsBroadcastList(mucUid);
+    return box.values.toList();
+  }
+
+  @override
   Future<void> saveMember(Member member) async {
     final box = await _openMembers(member.mucUid);
 
@@ -120,11 +138,25 @@ class MucDaoImpl extends MucDao {
     return gen(Hive.openBox<Muc>(_keyMuc()));
   }
 
-  static String _keyMembers(String uid) => "member-$uid";
+  static String _keyMembers(String uid) =>
+      "member-${uid.convertUidStringToDaoKey()}";
+
+  static String _keySmsBroadcastList(String uid) =>
+      "sms-broadcast-${uid.convertUidStringToDaoKey()}";
 
   Future<BoxPlus<Member>> _openMembers(String uid) {
-    DBManager.open(_keyMembers(uid.replaceAll(":", "-")), TableInfo.MEMBER_TABLE_NAME);
-    return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
+    DBManager.open(_keyMembers(uid), TableInfo.MEMBER_TABLE_NAME);
+    return gen(Hive.openBox<Member>(_keyMembers(uid)));
+  }
+
+  Future<BoxPlus<Contact>> _openSmsBroadcastList(String uid) {
+    DBManager.open(
+      _keySmsBroadcastList(uid),
+      TableInfo.SMS_BROADCAST_TABLE_NAME,
+    );
+    return gen(
+      Hive.openBox<Contact>(_keySmsBroadcastList(uid)),
+    );
   }
 
   @override
@@ -157,5 +189,29 @@ class MucDaoImpl extends MucDao {
           ),
         )
         .ignore();
+  }
+
+  @override
+  Future<void> deleteSmsBroadcastContact(Contact member, String uid) async {
+    final box = await _openSmsBroadcastList(uid);
+    return box.delete(member.nationalNumber);
+  }
+
+  @override
+  Future<void> saveSmsBroadcastContact(Contact member, String uid) async {
+    final box = await _openSmsBroadcastList(uid);
+    return box.put(member.nationalNumber.toString(), member);
+  }
+
+  @override
+  Future<int> getAllMembersCount(String mucUid) async {
+    final box = await _openMembers(mucUid);
+    return box.keys.length;
+  }
+
+  @override
+  Future<int> getAllBroadcastSmsMembersCount(String mucUid) async {
+    final box = await _openSmsBroadcastList(mucUid);
+    return box.keys.length;
   }
 }

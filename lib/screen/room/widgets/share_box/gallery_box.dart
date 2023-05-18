@@ -13,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 
 class GalleryBox extends StatefulWidget {
   final ScrollController scrollController;
-  final Uid roomUid;
+  final Uid? roomUid;
   final int replyMessageId;
   final void Function(String)? onAvatarSelected;
   final void Function()? resetRoomPageDetails;
@@ -31,7 +31,7 @@ class GalleryBox extends StatefulWidget {
   const GalleryBox.setAvatar({
     super.key,
     required this.scrollController,
-    required this.roomUid,
+    this.roomUid,
     this.onAvatarSelected,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
@@ -162,7 +162,7 @@ class GalleryBoxState extends State<GalleryBox> {
                           builder: (c) {
                             return GalleryFolder(
                               folder,
-                              widget.roomUid,
+                              roomUid:widget.roomUid,
                               () => Navigator.pop(context),
                               onAvatarSelected: widget.onAvatarSelected,
                               selectAsAvatar: widget.selectAsAvatar,

@@ -6,6 +6,7 @@ import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
@@ -20,13 +21,16 @@ import 'package:grpc/grpc.dart';
 
 class SelectiveContactsList extends StatefulWidget {
   final Uid? mucUid;
-
-  final bool isChannel;
+  final bool useSmsBroadcastList;
+  final MucCategories categories;
+  final bool resetSelectedMemberOnDispose;
 
   const SelectiveContactsList({
     super.key,
-    required this.isChannel,
+    required this.categories,
     this.mucUid,
+    this.useSmsBroadcastList = false,
+    this.resetSelectedMemberOnDispose = false,
   });
 
   @override
@@ -40,6 +44,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final List<Contact> _lastSelectedMembers = [];
 
   late TextEditingController editingController;
 
@@ -52,12 +57,29 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   List<String> members = [];
 
   @override
+  void dispose() {
+    if (widget.resetSelectedMemberOnDispose) {
+      _createMucService.reset();
+    } else {
+      _createMucService.addContactList(
+        _lastSelectedMembers,
+        useBroadcastSmsContacts: widget.useSmsBroadcastList,
+      );
+    }
+    super.dispose();
+  }
+
+  @override
   void initState() {
+    _lastSelectedMembers.addAll(
+      _createMucService.getContacts(
+        useBroadcastSmsContacts: widget.useSmsBroadcastList,
+      ),
+    );
     editingController = TextEditingController();
     if (widget.mucUid != null) {
       getMembers();
     }
-    _createMucService.reset();
     super.initState();
   }
 
@@ -118,32 +140,46 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             ),
             Expanded(
               child: FutureBuilder<List<Contact>>(
-                future: _contactRepo.getAllUserAsContact(),
+                future: widget.useSmsBroadcastList
+                    ? _contactRepo.getNotMessengerContacts()
+                    : _contactRepo.getAllUserAsContact(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
-                    contacts = snapshot.data!
-                        .whereNot((element) => element.uid == null)
-                        .where(
-                          (element) =>
-                              !_authRepo.isCurrentUser(element.uid!) &&
-                              !element.isUsersContact(),
-                        )
-                        .toList();
+                    contacts = widget.useSmsBroadcastList
+                        ? snapshot.data!
+                            .where(
+                              (element) => checkIsPhoneNumber(
+                                element.countryCode,
+                                element.nationalNumber,
+                              ),
+                            )
+                            .toList()
+                        : snapshot.data!
+                            .whereNot((element) => element.uid == null)
+                            .where(
+                              (element) =>
+                                  !_authRepo.isCurrentUser(element.uid!) &&
+                                  !element.isUsersContact(),
+                            )
+                            .toList();
 
                     items ??= contacts;
 
                     if (items!.isNotEmpty) {
                       return StreamBuilder<int>(
-                        stream: _createMucService.selectedLengthStream(),
+                        stream: _createMucService.selectedMembersLengthStream(
+                          useBroadcastSmsContacts: widget.useSmsBroadcastList,
+                        ),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return const SizedBox.shrink();
                           }
                           return ListView.builder(
                             itemCount: items!.length,
-                            itemBuilder: _getListItemTile,
+                            itemBuilder: (c, index) =>
+                                _getListItemTile(context, index),
                           );
                         },
                       );
@@ -178,7 +214,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
           ],
         ),
         StreamBuilder<int>(
-          stream: _createMucService.selectedLengthStream(),
+          stream: _createMucService.selectedMembersLengthStream(
+            useBroadcastSmsContacts: widget.useSmsBroadcastList,
+          ),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
@@ -195,12 +233,14 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         label: Text(_i18n["add"]),
                         onPressed: () async {
                           final users = <Uid>[];
-                          for (final contact in _createMucService.contacts) {
+                          for (final contact in _createMucService.getContacts(
+                            useBroadcastSmsContacts: widget.useSmsBroadcastList,
+                          )) {
                             if (contact.uid != null) {
                               users.add(contact.uid!.asUid());
                             }
                           }
-                          final usersAddCode = await _mucRepo.sendMembers(
+                          final usersAddCode = await _mucRepo.addMucMember(
                             widget.mucUid!,
                             users,
                           );
@@ -228,17 +268,24 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           }
                         },
                       )
-                    : FloatingActionButton.extended(
-                        heroTag: "select_contacts",
-                        icon: const Icon(
-                          Icons.chevron_right_rounded,
+                    : Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 5,
                         ),
-                        label: Text(_i18n["next"]),
-                        onPressed: () {
-                          _routingService.openMucInfoDeterminationPage(
-                            isChannel: widget.isChannel,
-                          );
-                        },
+                        child: FloatingActionButton.extended(
+                          heroTag: "select_contacts",
+                          icon: const Icon(
+                            Icons.chevron_right_rounded,
+                          ),
+                          label: widget.useSmsBroadcastList
+                              ? Text(_i18n["add"])
+                              : Text(_i18n["next"]),
+                          onPressed: () {
+                            _routingService.openMucInfoDeterminationPage(
+                              categories: widget.categories,
+                            );
+                          },
+                        ),
                       ),
               );
             } else {
@@ -254,20 +301,50 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     return GestureDetector(
       onTap: () {
         if (!members.contains(items![index].uid)) {
-          if (!_createMucService.isSelected(items![index])) {
-            _createMucService.addContact(items![index]);
-            editingController.clear();
+          if (!_createMucService.isSelected(
+            items![index],
+            useBroadcastSmsContacts: widget.useSmsBroadcastList,
+          )) {
+            if (_createMucService
+                    .selectedMembersLengthStream(
+                      useBroadcastSmsContacts: widget.useSmsBroadcastList,
+                    )
+                    .value <
+                _createMucService.getMaxMemberLength(widget.categories)) {
+              _createMucService.addContact(
+                items![index],
+                useBroadcastSmsContacts: widget.useSmsBroadcastList,
+              );
+              editingController.clear();
+            } else {
+              ToastDisplay.showToast(
+                toastText: _i18n.get("member_max_length_error"),
+                toastContext: context,
+              );
+            }
           } else {
-            _createMucService.deleteContact(items![index]);
+            _createMucService.deleteContact(
+              items![index],
+              useBroadcastSmsContacts: widget.useSmsBroadcastList,
+            );
             editingController.clear();
           }
         }
       },
       child: ContactWidget(
         contact: items![index],
-        isSelected: _createMucService.isSelected(items![index]),
+        isSelected: _createMucService.isSelected(
+          items![index],
+          useBroadcastSmsContacts: widget.useSmsBroadcastList,
+        ),
         currentMember: members.contains(items![index].uid),
       ),
     );
+  }
+
+  bool checkIsPhoneNumber(int countryCode, int phoneNumber) {
+    final regex =
+        RegExp(r'^(0|0098|98)9(0[1-5]|[1 3]\d|2[0-2]|9[0-4]|98)\d{7}$');
+    return regex.hasMatch("$countryCode$phoneNumber");
   }
 }

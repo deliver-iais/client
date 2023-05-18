@@ -148,4 +148,17 @@ class PendingMessageDaoImpl extends PendingMessageDao {
         .watch()
         .map((event) => event.map((e) => e.fromIsar()).toList());
   }
+
+  @override
+  Future<void> deleteAllPendingMessageForRoom(String roomUid) async {
+    final box = await _openPendingMessageIsar();
+
+    return box.writeTxnSync(() {
+      box.pendingMessageIsars
+          .filter()
+          .roomUidEqualTo(roomUid)
+          .build()
+          .deleteAllSync();
+    });
+  }
 }

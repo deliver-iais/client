@@ -31,13 +31,14 @@ class MessageAdapter extends TypeAdapter<Message> {
       encrypted: fields[9] as bool,
       forwardedFrom: fields[7] as String?,
       markup: fields[13] as String?,
+      generatedBy: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Message obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.roomUid)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class MessageAdapter extends TypeAdapter<Message> {
       ..writeByte(12)
       ..write(obj.isHidden)
       ..writeByte(13)
-      ..write(obj.markup);
+      ..write(obj.markup)
+      ..writeByte(14)
+      ..write(obj.generatedBy);
   }
 
   @override

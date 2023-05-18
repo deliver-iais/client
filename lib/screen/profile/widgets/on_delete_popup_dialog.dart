@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/models/operation_on_room.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -10,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class OnDeletePopupDialog extends StatefulWidget {
-  final String selected;
+  final OperationOnRoom selected;
   final Uid roomUid;
   final String roomName;
 
@@ -26,7 +27,7 @@ class OnDeletePopupDialog extends StatefulWidget {
 }
 
 class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
-  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucHelper = GetIt.I.get<MucHelperService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -41,20 +42,16 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
       title = _i18n.get("delete_chat");
       description =
           "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}";
-    } else if (widget.roomUid.isChannel()) {
-      title = _i18n.get("left_channel");
-      description =
-          "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}";
     } else {
-      title = _i18n.get("left_group");
+      title = _mucHelper.leftMucTitle(widget.roomUid);
       description =
-          "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}";
+          _mucHelper.leftMucDescription(widget.roomUid, widget.roomName);
     }
 
     return Focus(
       autofocus: true,
       child: Container(
-        child: widget.selected == "delete_room"
+        child: widget.selected==OperationOnRoom.DELETE_ROOM
             ? deletePopupDialog(
                 title: title,
                 description: description,
@@ -63,12 +60,9 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                 },
               )
             : deletePopupDialog(
-                title: widget.roomUid.isChannel()
-                    ? _i18n.get("delete_channel")
-                    : _i18n.get("delete_group"),
-                description: widget.roomUid.isGroup()
-                    ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
-                    : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
+                title: _mucHelper.deleteMucTitle(widget.roomUid),
+                description: _mucHelper.deleteMucDescription(
+                    widget.roomUid, widget.roomName,),
                 onPressed: () {
                   _deleteMuc();
                 },
@@ -138,7 +132,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   }
 
   Future<void> _leftMuc() async {
-    final result = await _mucRepo.leaveMuc(widget.roomUid);
+    final result = await _mucHelper.leaveMuc(widget.roomUid);
     if (result) {
       await _analyticsService.sendLogEvent(
         "leftMuc",
@@ -158,7 +152,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   }
 
   Future<void> _deleteMuc() async {
-    final result = await _mucRepo.removeMuc(widget.roomUid);
+    final result = await _mucHelper.removeMuc(widget.roomUid);
     if (result) {
       await _analyticsService.sendLogEvent("deleteMuc");
       _navigateHomePage();

@@ -1,33 +1,32 @@
+import 'dart:async';
+
 import 'package:badges/badges.dart' as badges;
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/meta_type.dart';
-
 import 'package:deliver/box/muc.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/operation_on_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
-
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/profile/widgets/call_tab/call_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/media_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
-import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
-import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -37,17 +36,15 @@ import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,8 +80,6 @@ class ProfilePageState extends State<ProfilePage>
   bool _isMucAdminOrOwner = false;
   bool _isBotOwner = false;
   bool _isMucOwner = false;
-  String _roomName = "";
-  bool _roomIsBlocked = false;
 
   final BehaviorSubject<bool> _selectMediasForForward =
       BehaviorSubject.seeded(false);
@@ -198,7 +193,7 @@ class ProfilePageState extends State<ProfilePage>
 
             _tabController = TabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                      (widget.roomUid.isPrivateBaseMuc() && _isMucAdminOrOwner))
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
@@ -206,7 +201,7 @@ class ProfilePageState extends State<ProfilePage>
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                      (widget.roomUid.isPrivateBaseMuc() && _isMucAdminOrOwner))
                   ? _tabsCount + 1
                   : _tabsCount,
               child: NestedScrollView(
@@ -304,7 +299,7 @@ class ProfilePageState extends State<ProfilePage>
                                   isScrollable: true,
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
-                                        (widget.roomUid.isChannel() &&
+                                        (widget.roomUid.isPrivateBaseMuc() &&
                                             _isMucAdminOrOwner))
                                       Tab(text: _i18n.get("members")),
                                     ..._getTabList(metaCount),
@@ -326,7 +321,8 @@ class ProfilePageState extends State<ProfilePage>
                     controller: _tabController,
                     children: [
                       if (widget.roomUid.isGroup() ||
-                          (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                          (widget.roomUid.isPrivateBaseMuc() &&
+                              _isMucAdminOrOwner))
                         SingleChildScrollView(
                           child: MucMemberWidget(
                             mucUid: widget.roomUid,
@@ -408,23 +404,26 @@ class ProfilePageState extends State<ProfilePage>
 
   Widget _buildSliverAppbar() {
     final theme = Theme.of(context);
-    return SliverAppBar.medium(
+    return SliverAppBar(
+      pinned: true,
       actions: <Widget>[
         if ((widget.roomUid.isMuc() && _isMucOwner) || _isBotOwner)
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  _routingService
-                      .openManageMuc(widget.roomUid.asString())
-                      ?.then((value) => setState(() => {}));
-                  // showManageDialog();
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              final muc = await _mucRepo.getMuc(
+                widget.roomUid.asString(),
+              );
+              unawaited(
+                _routingService.openManageMuc(
+                  widget.roomUid.asString(),
+                  mucType: muc!.mucType,
+                ),
+              );
+              // showManageDialog();
+            },
           ),
+        const SizedBox(width: 8),
         _buildMenu(context),
       ],
       elevation: 10,
@@ -434,8 +433,8 @@ class ProfilePageState extends State<ProfilePage>
       expandedHeight: 170,
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsetsDirectional.only(
-          end: 35.0,
-          start: 35.0,
+          end: 70,
+          start: 70,
           top: 2.0,
         ),
         expandedTitleScale: 1.1,
@@ -599,7 +598,7 @@ class ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
+            if (!widget.roomUid.isPrivateBaseMuc() || _isMucAdminOrOwner)
               Padding(
                 padding: const EdgeInsetsDirectional.only(top: 8.0),
                 child: SettingsTile(
@@ -686,9 +685,19 @@ class ProfilePageState extends State<ProfilePage>
                   title: _i18n.get("add_member"),
                   leading: const Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
-                    isChannel: true,
+                    categories: MucCategories.CHANNEL,
                     mucUid: widget.roomUid,
                   ),
+                ),
+              ),
+            if (widget.roomUid.isBroadcast())
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SettingsTile(
+                  title: _i18n.get("broad_casts_status"),
+                  leading: const Icon(MdiIcons.broadcast, size: 20),
+                  onPressed: (_) => _routingService
+                      .openBroadcastStatsPage(widget.roomUid.asString()),
                 ),
               ),
           ],
@@ -721,111 +730,25 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildMenu(BuildContext context) {
-    final popups = <PopupMenuItem<String>>[
-      if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
-        if (!_isMucOwner)
-          PopupMenuItem<String>(
-            value: "delete_room",
-            child: Row(
-              children: [
-                Icon(
-                  widget.roomUid.isMuc()
-                      ? Icons.arrow_back_outlined
-                      : Icons.delete,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  !widget.roomUid.isMuc()
-                      ? _i18n.get("delete_chat")
-                      : widget.roomUid.isGroup()
-                          ? _i18n.get("left_group")
-                          : _i18n.get("left_channel"),
-                ),
-              ],
-            ),
-          ),
-      if (widget.roomUid.isMuc() && _isMucOwner)
-        PopupMenuItem<String>(
-          value: "deleteMuc",
-          child: Row(
-            children: [
-              const Icon(Icons.delete),
-              const SizedBox(width: 8),
-              Text(
-                widget.roomUid.isGroup()
-                    ? _i18n.get("delete_group")
-                    : _i18n.get("delete_channel"),
-              )
-            ],
-          ),
-        ),
-      if (widget.roomUid.category == Categories.BOT)
-        PopupMenuItem<String>(
-          value: "addBotToGroup",
-          child: Row(
-            children: [
-              const Icon(Icons.person_add),
-              const SizedBox(width: 8),
-              Text(
-                _i18n.get("add_to_group"),
-              ),
-            ],
-          ),
-        ),
-      PopupMenuItem<String>(
-        value: "report",
-        child: Row(
-          children: [
-            const Icon(Icons.report),
-            const SizedBox(width: 8),
-            Text(
-              _i18n.get("report"),
-            ),
-          ],
-        ),
-      ),
-      if (!widget.roomUid.isMuc())
-        PopupMenuItem<String>(
-          value: "blockRoom",
-          child: StreamBuilder<bool?>(
-            stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
-            builder: (c, s) {
-              if (s.hasData) {
-                _roomIsBlocked = s.data ?? false;
-                return Row(
-                  children: [
-                    const Icon(Icons.block),
-                    const SizedBox(width: 8),
-                    Text(
-                      s.data == null || !s.data!
-                          ? _i18n.get("blockRoom")
-                          : _i18n.get("unblock_room"),
-                    ),
-                  ],
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-        )
-    ];
-
     return GestureDetector(
       onPanDown: storeDragDownPosition,
       child: IconButton(
         icon: const Icon(
           Icons.more_vert,
         ),
-        onPressed: () => this
-            .showMenu(context: context, items: popups)
-            .then((selectedString) => onSelected(selectedString ?? "")),
+        onPressed: () => this.showMenu(
+          context: context,
+          items: <PopupMenuEntry<OperationOnRoom>>[
+            OperationOnRoomEntry(
+              roomId: widget.roomUid.asString(),
+            )
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _setupRoomSettings() async {
-    _roomName = await _roomRepo.getName(widget.roomUid);
     if (widget.roomUid.isMuc()) {
       try {
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
@@ -836,6 +759,7 @@ class ProfilePageState extends State<ProfilePage>
           _authRepo.currentUserUid.asString(),
           widget.roomUid.asString(),
         );
+
         setState(() {
           _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
@@ -894,252 +818,6 @@ class ProfilePageState extends State<ProfilePage>
     } else {
       return null;
     }
-  }
-
-  void onSelected(String selected) {
-    switch (selected) {
-      case "delete_room":
-        showDialog(
-          context: context,
-          builder: (context) {
-            return OnDeletePopupDialog(
-              roomUid: widget.roomUid,
-              selected: selected,
-              roomName: _roomName,
-            );
-          },
-        );
-        break;
-      case "deleteMuc":
-        showDialog(
-          context: context,
-          builder: (context) {
-            return OnDeletePopupDialog(
-              roomUid: widget.roomUid,
-              selected: selected,
-              roomName: _roomName,
-            );
-          },
-        );
-        break;
-      case "blockRoom":
-        _roomRepo.block(widget.roomUid.asString(), block: !_roomIsBlocked);
-        break;
-      case "report":
-        _roomRepo.reportRoom(widget.roomUid);
-        ToastDisplay.showToast(
-          toastText: _i18n.get("report_result"),
-          toastContext: context,
-        );
-        break;
-      case "addBotToGroup":
-        _showAddBotToGroupDialog();
-        break;
-    }
-  }
-
-  void _showAddBotToGroupDialog() {
-    final nameOfGroup = <String, String>{};
-    final groups = BehaviorSubject<List<String>>.seeded([]);
-
-    showDialog(
-      context: context,
-      builder: (c1) {
-        return Focus(
-          autofocus: true,
-          child: AlertDialog(
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                onPressed: () => Navigator.of(c1).pop(),
-                child: Text(_i18n.get("cancel")),
-              )
-            ],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: Text(_i18n.get("add_bot_to_group")),
-            content: SizedBox(
-              width: 350,
-              height: MediaQuery.of(context).size.height / 2,
-              child: Column(
-                children: [
-                  AutoDirectionTextField(
-                    onChanged: (str) {
-                      final searchRes = <String>[];
-                      for (final uid in nameOfGroup.keys) {
-                        if (nameOfGroup[uid]!.contains(str) ||
-                            nameOfGroup[uid] == str) {
-                          searchRes.add(uid);
-                        }
-                      }
-                      groups.add(searchRes);
-                    },
-                    decoration: InputDecoration(
-                      hintText: _i18n.get("search"),
-                      prefixIcon: const Icon(Icons.search),
-                      border: const UnderlineInputBorder(),
-                    ),
-                  ),
-                  FutureBuilder<List<Room>>(
-                    future: _roomRepo.getAllGroups(),
-                    builder: (c, mucs) {
-                      if (mucs.hasData &&
-                          mucs.data != null &&
-                          mucs.data!.isNotEmpty) {
-                        final s = <String>[];
-                        for (final room in mucs.data!) {
-                          s.add(room.uid.asString());
-                        }
-                        groups.add(s);
-
-                        return StreamBuilder<List<String>>(
-                          stream: groups,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              if (snapshot.data!.isEmpty) {
-                                return noGroupFoundWidget();
-                              } else {
-                                final filteredGroupList = snapshot.data!;
-                                return Expanded(
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemBuilder: (c, i) {
-                                      return GestureDetector(
-                                        child: FutureBuilder<String>(
-                                          future: _roomRepo.getName(
-                                            filteredGroupList[i].asUid(),
-                                          ),
-                                          builder: (c, name) {
-                                            if (name.hasData &&
-                                                name.data != null) {
-                                              nameOfGroup[
-                                                      filteredGroupList[i]] =
-                                                  name.data!;
-                                              return SizedBox(
-                                                height: 50,
-                                                child: Row(
-                                                  children: [
-                                                    CircleAvatarWidget(
-                                                      filteredGroupList[i]
-                                                          .asUid(),
-                                                      20,
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Expanded(
-                                                      child: Text(
-                                                        name.data!,
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              );
-                                            } else {
-                                              return const SizedBox.shrink();
-                                            }
-                                          },
-                                        ),
-                                        onTap: () => _addBotToGroupButtonOnTab(
-                                          context,
-                                          c1,
-                                          filteredGroupList[i],
-                                          nameOfGroup[filteredGroupList[i]],
-                                        ),
-                                      );
-                                    },
-                                    itemCount: snapshot.data!.length,
-                                  ),
-                                );
-                              }
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  const Divider(),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget noGroupFoundWidget() {
-    return Expanded(child: Center(child: Text(_i18n.get("no_results"))));
-  }
-
-  void _addBotToGroupButtonOnTab(
-    BuildContext context,
-    BuildContext c1,
-    String uid,
-    String? mucName,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Icon(Icons.person_add),
-          content: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (c, name) {
-              if (name.hasData && name.data != null && name.data!.isNotEmpty) {
-                return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(_i18n.get("cancel")),
-            ),
-            TextButton(
-              onPressed: () async {
-                final basicNavigatorState = Navigator.of(context);
-                final c1NavigatorState = Navigator.of(c1);
-
-                final usersAddCode =
-                    await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
-                if (usersAddCode == StatusCode.ok) {
-                  basicNavigatorState.pop();
-                  c1NavigatorState.pop();
-                  _routingService.openRoom(
-                    uid,
-                  );
-                } else {
-                  var message = _i18n.get("error_occurred");
-                  if (usersAddCode == StatusCode.unavailable) {
-                    message = _i18n.get("notwork_is_unavailable");
-                  } else if (usersAddCode == StatusCode.permissionDenied ||
-                      usersAddCode == StatusCode.internal) {
-                    message = _i18n.get("permission_denied");
-                  }
-                  c1NavigatorState.pop();
-                  if (context.mounted) {
-                    ToastDisplay.showToast(
-                      toastContext: context,
-                      toastText: message,
-                    );
-                  }
-                }
-              },
-              child: Text(_i18n.get("add")),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
 

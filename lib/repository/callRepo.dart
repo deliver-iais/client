@@ -1769,7 +1769,7 @@ class CallRepo {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
       }
       if (hasForegroundServiceCapability) {
-        await _notificationForegroundService.callForegroundServiceStop();
+        await _notificationForegroundService.foregroundServiceStop();
       }
       if (isAndroidNative) {
         _isNotificationSelected = false;

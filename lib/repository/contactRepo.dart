@@ -270,6 +270,9 @@ class ContactRepo {
   Future<List<contact_model.Contact>> getAllUserAsContact() =>
       _contactDao.getAllMessengerContacts();
 
+  Future<List<contact_model.Contact>> getNotMessengerContacts() =>
+      _contactDao.getNotMessengerContacts();
+
   Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 

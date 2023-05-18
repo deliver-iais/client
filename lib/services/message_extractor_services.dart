@@ -316,7 +316,7 @@ class MessageExtractorServices {
             pe.mucSpecificPersistentEvent.messageId.toInt(),
           );
         }
-        final issue = persistentEventHandlerService
+        final issue = await persistentEventHandlerService
             .getMucSpecificPersistentEventIssue(pe, isChannel: isChannel);
         final assignee = await persistentEventHandlerService
             .getAssignerNameFromMucSpecificPersistentEvent(

@@ -22,6 +22,7 @@ import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
+import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -68,6 +69,7 @@ class DataStreamServices {
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
+  final _broadcastService = GetIt.I.get<BroadcastService>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -460,46 +462,113 @@ class DataStreamServices {
     final packetId = messageDeliveryAck.packetId;
     final id = messageDeliveryAck.id.toInt();
     final time = messageDeliveryAck.time.toInt();
-
-    final pm = await _pendingMessageDao.getPendingMessage(packetId);
-    if (pm != null) {
-      final msg = pm.msg.copyWith(id: id, time: time);
-      if (msg.type == MessageType.FILE) {
-        final file = msg.json.toFile();
-        await _checkForNewMedia(file, msg.roomUid.asUid());
+    final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
+    if (isMessageSendByBroadcastMuc) {
+      await _saveAndCreateBroadcastMessage(messageDeliveryAck);
+    } else {
+      final pm = await _pendingMessageDao.getPendingMessage(packetId);
+      if (pm != null) {
+        final msg = pm.msg.copyWith(id: id, time: time);
+        if (msg.type == MessageType.FILE) {
+          final file = msg.json.toFile();
+          await _checkForNewMedia(file, msg.roomUid.asUid());
+        }
+        try {
+          await _pendingMessageDao.deletePendingMessage(packetId);
+        } catch (e) {
+          _logger.e(e);
+        }
+        if (pm.roomUid.isBroadcast()) {
+          unawaited(_broadcastService.startBroadcast(msg));
+        }
+        await _saveMessageAndUpdateRoomAndSeen(msg, messageDeliveryAck);
+      } else {
+        await _analyticsService.sendLogEvent(
+          "nullPendingMessageOnAck",
+          parameters: {
+            "packetId": messageDeliveryAck.packetId,
+          },
+        );
       }
+    }
+  }
+
+  bool _isBroadcastMessage(
+    String packetId,
+  ) {
+    final splitPacketId = packetId.split("-");
+    if (splitPacketId.length > 3 && splitPacketId[2] == "1") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<void> _saveAndCreateBroadcastMessage(
+    MessageDeliveryAck messageDeliveryAck,
+  ) async {
+    final broadcastRoomUid = _broadcastService
+        .getBroadcastPendingMessage(messageDeliveryAck.packetId);
+    if (broadcastRoomUid != null) {
       try {
-        await _pendingMessageDao.deletePendingMessage(packetId);
+        await _broadcastService.deletePendingBroadcastMessage(
+          messageDeliveryAck.packetId,
+          broadcastRoomUid,
+        );
       } catch (e) {
         _logger.e(e);
       }
-      await _messageDao.saveMessage(msg);
-      await _roomDao.updateRoom(
-        uid: msg.roomUid.asUid(),
-        lastMessage: msg.isHidden ? null : msg,
-        lastMessageId: msg.id,
+      final broadcastMessageId = _broadcastService
+          .getBroadcastIdFromPacketId(messageDeliveryAck.packetId);
+
+      final broadcastMessage = await _messageDao.getMessage(
+        broadcastRoomUid,
+        broadcastMessageId,
       );
-      if (msg.isHidden) {
-        return _increaseHiddenMessageCount(msg.roomUid);
+      final msg = broadcastMessage?.copyWith(
+        to: messageDeliveryAck.to.asString(),
+        from: messageDeliveryAck.from.asString(),
+        time: messageDeliveryAck.time.toInt(),
+        packetId: messageDeliveryAck.packetId,
+        id: messageDeliveryAck.id.toInt(),
+        roomUid: messageDeliveryAck.to.asString(),
+      );
+      if (msg != null) {
+        await _saveMessageAndUpdateRoomAndSeen(
+          msg,
+          messageDeliveryAck,
+          shouldNotifyOutgoingMessage: false,
+        );
       }
+    }
+  }
+
+  Future<void> _saveMessageAndUpdateRoomAndSeen(
+    message_model.Message msg,
+    MessageDeliveryAck messageDeliveryAck, {
+    bool shouldNotifyOutgoingMessage = true,
+  }) async {
+    await _messageDao.saveMessage(msg);
+    await _roomDao.updateRoom(
+      uid: msg.roomUid.asUid(),
+      lastMessage: msg.isHidden ? null : msg,
+      lastMessageId: msg.id,
+    );
+    if (msg.isHidden) {
+      return _increaseHiddenMessageCount(msg.roomUid);
+    }
+    if (shouldNotifyOutgoingMessage) {
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
-      final seen = await _roomRepo.getMySeen(msg.roomUid);
-      if (messageDeliveryAck.id > seen.messageId) {
-        _roomRepo
-            .updateMySeen(
-              uid: msg.roomUid,
-              messageId: messageDeliveryAck.id.toInt(),
-            )
-            .ignore();
-      }
-    } else {
-      await _analyticsService.sendLogEvent(
-        "nullPendingMessageOnAck",
-        parameters: {
-          "packetId": messageDeliveryAck.packetId,
-        },
-      );
+    }
+    final seen = await _roomRepo.getMySeen(msg.roomUid);
+    if (messageDeliveryAck.id > seen.messageId) {
+      _roomRepo
+          .updateMySeen(
+            uid: msg.roomUid,
+            messageId: messageDeliveryAck.id.toInt(),
+          )
+          .ignore();
     }
   }
 
@@ -619,7 +688,7 @@ class DataStreamServices {
               (msg.isHidden && msg.id == firstMessageId + 1)) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
             // _roomDao
-            //     .updateRoom(uid: roomUid(), deleted: true)
+            //     .updateRoom(uid: roomUid, deleted: true)
             //     .ignore();
             await _roomRepo.deleteRoom(roomUid);
             break;
@@ -682,7 +751,7 @@ class DataStreamServices {
         for (final msg in messages) {
           if (msg.id! <= firstMessageId) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
-            // await _roomDao.updateRoom(uid: roomUid(), deleted: true);
+            // await _roomDao.updateRoom(uid: roomUid, deleted: true);
             await _roomRepo.deleteRoom(roomUid);
             return null;
           } else if (!msg.isHidden) {
@@ -781,8 +850,16 @@ class DataStreamServices {
       if (messages.last.id - message.id < 100) {
         await _checkForReplyKeyBoard(message);
       }
-      await _pendingMessageDao.deletePendingMessage(message.packetId);
-
+      if (_isBroadcastMessage(message.packetId)) {
+        unawaited(
+          _broadcastService.deletePendingBroadcastMessage(
+            message.packetId,
+            message.generatedBy.asString(),
+          ),
+        );
+      } else {
+        await _pendingMessageDao.deletePendingMessage(message.packetId);
+      }
       try {
         final m = await handleIncomingMessage(
           message,

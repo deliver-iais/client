@@ -10,6 +10,9 @@ import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/broadcast_message_status_type.dart';
+import 'package:deliver/box/broadcast_status.dart';
+import 'package:deliver/box/broadcast_success_and_failed_count.dart';
 import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/call_event.dart';
 import 'package:deliver/box/call_status.dart';
@@ -22,6 +25,7 @@ import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
+import 'package:deliver/box/dao/broadcast_dao.dart';
 import 'package:deliver/box/dao/call_data_usage_dao.dart';
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
@@ -107,11 +111,13 @@ import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/lock/lock.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_auto_play_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/background_service.dart';
+import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -213,11 +219,13 @@ Future<void> setupDI() async {
   registerSingleton<ContactRepo>(ContactRepo());
   registerSingleton<AvatarRepo>(AvatarRepo());
   registerSingleton<MucRepo>(MucRepo());
+  registerSingleton<MucHelperService>(MucHelperService());
   registerSingleton<RoomRepo>(RoomRepo());
   registerSingleton<MetaRepo>(MetaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
   registerSingleton<CachingRepo>(CachingRepo());
+  registerSingleton<BroadcastService>(BroadcastService());
 
   try {
     registerSingleton<AudioAutoPlayService>(AudioAutoPlayService());
@@ -313,7 +321,10 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(EmojiSkinToneAdapter())
     ..registerAdapter(RecentRoomsAdapter())
     ..registerAdapter(RecentSearchAdapter())
-    ..registerAdapter(CallDataUsageAdapter());
+    ..registerAdapter(CallDataUsageAdapter())
+    ..registerAdapter(BroadcastStatusAdapter())
+    ..registerAdapter(BroadcastMessageStatusTypeAdapter())
+    ..registerAdapter(BroadcastSuccessAndFailedCountAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -346,6 +357,8 @@ Future<void> dbSetupDI() async {
   registerSingleton<RecentRoomsDao>(RecentRoomsDaoImpl());
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
   registerSingleton<CallDataUsageDao>(CallDataUsageDaoImpl());
+  registerSingleton<BroadcastDao>(BroadcastDaoImpl());
+
   registerSingleton<IsVerifiedDao>(IsVerifiedDaoImpl());
   await Settings.init();
   registerSingleton<Settings>(Settings());

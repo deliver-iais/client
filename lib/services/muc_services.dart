@@ -1,6 +1,9 @@
 import 'package:deliver/box/message.dart' as db;
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart'
+    as broadcast_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as channel_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
@@ -15,7 +18,7 @@ import 'package:logger/logger.dart';
 
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
-
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _serVices = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<Uid?> createNewGroup(String groupName, String info) async {
@@ -60,6 +63,35 @@ class MucServices {
     }
   }
 
+  Future<int> addBroadcastMembers(
+    List<Member> members,
+    Uid broadcastUid, {
+    bool retry = false,
+  }) async {
+    final addMemberRequest = broadcast_pb.AddMembersReq();
+    for (final member in members) {
+      addMemberRequest.members.add(member.uid);
+    }
+    addMemberRequest.broadcast = broadcastUid;
+    try {
+      await _serVices.broadcastServiceClient.addMembers(
+        addMemberRequest,
+        options: CallOptions(timeout: const Duration(seconds: 6)),
+      );
+      return StatusCode.ok;
+    } on GrpcError catch (e) {
+      if (retry) {
+        return addBroadcastMembers(members, broadcastUid);
+      } else {
+        _logger.e(e);
+        return e.code;
+      }
+    } catch (e) {
+      _logger.e(e);
+      return StatusCode.unknown;
+    }
+  }
+
   Future<group_pb.GetGroupRes?> getGroup(Uid groupUid) async {
     try {
       final request = await _serVices.groupServiceClient
@@ -67,6 +99,29 @@ class MucServices {
       return request;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<broadcast_pb.GetBroadcastRes?> getBroadcast(Uid broadcastUid) async {
+    try {
+      final request = await _serVices.broadcastServiceClient
+          .getBroadcast(broadcast_pb.GetBroadcastReq()..uid = broadcastUid);
+      return request.copyWith((p0) {
+        p0.population++;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> removeBroadcast(Uid broadcastUid) async {
+    try {
+      await _serVices.broadcastServiceClient.removeBroadcast(
+        broadcast_pb.RemoveBroadcastReq()..uid = broadcastUid,
+      );
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -93,7 +148,7 @@ class MucServices {
     }
   }
 
-  Future<group_pb.GetMembersRes> getGroupMembers(
+  Future<(List<Member> members, bool finished)> getGroupMembers(
     Uid groupUid,
     int limit,
     int pointer,
@@ -104,7 +159,7 @@ class MucServices {
         ..pointer = pointer
         ..limit = limit,
     );
-    return request;
+    return (request.members, request.finished);
   }
 
   Future<bool> leaveGroup(Uid groupUid) async {
@@ -217,6 +272,33 @@ class MucServices {
     }
   }
 
+  Future<Uid?> createNewBroadcast(
+    String channelName,
+    String info, {
+    bool retry = true,
+  }) async {
+    try {
+      final request = await _serVices.broadcastServiceClient.createBroadcast(
+        broadcast_pb.CreateBroadcastReq()
+          ..name = channelName
+          ..info = info,
+        options: CallOptions(timeout: const Duration(seconds: 5)),
+      );
+      return request.uid;
+    } catch (e) {
+      _logger.e(e);
+      if (retry) {
+        return createNewBroadcast(
+          channelName,
+          info,
+          retry: false,
+        );
+      } else {
+        return null;
+      }
+    }
+  }
+
   Future<int> addChannelMembers(List<Member> members, Uid mucUid) async {
     try {
       final addMemberRequest = channel_pb.AddMembersReq();
@@ -268,22 +350,36 @@ class MucServices {
     }
   }
 
-  Future<channel_pb.GetMembersRes?> getChannelMembers(
+  Future<(List<Member> members, bool finished)> getChannelMembers(
     Uid channelUid,
     int limit,
     int pointer,
   ) async {
-    try {
-      final request = await _serVices.channelServiceClient.getMembers(
-        channel_pb.GetMembersReq()
-          ..uid = channelUid
-          ..limit = limit
-          ..pointer = pointer,
-      );
-      return request;
-    } catch (e) {
-      return null;
-    }
+    final request = await _serVices.channelServiceClient.getMembers(
+      channel_pb.GetMembersReq()
+        ..uid = channelUid
+        ..limit = limit
+        ..pointer = pointer,
+    );
+    return (request.members, request.finished);
+  }
+
+  Future<(List<Member> members, bool finished)> getBroadcastMembers(
+    Uid mucUid,
+    int limit,
+    int pointer,
+  ) async {
+    final request = await _serVices.broadcastServiceClient.getMembers(
+      broadcast_pb.GetMembersReq()
+        ..uid = mucUid
+        ..limit = limit
+        ..pointer = pointer,
+    );
+    final memberList = request.members
+        .map((e) => Member(uid: e, role: Role.NONE))
+        .toList()
+      ..add(Member(uid: _authRepo.currentUserUid, role: Role.OWNER));
+    return (memberList, request.finished);
   }
 
   Future<bool> leaveChannel(Uid channelUid) async {
@@ -305,6 +401,21 @@ class MucServices {
     kickMembersReq.channel = channelUid;
     try {
       await _serVices.channelServiceClient.kickMembers(kickMembersReq);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> kickBroadcastMembers(
+      List<Member> members, Uid broadcastUid,) async {
+    final kickMembersReq = broadcast_pb.KickMembersReq();
+    for (final member in members) {
+      kickMembersReq.members.add(member.uid);
+    }
+    kickMembersReq.broadcast = broadcastUid;
+    try {
+      await _serVices.broadcastServiceClient.kickMembers(kickMembersReq);
       return true;
     } catch (e) {
       return false;
@@ -367,6 +478,22 @@ class MucServices {
     }
   }
 
+  Future<bool> modifyBroadcast(
+    broadcast_pb.BroadcastInfo broadcastInfo,
+    Uid mucUid,
+  ) async {
+    try {
+      await _serVices.broadcastServiceClient.modifyBroadcast(
+        broadcast_pb.ModifyBroadcastReq()
+          ..info = broadcastInfo
+          ..uid = mucUid,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<void> pinMessage(db.Message message) {
     if (message.roomUid.asUid().category == Categories.GROUP) {
       return _serVices.groupServiceClient.pinMessage(
@@ -400,11 +527,10 @@ class MucServices {
   Future<void> deleteGroupJointToken({required Uid groupUid}) async {
     try {
       await _serVices.groupServiceClient.deleteToken(
-          group_pb.DeleteTokenReq()
-            ..uid = groupUid,
+        group_pb.DeleteTokenReq()..uid = groupUid,
       );
       return;
-    }catch(e){
+    } catch (e) {
       return;
     }
   }
@@ -425,11 +551,10 @@ class MucServices {
   Future<void> deleteChannelJointToken({required Uid channelUid}) async {
     try {
       await _serVices.channelServiceClient.deleteToken(
-          channel_pb.DeleteTokenReq()
-            ..uid = channelUid,
+        channel_pb.DeleteTokenReq()..uid = channelUid,
       );
       return;
-    }catch(e){
+    } catch (e) {
       return;
     }
   }

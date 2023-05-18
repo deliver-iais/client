@@ -55,38 +55,18 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       context: context,
       items: <PopupMenuEntry<OperationOnRoom>>[
         OperationOnRoomEntry(
-          room: room,
+          roomId: room.uid.asString(),
           isPinned: room.pinned,
+          onPinRoom: pinTheRoom,
         )
       ],
-    ).then<void>((opr) async {
-      if (opr == null) {
-        return;
-      }
-      switch (opr) {
-        case OperationOnRoom.PIN_ROOM:
-          pinTheRoom(room);
-          break;
-        case OperationOnRoom.UN_PIN_ROOM:
-          unPinTheRoom(room);
-          break;
-        case OperationOnRoom.MUTE_ROOM:
-        case OperationOnRoom.Un_MUTE_ROOM:
-        case OperationOnRoom.DELETE_ROOM:
-        case OperationOnRoom.REPORT:
-          break;
-      }
-    });
+    );
   }
 
-  void unPinTheRoom(Room room) {
-    _roomDao.updateRoom(uid: room.uid, pinned: false, pinId: 0);
-  }
-
-  void pinTheRoom(Room room) {
+  void pinTheRoom(String roomId) {
     if (canPinTheRoom()) {
       _roomDao.updateRoom(
-        uid: room.uid,
+        uid: roomId.asUid(),
         pinned: true,
         pinId: _pinRoomsList.length + 1,
       );

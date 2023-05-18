@@ -1,5 +1,3 @@
-
-
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -12,4 +10,5 @@ enum MucType {
 
   @HiveField(1)
   Public,
+
 }

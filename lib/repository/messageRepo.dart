@@ -999,6 +999,11 @@ class MessageRepo {
     _coreServices.sendMessage(byClient);
   }
 
+  void sendBroadcastMessageToServer(Message message) {
+    final byClient = _createMessageByClient(message);
+    _coreServices.sendMessage(byClient);
+  }
+
   message_pb.MessageByClient _createMessageByClient(Message message) {
     final byClient = message_pb.MessageByClient()
       ..packetId = message.packetId
@@ -1007,6 +1012,9 @@ class MessageRepo {
 
     if (message.forwardedFrom != null) {
       byClient.forwardFrom = message.forwardedFrom!.asUid();
+    }
+    if (message.generatedBy != null) {
+      byClient.generatedBy = message.generatedBy!.asUid();
     }
 
     switch (message.type) {
@@ -1315,11 +1323,27 @@ class MessageRepo {
   String _getPacketId() =>
       "${clock.now().millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
 
-  Future<String> _getPacketIdWithLastMessageId(String roomUid) async {
+  Future<String> _getPacketIdWithLastMessageId(
+    String roomUid, {
+    bool isBroadcastMessage = false,
+    int? id,
+  }) async {
     //get roomUid LastMessageId
     final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid.asUid());
+    //if message is broadcast set 1 and if is normal message set 0;
+    final broadcast = isBroadcastMessage ? 1 : 0;
+    return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-$broadcast-$id-${randomVM.nextInt(RANDOM_SIZE)}";
+  }
 
-    return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-${randomVM.nextInt(RANDOM_SIZE)}";
+  Future<String> createBroadcastMessagePackedId(
+    String broadcastRoomUid,
+    int broadcastMessageId,
+  ) {
+    return _getPacketIdWithLastMessageId(
+      broadcastRoomUid,
+      isBroadcastMessage: true,
+      id: broadcastMessageId,
+    );
   }
 
   Future<List<Message?>> getPage(
@@ -1482,7 +1506,19 @@ class MessageRepo {
     final pm = await _pendingMessageDao.getPendingMessage(msg.packetId);
     unawaited(_saveAndSend(pm!));
   }
-
+  Future<void> onDeletePendingMessage(Message message) async {
+    final room = (await _roomRepo.getRoom(message.roomUid.asUid()));
+    if (room != null) {
+      await _dataStreamServices.fetchLastNotHiddenMessage(
+        room.uid,
+        room.lastMessageId,
+        room.firstMessageId,
+      );
+    }
+    if (message.type == MessageType.FILE) {
+      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+    }
+  }
   void deletePendingMessage(String packetId) {
     _pendingMessageDao.deletePendingMessage(packetId);
   }

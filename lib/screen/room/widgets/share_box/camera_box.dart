@@ -16,13 +16,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CameraBox extends StatefulWidget {
-  final Uid roomUid;
+  final Uid? roomUid;
   final Function(String)? onAvatarSelected;
   final bool selectAsAvatar;
 
   const CameraBox({
     super.key,
-    required this.roomUid,
+    this.roomUid,
     this.onAvatarSelected,
     this.selectAsAvatar = false,
   });
@@ -273,6 +273,6 @@ class _CameraBoxState extends State<CameraBox> {
 
   void _sendMessage(File file, String caption) {
     Navigator.pop(context);
-    _messageRepo.sendFileMessage(widget.roomUid, file, caption: caption);
+    _messageRepo.sendFileMessage(widget.roomUid!, file, caption: caption);
   }
 }

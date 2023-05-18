@@ -43,11 +43,11 @@ final testCallInfo = CallInfo(
   from: testUid,
   time: Int64(),
   to: testUid,
-  callEventOld: CallEvent(
-    callDuration: Int64(),
-    callId: "test",
-    callStatus: CallEvent_CallStatus.CREATED,
-    callType: CallEvent_CallType.AUDIO,
+  callEventOld: CallEventV2(
+    end: CallEventEnd(callDuration: Int64()),
+    id: "test",
+    from: testUid,
+    to: testUid,
   ),
 );
 final testFile = File()

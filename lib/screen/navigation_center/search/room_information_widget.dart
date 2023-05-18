@@ -88,6 +88,8 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
         return _buildRoomStatusText(_i18n.get("bot"));
       case Categories.CHANNEL:
         return _buildRoomStatusText(_i18n.get("channel"));
+      case Categories.BROADCAST:
+        return _buildRoomStatusText(_i18n.get("broadcast"));
       case Categories.GROUP:
         return _buildRoomStatusText(_i18n.get("group"));
       case Categories.STORE:

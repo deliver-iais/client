@@ -12,6 +12,8 @@ abstract class PendingMessageDao {
 
   Future<void> deletePendingMessage(String packetId);
 
+  Future<void> deleteAllPendingMessageForRoom(String roomUid);
+
   Future<void> savePendingMessage(PendingMessage pm);
 
   Future<PendingMessage?> getPendingEditedMessage(String roomUid, int? index);

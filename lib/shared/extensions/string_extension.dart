@@ -73,4 +73,8 @@ extension StringExtension on String {
     }
     return sb.toString();
   }
+
+  String convertUidStringToDaoKey() {
+    return replaceAll(":", "-");
+  }
 }

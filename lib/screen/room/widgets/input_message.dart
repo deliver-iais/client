@@ -280,7 +280,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (widget.editableMessage == null) {
       _roomRepo.updateRoomDraft(currentRoom.uid, widget.textController.text);
     }
-    widget.textController.dispose();
     super.dispose();
   }
 
@@ -316,6 +315,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         child: IconTheme(
           data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               StreamBuilder<String?>(
                 stream: _mentionQuery.distinct(),
@@ -719,8 +719,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                 !showSendButton &&
                 !widget.waitingForForward)
               IconButton(
-                icon: const Icon(
-                  CupertinoIcons.location,
+                icon: Icon(
+                  isMacOSDevice
+                      ? CupertinoIcons.location
+                      : Icons.location_on_outlined,
                 ),
                 onPressed: () => AttachLocation(
                   context,

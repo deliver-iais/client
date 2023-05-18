@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -15,6 +16,7 @@ class PersistentEventHandlerService {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
+  final _mucHelper = GetIt.I.get<MucHelperService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -91,10 +93,10 @@ class PersistentEventHandlerService {
     return '"${content.substring(0, min(content.length, 15))}${content.length > 15 ? "..." : ""}"';
   }
 
-  String getMucSpecificPersistentEventIssue(
+  Future<String> getMucSpecificPersistentEventIssue(
     PersistentEvent persistentEventMessage, {
     bool isChannel = false,
-  }) {
+  }) async {
     switch (persistentEventMessage.mucSpecificPersistentEvent.issue) {
       case MucSpecificPersistentEvent_Issue.ADD_USER:
         return _i18n.verb(
@@ -152,17 +154,13 @@ class PersistentEventHandlerService {
         );
 
       case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-        if (isChannel) {
-          return _i18n.get("changed_channel_name");
-        } else {
-          return _i18n.verb(
-            "changed_group_name",
-            isFirstPerson: _authRepo.isCurrentUser(
-              persistentEventMessage.mucSpecificPersistentEvent.issuer
-                  .asString(),
-            ),
-          );
-        }
+        return _mucHelper.changeMucName(
+          persistentEventMessage.mucSpecificPersistentEvent.assignee,
+          isFirstPerson: _authRepo.isCurrentUser(
+            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+          ),
+        );
+
       case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
         return _i18n.verb(
           "pinned",

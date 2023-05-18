@@ -217,9 +217,8 @@ class RoomRepo {
       }
     }
 
-    // Is Group or Channel
-    if (uid.category == Categories.GROUP ||
-        uid.category == Categories.CHANNEL) {
+    // Is muc
+    if (uid.isMuc()) {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name);

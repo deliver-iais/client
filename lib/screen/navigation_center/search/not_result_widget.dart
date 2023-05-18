@@ -5,8 +5,9 @@ import 'package:get_it/get_it.dart';
 
 class NoResultWidget extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
+  final String? text;
 
-  const NoResultWidget({Key? key}) : super(key: key);
+  const NoResultWidget({Key? key, this.text}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,10 @@ class NoResultWidget extends StatelessWidget {
       children: [
         const Ws.asset('assets/duck_animation/not_found.ws'),
         const SizedBox(height: 10),
-        Text(_i18n.get("no_results"))
+        Text(
+          text ?? _i18n.get("no_results"),
+          textAlign: TextAlign.center,
+        )
       ],
     );
   }
