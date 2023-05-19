@@ -352,10 +352,11 @@ class InputMessageWidgetState extends State<InputMessage> {
                 },
               ),
               InputSuggestionsWidget(
-                inputSuggestions: widget.currentRoom.lastMessage?.markup
-                        ?.toMessageMarkup()
-                        .inputSuggestions ??
-                    [],
+                inputSuggestions: _lsatMessageHasMarkUp()
+                    ? widget.currentRoom.lastMessage!.markup!
+                        .toMessageMarkup()
+                        .inputSuggestions
+                    : [],
                 textController: widget.textController,
               ),
               Container(
@@ -1059,10 +1060,8 @@ class InputMessageWidgetState extends State<InputMessage> {
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
-          .getFilteredMember(
-            currentRoom.uid.asString(),
-            query: _mentionQuery.value,
-          )
+          .getFilteredMember(currentRoom.uid.asString(),
+              query: _mentionQuery.value,)
           .then(
             (value) => {
               mentionSelectedIndex = value.length,
@@ -1218,9 +1217,15 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
   }
 
+  bool _lsatMessageHasMarkUp() =>
+      widget.currentRoom.lastMessage != null &&
+      widget.currentRoom.lastMessage!.markup != null &&
+      widget.currentRoom.lastMessage!.markup!.isNotEmpty;
+
   bool _hasMarkUpPlaceHolder() =>
-      widget.currentRoom.lastMessage?.markup
-          ?.toMessageMarkup()
-          .hasInputFieldPlaceholder() ??
-      false;
+      _lsatMessageHasMarkUp() &&
+      (widget.currentRoom.lastMessage?.markup
+              ?.toMessageMarkup()
+              .hasInputFieldPlaceholder() ??
+          false);
 }

@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/circular_counter_widget.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UnreadMessageCounterWidget extends StatefulWidget {
-  final String roomUid;
+  final Uid roomUid;
   final int lastMessageId;
   final bool needBorder;
 
@@ -30,7 +32,7 @@ class _UnreadMessageCounterWidgetState
   final watchSeen = BehaviorSubject.seeded(0);
   late BehaviorSubject<Seen> seenHandler = BehaviorSubject.seeded(
     Seen(
-      uid: widget.roomUid,
+      uid: widget.roomUid.asString(),
       messageId: -1,
       hiddenMessageCount: 0,
     ),
@@ -83,14 +85,14 @@ class _UnreadMessageCounterWidgetState
   }
 
   void watchAndAddSeen() {
-    _roomRepo.watchMySeen(widget.roomUid).listen((e) {
+    _roomRepo.watchMySeen(widget.roomUid.asString()).listen((e) {
       seenHandler.add(e);
     });
   }
 
   Future<void> getAndAddLastSeenToHandler() async {
     seenHandler.add(
-      (await _roomRepo.getMySeen(widget.roomUid)),
+      (await _roomRepo.getMySeen(widget.roomUid.asString())),
     );
   }
 }

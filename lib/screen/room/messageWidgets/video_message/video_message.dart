@@ -178,8 +178,7 @@ class VideoMessageState extends State<VideoMessage> {
             Center(
               child: LoadFileStatus(
                 file: video,
-                isPendingForwarded: (widget.message.forwardedFrom != null &&
-                    widget.message.forwardedFrom!.isNotEmpty),
+                isPendingForwarded: (widget.message.forwardedFrom != null),
                 isUploading: true,
                 onCanceled: () {
                   if (widget.message.id == null) {

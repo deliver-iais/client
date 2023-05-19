@@ -73,12 +73,12 @@ class MessageExtractorServices {
     }
 
     return MessageBrief(
-      roomUid: msg.roomUid,
+      roomUid: msg.roomUid.asString(),
       packetId: msg.packetId,
       id: msg.id ?? 0,
       time: msg.time,
-      from: msg.from,
-      to: msg.to,
+      from: msg.from.asString(),
+      to: msg.to.asString(),
       text: text,
       type: msg.type,
     );
@@ -138,7 +138,7 @@ class MessageExtractorServices {
 
     var typeDetails = "";
     var text = "";
-    var ignoreNotification = _authRepo.isCurrentUser(msg.from.asString());
+    var ignoreNotification = _authRepo.isCurrentUser(msg.from);
 
     switch (msg.whichType()) {
       case message_pb.Message_Type.text:
@@ -210,7 +210,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.persistEvent:
         typeDetails = await getPersistentEventText(
-          roomUid.asString(),
+          roomUid,
           msg.persistEvent,
           isChannel: msg.to.isChannel(),
         );
@@ -222,7 +222,7 @@ class MessageExtractorServices {
         ignoreNotification = true;
         final callStatus = msg.callEvent.callStatus;
         final time = msg.callEvent.callDuration.toInt();
-        final fromCurrentUser = _authRepo.isCurrentUserUid(msg.from);
+        final fromCurrentUser = _authRepo.isCurrentUser(msg.from);
         typeDetails = getCallText(
               callStatus,
               time,
@@ -292,7 +292,7 @@ class MessageExtractorServices {
   }
 
   Future<String> getPersistentEventText(
-    String roomUid,
+    Uid roomUid,
     PersistentEvent pe, {
     bool isChannel = false,
   }) async {
@@ -370,15 +370,15 @@ class MessageExtractorServices {
     final msg = message_pb.Message()
       ..id = Int64(message.id ?? 0)
       ..packetId = message.packetId
-      ..from = message.from.asUid()
-      ..to = message.to.asUid()
+      ..from = message.from
+      ..to = message.to
       ..time = Int64(message.time)
       ..replyToId = Int64(message.replyToId)
       ..edited = message.edited
       ..encrypted = message.encrypted;
 
     if (message.forwardedFrom != null) {
-      msg.forwardFrom = message.forwardedFrom!.asUid();
+      msg.forwardFrom = message.forwardedFrom!;
     }
 
     switch (message.type) {
@@ -454,21 +454,20 @@ class MessageExtractorServices {
     } catch (_) {}
     return Message(
       id: message.id.toInt(),
-      roomUid: getRoomUid(_authRepo, message).asString(),
+      roomUid: getRoomUid(_authRepo, message),
       packetId: message.packetId,
       time: message.time.toInt(),
-      to: message.to.asString(),
-      from: message.from.asString(),
+      to: message.to,
+      from: message.from,
       replyToId: message.replyToId.toInt(),
-      forwardedFrom: message.forwardFrom.asString(),
+      forwardedFrom: message.forwardFrom,
       json: body,
       edited: message.edited,
       encrypted: message.encrypted,
       type: getMessageType(message.whichType()),
       isHidden: isHidden,
-      markup: message.hasMessageMarkup()
-          ? message.messageMarkup.writeToJson()
-          : null,
+      markup:
+          message.hasMessageMarkup() ? message.messageMarkup.writeToJson() : "",
     );
   }
 

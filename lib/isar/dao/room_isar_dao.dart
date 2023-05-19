@@ -77,8 +77,9 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
           pinned: pinned ?? room.pinned,
           pinId: pinId ?? room.pinId,
           lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
-          lastMessage:
-              lastMessage != null ? lastMessage.toJson() : room.lastMessage,
+          lastMessage: lastMessage != null
+              ? messageToJson(lastMessage)
+              : room.lastMessage,
           shouldUpdateMediaCount:
               shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
           mentionsId: mentionsId ?? room.mentionsId,

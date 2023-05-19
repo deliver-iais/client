@@ -88,9 +88,8 @@ class BoxContentState extends State<BoxContent> {
 
   @override
   void initState() {
-    forwarderName = isForwarded()
-        ? _roomRepo.getName(widget.message.forwardedFrom!.asUid())
-        : null;
+    forwarderName =
+        isForwarded() ? _roomRepo.getName(widget.message.forwardedFrom!) : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.message.id != null &&
@@ -257,7 +256,8 @@ class BoxContentState extends State<BoxContent> {
                 ],
               ),
               onTap: () {
-                _routingServices.openRoom(widget.message.forwardedFrom!);
+                _routingServices
+                    .openRoom(widget.message.forwardedFrom!.asString());
               },
             ),
           );
@@ -427,18 +427,18 @@ class BoxContentState extends State<BoxContent> {
   }
 
   bool hasReply() {
-    return widget.message.to.asUid().category != Categories.BOT &&
+    return widget.message.to.category != Categories.BOT &&
         widget.message.replyToId > 0;
   }
 
   bool isForwarded() {
-    return (widget.message.forwardedFrom?.length ?? 0) > 3;
+    return (widget.message.forwardedFrom?.asString().length ?? 0) > 3;
   }
 
   bool shouldShowSenderName() {
     return !widget.isSender &&
         widget.isFirstMessageInGroupedMessages &&
-        widget.message.roomUid.asUid().category == Categories.GROUP;
+        widget.message.roomUid.category == Categories.GROUP;
   }
 
   Widget senderNameBox(CustomColorScheme colorScheme) {
@@ -456,7 +456,7 @@ class BoxContentState extends State<BoxContent> {
         children: [
           Expanded(
             child: FutureBuilder<String>(
-              future: _roomRepo.getName(widget.message.from.asUid()),
+              future: _roomRepo.getName(widget.message.from),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   return showName(colorScheme, snapshot.data!);
@@ -488,7 +488,7 @@ class BoxContentState extends State<BoxContent> {
           ),
         ),
         onTap: () {
-          _routingServices.openProfile(widget.message.from);
+          _routingServices.openProfile(widget.message.from.asString());
         },
       ),
     );

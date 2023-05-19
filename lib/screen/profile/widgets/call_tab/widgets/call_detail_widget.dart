@@ -73,7 +73,7 @@ class CallDetailsState extends State<CallDetails> {
                     callStatus: widget.callEvent.callEventOld.callStatus,
                     time: widget.callEvent.callEventOld.callDuration.toInt(),
                     isIncomingCall: _authRepo
-                        .isCurrentUser(widget.callEvent.from.toString()),
+                        .isCurrentUser(widget.callEvent.from),
                   ),
                   if (widget.callEvent.callEventOld.callDuration != 0)
                     DefaultTextStyle(

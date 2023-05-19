@@ -376,7 +376,7 @@ class ContactRepo {
               "${element.firstName}${element.lastName}"
                   .toLowerCase()
                   .contains(text.toLowerCase()) &&
-              !_authRepo.isCurrentUser(element.uid!) &&
+              !_authRepo.isCurrentUser(element.uid!.asUid()) &&
               !element.isUsersContact(),
         )
         .map((e) => e.uid!.asUid())

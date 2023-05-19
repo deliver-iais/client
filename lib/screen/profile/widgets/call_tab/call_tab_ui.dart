@@ -49,9 +49,9 @@ class CallTabUiState extends State<CallTabUi> {
               );
               final isIncomingCall =
                   callInfo.callEventOld.callStatus == CallEvent_CallStatus.DECLINED
-                      ? _authRepo.isCurrentUser(callInfo.to.asString())
-                      : _authRepo.isCurrentUser(callInfo.from.asString());
-              final caller = _authRepo.isCurrentUser(callInfo.to.asString())
+                      ? _authRepo.isCurrentUser(callInfo.to)
+                      : _authRepo.isCurrentUser(callInfo.from);
+              final caller = _authRepo.isCurrentUser(callInfo.to)
                   ? callInfo.from
                   : callInfo.to;
               return CallStatusDetailsWidget(

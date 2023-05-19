@@ -6,7 +6,6 @@ import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -90,7 +89,7 @@ class CallMessageWidget extends StatelessWidget {
           InkWell(
             onTap: (_callService.getUserCallState == UserCallState.NO_CALL)
                 ? () => _routingService.openCallScreen(
-                      message.roomUid.asUid(),
+                      message.roomUid,
                       isVideoCall: _isVideo,
                     )
                 : null,

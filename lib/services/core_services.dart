@@ -10,7 +10,6 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/settings.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -369,11 +368,11 @@ class CoreServices {
   }
 
   void sendActivity(ActivityByClient activity, String id) {
-    if (!_authRepo.isCurrentUser(activity.to.toString())) {
+    if (!_authRepo.isCurrentUser(activity.to)) {
       final clientPacket = ClientPacket()
         ..activity = activity
         ..id = id;
-      if (!_authRepo.isCurrentUser(activity.to.asString())) {
+      if (!_authRepo.isCurrentUser(activity.to)) {
         _sendClientPacket(clientPacket);
       }
     }

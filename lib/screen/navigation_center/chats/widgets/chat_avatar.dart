@@ -33,7 +33,7 @@ class ChatAvatar extends StatelessWidget {
           showSavedMessageLogoIfNeeded: true,
         ),
         if (userUid.category == Categories.USER &&
-            !_authRepo.isCurrentUser(userUid.asString()))
+            !_authRepo.isCurrentUser(userUid))
           StreamBuilder<LastActivity?>(
             stream: _lastActivityRepo.watch(userUid.asString()),
             builder: (c, la) {

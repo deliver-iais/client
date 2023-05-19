@@ -160,7 +160,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                             .whereNot((element) => element.uid == null)
                             .where(
                               (element) =>
-                                  !_authRepo.isCurrentUser(element.uid!) &&
+                                  !_authRepo.isCurrentUser(element.uid!.asUid()) &&
                                   !element.isUsersContact(),
                             )
                             .toList();

@@ -508,7 +508,7 @@ class ProfilePageState extends State<ProfilePage>
                               context: context,
                               items: [
                                 if (_featureFlags.hasVoiceCallPermission(
-                                  widget.roomUid.asString(),
+                                  widget.roomUid,
                                 )) ...[
                                   PopupMenuItem<String>(
                                     value: "audio_call_in_messenger",

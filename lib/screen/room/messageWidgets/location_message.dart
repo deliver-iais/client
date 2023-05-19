@@ -7,7 +7,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
@@ -73,12 +72,12 @@ class LocationMessageWidget extends StatelessWidget {
                             context: context,
                             builder: (_) => LocationDialog(
                               location: location,
-                              from: message.from.asUid(),
+                              from: message.from,
                             ),
                           )
                         : _routingServices.openLocation(
                             location,
-                            message.from.asUid(),
+                            message.from,
                             message,
                           );
                   },
@@ -438,15 +437,15 @@ class _LocationPageState extends State<LocationPage> {
                             ),
                             FutureBuilder<String>(
                               initialData: _roomRepo.fastForwardName(
-                                widget.message.from.asUid(),
+                                widget.message.from,
                               ),
                               future: _roomRepo
-                                  .getName(widget.message.from.asUid()),
+                                  .getName(widget.message.from),
                               builder: (context, snapshot) {
                                 final roomName =
                                     snapshot.data ?? _i18n.get("loading");
                                 return RoomName(
-                                  uid: widget.message.from.asUid(),
+                                  uid: widget.message.from,
                                   name: roomName,
                                 );
                               },

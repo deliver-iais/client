@@ -4,7 +4,9 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -21,7 +23,7 @@ class SeenStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
 
-  final String roomUid;
+  final Uid roomUid;
   final String messagePacketId;
   final int? messageId;
   final bool? isSeen;
@@ -54,7 +56,7 @@ class SeenStatus extends StatelessWidget {
         }),
       );
     } else {
-      if ((_cachingRepo.getLastSeenId(roomUid) ?? -1) >= messageId!) {
+      if ((_cachingRepo.getLastSeenId(roomUid.asString()) ?? -1) >= messageId!) {
         return statusWidget(context, SeenMessageStatus.SEEN);
       }
       return FutureBuilder<PendingMessage?>(
@@ -70,11 +72,11 @@ class SeenStatus extends StatelessWidget {
             return statusWidget(context, SeenMessageStatus.SEEN);
           } else {
             return StreamBuilder<Seen?>(
-              stream: _seenDao.watchOthersSeen(roomUid).distinct(),
+              stream: _seenDao.watchOthersSeen(roomUid.asString()).distinct(),
               builder: (context, snapshot) {
                 // TODO(bitbeter): refactor this, place this caching set in better place
                 _cachingRepo.setLastSeenId(
-                  roomUid,
+                  roomUid.asString(),
                   snapshot.data?.messageId ?? -1,
                 );
                 final seen = (snapshot.data?.messageId ?? -1) >= messageId!;

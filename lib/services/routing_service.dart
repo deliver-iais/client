@@ -276,7 +276,7 @@ class RoutingService {
       _push(
         RoomPage(
           key: ValueKey("/room/$roomId"),
-          roomId: roomId,
+          roomUid: roomId.asUid(),
           forwardedMessages: forwardedMessages,
           forwardedMeta: forwardedMeta,
           shareUid: shareUid,
@@ -404,7 +404,7 @@ class RoutingService {
       );
 
   void openShowAllVideos({
-    required String roomUid,
+    required Uid roomUid,
     required int messageId,
     int? initIndex,
     Message? message,
@@ -425,7 +425,7 @@ class RoutingService {
           : OpenFilex.open(filePath);
 
   void openShowAllImage({
-    required String uid,
+    required Uid uid,
     required int messageId,
     int? initIndex,
     int? mediaCount,

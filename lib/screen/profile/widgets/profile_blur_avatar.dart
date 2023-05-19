@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -96,7 +95,7 @@ class ProfileBlurAvatar extends StatelessWidget {
                     ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
                 child: Container(
                   color: ExtraTheme.of(context)
-                      .messageColorScheme(roomUid.asString())
+                      .messageColorScheme(roomUid)
                       .onPrimaryContainer,
                   // color: Colors.orange,
                 ),

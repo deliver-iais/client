@@ -1,7 +1,6 @@
 import 'package:deliver/box/message.dart' as db;
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart'
     as broadcast_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
@@ -495,16 +494,16 @@ class MucServices {
   }
 
   Future<void> pinMessage(db.Message message) {
-    if (message.roomUid.asUid().category == Categories.GROUP) {
+    if (message.roomUid.category == Categories.GROUP) {
       return _serVices.groupServiceClient.pinMessage(
         group_pb.PinMessageReq()
-          ..uid = message.roomUid.asUid()
+          ..uid = message.roomUid
           ..messageId = Int64(message.id!),
       );
     } else {
       return _serVices.channelServiceClient.pinMessage(
         channel_pb.PinMessageReq()
-          ..uid = message.roomUid.asUid()
+          ..uid = message.roomUid
           ..messageId = Int64(message.id!),
       );
     }
@@ -560,16 +559,16 @@ class MucServices {
   }
 
   Future<void> unpinMessage(db.Message message) {
-    if (message.roomUid.asUid().category == Categories.GROUP) {
+    if (message.roomUid.category == Categories.GROUP) {
       return _serVices.groupServiceClient.unpinMessage(
         group_pb.UnpinMessageReq()
-          ..uid = message.roomUid.asUid()
+          ..uid = message.roomUid
           ..messageId = Int64(message.id!),
       );
     } else {
       return _serVices.channelServiceClient.unpinMessage(
         channel_pb.UnpinMessageReq()
-          ..uid = message.roomUid.asUid()
+          ..uid = message.roomUid
           ..messageId = Int64(message.id!),
       );
     }

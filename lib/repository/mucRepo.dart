@@ -743,7 +743,7 @@ class MucRepo {
     final uidIdNameList =
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
-              if (_authRepo.isCurrentUser(member!.memberUid)) {
+              if (_authRepo.isCurrentUser(member!.memberUid.asUid())) {
                 final a = (await _accountRepo.getAccount())!;
                 return UidIdName(
                   uid: member.memberUid,

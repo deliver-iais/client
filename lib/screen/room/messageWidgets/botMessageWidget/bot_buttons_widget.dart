@@ -4,7 +4,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
@@ -100,7 +99,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                           ),
                           onPressed: !isLocked
                               ? () => _messageRepo.sendTextMessage(
-                                    widget.message.from.asUid(),
+                                    widget.message.from,
                                     btn,
                                   )
                               : null,

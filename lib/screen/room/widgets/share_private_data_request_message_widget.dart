@@ -6,7 +6,6 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -106,7 +105,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                             builder: (c, s) {
                               return AttachLocation(
                                 context,
-                                message.roomUid.asUid(),
+                                message.roomUid,
                               ).showLocation();
                             },
                           );
@@ -114,7 +113,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                       );
                     } else {
                       if (isWindowsNative || isMacOSNative) {
-                        AttachLocation(context, message.roomUid.asUid())
+                        AttachLocation(context, message.roomUid)
                             .attachLocationInWindows();
                       } else {
                         ToastDisplay.showToast(
@@ -181,7 +180,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     }
     if (context.mounted) {
       showCaptionDialog(
-        roomUid: message.roomUid.asUid(),
+        roomUid: message.roomUid,
         context: context,
         files: res,
       );
@@ -231,7 +230,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               ),
               onPressed: () {
                 _messageRepo.sendPrivateDataAcceptanceMessage(
-                  message.from.asUid(),
+                  message.from,
                   sharePrivateDataRequest.data,
                   sharePrivateDataRequest.token,
                 );

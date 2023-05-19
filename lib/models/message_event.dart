@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 enum MessageEventAction { EDIT, DELETE, PENDING_EDIT, PENDING_DELETE }
 
 class MessageEvent {
-  String roomUid;
+  Uid roomUid;
   int time;
   int id;
   MessageEventAction action;

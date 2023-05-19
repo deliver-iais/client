@@ -5,7 +5,6 @@ import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
@@ -95,7 +94,7 @@ class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
                   Marker(
                     point: LatLng(location.latitude, location.longitude),
                     builder: (ctx) =>
-                        CircleAvatarWidget(widget.message.from.asUid(), 20),
+                        CircleAvatarWidget(widget.message.from, 20),
                   ),
                 ],
               ),

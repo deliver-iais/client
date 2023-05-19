@@ -34,6 +34,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart' as meta_pb;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AllMediaPage extends StatefulWidget {
-  final String roomUid;
+  final Uid roomUid;
   final int messageId;
   final int? initialMediaIndex;
   final Message? message;
@@ -115,7 +116,7 @@ class _AllMediaPageState extends State<AllMediaPage>
       final actualIndex = _convertShowingIndexToActualIndex(index);
       final page = (actualIndex / META_PAGE_SIZE).floor();
       final res = await _metaRepo.getMetaPage(
-        widget.roomUid,
+        widget.roomUid.asString(),
         MetaType.MEDIA,
         page,
         actualIndex,
@@ -195,7 +196,7 @@ class _AllMediaPageState extends State<AllMediaPage>
 
   Future<void> _getAndSetDeletedIndexList() async {
     final deleteIndexList = await _metaDao.getMetaDeletedIndex(
-      widget.roomUid,
+      widget.roomUid.asString(),
     );
     var difference = 0;
     for (final deletedIndex in deleteIndexList) {
@@ -214,17 +215,17 @@ class _AllMediaPageState extends State<AllMediaPage>
 
   Future<MetaCount?> getMetaCount() async {
     final shouldUpdateMediaCount =
-        (await _roomDao.getRoom(widget.roomUid.asUid()))?.shouldUpdateMediaCount ??
+        (await _roomDao.getRoom(widget.roomUid))?.shouldUpdateMediaCount ??
             true;
     if (shouldUpdateMediaCount) {
       final metaCount = await _metaRepo.fetchMetaCountFromServer(
-        widget.roomUid.asUid(),
+        widget.roomUid,
       );
       if (metaCount != null) {
         return metaCount;
       }
     }
-    return _metaRepo.getMetaCount(widget.roomUid);
+    return _metaRepo.getMetaCount(widget.roomUid.asString());
   }
 
   Future<int?> _getMediaIndex() async {
@@ -240,7 +241,7 @@ class _AllMediaPageState extends State<AllMediaPage>
       _allMediaCount
           .add(metaCount.mediasCount - metaCount.allMediaDeletedCount);
       final metaIndex = await _metaDao.getIndexOfMetaFromMessageId(
-        widget.roomUid,
+        widget.roomUid.asString(),
         widget.messageId,
       );
 
@@ -249,14 +250,14 @@ class _AllMediaPageState extends State<AllMediaPage>
       } else {
         final mediaIndex = await _metaRepo.getMetaIndexFromMessageId(
           messageId: widget.message!.id ?? 0,
-          roomUid: widget.roomUid,
+          roomUid: widget.roomUid.asString(),
           metaGroup: meta_pb.MetaGroup.MEDIA,
         );
         if (mediaIndex != null) {
           final page = (mediaIndex / META_PAGE_SIZE).floor();
 
           final res = await _metaRepo.getMetasPageFromServer(
-            widget.roomUid,
+            widget.roomUid.asString(),
             page,
             meta_pb.MetaGroup.MEDIA,
           );
@@ -356,7 +357,7 @@ class _AllMediaPageState extends State<AllMediaPage>
       filePath: widget.filePath!,
       file: file,
       createdOn: widget.message!.time,
-      createdBy: widget.roomUid,
+      createdBy: widget.roomUid.asString(),
       messageId: widget.messageId,
     );
   }
@@ -658,7 +659,7 @@ class _AllMediaPageState extends State<AllMediaPage>
             child: MediaTimeAndNameStatusWidget(
               createdBy: createdBy,
               createdOn: createdOn,
-              roomUid: widget.roomUid,
+              roomUid: widget.roomUid.asString(),
             ),
           ),
           // const Spacer(),

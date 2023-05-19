@@ -10,6 +10,7 @@ import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/pin_code_settings.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -23,7 +24,7 @@ void inputPin({
   required BuildContext context,
   required PinCodeSettings pinCodeSettings,
   required String data,
-  required String botUid,
+  required Uid botUid,
   bool showHelper = false,
   String? packetId,
 }) {
@@ -200,7 +201,7 @@ Widget buildContent(
   required GlobalKey<FormState> pinFormKey,
   required Function(String) onChanged,
   required String data,
-  required String botUid,
+  required Uid botUid,
   required GlobalKey<FormState> confirmPinFormKey,
   String? packetId,
   bool showHelper = false,
@@ -334,7 +335,7 @@ Widget buildContent(
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  GetIt.I.get<RoutingService>().openRoom(botUid);
+                  GetIt.I.get<RoutingService>().openRoom(botUid.asString());
                 },
                 child: Text(
                   i18n.get("authentication_completion"),
@@ -382,7 +383,7 @@ void _submit(
   BuildContext context, {
   required String data,
   required String pin,
-  required String botUid,
+  required Uid botUid,
   required Function() clear,
   required GlobalKey<FormState> pinFormKey,
   required GlobalKey<FormState> confirmPinFormKey,
@@ -398,7 +399,7 @@ void _submit(
         .get<BotRepo>()
         .sendCallbackQuery(
           data: data,
-          to: botUid.asUid(),
+          to: botUid,
           pinCode: pin,
           packetId: packetId,
         )

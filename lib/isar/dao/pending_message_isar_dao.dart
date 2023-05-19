@@ -4,6 +4,8 @@ import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/isar/helpers.dart';
 import 'package:deliver/isar/pending_message_isar.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
 
 class PendingMessageDaoImpl extends PendingMessageDao {
@@ -48,14 +50,14 @@ class PendingMessageDaoImpl extends PendingMessageDao {
 
   @override
   Stream<List<PendingMessage>> watchPendingMessages(
-    String roomUid,
+    Uid roomUid,
   ) async* {
     final box = await _openPendingMessageIsar();
 
     final query = box.pendingMessageIsars
         .filter()
         .messageIdLessThan(1)
-        .roomUidEqualTo(roomUid)
+        .roomUidEqualTo(roomUid.asString())
         .build();
 
     yield query.findAllSync().map((e) => e.fromIsar()).toList();
@@ -81,7 +83,7 @@ class PendingMessageDaoImpl extends PendingMessageDao {
   }
 
   @override
-  Future<void> deletePendingEditedMessage(String roomUid, int? index) async {
+  Future<void> deletePendingEditedMessage(Uid roomUid, int? index) async {
     if (index == null) {
       return;
     }
@@ -91,7 +93,7 @@ class PendingMessageDaoImpl extends PendingMessageDao {
     return box.writeTxnSync(() {
       box.pendingMessageIsars
           .filter()
-          .roomUidEqualTo(roomUid)
+          .roomUidEqualTo(roomUid.asString())
           .messageIdEqualTo(index)
           .build()
           .deleteFirstSync();
@@ -100,7 +102,7 @@ class PendingMessageDaoImpl extends PendingMessageDao {
 
   @override
   Future<PendingMessage?> getPendingEditedMessage(
-    String roomUid,
+    Uid roomUid,
     int? index,
   ) async {
     if (index == null) {
@@ -111,7 +113,7 @@ class PendingMessageDaoImpl extends PendingMessageDao {
 
     return box.pendingMessageIsars
         .filter()
-        .roomUidEqualTo(roomUid)
+        .roomUidEqualTo(roomUid.asString())
         .messageIdEqualTo(index)
         .findFirstSync()
         ?.fromIsar();
@@ -132,14 +134,14 @@ class PendingMessageDaoImpl extends PendingMessageDao {
 
   @override
   Stream<List<PendingMessage>> watchPendingEditedMessages(
-    String roomUid,
+    Uid roomUid,
   ) async* {
     final box = await _openPendingMessageIsar();
 
     final query = box.pendingMessageIsars
         .filter()
         .messageIdGreaterThan(0)
-        .roomUidEqualTo(roomUid)
+        .roomUidEqualTo(roomUid.asString())
         .build();
 
     yield query.findAllSync().map((e) => e.fromIsar()).toList();
@@ -150,13 +152,13 @@ class PendingMessageDaoImpl extends PendingMessageDao {
   }
 
   @override
-  Future<void> deleteAllPendingMessageForRoom(String roomUid) async {
+  Future<void> deleteAllPendingMessageForRoom(Uid roomUid) async {
     final box = await _openPendingMessageIsar();
 
     return box.writeTxnSync(() {
       box.pendingMessageIsars
           .filter()
-          .roomUidEqualTo(roomUid)
+          .roomUidEqualTo(roomUid.asString())
           .build()
           .deleteAllSync();
     });

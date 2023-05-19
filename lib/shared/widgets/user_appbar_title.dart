@@ -26,7 +26,7 @@ class UserAppbarTitle extends StatelessWidget {
       : _name = _getName(userUid);
 
   static Future<String> _getName(Uid uid) =>
-      _authRepo.isCurrentUser(uid.asString())
+      _authRepo.isCurrentUser(uid)
           ? Future.value(_i18n.get("saved_message"))
           : _roomRepo.getName(uid);
 

@@ -6,6 +6,7 @@ import 'package:deliver/screen/muc/widgets/broadcast/resume_and_pause_broadcast_
 import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/gradiant_circle_progress_bar.dart';
 import 'package:deliver/theme/theme.dart';
@@ -153,7 +154,7 @@ class RunningBroadcastStatusCard extends StatelessWidget {
               ),
               const Spacer(),
               ResumeAndPauseBroadcastIcons(
-                broadcastRoomId: broadcastRoomId,
+                broadcastRoomId: broadcastRoomId.asUid(),
                 broadcastRunningStatus: broadcastRunningStatus,
                 failedBroadcastList: failedBroadcasts,
                 waitingBroadcastList: waitingBroadcasts,

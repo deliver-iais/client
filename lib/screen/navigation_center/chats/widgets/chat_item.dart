@@ -179,7 +179,7 @@ class ChatItemState extends State<ChatItem> {
             initialData: _roomRepo.fastForwardName(widget.room.uid),
             future: futureRoomName,
             builder: (c, nameSnapshot) {
-              final name = _authRepo.isCurrentUser(widget.room.uid.asString())
+              final name = _authRepo.isCurrentUser(widget.room.uid)
                   ? _i18n.get("saved_message")
                   : nameSnapshot.data ?? "";
               return buildChatItemWidget(name);

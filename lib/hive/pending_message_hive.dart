@@ -46,7 +46,7 @@ extension PendingMessageHiveMapper on PendingMessage {
         packetId: packetId,
         failed: failed,
         status: status,
-        msg: msg.toJson(),
+        msg: messageToJson(msg),
         messageId: msg.id ?? 0,
       );
 }

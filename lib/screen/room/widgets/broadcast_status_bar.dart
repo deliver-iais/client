@@ -9,12 +9,14 @@ import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BroadcastStatusBar extends StatelessWidget {
-  final String roomId;
+  final Uid roomUid;
   final Widget inputMessage;
   static final broadcastService = GetIt.I.get<BroadcastService>();
   static final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
@@ -25,17 +27,17 @@ class BroadcastStatusBar extends StatelessWidget {
 
   const BroadcastStatusBar({
     Key? key,
-    required this.roomId,
+    required this.roomUid,
     required this.inputMessage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BroadcastRunningStatus>(
-      stream: broadcastService.getBroadcastRunningStatus(roomId),
+      stream: broadcastService.getBroadcastRunningStatus(roomUid.asString()),
       builder: (context, runningStatus) {
         return StreamBuilder<List<BroadcastStatus>>(
-          stream: broadcastService.getAllBroadcastStatusAsStream(roomId),
+          stream: broadcastService.getAllBroadcastStatusAsStream(roomUid.asString()),
           builder: (context, snapshot) {
             final broadcastStatusList = snapshot.data;
             final waitingBroadcasts = broadcastStatusList
@@ -81,7 +83,7 @@ class BroadcastStatusBar extends StatelessWidget {
                     )
                   : StreamBuilder<List<PendingMessage>>(
                       stream: _pendingMessageDao
-                          .watchPendingMessages(roomId)
+                          .watchPendingMessages(roomUid)
                           .debounceTime(const Duration(milliseconds: 250)),
                       builder: (context, snapshot) {
                         if (snapshot.data?.isNotEmpty ?? false) {
@@ -103,7 +105,7 @@ class BroadcastStatusBar extends StatelessWidget {
                                     _messageRepo.onDeletePendingMessage(
                                         snapshot.data!.first.msg,);
                                     _pendingMessageDao
-                                        .deleteAllPendingMessageForRoom(roomId);
+                                        .deleteAllPendingMessageForRoom(roomUid);
                                   },
                                   child: Text(_i18N.get("delete")),
                                 ),
@@ -132,13 +134,13 @@ class BroadcastStatusBar extends StatelessWidget {
 
     return FutureBuilder<int>(
       key: const Key("_buildBroadcastStatusBar"),
-      future: _mucDao.getAllMembersCount(roomId),
+      future: _mucDao.getAllMembersCount(roomUid.asString()),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data! > 1) {
           final allMemberCount = snapshot.data! - 1;
           return FutureBuilder<int>(
             key: const Key("_buildBroadcastStatusBar"),
-            future: _mucDao.getAllBroadcastSmsMembersCount(roomId),
+            future: _mucDao.getAllBroadcastSmsMembersCount(roomUid.asString()),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final allSmsMemberCount = snapshot.data ?? 0;
@@ -224,13 +226,13 @@ class BroadcastStatusBar extends StatelessWidget {
                             color: theme.colorScheme.primary,
                           ),
                           onPressed: () =>
-                              _routingService.openBroadcastStatsPage(roomId),
+                              _routingService.openBroadcastStatsPage(roomUid.asString()),
                         ),
                         if (broadcastRunningStatus ==
                             BroadcastRunningStatus.RUNNING)
                           IconButton(
                             onPressed: () =>
-                                broadcastService.pauseBroadcast(roomId),
+                                broadcastService.pauseBroadcast(roomUid),
                             icon: Icon(
                               Icons.pause_rounded,
                               color: theme.colorScheme.primary,
@@ -241,7 +243,7 @@ class BroadcastStatusBar extends StatelessWidget {
                             waitingBroadcasts.isNotEmpty)
                           IconButton(
                             onPressed: () => broadcastService.resumeBroadcast(
-                              roomId,
+                              roomUid,
                               waitingBroadcasts,
                             ),
                             icon: Icon(
@@ -254,7 +256,7 @@ class BroadcastStatusBar extends StatelessWidget {
                           IconButton(
                             onPressed: () =>
                                 broadcastService.resendFailedBroadcasts(
-                              roomId,
+                              roomUid,
                               failedBroadcasts.toList(),
                             ),
                             icon: Icon(
@@ -264,7 +266,7 @@ class BroadcastStatusBar extends StatelessWidget {
                           ),
                         IconButton(
                           onPressed: () =>
-                              broadcastService.cancelBroadcast(roomId),
+                              broadcastService.cancelBroadcast(roomUid),
                           icon: Icon(
                             Icons.clear_rounded,
                             color: theme.colorScheme.primary,

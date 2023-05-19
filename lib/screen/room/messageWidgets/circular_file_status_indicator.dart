@@ -12,6 +12,7 @@ import 'package:deliver/services/audio_auto_play_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -58,8 +59,7 @@ class _CircularFileStatusIndicatorState
               pendingMessage.data != null &&
               (pendingMessage.data!.status ==
                       SendingStatus.UPLOAD_FILE_COMPLETED ||
-                  !(widget.message.forwardedFrom == null ||
-                      widget.message.forwardedFrom!.isEmpty))) {
+                  !(widget.message.forwardedFrom == null))) {
             return FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(file.uuid, file.name),
               builder: (c, path) {
@@ -162,8 +162,7 @@ class _CircularFileStatusIndicatorState
       isUploading: widget.message.id == null,
       onCanceled: () => onCancel?.call(),
       sendingFileFailed: sendingFileFailed,
-      isPendingForwarded: !(widget.message.forwardedFrom == null ||
-          widget.message.forwardedFrom!.isEmpty),
+      isPendingForwarded: !(widget.message.forwardedFrom == null),
       onResendFile: () => onResendFileMessage?.call(),
       // TODO(any): change this line and refactor
       onFileStatusCompleted: () {
@@ -192,7 +191,7 @@ class _CircularFileStatusIndicatorState
     {
       await _audioAutoPlayService.fetchAndSaveNextAudioListPageWithMessage(
         messageId: widget.message.id ?? 0,
-        roomUid: widget.message.roomUid,
+        roomUid: widget.message.roomUid.asString(),
         type: widget.message.json.toFile().audioWaveform.data.isNotEmpty
             ? MetaType.AUDIO
             : MetaType.MUSIC,

@@ -64,6 +64,8 @@ abstract class $RoomCopyWith<$Res> {
       bool synced,
       bool seenSynced,
       bool shouldUpdateMediaCount});
+
+  $MessageCopyWith<$Res>? get lastMessage;
 }
 
 /// @nodoc
@@ -158,6 +160,18 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
               as bool,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $MessageCopyWith<$Res>? get lastMessage {
+    if (_value.lastMessage == null) {
+      return null;
+    }
+
+    return $MessageCopyWith<$Res>(_value.lastMessage!, (value) {
+      return _then(_value.copyWith(lastMessage: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -182,6 +196,9 @@ abstract class _$$_RoomCopyWith<$Res> implements $RoomCopyWith<$Res> {
       bool synced,
       bool seenSynced,
       bool shouldUpdateMediaCount});
+
+  @override
+  $MessageCopyWith<$Res>? get lastMessage;
 }
 
 /// @nodoc

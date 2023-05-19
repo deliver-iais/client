@@ -35,6 +35,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -47,7 +48,7 @@ class BuildMessageBox extends StatefulWidget {
   final Message message;
   final MessageBrief? messageReplyBrief;
   final Message? messageBefore;
-  final String roomId;
+  final Uid roomId;
   final void Function(int, int) scrollToMessage;
   final void Function() onReply;
   final void Function() onEdit;
@@ -267,8 +268,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (!widget.message.roomUid.asUid().isChannel() &&
-        widget.message.id != null) {
+    if (!widget.message.roomUid.isChannel() && widget.message.id != null) {
       messageWidget = Swipe(
         onSwipeLeft: _hasPermissionToReply() ? widget.onReply : null,
         child: Container(
@@ -419,7 +419,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onBotCommandClick(String command) {
-    _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
+    _messageRepo.sendTextMessage(widget.roomId, command);
   }
 
   Widget showReceivedMessage(
@@ -451,26 +451,26 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         children: <Widget>[
           if (settings.showAvatars.value &&
               isFirstMessageInGroupedMessages &&
-              widget.message.roomUid.asUid().category == Categories.GROUP)
+              widget.message.roomUid.category == Categories.GROUP)
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 child: Padding(
                   padding: const EdgeInsetsDirectional.only(start: p8),
                   child: CircleAvatarWidget(
-                    message.from.asUid(),
+                    message.from,
                     18,
                     isHeroEnabled: false,
                   ),
                 ),
                 onTap: () {
-                  _routingServices.openProfile(message.from);
+                  _routingServices.openProfile(message.from.asString());
                 },
               ),
             ),
           if (settings.showAvatars.value &&
               !isFirstMessageInGroupedMessages &&
-              widget.message.roomUid.asUid().category == Categories.GROUP)
+              widget.message.roomUid.category == Categories.GROUP)
             const SizedBox(width: 44),
           messageWidget,
           const Spacer(),
@@ -706,7 +706,7 @@ class OperationOnMessageSelection {
       ).toString().substring(0, 19);
 
       final copyText =
-          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n$timeText";
+          "${await _roomRepo.getName(message.from)}:\n${message.json.toText().text}\n$timeText";
 
       return Share.share(
         copyText,
