@@ -9,6 +9,7 @@ import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -377,8 +378,8 @@ class FeatureFlags {
 
   bool _voiceCallFeatureIsPossible() => !isLinuxDevice;
 
-  bool hasVoiceCallPermission(String roomUid) =>
-      roomUid.asUid().isUser() &&
+  bool hasVoiceCallPermission(Uid roomUid) =>
+      roomUid.isUser() &&
       !_authRepo.isCurrentUser(roomUid) &&
       isVoiceCallAvailable();
 }

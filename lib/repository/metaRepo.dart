@@ -410,7 +410,7 @@ class MetaRepo {
   Future<void> updateMeta(Message message) async {
     if (isMessageContainMeta(message)) {
       final oldMetaIndex = await _metaDao.getIndexOfMetaFromMessageId(
-        message.roomUid,
+        message.roomUid.asString(),
         message.id!,
       );
       final metaType = findMetaTypeFromMessageData(message);
@@ -428,10 +428,10 @@ class MetaRepo {
           Meta(
             createdOn: clock.now().millisecondsSinceEpoch,
             json: json,
-            roomId: message.roomUid,
+            roomId: message.roomUid.asString(),
             messageId: message.id!,
             type: metaType,
-            createdBy: message.from,
+            createdBy: message.from.asString(),
             index: oldMetaIndex,
           ),
         );
@@ -457,25 +457,25 @@ class MetaRepo {
   Future<void> addDeletedMetaIndexFromMessage(Message message) async {
     if (isMessageContainMeta(message)) {
       final oldMetaIndex = await _metaDao.getIndexOfMetaFromMessageId(
-        message.roomUid,
+        message.roomUid.asString(),
         message.id!,
       );
       final metaType = findMetaTypeFromMessageData(message);
       if (oldMetaIndex != null) {
         await _metaDao.saveMetaDeletedIndex(
-          message.roomUid,
+          message.roomUid.asString(),
           oldMetaIndex,
         );
 
         await _metaDao.deleteMeta(
-          message.roomUid,
+          message.roomUid.asString(),
           oldMetaIndex,
           metaType,
         );
       } else {
         final metaIndex = await getMetaIndexFromMessageId(
           messageId: message.id!,
-          roomUid: message.roomUid,
+          roomUid: message.roomUid.asString(),
           metaGroup: convertMetaTypeToMetaGroup(metaType),
         );
         if (metaIndex != null) {
@@ -484,9 +484,9 @@ class MetaRepo {
               Meta(
                 index: metaIndex,
                 createdOn: clock.now().millisecondsSinceEpoch,
-                createdBy: message.from,
+                createdBy: message.from.asString(),
                 json: EMPTY_MESSAGE,
-                roomId: message.roomUid,
+                roomId: message.roomUid.asString(),
                 messageId: message.id!,
                 type: metaType,
               ),
@@ -494,11 +494,11 @@ class MetaRepo {
           }
         } else {
           await _metaDao.setShouldFetchMetaDeletedIndex(
-            message.roomUid,
+            message.roomUid.asString(),
             shouldFetchDeletedIndex: true,
           );
           await _roomDao.updateRoom(
-            uid: message.roomUid.asUid(),
+            uid: message.roomUid,
             shouldUpdateMediaCount: true,
           );
         }

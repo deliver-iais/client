@@ -94,7 +94,7 @@ class MediaTabUiState extends State<MediaTabUi> {
         children: [
           GestureDetector(
             onTap: () => _routingService.openShowAllImage(
-              uid: widget.roomUid.asString(),
+              uid: widget.roomUid,
               messageId: media.messageId,
               initIndex: index,
               mediaCount: widget.mediasCount - widget.allDeletedMediasCount,

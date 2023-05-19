@@ -11,7 +11,6 @@ import 'package:deliver/screen/room/widgets/share_box/view_image_page.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -349,7 +348,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     Navigator.pop(context);
     isEditing()
         ? _messageRepo.editFileMessage(
-            widget.editableMessage!.roomUid.asUid(),
+            widget.editableMessage!.roomUid,
             widget.editableMessage!,
             caption: _editingController.text.trim(),
             file: _editedFile,

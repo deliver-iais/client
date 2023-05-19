@@ -283,7 +283,7 @@ Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) =>
     getRoomUidOf(authRepo, message.from, message.to);
 
 Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) =>
-    authRepo.isCurrentUser(from.asString()) ? to : (to.isUser() ? from : to);
+    authRepo.isCurrentUser(from) ? to : (to.isUser() ? from : to);
 
 extension MessageExtention on Message {
   bool doNotNeedsWrapper() =>

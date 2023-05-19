@@ -1,10 +1,11 @@
 import 'package:deliver/box/broadcast_status.dart';
 import 'package:deliver/services/broadcast_service.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ResumeAndPauseBroadcastIcons extends StatelessWidget {
-  final String broadcastRoomId;
+  final Uid broadcastRoomId;
   final Color? iconsColor;
   final double? iconsSize;
   final List<BroadcastStatus> waitingBroadcastList;

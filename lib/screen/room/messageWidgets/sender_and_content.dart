@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +56,7 @@ class SenderAndContent extends StatelessWidget {
         }
 
         final messageColorScheme =
-            extraTheme.messageColorScheme(snapshot.data!.from.asString());
+            extraTheme.messageColorScheme(snapshot.data!.from);
 
         return Container(
           constraints: maxWidth != null

@@ -1,7 +1,9 @@
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
@@ -23,15 +25,15 @@ class ExtraThemeData {
         number,
       );
 
-  CustomColorScheme messageColorScheme(String uid) {
+  CustomColorScheme messageColorScheme(Uid uid) {
     if (_authRepo.isCurrentUser(uid)) {
       return primaryColorsScheme;
     }
     return createColorWithString(uid);
   }
 
-  CustomColorScheme createColorWithString(String str) {
-    final hctColor = Hct.fromInt(ColorUtils.stringToHexInt(str));
+  CustomColorScheme createColorWithString(Uid str) {
+    final hctColor = Hct.fromInt(ColorUtils.stringToHexInt(str.asString()));
 
     if (colorScheme.brightness == Brightness.light) {
       return CustomColorScheme.light(
@@ -46,7 +48,7 @@ class ExtraThemeData {
     }
   }
 
-  Color messageBackgroundColor(String uid) {
+  Color messageBackgroundColor(Uid uid) {
     if (_authRepo.isCurrentUser(uid) || settings.showColorfulMessages.value) {
       return messageColorScheme(uid).primaryContainer;
     } else {
@@ -54,7 +56,7 @@ class ExtraThemeData {
     }
   }
 
-  Color messageForegroundColor(String uid) {
+  Color messageForegroundColor(Uid uid) {
     if (_authRepo.isCurrentUser(uid) || settings.showColorfulMessages.value) {
       return messageColorScheme(uid).onPrimaryContainerLowlight();
     } else {

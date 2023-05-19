@@ -559,7 +559,7 @@ class MessageRepo {
     Uid room,
     String text, {
     int replyId = 0,
-    String? forwardedFrom,
+    Uid? forwardedFrom,
     String? packetId,
     bool fromNotification = false,
   }) async {
@@ -608,7 +608,7 @@ class MessageRepo {
     String text,
     Uid room,
     int replyId,
-    String? forwardedFrom,
+    Uid? forwardedFrom,
     String? packetId, {
     bool fromNotification = false,
   }) async {
@@ -684,7 +684,7 @@ class MessageRepo {
   Future<void> sendLocationMessage(
     LatLng locationData,
     Uid room, {
-    String? forwardedFrom,
+    Uid? forwardedFrom,
     int replyId = 0,
   }) async {
     final json = (location_pb.Location()
@@ -772,7 +772,7 @@ class MessageRepo {
     String? caption = "",
     int replyToId = 0,
   }) async {
-    final packetId = await _getPacketIdWithLastMessageId(room.asString());
+    final packetId = await _getPacketIdWithLastMessageId(room);
 
     //first we compress the file if possible
     file = await _fileService.compressFile(file);
@@ -821,7 +821,7 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final sendingFakeFile = await _createFakeSendFile(file, fileUuid, caption);
-    final packetId = await _getPacketIdWithLastMessageId(room.asString());
+    final packetId = await _getPacketIdWithLastMessageId(room);
 
     return (await _createMessage(room, replyId: replyToId)).copyWith(
       packetId: packetId,
@@ -954,7 +954,7 @@ class MessageRepo {
         .throttleTime(const Duration(seconds: 10))
         .listen((value) {
       if (value != 0) {
-        sendActivity(pm.msg.to.asUid(), ActivityType.SENDING_FILE);
+        sendActivity(pm.msg.to, ActivityType.SENDING_FILE);
       }
     });
 
@@ -1007,14 +1007,14 @@ class MessageRepo {
   message_pb.MessageByClient _createMessageByClient(Message message) {
     final byClient = message_pb.MessageByClient()
       ..packetId = message.packetId
-      ..to = message.to.asUid()
+      ..to = message.to
       ..replyToId = Int64(message.replyToId);
 
     if (message.forwardedFrom != null) {
-      byClient.forwardFrom = message.forwardedFrom!.asUid();
+      byClient.forwardFrom = message.forwardedFrom!;
     }
     if (message.generatedBy != null) {
-      byClient.generatedBy = message.generatedBy!.asUid();
+      byClient.generatedBy = message.generatedBy!;
     }
 
     switch (message.type) {
@@ -1152,11 +1152,11 @@ class MessageRepo {
       final lastDeliveryAckTo = lastDeliveryAck.to;
       final lastDeliveryAckFrom = lastDeliveryAck.from;
       if (lastDeliveryAckPacketId == pm.packetId &&
-          lastDeliveryAckTo.asString() == msg.to &&
-          lastDeliveryAckFrom.asString() == msg.from) {
+          lastDeliveryAckTo == msg.to &&
+          lastDeliveryAckFrom == msg.from) {
         return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
-      } else if (lastDeliveryAckTo.asString() == msg.to &&
-          lastDeliveryAckFrom.asString() == msg.from) {
+      } else if (lastDeliveryAckTo == msg.to &&
+          lastDeliveryAckFrom == msg.from) {
         final timeLastMessageDeliveryAck =
             int.parse(lastDeliveryAckPacketId.split("-")[0]);
         final lastMessageIdLastMessageDeliveryAck =
@@ -1202,7 +1202,7 @@ class MessageRepo {
           ..messageId = Int64(pendingMessage.msg.id ?? 0),
       );
       deletePendingEditedMessage(
-        pendingMessage.roomUid.asString(),
+        pendingMessage.roomUid,
         pendingMessage.msg.id,
       );
     } catch (e) {
@@ -1220,7 +1220,7 @@ class MessageRepo {
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(
-        roomUid: msg.roomUid.asUid(),
+        roomUid: msg.roomUid,
         packetId: msg.packetId,
         msg: msg.copyWith(isHidden: isHiddenMessage(msg)),
         status: status,
@@ -1261,7 +1261,7 @@ class MessageRepo {
       final fm = forwardedMessage[i];
       final msg = (await _createMessage(
         room,
-        forwardedFrom: fm.forwardedFrom?.isEmptyUid() ?? true
+        forwardedFrom: fm.forwardedFrom?.node.isEmpty ?? true
             ? fm.roomUid.isChannel()
                 ? fm.roomUid
                 : fm.from
@@ -1289,7 +1289,7 @@ class MessageRepo {
       final msg = (await _createMessage(
         roomUid,
         replyId: -1,
-        forwardedFrom: meta.createdBy,
+        forwardedFrom: meta.createdBy.asUid(),
       ))
           .copyWith(type: MessageType.FILE, json: meta.json);
 
@@ -1303,16 +1303,16 @@ class MessageRepo {
   Future<Message> _createMessage(
     Uid room, {
     int replyId = 0,
-    String? forwardedFrom,
+    Uid? forwardedFrom,
     String? packetId,
   }) async {
-    final packetId = await _getPacketIdWithLastMessageId(room.asString());
+    final packetId = await _getPacketIdWithLastMessageId(room);
     return Message(
-      roomUid: room.asString(),
+      roomUid: room,
       packetId: packetId,
       time: clock.now().millisecondsSinceEpoch,
-      from: _authRepo.currentUserUid.asString(),
-      to: room.asString(),
+      from: _authRepo.currentUserUid,
+      to: room,
       replyToId: replyId,
       forwardedFrom: forwardedFrom,
       json: EMPTY_MESSAGE,
@@ -1324,19 +1324,19 @@ class MessageRepo {
       "${clock.now().millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
 
   Future<String> _getPacketIdWithLastMessageId(
-    String roomUid, {
+    Uid roomUid, {
     bool isBroadcastMessage = false,
     int? id,
   }) async {
     //get roomUid LastMessageId
-    final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid.asUid());
+    final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid);
     //if message is broadcast set 1 and if is normal message set 0;
     final broadcast = isBroadcastMessage ? 1 : 0;
     return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-$broadcast-$id-${randomVM.nextInt(RANDOM_SIZE)}";
   }
 
   Future<String> createBroadcastMessagePackedId(
-    String broadcastRoomUid,
+    Uid broadcastRoomUid,
     int broadcastMessageId,
   ) {
     return _getPacketIdWithLastMessageId(
@@ -1348,7 +1348,7 @@ class MessageRepo {
 
   Future<List<Message?>> getPage(
     int page,
-    String roomId,
+    Uid roomId,
     int containsId,
     int lastMessageId, {
     int pageSize = PAGE_SIZE,
@@ -1377,7 +1377,7 @@ class MessageRepo {
   }
 
   Future<void> getMessages(
-    String roomId,
+    Uid roomId,
     int page,
     int pageSize,
     Completer<List<Message?>> completer,
@@ -1386,7 +1386,7 @@ class MessageRepo {
     try {
       final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(
         FetchMessagesReq()
-          ..roomUid = roomId.asUid()
+          ..roomUid = roomId
           ..pointer = Int64(page * pageSize)
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = pageSize,
@@ -1436,13 +1436,13 @@ class MessageRepo {
   }
 
   Future<void> sendFormResultMessage(
-    String botUid,
+    Uid botUid,
     form_pb.FormResult formResult,
     int formMessageId,
   ) async {
     final jsonString = (formResult).writeToJson();
     final msg = (await _createMessage(
-      botUid.asUid(),
+      botUid,
       replyId: formMessageId,
     ))
         .copyWith(type: MessageType.FORM_RESULT, json: jsonString);
@@ -1484,19 +1484,19 @@ class MessageRepo {
 
   Future<List<Message>> searchMessage(String str, String roomId) async => [];
 
-  Future<Message?> getMessage(String roomUid, int id) =>
+  Future<Message?> getMessage(Uid roomUid, int id) =>
       _messageDao.getMessage(roomUid, id);
 
   Future<PendingMessage?> getPendingMessage(String packetId) =>
       _pendingMessageDao.getPendingMessage(packetId);
 
-  Future<PendingMessage?> getPendingEditedMessage(String roomUid, int? index) =>
+  Future<PendingMessage?> getPendingEditedMessage(Uid roomUid, int? index) =>
       _pendingMessageDao.getPendingEditedMessage(roomUid, index);
 
-  Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
+  Stream<List<PendingMessage>> watchPendingMessages(Uid roomUid) =>
       _pendingMessageDao.watchPendingMessages(roomUid);
 
-  Stream<List<PendingMessage>> watchPendingEditedMessages(String roomUid) =>
+  Stream<List<PendingMessage>> watchPendingEditedMessages(Uid roomUid) =>
       _pendingMessageDao.watchPendingEditedMessages(roomUid);
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
@@ -1506,8 +1506,9 @@ class MessageRepo {
     final pm = await _pendingMessageDao.getPendingMessage(msg.packetId);
     unawaited(_saveAndSend(pm!));
   }
+
   Future<void> onDeletePendingMessage(Message message) async {
-    final room = (await _roomRepo.getRoom(message.roomUid.asUid()));
+    final room = (await _roomRepo.getRoom(message.roomUid));
     if (room != null) {
       await _dataStreamServices.fetchLastNotHiddenMessage(
         room.uid,
@@ -1519,11 +1520,12 @@ class MessageRepo {
       _fileRepo.cancelUploadFile(message.json.toFile().uuid);
     }
   }
+
   void deletePendingMessage(String packetId) {
     _pendingMessageDao.deletePendingMessage(packetId);
   }
 
-  void deletePendingEditedMessage(String roomUid, int? index) {
+  void deletePendingEditedMessage(Uid roomUid, int? index) {
     _pendingMessageDao.deletePendingEditedMessage(roomUid, index);
     messageEventSubject.add(
       MessageEvent(
@@ -1545,7 +1547,7 @@ class MessageRepo {
     int duration,
     location.Position position, {
     int replyId = 0,
-    String? forwardedFrom,
+    Uid? forwardedFrom,
   }) async {
     final res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     final location = location_pb.Location(
@@ -1576,7 +1578,7 @@ class MessageRepo {
       await _sdr.queryServiceClient.deleteMessage(
         DeleteMessageReq()
           ..messageId = Int64(message.id!)
-          ..roomUid = message.roomUid.asUid(),
+          ..roomUid = message.roomUid,
       );
       return true;
     } catch (e) {
@@ -1607,7 +1609,7 @@ class MessageRepo {
               ),
             );
 
-            final room = (await _roomRepo.getRoom(msg.roomUid.asUid()))!;
+            final room = (await _roomRepo.getRoom(msg.roomUid))!;
 
             Message? lastNotHiddenMessage;
 
@@ -1621,7 +1623,7 @@ class MessageRepo {
             }
 
             await _roomDao.updateRoom(
-              uid: msg.roomUid.asUid(),
+              uid: msg.roomUid,
               lastMessage: lastNotHiddenMessage,
             );
           }
@@ -1642,7 +1644,7 @@ class MessageRepo {
         return;
       }
       final updatedMessage = message_pb.MessageByClient()
-        ..to = editableMessage.to.asUid()
+        ..to = editableMessage.to
         ..replyToId = Int64(editableMessage.replyToId)
         ..text = message_pb.Text(text: text);
       final pm = _createPendingMessage(
@@ -1666,14 +1668,17 @@ class MessageRepo {
           ..message = updatedMessage
           ..messageId = Int64(editableMessage.id ?? 0),
       );
-      editableMessage
-        ..json = (message_pb.Text()..text = text).writeToJson()
-        ..edited = true;
+
       deletePendingEditedMessage(
         editableMessage.roomUid,
         editableMessage.id,
       );
-      await _messageDao.saveMessage(editableMessage);
+      await _messageDao.saveMessage(
+        editableMessage.copyWith(
+          json: (message_pb.Text()..text = text).writeToJson(),
+          edited: true,
+        ),
+      );
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
@@ -1682,7 +1687,7 @@ class MessageRepo {
           MessageEventAction.EDIT,
         ),
       );
-      final room = (await _roomDao.getRoom(editableMessage.roomUid.asUid()))!;
+      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
 
       if (editableMessage.id == room.lastMessage?.id) {
         await _roomDao.updateRoom(
@@ -1767,7 +1772,7 @@ class MessageRepo {
         );
       }
       final updatedMessage = message_pb.MessageByClient()
-        ..to = editableMessage.to.asUid()
+        ..to = editableMessage.to
         ..file = updatedFile!;
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
@@ -1775,9 +1780,10 @@ class MessageRepo {
           ..messageId = Int64(editableMessage.id ?? 0),
       );
       deletePendingEditedMessage(editableMessage.roomUid, editableMessage.id);
-      editableMessage
-        ..json = updatedFile.writeToJson()
-        ..edited = true;
+      editableMessage = editableMessage.copyWith(
+        json: updatedFile.writeToJson(),
+        edited: true,
+      );
       await _messageDao.saveMessage(editableMessage);
       messageEventSubject.add(
         MessageEvent(
@@ -1788,7 +1794,7 @@ class MessageRepo {
         ),
       );
 
-      final room = (await _roomDao.getRoom(editableMessage.roomUid.asUid()))!;
+      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
 
       if (editableMessage.id == room.lastMessage?.id) {
         await _roomDao.updateRoom(

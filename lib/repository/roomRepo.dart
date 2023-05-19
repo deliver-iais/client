@@ -66,7 +66,7 @@ class RoomRepo {
     if (uid.isUser() && uid.node.isEmpty) {
       return ""; // Empty Uid
     }
-    if (_authRepo.isCurrentUserUid(uid)) {
+    if (_authRepo.isCurrentUser(uid)) {
       return _i18n.get("you");
     } else {
       return getName(uid);
@@ -167,7 +167,7 @@ class RoomRepo {
     }
 
     // Is Current User
-    if (_authRepo.isCurrentUser(uid.asString())) {
+    if (_authRepo.isCurrentUser(uid)) {
       if (forceToReturnSavedMessage) {
         return _i18n.get("saved_message");
       }
@@ -433,12 +433,12 @@ class RoomRepo {
       _seenDao.getOthersSeen(roomUid);
 
   Future<void> updateMySeen({
-    required String uid,
+    required Uid uid,
     int? messageId,
     int? hiddenMessageCount,
   }) =>
       _seenDao.updateMySeen(
-        uid: uid,
+        uid: uid.asString(),
         messageId: messageId,
         hiddenMessageCount: hiddenMessageCount,
       );

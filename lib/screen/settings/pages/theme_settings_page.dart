@@ -100,14 +100,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     return Message(
       id: id,
       type: MessageType.TEXT,
-      from: from,
+      from: from.asUid(),
       replyToId: replyId ?? 0,
-      to: to,
+      to: to.asUid(),
       time: id,
-      isHidden: false,
       json: '{"1":"$text"}',
       packetId: '',
-      roomUid: FAKE_USER_UID.asString(),
+      roomUid: FAKE_USER_UID,
     );
   }
 
@@ -120,12 +119,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final text = m.json.toText().text;
 
     return MessageBrief(
-      roomUid: m.roomUid,
+      roomUid: m.roomUid.asString(),
       packetId: m.packetId,
       id: m.id ?? 0,
       time: m.time,
-      from: m.from,
-      to: m.to,
+      from: m.from.asString(),
+      to: m.to.asString(),
       text: text,
       type: m.type,
     );
@@ -145,7 +144,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         message: msg,
         messageReplyBrief: cfm(replyId),
         messageBefore: bMsg,
-        roomId: FAKE_USER_UID.asString(),
+        roomId: FAKE_USER_UID,
         lastSeenMessageId: messages.length - 1,
         pinMessages: const [],
         selectMultiMessageSubject: BehaviorSubject.seeded(false),

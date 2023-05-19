@@ -11,7 +11,6 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -167,7 +166,7 @@ class FileMessageUiState extends State<FileMessageUi> {
 
   Future<void> mediaAutomaticDownload() async {
     final category = _autoDownloadDao.convertCategory(
-      widget.message.roomUid.asUid().category,
+      widget.message.roomUid.category,
     );
     final isAutoDownloadEnable = _isImageFile()
         ? await _autoDownloadDao.isPhotoAutoDownloadEnable(category)

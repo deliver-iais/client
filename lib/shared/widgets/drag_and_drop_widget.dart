@@ -8,6 +8,7 @@ import 'package:deliver/services/drag_and_drop_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
@@ -17,7 +18,7 @@ import 'package:universal_html/html.dart';
 
 class DragDropWidget extends StatefulWidget {
   final Widget child;
-  final String roomUid;
+  final Uid roomUid;
   final double height;
   final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
@@ -63,7 +64,7 @@ class DragDropWidgetState extends State<DragDropWidget> {
                         onDropMultiple: (files) async {
                           try {
                             if (files != null &&
-                                _routingServices.isInRoom(widget.roomUid)) {
+                                _routingServices.isInRoom(widget.roomUid.asString())) {
                               final inputFiles = <model.File>[];
                               for (final File file in (files)) {
                                 final url =
@@ -97,7 +98,7 @@ class DragDropWidgetState extends State<DragDropWidget> {
                 enable: enabled,
                 onDragDone: (d) async {
                   if (d.files.isNotEmpty &&
-                      _routingServices.isInRoom(widget.roomUid)) {
+                      _routingServices.isInRoom(widget.roomUid.asString())) {
                     final files = <model.File>[];
                     for (final element in d.files) {
                       files.add(
@@ -134,7 +135,7 @@ class DragDropWidgetState extends State<DragDropWidget> {
     } else {
       final res = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
-        widget.roomUid,
+        widget.roomUid.asString(),
       );
       if (res) {
         if (context.mounted) {
@@ -159,7 +160,7 @@ class DragDropWidgetState extends State<DragDropWidget> {
     showCaptionDialog(
       context: context,
       files: files,
-      roomUid: widget.roomUid.asUid(),
+      roomUid: widget.roomUid,
       replyMessageId: replyMessageId ?? 0,
       resetRoomPageDetails: resetRoomPageDetails,
     );

@@ -10,6 +10,7 @@ import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -46,7 +47,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
       _messengerContacts = contacts
           .whereNot((element) => element.uid == null)
           .where(
-            (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
+            (c) => !_authRepo.isCurrentUser(c.uid!.asUid()) && !c.isUsersContact(),
           )
           .sortedBy(
             (element) => buildName(element.firstName, element.lastName),
@@ -262,7 +263,7 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
               .where(
                 (c) =>
                     c.uid == null ||
-                    (!_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact()),
+                    (!_authRepo.isCurrentUser(c.uid!.asUid()) && !c.isUsersContact()),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}")
               .sortedBy((element) => "${element.uid != null ? 0 : 1}"),

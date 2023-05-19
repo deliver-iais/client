@@ -16,8 +16,10 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -48,18 +50,18 @@ class BroadcastService {
   Future<void> startBroadcast(
     Message message,
   ) async {
-      _logger.i("start broad cast");
-      unawaited(
-        _analyticsService.sendLogEvent(
-          "sendBroadcastMessage",
-        ),
-      );
-      unawaited(_sendMessageToBroadcastMembers(message));
-      unawaited(
-        _sendSmsBroadcast(
-          message,
-        ),
-      );
+    _logger.i("start broad cast");
+    unawaited(
+      _analyticsService.sendLogEvent(
+        "sendBroadcastMessage",
+      ),
+    );
+    unawaited(_sendMessageToBroadcastMembers(message));
+    unawaited(
+      _sendSmsBroadcast(
+        message,
+      ),
+    );
   }
 
   BehaviorSubject<BroadcastRunningStatus>? getBroadcastRunningStatus(
@@ -86,16 +88,16 @@ class BroadcastService {
   }
 
   void pauseBroadcast(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) {
     if (_broadcastRunningStatus[broadcastRoomId] != null) {
       _broadcastRunningStatus[broadcastRoomId]!
           .add(BroadcastRunningStatus.PAUSE);
     } else {
-      _broadcastRunningStatus[broadcastRoomId] =
+      _broadcastRunningStatus[broadcastRoomId.asString()] =
           BehaviorSubject.seeded(BroadcastRunningStatus.PAUSE);
     }
-    if (!_hasAnotherRunningBroadcast(broadcastRoomId)) {
+    if (!_hasAnotherRunningBroadcast(broadcastRoomId.asString())) {
       _notificationForegroundService.foregroundServiceStop();
     }
   }
@@ -116,7 +118,7 @@ class BroadcastService {
   }
 
   Future<void> resumeBroadcast(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     List<BroadcastStatus> waitingBroadcastList,
   ) async {
     _setBroadcastRunningStateAsActive(broadcastRoomId);
@@ -146,7 +148,7 @@ class BroadcastService {
   }
 
   Future<void> resendFailedBroadcasts(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     List<BroadcastStatus> failedBroadcastList,
   ) async {
     _setBroadcastRunningStateAsActive(broadcastRoomId);
@@ -156,7 +158,7 @@ class BroadcastService {
       final waitingBroadcast =
           failedBroadcast.copyWith(status: BroadcastMessageStatusType.WAITING);
       await _broadcastDao.saveBroadcastStatus(
-        broadcastRoomId,
+        broadcastRoomId.asString(),
         waitingBroadcast,
       );
       waitingBroadcastList.add(waitingBroadcast);
@@ -164,7 +166,7 @@ class BroadcastService {
     final broadcastId = failedBroadcastList.first.broadcastMessageId;
     await _broadcastDao.setBroadcastFailedCount(
       broadcastId,
-      broadcastRoomId,
+      broadcastRoomId.asString(),
       0,
     );
     final message =
@@ -175,10 +177,10 @@ class BroadcastService {
     );
   }
 
-  void _setBroadcastRunningStateAsActive(String broadcastRoomId) {
+  void _setBroadcastRunningStateAsActive(Uid broadcastRoomId) {
     _notificationForegroundService.broadcastForegroundServiceStart();
     if (_broadcastRunningStatus[broadcastRoomId] == null) {
-      _broadcastRunningStatus[broadcastRoomId] =
+      _broadcastRunningStatus[broadcastRoomId.asString()] =
           BehaviorSubject.seeded(BroadcastRunningStatus.RUNNING);
     } else {
       _broadcastRunningStatus[broadcastRoomId]
@@ -187,12 +189,12 @@ class BroadcastService {
   }
 
   void cancelBroadcast(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) {
-    _endBroadcast(broadcastRoomId);
-    _broadcastDao.clearAllBroadcastStatus(broadcastRoomId);
+    _endBroadcast(broadcastRoomId.asString());
+    _broadcastDao.clearAllBroadcastStatus(broadcastRoomId.asString());
     _pendingBroadcastMessage
-        .removeWhere((key, value) => value == broadcastRoomId);
+        .removeWhere((key, value) => value == broadcastRoomId.asString());
   }
 
   String? getBroadcastPendingMessage(String packetId) =>
@@ -209,7 +211,7 @@ class BroadcastService {
   ) async {
     final splitPacketId = packetId.split("-");
     if (splitPacketId.length >= 4) {
-      final broadcastId =getBroadcastIdFromPacketId(packetId);
+      final broadcastId = getBroadcastIdFromPacketId(packetId);
       final broadcastStatus = await _broadcastDao.getBroadcastStatus(
         packetId,
         broadcastRoomUid,
@@ -240,14 +242,15 @@ class BroadcastService {
     final broadcastId = message.id;
     if (broadcastId != null) {
       _setBroadcastRunningStateAsActive(message.roomUid);
-      final members = (await _mucDao.getAllMembers(broadcastRoomId)).where(
+      final members =
+          (await _mucDao.getAllMembers(broadcastRoomId.asString())).where(
         (element) =>
             element?.role == MucRole.MEMBER || element?.role == MucRole.NONE,
       );
       final bcStatusList = await _setAllBroadcastMemberStatusAsWaiting(
         members,
         broadcastId,
-        broadcastRoomId,
+        broadcastRoomId.asString(),
       );
       await _sendWaitingBroadcastAndCheckForAck(
         bcStatusList,
@@ -280,15 +283,15 @@ class BroadcastService {
       if (_broadcastRunningStatus[broadcastRoomId]?.value ==
           BroadcastRunningStatus.RUNNING) {
         final msg = message.copyWith(
-          to: bc.to,
+          to: bc.to.asUid(),
           packetId: bc.sendingId,
           generatedBy: broadcastRoomId,
         );
-        _pendingBroadcastMessage[bc.sendingId] = broadcastRoomId;
+        _pendingBroadcastMessage[bc.sendingId] = broadcastRoomId.asString();
 
         _getMessageRepo.sendBroadcastMessageToServer(msg);
         await _broadcastDao.saveBroadcastStatus(
-          broadcastRoomId,
+          broadcastRoomId.asString(),
           bc.copyWith(
             status: BroadcastMessageStatusType.SENDING,
           ),
@@ -298,12 +301,16 @@ class BroadcastService {
             seconds: BROADCAST_MESSAGE_DELAY,
           ),
         );
-        await _checkLastBroadcastStatus(bc, broadcastRoomId, broadcastId);
+        await _checkLastBroadcastStatus(
+          bc,
+          broadcastRoomId.asString(),
+          broadcastId,
+        );
       } else {
         break;
       }
     }
-    await _setBroadcastAsEnded(broadcastRoomId);
+    await _setBroadcastAsEnded(broadcastRoomId.asString());
   }
 
   Future<void> _setBroadcastAsEnded(
@@ -359,7 +366,7 @@ class BroadcastService {
     final bcStatusList = <BroadcastStatus>[];
     for (final member in members) {
       final packetId = await _getMessageRepo.createBroadcastMessagePackedId(
-        member!.memberUid,
+        member!.memberUid.asUid(),
         broadcastId,
       );
       final broadcastStatus = BroadcastStatus(
@@ -393,7 +400,8 @@ class BroadcastService {
     Message message,
   ) async {
     if (isAndroidNative) {
-      final members = await _mucDao.getAllBroadcastSmsMembers(message.roomUid);
+      final members =
+          await _mucDao.getAllBroadcastSmsMembers(message.roomUid.asString());
       final phoneNumbers = members
           .map(
             (member) => "0"
@@ -411,7 +419,10 @@ class BroadcastService {
             isSmsBroadcast: true,
           );
           bcList.add(status);
-          await _broadcastDao.saveBroadcastStatus(message.roomUid, status);
+          await _broadcastDao.saveBroadcastStatus(
+            message.roomUid.asString(),
+            status,
+          );
         }
         await Permission.sms.request();
         if (_broadcastRunningStatus[message.roomUid]?.value ==
@@ -441,8 +452,9 @@ class BroadcastService {
     }
     return "$text\n$APPLICATION_LANDING_URL";
   }
-  int getBroadcastIdFromPacketId(String packetId){
-    return  int.parse(packetId.split("-")[3]);
+
+  int getBroadcastIdFromPacketId(String packetId) {
+    return int.parse(packetId.split("-")[3]);
   }
 
   Future<void> _sendWaitingSmsBroadcast(
@@ -458,7 +470,7 @@ class BroadcastService {
         );
         await _broadcastDao.deleteBroadcastStatus(
           bcStatusList[i].sendingId,
-          message.roomUid,
+          message.roomUid.asString(),
         );
         await Future.delayed(const Duration(seconds: BROADCAST_SMS_DELAY));
       } else {
@@ -466,7 +478,7 @@ class BroadcastService {
       }
     }
     await _setBroadcastAsEnded(
-      message.roomUid,
+      message.roomUid.asString(),
     );
   }
 

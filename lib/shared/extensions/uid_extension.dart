@@ -5,12 +5,23 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 const UidJsonKey = JsonKey(fromJson: uidFromJson, toJson: uidToJson);
 
+const NullableUidJsonKey =
+    JsonKey(fromJson: nullAbleUidFromJson, toJson: nullableUidToJson);
+
 Uid uidFromJson(String json) {
   return Uid.fromJson(json);
 }
 
+Uid? nullAbleUidFromJson(String? json) {
+  return json != null ? Uid.fromJson(json) : null;
+}
+
 String uidToJson(Uid protobufModel) {
   return protobufModel.writeToJson();
+}
+
+String? nullableUidToJson(Uid? protobufModel) {
+  return protobufModel?.writeToJson();
 }
 
 extension UidExtension on Uid {
@@ -98,6 +109,4 @@ extension StringUidExtension on String {
   bool isSystem() => asUid().isSystem();
 
   bool isMuc() => isGroup() || isChannel() || isBroadcast();
-
-  bool isEmptyUid() => asUid().node.isEmpty;
 }

@@ -246,9 +246,7 @@ class AuthRepo {
     _logger.d(currentUserUid);
   }
 
-  bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);
-
-  bool isCurrentUserUid(Uid uid) =>
+  bool isCurrentUser(Uid uid) =>
       uid.isUser() && uid.node == currentUserUid.node;
 
   bool isCurrentUserSender(Message msg) => isCurrentUser(msg.from);

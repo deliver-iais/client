@@ -9,6 +9,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shimmer/shimmer.dart';
@@ -18,7 +19,7 @@ class ReplyBrief extends StatelessWidget {
       GetIt.I.get<MessageExtractorServices>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  final String roomId;
+  final Uid roomId;
   final int replyToId;
   final double maxWidth;
   final Color backgroundColor;

@@ -3,122 +3,45 @@
 part of 'message.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
-
-class MessageAdapter extends TypeAdapter<Message> {
-  @override
-  final int typeId = 11;
-
-  @override
-  Message read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Message(
-      roomUid: fields[0] as String,
-      packetId: fields[2] as String,
-      time: fields[3] as int,
-      from: fields[4] as String,
-      to: fields[5] as String,
-      json: fields[11] as String,
-      isHidden: fields[12] as bool,
-      id: fields[1] as int?,
-      type: fields[10] as MessageType,
-      replyToId: fields[6] as int,
-      edited: fields[8] as bool,
-      encrypted: fields[9] as bool,
-      forwardedFrom: fields[7] as String?,
-      markup: fields[13] as String?,
-      generatedBy: fields[14] as String?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, Message obj) {
-    writer
-      ..writeByte(15)
-      ..writeByte(0)
-      ..write(obj.roomUid)
-      ..writeByte(1)
-      ..write(obj.id)
-      ..writeByte(2)
-      ..write(obj.packetId)
-      ..writeByte(3)
-      ..write(obj.time)
-      ..writeByte(4)
-      ..write(obj.from)
-      ..writeByte(5)
-      ..write(obj.to)
-      ..writeByte(6)
-      ..write(obj.replyToId)
-      ..writeByte(7)
-      ..write(obj.forwardedFrom)
-      ..writeByte(8)
-      ..write(obj.edited)
-      ..writeByte(9)
-      ..write(obj.encrypted)
-      ..writeByte(10)
-      ..write(obj.type)
-      ..writeByte(11)
-      ..write(obj.json)
-      ..writeByte(12)
-      ..write(obj.isHidden)
-      ..writeByte(13)
-      ..write(obj.markup)
-      ..writeByte(14)
-      ..write(obj.generatedBy);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MessageAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Message _$MessageFromJson(Map<String, dynamic> json) => Message(
-      roomUid: json['roomUid'] as String,
+_$_Message _$$_MessageFromJson(Map<String, dynamic> json) => _$_Message(
+      roomUid: uidFromJson(json['roomUid'] as String),
+      from: uidFromJson(json['from'] as String),
+      to: uidFromJson(json['to'] as String),
       packetId: json['packetId'] as String,
       time: json['time'] as int,
-      from: json['from'] as String,
-      to: json['to'] as String,
       json: json['json'] as String,
-      isHidden: json['isHidden'] as bool,
-      id: json['id'] as int?,
+      replyToId: json['replyToId'] as int? ?? 0,
       type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.NOT_SET,
-      replyToId: json['replyToId'] as int? ?? 0,
       edited: json['edited'] as bool? ?? false,
       encrypted: json['encrypted'] as bool? ?? false,
-      forwardedFrom: json['forwardedFrom'] as String?,
+      isHidden: json['isHidden'] as bool? ?? false,
       markup: json['markup'] as String?,
+      id: json['id'] as int?,
+      forwardedFrom: nullAbleUidFromJson(json['forwardedFrom'] as String?),
+      generatedBy: nullAbleUidFromJson(json['generatedBy'] as String?),
     );
 
-Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
-      'roomUid': instance.roomUid,
-      'id': instance.id,
+Map<String, dynamic> _$$_MessageToJson(_$_Message instance) =>
+    <String, dynamic>{
+      'roomUid': uidToJson(instance.roomUid),
+      'from': uidToJson(instance.from),
+      'to': uidToJson(instance.to),
       'packetId': instance.packetId,
       'time': instance.time,
-      'from': instance.from,
-      'to': instance.to,
+      'json': instance.json,
       'replyToId': instance.replyToId,
-      'forwardedFrom': instance.forwardedFrom,
+      'type': _$MessageTypeEnumMap[instance.type]!,
       'edited': instance.edited,
       'encrypted': instance.encrypted,
-      'type': _$MessageTypeEnumMap[instance.type]!,
-      'json': instance.json,
       'isHidden': instance.isHidden,
       'markup': instance.markup,
+      'id': instance.id,
+      'forwardedFrom': nullableUidToJson(instance.forwardedFrom),
+      'generatedBy': nullableUidToJson(instance.generatedBy),
     };
 
 const _$MessageTypeEnumMap = {

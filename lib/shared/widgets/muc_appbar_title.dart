@@ -5,6 +5,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -12,7 +13,8 @@ class MucAppbarTitle extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _mucHelper = GetIt.I.get<MucHelperService>();
-  final String mucUid;
+
+  final Uid mucUid;
 
   const MucAppbarTitle({super.key, required this.mucUid});
 
@@ -25,13 +27,13 @@ class MucAppbarTitle extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Row(
           children: [
-            CircleAvatarWidget(mucUid.asUid(), 20),
+            CircleAvatarWidget(mucUid, 20),
             const SizedBox(
               width: 16,
             ),
             Expanded(
               child: StreamBuilder<Muc?>(
-                stream: _mucRepo.watchMuc(mucUid),
+                stream: _mucRepo.watchMuc(mucUid.asString()),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Column(
@@ -54,7 +56,7 @@ class MucAppbarTitle extends StatelessWidget {
                             softWrap: false,
                             style: theme.textTheme.bodySmall,
                           ),
-                          currentRoomUid: mucUid.asUid(),
+                          currentRoomUid: mucUid,
                         )
                       ],
                     );
@@ -90,7 +92,7 @@ class MucAppbarTitle extends StatelessWidget {
           ],
         ),
         onTap: () {
-          _routingService.openProfile(mucUid);
+          _routingService.openProfile(mucUid.asString());
         },
       ),
     );

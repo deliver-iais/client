@@ -92,7 +92,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                   },
                                 ),
                               ),
-                              if (!_authRepo.isCurrentUser(member.memberUid) &&
+                              if (!_authRepo.isCurrentUser(member.memberUid.asUid()) &&
                                   (_myRoleInThisRoom == MucRole.ADMIN ||
                                       _myRoleInThisRoom == MucRole.OWNER) &&
                                   member.role != MucRole.OWNER)
@@ -130,7 +130,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                                   },
                                 ),
                               if (_authRepo.isCurrentUser(
-                                        member.memberUid,
+                                        member.memberUid.asUid(),
                                       ) &&
                                       (_myRoleInThisRoom == MucRole.ADMIN ||
                                           _myRoleInThisRoom == MucRole.OWNER) ||
@@ -231,7 +231,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
 
   void obtainMyRole(List<Member?> members) {
     for (final member in members) {
-      if (member != null && _authRepo.isCurrentUser(member.memberUid)) {
+      if (member != null && _authRepo.isCurrentUser(member.memberUid.asUid())) {
         _myRoleInThisRoom = member.role;
       }
     }

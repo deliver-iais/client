@@ -43,7 +43,7 @@ class _MucBottomBarState extends State<MucBottomBar> {
   Widget build(BuildContext context) {
     return widget.roomId.isBroadcast()
         ? BroadcastStatusBar(
-            roomId: widget.roomId,
+            roomUid: widget.roomId.asUid(),
             inputMessage: widget.inputMessage,
           )
         : MuteAndUnMuteRoomWidget(

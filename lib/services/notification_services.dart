@@ -98,7 +98,7 @@ abstract class Notifier {
 
     GetIt.I.get<MessageRepo>().sendSeen(payload.item2, payload.item1.asUid());
     GetIt.I.get<RoomRepo>().updateMySeen(
-          uid: payload.item1,
+          uid: payload.item1.asUid(),
           messageId: payload.item2,
           hiddenMessageCount: 0,
         );

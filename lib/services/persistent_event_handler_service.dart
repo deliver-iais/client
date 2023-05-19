@@ -9,6 +9,7 @@ import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tuple/tuple.dart';
 
@@ -23,7 +24,7 @@ class PersistentEventHandlerService {
 
   Future<Tuple2<String, bool>> getIssuerNameFromMucSpecificPersistentEvent(
     MucSpecificPersistentEvent mucSpecificPersistentEvent,
-    String roomUid, {
+    Uid roomUid, {
     required bool isChannel,
   }) async {
     if (isChannel) {
@@ -35,7 +36,7 @@ class PersistentEventHandlerService {
       }
       final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
-        roomUid,
+        roomUid.asString(),
       );
       if (!isMucOwnerOrAdminInChannel) {
         return Tuple2(_i18n.get("admin"), false);
@@ -65,7 +66,7 @@ class PersistentEventHandlerService {
   }
 
   Future<String> getPinnedMessageBriefContent(
-    String roomUid,
+    Uid roomUid,
     int messageId,
   ) async {
     final message = await _messageDao.getMessage(
@@ -103,7 +104,7 @@ class PersistentEventHandlerService {
           "added",
           needParticleSuffixed: true,
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
 
@@ -114,8 +115,7 @@ class PersistentEventHandlerService {
           return _i18n.verb(
             "change_group_avatar",
             isFirstPerson: _authRepo.isCurrentUser(
-              persistentEventMessage.mucSpecificPersistentEvent.issuer
-                  .asString(),
+              persistentEventMessage.mucSpecificPersistentEvent.issuer,
             ),
           );
         }
@@ -124,7 +124,7 @@ class PersistentEventHandlerService {
         return _i18n.verb(
           "joined",
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
       case MucSpecificPersistentEvent_Issue.KICK_USER:
@@ -132,7 +132,7 @@ class PersistentEventHandlerService {
           "kicked",
           needParticleSuffixed: true,
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
 
@@ -140,7 +140,7 @@ class PersistentEventHandlerService {
         return _i18n.verb(
           "left",
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
 
@@ -149,7 +149,7 @@ class PersistentEventHandlerService {
           "created",
           needParticleSuffixed: true,
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
 
@@ -157,7 +157,7 @@ class PersistentEventHandlerService {
         return _mucHelper.changeMucName(
           persistentEventMessage.mucSpecificPersistentEvent.assignee,
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
 
@@ -166,7 +166,7 @@ class PersistentEventHandlerService {
           "pinned",
           needParticleSuffixed: true,
           isFirstPerson: _authRepo.isCurrentUser(
-            persistentEventMessage.mucSpecificPersistentEvent.issuer.asString(),
+            persistentEventMessage.mucSpecificPersistentEvent.issuer,
           ),
         );
       case MucSpecificPersistentEvent_Issue.DELETED:

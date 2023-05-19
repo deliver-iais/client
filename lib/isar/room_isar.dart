@@ -81,7 +81,7 @@ class RoomIsar {
 extension RoomIsarMapper on Room {
   RoomIsar toIsar() => RoomIsar(
         uid: uid.asString(),
-        lastMessage: lastMessage?.toJson(),
+        lastMessage: nullableMessageToJson(lastMessage),
         deleted: deleted,
         draft: draft,
         seenSynced: seenSynced,

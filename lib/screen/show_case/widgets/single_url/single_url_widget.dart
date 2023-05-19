@@ -77,7 +77,7 @@ class SingleUrlWidget extends StatelessWidget {
                         context: context,
                         pinCodeSettings: urlCase.botCallback.pinCodeSettings,
                         data: urlCase.botCallback.data,
-                        botUid: urlCase.botCallback.bot.asString(),
+                        botUid: urlCase.botCallback.bot,
                         showHelper: true,
                       );
                     }

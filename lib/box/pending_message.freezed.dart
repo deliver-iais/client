@@ -46,6 +46,8 @@ abstract class $PendingMessageCopyWith<$Res> {
       @MessageJsonKey Message msg,
       bool failed,
       SendingStatus status});
+
+  $MessageCopyWith<$Res> get msg;
 }
 
 /// @nodoc
@@ -90,6 +92,14 @@ class _$PendingMessageCopyWithImpl<$Res, $Val extends PendingMessage>
               as SendingStatus,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $MessageCopyWith<$Res> get msg {
+    return $MessageCopyWith<$Res>(_value.msg, (value) {
+      return _then(_value.copyWith(msg: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -106,6 +116,9 @@ abstract class _$$_PendingMessageCopyWith<$Res>
       @MessageJsonKey Message msg,
       bool failed,
       SendingStatus status});
+
+  @override
+  $MessageCopyWith<$Res> get msg;
 }
 
 /// @nodoc

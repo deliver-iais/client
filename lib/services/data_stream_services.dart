@@ -103,7 +103,7 @@ class DataStreamServices {
               break;
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
-              if (_authRepo.isCurrentUserUid(
+              if (_authRepo.isCurrentUser(
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
@@ -114,7 +114,7 @@ class DataStreamServices {
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
             case MucSpecificPersistentEvent_Issue.ADD_USER:
-              if (_authRepo.isCurrentUserUid(
+              if (_authRepo.isCurrentUser(
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
@@ -125,7 +125,7 @@ class DataStreamServices {
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-              if (_authRepo.isCurrentUserUid(
+              if (_authRepo.isCurrentUser(
                 message.persistEvent.mucSpecificPersistentEvent.assignee,
               )) {
                 await _roomDao.updateRoom(
@@ -291,7 +291,7 @@ class DataStreamServices {
       }
     }
 
-    final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
+    final savedMsg = await _messageDao.getMessage(roomUid, id);
 
     if (savedMsg != null) {
       if (savedMsg.type == MessageType.FILE && savedMsg.id != null) {
@@ -319,7 +319,7 @@ class DataStreamServices {
       }
       messageEventSubject.add(
         MessageEvent(
-          roomUid.asString(),
+          roomUid,
           deleteActionTime,
           id,
           MessageEventAction.DELETE,
@@ -339,7 +339,7 @@ class DataStreamServices {
     final time = message.time.toInt();
 
     //if from fetch that means non repeated and should be save
-    final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
+    final savedMsg = await _messageDao.getMessage(roomUid, id);
 
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
     if (savedMsg == null) {
@@ -375,7 +375,7 @@ class DataStreamServices {
 
     messageEventSubject.add(
       MessageEvent(
-        roomUid.asString(),
+        roomUid,
         time,
         id,
         MessageEventAction.EDIT,
@@ -387,7 +387,7 @@ class DataStreamServices {
     Uid? roomId;
     switch (seen.to.category) {
       case Categories.USER:
-        _authRepo.isCurrentUserUid(seen.to)
+        _authRepo.isCurrentUser(seen.to)
             ? roomId = seen.from
             : roomId = seen.to;
         break;
@@ -400,7 +400,7 @@ class DataStreamServices {
         roomId = seen.to;
         break;
     }
-    if (_authRepo.isCurrentUser(seen.from.asString())) {
+    if (_authRepo.isCurrentUser(seen.from)) {
       final room = await _roomDao.getRoom(roomId!);
       int? hiddenMessageCount;
 
@@ -471,7 +471,7 @@ class DataStreamServices {
         final msg = pm.msg.copyWith(id: id, time: time);
         if (msg.type == MessageType.FILE) {
           final file = msg.json.toFile();
-          await _checkForNewMedia(file, msg.roomUid.asUid());
+          await _checkForNewMedia(file, msg.roomUid);
         }
         try {
           await _pendingMessageDao.deletePendingMessage(packetId);
@@ -522,16 +522,16 @@ class DataStreamServices {
           .getBroadcastIdFromPacketId(messageDeliveryAck.packetId);
 
       final broadcastMessage = await _messageDao.getMessage(
-        broadcastRoomUid,
+        broadcastRoomUid.asUid(),
         broadcastMessageId,
       );
       final msg = broadcastMessage?.copyWith(
-        to: messageDeliveryAck.to.asString(),
-        from: messageDeliveryAck.from.asString(),
+        to: messageDeliveryAck.to,
+        from: messageDeliveryAck.from,
         time: messageDeliveryAck.time.toInt(),
         packetId: messageDeliveryAck.packetId,
         id: messageDeliveryAck.id.toInt(),
-        roomUid: messageDeliveryAck.to.asString(),
+        roomUid: messageDeliveryAck.to,
       );
       if (msg != null) {
         await _saveMessageAndUpdateRoomAndSeen(
@@ -550,18 +550,18 @@ class DataStreamServices {
   }) async {
     await _messageDao.saveMessage(msg);
     await _roomDao.updateRoom(
-      uid: msg.roomUid.asUid(),
+      uid: msg.roomUid,
       lastMessage: msg.isHidden ? null : msg,
       lastMessageId: msg.id,
     );
     if (msg.isHidden) {
-      return _increaseHiddenMessageCount(msg.roomUid);
+      return _increaseHiddenMessageCount(msg.roomUid.asString());
     }
     if (shouldNotifyOutgoingMessage) {
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
     }
-    final seen = await _roomRepo.getMySeen(msg.roomUid);
+    final seen = await _roomRepo.getMySeen(msg.roomUid.asString());
     if (messageDeliveryAck.id > seen.messageId) {
       _roomRepo
           .updateMySeen(
@@ -639,7 +639,7 @@ class DataStreamServices {
         await roomRepo.isRoomMuted(roomUid.asString())) {
       // If Notification is Off
       return false;
-    } else if (authRepo.isCurrentUser(message.from.asString())) {
+    } else if (authRepo.isCurrentUser(message.from)) {
       // If Message is from Current User
       return false;
     } else if (message.whichType() == Message_Type.callEvent) {
@@ -650,7 +650,7 @@ class DataStreamServices {
             PersistentEvent_Type.mucSpecificPersistentEvent) {
       // If Message is PE and Issuer is Current User
       return !authRepo.isCurrentUser(
-        message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
+        message.persistEvent.mucSpecificPersistentEvent.issuer,
       );
     }
 
@@ -681,7 +681,7 @@ class DataStreamServices {
       pointer -= 1;
 
       try {
-        final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+        final msg = await _messageDao.getMessage(roomUid, pointer);
 
         if (msg != null) {
           if (msg.id! <= firstMessageId ||
@@ -813,7 +813,7 @@ class DataStreamServices {
   }
 
   Future<void> handleFetchMessagesActions(
-    String roomId,
+    Uid roomId,
     List<Message> messages,
   ) async {
     for (final message in messages) {
@@ -823,14 +823,14 @@ class DataStreamServices {
             message.persistEvent.messageManipulationPersistentEvent.action) {
           case MessageManipulationPersistentEvent_Action.EDITED:
             await _onMessageEdited(
-              roomId.asUid(),
+              roomId,
               message,
               isOnlineMessage: false,
             );
             break;
           case MessageManipulationPersistentEvent_Action.DELETED:
             await _onMessageDeleted(
-              roomId.asUid(),
+              roomId,
               message,
               isOnlineMessage: false,
             );

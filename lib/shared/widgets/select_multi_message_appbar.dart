@@ -120,7 +120,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                     for (final message in messages) {
                       if (message.type == MessageType.TEXT) {
                         copyText =
-                            "$copyText${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}";
+                            "$copyText${await _roomRepo.getName(message.from)}:\n${message.json.toText().text}";
                       } else if (message.type == MessageType.FILE) {
                         final file = message.json.toFile();
                         var fileTypeEmoji = "📎";
@@ -133,7 +133,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                         }
 
                         copyText =
-                            "$copyText${await _roomRepo.getName(message.from.asUid())}:\n$fileTypeEmoji\n${message.json.toFile().caption}";
+                            "$copyText${await _roomRepo.getName(message.from)}:\n$fileTypeEmoji\n${message.json.toFile().caption}";
                       }
                       final timeString = DateTime.fromMillisecondsSinceEpoch(
                         message.time,
@@ -185,11 +185,11 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                 for (final message in messages) {
                   if (message.type == MessageType.TEXT) {
                     copyText =
-                        "$copyText${await _roomRepo.getName(message.from.asUid())}:\n${synthesizeToOriginalWord(message.json.toText().text)}\n";
+                        "$copyText${await _roomRepo.getName(message.from)}:\n${synthesizeToOriginalWord(message.json.toText().text)}\n";
                   } else if (message.type == MessageType.FILE &&
                       message.json.toFile().caption.isNotEmpty) {
                     copyText =
-                        "$copyText${await _roomRepo.getName(message.from.asUid())}:\n${synthesizeToOriginalWord(
+                        "$copyText${await _roomRepo.getName(message.from)}:\n${synthesizeToOriginalWord(
                       message.json.toFile().caption,
                     )}\n";
                   }

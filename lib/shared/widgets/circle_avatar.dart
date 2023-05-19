@@ -46,14 +46,14 @@ class CircleAvatarWidget extends StatelessWidget {
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
-      _authRepo.isCurrentUser(contactUid.asString());
+      _authRepo.isCurrentUser(contactUid);
 
   bool isSystem() => contactUid.category == Categories.SYSTEM;
 
   @override
   Widget build(BuildContext context) {
     final scheme =
-        ExtraTheme.of(context).messageColorScheme(contactUid.asString());
+        ExtraTheme.of(context).messageColorScheme(contactUid);
 
     var boxDecoration = BoxDecoration(
       shape: BoxShape.circle,

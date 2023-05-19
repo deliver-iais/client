@@ -77,15 +77,15 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
 class RoomPage extends StatefulWidget {
-  final String roomId;
   final int? initialIndex;
+  final Uid roomUid;
   final List<Message>? forwardedMessages;
   final proto.ShareUid? shareUid;
   final List<Meta>? forwardedMeta;
 
   const RoomPage({
     super.key,
-    required this.roomId,
+    required this.roomUid,
     this.forwardedMessages,
     this.forwardedMeta,
     this.shareUid,
@@ -166,7 +166,7 @@ class RoomPageState extends State<RoomPage> {
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
 
-  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId.asUid());
+  Room get room => _room.valueOrNull ?? Room(uid: widget.roomUid);
 
   // Streams and Futures
   late Stream<Object> pendingAndRoomMessagesStream;
@@ -195,7 +195,7 @@ class RoomPageState extends State<RoomPage> {
         }
       },
       child: DragDropWidget(
-        roomUid: widget.roomId,
+        roomUid: widget.roomUid,
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
@@ -225,7 +225,7 @@ class RoomPageState extends State<RoomPage> {
       children: [
         Column(
           children: <Widget>[
-            if (widget.roomId.asUid().category == Categories.BOT)
+            if (widget.roomUid.category == Categories.BOT)
               StreamBuilder<Room?>(
                 stream: _room,
                 builder: (c, s) {
@@ -235,7 +235,7 @@ class RoomPageState extends State<RoomPage> {
                     return Expanded(
                       child: Center(
                         child: BotStartInformationBoxWidget(
-                          roomUid: widget.roomId.asUid(),
+                          roomUid: widget.roomUid,
                         ),
                       ),
                     );
@@ -292,7 +292,7 @@ class RoomPageState extends State<RoomPage> {
             const SizedBox(height: BAR_HEIGHT),
             if (settings.showDeveloperDetails.value)
               StreamBuilder<Seen>(
-                stream: _roomRepo.watchMySeen(widget.roomId),
+                stream: _roomRepo.watchMySeen(widget.roomUid.asString()),
                 builder: (context, seen) {
                   return StreamBuilder<Object>(
                     stream: MergeStream(
@@ -466,7 +466,7 @@ class RoomPageState extends State<RoomPage> {
       });
     } else {
       final scrollPosition = await _scrollPositionDao.get(
-        '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
+        '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomUid.asString()}',
       );
 
       if (scrollPosition != null) {
@@ -479,7 +479,7 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _roomRepo.updateUserInfo(widget.roomId.asUid());
+    _roomRepo.updateUserInfo(widget.roomUid);
     _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
       if (_appIsActive) {
@@ -498,7 +498,7 @@ class RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-    _notificationServices.cancelRoomNotifications(widget.roomId);
+    _notificationServices.cancelRoomNotifications(widget.roomUid.asString());
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
               widget.forwardedMessages!.isNotEmpty) ||
@@ -514,7 +514,7 @@ class RoomPageState extends State<RoomPage> {
       if (position.isNotEmpty) {
         _syncLastPinMessageWithItemPosition();
 
-        if (widget.roomId.isGroup()) {
+        if (widget.roomUid.isGroup()) {
           _updateRoomMentionIds(position.toList());
         }
 
@@ -532,7 +532,7 @@ class RoomPageState extends State<RoomPage> {
           );
           // Save scroll position of first complete visible item
           _scrollPositionDao.put(
-            '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomId}',
+            '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomUid}',
             "${lastVisibleItem.index}-${lastVisibleItem.itemLeadingEdge}",
           );
         }
@@ -554,17 +554,17 @@ class RoomPageState extends State<RoomPage> {
       }
     });
 
-    if (widget.roomId.isMuc()) {
-      fetchMucInfo(widget.roomId.asUid());
-    } else if (widget.roomId.asUid().isBot()) {
-      _botRepo.fetchBotInfo(widget.roomId.asUid());
+    if (widget.roomUid.isMuc()) {
+      fetchMucInfo(widget.roomUid);
+    } else if (widget.roomUid.isBot()) {
+      _botRepo.fetchBotInfo(widget.roomUid);
     }
-    if (widget.roomId.asUid().isMuc()) {
+    if (widget.roomUid.isMuc()) {
       watchPinMessages();
     }
-    if (widget.roomId.asUid().isGroup()) {
+    if (widget.roomUid.isGroup()) {
       checkGroupRole();
-    } else if (widget.roomId.asUid().isChannel()) {
+    } else if (widget.roomUid.isChannel()) {
       checkChannelRole();
     }
 
@@ -624,7 +624,7 @@ class RoomPageState extends State<RoomPage> {
             seen.data?.hiddenMessageCount,
             label: "mySeen.hiddenMessageCount",
           ),
-          Debug(widget.roomId, label: "uid"),
+          Debug(widget.roomUid, label: "uid"),
           Debug(
             room.firstMessageId,
             label: "room.firstMessageId",
@@ -693,7 +693,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId.asUid()).distinct().listen((event) {
+    _roomRepo.watchRoom(widget.roomUid).distinct().listen((event) {
       if (event.lastMessageId != room.lastMessageId &&
           _isScrolling.valueOrNull != null) {
         _fireScrollEvent(
@@ -717,7 +717,7 @@ class RoomPageState extends State<RoomPage> {
 
     messageEventSubject
         .distinct()
-        .where((event) => (event != null && event.roomUid == widget.roomId))
+        .where((event) => (event != null && event.roomUid == widget.roomUid))
         .listen((value) async {
       final Message? msg;
       if (value?.action == MessageEventAction.PENDING_EDIT) {
@@ -731,22 +731,22 @@ class RoomPageState extends State<RoomPage> {
       }
       if (msg != null) {
         // Refresh message cache
-        _cachingRepo.setMessage(widget.roomId, value.id, msg);
+        _cachingRepo.setMessage(widget.roomUid, value.id, msg);
       }
       // Refresh message widget cache
-      _cachingRepo.setMessageWidget(widget.roomId, value.id - 1, null);
+      _cachingRepo.setMessageWidget(widget.roomUid, value.id - 1, null);
     });
   }
 
   void initPendingMessages() {
-    _messageRepo.watchPendingMessages(widget.roomId).listen((event) {
+    _messageRepo.watchPendingMessages(widget.roomUid).listen((event) {
       if (event.isNotEmpty) {
         _defaultMessageHeight = 50;
       }
       _pendingMessages.add(event);
     });
 
-    _messageRepo.watchPendingEditedMessages(widget.roomId).listen((event) {
+    _messageRepo.watchPendingEditedMessages(widget.roomUid).listen((event) {
       _pendingEditedMessage.add(event);
     });
   }
@@ -817,24 +817,24 @@ class RoomPageState extends State<RoomPage> {
     }
 
     if (!_authRepo.isCurrentUser(lastSeenMessages.from)) {
-      _messageRepo.sendSeen(id, widget.roomId.asUid());
+      _messageRepo.sendSeen(id, widget.roomUid);
     }
 
     _roomRepo.updateMySeen(
-      uid: widget.roomId,
+      uid: widget.roomUid,
       messageId: id,
       hiddenMessageCount: hiddenMessagesCount,
     );
   }
 
   Future<void> _readAllMessages() async {
-    final seen = await _roomRepo.getMySeen(widget.roomId);
+    final seen = await _roomRepo.getMySeen(widget.roomUid.asString());
     if (room.lastMessageId > seen.messageId && _appIsActive) {
       unawaited(
-        _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid()),
+        _messageRepo.sendSeen(room.lastMessageId, widget.roomUid),
       );
       return _roomRepo.updateMySeen(
-        uid: widget.roomId,
+        uid: widget.roomUid,
         messageId: room.lastMessageId,
         hiddenMessageCount: 0,
       );
@@ -845,21 +845,21 @@ class RoomPageState extends State<RoomPage> {
     if (id <= 0) {
       return null;
     }
-    final msg = _cachingRepo.getMessage(widget.roomId, id);
+    final msg = _cachingRepo.getMessage(widget.roomUid, id);
     if (msg != null && useCache) {
       return msg;
     }
     final page = (id / PAGE_SIZE).floor();
     final messages = await _messageRepo.getPage(
       page,
-      widget.roomId,
+      widget.roomUid,
       id,
       room.lastMessageId,
     );
     for (var i = 0; i < messages.length; i = i + 1) {
-      _cachingRepo.setMessage(widget.roomId, messages[i]!.id!, messages[i]!);
+      _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
     }
-    return _cachingRepo.getMessage(widget.roomId, id);
+    return _cachingRepo.getMessage(widget.roomUid, id);
   }
 
   void _resetRoomPageDetails() {
@@ -877,17 +877,17 @@ class RoomPageState extends State<RoomPage> {
 
   void _sendForwardMessage() {
     if (widget.shareUid != null) {
-      _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid!);
+      _messageRepo.sendShareUidMessage(widget.roomUid, widget.shareUid!);
     } else if (widget.forwardedMessages != null &&
         widget.forwardedMessages!.isNotEmpty) {
       _messageRepo.sendForwardedMessage(
-        widget.roomId.asUid(),
+        widget.roomUid,
         widget.forwardedMessages!,
       );
     } else if (widget.forwardedMeta != null &&
         widget.forwardedMeta!.isNotEmpty) {
       _messageRepo.sendForwardedMetaMessage(
-        widget.roomId.asUid(),
+        widget.roomUid,
         widget.forwardedMeta!,
       );
     }
@@ -932,7 +932,7 @@ class RoomPageState extends State<RoomPage> {
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
         resetRoomPageDetails: _resetRoomPageDetails,
-        roomUid: widget.roomId.asUid(),
+        roomUid: widget.roomUid,
         editableMessage: message,
         context: context,
       );
@@ -940,7 +940,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void onReply(Message message) {
-    if (!widget.roomId.isBroadcast()) {
+    if (!widget.roomUid.isBroadcast()) {
       _repliedMessage.add(message);
       _waitingForForwardedMessage.add(false);
       FocusScope.of(context).requestFocus(_inputMessageFocusNode);
@@ -948,16 +948,16 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _getLastSeen() =>
-      _roomRepo.getOthersSeen(widget.roomId).then((seen) {
+      _roomRepo.getOthersSeen(widget.roomUid.asString()).then((seen) {
         if (seen != null) {
           _lastSeenMessageId = seen.messageId;
         }
       });
 
   Future<void> _getLastShowMessageId() async {
-    final seen = await _roomRepo.getMySeen(widget.roomId);
+    final seen = await _roomRepo.getMySeen(widget.roomUid.asString());
 
-    final room = await _roomRepo.getRoom(widget.roomId.asUid());
+    final room = await _roomRepo.getRoom(widget.roomUid);
 
     _lastShowedMessageId = seen.messageId;
     if (room != null) {
@@ -970,7 +970,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomId).distinct().listen((muc) {
+    _mucRepo.watchMuc(widget.roomUid.asString()).distinct().listen((muc) {
       if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
@@ -994,7 +994,7 @@ class RoomPageState extends State<RoomPage> {
   Future<void> checkChannelRole() async {
     final res = await _mucRepo.isMucAdminOrOwner(
       _authRepo.currentUserUid.asString(),
-      widget.roomId,
+      widget.roomUid.asString(),
     );
     _hasPermissionInChannel.add(res);
   }
@@ -1002,28 +1002,28 @@ class RoomPageState extends State<RoomPage> {
   Future<void> checkGroupRole() async {
     final res = await _mucRepo.isMucAdminOrOwner(
       _authRepo.currentUserUid.asString(),
-      widget.roomId,
+      widget.roomUid.asString(),
     );
     _hasPermissionInGroup.add(res);
   }
 
   Future<void> fetchMucInfo(Uid uid) async {
-    final muc = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
+    final muc = await _mucRepo.fetchMucInfo(widget.roomUid);
     if (muc != null) {
       _roomRepo.updateRoomName(uid, muc.name);
     }
   }
 
   Widget keyboardWidget() {
-    return widget.roomId.isChannel() || widget.roomId.isBroadcast()
+    return widget.roomUid.isChannel() || widget.roomUid.isBroadcast()
         ? MucBottomBar(
-            roomId: widget.roomId,
+            roomId: widget.roomUid.asString(),
             scrollToMessage: _handleScrollToMsg,
             inputMessage: buildNewMessageInput(),
           )
-        : widget.roomId.isBroadcast()
+        : widget.roomUid.isBroadcast()
             ? BroadcastStatusBar(
-                roomId: widget.roomId,
+                roomUid: widget.roomUid,
                 inputMessage: buildNewMessageInput(),
               )
             : buildNewMessageInput();
@@ -1063,7 +1063,7 @@ class RoomPageState extends State<RoomPage> {
               Container(
                 transform: Matrix4.translationValues(-5, -5, 0),
                 child: UnreadMessageCounterWidget(
-                  widget.roomId,
+                  widget.roomUid,
                   room.lastMessageId,
                 ),
               ),
@@ -1074,14 +1074,14 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomId.asUid().category == Categories.BOT) {
+    if (widget.roomUid.category == Categories.BOT) {
       return StreamBuilder<Room?>(
         stream: _room,
         builder: (c, s) {
           if (s.hasData &&
               s.data!.uid.category == Categories.BOT &&
               s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-            return BotStartWidget(botUid: widget.roomId.asUid());
+            return BotStartWidget(botUid: widget.roomUid);
           } else {
             return messageInput();
           }
@@ -1096,7 +1096,7 @@ class RoomPageState extends State<RoomPage> {
         stream: _editableMessage,
         builder: (c, data) {
           return NewMessageInput(
-            currentRoomId: widget.roomId,
+            currentRoomId: widget.roomUid,
             deleteSelectedMessage: _deleteSelectedMessage,
             replyMessageIdStream: _repliedMessage,
             editableMessage: _editableMessage.value,
@@ -1166,7 +1166,7 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        if (_featureFlags.hasVoiceCallPermission(room.uid.asString()))
+        if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<bool>(
             stream: _selectMultiMessageSubject,
             builder: (context, snapshot) {
@@ -1415,13 +1415,13 @@ class RoomPageState extends State<RoomPage> {
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
-                  if (widget.roomId.isMuc()) {
-                    return MucAppbarTitle(mucUid: widget.roomId);
-                  } else if (widget.roomId.asUid().category == Categories.BOT) {
-                    return BotAppbarTitle(botUid: widget.roomId.asUid());
+                  if (widget.roomUid.isMuc()) {
+                    return MucAppbarTitle(mucUid: widget.roomUid);
+                  } else if (widget.roomUid.category == Categories.BOT) {
+                    return BotAppbarTitle(botUid: widget.roomUid);
                   } else {
                     return UserAppbarTitle(
-                      userUid: widget.roomId.asUid(),
+                      userUid: widget.roomUid,
                     );
                   }
                 }
@@ -1598,8 +1598,8 @@ class RoomPageState extends State<RoomPage> {
     int index,
   ) {
     final id = index + 1;
-    final cachedPrevMsg = _cachingRepo.getMessage(widget.roomId, id - 1);
-    final cachedMsg = _cachingRepo.getMessage(widget.roomId, id);
+    final cachedPrevMsg = _cachingRepo.getMessage(widget.roomUid, id - 1);
+    final cachedMsg = _cachingRepo.getMessage(widget.roomUid, id);
 
     return cachedMsg?.id != null && cachedPrevMsg?.id != null
         ? Tuple2(cachedPrevMsg, cachedMsg)
@@ -1618,7 +1618,7 @@ class RoomPageState extends State<RoomPage> {
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
-        : (await _messageRepo.getPendingEditedMessage(widget.roomId, index + 1))
+        : (await _messageRepo.getPendingEditedMessage(widget.roomUid, index + 1))
                 ?.msg ??
             await _getMessage(index + 1, useCache: useCache);
   }
@@ -1710,13 +1710,13 @@ class RoomPageState extends State<RoomPage> {
     Widget? w;
 
     if (!tuple.item2!.isHidden) {
-      w = _cachingRepo.getMessageWidget(widget.roomId, index);
+      w = _cachingRepo.getMessageWidget(widget.roomUid, index);
     }
 
     if (w == null) {
       w = _buildMessageBox(index, tuple, maxWidth);
       if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
-        _cachingRepo.setMessageWidget(widget.roomId, index, w);
+        _cachingRepo.setMessageWidget(widget.roomUid, index, w);
       }
     }
 
@@ -1748,7 +1748,7 @@ class RoomPageState extends State<RoomPage> {
     final msgBox = BuildMessageBox(
       message: message,
       messageBefore: messageBefore,
-      roomId: widget.roomId,
+      roomId: widget.roomUid,
       lastSeenMessageId: _lastSeenMessageId,
       pinMessages: _pinMessages,
       selectMultiMessageSubject: _selectMultiMessageSubject,
@@ -1894,7 +1894,7 @@ class RoomPageState extends State<RoomPage> {
       onClose: () {
         _lastPinedMessage.add(0);
         _mucDao.updateMuc(
-          uid: widget.roomId,
+          uid: widget.roomUid.asString(),
           lastCanceledPinMessageId: _pinMessages.last.id,
         );
       },

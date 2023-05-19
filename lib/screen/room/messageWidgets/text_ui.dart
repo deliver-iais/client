@@ -47,7 +47,7 @@ class TextUI extends StatefulWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
-  })  : isBotMessage = message.roomUid.asUid().isBot(),
+  })  : isBotMessage = message.roomUid.isBot(),
         text = _extractText(message),
         blocks = onePathMultiDetection(
           [Block(text: _extractText(message), features: {})],

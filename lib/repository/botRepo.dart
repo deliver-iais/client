@@ -125,7 +125,7 @@ class BotRepo {
         sendCallbackQuery(
           data: button.callback.data,
           id: message.id,
-          to: message.from.asUid(),
+          to: message.from,
           packetId: message.packetId,
         ),
       );

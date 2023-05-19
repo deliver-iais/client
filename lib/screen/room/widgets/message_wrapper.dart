@@ -3,11 +3,12 @@ import 'dart:math';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
   final Widget child;
-  final String uid;
+  final Uid uid;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
 

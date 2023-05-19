@@ -56,7 +56,6 @@ import 'package:deliver/box/emoji_skin_tone.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:deliver/box/member.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta.dart';
@@ -76,6 +75,7 @@ import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/hive/avatar_hive.dart';
 import 'package:deliver/hive/file_info_hive.dart';
 import 'package:deliver/hive/is_verified_hive.dart';
+import 'package:deliver/hive/message_hive.dart';
 import 'package:deliver/hive/pending_message_hive.dart';
 import 'package:deliver/hive/room_hive.dart';
 import 'package:deliver/isar/dao/avatar_isar_dao.dart'
@@ -84,6 +84,8 @@ import 'package:deliver/isar/dao/file_info_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/file_info_hive_dao.dart';
 import 'package:deliver/isar/dao/is_verified_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/is_verified_hive_dao.dart';
+import 'package:deliver/isar/dao/message_isar_dao.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/message_hive_dao.dart';
 import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/pending_message_hive_dao.dart';
 import 'package:deliver/isar/dao/room_isar_dao.dart'
@@ -147,6 +149,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -295,7 +298,7 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MemberAdapter())
     ..registerAdapter(BotInfoAdapter())
     ..registerAdapter(RoomHiveAdapter())
-    ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageHiveAdapter())
     ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
     ..registerAdapter(SendingStatusAdapter())
