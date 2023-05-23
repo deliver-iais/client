@@ -54,6 +54,20 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   static final _fileService = GetIt.I.get<FileService>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
+  late final getFileIfExist = _fileRepo.getFileIfExist(
+    widget.image.uuid,
+    widget.image.name,
+  );
+
+  late final width = max(widget.image.width, 1) * 1.0;
+  late final height = max(widget.image.height, 1) * 1.0;
+  late final aspectRatio = width / height;
+  late final constraints = BoxConstraints(
+    minWidth: widget.minWidth,
+    maxWidth: widget.maxWidth,
+    maxHeight: widget.maxWidth,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -69,38 +83,33 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
           child: Container(
             clipBehavior: Clip.hardEdge,
             decoration: const BoxDecoration(borderRadius: messageBorder),
-            constraints: BoxConstraints(
-              minWidth: widget.minWidth,
-              maxWidth: widget.maxWidth,
-              maxHeight: widget.maxWidth,
-            ),
+            constraints: constraints,
             child: AspectRatio(
-              aspectRatio:
-                  max(widget.image.width, 1) / max(widget.image.height, 1),
+              aspectRatio: aspectRatio,
               child: SizedBox(
-                width: widget.image.width * 1.0,
-                height: widget.image.height * 1.0,
+                width: width,
+                height: height,
                 child: FutureBuilder<String?>(
                   key: globalKey,
                   initialData:
                       _fileRepo.localUploadedFilePath[widget.image.uuid],
-                  future: _fileRepo.getFileIfExist(
-                    widget.image.uuid,
-                    widget.image.name,
-                  ),
+                  future: getFileIfExist,
                   builder: (c, pathSnapShot) {
-                    if (pathSnapShot.hasData && pathSnapShot.data != null) {
+                    if (pathSnapShot.hasData) {
                       return buildImageUi(context, pathSnapShot);
                     } else {
                       return StreamBuilder<Map<String, FileStatus>>(
                         stream: _fileService.watchFileStatus(),
                         builder: (c, status) {
                           Widget child = defaultImageUI();
-                          if (_fileRepo.fileExitInCache(widget.image.uuid) ||
-                              status.hasData &&
-                                  status.data != null &&
-                                  status.data![widget.image.uuid] ==
-                                      FileStatus.COMPLETED) {
+
+                          final isExist =
+                              _fileRepo.fileExitInCache(widget.image.uuid) ||
+                                  status.hasData &&
+                                      status.data![widget.image.uuid] ==
+                                          FileStatus.COMPLETED;
+
+                          if (isExist) {
                             child = FutureBuilder<String?>(
                               future: _fileRepo.getFileIfExist(
                                 widget.image.uuid,
@@ -139,17 +148,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       );
     } catch (e) {
       return ClipRRect(
-        borderRadius: secondaryBorder,
+        borderRadius: messageBorder,
         clipBehavior: Clip.hardEdge,
         child: Container(
-          constraints: BoxConstraints(
-            minWidth: widget.minWidth,
-            maxWidth: widget.maxWidth,
-            maxHeight: widget.maxWidth,
-          ),
-          child: AspectRatio(
-            aspectRatio: widget.image.width / widget.image.height,
-          ),
+          constraints: constraints,
+          child: AspectRatio(aspectRatio: aspectRatio),
         ),
       );
     }
@@ -165,10 +168,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
           intiProgressbar: false,
         ),
         builder: (c, path) {
-          if (path.hasData && path.data != null) {
+          if (path.hasData) {
             return buildThumbnail(path.data!);
+          } else {
+            return defaultImageUI();
           }
-          return defaultImageUI();
         },
       );
     } else {
@@ -176,13 +180,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
-  SizedBox defaultImageUI() {
-    return SizedBox(
-      width: max(widget.image.width, 1) * 1.0,
-      height: max(widget.image.height, 1) * 1.0,
-      child: getBlurHashWidget(),
-    );
-  }
+  SizedBox defaultImageUI() =>
+      SizedBox(width: width, height: height, child: getBlurHashWidget());
 
   Widget buildDownloadImageWidget() {
     return MouseRegion(
