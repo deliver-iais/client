@@ -466,8 +466,7 @@ class MessageExtractorServices {
       encrypted: message.encrypted,
       type: getMessageType(message.whichType()),
       isHidden: isHidden,
-      markup:
-          message.hasMessageMarkup() ? message.messageMarkup.writeToJson() : "",
+      markup: message.messageMarkup.writeToJson(),
     );
   }
 

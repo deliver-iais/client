@@ -162,7 +162,7 @@ class PinMessageAppBar extends StatelessWidget {
 
   Widget buildPinMessageActions(Message? mes, BuildContext context) {
     final theme = Theme.of(context);
-    if ((mes?.markup?.isNotEmpty ?? false) && mes?.markup?.toMessageMarkup().inlineKeyboardMarkup.rows.length == 1 &&
+    if (mes?.markup?.toMessageMarkup().inlineKeyboardMarkup.rows.length == 1 &&
         mes?.markup
                 ?.toMessageMarkup()
                 .inlineKeyboardMarkup
