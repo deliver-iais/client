@@ -2,11 +2,12 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/muc/widgets/broadcast/last_broadcast_status/last_broadcasts_status.dart';
 import 'package:deliver/screen/muc/widgets/broadcast/running_broadcast/running_broadcasts_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class BroadcastStatusPage extends StatelessWidget {
-  final String roomUid;
+  final Uid roomUid;
   static final _i18n = GetIt.I.get<I18N>();
 
   const BroadcastStatusPage({Key? key, required this.roomUid})

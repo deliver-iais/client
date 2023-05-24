@@ -10,12 +10,13 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/gradiant_circle_progress_bar.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class RunningBroadcastStatusCard extends StatelessWidget {
-  final String broadcastRoomId;
+  final Uid broadcastRoomId;
   final BehaviorSubject<List<BroadcastStatus>> allBroadcastStatus;
   static final _broadcastService = GetIt.I.get<BroadcastService>();
   static final _mucDao = GetIt.I.get<MucDao>();
@@ -53,14 +54,14 @@ class RunningBroadcastStatusCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsetsDirectional.all(p8),
             child: FutureBuilder<int>(
-              future: _mucDao.getAllMembersCount(broadcastRoomId),
+              future: _mucDao.getAllMembersCount(broadcastRoomId.asString()),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != 0) {
                   final allWeMemberCount = snapshot.data! - 1;
                   if (isAndroidNative) {
                     return FutureBuilder<int>(
                       future: _mucDao
-                          .getAllBroadcastSmsMembersCount(broadcastRoomId),
+                          .getAllBroadcastSmsMembersCount(broadcastRoomId.asString()),
                       builder: (context, snapshot) {
                         final allSmsMemberCount = snapshot.data ?? 0;
                         return _buildRunningBroadcastCard(
@@ -154,7 +155,7 @@ class RunningBroadcastStatusCard extends StatelessWidget {
               ),
               const Spacer(),
               ResumeAndPauseBroadcastIcons(
-                broadcastRoomId: broadcastRoomId.asUid(),
+                broadcastRoomId: broadcastRoomId,
                 broadcastRunningStatus: broadcastRunningStatus,
                 failedBroadcastList: failedBroadcasts,
                 waitingBroadcastList: waitingBroadcasts,

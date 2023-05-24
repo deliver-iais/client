@@ -549,7 +549,7 @@ class DataStreamServices {
           .getBroadcastIdFromPacketId(messageDeliveryAck.packetId);
 
       final broadcastMessage = await _messageDao.getMessage(
-        broadcastRoomUid.asUid(),
+        broadcastRoomUid,
         broadcastMessageId,
       );
       final msg = broadcastMessage?.copyWith(
@@ -881,7 +881,7 @@ class DataStreamServices {
         unawaited(
           _broadcastService.deletePendingBroadcastMessage(
             message.packetId,
-            message.generatedBy.asString(),
+            message.generatedBy,
           ),
         );
       } else {
