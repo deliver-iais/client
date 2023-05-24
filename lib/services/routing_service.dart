@@ -491,7 +491,7 @@ class RoutingService {
     );
   }
 
-  void openBroadcastStatsPage(String roomUid) {
+  void openBroadcastStatsPage(Uid roomUid) {
     _push(
       BroadcastStatusPage(
         key: const ValueKey("/broadcast-status-page"),

@@ -4,12 +4,14 @@ import 'package:deliver/screen/navigation_center/search/not_result_widget.dart';
 import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/gradiant_circle_progress_bar.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LastBroadcastsStatus extends StatelessWidget {
-  final String broadcastRoomId;
+  final Uid broadcastRoomId;
   static final _broadcastService = GetIt.I.get<BroadcastService>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
@@ -96,7 +98,7 @@ class LastBroadcastsStatus extends StatelessWidget {
                             const Spacer(),
                             TextButton(
                               onPressed: () => _routingService.openRoom(
-                                broadcastRoomId,
+                                broadcastRoomId.asString(),
                                 initialIndex:
                                     lastBroadcastStatus.broadcastMessageId,
                               ),

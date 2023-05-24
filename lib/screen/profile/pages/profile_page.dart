@@ -697,7 +697,7 @@ class ProfilePageState extends State<ProfilePage>
                   title: _i18n.get("broad_casts_status"),
                   leading: const Icon(MdiIcons.broadcast, size: 20),
                   onPressed: (_) => _routingService
-                      .openBroadcastStatsPage(widget.roomUid.asString()),
+                      .openBroadcastStatsPage(widget.roomUid),
                 ),
               ),
           ],

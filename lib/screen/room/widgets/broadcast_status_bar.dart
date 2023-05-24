@@ -34,10 +34,10 @@ class BroadcastStatusBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BroadcastRunningStatus>(
-      stream: broadcastService.getBroadcastRunningStatus(roomUid.asString()),
+      stream: broadcastService.getBroadcastRunningStatus(roomUid),
       builder: (context, runningStatus) {
         return StreamBuilder<List<BroadcastStatus>>(
-          stream: broadcastService.getAllBroadcastStatusAsStream(roomUid.asString()),
+          stream: broadcastService.getAllBroadcastStatusAsStream(roomUid),
           builder: (context, snapshot) {
             final broadcastStatusList = snapshot.data;
             final waitingBroadcasts = broadcastStatusList
@@ -226,7 +226,7 @@ class BroadcastStatusBar extends StatelessWidget {
                             color: theme.colorScheme.primary,
                           ),
                           onPressed: () =>
-                              _routingService.openBroadcastStatsPage(roomUid.asString()),
+                              _routingService.openBroadcastStatsPage(roomUid),
                         ),
                         if (broadcastRunningStatus ==
                             BroadcastRunningStatus.RUNNING)

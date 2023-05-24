@@ -5,63 +5,65 @@ import 'package:deliver/box/broadcast_success_and_failed_count.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/shared/extensions/string_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:hive/hive.dart';
 
 abstract class BroadcastDao {
   Future<BroadcastStatus?> getBroadcastStatus(
     String sendingId,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
-  Future<void> deleteBroadcastStatus(String packetId, String broadcastRoomId);
+  Future<void> deleteBroadcastStatus(String packetId, Uid broadcastRoomId);
 
   Stream<List<BroadcastStatus>> getAllBroadcastStatusAsStream(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Future<List<BroadcastStatus>> getAllBroadcastStatus(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Future<void> saveBroadcastStatus(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     BroadcastStatus broadcastStatus,
   );
 
-  Future<void> clearAllBroadcastStatus(String broadcastRoomId);
+  Future<void> clearAllBroadcastStatus(Uid broadcastRoomId);
 
   Future<BroadcastSuccessAndFailedCount?> getBroadcastSuccessAndFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Future<List<BroadcastSuccessAndFailedCount>>
       getAllBroadcastSuccessAndFailedCount(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Stream<BroadcastSuccessAndFailedCount?>
-      getBroadcastSuccessAndFailedCountAsStream(int id, String broadcastRoomId);
+      getBroadcastSuccessAndFailedCountAsStream(int id, Uid broadcastRoomId);
 
   Future<void> increaseBroadcastSuccessCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Future<void> decreaseBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 
   Future<void> setBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     int failedCount,
   );
 
   Future<void> increaseBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   );
 }
 
@@ -120,26 +122,26 @@ class BroadcastDaoImpl extends BroadcastDao {
   @override
   Future<void> deleteBroadcastStatus(
     String packetId,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     return box.delete(packetId);
   }
 
   @override
   Future<BroadcastStatus?> getBroadcastStatus(
     String sendingId,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     return box.get(sendingId);
   }
 
   @override
   Stream<List<BroadcastStatus>> getAllBroadcastStatusAsStream(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async* {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     yield box.values.toList();
     yield* box.watch().map((event) => box.values.toList());
   }
@@ -147,9 +149,10 @@ class BroadcastDaoImpl extends BroadcastDao {
   @override
   Future<BroadcastSuccessAndFailedCount?> getBroadcastSuccessAndFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     return box.get(id);
   }
 
@@ -157,35 +160,38 @@ class BroadcastDaoImpl extends BroadcastDao {
   Stream<BroadcastSuccessAndFailedCount?>
       getBroadcastSuccessAndFailedCountAsStream(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async* {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     yield box.get(id);
     yield* box.watch(key: id).map((event) => box.get(id));
   }
 
   @override
   Future<void> saveBroadcastStatus(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     BroadcastStatus broadcastStatus,
   ) async {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     return box.put(broadcastStatus.sendingId, broadcastStatus);
   }
 
   @override
   Future<List<BroadcastSuccessAndFailedCount>>
-      getAllBroadcastSuccessAndFailedCount(String broadcastRoomId) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+      getAllBroadcastSuccessAndFailedCount(Uid broadcastRoomId) async {
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     return box.values.toList();
   }
 
   @override
   Future<void> increaseBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     final broadcastCount = box.get(id);
     if (broadcastCount != null) {
       return box.put(
@@ -213,9 +219,10 @@ class BroadcastDaoImpl extends BroadcastDao {
   @override
   Future<void> increaseBroadcastSuccessCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     final broadcastCount = box.get(id);
     if (broadcastCount != null) {
       return box.put(
@@ -243,9 +250,10 @@ class BroadcastDaoImpl extends BroadcastDao {
   @override
   Future<void> decreaseBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     final broadcastCount = box.get(id);
     if (broadcastCount != null && broadcastCount.broadcastFailedCount > 0) {
       return box.put(
@@ -258,26 +266,27 @@ class BroadcastDaoImpl extends BroadcastDao {
   }
 
   @override
-  Future<void> clearAllBroadcastStatus(String broadcastRoomId) async {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+  Future<void> clearAllBroadcastStatus(Uid broadcastRoomId) async {
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     return box.clear();
   }
 
   @override
   Future<List<BroadcastStatus>> getAllBroadcastStatus(
-    String broadcastRoomId,
+    Uid broadcastRoomId,
   ) async {
-    final box = await _openBroadcastStatusBox(broadcastRoomId);
+    final box = await _openBroadcastStatusBox(broadcastRoomId.asString());
     return box.values.toList();
   }
 
   @override
   Future<void> setBroadcastFailedCount(
     int id,
-    String broadcastRoomId,
+    Uid broadcastRoomId,
     int failedCount,
   ) async {
-    final box = await _openBroadcastSuccessAndFailedCount(broadcastRoomId);
+    final box =
+        await _openBroadcastSuccessAndFailedCount(broadcastRoomId.asString());
     final broadcastCount = box.get(id);
     if (broadcastCount != null && broadcastCount.broadcastFailedCount > 0) {
       return box.put(

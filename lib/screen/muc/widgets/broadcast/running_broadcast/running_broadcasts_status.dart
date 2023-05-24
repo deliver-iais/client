@@ -11,13 +11,14 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RunningBroadcastStatus extends StatefulWidget {
-  final String roomUid;
+  final Uid roomUid;
 
   const RunningBroadcastStatus({Key? key, required this.roomUid})
       : super(key: key);
