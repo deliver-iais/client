@@ -28,7 +28,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     return box.roomIsars
         .filter()
         .deletedEqualTo(false)
-        .sortByLastUpdateTime()
+        .sortByLastUpdateTimeDesc()
         .findAllSync()
         .map((e) => e.fromIsar())
         .toList();

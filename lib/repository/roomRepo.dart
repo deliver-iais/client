@@ -472,15 +472,7 @@ class RoomRepo {
         }
       });
 
-  Future<List<Uid>> getAllRooms() async {
-    final finalList = <Uid, Uid>{};
-    final res = await _roomDao.getAllRooms();
-    for (final room in res) {
-      final uid = room.uid;
-      finalList[uid] = uid;
-    }
-    return finalList.values.toList();
-  }
+  Future<List<Uid>> getAllRooms()async   => (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
 
   Future<List<Uid>> searchInRooms(String text) async {
     if (text.isEmpty) {
