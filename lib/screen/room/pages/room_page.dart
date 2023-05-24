@@ -23,6 +23,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/circular_counter_widget.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -156,6 +157,7 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
+  final _mentionCount = BehaviorSubject.seeded(0);
   final List<int> _messageReplyHistory = [];
 
   StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
@@ -176,7 +178,7 @@ class RoomPageState extends State<RoomPage> {
     _subscription?.cancel();
     _inputMessageTextController.dispose();
     _shouldScrollToLastMessageInRoom?.cancel();
-
+    _mentionCount.close();
     super.dispose();
   }
 
@@ -400,6 +402,25 @@ class RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
+              StreamBuilder<int>(
+                stream: _mentionCount,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != 0) {
+                    return Positioned(
+                      right: 16,
+                      bottom: 60,
+                      child: AnimatedSwitcher(
+                        duration: AnimationSettings.slow,
+                        switchInCurve: Curves.easeInOut,
+                        switchOutCurve: Curves.easeInOut,
+                        child: mentionButton(),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
               StreamBuilder<ScrollingState>(
                 stream: _isScrolling,
                 builder: (context, snapshot) {
@@ -516,6 +537,7 @@ class RoomPageState extends State<RoomPage> {
 
         if (widget.roomUid.isGroup()) {
           _updateRoomMentionIds(position.toList());
+          _mentionCount.add(room.mentionsId.length);
         }
 
         _updateTimeHeader(position.toList());
@@ -1073,6 +1095,41 @@ class RoomPageState extends State<RoomPage> {
     );
   }
 
+  Widget mentionButton() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            FloatingActionButton(
+              mini: true,
+              onPressed: scrollToMentionMessage,
+              child: const Icon(CupertinoIcons.at),
+            ),
+            Container(
+              transform: Matrix4.translationValues(-5, -5, 0),
+              child: StreamBuilder<int>(
+                stream: _mentionCount,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data! > 0) {
+                    return CircularCounterWidget(
+                      unreadCount: snapshot.data ?? 0,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget buildNewMessageInput() {
     if (widget.roomUid.category == Categories.BOT) {
       return StreamBuilder<Room?>(
@@ -1618,7 +1675,8 @@ class RoomPageState extends State<RoomPage> {
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
-        : (await _messageRepo.getPendingEditedMessage(widget.roomUid, index + 1))
+        : (await _messageRepo.getPendingEditedMessage(
+                    widget.roomUid, index + 1))
                 ?.msg ??
             await _getMessage(index + 1, useCache: useCache);
   }
@@ -1803,6 +1861,12 @@ class RoomPageState extends State<RoomPage> {
     } else {
       _messageReplyHistory.clear();
       _scrollToIndex(_itemCount - 1);
+    }
+  }
+
+  void scrollToMentionMessage({bool isForced = false}) {
+    if(room.mentionsId.isNotEmpty) {
+      _scrollToMessageWithHighlight(room.mentionsId.first);
     }
   }
 

@@ -1612,7 +1612,6 @@ class MessageRepo {
             final room = (await _roomRepo.getRoom(msg.roomUid))!;
 
             Message? lastNotHiddenMessage;
-
             if (msg.id == room.lastMessage?.id) {
               lastNotHiddenMessage =
                   await _dataStreamServices.fetchLastNotHiddenMessage(
@@ -1621,7 +1620,6 @@ class MessageRepo {
                 room.firstMessageId,
               );
             }
-
             await _roomDao.updateRoom(
               uid: msg.roomUid,
               lastMessage: lastNotHiddenMessage,

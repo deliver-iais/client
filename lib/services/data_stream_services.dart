@@ -207,10 +207,7 @@ class DataStreamServices {
         deleted: false,
       );
       if (roomUid.category == Categories.GROUP) {
-        if (message.text.text
-            .replaceAll("\n", " ")
-            .split(" ")
-            .contains("@${(await _accountRepo.getAccount())!.username}")) {
+        if (await isMentioned(message)) {
           unawaited(_roomRepo.processMentionIds(roomUid, [msg.id!]));
         }
       }
@@ -248,6 +245,13 @@ class DataStreamServices {
     }
 
     return msg;
+  }
+
+  Future<bool> isMentioned(Message message) async {
+    return message.text.text
+          .replaceAll("\n", " ")
+          .split(" ")
+          .contains("@${(await _accountRepo.getAccount())!.username}");
   }
 
   Future<void> _checkForReplyKeyBoard(Message message) async {
@@ -316,6 +320,16 @@ class DataStreamServices {
           );
         }
         _notificationServices.cancelNotificationById(id, roomUid.asString());
+        if (room.uid.isGroup()) {
+          if (room.mentionsId.contains(id)) {
+            var updatedList = <int>[];
+            updatedList = List.of(room.mentionsId)..remove(id);
+            await _roomDao.updateRoom(
+              mentionsId: updatedList,
+              uid: room.uid,
+            );
+          }
+        }
       }
       messageEventSubject.add(
         MessageEvent(
@@ -364,6 +378,19 @@ class DataStreamServices {
           uid: room.uid,
           lastMessage: msg,
         );
+
+        if (room.uid.isGroup()) {
+          if (room.mentionsId.contains(id)) {
+            if (!await isMentioned(message)) {
+              var updatedList = <int>[];
+              updatedList = List.of(room.mentionsId)..remove(id);
+              await _roomDao.updateRoom(
+                mentionsId: updatedList,
+                uid: room.uid,
+              );
+            }
+          }
+        }
       }
 
       await _notificationServices.editNotificationById(
