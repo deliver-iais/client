@@ -405,7 +405,7 @@ class RoomRepo {
 
   Future<void> processMentionIds(Uid roomUid, List<int> mentionsId) async {
     try {
-      final ids = <int>[];
+      final ids = <int>{};
       final room = await _roomDao.getRoom(roomUid);
       if (room != null) {
         ids.addAll(room.mentionsId);
@@ -414,7 +414,7 @@ class RoomRepo {
       unawaited(
         updateMentionIds(
           roomUid,
-          ids.toSet().toList(),
+          ids.toList(),
         ),
       );
     } catch (e) {
