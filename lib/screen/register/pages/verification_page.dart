@@ -39,11 +39,13 @@ class VerificationPageState extends State<VerificationPage> {
   final _focusNode = FocusNode();
   final _showError = BehaviorSubject.seeded(false);
   final _isLoading = BehaviorSubject.seeded(false);
+  final _verificationType = BehaviorSubject.seeded(VerificationType.SMS);
   late final Future<bool> googleApiAvailabilityAndroidFuture;
   final _pinController = TextEditingController();
 
   @override
   void initState() {
+    _verificationType.add(widget.verificationType);
     if (isAndroidNative) {
       googleApiAvailabilityAndroidFuture = _checkGoogleApiServiceAvailability();
     } else {
@@ -174,10 +176,20 @@ class VerificationPageState extends State<VerificationPage> {
                     width: 150,
                   ),
                 ),
-                Text(
-                  "${_i18n.get("enter_code")}. ${widget.verificationType == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
-                  textDirection: _i18n.defaultTextDirection,
-                  style: theme.textTheme.titleMedium,
+                StreamBuilder<VerificationType>(
+                  initialData: VerificationType.MESSAGE,
+                  stream: _verificationType.stream,
+                  builder: (context, verificationTypeSnapshot) {
+                    if (verificationTypeSnapshot.hasData &&
+                        verificationTypeSnapshot.data != null) {
+                      return Text(
+                        "${_i18n.get("enter_code")}. ${verificationTypeSnapshot.data! == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
+                        textDirection: _i18n.defaultTextDirection,
+                        style: theme.textTheme.titleMedium,
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
                 const SizedBox(height: p16),
                 Padding(
@@ -259,20 +271,33 @@ class VerificationPageState extends State<VerificationPage> {
                           Duration(seconds: timer.data!),
                         )}");
                       }
-                      return TextButton(
-                        onPressed: () async {
-                          try {
-                            await _authRepo.getVerificationCode(
-                              forceToSendSms: true,
+                      return StreamBuilder<VerificationType>(
+                        stream: _verificationType.stream,
+                        builder: (context, verificationTypeSnapshot) {
+                          if (verificationTypeSnapshot.hasData &&
+                              verificationTypeSnapshot.data != null) {
+                            return TextButton(
+                              onPressed: () async {
+                                try {
+                                  _verificationType.add(
+                                    await _authRepo.getVerificationCode(
+                                      forceToSendSms: true,
+                                    ),
+                                  );
+                                } catch (_) {
+                                  _logger.e(_);
+                                }
+                              },
+                              child: Text(
+                                verificationTypeSnapshot.data! ==
+                                        VerificationType.MESSAGE
+                                    ? _i18n.get("get_verification_code_by_sms")
+                                    : _i18n.get("resend_sms_code"),
+                              ),
                             );
-                          } catch (_) {
-                            // _sendVerificationCodeBySms.add(true);
-                            _logger.e(_);
                           }
+                          return const SizedBox.shrink();
                         },
-                        child: Text(
-                          _i18n.get("get_verification_code_by_sms"),
-                        ),
                       );
                     },
                   ),

@@ -108,8 +108,6 @@ class AuthRepo {
       return VerificationType.SMS;
     }
 
-    _tmpPhoneNumber = phone;
-
     final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = phone
@@ -122,8 +120,12 @@ class AuthRepo {
       ),
     );
 
-    _startResendTimer();
-
+    if (res.type == VerificationType.SMS) {
+      _startResendTimer();
+    } else if (_tmpPhoneNumber != phone) {
+      resetTimer();
+    }
+    _tmpPhoneNumber = phone;
     emitNewVersionInformationIfNeeded(res.newerVersionInformation);
     return res.type;
   }
