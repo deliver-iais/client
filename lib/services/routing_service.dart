@@ -20,7 +20,7 @@ import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/muc/pages/broadcast_status_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/navigation_bar/navigation_bar_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
@@ -71,8 +71,8 @@ import 'package:rxdart/rxdart.dart';
 
 const _animationCurves = Curves.linearToEaseOut;
 // Pages
-final _globalKeyNavigationCenter = GlobalKey();
-final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
+final _globalKeyNavigationBar = GlobalKey();
+final _navigationBar = NavigationBarPage(key: _globalKeyNavigationBar);
 
 const _empty = Empty(key: ValueKey("empty"));
 
@@ -737,7 +737,7 @@ class RoutingService {
             if (isLarge(c)) {
               return _empty;
             } else {
-              return _navigationCenter;
+              return _navigationBar;
             }
           } catch (_) {
             return _empty;
@@ -757,7 +757,7 @@ class RoutingService {
               : const [0.2, 0.8],
           separatorSize: 3,
           children: [
-            _navigationCenter,
+            _navigationBar,
             widget,
           ],
           onResized: (info) {

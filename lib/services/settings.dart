@@ -66,6 +66,10 @@ class Settings {
         .inSharedDaoStorage(),
     defaultValue: 0,
   );
+  final initAppPage = IntPersistent(
+    SharedKeys.SHARED_DAO_INIT_APP_PAGE.inSharedDaoStorage(),
+    defaultValue: 0,
+  );
   final textScale = DoublePersistent(
     SharedKeys.SHARED_DAO_THEME_FONT_SIZE.inSharedDaoStorage(),
     defaultValue: 1.0,
