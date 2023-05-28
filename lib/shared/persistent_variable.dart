@@ -523,17 +523,14 @@ enum PerformanceMode {
 
   /// No animation, no animated emojis, no animated avatars,
   /// no glass effect and reduce some features
-  POWER_SAVER("Power saver", "performance_power_saver", 1),
+  POWER_SAVER("Power Saver", "performance_power_saver", 1),
 
   /// No animated emojis repeats, no repeat animated avatars
   /// and reduce some features
-  BALANCED("Balanced", "performance_balanced", 2),
+  BALANCED("Normal", "performance_balanced", 2),
 
   /// Repeating animated emojis and animated avatars
-  HIGH("High", "performance_high", 3),
-
-  /// Render animated emojis everywhere and all settings available
-  ULTRA("Ultra", "performance_ultra", 4);
+  HIGH("High", "performance_high", 3);
 
   final String buttonName;
   final String i18nKey;

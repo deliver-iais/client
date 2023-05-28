@@ -15,7 +15,7 @@ class RoomHive {
 
   // DbId
   @HiveField(1)
-  Message? lastMessage;
+  String? lastMessage;
 
   @HiveField(2)
   bool deleted;
@@ -76,7 +76,7 @@ class RoomHive {
 
   RoomHive copyWith({
     String? uid,
-    Message? lastMessage,
+    String? lastMessage,
     int? lastMessageId,
     bool? deleted,
     String? draft,
@@ -173,7 +173,7 @@ class RoomHive {
 
   Room fromHive() => Room(
         uid: uid.asUid(),
-        lastMessage: lastMessage,
+        lastMessage: getNullableMessageFromJson(lastMessage),
         lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
         synced: synced,
         seenSynced: seenSynced,
@@ -193,7 +193,7 @@ class RoomHive {
 extension RoomHiveMapper on Room {
   RoomHive toHive() => RoomHive(
         uid: uid.asString(),
-        lastMessage: lastMessage,
+        lastMessage: nullableMessageToJson(lastMessage),
         lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
         synced: synced,
         seenSynced: seenSynced,

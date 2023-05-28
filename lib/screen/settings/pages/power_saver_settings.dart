@@ -366,6 +366,17 @@ class PowerSaverSettingsPageState extends State<PowerSaverSettingsPage> {
                       );
                     },
                   ),
+                  SettingsTile.switchTile(
+                    title: _i18n["show_call_back_ground_animation"],
+                    leading: const Icon(CupertinoIcons.phone),
+                    switchValue: settings.showCallBackGroundAnimation.value,
+                    enabled: settings.showCallBackGroundAnimation.enabled,
+                    onToggle: ({required newValue}) {
+                      setState(
+                            () => settings.showCallBackGroundAnimation.toggleValue(),
+                      );
+                    },
+                  ),
                 ],
               ),
             ],

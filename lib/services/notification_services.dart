@@ -4,13 +4,11 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
-import 'package:deliver/box/active_notification.dart' as active_notificaton;
-import 'package:deliver/box/call_event.dart' as call_event;
-import 'package:deliver/box/current_call_info.dart' as current_call_info;
+import 'package:deliver/box/active_notification.dart' as active_notification;
+import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/dao/active_notification_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -36,8 +34,6 @@ import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -54,7 +50,7 @@ abstract class Notifier {
   static void onCallNotificationAction(
     String roomUid, {
     bool isVideoCall = false,
-    bool isCallAccepted = true,
+    bool isCallAccepted = false,
   }) {
     GetIt.I.get<RoutingService>().openCallScreen(
           roomUid.asUid(),
@@ -385,8 +381,9 @@ class WindowsNotifier implements Notifier {
     }
     try {
       final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
-      final callType = callEventJson?.toCallEvent().callType;
-      final subtitle = "Incoming ${callType?.name} Call";
+      final callEventV2 = callEventJson?.toCallEventV2();
+      final isVideoCall = callEventV2!.isVideo;
+      final subtitle = "Incoming ${isVideoCall ? "Video" : "Audio"} Call";
       if (lastAvatar != null && !lastAvatar.avatarIsEmpty) {
         final file = await _fileRepo.getFile(
           lastAvatar.fileUuid,
@@ -423,11 +420,11 @@ class WindowsNotifier implements Notifier {
           } else if (event.actionIndex == 0) {
             // Accept
             DesktopWindow.focus();
-            if (callType == CallEvent_CallType.VIDEO) {
-              Notifier.onCallNotificationAction(roomUid, isVideoCall: true);
-            } else {
-              Notifier.onCallNotificationAction(roomUid);
-            }
+            Notifier.onCallNotificationAction(
+              roomUid,
+              isVideoCall: isVideoCall,
+              isCallAccepted: true,
+            );
           }
         }
         final roomIdToast = toastByRoomId[roomUid.asUid().node];
@@ -611,7 +608,6 @@ class AndroidNotifier implements Notifier {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   final _callService = GetIt.I.get<CallService>();
 
@@ -698,12 +694,13 @@ class AndroidNotifier implements Notifier {
     await GetIt.I.get<CallService>().clearCallData();
     await GetIt.I.get<CallService>().disposeCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
-    await _callService.saveCallOnDb(
-      getCallInfo(
-        callEvent,
-        CallEvent_CallStatus.CREATED,
-        isNotificationSelected: true,
-      ),
+    final isVideoCall = _detectVideoCall(callEvent.callType);
+    Notifier.onCallNotificationAction(
+      callEvent.userInfo!["uid"]!,
+      isVideoCall: isVideoCall,
+    );
+    await _callService.saveIsSelectedOrAccepted(
+      isSelectNotification: true,
     );
   }
 
@@ -711,48 +708,14 @@ class AndroidNotifier implements Notifier {
     await GetIt.I.get<CallService>().clearCallData();
     await GetIt.I.get<CallService>().disposeCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
-    await _callService.saveCallOnDb(
-      getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),
+    final isVideoCall = _detectVideoCall(callEvent.callType);
+    Notifier.onCallNotificationAction(
+      callEvent.userInfo!["uid"]!,
+      isVideoCall: isVideoCall,
+      isCallAccepted: true,
     );
-  }
-
-  current_call_info.CurrentCallInfo getCallInfo(
-    CallEvent callEvent,
-    CallEvent_CallStatus callEvent_CallStatus, {
-    bool isNotificationSelected = false,
-    bool isAccepted = false,
-  }) {
-    final callEventInfo =
-        call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
-
-    if (callEventInfo.callType == CallEvent_CallType.VIDEO) {
-      Notifier.onCallNotificationAction(
-        callEvent.userInfo!["uid"]!,
-        isVideoCall: true,
-        isCallAccepted: !isNotificationSelected,
-      );
-    } else {
-      Notifier.onCallNotificationAction(
-        callEvent.userInfo!["uid"]!,
-        isCallAccepted: !isNotificationSelected,
-      );
-    }
-
-    //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
-    final currentCallEvent = call_event.CallEvent(
-      callDuration: callEventInfo.callDuration.toInt(),
-      callType: _callService.findCallEventType(callEventInfo.callType),
-      callStatus: _callService.findCallEventStatusProto(callEvent_CallStatus),
-      id: callEventInfo.callId,
-    );
-
-    return current_call_info.CurrentCallInfo(
-      callEvent: currentCallEvent,
-      from: callEvent.userInfo!["uid"]!,
-      to: _authRepo.currentUserUid.toString(),
-      expireTime: clock.now().millisecondsSinceEpoch + 60000,
-      notificationSelected: isNotificationSelected,
-      isAccepted: isAccepted,
+    await _callService.saveIsSelectedOrAccepted(
+      isAccepted: true,
     );
   }
 
@@ -903,7 +866,7 @@ class AndroidNotifier implements Notifier {
 
     final count = lines.length;
     await _activeNotificationDao.save(
-      active_notificaton.ActiveNotification(
+      active_notification.ActiveNotification(
         roomUid: message.roomUid.asString(),
         messageId: message.id ?? 0,
         messageText: createNotificationTextFromMessageBrief(message),
@@ -1038,14 +1001,14 @@ class AndroidNotifier implements Notifier {
         thumbnailSize: ThumbnailSize.medium,
       );
     }
-    final callType = callEventJson?.toCallEvent().callType;
-    //callType: 0 ==>Audio call 1 ==>Video call
+    final callEventV2 = callEventJson?.toCallEventV2();
+    final isVideoCall = callEventV2!.isVideo;
     final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
         callerId: 123456789,
-        callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
+        callType: _detectCallTypeByBool(isVideo: isVideoCall).index,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
         avatarPath: path,
@@ -1074,6 +1037,16 @@ class AndroidNotifier implements Notifier {
     } catch (e) {
       _logger.e(e);
     }
+  }
+
+  CallType _detectCallTypeByBool({bool isVideo = false}) {
+    //callType: 1 ==>Audio call 0 ==>Video call
+    return isVideo ? CallType.VIDEO : CallType.AUDIO;
+  }
+
+  bool _detectVideoCall(int callType) {
+    //callType: 1 ==>Audio call 0 ==>Video call
+    return CallType.values[callType] == CallType.VIDEO;
   }
 }
 

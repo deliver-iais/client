@@ -55,7 +55,7 @@ class CallTabUiState extends State<CallTabUi> {
                   ? callInfo.from
                   : callInfo.to;
               return CallStatusDetailsWidget(
-                callEvent: callInfo,
+                callInfo: callInfo,
                 time: time,
                 caller: caller,
                 isIncomingCall: isIncomingCall,

@@ -23,6 +23,8 @@ class CallStatusAdapter extends TypeAdapter<CallStatus> {
         return CallStatus.ENDED;
       case 4:
         return CallStatus.DECLINED;
+      case 5:
+        return CallStatus.ACCEPTED;
       default:
         return CallStatus.CREATED;
     }
@@ -45,6 +47,9 @@ class CallStatusAdapter extends TypeAdapter<CallStatus> {
         break;
       case CallStatus.DECLINED:
         writer.writeByte(4);
+        break;
+      case CallStatus.ACCEPTED:
+        writer.writeByte(5);
         break;
     }
   }

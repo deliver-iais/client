@@ -3,54 +3,29 @@
 part of 'current_call_info.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class CurrentCallInfoAdapter extends TypeAdapter<CurrentCallInfo> {
-  @override
-  final int typeId = 27;
-
-  @override
-  CurrentCallInfo read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return CurrentCallInfo(
-      callEvent: fields[2] as CallEvent,
-      from: fields[0] as String,
-      to: fields[1] as String,
-      expireTime: fields[3] as int,
-      notificationSelected: fields[4] as bool,
-      isAccepted: fields[5] as bool,
+_$_CurrentCallInfo _$$_CurrentCallInfoFromJson(Map<String, dynamic> json) =>
+    _$_CurrentCallInfo(
+      callEvent: callEventV2FromJson(json['callEvent'] as String),
+      from: json['from'] as String,
+      to: json['to'] as String,
+      expireTime: json['expireTime'] as int,
+      notificationSelected: json['notificationSelected'] as bool,
+      isAccepted: json['isAccepted'] as bool,
+      offerBody: json['offerBody'] as String? ?? "",
+      offerCandidate: json['offerCandidate'] as String? ?? "",
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, CurrentCallInfo obj) {
-    writer
-      ..writeByte(6)
-      ..writeByte(0)
-      ..write(obj.from)
-      ..writeByte(1)
-      ..write(obj.to)
-      ..writeByte(2)
-      ..write(obj.callEvent)
-      ..writeByte(3)
-      ..write(obj.expireTime)
-      ..writeByte(4)
-      ..write(obj.notificationSelected)
-      ..writeByte(5)
-      ..write(obj.isAccepted);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CurrentCallInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+Map<String, dynamic> _$$_CurrentCallInfoToJson(_$_CurrentCallInfo instance) =>
+    <String, dynamic>{
+      'callEvent': callEventV2ToJson(instance.callEvent),
+      'from': instance.from,
+      'to': instance.to,
+      'expireTime': instance.expireTime,
+      'notificationSelected': instance.notificationSelected,
+      'isAccepted': instance.isAccepted,
+      'offerBody': instance.offerBody,
+      'offerCandidate': instance.offerCandidate,
+    };

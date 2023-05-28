@@ -60,8 +60,7 @@ class RoomIsar {
 
   Room fromIsar() => Room(
         uid: uid.asUid(),
-        lastMessage:
-            lastMessage != null ? getMessageFromJson(lastMessage!) : null,
+        lastMessage: getNullableMessageFromJson(lastMessage),
         deleted: deleted,
         lastMessageId: lastMessageId,
         firstMessageId: firstMessageId,

@@ -7,6 +7,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -36,6 +37,7 @@ class CallBottomRowState extends State<CallBottomRow>
   final _iconsSize = isMobileDevice ? 20.0 : 30.0;
 
   List<MediaDevice>? _audioInputs;
+  List<MediaDevice>? _audioOutputs;
 
   late AnimationController animationController;
   late Animation<double> animation;
@@ -58,7 +60,6 @@ class CallBottomRowState extends State<CallBottomRow>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     if (callBottomStatus(widget.callStatus)) {
       return _buildIncomingCallWidget(theme);
     } else {
@@ -89,16 +90,65 @@ class CallBottomRowState extends State<CallBottomRow>
         return CircleAvatar(
           radius: 25,
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
-          child: IconButton(
-            onPressed: () => _enableSpeaker(theme),
-            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
-            tooltip: _i18n.get("speaker"),
-            icon: getEnableIconWithSize(
-              isEnable: isEnable,
-              enableIcon: CupertinoIcons.speaker_3,
-              disableIcon: CupertinoIcons.speaker_1,
-            ),
-          ),
+          child: !isEnable
+              ? PopupMenuButton<MediaDevice>(
+                  icon: getEnableIconWithSize(
+                    isEnable: isEnable,
+                    enableIcon: CupertinoIcons.speaker_3,
+                    disableIcon: CupertinoIcons.speaker_1,
+                  ),
+                  itemBuilder: (context) {
+                    return [
+                      if (!isDesktopNative)
+                        PopupMenuItem<MediaDevice>(
+                          child: ListTile(
+                            leading: Icon(
+                              CupertinoIcons.speaker_3,
+                              color: isEnable
+                                  ? theme.colorScheme.secondary
+                                  : theme.colorScheme.primary,
+                            ),
+                            title: Text(
+                              _i18n.get("speaker"),
+                              style: theme.textTheme.titleSmall,
+                            ),
+                          ),
+                          onTap: () => _enableSpeaker(theme),
+                        ),
+                      if (_audioOutputs != null)
+                        ..._audioOutputs!.map((device) {
+                          return PopupMenuItem<MediaDevice>(
+                            value: device,
+                            child: ListTile(
+                              leading: (device.deviceId ==
+                                      Hardware.instance.selectedAudioOutput
+                                          ?.deviceId)
+                                  ? Icon(
+                                      CupertinoIcons.check_mark_circled_solid,
+                                      color: theme.colorScheme.secondary,
+                                    )
+                                  : Icon(
+                                      CupertinoIcons.circle,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                              title: Text(device.label),
+                            ),
+                            onTap: () => _selectAudioOutput(device),
+                          );
+                        }).toList()
+                    ];
+                  },
+                )
+              : IconButton(
+                  onPressed: () => _enableSpeaker(theme),
+                  hoverColor: theme.colorScheme.primary.withOpacity(0.6),
+                  tooltip: _i18n.get("speaker"),
+                  icon: getEnableIconWithSize(
+                    isEnable: isEnable,
+                    enableIcon: CupertinoIcons.speaker_3,
+                    disableIcon: CupertinoIcons.speaker_1,
+                  ),
+                ),
         );
       },
     );
@@ -158,62 +208,91 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Widget buildAudioInputSelectionButton(ThemeData theme) {
     final isEnable = !_callRepo.isMicMuted;
-
-    return CircleAvatar(
-      radius: 25,
-      backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onPanDown: storeDragDownPosition,
-        child: IconButton(
-          hoverColor: theme.colorScheme.primary.withOpacity(0.6),
-          tooltip: _i18n.get("call_audio"),
-          icon: getEnableIconWithSize(
-            isEnable: isEnable,
-            enableIcon: CupertinoIcons.mic,
-            disableIcon: CupertinoIcons.mic_off,
-          ),
-          onPressed: () => this.showMenu(
-            context: context,
-            items: [
-              PopupMenuItem<MediaDevice>(
-                child: ListTile(
-                  leading: const Icon(
-                    CupertinoIcons.mic_off,
-                    color: Colors.white,
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        StreamBuilder<double>(
+          stream: _callRepo.speakingAmplitude,
+          builder: (context, snapshot) {
+            final amplitude = (snapshot.data ?? 0) * 64.0;
+            final scale = !isEnable ? 0.0 : 1.2 + ((amplitude / 64.0));
+            return AnimatedScale(
+              duration: AnimationSettings.fast,
+              scale: scale,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: ACTIVE_COLOR.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                width: 50,
+                height: 50,
+              ),
+            );
+          },
+        ),
+        CircleAvatar(
+          radius: 25,
+          backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
+          child: isEnable
+              ? PopupMenuButton<MediaDevice>(
+                  icon: getEnableIconWithSize(
+                    isEnable: isEnable,
+                    enableIcon: CupertinoIcons.mic,
+                    disableIcon: CupertinoIcons.mic_off,
                   ),
-                  title: Text(
-                    _i18n.get("mute_call"),
-                    style: theme.textTheme.titleSmall,
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem<MediaDevice>(
+                        child: ListTile(
+                          leading: Icon(
+                            CupertinoIcons.mic_off,
+                            color: isEnable
+                                ? theme.colorScheme.secondary
+                                : theme.colorScheme.primary,
+                          ),
+                          title: Text(
+                            _i18n.get("mute_call"),
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ),
+                        onTap: () => _muteMic(theme),
+                      ),
+                      if (_audioInputs != null)
+                        ..._audioInputs!.map((device) {
+                          return PopupMenuItem<MediaDevice>(
+                            value: device,
+                            child: ListTile(
+                              leading: (device.deviceId ==
+                                      Hardware.instance.selectedAudioInput
+                                          ?.deviceId)
+                                  ? Icon(
+                                      CupertinoIcons.check_mark_circled_solid,
+                                      color: theme.colorScheme.secondary,
+                                    )
+                                  : Icon(
+                                      CupertinoIcons.circle,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                              title: Text(device.label),
+                            ),
+                            onTap: () => _selectAudioInput(device),
+                          );
+                        }).toList()
+                    ];
+                  },
+                )
+              : IconButton(
+                  onPressed: () => _muteMic(theme),
+                  hoverColor: theme.colorScheme.primary.withOpacity(0.6),
+                  tooltip: _i18n.get("mute_call"),
+                  icon: getEnableIconWithSize(
+                    isEnable: isEnable,
+                    enableIcon: CupertinoIcons.mic,
+                    disableIcon: CupertinoIcons.mic_off,
                   ),
                 ),
-                onTap: () => _muteMic(theme),
-              ),
-              if (_audioInputs != null)
-                ..._audioInputs!.map((device) {
-                  return PopupMenuItem<MediaDevice>(
-                    value: device,
-                    child: ListTile(
-                      leading: (device.deviceId ==
-                              Hardware.instance.selectedAudioInput?.deviceId)
-                          ? const Icon(
-                              CupertinoIcons.checkmark_circle,
-                              color: Colors.white,
-                            )
-                          : const Icon(
-                              CupertinoIcons.circle,
-                              color: Colors.white,
-                            ),
-                      title: Text(device.label),
-                    ),
-                  );
-                }).toList()
-            ],
-          ).then(
-            (device) => _selectAudioInput(device!),
-          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -333,34 +412,19 @@ class CallBottomRowState extends State<CallBottomRow>
                     ),
                   ],
                 ),
-                if (isMobileDevice)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      buildMicButton(theme),
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(top: 3),
-                        child: Text(
-                          _i18n.get("mute_call"),
-                          style: theme.textTheme.titleSmall,
-                        ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    buildAudioInputSelectionButton(theme),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(top: 3),
+                      child: Text(
+                        _i18n.get("call_audio"),
+                        style: theme.textTheme.titleSmall,
                       ),
-                    ],
-                  ),
-                if (isDesktopDevice)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      buildAudioInputSelectionButton(theme),
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(top: 3),
-                        child: Text(
-                          _i18n.get("call_audio"),
-                          style: theme.textTheme.titleSmall,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -370,25 +434,19 @@ class CallBottomRowState extends State<CallBottomRow>
   }
 
   Widget _buildVideoCallWidget(ThemeData theme, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(bottom: 25, start: 20, end: 20),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          width: 500,
-          padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              buildSwitchingButton(theme),
-              buildVideoingButton(theme),
-              if (isDesktopNativeOrWeb) buildShareScreenButton(theme, context),
-              buildEndCallButton(),
-              buildMicButton(theme),
-              if (hasSpeakerCapability) buildSpeakerButton(theme),
-            ],
-          ),
-        ),
+    return Container(
+      width: 500,
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          buildSwitchingButton(theme),
+          buildVideoingButton(theme),
+          buildShareScreenButton(theme, context),
+          buildEndCallButton(),
+          buildAudioInputSelectionButton(theme),
+          if (hasSpeakerCapability) buildSpeakerButton(theme),
+        ],
       ),
     );
   }
@@ -509,6 +567,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   Future<void> _loadDevices(List<MediaDevice> devices) async {
     _audioInputs = devices.where((d) => d.kind == 'audioinput').toList();
+    _audioOutputs = devices.where((d) => d.kind == 'audiooutput').toList();
   }
 
   Future<void> _selectAudioInput(MediaDevice device) async {
@@ -516,4 +575,10 @@ class CallBottomRowState extends State<CallBottomRow>
     await Hardware.instance.selectAudioInput(device);
     setState(() {});
   }
+
+  Future<void> _selectAudioOutput(MediaDevice device) async {
+    await Hardware.instance.selectAudioOutput(device);
+    setState(() {});
+  }
+
 }

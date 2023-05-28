@@ -13,15 +13,15 @@ part 'message.g.dart';
 const MessageJsonKey =
     JsonKey(fromJson: getMessageFromJson, toJson: messageToJson);
 
-const NullableMessageJsonKey =
-    JsonKey(fromJson: getMessageFromJson, toJson: nullableMessageToJson);
+const NullableMessageJsonKey = JsonKey(
+    fromJson: getNullableMessageFromJson, toJson: nullableMessageToJson);
 
 String messageToJson(Message model) {
   return jsonEncode(model.toJson());
 }
 
 String? nullableMessageToJson(Message? model) {
-  return jsonEncode(model?.toJson());
+  return model != null ? jsonEncode(model?.toJson()) : null;
 }
 
 @freezed
@@ -41,7 +41,7 @@ class Message with _$Message {
     String? markup,
     int? id,
     @NullableUidJsonKey Uid? forwardedFrom,
-    @NullableUidJsonKey Uid? generatedBy ,
+    @NullableUidJsonKey Uid? generatedBy,
   }) = _Message;
 
   factory Message.fromJson(Map<String, Object?> json) =>
@@ -54,4 +54,10 @@ extension MessageMapper on Message {
 
 Message getMessageFromJson(String msgJson) {
   return _$MessageFromJson(jsonDecode(msgJson));
+}
+
+Message? getNullableMessageFromJson(String? msgJson) {
+  return (msgJson != null && msgJson.isNotEmpty)
+      ? _$MessageFromJson(jsonDecode(msgJson))
+      : null;
 }

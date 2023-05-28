@@ -5,6 +5,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -12,7 +13,7 @@ class CallStatusDetailsWidget extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
   static final _callService = GetIt.I.get<CallService>();
 
-  final CallInfo callEvent;
+  final CallInfo callInfo;
   final DateTime time;
   final bool isIncomingCall;
   final Uid caller;
@@ -22,12 +23,24 @@ class CallStatusDetailsWidget extends StatelessWidget {
     required this.time,
     required this.isIncomingCall,
     required this.caller,
-    required this.callEvent,
+    required this.callInfo,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final callEventId = callInfo.callEvent.id;
+    final callDuration = callEventId == ""
+        ? callInfo.callEventOld.callDuration.toInt()
+        : callInfo.callEvent.hasEnd()
+            ? callInfo.callEvent.end.callDuration.toInt()
+            : 0;
+    final callId =
+        callEventId == "" ? callInfo.callEventOld.callId : callEventId;
+
+    final isVideo = callEventId == ""
+        ? (callInfo.callEventOld.callType == CallEvent_CallType.VIDEO)
+        : callInfo.callEvent.isVideo;
     return Container(
       padding: const EdgeInsetsDirectional.all(8),
       child: Column(
@@ -39,28 +52,28 @@ class CallStatusDetailsWidget extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    callEvent.callEventOld.callType == CallEvent_CallType.VIDEO
-                        ? Icons.videocam_rounded
-                        : Icons.call,
+                    isVideo
+                        ? CupertinoIcons.video_camera
+                        : CupertinoIcons.phone,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   CallState(
                     textStyle: theme.textTheme.titleMedium,
-                    callStatus: callEvent.callEventOld.callStatus,
-                    time: callEvent.callEventOld.callDuration.toInt(),
+                    callEvent: callInfo.callEventOld,
+                    callEventV2: callInfo.callEvent,
                     isIncomingCall: isIncomingCall,
                   ),
                 ],
               ),
-              if (callEvent.callEventOld.callDuration != 0)
+              if (callDuration != 0)
                 DefaultTextStyle(
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.primary.withAlpha(130),
                   ),
                   child: CallTime(
                     time: DateTime.fromMillisecondsSinceEpoch(
-                      callEvent.callEventOld.callDuration.toInt(),
+                      callDuration,
                       isUtc: true,
                     ),
                   ),
@@ -75,9 +88,7 @@ class CallStatusDetailsWidget extends StatelessWidget {
                 children: [
                   Icon(
                     isIncomingCall ? Icons.call_made : Icons.call_received,
-                    color: callEvent.callEventOld.callDuration == 0
-                        ? Colors.red
-                        : Colors.green,
+                    color: callDuration == 0 ? Colors.red : Colors.green,
                     size: 16,
                   ),
                   const SizedBox(width: 8),
@@ -90,10 +101,9 @@ class CallStatusDetailsWidget extends StatelessWidget {
                   )
                 ],
               ),
-              if (callEvent.callEventOld.callDuration != 0)
+              if (callDuration != 0)
                 FutureBuilder<String>(
-                  future: _callService
-                      .getCallDataUsage(callEvent.callEventOld.callId),
+                  future: _callService.getCallDataUsage(callId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData &&
                         snapshot.data != null &&

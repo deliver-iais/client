@@ -103,6 +103,7 @@ class NavigationCenterState extends State<NavigationCenter>
           event!.roomId.asUid(),
           isCallAccepted: event.isCallAccepted,
           isVideoCall: event.isVideo,
+          isIncomingCall: true,
         );
       }
     });
@@ -111,6 +112,7 @@ class NavigationCenterState extends State<NavigationCenter>
       "navigation_center_page",
       checkSearchBoxIsOpenOrNot,
     );
+    //_callRepo.listenBackgroundCall();
     super.initState();
   }
 

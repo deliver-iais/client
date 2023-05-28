@@ -1169,10 +1169,10 @@ class RoomPageState extends State<RoomPage> {
       );
 
   void _handleScrollToMsg(
-    int direction,
-    bool ctrlIsPressed,
-    bool hasPermission,
-  ) {
+    int direction, {
+    required bool ctrlIsPressed,
+    required bool hasPermission,
+  }) {
     final lastMessage = room.lastMessage;
     if (lastMessage != null) {
       if (hasPermission &&
@@ -1676,7 +1676,9 @@ class RoomPageState extends State<RoomPage> {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
         : (await _messageRepo.getPendingEditedMessage(
-                    widget.roomUid, index + 1))
+              widget.roomUid,
+              index + 1,
+            ))
                 ?.msg ??
             await _getMessage(index + 1, useCache: useCache);
   }

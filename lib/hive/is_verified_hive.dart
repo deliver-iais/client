@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 
 part 'is_verified_hive.g.dart';
 
-@HiveType(typeId: IS_VERIFIED)
+@HiveType(typeId: IS_VERIFIED_TRACK_ID)
 class IsVerifiedHive {
   @HiveField(0)
   String uid;

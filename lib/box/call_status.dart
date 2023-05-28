@@ -15,4 +15,6 @@ enum CallStatus {
   ENDED,
   @HiveField(4)
   DECLINED,
+  @HiveField(5)
+  ACCEPTED,
 }
