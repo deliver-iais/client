@@ -403,12 +403,12 @@ class MessageRepo {
       unawaited(_updateOtherSeen(roomUid));
     }
 
-    unawaited(
-      _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
-        roomUid.asUid(),
-        lastMessageId,
-      ),
-    );
+    // unawaited(
+    //   _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
+    //     roomUid.asUid(),
+    //     lastMessageId,
+    //   ),
+    // );
   }
 
   Future<void> _updateOtherSeen(String roomUid) async {
@@ -1075,7 +1075,7 @@ class MessageRepo {
         switch (status) {
           case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_OK:
             if (!pendingMessage.failed ||
-                pendingMessage.msg.type == MessageType.CALL) {
+                pendingMessage.msg.type == MessageType.CALL || pendingMessage.msg.type == MessageType.CALL_LOG) {
               switch (pendingMessage.status) {
                 case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
                   break;

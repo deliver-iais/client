@@ -18,7 +18,7 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
     };
     return RoomHive(
       uid: fields[0] as String,
-      lastMessage: fields[1] as Message?,
+      lastMessage: fields[1] as String?,
       draft: fields[5] as String?,
       lastUpdateTime: fields[6] as int,
       lastMessageId: fields[4] as int,

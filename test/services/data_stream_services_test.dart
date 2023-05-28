@@ -6,7 +6,6 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as model_seen;
-import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -522,33 +521,6 @@ void main() {
         });
       });
       test(
-          'When called if message type is callEvent should add event to callService',
-          () async {
-        final message = Message(
-          from: testUid,
-          to: testUid,
-          callEvent: CallEvent(
-            callId: "0",
-            callType: CallEvent_CallType.AUDIO,
-          ),
-        );
-        final callService = getAndRegisterCallService();
-        await DataStreamServices().handleIncomingMessage(
-          message,
-          isOnlineMessage: true,
-        );
-        verify(
-          callService.addCallEvent(
-            CallEvents.callEvent(
-              message.callEvent,
-              roomUid: testUid,
-              callId: "0",
-              time: 0,
-            ),
-          ),
-        );
-      });
-      test(
           'When called if isOnlineMessage is true and room category is group should check for mention and update the room',
           () async {
         final message = Message(
@@ -962,54 +934,6 @@ void main() {
           roomDao.updateRoom(
             uid: testUid.asString(),
             deleted: false,
-          ),
-        );
-      });
-    });
-    group('handleCallOffer -', () {
-      test(
-          'When called if callType is normal call should addGroupCallEvent to callService',
-          () async {
-        final callOffer = CallOffer(
-          id: "0",
-          to: testUid,
-          from: testUid,
-        );
-        final callService = getAndRegisterCallService();
-        DataStreamServices().handleCallOffer(
-          callOffer,
-        );
-        verify(
-          callService.addCallEvent(
-            CallEvents.callOffer(
-              callOffer,
-              roomUid: testUid,
-              callId: "0",
-            ),
-          ),
-        );
-      });
-    });
-    group('handleCallAnswer -', () {
-      test(
-          'When called if callType is normal call should addGroupCallEvent to callService',
-          () async {
-        final callAnswer = CallAnswer(
-          id: "0",
-          to: testUid,
-          from: testUid,
-        );
-        final callService = getAndRegisterCallService();
-        DataStreamServices().handleCallAnswer(
-          callAnswer,
-        );
-        verify(
-          callService.addCallEvent(
-            CallEvents.callAnswer(
-              callAnswer,
-              roomUid: testUid,
-              callId: "0",
-            ),
           ),
         );
       });

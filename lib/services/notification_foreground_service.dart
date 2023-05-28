@@ -26,6 +26,7 @@ class NotificationForegroundService {
 
   SendPort? get getSendPort => _sendPort;
 
+
   set setSendPort(SendPort? sp) => _sendPort = sp;
 
   NotificationForegroundService() {

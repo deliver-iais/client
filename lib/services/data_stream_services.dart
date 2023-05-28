@@ -24,6 +24,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/settings.dart';
@@ -33,6 +34,7 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -64,12 +66,12 @@ class DataStreamServices {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
 
-  final _callService = GetIt.I.get<CallService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _broadcastService = GetIt.I.get<BroadcastService>();
+  final _callService = GetIt.I.get<CallService>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -79,11 +81,17 @@ class DataStreamServices {
     bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
+    //isOnlineMessage
     if (isOnlineMessage) {
       await _checkForReplyKeyBoard(message);
     }
+    //is File type check for new Media
     if (message.whichType() == Message_Type.file) {
       await _checkForNewMedia(message.file, roomUid);
+    }
+    //is Call Type check for current call
+    if (message.whichType() == Message_Type.callLog) {
+      _checkCallLogMessage(message);
     }
 
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -175,19 +183,7 @@ class DataStreamServices {
         case PersistentEvent_Type.notSet:
           break;
       }
-    } else if (message.whichType() == Message_Type.callEvent &&
-        isOnlineMessage) {
-      final callEvents = CallEvents.callEvent(
-        message.callEvent,
-        roomUid: message.from,
-        callId: message.callEvent.callId,
-        time: message.time.toInt(),
-      );
-      _callService
-        ..addCallEvent(callEvents)
-        ..shouldRemoveData = isFirebaseMessage;
     }
-
     final msg = (await saveMessageInMessagesDB(message))!;
 
     if (isOnlineMessage) {
@@ -198,7 +194,6 @@ class DataStreamServices {
       // Step 1 - Update Room Info
 
       // Check if Mentioned.
-
       await _roomDao.updateRoom(
         uid: roomUid,
         lastMessage: msg.isHidden ? null : msg,
@@ -473,6 +468,16 @@ class DataStreamServices {
     }
   }
 
+  Future<void> handleCallEvent(call_pb.CallEventV2 callEventV2) async {
+    final callEvents = CallEvents.callEvent(
+      callEventV2,
+    );
+    _callService
+      ..addCallEvent(callEvents)
+      ..shouldRemoveData = true;
+    await GetIt.I.get<CoreServices>().initStreamConnection();
+  }
+
   void handleActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     _updateLastActivityTime(
@@ -636,24 +641,6 @@ class DataStreamServices {
     );
   }
 
-  void handleCallOffer(call_pb.CallOffer callOffer) {
-    final callEvents = CallEvents.callOffer(
-      callOffer,
-      roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
-      callId: callOffer.id,
-    );
-    _callService.addCallEvent(callEvents);
-  }
-
-  void handleCallAnswer(call_pb.CallAnswer callAnswer) {
-    final callEvents = CallEvents.callAnswer(
-      callAnswer,
-      roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
-      callId: callAnswer.id,
-    );
-    _callService.addCallEvent(callEvents);
-  }
-
   Future<bool> shouldNotifyForThisMessage(Message message) async {
     final authRepo = GetIt.I.get<AuthRepo>();
     final roomRepo = GetIt.I.get<RoomRepo>();
@@ -805,40 +792,6 @@ class DataStreamServices {
     return null;
   }
 
-  Future<void> getAndProcessLastIncomingCallsFromServer(
-    Uid roomUid,
-    int lastMessageId,
-  ) async {
-    if (_callService.getUserCallState != UserCallState.NO_CALL) {
-      return; // Dont do anything if there is an active call.
-    }
-
-    final pointer = lastMessageId;
-    try {
-      // TODO(hasan): Add just hidden message flag in protocol for better query to server just for hidden message of calls.
-      final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
-        FetchMessagesReq()
-          ..roomUid = roomUid
-          ..pointer = Int64(pointer)
-          ..type = FetchMessagesReq_Type.FORWARD_FETCH
-          ..limit = 10,
-        options: CallOptions(timeout: const Duration(seconds: 3)),
-      );
-      for (final message in fetchMessagesRes.messages.reversed) {
-        if (message.whichType() == Message_Type.callEvent) {
-          final callEvents = CallEvents.callEvent(
-            message.callEvent,
-            roomUid: message.from,
-            callId: message.callEvent.callId,
-            time: message.time.toInt(),
-          );
-          _callService.addCallEvent(callEvents);
-          break;
-        }
-      }
-    } catch (_) {}
-  }
-
   Future<void> handleFetchMessagesActions(
     Uid roomId,
     List<Message> messages,
@@ -903,5 +856,30 @@ class DataStreamServices {
       }
     }
     return msgList;
+  }
+
+  void _checkCallLogMessage(Message message) {
+    final callLog = message.callLog;
+    final callEvent = CallEventV2()
+      ..from = callLog.from
+      ..to = callLog.to
+      ..id = callLog.id
+      ..time = message.time;
+    switch (callLog.whichType()) {
+      case CallLog_Type.busy:
+        callEvent.busy = callLog.busy;
+        _callService.addCallEvent(CallEvents.callEvent(callEvent));
+        break;
+      case CallLog_Type.decline:
+        callEvent.decline = callLog.decline;
+        _callService.addCallEvent(CallEvents.callEvent(callEvent));
+        break;
+      case CallLog_Type.end:
+        callEvent.end = callLog.end;
+        _callService.addCallEvent(CallEvents.callEvent(callEvent));
+        break;
+      case CallLog_Type.notSet:
+        break;
+    }
   }
 }

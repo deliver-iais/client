@@ -78,7 +78,7 @@ Future<platform_pb.Platform> getPlatformPB() async {
 
     platform
       ..platformType = platform_pb.PlatformsType.IOS
-      ..osVersion = iosInfo.systemVersion ?? "";
+      ..osVersion = iosInfo.systemVersion;
   } else if (isLinuxNative) {
     platform
       ..platformType = platform_pb.PlatformsType.LINUX

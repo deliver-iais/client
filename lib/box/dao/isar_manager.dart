@@ -1,6 +1,8 @@
 import 'package:deliver/isar/avatar_isar.dart';
+import 'package:deliver/isar/current_call_info_isar.dart';
 import 'package:deliver/isar/file_info_isar.dart';
 import 'package:deliver/isar/is_verified_isar.dart';
+import 'package:deliver/isar/last_call_status_isar.dart';
 import 'package:deliver/isar/message_isar.dart';
 import 'package:deliver/isar/pending_message_isar.dart';
 import 'package:deliver/isar/room_isar.dart';
@@ -22,7 +24,9 @@ class IsarManager {
         FileInfoIsarSchema,
         IsVerifiedIsarSchema,
         RoomIsarSchema,
-        MessageIsarSchema
+        MessageIsarSchema,
+        CurrentCallInfoIsarSchema,
+        LastCallStatusIsarSchema
       ],
       directory: dir,
     );

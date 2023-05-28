@@ -20,7 +20,11 @@ class NewMessageInput extends StatelessWidget {
   final void Function()? sendForwardMessage;
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function(int, bool, bool) handleScrollToMessage;
+  final void Function(
+    int, {
+    required bool ctrlIsPressed,
+    required bool hasPermission,
+  }) handleScrollToMessage;
   final void Function() deleteSelectedMessage;
   final InputMessageTextController textController;
 

@@ -36,7 +36,8 @@ class HasCallRowState extends State<HasCallRow> {
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               onTap: () {
-                if (snapshot.data == CallStatus.CREATED && !callRepo.isCaller) {
+                if (snapshot.data == CallStatus.IS_RINGING &&
+                    !callRepo.isCaller) {
                   _routingService.openCallScreen(
                     callRepo.roomUid!,
                     isIncomingCall: true,
@@ -66,7 +67,9 @@ class HasCallRowState extends State<HasCallRow> {
                       width: MediaQuery.of(context).size.width,
                       height: BAR_HEIGHT,
                       child: Padding(
-                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 15),
+                        padding: const EdgeInsetsDirectional.symmetric(
+                          horizontal: 15,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

@@ -1,4 +1,4 @@
-import 'package:deliver/models/call_data.dart';
+
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -116,24 +116,6 @@ class Settings {
   final showTextsJustified = BooleanPersistent(
     SharedKeys.SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED.inSharedDaoStorage(),
     defaultValue: false,
-  );
-  final LAST_CALL_DATA_SLOT_1 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_1.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
-  );
-  final LAST_CALL_DATA_SLOT_2 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_2.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
-  );
-  final LAST_CALL_DATA_SLOT_3 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_3.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
   );
   final showColorfulMessages = BooleanPersistent(
     SharedKeys.SHARED_DAO_THEME_SHOW_COLORFUL_MESSAGES.inSharedDaoStorage(),
@@ -306,6 +288,10 @@ class Settings {
     PerformanceMode.BALANCED,
   );
   final showWsWithHighFrameRate = PerformanceBooleanPersistent(
+    SharedKeys.SHOW_WS_WITH_HIGH_FRAME_RATE.inSharedDaoStorage(),
+    PerformanceMode.HIGH,
+  );
+  final showCallBackGroundAnimation = PerformanceBooleanPersistent(
     SharedKeys.SHOW_WS_WITH_HIGH_FRAME_RATE.inSharedDaoStorage(),
     PerformanceMode.HIGH,
   );

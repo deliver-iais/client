@@ -220,6 +220,9 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.CALL:
       return message.callEvent.writeToJson();
 
+    case MessageType.CALL_LOG:
+      return message.callLog.writeToJson();
+
     case MessageType.TABLE:
       return message.table.writeToJson();
 
@@ -229,8 +232,6 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.PAYMENT_INFORMATION:
       return message.paymentInformation.writeToJson();
 
-    case MessageType.CALL_LOG:
-      return message.callLog.writeToJson();
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
   }
@@ -266,6 +267,8 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE;
     case message_pb.Message_Type.callEvent:
       return MessageType.CALL;
+    case message_pb.Message_Type.callLog:
+      return MessageType.CALL_LOG;
     case message_pb.Message_Type.table:
       return MessageType.TABLE;
     case message_pb.Message_Type.transaction:
@@ -274,9 +277,7 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.NOT_SET;
     case message_pb.Message_Type.paymentInformation:
       return MessageType.PAYMENT_INFORMATION;
-    case message_pb.Message_Type.callLog:
-      return MessageType.CALL_LOG;
-  }
+    }
 }
 
 Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) =>

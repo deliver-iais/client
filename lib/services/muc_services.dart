@@ -14,6 +14,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:protobuf/protobuf.dart';
 
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
@@ -105,7 +106,7 @@ class MucServices {
     try {
       final request = await _serVices.broadcastServiceClient
           .getBroadcast(broadcast_pb.GetBroadcastReq()..uid = broadcastUid);
-      return request.copyWith((p0) {
+      return request.rebuild((p0) {
         p0.population++;
       });
     } catch (e) {

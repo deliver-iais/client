@@ -58,6 +58,7 @@ class MessageExtractorServices {
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
+      case MessageType.CALL_LOG:
       case MessageType.FORM_RESULT:
       case MessageType.TABLE:
       case MessageType.LOCATION:
@@ -67,10 +68,7 @@ class MessageExtractorServices {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_UID:
-      // TODO(amirhossein): complete this
-      case MessageType.CALL_LOG:
-        break;
-    }
+      }
 
     return MessageBrief(
       roomUid: msg.roomUid.asString(),
@@ -231,13 +229,17 @@ class MessageExtractorServices {
             "";
         break;
       case message_pb.Message_Type.callLog:
-        // TODO(amirhossein): complete this
         ignoreNotification = true;
-        if (kDebugMode) {
-          text = "____NOT_SUPPORTED_YET____";
-        }
+        final time =
+            msg.callLog.hasEnd() ? msg.callLog.end.callDuration.toInt() : 0;
+        final fromCurrentUser = _authRepo.isCurrentUser(msg.callLog.from);
+        typeDetails = getCallTextFromCallLog(
+              msg.callLog,
+              time,
+              isIncomingCall: fromCurrentUser,
+            ) ??
+            "";
         break;
-
       case message_pb.Message_Type.table:
         typeDetails = _i18n.get("table");
         break;
@@ -265,6 +267,7 @@ class MessageExtractorServices {
     );
   }
 
+  @Deprecated("this method just use for old Call Message Event Types")
   String? getCallText(
     CallEvent_CallStatus callStatus,
     int time, {
@@ -285,6 +288,50 @@ class MessageExtractorServices {
         time != 0) {
       return _i18n.get("outgoing_call");
     } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
+      return _i18n.get("incoming_call");
+    } else {
+      return null;
+    }
+  }
+
+  String? getCallTextFromCallLog(
+    CallLog callLog,
+    int time, {
+    bool isIncomingCall = false,
+  }) {
+    if (callLog.hasEnd() && isIncomingCall && time == 0) {
+      return _i18n.get("canceled_call");
+    } else if (callLog.hasDecline() && time == 0) {
+      return _i18n.get("declined_call");
+    } else if (callLog.hasBusy() && time == 0) {
+      return _i18n.get("busy");
+    } else if (callLog.hasEnd() && time == 0) {
+      return _i18n.get("missed_call");
+    } else if (callLog.hasEnd() && isIncomingCall && time != 0) {
+      return _i18n.get("outgoing_call");
+    } else if (callLog.hasEnd() && time != 0) {
+      return _i18n.get("incoming_call");
+    } else {
+      return null;
+    }
+  }
+
+  String? getCallTextFromCallEventV2(
+    CallEventV2 callEventV2,
+    int time, {
+    bool isIncomingCall = false,
+  }) {
+    if (callEventV2.hasEnd() && isIncomingCall && time == 0) {
+      return _i18n.get("canceled_call");
+    } else if (callEventV2.hasDecline() && time == 0) {
+      return _i18n.get("declined_call");
+    } else if (callEventV2.hasBusy() && time == 0) {
+      return _i18n.get("busy");
+    } else if (callEventV2.hasEnd() && time == 0) {
+      return _i18n.get("missed_call");
+    } else if (callEventV2.hasEnd() && isIncomingCall && time != 0) {
+      return _i18n.get("outgoing_call");
+    } else if (callEventV2.hasEnd() && time != 0) {
       return _i18n.get("incoming_call");
     } else {
       return null;
@@ -425,6 +472,9 @@ class MessageExtractorServices {
       case MessageType.CALL:
         msg.callEvent = message.json.toCallEvent();
         break;
+      case MessageType.CALL_LOG:
+        msg.callLog = message.json.toCallLog();
+        break;
       case MessageType.TABLE:
         msg.table = message.json.toTable();
         break;
@@ -433,9 +483,6 @@ class MessageExtractorServices {
         break;
       case MessageType.PAYMENT_INFORMATION:
         msg.paymentInformation = message.json.toPaymentInformation();
-        break;
-      case MessageType.CALL_LOG:
-        msg.callLog = message.json.toCallLog();
         break;
       case MessageType.NOT_SET:
         break;

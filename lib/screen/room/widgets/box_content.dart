@@ -411,9 +411,14 @@ class BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: colorScheme,
         );
+        case MessageType.CALL_LOG:
+        return CallMessageWidget(
+          message: widget.message,
+          colorScheme: colorScheme,
+          isCallLog: true,
+        );
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
-      case MessageType.CALL_LOG:
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,

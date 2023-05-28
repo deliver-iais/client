@@ -53,6 +53,8 @@ extension UidExtension on Uid {
 
   String asString() => "${category.value}:$node";
 
+  String asStringWithSession() => "${category.value}:$node:$sessionId";
+
   bool isUser() => category == Categories.USER;
 
   bool isBot() => category == Categories.BOT;
@@ -93,6 +95,18 @@ extension StringUidExtension on String {
         ..category = Categories.valueOf(int.parse(list[0]))!
         ..node = list[1]
         ..sessionId = _ALL_SESSIONS;
+    }
+  }
+
+  Uid asUidWithSession() {
+    final list = split(":");
+    if (list.length != 3) {
+      throw AssertionError("Uid is incorrect");
+    } else {
+      return Uid()
+        ..category = Categories.valueOf(int.parse(list[0]))!
+        ..node = list[1]
+        ..sessionId = list[2];
     }
   }
 

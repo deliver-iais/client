@@ -151,7 +151,7 @@ class MetaRepo {
   }
 
   bool isMessageContainMeta(Message message) {
-    if (message.type == MessageType.FILE || message.type == MessageType.CALL) {
+    if (message.type == MessageType.FILE || message.type == MessageType.CALL || message.type == MessageType.CALL_LOG) {
       return true;
     } else if (message.type == MessageType.TEXT) {
       return isTextContainUrlFeature(
@@ -440,7 +440,7 @@ class MetaRepo {
   }
 
   MetaType findMetaTypeFromMessageData(Message message) {
-    if (message.type == MessageType.CALL) {
+    if (message.type == MessageType.CALL || message.type == MessageType.CALL_LOG) {
       return MetaType.CALL;
     } else if (message.type == MessageType.FILE) {
       return message.json.toFile().findMetaTypeFromFileProto();

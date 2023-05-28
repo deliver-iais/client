@@ -4,9 +4,12 @@ import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/call_data_usage_dao.dart';
-import 'package:deliver/box/dao/current_call_dao.dart';
+import 'package:deliver/box/last_call_status.dart';
+import 'package:deliver/isar/dao/current_call_dao_isar.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/current_call_dao_hive.dart';
+import 'package:deliver/isar/dao/last_call_status_dao_isar.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/last_call_status_dao_hive.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;
 import 'package:deliver/services/settings.dart';
@@ -34,6 +37,7 @@ enum UserCallState {
 
 class CallService {
   final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
+  final _lastCallStatus = GetIt.I.get<LastCallStatusDao>();
   final _callDataUsage = GetIt.I.get<CallDataUsageDao>();
   final _logger = GetIt.I.get<Logger>();
 
@@ -77,6 +81,23 @@ class CallService {
     await _currentCall.save(callInfo);
   }
 
+  Future<void> saveIsSelectedOrAccepted({
+    bool isAccepted = false,
+    bool isSelectNotification = false,
+  }) async {
+    await _currentCall.saveAcceptOrSelectNotification(
+      isAccepted: isAccepted,
+      isSelectNotification: isSelectNotification,
+    );
+  }
+
+  Future<void> saveCallOfferOnDb(
+    String offerBody,
+    String offerCandidate,
+  ) async {
+    await _currentCall.saveCallOffer(offerBody, offerCandidate);
+  }
+
   Stream<CurrentCallInfo?> watchCurrentCall() {
     return _currentCall.watchCurrentCall();
   }
@@ -112,6 +133,8 @@ class CallService {
 
   bool _isHangedUp = false;
 
+  bool _isVideoCall = false;
+
   Uid _roomUid = Uid.getDefault();
 
   UserCallState get getUserCallState => _callState;
@@ -121,6 +144,8 @@ class CallService {
   String get getCallId => _callId;
 
   bool get isHangedUp => _isHangedUp;
+
+  bool get isVideoCall => _isVideoCall;
 
   RTCVideoRenderer get getLocalRenderer => _localRenderer;
 
@@ -132,24 +157,29 @@ class CallService {
 
   set setCallId(String callId) => _callId = callId;
 
+  set setVideoCall(bool isVideoCall) => _isVideoCall = isVideoCall;
+
   set setCallHangedUp(bool isHangedUp) => _isHangedUp = isHangedUp;
 
   CallStatus findCallEventStatusProto(
-    CallEvent_CallStatus eventCallStatus,
+    CallEventV2 callEventV2,
   ) {
-    switch (eventCallStatus) {
-      case CallEvent_CallStatus.CREATED:
-        return CallStatus.CREATED;
-      case CallEvent_CallStatus.BUSY:
+    switch (callEventV2.whichType()) {
+      case CallEventV2_Type.answer:
+        return CallStatus.ACCEPTED;
+      case CallEventV2_Type.busy:
         return CallStatus.BUSY;
-      case CallEvent_CallStatus.DECLINED:
+      case CallEventV2_Type.decline:
         return CallStatus.DECLINED;
-      case CallEvent_CallStatus.ENDED:
+      case CallEventV2_Type.end:
         return CallStatus.ENDED;
-      case CallEvent_CallStatus.IS_RINGING:
+      case CallEventV2_Type.offer:
+        return CallStatus.CREATED;
+      case CallEventV2_Type.ringing:
         return CallStatus.IS_RINGING;
+      case CallEventV2_Type.notSet:
+        return CallStatus.ENDED;
     }
-    return CallStatus.ENDED;
   }
 
   CallType findCallEventType(CallEvent_CallType eventCallType) {
@@ -179,28 +209,12 @@ class CallService {
     }
   }
 
-  CallEvent_CallStatus findCallEventStatusDB(CallStatus eventCallStatus) {
-    switch (eventCallStatus) {
-      case CallStatus.CREATED:
-        return CallEvent_CallStatus.CREATED;
-      case CallStatus.BUSY:
-        return CallEvent_CallStatus.BUSY;
-      case CallStatus.DECLINED:
-        return CallEvent_CallStatus.DECLINED;
-      case CallStatus.ENDED:
-        return CallEvent_CallStatus.ENDED;
-      case CallStatus.IS_RINGING:
-        return CallEvent_CallStatus.IS_RINGING;
-    }
+  String writeCallEventsToJson(CallEventV2 callEventV2) {
+    return callEventV2.writeToJson();
   }
 
-  String writeCallEventsToJson(CallEvents event) {
-    return (CallEvent()
-          ..callId = event.callId
-          ..callType = event.callEvent!.callType
-          ..callDuration = event.callEvent!.callDuration
-          ..callStatus = event.callEvent!.callStatus)
-        .writeToJson();
+  CallEvents getCallEventsFromJson(String callEvent) {
+    return CallEvents.callEvent(CallEventV2.fromJson(callEvent));
   }
 
   Future<void> clearCallData({
@@ -209,105 +223,84 @@ class CallService {
   }) async {
     try {
       if (isSaveCallData) {
-        final callData = CallData(
-          callId: _callId,
-          roomUid: _roomUid.asString(),
-          expireTime: clock.now().millisecondsSinceEpoch + 10000,
-        );
-        saveLastCallStatusOnSharedPrefCallSlot(callData);
+        await removeCallFromDb();
       }
-      await removeCallFromDb();
     } catch (e) {
       _logger.e(e);
-    }
-    if (shouldRemoveData || forceToClearData) {
-      _logger.i("Clearing Call Data");
-      _callId = "";
-      _callState = UserCallState.NO_CALL;
-      isInitRenderer = false;
-      _isHangedUp = false;
-      isHole = false;
-      _roomUid = Uid.getDefault();
+    } finally {
+      if (shouldRemoveData || forceToClearData) {
+        _logger.i("Clearing Call Data");
+        _callId = "";
+        _callState = UserCallState.NO_CALL;
+        isInitRenderer = false;
+        _isHangedUp = false;
+        _isVideoCall = false;
+        isHole = false;
+        _roomUid = Uid.getDefault();
+      }
     }
   }
 
-  Future<void> disposeCallData({bool forceToClearData = false}) async {
+  Future<void> saveCallStatusData() async {
+    final callData = LastCallStatus(
+      callId: _callId,
+      roomUid: _roomUid.asString(),
+      expireTime: clock.now().millisecondsSinceEpoch + 100000,
+      id: -1,
+    );
+    await saveLastCallStatus(callData);
+  }
+
+  Future<void> disposeCallData({
+    bool forceToClearData = false,
+  }) async {
     if (shouldRemoveData || forceToClearData) {
       await FlutterForegroundTask.clearAllData();
-      await _disposeRenderer();
+      if (isInitRenderer) {
+        await _disposeRenderer();
+      }
     }
   }
 
   bool isHiddenCallBottomRow(call_status.CallStatus callStatus) {
-    return callStatus == call_status.CallStatus.CONNECTED;
+    return callStatus == call_status.CallStatus.CONNECTED && _isVideoCall;
   }
 
-  bool checkIncomingCallIsRepeated(String callId, String roomUid) {
-    if (!_isCallDataInSharedPref(
-      callId,
-      roomUid,
-      settings.LAST_CALL_DATA_SLOT_1,
-    )) {
-      if (!_isCallDataInSharedPref(
-        callId,
-        roomUid,
-        settings.LAST_CALL_DATA_SLOT_2,
-      )) {
-        if (!_isCallDataInSharedPref(
-          callId,
-          roomUid,
-          settings.LAST_CALL_DATA_SLOT_3,
-        )) {
-          return false;
-        }
-      }
-    }
-    return true;
+  Future<bool?> checkIncomingCallIsRepeated(String callId, String roomUid) {
+    return _lastCallStatus.isExist(callId, roomUid);
   }
 
-  bool _isCallDataInSharedPref(
-    String callId,
-    String roomUid,
-    JsonMapPersistent<CallData> slot,
-  ) {
-    final callData = slot.value;
-    if (callData.callId == callId && callData.roomUid == roomUid) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void saveLastCallStatusOnSharedPrefCallSlot(CallData data) {
-    var replacedSlot = settings.LAST_CALL_DATA_SLOT_1;
+  Future<void> saveLastCallStatus(LastCallStatus data) async {
+    var replacedSlot = CallSlot.DATA_SLOT_1;
     var minExpireTime =
-        _checkSlotAndSaveIfPossible(data, settings.LAST_CALL_DATA_SLOT_1);
+        await _checkSlotAndSaveIfPossible(data, CallSlot.DATA_SLOT_1);
     if (minExpireTime != 0) {
-      final tempExpireTime = _checkSlotAndSaveIfPossible(
+      final tempExpireTime = await _checkSlotAndSaveIfPossible(
         data,
-        settings.LAST_CALL_DATA_SLOT_2,
+        CallSlot.DATA_SLOT_2,
       );
       if (minExpireTime > tempExpireTime) {
-        replacedSlot = settings.LAST_CALL_DATA_SLOT_2;
+        replacedSlot = CallSlot.DATA_SLOT_2;
         minExpireTime = tempExpireTime;
       }
     } else {
       return;
     }
     if (minExpireTime != 0) {
-      final tempExpireTime = _checkSlotAndSaveIfPossible(
+      final tempExpireTime = await _checkSlotAndSaveIfPossible(
         data,
-        settings.LAST_CALL_DATA_SLOT_3,
+        CallSlot.DATA_SLOT_3,
       );
       if (minExpireTime > tempExpireTime) {
-        replacedSlot = settings.LAST_CALL_DATA_SLOT_3;
+        replacedSlot = CallSlot.DATA_SLOT_3;
         minExpireTime = tempExpireTime;
       }
     } else {
       return;
     }
     if (minExpireTime != 0) {
-      replacedSlot.set(data);
+      data = data.copyWith(id: replacedSlot.index);
+      await _lastCallStatus.save(data);
     } else {
       return;
     }
@@ -335,18 +328,23 @@ class CallService {
     }
   }
 
-  int _checkSlotAndSaveIfPossible(
-    CallData data,
-    JsonMapPersistent<CallData> slot,
-  ) {
-    final callData = slot.value;
+  Future<int> _checkSlotAndSaveIfPossible(
+    LastCallStatus data,
+    CallSlot callSlot,
+  ) async {
+    final callData = await _lastCallStatus.get(callSlot.index);
+    if (callData == null) {
+      data = data.copyWith(id: callSlot.index);
+      await _lastCallStatus.save(data);
+      return 0;
+    }
     if (((callData.expireTime - clock.now().millisecondsSinceEpoch).abs()) >
         CALL_DATA_EXPIRE_CHECK_TIME_MS) {
-      // 100 sec ExpireTime
-      slot.set(data);
-      return data.expireTime;
-    } else {
+      data = data.copyWith(id: callSlot.index);
+      await _lastCallStatus.save(data);
       return 0;
+    } else {
+      return data.expireTime;
     }
   }
 
