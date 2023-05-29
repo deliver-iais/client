@@ -68,7 +68,9 @@ class MetaRepo {
   ) async {
     final shouldFetchDeletedIndex =
         await _metaDao.shouldFetchMetaDeletedIndex(roomUid);
-    if (shouldFetchDeletedIndex && deletedCount > 0) {
+    final metaDeletedIndexCount = await _metaDao.MetaDeletedIndexCount(roomUid);
+    if ((shouldFetchDeletedIndex || metaDeletedIndexCount != deletedCount) &&
+        deletedCount > 0) {
       try {
         final deletedIndex =
             await _sdr.queryServiceClient.fetchMetaDeletedIndexes(

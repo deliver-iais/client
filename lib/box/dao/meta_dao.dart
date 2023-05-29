@@ -13,6 +13,10 @@ abstract class MetaDao {
     String roomUid,
   );
 
+  Stream<List<int>> watchMetaDeletedIndex(
+    String roomUid,
+  );
+
   Future<void> saveMetaDeletedIndex(
     String roomUid,
     int index,
@@ -37,6 +41,10 @@ abstract class MetaDao {
   );
 
   Future<bool> shouldFetchMetaDeletedIndex(
+    String roomUid,
+  );
+
+  Future<int> MetaDeletedIndexCount(
     String roomUid,
   );
 
@@ -145,6 +153,17 @@ class MetaDaoImpl extends MetaDao {
   }
 
   @override
+  Stream<List<int>> watchMetaDeletedIndex(
+    String roomUid,
+  ) async* {
+    final deletedIndexBox = await _openDeletedIndexBox(roomUid);
+    yield deletedIndexBox.values.toList();
+    yield* deletedIndexBox
+        .watch()
+        .map((event) => deletedIndexBox.values.toList());
+  }
+
+  @override
   Future<void> saveMetaDeletedIndex(
     String roomUid,
     int index,
@@ -227,5 +246,13 @@ class MetaDaoImpl extends MetaDao {
         _deletedIndexTableKey(uid),
       ),
     );
+  }
+
+  @override
+  Future<int> MetaDeletedIndexCount(String roomUid) async {
+    final deletedIndexBox = await _openDeletedIndexBox(
+      roomUid,
+    );
+    return deletedIndexBox.keys.length;
   }
 }

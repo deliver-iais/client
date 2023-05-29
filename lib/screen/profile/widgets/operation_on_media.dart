@@ -2,6 +2,8 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class OperationOnMedia extends PopupMenuEntry<OperationOnMessage> {
 
 class OperationOnImageState extends State<OperationOnMedia> {
   final _i18n = GetIt.I.get<I18N>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +115,17 @@ class OperationOnImageState extends State<OperationOnMedia> {
               }
             },
           ),
+        _buildPopupMenuItem(
+          _i18n.get("show_in_chat"),
+          CupertinoIcons.eye,
+          () async {
+            final message = await (widget.getMessage());
+            if (message != null) {
+              _routingService.openRoom(message.roomUid.asString(),
+                  initialIndex: message.id,);
+            }
+          },
+        ),
       ],
     );
   }

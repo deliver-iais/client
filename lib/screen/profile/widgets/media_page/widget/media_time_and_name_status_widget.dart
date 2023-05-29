@@ -24,6 +24,7 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
       children: [
         RoomName(
           uid: (roomUid.asUid().isChannel() ? roomUid : createdBy).asUid(),
+          style:  buildLightStyle(theme),
         ),
         const SizedBox(
           height: 10,
@@ -32,10 +33,14 @@ class MediaTimeAndNameStatusWidget extends StatelessWidget {
           DateTime.fromMillisecondsSinceEpoch(
             createdOn,
           ).toString().substring(0, 19),
-          style: theme.textTheme.bodyMedium!
-              .copyWith(height: 1, color: Colors.white),
+          style:  buildLightStyle(theme),
         )
       ],
     );
+  }
+
+  TextStyle buildLightStyle(ThemeData theme) {
+    return theme.textTheme.bodyMedium!
+            .copyWith(height: 1, color: Colors.white.withOpacity(0.7));
   }
 }
