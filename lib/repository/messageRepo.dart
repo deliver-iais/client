@@ -1350,10 +1350,10 @@ class MessageRepo {
     int page,
     Uid roomId,
     int containsId,
-    int lastMessageId, {
+  {int? lastMessageId,
     int pageSize = PAGE_SIZE,
   }) {
-    if (containsId > lastMessageId) {
+    if (lastMessageId!=null && containsId > lastMessageId) {
       return Future.value([]);
     }
 
@@ -1369,7 +1369,7 @@ class MessageRepo {
       if (messages.any((element) => element.id == containsId)) {
         completer!.complete(messages);
       } else {
-        await getMessages(roomId, page, pageSize, completer!, lastMessageId);
+        await getMessages(roomId, page, pageSize, completer!);
       }
     });
 
@@ -1381,7 +1381,6 @@ class MessageRepo {
     int page,
     int pageSize,
     Completer<List<Message?>> completer,
-    int lastMessageId,
   ) async {
     try {
       final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(

@@ -149,6 +149,6 @@ class MetaCount {
 
   @override
   String toString() {
-    return 'MediaMetaData{roomId: $roomId, mediasCount: $mediasCount, filesCount: $filesCount, callsCount: $callsCount, voicesCount: $voicesCount, musicsCount: $musicsCount, linkCount: $linkCount, lastUpdateTime: $lastUpdateTime}';
+    return 'MetaCount{roomId: $roomId, mediasCount: $mediasCount, filesCount: $filesCount, callsCount: $callsCount, voicesCount: $voicesCount, musicsCount: $musicsCount, linkCount: $linkCount, allMediaDeletedCount: $allMediaDeletedCount, allFilesDeletedCount: $allFilesDeletedCount, allMusicsDeletedCount: $allMusicsDeletedCount, allVoicesDeletedCount: $allVoicesDeletedCount, allLinksDeletedCount: $allLinksDeletedCount, allCallDeletedCount: $allCallDeletedCount, lastUpdateTime: ${DateTime.fromMillisecondsSinceEpoch(lastUpdateTime)}';
   }
 }

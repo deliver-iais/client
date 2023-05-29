@@ -4,11 +4,14 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/meta_count_dao.dart';
+import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/scroll_position_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -112,7 +115,8 @@ class RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
-
+  static final _metaDao = GetIt.I.get<MetaDao>();
+  static final _metaCount = GetIt.I.get<MetaCountDao>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _notificationServices = GetIt.I.get<NotificationServices>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -305,7 +309,19 @@ class RoomPageState extends State<RoomPage> {
                       ],
                     ),
                     builder: (context, snapshot) {
-                      return buildLogBox(seen);
+                      return StreamBuilder<List<int>>(
+                        stream: _metaDao
+                            .watchMetaDeletedIndex(widget.roomUid.asString()),
+                        builder: (context, deletedIndex) {
+                          return StreamBuilder<MetaCount?>(
+                            stream: _metaCount.get(widget.roomUid.asString()),
+                            builder: (context, metaCount) {
+                              return buildLogBox(
+                                  seen, metaCount.data, deletedIndex.data,);
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 },
@@ -632,7 +648,8 @@ class RoomPageState extends State<RoomPage> {
       ? ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 3)
       : ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
-  SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
+  SizedBox buildLogBox(
+      AsyncSnapshot<Seen> seen, MetaCount? metaCount, List<int>? deletedIndex,) {
     return SizedBox(
       width: double.infinity,
       child: DebugC(
@@ -685,6 +702,14 @@ class RoomPageState extends State<RoomPage> {
           Debug(
             _defaultMessageHeight,
             label: "_defaultMessageHeight",
+          ),
+          Debug(
+            deletedIndex,
+            label: "client media deleted index",
+          ),
+          Debug(
+            metaCount,
+            label: "client meta count",
           ),
         ],
       ),
@@ -876,7 +901,7 @@ class RoomPageState extends State<RoomPage> {
       page,
       widget.roomUid,
       id,
-      room.lastMessageId,
+      lastMessageId: room.lastMessageId,
     );
     for (var i = 0; i < messages.length; i = i + 1) {
       _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
@@ -1867,7 +1892,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void scrollToMentionMessage({bool isForced = false}) {
-    if(room.mentionsId.isNotEmpty) {
+    if (room.mentionsId.isNotEmpty) {
       _scrollToMessageWithHighlight(room.mentionsId.first);
     }
   }

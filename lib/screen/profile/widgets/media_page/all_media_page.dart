@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dcache/dcache.dart';
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -12,7 +11,9 @@ import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/image/image_media_widget.dart';
 import 'package:deliver/screen/profile/widgets/media_page/widget/media_app_bar_counter_widget.dart';
@@ -72,12 +73,12 @@ typedef DoubleClickAnimationListener = void Function();
 class _AllMediaPageState extends State<AllMediaPage>
     with TickerProviderStateMixin {
   late final _pageController =
-      ExtendedPageController(initialPage: _currentIndex.value);
+      ExtendedPageController(initialPage: _currentIndex.value - 1);
 
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final _messageDao = GetIt.I.get<MessageDao>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _videoPlayerService = GetIt.I.get<VideoPlayerService>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -93,6 +94,7 @@ class _AllMediaPageState extends State<AllMediaPage>
   final List<int> _showingDeletedIndexList = [];
   final LruCache<int, String> _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
+  static final _cachingRepo = GetIt.I.get<CachingRepo>();
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   StreamSubscription<int>? _getIndexOfMediaStream;
   late List<Animation<double>> animationList;
@@ -507,7 +509,8 @@ class _AllMediaPageState extends State<AllMediaPage>
                         hasData: indexData.hasData,
                       )
                     : ExtendedImageGesturePageView.builder(
-                        itemBuilder: (context, index) {
+                        itemBuilder: (context, idx) {
+                          final index = idx + 1;
                           return FutureBuilder<Meta?>(
                             future: _getMedia(index),
                             builder: (c, mediaSnapShot) {
@@ -558,14 +561,15 @@ class _AllMediaPageState extends State<AllMediaPage>
                             },
                           );
                         },
-                        itemCount: (_allMediaCount.value) + 1,
+                        itemCount: _allMediaCount.value,
                         onPageChanged: (index) {
                           _videoPlayerService.desktopPlayers[
                                   _fileCache.get(_currentIndex.value).hashCode]
                               ?.stop();
-                          _currentIndex.add(index);
+                          final metaIndex=index + 1;
+                          _currentIndex.add(metaIndex);
                           _videoPlayerService
-                              .desktopPlayers[_fileCache.get(index).hashCode]
+                              .desktopPlayers[_fileCache.get(metaIndex).hashCode]
                               ?.play();
                         },
                         controller: _pageController,
@@ -638,12 +642,25 @@ class _AllMediaPageState extends State<AllMediaPage>
     if (_currentIndex.value == _initialMediaIndex && widget.message != null) {
       return widget.message;
     }
+
     final media = await _getMedia(_currentIndex.value);
-    final message = await _messageDao.getMessage(
-      widget.roomUid,
-      media!.messageId,
-    );
-    return message;
+    if (media != null) {
+      final msg = _cachingRepo.getMessage(widget.roomUid, media.messageId);
+      if (msg != null) {
+        return msg;
+      }
+      final page = (media.messageId / PAGE_SIZE).floor();
+      final messages = await _messageRepo.getPage(
+        page,
+        widget.roomUid,
+        media.messageId,
+      );
+      for (var i = 0; i < messages.length; i = i + 1) {
+        _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
+      }
+      return _cachingRepo.getMessage(widget.roomUid, media.messageId);
+    }
+    return null;
   }
 
   Widget buildFooter({
