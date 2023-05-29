@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/isar_manager.dart' if (dart.library.html)  'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
@@ -780,6 +781,7 @@ class RoutingService {
       await GetIt.I.get<AccountRepo>().logOut();
       await authRepo.logout();
       await GetIt.I.get<DBManager>().deleteDB();
+      await IsarManager.deleteIsarDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
