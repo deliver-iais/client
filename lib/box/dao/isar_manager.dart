@@ -31,4 +31,11 @@ class IsarManager {
       directory: dir,
     );
   }
+
+  static Future<void> deleteIsarDB() async {
+    if (_isar != null) {
+      await _isar!.close(deleteFromDisk: true);
+      _isar = null;
+    }
+  }
 }
