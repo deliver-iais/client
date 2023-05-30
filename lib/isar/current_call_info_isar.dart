@@ -1,6 +1,5 @@
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/shared/extensions/call_event_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:isar/isar.dart';
 
 part 'current_call_info_isar.g.dart';

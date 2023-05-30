@@ -209,7 +209,9 @@ class CallRepo {
               _callOfferCandidate = callEvent.offer.candidates;
               if (!isDesktopNative && !_isCallFromDb) {
                 _saveOfferOnDB(
-                    callEvent.offer.body, callEvent.offer.candidates);
+                  callEvent.offer.body,
+                  callEvent.offer.candidates,
+                );
               }
             } else if (callEvent.id != _callService.getCallId) {
               unawaited(_busyCall(event));

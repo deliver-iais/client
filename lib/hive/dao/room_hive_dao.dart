@@ -42,7 +42,6 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
           .where(
             (element) => element.lastMessageId > 0 && !element.deleted,
           )
-          .where((element) => element != null)
           .map((e) => e.fromHive())
           .toList(),
     );
@@ -53,7 +52,6 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
                 .where(
                   (element) => (element.lastMessageId > 0 && !element.deleted),
                 )
-                .where((element) => element != null)
                 .map((e) => e.fromHive())
                 .toList(),
           ),

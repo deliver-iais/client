@@ -14,14 +14,16 @@ const MessageJsonKey =
     JsonKey(fromJson: getMessageFromJson, toJson: messageToJson);
 
 const NullableMessageJsonKey = JsonKey(
-    fromJson: getNullableMessageFromJson, toJson: nullableMessageToJson);
+  fromJson: getNullableMessageFromJson,
+  toJson: nullableMessageToJson,
+);
 
 String messageToJson(Message model) {
   return jsonEncode(model.toJson());
 }
 
 String? nullableMessageToJson(Message? model) {
-  return model != null ? jsonEncode(model?.toJson()) : null;
+  return model != null ? jsonEncode(model.toJson()) : null;
 }
 
 @freezed

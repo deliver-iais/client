@@ -291,7 +291,9 @@ Future<void> dbSetupDI() async {
   try {
     await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
   } catch (e) {
-    print("hive init error $e");
+    if (kDebugMode) {
+      print("hive init error $e");
+    }
   }
 
   Hive
