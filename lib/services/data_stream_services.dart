@@ -17,6 +17,7 @@ import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -72,6 +73,7 @@ class DataStreamServices {
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _broadcastService = GetIt.I.get<BroadcastService>();
   final _callService = GetIt.I.get<CallService>();
+  final _cachingRepo = GetIt.I.get<CachingRepo>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -244,9 +246,9 @@ class DataStreamServices {
 
   Future<bool> isMentioned(Message message) async {
     return message.text.text
-          .replaceAll("\n", " ")
-          .split(" ")
-          .contains("@${(await _accountRepo.getAccount())!.username}");
+        .replaceAll("\n", " ")
+        .split(" ")
+        .contains("@${(await _accountRepo.getAccount())!.username}");
   }
 
   Future<void> _checkForReplyKeyBoard(Message message) async {
@@ -297,8 +299,8 @@ class DataStreamServices {
         await _metaRepo.addDeletedMetaIndexFromMessage(savedMsg);
       }
       final msg = savedMsg.copyDeleted();
-
-      await _messageDao.saveMessage(msg);
+      _cachingRepo.setMessage(roomUid, id, msg);
+      await _messageDao.updateMessage(msg);
 
       if (isOnlineMessage) {
         final room = await _roomDao.getRoom(roomUid);
@@ -362,10 +364,14 @@ class DataStreamServices {
         ..pointer = Int64(id)
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
-    final msg = await saveMessageInMessagesDB(res.messages.first);
-    if (msg != null && msg.id != null && _metaRepo.isMessageContainMeta(msg)) {
+
+    final msg = _messageExtractorServices.extractMessage(message);
+    await _messageDao.updateMessage(msg);
+    _cachingRepo.setMessage(roomUid, id, msg);
+    if (_metaRepo.isMessageContainMeta(msg)) {
       await _metaRepo.updateMeta(msg);
     }
+
     if (isOnlineMessage) {
       final room = await _roomDao.getRoom(roomUid);
       if (room != null && room.lastMessage?.id == id) {
@@ -580,7 +586,7 @@ class DataStreamServices {
     MessageDeliveryAck messageDeliveryAck, {
     bool shouldNotifyOutgoingMessage = true,
   }) async {
-    await _messageDao.saveMessage(msg);
+    await _messageDao.insertMessage(msg);
     await _roomDao.updateRoom(
       uid: msg.roomUid,
       lastMessage: msg.isHidden ? null : msg,
@@ -676,7 +682,7 @@ class DataStreamServices {
   ) async {
     try {
       final msg = _messageExtractorServices.extractMessage(message);
-      await _messageDao.saveMessage(msg);
+      await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
       return null;
@@ -828,7 +834,7 @@ class DataStreamServices {
     final msgList = <message_model.Message>[];
     for (final message in messages) {
       if (messages.last.id - message.id < 100) {
-        await _checkForReplyKeyBoard(message);
+        unawaited(_checkForReplyKeyBoard(message));
       }
       if (_isBroadcastMessage(message.packetId)) {
         unawaited(
@@ -837,23 +843,20 @@ class DataStreamServices {
             message.generatedBy,
           ),
         );
-      } else {
+      } else if (_authRepo.isCurrentUser(message.from)) {
         await _pendingMessageDao.deletePendingMessage(message.packetId);
       }
       try {
-        final m = await handleIncomingMessage(
-          message,
-          isOnlineMessage: appRunInForeground,
+        unawaited(
+          handleIncomingMessage(
+            message,
+            isOnlineMessage: appRunInForeground,
+          ),
         );
-
-        if (m == null) {
-          continue;
-        }
-
-        msgList.add(m);
       } catch (e) {
         _logger.e(e);
       }
+      msgList.add(_messageExtractorServices.extractMessage(message));
     }
     return msgList;
   }

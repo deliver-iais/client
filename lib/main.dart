@@ -203,9 +203,6 @@ Future<void> setupDI() async {
 
   await GetIt.I.get<AuthRepo>().init();
   logger.i("Auth repo init successfully");
-
-  GetIt.I.get<ServicesDiscoveryRepo>().initClientChannels();
-
   //call Service should be here
   registerSingleton<CallService>(CallService());
   registerSingleton<EventService>(EventService());

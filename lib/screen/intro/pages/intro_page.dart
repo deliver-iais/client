@@ -6,6 +6,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/intro_widget.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
@@ -122,6 +123,8 @@ class IntroPageState extends State<IntroPage> {
                   ],
                 ),
               ),
+              NewVersion.newVersionInfo(),
+              NewVersion.aborted(context),
             ],
           ),
         ),

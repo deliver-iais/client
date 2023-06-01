@@ -198,7 +198,7 @@ class BoxContentState extends State<BoxContent> {
                 top: showTopPadding ? 6 : 0,
               ),
               child: ReplyBrief(
-                roomId: widget.message.roomUid,
+                roomUid: widget.message.roomUid,
                 replyToId: widget.message.replyToId,
                 messageReplyBrief: widget.messageReplyBrief,
                 maxWidth: isOnlyEmojiMessage(widget.message)

@@ -12,6 +12,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/lb.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
@@ -27,7 +28,7 @@ import 'package:synchronized/synchronized.dart';
 
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
-  static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
   static final _accessTokenLock = Lock();
 
@@ -41,8 +42,8 @@ class AuthRepo {
 
   final BehaviorSubject<bool> isOutOfDate = BehaviorSubject.seeded(false);
 
-  final newVersionInformation =
-      BehaviorSubject<NewerVersionInformation?>.seeded(null);
+  final newClientVersionInformation =
+      BehaviorSubject<ClientVersion?>.seeded(null);
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -93,7 +94,7 @@ class AuthRepo {
       _setCurrentUserUidFromRefreshToken(refreshToken());
     }
     // Run just first time...
-    await syncTimeWithServer();
+    await _syncTimeAndServersSettingWithServer();
   }
 
   Future<VerificationType> getVerificationCode({
@@ -126,7 +127,7 @@ class AuthRepo {
       resetTimer();
     }
     _tmpPhoneNumber = phone;
-    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
+
     return res.type;
   }
 
@@ -155,8 +156,6 @@ class AuthRepo {
       );
     }
 
-    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
-
     return res;
   }
 
@@ -183,8 +182,6 @@ class AuthRepo {
         refreshToken: res.refreshToken,
       );
     }
-
-    emitNewVersionInformationIfNeeded(res.newerVersionInformation);
 
     return res;
   }
@@ -276,38 +273,61 @@ class AuthRepo {
     );
   }
 
-  Future<void> syncTimeWithServer() async {
+  Future<void> _syncTimeAndServersSettingWithServer({
+    bool retry = true,
+    int timeout = 1,
+  }) async {
     try {
-      return await calculateServerTimeDiff(timeout: const Duration(seconds: 1));
-    } catch (_) {
-      // Just ignore this option and set "Zero"
-      _serverTimeDiff = 0;
+      final startTime = clock.now().millisecondsSinceEpoch; // eg. 1000
+      final getInfoRes = await _sdr.lbcClient.getInfo(
+        GetInfoReq()..platform = (await getPlatformPB()),
+        options: CallOptions(timeout: Duration(seconds: timeout)),
+      );
+      settings.servicesInfo.set(getInfoRes.writeToJson(), retry: true);
+      _sdr.initClientChannels(getInfoRes: getInfoRes);
 
-      // Retry with more timeout duration
-      try {
-        unawaited(
-          calculateServerTimeDiff(timeout: const Duration(seconds: 20)),
-        );
-      } catch (_) {
-        // Ignore
+      final now = clock.now().millisecondsSinceEpoch; // eg. 1200
+
+      final estimatedRoundTripTime = (now - startTime) ~/ 2; // eg. 100
+
+      _serverTimeDiff = (now - estimatedRoundTripTime) -
+          getInfoRes.currentTime.toInt(); // eg. 1200 - 100 - 1100
+
+      if (getInfoRes.outOfService) {
+        emitOutOfDateIfNeeded();
       }
+      emitNewClientVersionInformationIfNeeded(getInfoRes.lastVersion);
+    } catch (_) {
+      if (retry) {
+        // Retry with more timeout duration
+        unawaited(
+          _syncTimeAndServersSettingWithServer(
+            timeout: 20,
+            retry: false,
+          ),
+        );
+      }
+      // Just ignore this option and set "Zero"
+      _initServicesWhenGetInfoFromServerNotResponse();
     }
   }
 
-  Future<void> calculateServerTimeDiff({required Duration timeout}) async {
-    final startTime = clock.now().millisecondsSinceEpoch; // eg. 1000
-
-    final response = await _sdr.queryServiceClient.getTime(
-      GetTimeReq(),
-      options: CallOptions(timeout: timeout),
-    ); // eg. 1100
-
-    final now = clock.now().millisecondsSinceEpoch; // eg. 1200
-
-    final estimatedRoundTripTime = (now - startTime) ~/ 2; // eg. 100
-
-    _serverTimeDiff = (now - estimatedRoundTripTime) -
-        response.currentTime.toInt(); // eg. 1200 - 100 - 1100
+  void _initServicesWhenGetInfoFromServerNotResponse() {
+    try {
+      final servicesIngoJson = settings.servicesInfo.value;
+      final getInfoRes = GetInfoRes.fromJson(servicesIngoJson);
+      if (getInfoRes.hasCurrentTime() &&
+          clock.now().millisecondsSinceEpoch <
+              getInfoRes.currentTime.toInt() + getInfoRes.cacheTime.toInt()) {
+        _sdr.initClientChannels(getInfoRes: getInfoRes);
+      } else {
+        _serverTimeDiff = 0;
+        _sdr.initClientChannels();
+      }
+    } catch (_) {
+      _serverTimeDiff = 0;
+      _sdr.initClientChannels();
+    }
   }
 
   Future<bool> login({
@@ -334,9 +354,6 @@ class AuthRepo {
   Future<void> updateAndCheckTokens() async {
     try {
       final r = await tryRenewTokens();
-      final info = r.newerVersionInformation;
-
-      emitNewVersionInformationIfNeeded(info);
 
       if (checkTokensTimes(
             accessToken: r.accessToken,
@@ -384,11 +401,9 @@ class AuthRepo {
     }
   }
 
-  void emitNewVersionInformationIfNeeded(NewerVersionInformation info) {
-    if (newVersionInformation.value == null &&
-        info.version.isNotEmpty &&
-        info.version != VERSION) {
-      newVersionInformation.add(info);
+  void emitNewClientVersionInformationIfNeeded(ClientVersion clientVersion) {
+    if (newClientVersionInformation.value == null && clientVersion.hasVersion()) {
+      newClientVersionInformation.add(clientVersion);
     }
   }
 

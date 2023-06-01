@@ -18,15 +18,21 @@ class CachingRepo {
   final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(200));
 
   // Room Page Caching
-  void setMessage(Uid roomId, int id, Message msg) {
-    final r = _rooms.get(roomId);
+  void setMessage(Uid roomUid, int id, Message msg) {
+    final r = _rooms.get(roomUid);
 
     if (r == null) {
       final rc = RoomCache();
       rc.message.set(id, msg);
-      _rooms.set(roomId, rc);
+      _rooms.set(roomUid, rc);
     } else {
       r.message.set(id, msg);
+    }
+  }
+
+  void setMessages(Uid rooUid, List<Message> messages) {
+    for (final msg in messages) {
+      setMessage(rooUid, msg.id!, msg);
     }
   }
 

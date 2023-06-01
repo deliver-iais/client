@@ -37,7 +37,7 @@ class MessageDaoImpl extends MessageDao {
   }
 
   @override
-  Future<void> saveMessage(Message message) async {
+  Future<void> insertMessage(Message message) async {
     final box = await _openMessages(message.roomUid.asString());
 
     return box.put(message.id, message.toHive());
@@ -62,4 +62,7 @@ class MessageDaoImpl extends MessageDao {
       );
     }
   }
+
+  @override
+  Future<void> updateMessage(Message message) => insertMessage(message);
 }

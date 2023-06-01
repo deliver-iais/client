@@ -20,6 +20,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
@@ -77,7 +78,7 @@ enum TitleStatusConditions {
   Connected,
 }
 
-enum PendingMessageReapetedStatus {
+enum PendingMessageRepeatedStatus {
   REPEATED_DETECTION_MESSAGE_OK,
   REPEATED_DETECTION_MESSAGE_FAILED,
   REPEATED_DETECTION_MESSAGE_REPEAT;
@@ -106,6 +107,7 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _fileService = GetIt.I.get<FileService>();
+  final _cachingRepo = GetIt.I.get<CachingRepo>();
 
   // migrate to room repo
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -1073,9 +1075,10 @@ class MessageRepo {
       } else {
         final status = await checkMessageRepeated(pendingMessage);
         switch (status) {
-          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_OK:
+          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_OK:
             if (!pendingMessage.failed ||
-                pendingMessage.msg.type == MessageType.CALL || pendingMessage.msg.type == MessageType.CALL_LOG) {
+                pendingMessage.msg.type == MessageType.CALL ||
+                pendingMessage.msg.type == MessageType.CALL_LOG) {
               switch (pendingMessage.status) {
                 case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
                   break;
@@ -1089,10 +1092,10 @@ class MessageRepo {
               }
             }
             break;
-          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT:
+          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_REPEAT:
             deletePendingMessage(pendingMessage.packetId);
             break;
-          case PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
+          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
             pendingFailedByRoom.add(pendingMessage.roomUid.asString());
             await _savePendingMessage(pendingMessage.copyWith(failed: true));
             break;
@@ -1142,7 +1145,7 @@ class MessageRepo {
     }
   }
 
-  Future<PendingMessageReapetedStatus> checkMessageRepeated(
+  Future<PendingMessageRepeatedStatus> checkMessageRepeated(
     PendingMessage pm,
   ) async {
     try {
@@ -1154,7 +1157,7 @@ class MessageRepo {
       if (lastDeliveryAckPacketId == pm.packetId &&
           lastDeliveryAckTo == msg.to &&
           lastDeliveryAckFrom == msg.from) {
-        return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
+        return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
       } else if (lastDeliveryAckTo == msg.to &&
           lastDeliveryAckFrom == msg.from) {
         final timeLastMessageDeliveryAck =
@@ -1167,7 +1170,7 @@ class MessageRepo {
                 REPEATED_DETECTION_TIME ||
             (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
                 REPEATED_DETECTION_COUNT) {
-          return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
+          return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
         }
       } else {
         final timeLastMessageDeliveryAck =
@@ -1180,14 +1183,14 @@ class MessageRepo {
                 REPEATED_DETECTION_TIME ||
             (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
                 REPEATED_DETECTION_COUNT) {
-          return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
+          return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
         }
       }
 
-      return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_OK;
+      return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_OK;
     } catch (_) {
       // fail message on parsing error in pending message or some other errors.
-      return PendingMessageReapetedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
+      return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
     }
   }
 
@@ -1346,62 +1349,100 @@ class MessageRepo {
     );
   }
 
-  Future<List<Message?>> getPage(
-    int page,
-    Uid roomId,
-    int containsId,
-  {int? lastMessageId,
-    int pageSize = PAGE_SIZE,
-  }) {
-    if (lastMessageId!=null && containsId > lastMessageId) {
-      return Future.value([]);
-    }
-
-    var completer = _completerMap["$roomId-$page"];
-
-    if (completer != null && !completer.isCompleted) {
-      return completer.future;
-    }
-    completer = Completer();
-    _completerMap["$roomId-$page"] = completer;
-
-    _messageDao.getMessagePage(roomId, page).then((messages) async {
-      if (messages.any((element) => element.id == containsId)) {
-        completer!.complete(messages);
-      } else {
-        await getMessages(roomId, page, pageSize, completer!);
+  FutureOr<Message?> getMessage({
+    required Uid roomUid,
+    required int id,
+    int? lastMessageId,
+    bool useCache = true,
+  }) async {
+    if (lastMessageId == null || id <= lastMessageId) {
+      if (useCache) {
+        final msg = _cachingRepo.getMessage(roomUid, id);
+        if (msg != null) {
+          return msg;
+        }
       }
-    });
 
-    return completer.future;
+      final page = (id / PAGE_SIZE).floor();
+      await _getMessageFromDb(
+        page,
+        roomUid,
+        id,
+        lastMessageId: lastMessageId,
+      );
+
+      if (_cachingRepo.getMessage(roomUid, id) != null) {
+        return _cachingRepo.getMessage(roomUid, id);
+      }
+
+      await _getMessagesFromServer(roomUid, page, PAGE_SIZE);
+      return _cachingRepo.getMessage(roomUid, id);
+    }
+    return null;
   }
 
-  Future<void> getMessages(
-    Uid roomId,
+  Future<void> _getMessageFromDb(
     int page,
-    int pageSize,
-    Completer<List<Message?>> completer,
-  ) async {
-    try {
-      final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(
-        FetchMessagesReq()
-          ..roomUid = roomId
-          ..pointer = Int64(page * pageSize)
-          ..type = FetchMessagesReq_Type.FORWARD_FETCH
-          ..limit = pageSize,
-      );
-      final nonRepeatedMessage =
-          _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
-      await _dataStreamServices.handleFetchMessagesActions(
-        roomId,
-        nonRepeatedMessage,
-      );
-      final res = await _dataStreamServices
-          .saveFetchMessages(fetchMessagesRes.messages);
-      completer.complete(res);
-    } catch (e) {
-      _logger.e(e);
-      completer.complete([]);
+    Uid roomUid,
+    int containsId, {
+    int? lastMessageId,
+  }) async {
+    final key = "$roomUid-$page-db";
+    var completer = _completerMap[key];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[key] = completer;
+
+      await _messageDao.getMessagePage(roomUid, page).then((messages) async {
+        _cachingRepo.setMessages(roomUid, messages);
+        completer!.complete(messages);
+      });
+    } else {
+      await completer.future;
+    }
+  }
+
+  Future<void> _getMessagesFromServer(
+    Uid roomUid,
+    int page,
+    int pageSize, {
+    bool retry = true,
+  }) async {
+    final key = "$roomUid-$page";
+    var completer = _completerMap[key];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[key] = completer;
+      try {
+        final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(
+          FetchMessagesReq()
+            ..roomUid = roomUid
+            ..pointer = Int64(page * pageSize)
+            ..type = FetchMessagesReq_Type.FORWARD_FETCH
+            ..limit = pageSize,
+        );
+        final nonRepeatedMessage =
+            _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
+        await _dataStreamServices.handleFetchMessagesActions(
+          roomUid,
+          nonRepeatedMessage,
+        );
+        final messages = await _dataStreamServices
+            .saveFetchMessages(fetchMessagesRes.messages);
+        _cachingRepo.setMessages(
+          roomUid,
+          messages,
+        );
+        completer.complete([]);
+      } catch (e) {
+        _logger.e(e);
+        completer.complete([]);
+        if (retry) {
+          await _getMessagesFromServer(roomUid, page, pageSize, retry: false);
+        }
+      }
+    } else {
+      await completer.future;
     }
   }
 
@@ -1483,8 +1524,19 @@ class MessageRepo {
 
   Future<List<Message>> searchMessage(String str, String roomId) async => [];
 
-  Future<Message?> getMessage(Uid roomUid, int id) =>
-      _messageDao.getMessage(roomUid, id);
+  Future<Message?> getSingleMessageFromDb({
+    required Uid roomUid,
+    required int id,
+    bool useCache = true,
+  }) async {
+    if (useCache) {
+      final msg = _cachingRepo.getMessage(roomUid, id);
+      if (msg != null) {
+        return msg;
+      }
+    }
+    return _messageDao.getMessage(roomUid, id);
+  }
 
   Future<PendingMessage?> getPendingMessage(String packetId) =>
       _pendingMessageDao.getPendingMessage(packetId);
@@ -1598,7 +1650,7 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            await _messageDao.saveMessage(msg);
+            await _messageDao.updateMessage(msg);
             messageEventSubject.add(
               MessageEvent(
                 message.roomUid,
@@ -1670,7 +1722,7 @@ class MessageRepo {
         editableMessage.roomUid,
         editableMessage.id,
       );
-      await _messageDao.saveMessage(
+      await _messageDao.updateMessage(
         editableMessage.copyWith(
           json: (message_pb.Text()..text = text).writeToJson(),
           edited: true,
@@ -1781,7 +1833,7 @@ class MessageRepo {
         json: updatedFile.writeToJson(),
         edited: true,
       );
-      await _messageDao.saveMessage(editableMessage);
+      await _messageDao.updateMessage(editableMessage);
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
