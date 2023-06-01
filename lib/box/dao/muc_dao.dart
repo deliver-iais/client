@@ -30,6 +30,8 @@ abstract class MucDao {
 
   Future<Member?> getMember(String mucUid, String memberUid);
 
+  Stream<Member?> watchMember(String mucUid, String memberUid);
+
   Future<List<Contact?>> getAllBroadcastSmsMembers(String mucUid);
 
   Future<int> getAllBroadcastSmsMembersCount(String mucUid);
@@ -213,5 +215,12 @@ class MucDaoImpl extends MucDao {
   Future<int> getAllBroadcastSmsMembersCount(String mucUid) async {
     final box = await _openSmsBroadcastList(mucUid);
     return box.keys.length;
+  }
+
+  @override
+ Stream<Member?> watchMember(String mucUid, String memberUid) async* {
+    final box = await _openMembers(mucUid);
+    yield box.get(memberUid);
+    yield* box.watch(key: memberUid).map((event) =>  box.get(memberUid));
   }
 }

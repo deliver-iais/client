@@ -71,7 +71,7 @@ class _SmsBroadcastListState extends State<SmsBroadcastList>
                         _routingService.openMemberSelection(
                           categories: MucCategories.BROADCAST,
                           useSmsBroadcastList: true,
-                          resetSelectedMemberOnDispose: false,
+                          openMucInfoDeterminationPage: false,
                         );
                       },
                       useSmsBroadcastList: true,

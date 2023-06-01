@@ -231,7 +231,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   bool _hasPermissionToReply() =>
-      !widget.roomId.isBroadcast() && !widget.selectMultiMessageSubject.value;
+      !widget.roomId.isBroadcast() &&
+      (!widget.roomId.isChannel() || widget.hasPermissionInChannel.value) &&
+      !widget.selectMultiMessageSubject.value;
 
   bool _hasPermissionForDoubleClickReply() =>
       isDesktopDevice && _hasPermissionToReply();

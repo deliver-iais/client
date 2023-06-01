@@ -172,9 +172,9 @@ class AutoDirectionTextForm extends StatefulWidget {
 }
 
 class _AutoDirectionTextFormState extends State<AutoDirectionTextForm> {
-  static final direction = BehaviorSubject<TextDirection?>.seeded(null);
-  static final _i18n = GetIt.I.get<I18N>();
-  static final _controller = TextEditingController();
+  final direction = BehaviorSubject<TextDirection?>.seeded(null);
+  final _i18n = GetIt.I.get<I18N>();
+  final _controller = TextEditingController();
 
   @override
   void initState() {
