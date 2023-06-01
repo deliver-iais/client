@@ -23,14 +23,14 @@ class SelectiveContactsList extends StatefulWidget {
   final Uid? mucUid;
   final bool useSmsBroadcastList;
   final MucCategories categories;
-  final bool resetSelectedMemberOnDispose;
+  final bool openMucInfoDeterminationPage;
 
   const SelectiveContactsList({
     super.key,
     required this.categories,
     this.mucUid,
     this.useSmsBroadcastList = false,
-    this.resetSelectedMemberOnDispose = false,
+    this.openMucInfoDeterminationPage = false,
   });
 
   @override
@@ -44,7 +44,6 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final List<Contact> _lastSelectedMembers = [];
 
   late TextEditingController editingController;
 
@@ -57,25 +56,10 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   List<String> members = [];
 
   @override
-  void dispose() {
-    if (widget.resetSelectedMemberOnDispose) {
-      _createMucService.reset();
-    } else {
-      _createMucService.addContactList(
-        _lastSelectedMembers,
-        useBroadcastSmsContacts: widget.useSmsBroadcastList,
-      );
-    }
-    super.dispose();
-  }
-
-  @override
   void initState() {
-    _lastSelectedMembers.addAll(
-      _createMucService.getContacts(
-        useBroadcastSmsContacts: widget.useSmsBroadcastList,
-      ),
-    );
+    if(widget.openMucInfoDeterminationPage){
+      _createMucService.reset();
+    }
     editingController = TextEditingController();
     if (widget.mucUid != null) {
       getMembers();
@@ -160,7 +144,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                             .whereNot((element) => element.uid == null)
                             .where(
                               (element) =>
-                                  !_authRepo.isCurrentUser(element.uid!.asUid()) &&
+                                  !_authRepo
+                                      .isCurrentUser(element.uid!.asUid()) &&
                                   !element.isUsersContact(),
                             )
                             .toList();
@@ -281,9 +266,13 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                               ? Text(_i18n["add"])
                               : Text(_i18n["next"]),
                           onPressed: () {
-                            _routingService.openMucInfoDeterminationPage(
-                              categories: widget.categories,
-                            );
+                            if (widget.openMucInfoDeterminationPage) {
+                              _routingService.openMucInfoDeterminationPage(
+                                categories: widget.categories,
+                              );
+                            } else {
+                              _routingService.pop();
+                            }
                           },
                         ),
                       ),

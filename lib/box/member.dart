@@ -40,4 +40,9 @@ class Member {
         const DeepCollectionEquality().hash(memberUid),
         const DeepCollectionEquality().hash(role),
       );
+
+  @override
+  String toString() {
+    return 'Member{mucUid: $mucUid, memberUid: $memberUid, role: $role}';
+  }
 }

@@ -357,6 +357,14 @@ class MucRepo {
 
   Future<bool> isMucAdminOrOwner(String memberUid, String mucUid) async {
     final member = await _mucDao.getMember(mucUid, memberUid);
+    return checkMucRoleIsMemberAdminOrOwner(member, mucUid);
+  }
+
+
+  Future<bool> checkMucRoleIsMemberAdminOrOwner(
+    Member? member,
+    String mucUid,
+  ) async {
     if (member == null) {
       return false;
     }
@@ -834,4 +842,6 @@ class MucRepo {
         return ChannelType.PUBLIC;
     }
   }
+
+  Stream<Member?> watchMember(String mucUid, String memberUid)=>_mucDao.watchMember(mucUid, memberUid);
 }

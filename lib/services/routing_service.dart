@@ -476,7 +476,7 @@ class RoutingService {
     required MucCategories categories,
     Uid? mucUid,
     bool useSmsBroadcastList = false,
-    bool resetSelectedMemberOnDispose = true,
+    bool openMucInfoDeterminationPage = true,
   }) {
     _analyticsService.sendLogEvent(
       "new $categories open",
@@ -487,7 +487,7 @@ class RoutingService {
         categories: categories,
         mucUid: mucUid,
         useSmsBroadcastList: useSmsBroadcastList,
-        resetSelectedMemberOnDispose: resetSelectedMemberOnDispose,
+        openMucInfoDeterminationPage: openMucInfoDeterminationPage,
       ),
     );
   }
@@ -792,10 +792,15 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => Center(
+  Widget backButtonLeading(
+          {Color? color, VoidCallback? onBackButtonLeadingClick}) =>
+      Center(
         child: BackButtonWidget(
           color: color,
-          onPressed: pop,
+          onPressed: () {
+            onBackButtonLeadingClick?.call();
+            pop();
+          },
         ),
       );
 }
