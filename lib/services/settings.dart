@@ -1,4 +1,3 @@
-
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -45,9 +44,9 @@ class Settings {
     SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
     defaultValue: "",
   );
-  final applicationVersion = StringPersistent(
-    SharedKeys.SHARED_DAO_VERSION.inSharedDaoStorage(),
-    defaultValue: "",
+  final applicationVersion = IntPersistent(
+    SharedKeys.VERSION.inSharedDaoStorage(),
+    defaultValue: 0,
   );
   final dbHashCode = IntPersistent(
     SharedKeys.SHARED_DAO_DB_VERSION.inSharedDaoStorage(),
@@ -212,6 +211,10 @@ class Settings {
   );
   final hostSetByUser = StringPersistent(
     SharedKeys.SHARE_DAO_HOST_SET_BY_USER.inSharedDaoStorage(),
+    defaultValue: "",
+  );
+  final servicesInfo = StringPersistent(
+    SharedKeys.SHARE_DAO_SERVICES_INFO.inSharedDaoStorage(),
     defaultValue: "",
   );
   final onceShowNewVersionInformation = OncePersistent(

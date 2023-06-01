@@ -11,7 +11,6 @@ import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
@@ -94,7 +93,6 @@ class _AllMediaPageState extends State<AllMediaPage>
   final List<int> _showingDeletedIndexList = [];
   final LruCache<int, String> _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
-  static final _cachingRepo = GetIt.I.get<CachingRepo>();
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   StreamSubscription<int>? _getIndexOfMediaStream;
   late List<Animation<double>> animationList;
@@ -566,10 +564,10 @@ class _AllMediaPageState extends State<AllMediaPage>
                           _videoPlayerService.desktopPlayers[
                                   _fileCache.get(_currentIndex.value).hashCode]
                               ?.stop();
-                          final metaIndex=index + 1;
+                          final metaIndex = index + 1;
                           _currentIndex.add(metaIndex);
-                          _videoPlayerService
-                              .desktopPlayers[_fileCache.get(metaIndex).hashCode]
+                          _videoPlayerService.desktopPlayers[
+                                  _fileCache.get(metaIndex).hashCode]
                               ?.play();
                         },
                         controller: _pageController,
@@ -645,20 +643,10 @@ class _AllMediaPageState extends State<AllMediaPage>
 
     final media = await _getMedia(_currentIndex.value);
     if (media != null) {
-      final msg = _cachingRepo.getMessage(widget.roomUid, media.messageId);
-      if (msg != null) {
-        return msg;
-      }
-      final page = (media.messageId / PAGE_SIZE).floor();
-      final messages = await _messageRepo.getPage(
-        page,
-        widget.roomUid,
-        media.messageId,
+      return _messageRepo.getMessage(
+        roomUid: widget.roomUid,
+        id: media.messageId,
       );
-      for (var i = 0; i < messages.length; i = i + 1) {
-        _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
-      }
-      return _cachingRepo.getMessage(widget.roomUid, media.messageId);
     }
     return null;
   }

@@ -244,7 +244,7 @@ class AccountRepo {
     try {
       final applicationVersion = settings.applicationVersion.value;
       final dbHashCode = settings.dbHashCode.value;
-      if (applicationVersion.isEmpty || applicationVersion != VERSION) {
+      if (applicationVersion == 0 || applicationVersion != VERSION) {
         if (dbHashCode != _dbManager.getDbVersionHashcode()) {
           try {
             await _dbManager.migrate(removeOld: true);
@@ -265,7 +265,7 @@ class AccountRepo {
   Future<void> _updateSessionInformationIfNeed() async {
     try {
       final applicationVersion = settings.applicationVersion.value;
-      if (applicationVersion.isEmpty ||
+      if (applicationVersion == 0 ||
           shouldUpdateSessionPlatformInformation(applicationVersion)) {
         await updatePlatformVersion();
       }
@@ -285,10 +285,10 @@ class AccountRepo {
     }
   }
 
-  bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
+  bool shouldUpdateSessionPlatformInformation(int previousVersion) =>
       previousVersion != VERSION;
 
-  bool shouldShowNewFeaturesDialog(String previousVersion) =>
+  bool shouldShowNewFeaturesDialog(int previousVersion) =>
       previousVersion != VERSION;
 
   Future<bool> verifyQrCodeToken(String token) async {

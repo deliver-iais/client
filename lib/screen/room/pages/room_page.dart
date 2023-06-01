@@ -317,7 +317,10 @@ class RoomPageState extends State<RoomPage> {
                             stream: _metaCount.get(widget.roomUid.asString()),
                             builder: (context, metaCount) {
                               return buildLogBox(
-                                  seen, metaCount.data, deletedIndex.data,);
+                                seen,
+                                metaCount.data,
+                                deletedIndex.data,
+                              );
                             },
                           );
                         },
@@ -649,7 +652,10 @@ class RoomPageState extends State<RoomPage> {
       : ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
   SizedBox buildLogBox(
-      AsyncSnapshot<Seen> seen, MetaCount? metaCount, List<int>? deletedIndex,) {
+    AsyncSnapshot<Seen> seen,
+    MetaCount? metaCount,
+    List<int>? deletedIndex,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: DebugC(
@@ -764,7 +770,7 @@ class RoomPageState extends State<RoomPage> {
 
     messageEventSubject
         .distinct()
-        .where((event) => (event != null && event.roomUid == widget.roomUid))
+        .where((event) => (event != null && event.roomUid.isSameEntity(widget.roomUid.asString())))
         .listen((value) async {
       final Message? msg;
       if (value?.action == MessageEventAction.PENDING_EDIT) {
@@ -892,21 +898,12 @@ class RoomPageState extends State<RoomPage> {
     if (id <= 0) {
       return null;
     }
-    final msg = _cachingRepo.getMessage(widget.roomUid, id);
-    if (msg != null && useCache) {
-      return msg;
-    }
-    final page = (id / PAGE_SIZE).floor();
-    final messages = await _messageRepo.getPage(
-      page,
-      widget.roomUid,
-      id,
+    return _messageRepo.getMessage(
+      roomUid: widget.roomUid,
+      id: id,
       lastMessageId: room.lastMessageId,
+      useCache: useCache,
     );
-    for (var i = 0; i < messages.length; i = i + 1) {
-      _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
-    }
-    return _cachingRepo.getMessage(widget.roomUid, id);
   }
 
   void _resetRoomPageDetails() {

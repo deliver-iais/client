@@ -12,23 +12,19 @@ import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
-import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver/shared/widgets/ws.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +65,6 @@ class NavigationCenterState extends State<NavigationCenter>
 
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
   final TextEditingController _searchBoxController = TextEditingController();
@@ -222,8 +217,8 @@ class NavigationCenterState extends State<NavigationCenter>
                   ),
                 ),
               ),
-              _newVersionInfo(),
-              _outOfDateWidget()
+              NewVersion.newVersionInfo(),
+              NewVersion.aborted(context),
             ],
           ),
         ),
@@ -240,122 +235,6 @@ class NavigationCenterState extends State<NavigationCenter>
       return false;
     }
     return true;
-  }
-
-  Widget _outOfDateWidget() {
-    return StreamBuilder<bool>(
-      stream: _authRepo.isOutOfDate,
-      builder: (c, snapshot) {
-        if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
-          showOutOfDateDialog(context);
-          return const SizedBox.shrink();
-        }
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  Widget _newVersionInfo() {
-    return StreamBuilder<NewerVersionInformation?>(
-      stream: _authRepo.newVersionInformation,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          settings.onceShowNewVersionInformation.once(
-            () async {
-              await Future.delayed(Duration.zero);
-              if (context.mounted) {
-                showFloatingModalBottomSheet(
-                  context: context,
-                  enableDrag: false,
-                  isDismissible: false,
-                  builder: (c) {
-                    return Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        bottom: p8,
-                        end: p24,
-                        start: p24,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Ws.asset(
-                            "assets/animations/new_version.ws",
-                            height: 230,
-                            width: 300,
-                          ),
-                          Text(
-                            "${_i18n.get("update")} $APPLICATION_NAME",
-                            style: const TextStyle(fontSize: 25),
-                          ),
-                          Text(
-                            "${_i18n.get(
-                              "version",
-                            )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            snapshot.data!.description,
-                            maxLines: 5,
-                            style: const TextStyle(fontSize: 19),
-                          ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: [
-                              for (var downloadLink
-                                  in snapshot.data!.downloadLinks)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    padding:
-                                        const EdgeInsetsDirectional.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                  onPressed: () =>
-                                      _urlHandlerService.handleNormalLink(
-                                    downloadLink.url,
-                                  ),
-                                  child: Text(
-                                    downloadLink.label,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  padding:
-                                      const EdgeInsetsDirectional.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                child: Text(
-                                  _i18n.get("remind_me_later"),
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                onPressed: () => Navigator.pop(c),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ).ignore();
-              }
-            },
-          );
-        }
-
-        return const SizedBox.shrink();
-      },
-    );
   }
 
   // Widget buildMenu(BuildContext context) {

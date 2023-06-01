@@ -2,16 +2,19 @@ import 'dart:math';
 
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-const APP_NAME = "";
+const APPLICATION = Applications.we;
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
+const ABORTED_ADDRESS = "wemessenger.ir";
+const LB_ADDRESS = "lb.wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
 const SEND_TEXT_URL = "text";
@@ -22,8 +25,8 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "2.0.5";
-const BUILD_NUMBER = "1683015615552";
+const VERSION = 1;
+const REVISION = 0;
 // const INSTALL_FROM = "سایت";
 
 //messageRepo
@@ -161,13 +164,13 @@ enum SharedKeys {
   SHARED_DAO_NOTIFICATION_FOREGROUND,
   SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
   SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED,
-  SHARED_DAO_VERSION,
   SHARED_DAO_DB_VERSION,
   SHARED_DAO_IS_SHOWCASE_ENABLE,
   SHARED_DAO_SCROLL_POSITION,
   SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
   SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED,
   SHARE_DAO_HOST_SET_BY_USER,
+  SHARE_DAO_SERVICES_INFO,
   SHARED_DAO_FIREBASE_TOKEN,
   SHARED_DAO_SHOW_EVENTS,
   POWER_SAVE_BATTERY_LEVEL,
@@ -185,6 +188,7 @@ enum SharedKeys {
   SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
   SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE_IN_MEMORY,
   SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS,
+  SHARED_DAO_KEY_LAST_ROOM_METADATA_UPDATE_TIME,
   ONCE_SHOW_NEW_VERSION_INFORMATION,
   ONCE_SHOW_CONTACT_DIALOG,
   ONCE_SHOW_MICROPHONE_DIALOG,
@@ -210,7 +214,7 @@ enum SharedKeys {
   NAVIGATION_PANEL_SIZE,
   SHOW_WS_WITH_HIGH_FRAME_RATE,
   HAS_PROFILE,
-  SHARED_DAO_KEY_LAST_ROOM_METADATA_UPDATE_TIME
+  VERSION,
 }
 
 // Notification Constants

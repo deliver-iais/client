@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -38,11 +40,28 @@ class MessageDaoImpl extends MessageDao {
   }
 
   @override
-  Future<void> saveMessage(Message message) async {
+  Future<void> insertMessage(Message message) async {
     final box = await _openMessageIsar();
     box.writeTxnSync(() => box.messageIsars.putSync(message.toIsar()));
-
   }
 
   Future<Isar> _openMessageIsar() => IsarManager.open();
+
+  @override
+  Future<void> updateMessage(Message message) async {
+    final box = await _openMessageIsar();
+    final msg = await (box.messageIsars
+        .filter()
+        .idEqualTo(message.id)
+        .and()
+        .roomUidEqualTo(message.roomUid.asString())
+        .findFirst());
+
+    await box.writeTxn(() async {
+      if (msg != null) {
+        await box.messageIsars.delete(msg.dbId);
+      }
+      unawaited(box.messageIsars.put(message.toIsar()));
+    });
+  }
 }

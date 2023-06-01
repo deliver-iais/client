@@ -11,22 +11,27 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart' as bot;
 import 'package:deliver_public_protocol/pub/v1/broadcast.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/lb.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_connection_interface.dart';
 
 class ServicesDiscoveryRepo {
+  String GWP = "https://gwp-";
+  String _fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
+
   CoreServiceClient? _coreServiceClient;
-  BotServiceClient? _botServiceClient;
+  bot.BotServiceClient? _botServiceClient;
   SessionServiceClient? _sessionServiceClient;
   QueryServiceClient? _queryServiceClient;
   ContactServiceClient? _contactServiceClient;
@@ -39,8 +44,6 @@ class ServicesDiscoveryRepo {
   LiveLocationServiceClient? _liveLocationServiceClient;
   UserServiceClient? _userServiceClient;
   AuthServiceClient? _authServiceClient;
-
-  final fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
   ChannelCredentials get channelCredentials => ChannelCredentials.secure(
         onBadCertificate: (c, d) => settings.useBadCertificateConnection.value,
@@ -55,94 +58,133 @@ class ServicesDiscoveryRepo {
     return ip;
   }
 
-  void initClientChannels() {
+  void initClientChannels({GetInfoRes? getInfoRes}) {
+    if (getInfoRes != null &&
+        getInfoRes.msFile.bareAddresses.firstOrNull != null) {
+      _fileServiceBaseUrl = "https://${getInfoRes.msFile.bareAddresses.first}";
+    }
     final grpcClientInterceptors = [
       GetIt.I.get<DeliverClientInterceptor>(),
       GetIt.I.get<AnalyticsClientInterceptor>()
     ];
     _initQueryClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.query,
     );
     _initBotClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msBot,
     );
     _initStickerClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msSticker,
     );
     _initGroupClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.query,
     );
     _initBroadcastClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.query,
     );
     _initChannelClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.query,
     );
     _initCoreClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.core,
     );
     _initUserServiceClintChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msProfile,
     );
     _initContactServiceClintChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msProfile,
     );
-    _initAuthServiceClintChannelServices();
+    _initAuthServiceClintChannelServices(
+      serviceConfig: getInfoRes?.msProfile,
+    );
     _initSessionServiceClintChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msProfile,
     );
     _initAvatarChannelClientServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msAvatar,
     );
     _initFirebaseClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msFirebase,
     );
     _initLiverLocationClientServices(
       grpcClientInterceptors: grpcClientInterceptors,
+      serviceConfig: getInfoRes?.msLivelocation,
     );
   }
 
   QueryServiceClient _initQueryClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final queryClientChannel = ClientChannel(
-      ipOrAddress("query.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    ClientChannelBase clientChannel;
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    if (isWeb) {
+      address = '$GWP${address ?? "query.$APPLICATION_DOMAIN"}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(
+          address ?? "query.$APPLICATION_DOMAIN",
+        ),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
-    final webQueryClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
-    );
     _queryServiceClient = QueryServiceClient(
-      isWeb ? webQueryClientChannel : queryClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("query"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("query"),
+      ),
     );
 
     return _queryServiceClient!;
   }
 
-  BotServiceClient _initBotClientChannelServices({
+  bot.BotServiceClient _initBotClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final botClientChannel = ClientChannel(
-      ipOrAddress("ms-bot.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-    final webBotClientChannel = GrpcWebClientChannel.xhr(
-      Uri(scheme: "https", host: "gwp-ms-bot.$APPLICATION_DOMAIN"),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? "ms-bot.$APPLICATION_DOMAIN"}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-bot.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
-    _botServiceClient = BotServiceClient(
-      isWeb ? webBotClientChannel : botClientChannel,
+    _botServiceClient = bot.BotServiceClient(
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-bot"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-bot"),
+      ),
     );
 
     return _botServiceClient!;
@@ -150,24 +192,33 @@ class ServicesDiscoveryRepo {
 
   StickerServiceClient _initStickerClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final stickerClientChannel = ClientChannel(
-      ipOrAddress("ms-sticker.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        userAgent: "ms-sticker",
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webStickerClientChannel = GrpcWebClientChannel.xhr(
-      Uri(scheme: "https", host: "gwp-ms-sticker-co.ir"),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? "ms-sticker.$APPLICATION_DOMAIN"}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-sticker.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          userAgent: "ms-sticker",
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _stickerServiceClient = StickerServiceClient(
-      isWeb ? webStickerClientChannel : stickerClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-sticker"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-sticker"),
+      ),
     );
 
     return _stickerServiceClient!;
@@ -175,23 +226,32 @@ class ServicesDiscoveryRepo {
 
   GroupServiceClient _initGroupClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final mucServicesClientChannel = ClientChannel(
-      ipOrAddress("query.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'query.$APPLICATION_DOMAIN'}';
 
-    final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
-    );
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "query.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _groupServiceClient = GroupServiceClient(
-      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("query"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("query"),
+      ),
     );
 
     return _groupServiceClient!;
@@ -199,23 +259,31 @@ class ServicesDiscoveryRepo {
 
   BroadcastServiceClient _initBroadcastClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final mucServicesClientChannel = ClientChannel(
-      ipOrAddress("query.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-
-    final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'query.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "query.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _broadcastServiceClient = BroadcastServiceClient(
-      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("query"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("query"),
+      ),
     );
 
     return _broadcastServiceClient!;
@@ -223,23 +291,31 @@ class ServicesDiscoveryRepo {
 
   ChannelServiceClient _initChannelClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final mucServicesClientChannel = ClientChannel(
-      ipOrAddress("query.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-
-    final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'query.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "query.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _channelServiceClient = ChannelServiceClient(
-      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("query"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("query"),
+      ),
     );
 
     return _channelServiceClient!;
@@ -247,23 +323,31 @@ class ServicesDiscoveryRepo {
 
   CoreServiceClient _initCoreClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final coreServicesClientChannel = ClientChannel(
-      ipOrAddress("core.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-
-    final webCoreServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse("https://gwp-core.$APPLICATION_DOMAIN"),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'core.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "core.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _coreServiceClient = CoreServiceClient(
-      isWeb ? webCoreServicesClientChannel : coreServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("core"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("core"),
+      ),
     );
 
     return _coreServiceClient!;
@@ -271,23 +355,32 @@ class ServicesDiscoveryRepo {
 
   UserServiceClient _initUserServiceClintChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final profileServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-profile.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-profile.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-profile.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _userServiceClient = UserServiceClient(
-      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-profile"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-profile"),
+      ),
     );
 
     return _userServiceClient!;
@@ -295,44 +388,63 @@ class ServicesDiscoveryRepo {
 
   ContactServiceClient _initContactServiceClintChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final profileServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-profile.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-profile.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-profile.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _contactServiceClient = ContactServiceClient(
-      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-profile"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-profile"),
+      ),
     );
 
     return _contactServiceClient!;
   }
 
-  AuthServiceClient _initAuthServiceClintChannelServices() {
-    final profileServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-profile.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+  AuthServiceClient _initAuthServiceClintChannelServices({
+    ServiceConfig? serviceConfig,
+  }) {
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-profile.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-profile.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _authServiceClient = AuthServiceClient(
-      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
-      options: _getCallOption("ms-profile"),
+      clientChannel,
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-profile"),
+      ),
     );
 
     return _authServiceClient!;
@@ -340,23 +452,31 @@ class ServicesDiscoveryRepo {
 
   SessionServiceClient _initSessionServiceClintChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final profileServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-profile.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-
-    final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-profile.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-profile.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _sessionServiceClient = SessionServiceClient(
-      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-profile"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-profile"),
+      ),
     );
 
     return _sessionServiceClient!;
@@ -364,23 +484,32 @@ class ServicesDiscoveryRepo {
 
   AvatarServiceClient _initAvatarChannelClientServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final avatarServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-avatar.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri.parse("https://gwp-ms-avatar.$APPLICATION_DOMAIN"),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-avatar.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-avatar.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _avatarServiceClient = AvatarServiceClient(
-      isWeb ? webAvatarServicesClientChannel : avatarServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-avatar"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-avatar"),
+      ),
     );
 
     return _avatarServiceClient!;
@@ -388,23 +517,32 @@ class ServicesDiscoveryRepo {
 
   FirebaseServiceClient _initFirebaseClientChannelServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final firebaseServicesClientChannel = ClientChannel(
-      ipOrAddress("ms-firebase.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
 
-    final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
-      Uri(scheme: "https", host: "gwp-ms-firebase.$APPLICATION_DOMAIN"),
-    );
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-firebase.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-firebase.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _firebaseServiceClient = FirebaseServiceClient(
-      isWeb ? webFirebaseServicesClientChannel : firebaseServicesClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-firebase"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-firebase"),
+      ),
     );
 
     return _firebaseServiceClient!;
@@ -412,35 +550,43 @@ class ServicesDiscoveryRepo {
 
   LiveLocationServiceClient _initLiverLocationClientServices({
     List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
   }) {
-    final liveLocationServiceClientChannel = ClientChannel(
-      ipOrAddress("ms-livelocation.$APPLICATION_DOMAIN"),
-      options: ChannelOptions(
-        credentials: channelCredentials,
-        connectionTimeout: const Duration(seconds: 2),
-      ),
-    );
-
-    final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
-      Uri(scheme: "https", host: "gwp-ms-livelocation.$APPLICATION_DOMAIN"),
-    );
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? 'ms-livelocation.$APPLICATION_DOMAIN'}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-livelocation.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     _liveLocationServiceClient = LiveLocationServiceClient(
-      isWeb ? webLiveLocationClientChannel : liveLocationServiceClientChannel,
+      clientChannel,
       interceptors: grpcClientInterceptors,
-      options: _getCallOption("ms-livelocation"),
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-livelocation"),
+      ),
     );
 
     return _liveLocationServiceClient!;
   }
 
-  CallOptions _getCallOption(String address) =>
-      CallOptions(metadata: {"service": address});
+  CallOptions _getCallOption(Map<String, String> headers) =>
+      CallOptions(metadata: headers);
 
   CoreServiceClient get coreServiceClient =>
       _coreServiceClient ?? _initCoreClientChannelServices();
 
-  BotServiceClient get botServiceClient =>
+  bot.BotServiceClient get botServiceClient =>
       _botServiceClient ?? _initBotClientChannelServices();
 
   SessionServiceClient get sessionServiceClient =>
@@ -478,4 +624,22 @@ class ServicesDiscoveryRepo {
 
   BroadcastServiceClient get broadcastServiceClient =>
       _broadcastServiceClient ?? _initBroadcastClientChannelServices();
+
+  String get fileServiceBaseUrl => _fileServiceBaseUrl;
+
+  LBClient get lbcClient => LBClient(
+        isWeb
+            ? GrpcWebClientChannel.xhr(
+                Uri.parse('https://gwp-$LB_ADDRESS'),
+              )
+            : ClientChannel(
+                ipOrAddress(LB_ADDRESS),
+                options: ChannelOptions(
+                  credentials: channelCredentials,
+                  connectionTimeout: const Duration(seconds: 4),
+                ),
+              ),
+      );
+
+  Map<String, String> _getDefaultHeader(String value) => {"service": value};
 }
