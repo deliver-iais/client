@@ -30,6 +30,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   final BehaviorSubject<bool> _useCustomIp = BehaviorSubject.seeded(false);
   final _routingServices = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
+  final _webUrlTextController = TextEditingController();
 
   @override
   void initState() {
@@ -201,6 +202,40 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                 }
                 return const SizedBox.shrink();
               },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("آدرس وب کیت"),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: TextFormField(
+                minLines: 1,
+                controller: _webUrlTextController,
+                textInputAction: TextInputAction.send,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 45,
+                    vertical: 15,
+                  ),
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
+                onPressed: () {
+                  settings.webViewUrl.set(_webUrlTextController.text);
+                  if (widget.rootFromLoginPage) {
+                    Navigator.pop(context);
+                  } else {
+                    _routingServices.pop();
+                  }
+                },
+                child: Text(_i18n.get("save")),
+              ),
             )
           ],
         ),

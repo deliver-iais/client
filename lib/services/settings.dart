@@ -236,6 +236,10 @@ class Settings {
     SharedKeys.SHARE_DAO_HOST_SET_BY_USER.inSharedDaoStorage(),
     defaultValue: "",
   );
+  final webViewUrl = StringPersistent(
+    SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
+    defaultValue: "https://bamak.ecokowsar.net",
+  );
   final onceShowNewVersionInformation = OncePersistent(
     SharedKeys.ONCE_SHOW_NEW_VERSION_INFORMATION.inSharedDaoStorage(),
     count: 50,

@@ -5,9 +5,10 @@ import 'package:deliver/screen/webview/webview_page.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -49,23 +50,24 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       bottomNavigationBar: NavigationBar(
         destinations: [
           NavigationDestination(
-            icon: const Icon(CupertinoIcons.chat_bubble_fill),
+            icon: const Icon(MdiIcons.chatOutline),
             label: _i18n.get(
               "chats",
             ),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
+            icon: const Icon(MdiIcons.homeOutline),
             label: _i18n.get(
               "home",
             ),
           ),
-          NavigationDestination(
-            icon: const Icon(CupertinoIcons.shopping_cart),
-            label: _i18n.get(
-              "bamak",
+          if (isMobileNative|| isWeb)
+            NavigationDestination(
+              icon: const Icon(MdiIcons.shoppingOutline),
+              label: _i18n.get(
+                "bamak",
+              ),
             ),
-          ),
         ],
         selectedIndex: _currentPageIndex,
         animationDuration: AnimationSettings.actualStandard,
