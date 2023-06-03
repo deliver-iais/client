@@ -51,6 +51,10 @@ extension JsonMapper on String {
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
 
+  CallEventV2 toCallEventV2() => CallEventV2.fromJson(this);
+
+  CallLog toCallLog() => CallLog.fromJson(this);
+
   CallInfo toCallInfo() => CallInfo.fromJson(this);
 
   MessageMarkup toMessageMarkup() => MessageMarkup.fromJson(this);
@@ -63,6 +67,4 @@ extension JsonMapper on String {
   }
 
   Link toLink() => Link.fromJson(this);
-
-  CallLog toCallLog() => CallLog.fromJson(this);
 }

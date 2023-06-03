@@ -12,6 +12,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -112,7 +113,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         ),
                                         child: InteractiveViewer(
                                           // Set it to false to prevent panning.
-                                          minScale: 0.5,
+                                          minScale: 0.1,
                                           maxScale: 4,
                                           child: RTCVideoView(
                                             _callService.getRemoteRenderer,
@@ -140,46 +141,86 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                           borderRadius: mainBorder,
                                           boxShadow: DEFAULT_BOX_SHADOWS,
                                         ),
-                                        child: StreamBuilder<bool>(
-                                          initialData: false,
-                                          stream: _callService.isCallStart,
-                                          builder: (context, snapshot2) {
-                                            Widget renderer;
-                                            if (snapshot2.hasData &&
-                                                snapshot2.data!) {
-                                              renderer = RTCVideoView(
-                                                _callService.getRemoteRenderer,
-                                                mirror: !_callRepo
-                                                    .incomingVideoSwitch.value,
-                                                objectFit: RTCVideoViewObjectFit
-                                                    .RTCVideoViewObjectFitCover,
-                                              );
-                                            } else {
-                                              renderer =
-                                                  const SizedBox.shrink();
-                                            }
-                                            return PageTransitionSwitcher(
-                                              duration:
-                                                  AnimationSettings.standard,
-                                              transitionBuilder: (
-                                                child,
-                                                animation,
-                                                secondaryAnimation,
-                                              ) {
-                                                return SharedAxisTransition(
-                                                  fillColor: Colors.transparent,
-                                                  animation: animation,
-                                                  secondaryAnimation:
-                                                      secondaryAnimation,
-                                                  transitionType:
-                                                      SharedAxisTransitionType
-                                                          .vertical,
-                                                  child: child,
+                                        child: Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            StreamBuilder<bool>(
+                                              initialData: false,
+                                              stream: _callService.isCallStart,
+                                              builder: (context, snapshot2) {
+                                                Widget renderer;
+                                                if (snapshot2.hasData &&
+                                                    snapshot2.data!) {
+                                                  renderer = RTCVideoView(
+                                                    _callService
+                                                        .getRemoteRenderer,
+                                                    mirror: !_callRepo
+                                                        .incomingVideoSwitch
+                                                        .value,
+                                                    objectFit: RTCVideoViewObjectFit
+                                                        .RTCVideoViewObjectFitCover,
+                                                  );
+                                                } else {
+                                                  renderer =
+                                                      const SizedBox.shrink();
+                                                }
+                                                return PageTransitionSwitcher(
+                                                  duration: AnimationSettings
+                                                      .standard,
+                                                  transitionBuilder: (
+                                                    child,
+                                                    animation,
+                                                    secondaryAnimation,
+                                                  ) {
+                                                    return SharedAxisTransition(
+                                                      fillColor:
+                                                          Colors.transparent,
+                                                      animation: animation,
+                                                      secondaryAnimation:
+                                                          secondaryAnimation,
+                                                      transitionType:
+                                                          SharedAxisTransitionType
+                                                              .vertical,
+                                                      child: child,
+                                                    );
+                                                  },
+                                                  child: renderer,
                                                 );
                                               },
-                                              child: renderer,
-                                            );
-                                          },
+                                            ),
+                                            StreamBuilder<bool>(
+                                              stream: MergeStream([
+                                                _callRepo.incomingAudioMuted,
+                                                _callRepo.isConnectedSubject,
+                                              ]),
+                                              builder: (context, snapshot) {
+                                                if (_callRepo.incomingAudioMuted
+                                                        .value &&
+                                                    _callRepo.isConnectedSubject
+                                                        .value) {
+                                                  return const Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .all(p24),
+                                                    child: Opacity(
+                                                      opacity: 0.5,
+                                                      child: CircleAvatar(
+                                                        radius: 20,
+                                                        child: Icon(
+                                                          CupertinoIcons
+                                                              .mic_off,
+                                                          size: 25,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return const SizedBox
+                                                      .shrink();
+                                                }
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     )
@@ -248,7 +289,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                                 snapshot2.data!) {
                                               renderer = InteractiveViewer(
                                                 // Set it to false to prevent panning.
-                                                minScale: 0.5,
+                                                minScale: 0.1,
                                                 maxScale: 4,
                                                 child: RTCVideoView(
                                                   _callService.getLocalRenderer,
@@ -336,63 +377,119 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     SizedBox(
                                       width: x,
                                       height: y,
-                                      child: StreamBuilder<bool>(
-                                        initialData: false,
-                                        stream: _callService.isCallStart,
-                                        builder: (context, snapshot2) {
-                                          Widget renderer;
-                                          if (snapshot2.hasData &&
-                                              snapshot2.data!) {
-                                            renderer = InteractiveViewer(
-                                              // Set it to false to prevent panning.
-                                              minScale: 0.5,
-                                              maxScale: 4,
-                                              child: RTCVideoView(
-                                                snapshot.data!
-                                                    ? _callService
-                                                        .getLocalRenderer
-                                                    : _callService
-                                                        .getRemoteRenderer,
-                                                objectFit: RTCVideoViewObjectFit
-                                                    .RTCVideoViewObjectFitCover,
-                                                mirror: !(_callRepo
-                                                            .switching.value ||
-                                                        _callRepo
-                                                            .incomingSharing
-                                                            .value ||
-                                                        _callRepo
-                                                            .sharing.value) ||
-                                                    _callRepo.videoing.value ||
-                                                    _callRepo
-                                                        .incomingVideo.value,
-                                              ),
-                                            );
-                                          } else {
-                                            renderer = const SizedBox.shrink();
-                                          }
+                                      child: Stack(
+                                        alignment: Alignment.topRight,
+                                        children: [
+                                          StreamBuilder<bool>(
+                                            initialData: false,
+                                            stream: _callService.isCallStart,
+                                            builder: (context, snapshot2) {
+                                              Widget renderer;
+                                              if (snapshot2.hasData &&
+                                                  snapshot2.data!) {
+                                                renderer = InteractiveViewer(
+                                                  // Set it to false to prevent panning.
+                                                  minScale: 0.1,
+                                                  maxScale: 4,
+                                                  child: StreamBuilder<bool>(
+                                                    stream: MergeStream([
+                                                      _callRepo.switching,
+                                                      _callRepo
+                                                          .incomingVideoSwitch,
+                                                    ]),
+                                                    builder:
+                                                        (context, snapshot3) {
+                                                      return RTCVideoView(
+                                                        snapshot.data!
+                                                            ? _callService
+                                                                .getLocalRenderer
+                                                            : _callService
+                                                                .getRemoteRenderer,
+                                                        objectFit:
+                                                            RTCVideoViewObjectFit
+                                                                .RTCVideoViewObjectFitCover,
+                                                        mirror: (switching.value &&
+                                                                _callRepo
+                                                                    .videoing
+                                                                    .value &&
+                                                                !_callRepo
+                                                                    .switching
+                                                                    .value) ||
+                                                            (!switching.value &&
+                                                                _callRepo
+                                                                    .incomingVideo
+                                                                    .value &&
+                                                                !_callRepo
+                                                                    .incomingVideoSwitch
+                                                                    .value),
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              } else {
+                                                renderer =
+                                                    const SizedBox.shrink();
+                                              }
 
-                                          return PageTransitionSwitcher(
-                                            duration:
-                                                AnimationSettings.standard,
-                                            transitionBuilder: (
-                                              child,
-                                              animation,
-                                              secondaryAnimation,
-                                            ) {
-                                              return SharedAxisTransition(
-                                                fillColor: Colors.transparent,
-                                                animation: animation,
-                                                secondaryAnimation:
-                                                    secondaryAnimation,
-                                                transitionType:
-                                                    SharedAxisTransitionType
-                                                        .vertical,
-                                                child: child,
+                                              return PageTransitionSwitcher(
+                                                duration:
+                                                    AnimationSettings.standard,
+                                                transitionBuilder: (
+                                                  child,
+                                                  animation,
+                                                  secondaryAnimation,
+                                                ) {
+                                                  return SharedAxisTransition(
+                                                    fillColor:
+                                                        Colors.transparent,
+                                                    animation: animation,
+                                                    secondaryAnimation:
+                                                        secondaryAnimation,
+                                                    transitionType:
+                                                        SharedAxisTransitionType
+                                                            .vertical,
+                                                    child: child,
+                                                  );
+                                                },
+                                                child: renderer,
                                               );
                                             },
-                                            child: renderer,
-                                          );
-                                        },
+                                          ),
+                                          if (_callRepo.incomingVideo.value &&
+                                              !snapshot.data!)
+                                            StreamBuilder<bool>(
+                                              stream: MergeStream([
+                                                _callRepo.incomingAudioMuted,
+                                                _callRepo.isConnectedSubject,
+                                              ]),
+                                              builder: (context, snapshot) {
+                                                if (_callRepo.incomingAudioMuted
+                                                        .value &&
+                                                    _callRepo.isConnectedSubject
+                                                        .value) {
+                                                  return const Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .all(p24),
+                                                    child: Opacity(
+                                                      opacity: 0.5,
+                                                      child: CircleAvatar(
+                                                        radius: 20,
+                                                        child: Icon(
+                                                          CupertinoIcons
+                                                              .mic_off,
+                                                          size: 25,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return const SizedBox
+                                                      .shrink();
+                                                }
+                                              },
+                                            ),
+                                        ],
                                       ),
                                     )
                                   else
@@ -411,28 +508,37 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         roomUid: widget.roomUid,
                                       ),
                                     ),
-                                  if ((!snapshot.data! &&
-                                          _callRepo.videoing.value) ||
-                                      (!snapshot.data! &&
-                                          _callRepo.sharing.value) ||
-                                      (!snapshot.data! &&
-                                          _callRepo.incomingSharing.value) ||
-                                      (snapshot.data! &&
-                                          _callRepo.incomingVideo.value))
-                                    userVideoWidget(
-                                      x,
-                                      y,
-                                      width,
-                                      height,
-                                      isMirror: ((_callRepo.videoing.value) ||
-                                              _callRepo.incomingVideo.value) &&
-                                          !((_callRepo.incomingSharing.value ||
-                                                  _callRepo.sharing.value) &&
-                                              snapshot.data!),
-                                      inComingVideo:
-                                          _callRepo.incomingVideo.value ||
+                                  if ((!switching.value &&
+                                          (_callRepo.videoing.value ||
+                                              _callRepo.sharing.value)) ||
+                                      (switching.value &&
+                                          (_callRepo.incomingSharing.value ||
+                                              _callRepo.incomingVideo.value)))
+                                    StreamBuilder(
+                                      stream: MergeStream([
+                                        _callRepo.switching,
+                                        _callRepo.incomingVideoSwitch,
+                                      ]),
+                                      builder: (context, snapshot3) {
+                                        return userVideoWidget(
+                                          x,
+                                          y,
+                                          width,
+                                          height,
+                                          isMirror: (!switching.value &&
+                                                  _callRepo.videoing.value &&
+                                                  !_callRepo.switching.value) ||
+                                              (switching.value &&
+                                                  _callRepo
+                                                      .incomingVideo.value &&
+                                                  !_callRepo.incomingVideoSwitch
+                                                      .value),
+                                          inComingVideo: _callRepo
+                                                  .incomingVideo.value ||
                                               _callRepo.incomingSharing.value,
-                                    )
+                                        );
+                                      },
+                                    ),
                                 ],
                               );
                             },
@@ -527,7 +633,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   }) {
     return StreamBuilder<bool>(
       initialData: false,
-      stream: _callRepo.switching,
+      stream: switching,
       builder: (context, snapshot) {
         return Positioned(
           left: position.dx,
@@ -639,71 +745,105 @@ class VideoCallScreenState extends State<VideoCallScreen>
     required bool inComingVideo,
     required bool isMirror,
   }) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ClipRRect(
-        borderRadius: mainBorder,
-        clipBehavior: Clip.hardEdge,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            child: !switching.value
-                ? InteractiveViewer(
-                    // Set it to false to prevent panning.
-                    minScale: 0.5,
-                    maxScale: 4,
-                    child: RTCVideoView(
-                      _callService.getLocalRenderer,
-                      objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      mirror: isMirror,
-                    ),
-                  )
-                : inComingVideo
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        SizedBox(
+          width: width,
+          height: height,
+          child: ClipRRect(
+            borderRadius: mainBorder,
+            clipBehavior: Clip.hardEdge,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                child: !isSwitching
                     ? InteractiveViewer(
                         // Set it to false to prevent panning.
-                        minScale: 0.5,
+                        minScale: 0.1,
                         maxScale: 4,
                         child: RTCVideoView(
-                          _callService.getRemoteRenderer,
+                          isSwitching
+                              ? _callService.getRemoteRenderer
+                              : _callService.getLocalRenderer,
                           objectFit:
                               RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                           mirror: isMirror,
                         ),
                       )
-                    : Container(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.bottomLeft,
-                            end: Alignment.topRight,
-                            colors: [
-                              Colors.teal,
-                              Colors.cyan,
-                              Colors.greenAccent
-                            ],
+                    : inComingVideo
+                        ? InteractiveViewer(
+                            // Set it to false to prevent panning.
+                            minScale: 0.1,
+                            maxScale: 4,
+                            child: RTCVideoView(
+                              _callService.getRemoteRenderer,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                              mirror: isMirror,
+                            ),
+                          )
+                        : Container(
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.bottomLeft,
+                                end: Alignment.topRight,
+                                colors: [
+                                  Colors.teal,
+                                  Colors.cyan,
+                                  Colors.greenAccent
+                                ],
+                              ),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.5),
+                              borderRadius: mainBorder,
+                              boxShadow: DEFAULT_BOX_SHADOWS,
+                            ),
+                            child: CenterAvatarInCall(
+                              radius: 60,
+                              roomUid: widget.roomUid,
+                            ),
                           ),
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.5),
-                          borderRadius: mainBorder,
-                          boxShadow: DEFAULT_BOX_SHADOWS,
-                        ),
-                        child: CenterAvatarInCall(
-                          radius: 60,
-                          roomUid: widget.roomUid,
-                        ),
-                      ),
-            onTap: () {
-              setState(() {
-                switching.add(!switching.value);
-              });
-            },
+                onTap: () {
+                  setState(() {
+                    switching.add(!isSwitching);
+                  });
+                },
+              ),
+            ),
           ),
         ),
-      ),
+        if (inComingVideo && isSwitching)
+          StreamBuilder<bool>(
+            stream: MergeStream([
+              _callRepo.incomingAudioMuted,
+              _callRepo.isConnectedSubject,
+            ]),
+            builder: (context, snapshot) {
+              if (_callRepo.incomingAudioMuted.value &&
+                  _callRepo.isConnectedSubject.value) {
+                return const Padding(
+                  padding: EdgeInsetsDirectional.all(p8),
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: CircleAvatar(
+                      radius: 20,
+                      child: Icon(
+                        CupertinoIcons.mic_off,
+                        size: 25,
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+      ],
     );
   }
 }

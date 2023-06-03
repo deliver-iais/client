@@ -26,7 +26,7 @@ import 'package:rxdart/rxdart.dart';
 
 class EmojiKeyboardWidget extends StatefulWidget {
   final void Function(String) onTap;
-  final void Function(bool) onSearchEmoji;
+  final void Function({required bool hasFocus}) onSearchEmoji;
   final VoidCallback? onSkinToneOverlay;
   final VoidCallback onEmojiDeleted;
   final KeyboardStatus keyboardStatus;
@@ -253,11 +253,10 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
     return AnimatedContainer(
       duration: AnimationSettings.verySlow,
       height: hideHeader ? 0 : 36,
-
       child: SearchBarFooter(
         onEmojiDeleted: widget.onEmojiDeleted,
         onSearchIconTap: () {
-          widget.onSearchEmoji(true);
+          widget.onSearchEmoji(hasFocus: true);
           _scrollController.jumpTo(
             0,
           );
@@ -295,7 +294,7 @@ class EmojiKeyboardWidgetState extends State<EmojiKeyboardWidget>
         height: 50,
         child: Focus(
           onFocusChange: (hasFocus) {
-            widget.onSearchEmoji(hasFocus);
+            widget.onSearchEmoji(hasFocus: hasFocus);
           },
           child: Padding(
             padding: const EdgeInsetsDirectional.only(

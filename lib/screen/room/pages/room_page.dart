@@ -4,11 +4,14 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/meta_count_dao.dart';
+import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/scroll_position_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta.dart';
+import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -37,7 +40,6 @@ import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_start_information_box_widget.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
-import 'package:deliver/screen/room/widgets/broadcast_status_bar.dart';
 import 'package:deliver/screen/room/widgets/channel_bottom_bar.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
@@ -112,7 +114,8 @@ class RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _cachingRepo = GetIt.I.get<CachingRepo>();
-
+  static final _metaDao = GetIt.I.get<MetaDao>();
+  static final _metaCount = GetIt.I.get<MetaCountDao>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _notificationServices = GetIt.I.get<NotificationServices>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -305,7 +308,22 @@ class RoomPageState extends State<RoomPage> {
                       ],
                     ),
                     builder: (context, snapshot) {
-                      return buildLogBox(seen);
+                      return StreamBuilder<List<int>>(
+                        stream: _metaDao
+                            .watchMetaDeletedIndex(widget.roomUid.asString()),
+                        builder: (context, deletedIndex) {
+                          return StreamBuilder<MetaCount?>(
+                            stream: _metaCount.get(widget.roomUid.asString()),
+                            builder: (context, metaCount) {
+                              return buildLogBox(
+                                seen,
+                                metaCount.data,
+                                deletedIndex.data,
+                              );
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 },
@@ -632,7 +650,11 @@ class RoomPageState extends State<RoomPage> {
       ? ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 3)
       : ((APPBAR_HEIGHT / MediaQuery.of(context).size.height) * 2);
 
-  SizedBox buildLogBox(AsyncSnapshot<Seen> seen) {
+  SizedBox buildLogBox(
+    AsyncSnapshot<Seen> seen,
+    MetaCount? metaCount,
+    List<int>? deletedIndex,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: DebugC(
@@ -685,6 +707,14 @@ class RoomPageState extends State<RoomPage> {
           Debug(
             _defaultMessageHeight,
             label: "_defaultMessageHeight",
+          ),
+          Debug(
+            deletedIndex,
+            label: "client media deleted index",
+          ),
+          Debug(
+            metaCount,
+            label: "client meta count",
           ),
         ],
       ),
@@ -739,7 +769,7 @@ class RoomPageState extends State<RoomPage> {
 
     messageEventSubject
         .distinct()
-        .where((event) => (event != null && event.roomUid == widget.roomUid))
+        .where((event) => (event != null && event.roomUid.isSameEntity(widget.roomUid.asString())))
         .listen((value) async {
       final Message? msg;
       if (value?.action == MessageEventAction.PENDING_EDIT) {
@@ -867,21 +897,12 @@ class RoomPageState extends State<RoomPage> {
     if (id <= 0) {
       return null;
     }
-    final msg = _cachingRepo.getMessage(widget.roomUid, id);
-    if (msg != null && useCache) {
-      return msg;
-    }
-    final page = (id / PAGE_SIZE).floor();
-    final messages = await _messageRepo.getPage(
-      page,
-      widget.roomUid,
-      id,
-      room.lastMessageId,
+    return _messageRepo.getMessage(
+      roomUid: widget.roomUid,
+      id: id,
+      lastMessageId: room.lastMessageId,
+      useCache: useCache,
     );
-    for (var i = 0; i < messages.length; i = i + 1) {
-      _cachingRepo.setMessage(widget.roomUid, messages[i]!.id!, messages[i]!);
-    }
-    return _cachingRepo.getMessage(widget.roomUid, id);
   }
 
   void _resetRoomPageDetails() {
@@ -1043,12 +1064,7 @@ class RoomPageState extends State<RoomPage> {
             scrollToMessage: _handleScrollToMsg,
             inputMessage: buildNewMessageInput(),
           )
-        : widget.roomUid.isBroadcast()
-            ? BroadcastStatusBar(
-                roomUid: widget.roomUid,
-                inputMessage: buildNewMessageInput(),
-              )
-            : buildNewMessageInput();
+        : buildNewMessageInput();
   }
 
   Widget scrollDownButtonWidget() {
@@ -1169,10 +1185,10 @@ class RoomPageState extends State<RoomPage> {
       );
 
   void _handleScrollToMsg(
-    int direction,
-    bool ctrlIsPressed,
-    bool hasPermission,
-  ) {
+    int direction, {
+    required bool ctrlIsPressed,
+    required bool hasPermission,
+  }) {
     final lastMessage = room.lastMessage;
     if (lastMessage != null) {
       if (hasPermission &&
@@ -1676,7 +1692,9 @@ class RoomPageState extends State<RoomPage> {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
         : (await _messageRepo.getPendingEditedMessage(
-                    widget.roomUid, index + 1))
+              widget.roomUid,
+              index + 1,
+            ))
                 ?.msg ??
             await _getMessage(index + 1, useCache: useCache);
   }
@@ -1865,7 +1883,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void scrollToMentionMessage({bool isForced = false}) {
-    if(room.mentionsId.isNotEmpty) {
+    if (room.mentionsId.isNotEmpty) {
       _scrollToMessageWithHighlight(room.mentionsId.first);
     }
   }

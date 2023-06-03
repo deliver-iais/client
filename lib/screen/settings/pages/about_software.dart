@@ -166,7 +166,7 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                     SettingsTile(
                       title: _i18n.get("version"),
                       subtitleTextStyle: const TextStyle(),
-                      subtitle: VERSION,
+                      subtitle: VERSION.toString(),
                       leading: const Icon(
                         CupertinoIcons.square_stack_3d_down_right,
                       ),
@@ -186,13 +186,6 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                         }
                       },
                       trailing: const SizedBox.shrink(),
-                    ),
-                    const SettingsTile(
-                      title: "Build Number",
-                      subtitle: BUILD_NUMBER,
-                      subtitleTextStyle: TextStyle(),
-                      leading: Icon(CupertinoIcons.number_square),
-                      trailing: SizedBox.shrink(),
                     ),
                     // const SettingsTile(
                     //   title: "Install From",

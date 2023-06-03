@@ -19,7 +19,7 @@ class ReplyBrief extends StatelessWidget {
       GetIt.I.get<MessageExtractorServices>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  final Uid roomId;
+  final Uid roomUid;
   final int replyToId;
   final double maxWidth;
   final Color backgroundColor;
@@ -28,7 +28,7 @@ class ReplyBrief extends StatelessWidget {
 
   const ReplyBrief({
     super.key,
-    required this.roomId,
+    required this.roomUid,
     required this.replyToId,
     required this.maxWidth,
     required this.backgroundColor,
@@ -47,7 +47,10 @@ class ReplyBrief extends StatelessWidget {
     return SizedBox(
       height: height,
       child: FutureBuilder<Message?>(
-        future: _messageRepo.getMessage(roomId, replyToId),
+        future: _messageRepo.getSingleMessageFromDb(
+          roomUid: roomUid,
+          id: replyToId,
+        ),
         builder: (context, snapshot) {
           final future = extractMessageSimpleRepresentative(snapshot.data);
 

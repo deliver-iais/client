@@ -14,11 +14,9 @@ import 'package:deliver/box/broadcast_message_status_type.dart';
 import 'package:deliver/box/broadcast_status.dart';
 import 'package:deliver/box/broadcast_success_and_failed_count.dart';
 import 'package:deliver/box/call_data_usage.dart';
-import 'package:deliver/box/call_event.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/active_notification_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
@@ -28,7 +26,6 @@ import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/broadcast_dao.dart';
 import 'package:deliver/box/dao/call_data_usage_dao.dart';
 import 'package:deliver/box/dao/contact_dao.dart';
-import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/emoji_skin_tone_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -73,17 +70,23 @@ import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/hive/avatar_hive.dart';
+import 'package:deliver/hive/current_call_info_hive.dart';
 import 'package:deliver/hive/file_info_hive.dart';
 import 'package:deliver/hive/is_verified_hive.dart';
+import 'package:deliver/hive/last_call_status_hive.dart';
 import 'package:deliver/hive/message_hive.dart';
 import 'package:deliver/hive/pending_message_hive.dart';
 import 'package:deliver/hive/room_hive.dart';
 import 'package:deliver/isar/dao/avatar_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/avatar_hive_dao.dart';
+import 'package:deliver/isar/dao/current_call_dao_isar.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/current_call_dao_hive.dart';
 import 'package:deliver/isar/dao/file_info_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/file_info_hive_dao.dart';
 import 'package:deliver/isar/dao/is_verified_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/is_verified_hive_dao.dart';
+import 'package:deliver/isar/dao/last_call_status_dao_isar.dart'
+    if (dart.library.html) 'package:deliver/hive/dao/last_call_status_dao_hive.dart';
 import 'package:deliver/isar/dao/message_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/message_hive_dao.dart';
 import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
@@ -200,9 +203,6 @@ Future<void> setupDI() async {
 
   await GetIt.I.get<AuthRepo>().init();
   logger.i("Auth repo init successfully");
-
-  GetIt.I.get<ServicesDiscoveryRepo>().initClientChannels();
-
   //call Service should be here
   registerSingleton<CallService>(CallService());
   registerSingleton<EventService>(EventService());
@@ -285,7 +285,13 @@ Future<void> dbSetupDI() async {
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<StoragePathService>(StoragePathService());
 
-  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
+  try {
+    await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
+  } catch (e) {
+    if (kDebugMode) {
+      print("hive init error $e");
+    }
+  }
 
   Hive
     ..registerAdapter(AccountAdapter())
@@ -309,11 +315,9 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(MetaTypeAdapter())
     ..registerAdapter(LiveLocationAdapter())
     ..registerAdapter(PendingMessageHiveAdapter())
-    ..registerAdapter(CallEventAdapter())
     ..registerAdapter(CallStatusAdapter())
     ..registerAdapter(CallTypeAdapter())
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
-    ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(MucTypeAdapter())
     ..registerAdapter(AutoDownloadAdapter())
     ..registerAdapter(BoxInfoAdapter())
@@ -327,7 +331,9 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(CallDataUsageAdapter())
     ..registerAdapter(BroadcastStatusAdapter())
     ..registerAdapter(BroadcastMessageStatusTypeAdapter())
-    ..registerAdapter(BroadcastSuccessAndFailedCountAdapter());
+    ..registerAdapter(BroadcastSuccessAndFailedCountAdapter())
+    ..registerAdapter(CurrentCallInfoHiveAdapter())
+    ..registerAdapter(LastCallStatusHiveAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -352,6 +358,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<LastCallStatusDao>(LastCallStatusDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
   registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
@@ -361,6 +368,8 @@ Future<void> dbSetupDI() async {
   registerSingleton<RegisteredBotDao>(RegisteredBotDaoImpl());
   registerSingleton<CallDataUsageDao>(CallDataUsageDaoImpl());
   registerSingleton<BroadcastDao>(BroadcastDaoImpl());
+  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<LastCallStatusDao>(LastCallStatusDaoImpl());
 
   registerSingleton<IsVerifiedDao>(IsVerifiedDaoImpl());
   await Settings.init();

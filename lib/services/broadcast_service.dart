@@ -121,8 +121,10 @@ class BroadcastService {
   ) async {
     _setBroadcastRunningStateAsActive(broadcastRoomId);
     final broadcastId = waitingBroadcastList.first.broadcastMessageId;
-    final message =
-        await _getMessageRepo.getMessage(broadcastRoomId, broadcastId);
+    final message = await _getMessageRepo.getSingleMessageFromDb(
+      roomUid: broadcastRoomId,
+      id: broadcastId,
+    );
     if (message != null) {
       final messageBroadcastWaitingList = waitingBroadcastList
           .where((element) => !element.isSmsBroadcast)
@@ -167,8 +169,10 @@ class BroadcastService {
       broadcastRoomId,
       0,
     );
-    final message =
-        await _getMessageRepo.getMessage(broadcastRoomId, broadcastId);
+    final message = await _getMessageRepo.getSingleMessageFromDb(
+      roomUid: broadcastRoomId,
+      id: broadcastId,
+    );
     await _sendWaitingBroadcastAndCheckForAck(
       waitingBroadcastList,
       message!,

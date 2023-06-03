@@ -4,10 +4,12 @@ import 'package:clock/clock.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -39,6 +41,7 @@ class CoreServices {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _analyticRepo = GetIt.I.get<AnalyticsRepo>();
+  final _callService = GetIt.I.get<CallService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _uptimeStartTime = BehaviorSubject.seeded(0);
@@ -215,11 +218,20 @@ class CoreServices {
                   serverPacket.roomPresenceTypeChanged,
                 );
                 break;
+              //both of this packet Types should be removed
               case ServerPacket_Type.callOffer:
-                _dataStreamServices.handleCallOffer(serverPacket.callOffer);
-                break;
+              // _dataStreamServices.handleCallOffer(serverPacket.callOffer);
+              // break;
               case ServerPacket_Type.callAnswer:
-                _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+                // _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+                break;
+              case ServerPacket_Type.callEvent:
+                final callEvents = CallEvents.callEvent(
+                  serverPacket.callEvent,
+                );
+                _callService
+                  ..addCallEvent(callEvents)
+                  ..shouldRemoveData = false;
                 break;
               case ServerPacket_Type.pong:
                 _lastPongTime = serverPacket.pong.serverTime.toInt();
@@ -228,7 +240,6 @@ class CoreServices {
                 //update last message delivery ack on sharedPref
                 final latMessageDeliveryAck =
                     serverPacket.pong.lastMessageDeliveryAck;
-
                 settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
                 break;
               case ServerPacket_Type.liveLocationStatusChanged:
@@ -238,10 +249,7 @@ class CoreServices {
               case ServerPacket_Type.notSet:
               case ServerPacket_Type.expletivePacket:
                 break;
-              case ServerPacket_Type.callEvent:
-                // TODO(any): Handle this case.
-                break;
-            }
+              }
           } catch (_) {}
           gotResponse(isPong: serverPacket.hasPong());
         },
@@ -365,6 +373,15 @@ class CoreServices {
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id;
     _sendClientPacket(clientPacket);
+  }
+
+  void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
+    if (callEventV2ByClient.id != "") {
+      final clientPacket = ClientPacket()
+        ..callEvent = callEventV2ByClient
+        ..id = callEventV2ByClient.id;
+      _sendClientPacket(clientPacket);
+    }
   }
 
   void sendActivity(ActivityByClient activity, String id) {

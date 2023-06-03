@@ -93,7 +93,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     }
 
     final clone = r.copyWith(
-      lastMessage: lastMessage,
+      lastMessage: nullableMessageToJson(lastMessage),
       lastMessageId: lastMessageId,
       deleted: deleted,
       draft: draft,

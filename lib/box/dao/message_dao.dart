@@ -4,8 +4,9 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 abstract class MessageDao {
-  Future<void> saveMessage(Message message);
+  Future<void> insertMessage(Message message);
 
+  Future<void> updateMessage(Message message);
 
   Future<Message?> getMessage(Uid roomUid, int id);
 

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/isar_manager.dart' if (dart.library.html)  'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
@@ -475,7 +476,7 @@ class RoutingService {
     required MucCategories categories,
     Uid? mucUid,
     bool useSmsBroadcastList = false,
-    bool resetSelectedMemberOnDispose = true,
+    bool openMucInfoDeterminationPage = true,
   }) {
     _analyticsService.sendLogEvent(
       "new $categories open",
@@ -486,7 +487,7 @@ class RoutingService {
         categories: categories,
         mucUid: mucUid,
         useSmsBroadcastList: useSmsBroadcastList,
-        resetSelectedMemberOnDispose: resetSelectedMemberOnDispose,
+        openMucInfoDeterminationPage: openMucInfoDeterminationPage,
       ),
     );
   }
@@ -780,6 +781,7 @@ class RoutingService {
       await GetIt.I.get<AccountRepo>().logOut();
       await authRepo.logout();
       await GetIt.I.get<DBManager>().deleteDB();
+      await IsarManager.deleteIsarDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
@@ -790,10 +792,15 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => Center(
+  Widget backButtonLeading(
+          {Color? color, VoidCallback? onBackButtonLeadingClick}) =>
+      Center(
         child: BackButtonWidget(
           color: color,
-          onPressed: pop,
+          onPressed: () {
+            onBackButtonLeadingClick?.call();
+            pop();
+          },
         ),
       );
 }

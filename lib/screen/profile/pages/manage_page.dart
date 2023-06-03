@@ -19,6 +19,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/link.dart';
+import 'package:deliver/shared/methods/validate.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
@@ -480,7 +481,10 @@ class MucManagePageState extends State<MucManagePage>
                                           textDirection:
                                               _i18n.defaultTextDirection,
                                           minLines: 1,
-                                          validator: validateChannelId,
+                                          validator: (value) =>
+                                              Validate.validateChannelId(value,
+                                                  showChannelIdError:
+                                                      _showChannelIdError,),
                                           onChanged: (str) {
                                             if (str.isNotEmpty &&
                                                 str != muc.data!.id) {
@@ -632,25 +636,6 @@ class MucManagePageState extends State<MucManagePage>
         ],
       ),
     );
-  }
-
-  String? validateChannelId(String? value) {
-    if (value == null) {
-      return null;
-    }
-    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    final regex = RegExp(pattern.toString());
-    if (value.isEmpty) {
-      return _i18n.get("channel_id_not_empty");
-    } else if (value.split(" ").length > 1) {
-      return _i18n.get("channel_id_no_whitespace");
-    } else if (!regex.hasMatch(value)) {
-      return _i18n.get("channel_id_length");
-    } else if (_showChannelIdError) {
-      return _i18n.get("channel_id_is_exist");
-    } else {
-      return null;
-    }
   }
 
   InputDecoration buildInputDecoration(String label) {

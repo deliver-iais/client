@@ -2,16 +2,19 @@ import 'dart:math';
 
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-const APP_NAME = "";
+const APPLICATION = Applications.we;
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
+const ABORTED_ADDRESS = "wemessenger.ir";
+const LB_ADDRESS = "lb.wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
 const SEND_TEXT_URL = "text";
@@ -22,8 +25,8 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "2.0.5";
-const BUILD_NUMBER = "1683015615552";
+const VERSION = 1;
+const REVISION = 0;
 // const INSTALL_FROM = "سایت";
 
 //messageRepo
@@ -106,6 +109,7 @@ const STATUS_CAMERA_CLOSE = "camera-close";
 const STATUS_MIC_OPEN = "mic-open";
 const STATUS_MIC_CLOSE = "mic-close";
 const STATUS_CALL_ON_HOLD = "call-on-hold";
+const STATUS_SPEAKING_AUDIO_LEVEL = "speaking-audio-level";
 const STATUS_CALL_ON_HOLD_ENDED = "call-ended";
 const STATUS_SHARE_SCREEN = "share-screen";
 const STATUS_SHARE_VIDEO = "share-video";
@@ -121,7 +125,7 @@ const STATUS_CAMERA_SWITCH_OFF = "camera-switch-off";
 const WEBRTC_MAX_BITRATE_LOW_AUDIO_CALL = 32000; // 32 kbps
 const WEBRTC_MAX_BITRATE_NORMAL_AUDIO_CALL = 64000; // 64 kbps
 const WEBRTC_MIN_BITRATE_HIGH_QUALITY_AUDIO_CALL = 256000; // 256 kbps
-const WEBRTC_MAX_BITRATE_LOW_VIDEO_CALL = 256000; // 256 kbps
+const WEBRTC_MAX_BITRATE_LOW_VIDEO_CALL = 128000; // 128 kbps
 const WEBRTC_MAX_BITRATE_NORMAL_VIDEO_CALL = 512000; // 512 kbps
 const ICE_CANDIDATE_NUMBER = 15;
 const ICE_CANDIDATE_TIME_LIMIT = 1500;
@@ -160,7 +164,6 @@ enum SharedKeys {
   SHARED_DAO_NOTIFICATION_FOREGROUND,
   SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
   SHARED_DAO_NOTIFICATION_ADVANCE_MODE_DISABLED,
-  SHARED_DAO_VERSION,
   SHARED_DAO_DB_VERSION,
   SHARED_DAO_INIT_APP_PAGE,
   SHARED_DAO_IS_SHOWCASE_ENABLE,
@@ -169,6 +172,7 @@ enum SharedKeys {
   SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED,
   SHARE_DAO_HOST_SET_BY_USER,
   SHARE_DAO_WEB_VIEW_URL,
+  SHARE_DAO_SERVICES_INFO,
   SHARED_DAO_FIREBASE_TOKEN,
   SHARED_DAO_SHOW_EVENTS,
   POWER_SAVE_BATTERY_LEVEL,
@@ -181,14 +185,12 @@ enum SharedKeys {
   VIDEO_FRAME_RATE_LIMITATION,
   LOG_LEVEL,
   LOG_IN_FILE_ENABLE,
-  LAST_CALL_DATA_SLOT_1,
-  LAST_CALL_DATA_SLOT_2,
-  LAST_CALL_DATA_SLOT_3,
   SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT,
   SHARED_DAO_KEY_BOARD_SIZE_PORTRAIT_IN_MEMORY,
   SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE,
   SHARED_DAO_KEY_BOARD_SIZE_LANDSCAPE_IN_MEMORY,
   SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS,
+  SHARED_DAO_KEY_LAST_ROOM_METADATA_UPDATE_TIME,
   ONCE_SHOW_NEW_VERSION_INFORMATION,
   ONCE_SHOW_CONTACT_DIALOG,
   ONCE_SHOW_MICROPHONE_DIALOG,
@@ -214,7 +216,7 @@ enum SharedKeys {
   NAVIGATION_PANEL_SIZE,
   SHOW_WS_WITH_HIGH_FRAME_RATE,
   HAS_PROFILE,
-  SHARED_DAO_KEY_LAST_ROOM_METADATA_UPDATE_TIME
+  VERSION,
 }
 
 // Notification Constants
@@ -268,7 +270,8 @@ const PENDING_MESSAGE_TRACK_ID = 38;
 const BROADCAST_SUCCESS_AND_FAILED_COUNT_TRACK_ID = 39;
 const BROADCAST_STATUS_TRACK_ID = 40;
 const BROADCAST_MESSAGE_STATUS_TYPE_TRACK_ID = 41;
-const IS_VERIFIED = 42;
+const IS_VERIFIED_TRACK_ID = 42;
+const LAST_CALL_STATUS_TRACK_ID = 43;
 
 // Emoji
 const MAX_RECENT_EMOJI_LENGTH = 48;
@@ -355,3 +358,5 @@ double showcaseBoxWidth() =>
 
 double showcaseBoxSingleBannerWidth() =>
     min(304.0, NAVIGATION_PANEL_MIN_WIDTH * 0.98);
+
+enum CallSlot { DATA_SLOT_1, DATA_SLOT_2, DATA_SLOT_3 }

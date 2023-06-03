@@ -1,4 +1,3 @@
-import 'package:deliver/models/call_data.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -45,9 +44,9 @@ class Settings {
     SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
     defaultValue: "",
   );
-  final applicationVersion = StringPersistent(
-    SharedKeys.SHARED_DAO_VERSION.inSharedDaoStorage(),
-    defaultValue: "",
+  final applicationVersion = IntPersistent(
+    SharedKeys.VERSION.inSharedDaoStorage(),
+    defaultValue: 0,
   );
   final dbHashCode = IntPersistent(
     SharedKeys.SHARED_DAO_DB_VERSION.inSharedDaoStorage(),
@@ -120,24 +119,6 @@ class Settings {
   final showTextsJustified = BooleanPersistent(
     SharedKeys.SHARED_DAO_THEME_SHOW_TEXTS_JUSTIFIED.inSharedDaoStorage(),
     defaultValue: false,
-  );
-  final LAST_CALL_DATA_SLOT_1 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_1.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
-  );
-  final LAST_CALL_DATA_SLOT_2 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_2.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
-  );
-  final LAST_CALL_DATA_SLOT_3 = JsonMapPersistent<CallData>(
-    SharedKeys.LAST_CALL_DATA_SLOT_3.inSharedPreferenceStorage(),
-    defaultValue: CallData.defaultInstance,
-    fromJsonMap: CallDataFromJson,
-    toJsonMap: CallDataToJson,
   );
   final showColorfulMessages = BooleanPersistent(
     SharedKeys.SHARED_DAO_THEME_SHOW_COLORFUL_MESSAGES.inSharedDaoStorage(),
@@ -236,6 +217,10 @@ class Settings {
     SharedKeys.SHARE_DAO_HOST_SET_BY_USER.inSharedDaoStorage(),
     defaultValue: "",
   );
+  final servicesInfo = StringPersistent(
+    SharedKeys.SHARE_DAO_SERVICES_INFO.inSharedDaoStorage(),
+    defaultValue: "",
+  );
   final webViewUrl = StringPersistent(
     SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
     defaultValue: "https://bamak.ecokowsar.net",
@@ -314,6 +299,10 @@ class Settings {
     PerformanceMode.BALANCED,
   );
   final showWsWithHighFrameRate = PerformanceBooleanPersistent(
+    SharedKeys.SHOW_WS_WITH_HIGH_FRAME_RATE.inSharedDaoStorage(),
+    PerformanceMode.HIGH,
+  );
+  final showCallBackGroundAnimation = PerformanceBooleanPersistent(
     SharedKeys.SHOW_WS_WITH_HIGH_FRAME_RATE.inSharedDaoStorage(),
     PerformanceMode.HIGH,
   );

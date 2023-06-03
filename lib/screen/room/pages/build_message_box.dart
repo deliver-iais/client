@@ -125,11 +125,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     MessageBrief? messageReplyBrief,
   }) {
     final isFirstMsgOfOnePerson = isFirstMessageOfOneDirection(msgBefore, msg);
-
     if (msg.type == MessageType.PERSISTENT_EVENT) {
       return _createPersistentEventMessageWidget(context, msg);
     } else if (msg.type == MessageType.CALL) {
       return _createCallMessageWidget(context, msg);
+    } else if (msg.type == MessageType.CALL_LOG) {
+      return _createCallMessageWidget(context, msg, isCallLog: true);
     } else {
       return _createSidedMessageWidget(
         context,
@@ -149,7 +150,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       final d2 = date(msg.time);
 
       if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
-        if (!msgBefore!.isHidden && msgBefore.type != MessageType.CALL) {
+        if (!msgBefore!.isHidden && (msgBefore.type != MessageType.CALL || msgBefore.type != MessageType.CALL_LOG)) {
           isFirstMessageInGroupedMessages = false;
         }
       }
@@ -157,7 +158,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return isFirstMessageInGroupedMessages;
   }
 
-  Widget _createCallMessageWidget(BuildContext context, Message msg) {
+  Widget _createCallMessageWidget(
+    BuildContext context,
+    Message msg, {
+    bool isCallLog = false,
+  }) {
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -172,6 +177,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           child: CallMessageWidget(
             message: widget.message,
             colorScheme: colorsScheme,
+            isCallLog: isCallLog,
           ),
         )
       ],
@@ -225,7 +231,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   bool _hasPermissionToReply() =>
-      !widget.roomId.isBroadcast() && !widget.selectMultiMessageSubject.value;
+      !widget.roomId.isBroadcast() &&
+      (!widget.roomId.isChannel() || widget.hasPermissionInChannel.value) &&
+      !widget.selectMultiMessageSubject.value;
 
   bool _hasPermissionForDoubleClickReply() =>
       isDesktopDevice && _hasPermissionToReply();
@@ -687,12 +695,11 @@ class OperationOnMessageSelection {
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
+      case MessageType.CALL_LOG:
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
-      case MessageType.CALL_LOG:
-        break;
-    }
+      }
   }
 
   void onResend() {

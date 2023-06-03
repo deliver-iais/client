@@ -62,8 +62,10 @@ Future<int> getAndroidVersion() async =>
 
 Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()
-    ..clientVersion = VERSION
-    ..applicationName = APP_NAME;
+    ..version = VERSION
+    ..revision = REVISION
+    ..clientVersion ="2.0.5"
+    ..application = APPLICATION;
   if (isWeb) {
     platform
       ..platformType = platform_pb.PlatformsType.WEB
@@ -78,7 +80,7 @@ Future<platform_pb.Platform> getPlatformPB() async {
 
     platform
       ..platformType = platform_pb.PlatformsType.IOS
-      ..osVersion = iosInfo.systemVersion ?? "";
+      ..osVersion = iosInfo.systemVersion;
   } else if (isLinuxNative) {
     platform
       ..platformType = platform_pb.PlatformsType.LINUX

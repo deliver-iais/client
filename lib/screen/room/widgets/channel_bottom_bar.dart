@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 class MucBottomBar extends StatefulWidget {
   final String roomId;
   final Widget inputMessage;
-  final void Function(int dir, bool ctrlIsPressed, bool per) scrollToMessage;
+  final void Function(int dir, {required bool ctrlIsPressed, required bool hasPermission})
+      scrollToMessage;
 
   const MucBottomBar({
     super.key,
@@ -29,11 +30,11 @@ class _MucBottomBarState extends State<MucBottomBar> {
     _focusNode.onKey = (c, event) {
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-        widget.scrollToMessage(-1, false, false);
+        widget.scrollToMessage(-1, ctrlIsPressed: false, hasPermission: false);
       }
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-        widget.scrollToMessage(1, false, false);
+        widget.scrollToMessage(1, ctrlIsPressed: false, hasPermission: false);
       }
       return KeyEventResult.handled;
     };

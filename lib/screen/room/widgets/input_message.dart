@@ -66,7 +66,11 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final InputMessageTextController textController;
-  final Function(int dir, bool, bool) handleScrollToMessage;
+  final Function(
+    int dir, {
+    required bool ctrlIsPressed,
+    required bool hasPermission,
+  }) handleScrollToMessage;
   final Function() deleteSelectedMessage;
 
   const InputMessage({
@@ -459,8 +463,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                         back.data == KeyboardStatus.EMOJI_KEYBOARD_SEARCH) {
                       child = EmojiKeyboardWidget(
                         onEmojiDeleted: _onEmojiDeleted,
-                        onSearchEmoji: (isSearchFocused) {
-                          if (isSearchFocused) {
+                        onSearchEmoji: ({required hasFocus}) {
+                          if (hasFocus) {
                             _keyboardStatus
                                 .add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
                           } else if (widget.focusNode.hasFocus) {
@@ -640,8 +644,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                     _desktopEmojiKeyboardFocusNode.requestFocus();
                   },
                   onTap: (emoji) => _onEmojiSelected(emoji),
-                  onSearchEmoji: (isSearchFocused) {
-                    if (isSearchFocused) {
+                  onSearchEmoji: ({required hasFocus}) {
+                    if (hasFocus) {
                       _desktopEmojiKeyboardFocusNode.requestFocus();
                       _keyboardStatus.add(KeyboardStatus.EMOJI_KEYBOARD_SEARCH);
                     }
@@ -953,12 +957,20 @@ class InputMessageWidgetState extends State<InputMessage> {
   KeyEventResult _handleArrow(RawKeyEvent event) {
     if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
         widget.textController.selection.baseOffset <= 0) {
-      widget.handleScrollToMessage(-1, event.isControlPressed, true);
+      widget.handleScrollToMessage(
+        -1,
+        ctrlIsPressed: event.isControlPressed,
+        hasPermission: true,
+      );
     } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
         (widget.textController.selection.baseOffset ==
                 widget.textController.text.length ||
             widget.textController.selection.baseOffset < 0)) {
-      widget.handleScrollToMessage(1, event.isControlPressed, true);
+      widget.handleScrollToMessage(
+        1,
+        ctrlIsPressed: event.isControlPressed,
+        hasPermission: true,
+      );
     }
     return KeyEventResult.handled;
   }
@@ -1060,8 +1072,10 @@ class InputMessageWidgetState extends State<InputMessage> {
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
-          .getFilteredMember(currentRoom.uid.asString(),
-              query: _mentionQuery.value,)
+          .getFilteredMember(
+            currentRoom.uid.asString(),
+            query: _mentionQuery.value,
+          )
           .then(
             (value) => {
               mentionSelectedIndex = value.length,
@@ -1202,12 +1216,11 @@ class InputMessageWidgetState extends State<InputMessage> {
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
+      case MessageType.CALL_LOG:
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
-      case MessageType.CALL_LOG:
-        break;
-    }
+      }
     return "$text ";
   }
 

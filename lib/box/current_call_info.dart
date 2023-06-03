@@ -1,36 +1,24 @@
-import 'package:deliver/box/call_event.dart';
-import 'package:deliver/shared/constants.dart';
-import 'package:hive/hive.dart';
+import 'package:deliver/shared/extensions/call_event_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'current_call_info.freezed.dart';
 
 part 'current_call_info.g.dart';
 
-@HiveType(typeId: CURRENT_CALL_INFO_TRACK_ID)
-class CurrentCallInfo {
-  // DbId
-  @HiveField(0)
-  String from;
+@freezed
+class CurrentCallInfo with _$CurrentCallInfo {
+  const factory CurrentCallInfo({
+    @CallEventV2JsonKey required CallEventV2 callEvent,
+    required String from,
+    required String to,
+    required int expireTime,
+    required bool notificationSelected,
+    required bool isAccepted,
+    @Default("") String offerBody,
+    @Default("") String offerCandidate,
+  }) = _CurrentCallInfo;
 
-  @HiveField(1)
-  String to;
-
-  @HiveField(2)
-  CallEvent callEvent;
-
-  @HiveField(3)
-  int expireTime;
-
-  @HiveField(4)
-  bool notificationSelected;
-
-  @HiveField(5)
-  bool isAccepted;
-
-  CurrentCallInfo({
-    required this.callEvent,
-    required this.from,
-    required this.to,
-    required this.expireTime,
-    required this.notificationSelected,
-    required this.isAccepted,
-  });
+  factory CurrentCallInfo.fromJson(Map<String, Object?> json) =>
+      _$CurrentCallInfoFromJson(json);
 }

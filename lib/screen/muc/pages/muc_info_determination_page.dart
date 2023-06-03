@@ -15,6 +15,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/validate.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -141,7 +142,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       onAddMemberClick: () {
                         _routingService.openMemberSelection(
                           categories: widget.categories,
-                          resetSelectedMemberOnDispose: false,
+                          openMucInfoDeterminationPage: false,
                         );
                       },
                     ),
@@ -173,7 +174,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
               autofocus: autofocus,
               textInputAction: TextInputAction.send,
               controller: _mucIdController,
-              validator: validateUsername,
+              validator: Validate.validateChannelId,
               decoration: InputDecoration(
                 disabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -272,17 +273,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     }
   }
 
-  String? validateUsername(String? value) {
-    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    final regex = RegExp(pattern.toString());
-    if (value!.isEmpty) {
-      return _i18n.get("channel_id_not_empty");
-    } else if (!regex.hasMatch(value)) {
-      return _i18n.get("channel_id_length");
-    }
-    return null;
-  }
-
   Widget _buildMucInfoForm() {
     return Row(
       children: [
@@ -308,42 +298,35 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   Widget _buildBottomIconsRow() {
-    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: theme.primaryColor,
+        Padding(
+          padding: const EdgeInsetsDirectional.only(
+            end: 5,
           ),
-          child: IconButton(
-            padding: const EdgeInsets.all(0),
-            icon: Icon(
+          child: FloatingActionButton.extended(
+            heroTag: "previous",
+            icon: const Icon(
               Icons.arrow_back,
-              color: theme.colorScheme.onPrimary,
             ),
-            onPressed: () async {
+            label: Text(_i18n["previous"]),
+            onPressed: () {
               _routingService.pop();
             },
           ),
         ),
         if (_showIcon)
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.colorScheme.primary,
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              end: 5,
             ),
-            child: IconButton(
-              padding: const EdgeInsets.all(0),
-              icon: Icon(
+            child: FloatingActionButton.extended(
+              heroTag: "create",
+              icon: const Icon(
                 Icons.check,
-                color: theme.colorScheme.onPrimary,
               ),
+              label: Text(_i18n["create"]),
               onPressed: () async {
                 final res = mucNameKey.currentState?.validate() ?? false;
                 if (res) {
@@ -366,7 +349,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     _mucNameController.text,
                     _mucInfoController.text,
                     channelType: _channelType,
-                    channelId: _mucIdController.text,
+                    channelId: _mucIdController.text.trim(),
                     checkChannelId: _checkChannelD,
                   );
                   if (mucUid != null) {

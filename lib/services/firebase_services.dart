@@ -14,6 +14,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/js.dart'
     if (dart.library.html) 'package:js/js.dart' as js;
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
@@ -162,15 +163,14 @@ message_pb.Message _decodeMessage(String notificationBody) {
 Future<void> _backgroundRemoteMessageHandler(
   RemoteMessage remoteMessage,
 ) async {
+  try {
+    // hive does not support multithreading
+    await Hive.close();
+    await setupDI();
+  } catch (_) {
+    GetIt.I.get<Settings>().reInitialize();
+  }
   if (remoteMessage.data.containsKey('body')) {
-    try {
-      // hive does not support multithreading
-      await Hive.close();
-      await setupDI();
-    } catch (_) {
-      GetIt.I.get<Settings>().reInitialize();
-    }
-
     try {
       final msg = _decodeMessage(remoteMessage.data["body"]);
 
@@ -202,13 +202,21 @@ Future<void> _backgroundRemoteMessageHandler(
     }
   } else if (remoteMessage.data.containsKey("seen")) {
     try {
-      await setupDI();
-    } catch (_) {}
-    try {
       final seen =
           pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
 
       return await GetIt.I.get<DataStreamServices>().handleSeen(seen);
+    } catch (e) {
+      Logger().e(e);
+    }
+  } else if (remoteMessage.data.containsKey("callAction")) {
+    try {
+      final callEventV2 = call_pb.CallEventV2.fromBuffer(
+        base64.decode(remoteMessage.data["callAction"]),
+      );
+      return await GetIt.I
+          .get<DataStreamServices>()
+          .handleCallEvent(callEventV2);
     } catch (e) {
       Logger().e(e);
     }
