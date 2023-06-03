@@ -30,7 +30,8 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   final BehaviorSubject<bool> _useCustomIp = BehaviorSubject.seeded(false);
   final _routingServices = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
-  final _webUrlTextController = TextEditingController();
+  final _webUrlTextController =
+      TextEditingController(text: settings.webViewUrl.value);
 
   @override
   void initState() {
@@ -203,9 +204,9 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                 return const SizedBox.shrink();
               },
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("آدرس وب کیت"),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("آدرس فروشگاه"),
             ),
             Padding(
               padding: const EdgeInsets.all(18.0),

@@ -67,7 +67,7 @@ class Settings {
   );
   final initAppPage = IntPersistent(
     SharedKeys.SHARED_DAO_INIT_APP_PAGE.inSharedDaoStorage(),
-    defaultValue: 0,
+    defaultValue: 1,
   );
   final textScale = DoublePersistent(
     SharedKeys.SHARED_DAO_THEME_FONT_SIZE.inSharedDaoStorage(),
@@ -223,7 +223,7 @@ class Settings {
   );
   final webViewUrl = StringPersistent(
     SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
-    defaultValue: "https://bamak.ecokowsar.net",
+    defaultValue: "https://digikala.com",
   );
   final onceShowNewVersionInformation = OncePersistent(
     SharedKeys.ONCE_SHOW_NEW_VERSION_INFORMATION.inSharedDaoStorage(),

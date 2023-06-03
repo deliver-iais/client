@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
@@ -19,7 +18,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
@@ -62,8 +60,6 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _routingServices = GetIt.I.get<RoutingService>();
 
   static final _i18n = GetIt.I.get<I18N>();
-
-  static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
   final BehaviorSubject<bool> _searchMode = BehaviorSubject.seeded(false);
@@ -226,7 +222,7 @@ class NavigationCenterState extends State<NavigationCenter>
     );
   }
 
-  bool checkSearchBoxIsOpenOrNot() {
+  Future<bool> checkSearchBoxIsOpenOrNot() async {
     if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
       return true;
     }
@@ -285,63 +281,6 @@ class NavigationCenterState extends State<NavigationCenter>
                 child: AppBar(
                   elevation: 0,
                   scrolledUnderElevation: 0,
-                  leading: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: p4),
-                    child: DescribedFeatureOverlay(
-                      featureId: SETTING_FEATURE,
-                      tapTarget:
-                          CircleAvatarWidget(_authRepo.currentUserUid, 30),
-                      backgroundColor: theme.colorScheme.tertiaryContainer,
-                      targetColor: theme.colorScheme.tertiary,
-                      title: Text(
-                        _i18n.get("setting_icon_feature_discovery_title"),
-                        textDirection: _i18n.defaultTextDirection,
-                        style: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                      overflowMode: OverflowMode.extendBackground,
-                      description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: (hasContactCapability)
-                            ? TextButton(
-                                onPressed: () {
-                                  FeatureDiscovery.dismissAll(context);
-                                  _routingService.openContacts();
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(_i18n.get("sync_contact")),
-                                    const Icon(
-                                      Icons.arrow_forward,
-                                    )
-                                  ],
-                                ),
-                              )
-                            : null,
-                        description: _i18n
-                            .get("setting_icon_feature_discovery_description"),
-                        descriptionStyle: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        child: Center(
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: CircleAvatarWidget(
-                              _authRepo.currentUserUid,
-                              20,
-                            ),
-                          ),
-                        ),
-                        onTap: () {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          _routingServices.openSettings(popAllBeforePush: true);
-                        },
-                      ),
-                    ),
-                  ),
                   titleSpacing: 8.0,
                   title: ConnectionStatus(isShowCase: showShowcase),
                   actions: [
