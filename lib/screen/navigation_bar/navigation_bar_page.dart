@@ -1,11 +1,13 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/screen/webview/webview_page.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -28,17 +30,20 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   //pages
   static final _globalKeyNavigationCenter = GlobalKey();
   static final _globalKeyWebViewPage = GlobalKey();
-  static final _globalKeyShowCase = GlobalKey();
+  static final _globalKeyShowcasePage = GlobalKey();
+  static final _globalKeySettingsPage = GlobalKey();
 
   final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
   final _webViewPage = WebViewPage(key: _globalKeyWebViewPage);
-  final _showCasePage = ShowcasePage(key: _globalKeyShowCase);
+  final _showCasePage = ShowcasePage(key: _globalKeyShowcasePage);
+  final _settingsPage = SettingsPage(key: _globalKeySettingsPage);
 
   @override
   void initState() {
     navigationBarWidgets = [
       _navigationCenter,
       _showCasePage,
+      _settingsPage,
       _webViewPage,
     ];
     super.initState();
@@ -70,15 +75,21 @@ class NavigationBarPageState extends State<NavigationBarPage> {
     return NavigationBar(
       destinations: [
         NavigationDestination(
-          icon: const Icon(MdiIcons.chatOutline),
+          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
           label: _i18n.get(
             "chats",
           ),
         ),
         NavigationDestination(
-          icon: const Icon(MdiIcons.homeOutline),
+          icon: const Icon(CupertinoIcons.home),
           label: _i18n.get(
             "home",
+          ),
+        ),
+        NavigationDestination(
+          icon: const Icon(CupertinoIcons.settings),
+          label: _i18n.get(
+            "settings",
           ),
         ),
         if (isMobileNative)
@@ -107,12 +118,16 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       groupAlignment: 0,
       destinations: [
         NavigationRailDestination(
-          icon: const Icon(MdiIcons.chatOutline),
+          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
           label: Text(_i18n.get("chats")),
         ),
         NavigationRailDestination(
-          icon: const Icon(MdiIcons.homeOutline),
+          icon: const Icon(CupertinoIcons.home),
           label: Text(_i18n.get("home")),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(CupertinoIcons.settings),
+          label: Text(_i18n.get("settings")),
         ),
         if (isMobileNative)
           NavigationRailDestination(

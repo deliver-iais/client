@@ -793,9 +793,12 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading(
-          {Color? color, VoidCallback? onBackButtonLeadingClick}) =>
-      Center(
+  Widget backButtonLeading({
+    Color? color,
+    VoidCallback? onBackButtonLeadingClick,
+  }) {
+    if (canPop()) {
+      return Center(
         child: BackButtonWidget(
           color: color,
           onPressed: () {
@@ -804,6 +807,10 @@ class RoutingService {
           },
         ),
       );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
 }
 
 class BackButtonWidget extends StatelessWidget {
