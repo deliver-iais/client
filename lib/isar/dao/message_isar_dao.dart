@@ -57,11 +57,11 @@ class MessageDaoImpl extends MessageDao {
         .roomUidEqualTo(message.roomUid.asString())
         .findFirst());
 
-    await box.writeTxn(() async {
+    await box.writeTxnSync(() async {
       if (msg != null) {
-        await box.messageIsars.delete(msg.dbId);
+        box.messageIsars.deleteSync(msg.dbId);
       }
-      unawaited(box.messageIsars.put(message.toIsar()));
+      box.messageIsars.putSync(message.toIsar());
     });
   }
 }

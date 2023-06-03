@@ -83,6 +83,10 @@ class DataStreamServices {
     bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
+
+    if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
+      return null;
+    }
     //isOnlineMessage
     if (isOnlineMessage) {
       await _checkForReplyKeyBoard(message);
@@ -96,9 +100,6 @@ class DataStreamServices {
       _checkCallLogMessage(message);
     }
 
-    if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
-      return null;
-    }
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
@@ -365,7 +366,7 @@ class DataStreamServices {
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
 
-    final msg = _messageExtractorServices.extractMessage(message);
+    final msg = _messageExtractorServices.extractMessage(res.messages.first);
     await _messageDao.updateMessage(msg);
     _cachingRepo.setMessage(roomUid, id, msg);
     if (_metaRepo.isMessageContainMeta(msg)) {
