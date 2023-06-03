@@ -229,8 +229,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: main
-      resolved-ref: "457d33fa377bd35e0e1fc83d6b02908c9a99c614"
+      ref: "6805a29e07d95fab29392654afddfc225020a5e5"
+      resolved-ref: "6805a29e07d95fab29392654afddfc225020a5e5"
       url: "https://github.com/deliveriais/browser_image_compression.git"
     source: git
     version: "1.0.5"
@@ -2153,10 +2153,10 @@ packages:
     dependency: "direct main"
     description:
       name: rive
-      sha256: "763b4915b5245428f1188d38c2ff8c26da83ca194d345daa319ca32d69ed670f"
+      sha256: bb7a16bc6a88484fe3136890030b71776ffea368edd2a8368fe99d6430e4a802
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.3"
+    version: "0.11.2"
   rive_common:
     dependency: transitive
     description:
@@ -2513,10 +2513,10 @@ packages:
     dependency: "direct main"
     description:
       name: universal_html
-      sha256: b5061c64c7c863c12e46279e032976f1c274f927fb3589b52b5928dcd2d52f7c
+      sha256: a5cc5a84188e5d3e58f3ed77fe3dd4575dc1f68aa7c89e51b5b4105b9aab3b9d
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.9"
+    version: "2.2.3"
   universal_io:
     dependency: transitive
     description:
