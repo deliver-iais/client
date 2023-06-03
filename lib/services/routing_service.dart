@@ -3,7 +3,8 @@ import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
-import 'package:deliver/box/dao/isar_manager.dart' if (dart.library.html)  'package:deliver/box/dao/web_isar_manager.dart';
+import 'package:deliver/box/dao/isar_manager.dart'
+    if (dart.library.html) 'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
@@ -751,11 +752,11 @@ class RoutingService {
       return SafeArea(
         child: ResizableWidget(
           key: _resizableWidgetState,
-          minPercentages: const [0.2, 0.5],
+          minPercentages: const [0.3, 0.5],
           maxPercentages: const [0.5, double.infinity],
           percentages: settings.showShowcasePage.value
               ? const [0.5, 0.5]
-              : const [0.2, 0.8],
+              : const [0.3, 0.7],
           separatorSize: 3,
           children: [
             _navigationBar,

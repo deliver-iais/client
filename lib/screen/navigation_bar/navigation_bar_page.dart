@@ -47,37 +47,85 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(MdiIcons.chatOutline),
-            label: _i18n.get(
-              "chats",
-            ),
-          ),
-          NavigationDestination(
-            icon: const Icon(MdiIcons.homeOutline),
-            label: _i18n.get(
-              "home",
-            ),
-          ),
-          if (isMobileNative|| isWeb)
-            NavigationDestination(
-              icon: const Icon(MdiIcons.shoppingOutline),
-              label: _i18n.get(
-                "bamak",
-              ),
-            ),
+      bottomNavigationBar: getNavigationBar(context),
+      body: Row(
+        children: [
+          if (isLarge(context)) ...[
+            getNavigationRail(context),
+            const VerticalDivider(
+              thickness: 2,
+              width: 2,
+            )
+          ],
+          Expanded(child: navigationBarWidgets[_currentPageIndex]),
         ],
-        selectedIndex: _currentPageIndex,
-        animationDuration: AnimationSettings.actualStandard,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentPageIndex = index;
-          });
-        },
       ),
-      body: navigationBarWidgets[_currentPageIndex],
+    );
+  }
+
+  NavigationBar? getNavigationBar(BuildContext context) {
+    if (isLarge(context)) {
+      return null;
+    }
+    return NavigationBar(
+      destinations: [
+        NavigationDestination(
+          icon: const Icon(MdiIcons.chatOutline),
+          label: _i18n.get(
+            "chats",
+          ),
+        ),
+        NavigationDestination(
+          icon: const Icon(MdiIcons.homeOutline),
+          label: _i18n.get(
+            "home",
+          ),
+        ),
+        if (isMobileNative)
+          NavigationDestination(
+            icon: const Icon(MdiIcons.shoppingOutline),
+            label: _i18n.get(
+              "bamak",
+            ),
+          ),
+      ],
+      selectedIndex: _currentPageIndex,
+      animationDuration: AnimationSettings.actualStandard,
+      onDestinationSelected: (index) {
+        setState(() {
+          _currentPageIndex = index;
+        });
+      },
+    );
+  }
+
+  NavigationRail getNavigationRail(BuildContext context) {
+    return NavigationRail(
+      labelType: NavigationRailLabelType.all,
+      backgroundColor:
+          Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3),
+      groupAlignment: 0,
+      destinations: [
+        NavigationRailDestination(
+          icon: const Icon(MdiIcons.chatOutline),
+          label: Text(_i18n.get("chats")),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(MdiIcons.homeOutline),
+          label: Text(_i18n.get("home")),
+        ),
+        if (isMobileNative)
+          NavigationRailDestination(
+            icon: const Icon(MdiIcons.shoppingOutline),
+            label: Text(_i18n.get("bamak")),
+          ),
+      ],
+      selectedIndex: _currentPageIndex,
+      onDestinationSelected: (index) {
+        setState(() {
+          _currentPageIndex = index;
+        });
+      },
     );
   }
 }
