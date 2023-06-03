@@ -68,7 +68,7 @@ class MessageExtractorServices {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_UID:
-      }
+    }
 
     return MessageBrief(
       roomUid: msg.roomUid.asString(),
@@ -513,7 +513,9 @@ class MessageExtractorServices {
       encrypted: message.encrypted,
       type: getMessageType(message.whichType()),
       isHidden: isHidden,
-      markup: message.messageMarkup.writeToJson(),
+      markup: message.hasMessageMarkup()
+          ? message.messageMarkup.writeToJson()
+          : null,
     );
   }
 
