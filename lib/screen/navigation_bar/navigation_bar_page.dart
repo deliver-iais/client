@@ -73,37 +73,40 @@ class NavigationBarPageState extends State<NavigationBarPage> {
     );
   }
 
+  List<(Widget, Widget, String)> getNavigationButtons() {
+    return [
+      (_settingsAvatar, _settingsAvatar, _i18n.get("settings")),
+      (
+        const Icon(CupertinoIcons.bubble_left_bubble_right),
+        const Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+        _i18n.get("chats")
+      ),
+      (
+        const Icon(CupertinoIcons.house),
+        const Icon(CupertinoIcons.house_fill),
+        _i18n.get("home")
+      ),
+      if (isMobileNative)
+        (
+          const Icon(MdiIcons.shoppingOutline),
+          const Icon(MdiIcons.shopping),
+          _i18n.get("bamak")
+        ),
+    ];
+  }
+
   NavigationBar? getNavigationBar(BuildContext context) {
     if (isLarge(context)) {
       return null;
     }
     return NavigationBar(
       destinations: [
-        NavigationDestination(
-          icon: _settingsAvatar,
-          label: _i18n.get(
-            "settings",
-          ),
-        ),
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
-          label: _i18n.get(
-            "chats",
-          ),
-        ),
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.home),
-          label: _i18n.get(
-            "home",
-          ),
-        ),
-        if (isMobileNative)
+        for (final (index, (icon, selectedIcon, label))
+            in getNavigationButtons().indexed)
           NavigationDestination(
-            icon: const Icon(MdiIcons.shoppingOutline),
-            label: _i18n.get(
-              "bamak",
-            ),
-          ),
+            icon: _currentPageIndex == index ? selectedIcon : icon,
+            label: label,
+          )
       ],
       selectedIndex: _currentPageIndex,
       animationDuration: AnimationSettings.actualStandard,
@@ -122,23 +125,12 @@ class NavigationBarPageState extends State<NavigationBarPage> {
           Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3),
       groupAlignment: 0,
       destinations: [
-        NavigationRailDestination(
-          icon: _settingsAvatar,
-          label: Text(_i18n.get("settings")),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
-          label: Text(_i18n.get("chats")),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(CupertinoIcons.home),
-          label: Text(_i18n.get("home")),
-        ),
-        if (isMobileNative)
+        for (final (index, (icon, selectedIcon, label))
+            in getNavigationButtons().indexed)
           NavigationRailDestination(
-            icon: const Icon(MdiIcons.shoppingOutline),
-            label: Text(_i18n.get("bamak")),
-          ),
+            icon: _currentPageIndex == index ? selectedIcon : icon,
+            label: Text(label),
+          )
       ],
       selectedIndex: _currentPageIndex,
       onDestinationSelected: (index) {

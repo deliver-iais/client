@@ -109,6 +109,8 @@ class NavigationCenterState extends State<NavigationCenter>
 
   @override
   void dispose() {
+    _routingService.unregisterPreMaybePopScope("navigation_center_page");
+
     _searchBoxController.dispose();
     _scrollController.dispose();
     _searchMode.close();
@@ -223,6 +225,9 @@ class NavigationCenterState extends State<NavigationCenter>
   }
 
   Future<bool> checkSearchBoxIsOpenOrNot() async {
+    if (!context.mounted) {
+      return false;
+    }
     if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
       return true;
     }
