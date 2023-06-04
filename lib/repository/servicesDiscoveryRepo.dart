@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/lb.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:deliver_public_protocol/pub/v1/service_discovery.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -34,6 +35,7 @@ class ServicesDiscoveryRepo {
   bot.BotServiceClient? _botServiceClient;
   SessionServiceClient? _sessionServiceClient;
   QueryServiceClient? _queryServiceClient;
+  ServiceDiscoveryClient? _serviceDiscoveryClient;
   ContactServiceClient? _contactServiceClient;
   StickerServiceClient? _stickerServiceClient;
   FirebaseServiceClient? _firebaseServiceClient;
@@ -71,6 +73,10 @@ class ServicesDiscoveryRepo {
       grpcClientInterceptors: grpcClientInterceptors,
       serviceConfig: getInfoRes?.query,
     );
+    _initServiceDiscoveryChannelServices(
+      grpcClientInterceptors: grpcClientInterceptors,
+    );
+
     _initBotClientChannelServices(
       grpcClientInterceptors: grpcClientInterceptors,
       serviceConfig: getInfoRes?.msBot,
@@ -156,6 +162,38 @@ class ServicesDiscoveryRepo {
     );
 
     return _queryServiceClient!;
+  }
+
+  ServiceDiscoveryClient _initServiceDiscoveryChannelServices({
+    List<ClientInterceptor>? grpcClientInterceptors,
+    ServiceConfig? serviceConfig,
+  }) {
+    var address = serviceConfig?.bareAddresses.firstOrNull;
+    ClientChannelBase clientChannel;
+    if (isWeb) {
+      address = '$GWP${address ?? "ms-sd.$APPLICATION_DOMAIN"}';
+      clientChannel = GrpcWebClientChannel.xhr(
+        Uri.parse(address),
+      );
+    } else {
+      clientChannel = ClientChannel(
+        ipOrAddress(address ?? "ms-sd.$APPLICATION_DOMAIN"),
+        options: ChannelOptions(
+          credentials: channelCredentials,
+          connectionTimeout: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    _serviceDiscoveryClient = ServiceDiscoveryClient(
+      clientChannel,
+      interceptors: grpcClientInterceptors,
+      options: _getCallOption(
+        (serviceConfig?.extraHeaders) ?? _getDefaultHeader("ms-sd"),
+      ),
+    );
+
+    return _serviceDiscoveryClient!;
   }
 
   bot.BotServiceClient _initBotClientChannelServices({
@@ -594,6 +632,9 @@ class ServicesDiscoveryRepo {
 
   QueryServiceClient get queryServiceClient =>
       _queryServiceClient ?? _initQueryClientChannelServices();
+
+  ServiceDiscoveryClient get serviceDiscoveryServiceClient =>
+      _serviceDiscoveryClient ?? _initServiceDiscoveryChannelServices();
 
   ContactServiceClient get contactServiceClient =>
       _contactServiceClient ?? _initContactServiceClintChannelServices();
