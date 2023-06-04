@@ -12,6 +12,11 @@ class ShowCase {
   @HiveField(1)
   String json;
 
+  @override
+  String toString() {
+    return 'ShowCase{index: $index, json: $json}';
+  }
+
   ShowCase({
     required this.index,
     required this.json,

@@ -1,5 +1,6 @@
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/repository/show_case_repo.dart';
+import 'package:deliver/screen/navigation_center/search/not_result_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
@@ -21,30 +22,41 @@ class ShowcasePage extends StatefulWidget {
 }
 
 class _ShowcasePageState extends State<ShowcasePage> {
-  final BehaviorSubject<List<ShowCase>> _showCaseCache =
-      BehaviorSubject.seeded([]);
+  final BehaviorSubject<List<ShowCase>?> _showCaseCache =
+      BehaviorSubject.seeded(null);
+  final _isLoadMoreRunning = BehaviorSubject.seeded(false);
   final _showCaseRepo = GetIt.I.get<ShowCaseRepo>();
+  late final ScrollController _controller;
+  int _page = 0;
+  bool isFinished = false;
 
   @override
   void initState() {
     super.initState();
-    getShowCase(0, foreToUpdateShowCases: true);
+    getShowCase();
+    _controller = ScrollController()..addListener(_loadMore);
   }
 
-  Future<ShowCase?> getShowCase(
-    int index, {
-    bool foreToUpdateShowCases = false,
-  }) async {
-    final res = await _showCaseRepo.getShowCasePage(
-      index,
-      foreToUpdateShowCases: foreToUpdateShowCases,
-    );
-    if (res != null) {
-      for (final showcase in res) {
-        _showCaseCache.add(_showCaseCache.value + [showcase]);
-      }
+  Future<void> _loadMore() async {
+    if (_controller.position.extentAfter < 300 &&
+        !_isLoadMoreRunning.value &&
+        !isFinished) {
+      _isLoadMoreRunning.add(true);
+      _page++;
+      await getShowCase();
+      _isLoadMoreRunning.add(false);
     }
-    return _showCaseCache.value[index];
+  }
+
+  Future<void> getShowCase() async {
+    final (List<ShowCase>? showcaseList, bool finished) =
+        await _showCaseRepo.getShowCasePage(
+      _page,
+    );
+    if (showcaseList != null) {
+      isFinished = finished;
+      _showCaseCache.add((_showCaseCache.value ?? []) + showcaseList);
+    }
   }
 
   @override
@@ -54,25 +66,52 @@ class _ShowcasePageState extends State<ShowcasePage> {
       backgroundColor: theme.colorScheme.background,
       extendBodyBehindAppBar: true,
       body: FluidContainerWidget(
-        child: StreamBuilder<List<ShowCase>>(
+        child: StreamBuilder<List<ShowCase>?>(
           stream: _showCaseCache,
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return ListView.separated(
-                separatorBuilder: (context, index) {
-                  return const Divider(
-                    height: 1,
-                    thickness: 1,
-                  );
-                },
-                itemCount: snapshot.data!.length,
-                itemBuilder: (ctx, index) {
-                  return _buildShowCaseItem(
-                    snapshot.data![index].json,
-                    isLast: (snapshot.data!.length == index + 1),
-                  );
-                },
+            if (snapshot.data!= null && snapshot.hasData) {
+              if(snapshot.data!.isNotEmpty) {
+                return Column(
+                children: [
+                  Expanded(
+                    child: ListView.separated(
+                      controller: _controller,
+                      separatorBuilder: (context, index) {
+                        return const Divider(
+                          height: 1,
+                          thickness: 1,
+                        );
+                      },
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (ctx, index) {
+                        return _buildShowCaseItem(
+                          snapshot.data![index].json,
+                          isLast: (snapshot.data!.length == index + 1),
+                        );
+                      },
+                    ),
+                  ),
+                  StreamBuilder<bool>(
+                    stream: _isLoadMoreRunning
+                        .debounceTime(const Duration(milliseconds: 250)),
+                    builder: (context, snapshot) {
+                      if (snapshot.data == true) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 10, bottom: 40),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ],
               );
+              }else{
+                return const NoResultWidget();
+              }
             }
             return const Center(child: CircularProgressIndicator());
           },

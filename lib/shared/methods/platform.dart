@@ -6,6 +6,8 @@ import 'package:deliver/web_classes/platform_detect.dart'
     as platform_detector;
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
     as platform_pb;
+import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/service_discovery.pb.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:flutter/foundation.dart';
@@ -99,6 +101,11 @@ Future<platform_pb.Platform> getPlatformPB() async {
       ..osVersion = Platform.operatingSystemVersion;
   }
   return platform;
+}
+
+Future<UserPreference> getUserPreferencePB() async {
+  final userPreference = UserPreference()..platform = await getPlatformPB();
+  return userPreference;
 }
 
 Future<String> getDeviceName() async {
