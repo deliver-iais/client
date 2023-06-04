@@ -74,7 +74,7 @@ dependencies:
     git:
       ref: main
       url: https://github.com/deliveriais/desktop_window
-  device_info_plus: 9.0.1
+  device_info_plus: 9.0.2
   dio: 5.0.1
   dismissible_page: 1.0.2
   expandable: 5.0.1

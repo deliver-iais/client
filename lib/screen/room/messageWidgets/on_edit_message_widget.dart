@@ -23,23 +23,23 @@ class OnEditMessageWidget extends StatelessWidget {
           start: 15,
           end: 3,
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.all(2.0),
+        child: LimitedBox(
+          maxHeight: 50,
+          child: Row(
+            children: [
+              Expanded(
                 child: SenderAndContent.viaMessage(
                   iconData: Icons.edit,
                   message: message,
                 ),
               ),
-            ),
-            IconButton(
-              padding: const EdgeInsetsDirectional.all(0),
-              icon: const Icon(Icons.close, size: 18),
-              onPressed: resetRoomPageDetails,
-            ),
-          ],
+              IconButton(
+                padding: const EdgeInsetsDirectional.all(0),
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: resetRoomPageDetails,
+              ),
+            ],
+          ),
         ),
       ),
     );
