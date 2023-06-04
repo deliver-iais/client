@@ -572,7 +572,7 @@ class RoomPageState extends State<RoomPage> {
           );
           // Save scroll position of first complete visible item
           _scrollPositionDao.put(
-            '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomUid}',
+            '${SharedKeys.SHARED_DAO_SCROLL_POSITION.name}-${widget.roomUid.asString()}',
             "${lastVisibleItem.index}-${lastVisibleItem.itemLeadingEdge}",
           );
         }
@@ -769,7 +769,10 @@ class RoomPageState extends State<RoomPage> {
 
     messageEventSubject
         .distinct()
-        .where((event) => (event != null && event.roomUid.isSameEntity(widget.roomUid.asString())))
+        .where(
+          (event) => (event != null &&
+              event.roomUid.isSameEntity(widget.roomUid.asString())),
+        )
         .listen((value) async {
       final Message? msg;
       if (value?.action == MessageEventAction.PENDING_EDIT) {
