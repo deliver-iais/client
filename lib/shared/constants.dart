@@ -52,6 +52,7 @@ const RESEND_SMS_TIMER = 2 * 60;
 
 // Paging Constants
 const META_PAGE_SIZE = 30;
+const SHOWCASE_PAGE_SIZE = 10;
 const PAGE_SIZE = 30;
 
 //Contacts Constants
