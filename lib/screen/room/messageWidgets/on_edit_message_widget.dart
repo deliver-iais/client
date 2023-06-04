@@ -16,31 +16,30 @@ class OnEditMessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
+      constraints: const BoxConstraints(
+        maxHeight:50,
+      ),
       width: double.infinity,
       color: theme.colorScheme.surface.withAlpha(200),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.only(
-          start: 15,
-          end: 3,
-        ),
-        child: LimitedBox(
-          maxHeight: 50,
-          child: Row(
-            children: [
-              Expanded(
-                child: SenderAndContent.viaMessage(
-                  iconData: Icons.edit,
-                  message: message,
-                ),
-              ),
-              IconButton(
-                padding: const EdgeInsetsDirectional.all(0),
-                icon: const Icon(Icons.close, size: 18),
-                onPressed: resetRoomPageDetails,
-              ),
-            ],
+      padding: const EdgeInsetsDirectional.only(
+        start: 15,
+        end: 3,
+      ),
+      height: 40,
+      child: Row(
+        children: [
+          Expanded(
+            child: SenderAndContent.viaMessage(
+              iconData: Icons.edit,
+              message: message,
+            ),
           ),
-        ),
+          IconButton(
+            padding: const EdgeInsetsDirectional.all(0),
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: resetRoomPageDetails,
+          ),
+        ],
       ),
     );
   }
