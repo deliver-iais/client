@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -7,6 +8,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,6 +22,8 @@ class NavigationBarPage extends StatefulWidget {
 }
 
 class NavigationBarPageState extends State<NavigationBarPage> {
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+
   late List<Widget> navigationBarWidgets;
   int _currentPageIndex = settings.initAppPage.value;
   final _i18n = GetIt.I.get<I18N>();
@@ -37,13 +41,14 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   final _webViewPage = WebViewPage(key: _globalKeyWebViewPage);
   final _showCasePage = ShowcasePage(key: _globalKeyShowcasePage);
   final _settingsPage = SettingsPage(key: _globalKeySettingsPage);
+  final _settingsAvatar = CircleAvatarWidget(_authRepo.currentUserUid, 16);
 
   @override
   void initState() {
     navigationBarWidgets = [
+      _settingsPage,
       _navigationCenter,
       _showCasePage,
-      _settingsPage,
       _webViewPage,
     ];
     super.initState();
@@ -68,37 +73,40 @@ class NavigationBarPageState extends State<NavigationBarPage> {
     );
   }
 
+  List<(Widget, Widget, String)> getNavigationButtons() {
+    return [
+      (_settingsAvatar, _settingsAvatar, _i18n.get("settings")),
+      (
+        const Icon(CupertinoIcons.bubble_left_bubble_right),
+        const Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+        _i18n.get("chats")
+      ),
+      (
+        const Icon(CupertinoIcons.house),
+        const Icon(CupertinoIcons.house_fill),
+        _i18n.get("home")
+      ),
+      if (isMobileNative)
+        (
+          const Icon(MdiIcons.shoppingOutline),
+          const Icon(MdiIcons.shopping),
+          _i18n.get("bamak")
+        ),
+    ];
+  }
+
   NavigationBar? getNavigationBar(BuildContext context) {
     if (isLarge(context)) {
       return null;
     }
     return NavigationBar(
       destinations: [
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
-          label: _i18n.get(
-            "chats",
-          ),
-        ),
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.home),
-          label: _i18n.get(
-            "home",
-          ),
-        ),
-        NavigationDestination(
-          icon: const Icon(CupertinoIcons.settings),
-          label: _i18n.get(
-            "settings",
-          ),
-        ),
-        if (isMobileNative)
+        for (final (index, (icon, selectedIcon, label))
+            in getNavigationButtons().indexed)
           NavigationDestination(
-            icon: const Icon(MdiIcons.shoppingOutline),
-            label: _i18n.get(
-              "bamak",
-            ),
-          ),
+            icon: _currentPageIndex == index ? selectedIcon : icon,
+            label: label,
+          )
       ],
       selectedIndex: _currentPageIndex,
       animationDuration: AnimationSettings.actualStandard,
@@ -117,23 +125,12 @@ class NavigationBarPageState extends State<NavigationBarPage> {
           Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3),
       groupAlignment: 0,
       destinations: [
-        NavigationRailDestination(
-          icon: const Icon(CupertinoIcons.bubble_left_bubble_right),
-          label: Text(_i18n.get("chats")),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(CupertinoIcons.home),
-          label: Text(_i18n.get("home")),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(CupertinoIcons.settings),
-          label: Text(_i18n.get("settings")),
-        ),
-        if (isMobileNative)
+        for (final (index, (icon, selectedIcon, label))
+            in getNavigationButtons().indexed)
           NavigationRailDestination(
-            icon: const Icon(MdiIcons.shoppingOutline),
-            label: Text(_i18n.get("bamak")),
-          ),
+            icon: _currentPageIndex == index ? selectedIcon : icon,
+            label: Text(label),
+          )
       ],
       selectedIndex: _currentPageIndex,
       onDestinationSelected: (index) {

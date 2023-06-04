@@ -117,14 +117,15 @@ const _connectionSettingsPage = ConnectionSettingPage(
 const _emptyRoute = "/";
 
 class PreMaybePopScope {
-  final Map<String, bool Function()> map = {};
+  final Map<String, Future<bool> Function()> map = {};
 
-  void register(String name, bool Function() callback) => map[name] = callback;
+  void register(String name, Future<bool> Function() callback) =>
+      map[name] = callback;
 
   void unregister(String name) => map.remove(name);
 
-  bool maybePop() =>
-      map.values.map((e) => e.call()).fold(true, (a, b) => a && b);
+  Future<bool> maybePop() => Future.wait<bool>(map.values.map((e) => e.call()))
+      .then((list) => !list.any((e) => !e));
 }
 
 class RoutingService {
@@ -607,7 +608,10 @@ class RoutingService {
         },
       );
 
-  void registerPreMaybePopScope(String name, bool Function() callback) =>
+  void registerPreMaybePopScope(
+    String name,
+    Future<bool> Function() callback,
+  ) =>
       _preMaybePopScope.register(name, callback);
 
   void unregisterPreMaybePopScope(String name) =>
@@ -620,13 +624,13 @@ class RoutingService {
     }
   }
 
-  bool preMaybePopScopeValue() => _preMaybePopScope.maybePop();
+  Future<bool> preMaybePopScopeValue() => _preMaybePopScope.maybePop();
 
-  bool maybePop() {
-    final value = _preMaybePopScope.maybePop();
+  Future<bool> maybePop() async {
+    final value = await _preMaybePopScope.maybePop();
     if (value) {
       if (canPop()) {
-        _homeNavigatorState.currentState?.maybePop();
+        unawaited(_homeNavigatorState.currentState?.maybePop());
       }
     }
     return value;

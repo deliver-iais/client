@@ -183,7 +183,7 @@ class HomePageState extends State<HomePage> {
             return _routingService.maybePop();
           }
         }
-        _routingService.maybePop();
+        unawaited(_routingService.maybePop());
         return false;
       },
       child: Container(
