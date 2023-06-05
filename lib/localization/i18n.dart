@@ -37,6 +37,8 @@ class I18N {
 
   TextDirection get defaultTextDirection =>
       isRtl ? TextDirection.rtl : TextDirection.ltr;
+  TextDirection get reverseDefaultTextDirection =>
+      isRtl ? TextDirection.ltr : TextDirection.rtl;
 
   Stream get localeStream => settings.language.stream.map((e) => e.locale);
 

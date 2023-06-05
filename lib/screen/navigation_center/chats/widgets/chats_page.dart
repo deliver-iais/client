@@ -12,6 +12,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:great_list_view/great_list_view.dart';
@@ -20,9 +21,11 @@ import 'package:rxdart/rxdart.dart';
 final bucketGlobal = PageStorageBucket();
 
 class ChatsPage extends StatefulWidget {
-  final ScrollController scrollController;
+   final ScrollController _sliverScrollController;
+  final Categories? roomCategory;
+  final void Function(ScrollController) setChatScrollController;
 
-  const ChatsPage({super.key, required this.scrollController});
+  const ChatsPage({super.key, required ScrollController scrollController, this.roomCategory, required this.setChatScrollController}) : _sliverScrollController = scrollController;
 
   @override
   ChatsPageState createState() => ChatsPageState();
@@ -46,6 +49,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
+  final ScrollController _scrollController=ScrollController();
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
   late StreamSubscription<List<RoomWrapper>> _streamSubscription;
   final List<Room> _pinRoomsList = <Room>[];
@@ -93,7 +97,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     return AnimatedListView(
-      scrollController: widget.scrollController,
+      scrollController: _scrollController,
       listController: _controller,
       initialItemCount: _dispatcher.currentList.length,
       itemBuilder: (context, index, data) =>
@@ -152,6 +156,10 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   @override
   void initState() {
+    widget.setChatScrollController(_scrollController);
+    _scrollController.addListener(() {
+      widget._sliverScrollController.jumpTo(_scrollController.offset);
+    });
     super.initState();
 
     _dispatcher = AnimatedListDiffListDispatcher<RoomWrapper>(
@@ -165,7 +173,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     );
 
     _streamSubscription = _roomRepo
-        .watchAllRooms()
+        .watchAllRooms(roomCategory: widget.roomCategory)
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
           _pinRoomsList.clear();
@@ -193,6 +201,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   @override
   void dispose() {
     super.dispose();
+    _scrollController.dispose();
     _streamSubscription.cancel();
   }
 
