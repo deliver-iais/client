@@ -180,11 +180,9 @@ class WebViewPageState extends State<WebViewPage> {
   }
 
   Future<void> initializeWebChannel(InAppWebViewController controller) async {
-    print(getThemeDataColorList(settings.themeData));
-
     await controller.injectCSSCode(
       source: colorListToCss([
-        // ...getCorePaletteList(settings.corePalette),
+        ...getCorePaletteList(settings.corePalette),
         ...getThemeDataColorList(settings.themeData)
       ]),
     );
