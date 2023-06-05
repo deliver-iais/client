@@ -223,7 +223,7 @@ class Settings {
   );
   final webViewUrl = StringPersistent(
     SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
-    defaultValue: "https://digikala.com",
+    defaultValue: "http://172.16.121.52:4200",
   );
   final onceShowNewVersionInformation = OncePersistent(
     SharedKeys.ONCE_SHOW_NEW_VERSION_INFORMATION.inSharedDaoStorage(),
@@ -363,6 +363,8 @@ class Settings {
 
   CorePalette get corePalette =>
       CorePalette.of(palettes[themeColorIndex.value % palettes.length].value);
+
+
 }
 
 class FeatureFlags {

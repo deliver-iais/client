@@ -121,8 +121,12 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   NavigationRail getNavigationRail(BuildContext context) {
     return NavigationRail(
       labelType: NavigationRailLabelType.all,
-      backgroundColor:
-          Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3),
+      // backgroundColor:
+      //     Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.2),
+      indicatorColor: Theme.of(context).colorScheme.tertiaryContainer,
+      selectedIconTheme: IconThemeData(
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+      ),
       groupAlignment: 0,
       destinations: [
         for (final (index, (icon, selectedIcon, label))

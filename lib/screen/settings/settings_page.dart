@@ -22,6 +22,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/release_badge.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import "package:deliver/web_classes/html.dart"
     if (dart.library.html) 'dart:html' as html;
 import 'package:flutter/cupertino.dart';
@@ -71,16 +72,10 @@ class SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // appBar: BlurredPreferredSizedWidget(
-      //   child: AppBar(
-      //     // titleSpacing: 8,
-      //     title: Text(_i18n.get("settings")),
-      //     // leading: _routingService.backButtonLeading(),
-      //   ),
-      // ),
       body: FluidContainerWidget(
         child: ListView(
           children: [
+            const SizedBox(height: p24),
             Section(
               children: [
                 NormalSettingsTitle(
