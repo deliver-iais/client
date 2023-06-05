@@ -40,10 +40,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
       future: _recentRoomsDao.getAll(),
       builder: (context, recentRooms) {
         if (recentRooms.hasData && recentRooms.data != null) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Divider(),
+          return
               SizedBox(
                 height: 110,
                 child: ListView.builder(
@@ -111,9 +108,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
                   },
                   itemCount: recentRooms.data!.length,
                 ),
-              ),
-            ],
-          );
+              );
         } else {
           return const SizedBox.shrink();
         }
@@ -132,27 +127,31 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
           return Column(
             children: [
               Container(
-                color: theme.dividerColor.withAlpha(10),
+                color: theme.dividerColor.withAlpha(40),
                 padding: const EdgeInsets.all(8),
                 margin: const EdgeInsetsDirectional.only(bottom: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _i18n.get("recent_search"),
-                      style: getFadeTextStyle(context),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(100, 10),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
+                    Flexible(
                       child: Text(
-                        _i18n.get("clear_all"),
+                        _i18n.get("recent_search"),
                         style: getFadeTextStyle(context),
                       ),
-                      onPressed: () => _recentSearch.deleteAll(),
+                    ),
+                    Flexible(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(100, 10),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          _i18n.get("clear_all"),
+                          style: getFadeTextStyle(context),
+                        ),
+                        onPressed: () => _recentSearch.deleteAll(),
+                      ),
                     ),
                   ],
                 ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 abstract interface class RoomDao {
@@ -25,7 +26,7 @@ abstract interface class RoomDao {
 
   Future<List<Room>> getAllRooms();
 
-  Stream<List<Room>> watchAllRooms();
+  Stream<List<Room>> watchAllRooms({Categories? roomCategory});
 
   Future<Room?> getRoom(Uid roomUid);
 
