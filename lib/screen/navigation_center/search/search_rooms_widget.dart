@@ -5,7 +5,7 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:flutter/material.dart';
 
 class SearchRoomsWidget extends StatefulWidget {
-  final TextEditingController searchBoxController;
+  final SearchController searchBoxController;
 
   const SearchRoomsWidget({Key? key, required this.searchBoxController})
       : super(key: key);
@@ -16,6 +16,11 @@ class SearchRoomsWidget extends StatefulWidget {
 
 class _SearchRoomsWidgetState extends State<SearchRoomsWidget>
     with SingleTickerProviderStateMixin {
+ @override
+  void dispose() {
+   widget.searchBoxController.clear();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     if (widget.searchBoxController.text.isNotEmpty) {

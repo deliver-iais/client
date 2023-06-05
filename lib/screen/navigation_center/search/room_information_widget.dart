@@ -48,31 +48,35 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                CircleAvatarWidget(
-                  widget.uid,
-                  26,
-                  showSavedMessageLogoIfNeeded: true,
+                Flexible(
+                  child: CircleAvatarWidget(
+                    widget.uid,
+                    26,
+                    showSavedMessageLogoIfNeeded: true,
+                  ),
                 ),
                 const SizedBox(
                   width: 10,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 200,
-                      child: RoomName(
-                        uid: widget.uid,
-                        forceToReturnSavedMessage: true,
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 200,
+                        child: RoomName(
+                          uid: widget.uid,
+                          forceToReturnSavedMessage: true,
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    _buildRoomStatus(
-                      widget.uid,
-                    )
-                  ],
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      _buildRoomStatus(
+                        widget.uid,
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),

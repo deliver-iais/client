@@ -54,7 +54,6 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: true,
-                        style: theme.textTheme.titleLarge,
                         key: ValueKey(randomString(10)),
                       ),
                     ),

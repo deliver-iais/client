@@ -388,7 +388,7 @@ class RoomRepo {
 
   Stream<bool?> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
-  Stream<List<Room>> watchAllRooms() => _roomDao.watchAllRooms();
+  Stream<List<Room>> watchAllRooms({Categories? roomCategory}) => _roomDao.watchAllRooms(roomCategory: roomCategory);
 
   Stream<Room> watchRoom(Uid roomUid) => _roomDao.watchRoom(roomUid);
 
