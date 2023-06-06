@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -198,18 +199,31 @@ class WebViewPageState extends State<WebViewPage> {
 
       // set the web message callback for the port1
       await weMessengerChannel!.setWebMessageCallback((message) async {
-        final command = message!;
+        final command = jsonDecode(message ?? "{}");
 
         _logger.i("Message2 coming from web side: $message");
-        switch (command) {
+
+        switch (command["command"]) {
           case "IDENTIFICATION":
-            // TODO(any): implemete call profile Service and get identiry Token
-            //_sdr.userServiceClient.
+            final data = {
+              "command": "IDENTIFICATION",
+              "data": {"bearer": "09379612324"}
+            };
+
             await weMessengerChannel!.postMessage(
-              WebMessage(data: "09379612324"),
+              WebMessage(data: jsonEncode(data)),
             );
             break;
         }
+        // switch (command) {
+        //   case "IDENTIFICATION":
+        //     // TODO(any): implemete call profile Service and get identiry Token
+        //     //_sdr.userServiceClient.
+        //     await weMessengerChannel!.postMessage(
+        //       WebMessage(data: "09379612324"),
+        //     );
+        //     break;
+        // }
       });
       // transfer port2 to the webpage to initialize the communication
       await controller.postWebMessage(

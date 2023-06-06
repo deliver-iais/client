@@ -5,8 +5,6 @@ import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
-import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigaton_center_circle_avatar_widget.dart';
-import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -85,9 +83,6 @@ class NavigationCenterState extends State<NavigationCenter> {
     super.dispose();
   }
 
-  bool get showShowcase =>
-      settings.showShowcasePage.value && SHOWCASES_IS_AVAILABLE;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -96,7 +91,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: const CreateMucFloatingActionButton(),
         body: DefaultTabController(
-          length: showShowcase ? 0 : 4,
+          length: 4,
           child: NestedScrollView(
             controller: _sliverScrollController,
             floatHeaderSlivers: true,
@@ -106,11 +101,8 @@ class NavigationCenterState extends State<NavigationCenter> {
                   pinned: true,
                   floating: true,
                   backgroundColor: theme.colorScheme.background,
-                  leading: HideSliverAppbarAnimationWidget(
-                    child: const NavigationCenterCircleAvatarWidget(),
-                  ),
                   titleSpacing: 8.0,
-                  title: ConnectionStatus(isShowCase: showShowcase),
+                  title: ConnectionStatus(normalTitle: _i18n.get("chats")),
                   actions: [
                     HideSliverAppbarAnimationWidget(
                       child: NavigationCenterAppbarActionsWidget(
@@ -120,31 +112,28 @@ class NavigationCenterState extends State<NavigationCenter> {
                             _routingService.animateResizablePanels();
                           },
                         ),
-                        showShowcase: showShowcase,
                         searchController: _searchBoxController,
                       ),
                     ),
                   ],
-                  bottom: showShowcase
-                      ? null
-                      : TabBar(
-                          onTap: (index) {
-                            if (_chatScrollController.hasClients) {
-                              _chatScrollController.animateTo(
-                                0.0,
-                                curve: Curves.easeOut,
-                                duration: AnimationSettings.slow,
-                              );
-                            }
-                          },
-                          labelPadding: const EdgeInsets.all(10),
-                          tabs: [
-                            Text(_i18n.get("all")),
-                            Text(_i18n.get("personal")),
-                            Text(_i18n.get("channel")),
-                            Text(_i18n.get("group")),
-                          ],
-                        ),
+                  bottom: TabBar(
+                    onTap: (index) {
+                      if (_chatScrollController.hasClients) {
+                        _chatScrollController.animateTo(
+                          0.0,
+                          curve: Curves.easeOut,
+                          duration: AnimationSettings.slow,
+                        );
+                      }
+                    },
+                    labelPadding: const EdgeInsets.all(10),
+                    tabs: [
+                      Text(_i18n.get("all")),
+                      Text(_i18n.get("personal")),
+                      Text(_i18n.get("channel")),
+                      Text(_i18n.get("group")),
+                    ],
+                  ),
                 ),
               ];
             },
@@ -178,41 +167,20 @@ class NavigationCenterState extends State<NavigationCenter> {
                         child: child,
                       );
                     },
-                    child: !showShowcase
-                        ? TabBarView(
-                            children: [
-                              PageTransitionSwitcher(
-                                duration: AnimationSettings.standard,
-                                transitionBuilder: (
-                                  child,
-                                  animation,
-                                  secondaryAnimation,
-                                ) {
-                                  return SharedAxisTransition(
-                                    fillColor: Colors.transparent,
-                                    animation: animation,
-                                    secondaryAnimation: secondaryAnimation,
-                                    transitionType:
-                                        SharedAxisTransitionType.scaled,
-                                    child: child,
-                                  );
-                                },
-                                child: !showShowcase
-                                    ? _buildChatPageByCategory()
-                                    : const ShowcasePage(),
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.USER,
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.CHANNEL,
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.GROUP,
-                              )
-                            ],
-                          )
-                        : const ShowcasePage(),
+                    child: TabBarView(
+                      children: [
+                        _buildChatPageByCategory(),
+                        _buildChatPageByCategory(
+                          roomCategory: Categories.USER,
+                        ),
+                        _buildChatPageByCategory(
+                          roomCategory: Categories.CHANNEL,
+                        ),
+                        _buildChatPageByCategory(
+                          roomCategory: Categories.GROUP,
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 NewVersion.newVersionInfo(),

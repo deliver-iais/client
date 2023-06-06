@@ -11,9 +11,9 @@ import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 
 class ConnectionStatus extends StatefulWidget {
-  final bool isShowCase;
+  final String normalTitle;
 
-  const ConnectionStatus({super.key, required this.isShowCase});
+  const ConnectionStatus({super.key, required this.normalTitle});
 
   @override
   State<ConnectionStatus> createState() => _ConnectionStatusState();
@@ -91,15 +91,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        if (widget.isShowCase) {
-          return _i18n.get("showcase").capitalCase;
-        }
-        // else if (_settings.isShowEventsEnabled) {
-        //   return _i18n.get("events").capitalCase;
-        // }
-        else {
-          return _i18n.get("chats").capitalCase;
-        }
+        return widget.normalTitle.capitalCase;
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
     }
