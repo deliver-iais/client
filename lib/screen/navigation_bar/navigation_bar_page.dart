@@ -83,7 +83,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
         const Icon(CupertinoIcons.house_fill),
         _i18n.get("home")
       ),
-      if (isMobileNative)
+      if (WEBVIEW_IS_AVAILABLE && isMobileNative)
         (
           const Icon(MdiIcons.shoppingOutline),
           const Icon(MdiIcons.shopping),
