@@ -1,28 +1,22 @@
-import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/search/search_rooms_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
-import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hovering/hovering.dart';
 
 class NavigationCenterAppbarActionsWidget extends StatefulWidget {
-  final VoidCallback onShowcasePageToggle;
   final SearchController searchController;
 
   const NavigationCenterAppbarActionsWidget({
     Key? key,
-    required this.searchController, required this.onShowcasePageToggle,
+    required this.searchController,
   }) : super(key: key);
 
   @override

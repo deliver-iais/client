@@ -1,6 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -10,7 +9,6 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/widgets/dot_animation/jumping_dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,11 +25,8 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
   late List<Widget> navigationBarWidgets;
-  int _currentPageIndex = settings.initAppPage.value;
+  int _currentPageIndex = SHOWCASES_SHOWING_FIRST ? 2 : 1;
   final _i18n = GetIt.I.get<I18N>();
-
-  bool get showShowcase =>
-      settings.showShowcasePage.value && SHOWCASES_IS_AVAILABLE;
 
   //pages
   static final _globalKeyNavigationCenter = GlobalKey();
@@ -141,6 +136,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       selectedIndex: _currentPageIndex,
       onDestinationSelected: (index) {
         setState(() {
+          settings.showShowcasePage.set(index == 2);
           _currentPageIndex = index;
         });
       },

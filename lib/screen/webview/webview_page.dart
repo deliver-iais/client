@@ -217,7 +217,7 @@ class WebViewPageState extends State<WebViewPage> {
         }
         // switch (command) {
         //   case "IDENTIFICATION":
-        //     // TODO(any): implemete call profile Service and get identiry Token
+        // TODO(any): implemete call profile Service and get identiry Token
         //     //_sdr.userServiceClient.
         //     await weMessengerChannel!.postMessage(
         //       WebMessage(data: "09379612324"),

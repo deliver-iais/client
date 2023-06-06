@@ -65,10 +65,6 @@ class Settings {
         .inSharedDaoStorage(),
     defaultValue: 0,
   );
-  final initAppPage = IntPersistent(
-    SharedKeys.SHARED_DAO_INIT_APP_PAGE.inSharedDaoStorage(),
-    defaultValue: 1,
-  );
   final textScale = DoublePersistent(
     SharedKeys.SHARED_DAO_THEME_FONT_SIZE.inSharedDaoStorage(),
     defaultValue: 1.0,
@@ -94,8 +90,8 @@ class Settings {
     defaultValue: false,
   );
   final showShowcasePage = BooleanPersistent(
-    SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE.inSharedDaoStorage(),
-    defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
+    SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE.inMemoryStorage(),
+    defaultValue: SHOWCASES_SHOWING_FIRST,
   );
   final firebaseSettingIsSet = BooleanPersistent(
     SharedKeys.SHARED_DAO_FIREBASE_SETTING_IS_SET.inSharedDaoStorage(),
@@ -363,8 +359,6 @@ class Settings {
 
   CorePalette get corePalette =>
       CorePalette.of(palettes[themeColorIndex.value % palettes.length].value);
-
-
 }
 
 class FeatureFlags {

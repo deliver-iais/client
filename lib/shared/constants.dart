@@ -79,7 +79,7 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
-const bool SHOWCASES_IS_AVAILABLE = true;
+const bool WEBVIEW_IS_AVAILABLE = true;
 const bool SHOWCASES_SHOWING_FIRST = true;
 
 // Fake User Constants

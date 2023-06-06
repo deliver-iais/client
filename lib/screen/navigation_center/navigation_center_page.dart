@@ -106,12 +106,6 @@ class NavigationCenterState extends State<NavigationCenter> {
                   actions: [
                     HideSliverAppbarAnimationWidget(
                       child: NavigationCenterAppbarActionsWidget(
-                        onShowcasePageToggle: () => setState(
-                          () {
-                            settings.showShowcasePage.toggleValue();
-                            _routingService.animateResizablePanels();
-                          },
-                        ),
                         searchController: _searchBoxController,
                       ),
                     ),
@@ -214,28 +208,4 @@ class NavigationCenterState extends State<NavigationCenter> {
       },
     );
   }
-
-// Widget buildMenu(BuildContext context) {
-//   final theme = Theme.of(context);
-//   return DescribedFeatureOverlay(
-//     featureId: FEATURE_1,
-//     tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
-//     backgroundColor: theme.colorScheme.tertiaryContainer,
-//     targetColor: theme.colorScheme.tertiary,
-//     title: Text(
-//       _i18n.get("create_group_feature_discovery_title"),
-//       textDirection: _i18n.defaultTextDirection,
-//       style: TextStyle(
-//         color: theme.colorScheme.onTertiaryContainer,
-//       ),
-//     ),
-//     description: FeatureDiscoveryDescriptionWidget(
-//       description: _i18n.get("create_group_feature_description"),
-//       descriptionStyle: TextStyle(
-//         color: theme.colorScheme.onTertiaryContainer,
-//       ),
-//     ),
-//     child:
-//   );
-// }
 }
