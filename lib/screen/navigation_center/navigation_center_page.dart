@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
@@ -74,7 +73,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         );
       }
     });
-    //_callRepo.listenBackgroundCall();
+
     super.initState();
   }
 
@@ -108,29 +107,33 @@ class NavigationCenterState extends State<NavigationCenter> {
                     1.3,
                   ),
                   titleSpacing: 8.0,
+                  toolbarHeight: APPBAR_HEIGHT,
                   title: ConnectionStatus(normalTitle: _i18n.get("chats")),
                   actions: [
                     NavigationCenterAppbarActionsWidget(
                       searchController: _searchBoxController,
                     ),
                   ],
-                  bottom: TabBar(
-                    onTap: (index) {
-                      if (_chatScrollController.hasClients) {
-                        _chatScrollController.animateTo(
-                          0.0,
-                          curve: Curves.easeOut,
-                          duration: AnimationSettings.slow,
-                        );
-                      }
-                    },
-                    labelPadding: const EdgeInsets.all(10),
-                    tabs: [
-                      Text(_i18n.get("all")),
-                      Text(_i18n.get("personal")),
-                      Text(_i18n.get("channel")),
-                      Text(_i18n.get("group")),
-                    ],
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+                    child: TabBar(
+                      onTap: (index) {
+                        if (_chatScrollController.hasClients) {
+                          _chatScrollController.animateTo(
+                            0.0,
+                            curve: Curves.easeOut,
+                            duration: AnimationSettings.slow,
+                          );
+                        }
+                      },
+                      labelPadding: const EdgeInsets.all(10),
+                      tabs: [
+                        Text(_i18n.get("all")),
+                        Text(_i18n.get("personal")),
+                        Text(_i18n.get("channel")),
+                        Text(_i18n.get("group")),
+                      ],
+                    ),
                   ),
                 ),
               ];
