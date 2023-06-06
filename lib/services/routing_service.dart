@@ -912,11 +912,6 @@ class Empty extends StatelessWidget {
             scale: isInShowcasePage ? 1 : 1.1,
             child: Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black54,
-                ),
                 AnimatedOpacity(
                   duration: AnimationSettings.standard,
                   curve: _animationCurves,

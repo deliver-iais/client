@@ -14,6 +14,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -100,14 +101,17 @@ class NavigationCenterState extends State<NavigationCenter> {
                 SliverAppBar(
                   pinned: true,
                   floating: true,
-                  backgroundColor: theme.colorScheme.background,
+                  elevation: 6,
+                  backgroundColor: elevation(
+                    theme.colorScheme.background,
+                    theme.colorScheme.primary,
+                    1.3,
+                  ),
                   titleSpacing: 8.0,
                   title: ConnectionStatus(normalTitle: _i18n.get("chats")),
                   actions: [
-                    HideSliverAppbarAnimationWidget(
-                      child: NavigationCenterAppbarActionsWidget(
-                        searchController: _searchBoxController,
-                      ),
+                    NavigationCenterAppbarActionsWidget(
+                      searchController: _searchBoxController,
                     ),
                   ],
                   bottom: TabBar(
@@ -146,35 +150,19 @@ class NavigationCenterState extends State<NavigationCenter> {
                 const HasCallRow(),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
                 Expanded(
-                  child: PageTransitionSwitcher(
-                    duration: AnimationSettings.standard,
-                    transitionBuilder: (
-                      child,
-                      animation,
-                      secondaryAnimation,
-                    ) {
-                      return SharedAxisTransition(
-                        fillColor: Colors.transparent,
-                        animation: animation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.scaled,
-                        child: child,
-                      );
-                    },
-                    child: TabBarView(
-                      children: [
-                        _buildChatPageByCategory(),
-                        _buildChatPageByCategory(
-                          roomCategory: Categories.USER,
-                        ),
-                        _buildChatPageByCategory(
-                          roomCategory: Categories.CHANNEL,
-                        ),
-                        _buildChatPageByCategory(
-                          roomCategory: Categories.GROUP,
-                        )
-                      ],
-                    ),
+                  child: TabBarView(
+                    children: [
+                      _buildChatPageByCategory(),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.USER,
+                      ),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.CHANNEL,
+                      ),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.GROUP,
+                      )
+                    ],
                   ),
                 ),
                 NewVersion.newVersionInfo(),
@@ -192,20 +180,6 @@ class NavigationCenterState extends State<NavigationCenter> {
       setChatScrollController: _setChatScrollController,
       scrollController: _sliverScrollController,
       roomCategory: roomCategory,
-    );
-  }
-
-  Widget HideSliverAppbarAnimationWidget({required Widget child}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final opacity = constraints.biggest.height /
-            (MediaQuery.of(context).padding.top + kToolbarHeight);
-        return AnimatedOpacity(
-          duration: AnimationSettings.standard,
-          opacity: opacity > 0.5 ? opacity : 0,
-          child: child,
-        );
-      },
     );
   }
 }

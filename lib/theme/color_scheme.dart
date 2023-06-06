@@ -201,7 +201,7 @@ Color _harmonizeColor(Color from, Color to) {
   return Color(Blend.harmonize(from.value, to.value));
 }
 
-Color elevation(Color surface, Color primary, int number) =>
+Color elevation(Color surface, Color primary, double number) =>
     Color.lerp(surface, primary, number * 3 / 100)!;
 
 ThemeData getThemeData(ColorScheme colorScheme) {

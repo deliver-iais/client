@@ -19,7 +19,7 @@ class ExtraThemeData {
 
   Color highlight() => colorScheme.primary;
 
-  Color surfaceElevation(int number, {bool isSender = false}) => elevation(
+  Color surfaceElevation(double number, {bool isSender = false}) => elevation(
         colorScheme.surface,
         isSender ? colorScheme.tertiaryContainer : colorScheme.primaryContainer,
         number,

@@ -4,6 +4,7 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/screen/webview/webview_page.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -23,10 +24,11 @@ class NavigationBarPage extends StatefulWidget {
 
 class NavigationBarPageState extends State<NavigationBarPage> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   late List<Widget> navigationBarWidgets;
   int _currentPageIndex = SHOWCASES_SHOWING_FIRST ? 2 : 1;
-  final _i18n = GetIt.I.get<I18N>();
 
   //pages
   static final _globalKeyNavigationCenter = GlobalKey();
@@ -107,11 +109,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       ],
       selectedIndex: _currentPageIndex,
       animationDuration: AnimationSettings.actualStandard,
-      onDestinationSelected: (index) {
-        setState(() {
-          _currentPageIndex = index;
-        });
-      },
+      onDestinationSelected: setAppIndex,
     );
   }
 
@@ -134,12 +132,17 @@ class NavigationBarPageState extends State<NavigationBarPage> {
           )
       ],
       selectedIndex: _currentPageIndex,
-      onDestinationSelected: (index) {
-        setState(() {
-          settings.showShowcasePage.set(index == 2);
-          _currentPageIndex = index;
-        });
-      },
+      onDestinationSelected: setAppIndex,
     );
+  }
+
+  void setAppIndex(int index) {
+    setState(() {
+      settings.showShowcasePage.set(index == 2);
+      // if (index == 2) {
+        _routingService.animateResizablePanels();
+      // }
+      _currentPageIndex = index;
+    });
   }
 }
