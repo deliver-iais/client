@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -12,6 +14,9 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+// commands
+const IDENTIFICATION = "IDENTIFICATION";
 
 class WebViewPage extends StatefulWidget {
   const WebViewPage({super.key});
@@ -24,7 +29,7 @@ class WebViewPageState extends State<WebViewPage> {
   static final _routingService = GetIt.I.get<RoutingService>();
   final _logger = GetIt.I.get<Logger>();
 
-  // final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   late InAppWebViewController webViewController;
   late PullToRefreshController? pullToRefreshController;
@@ -114,8 +119,8 @@ class WebViewPageState extends State<WebViewPage> {
                       final p = snapshot.data ?? 0;
                       if (p < 1.0) {
                         return Shimmer.fromColors(
-                          baseColor: theme.primary.withOpacity(0.7),
-                          highlightColor: theme.primary.withOpacity(0.0),
+                          baseColor: theme.outline.withOpacity(0.15),
+                          highlightColor: theme.onSurface.withOpacity(0.23),
                           child: Container(
                             decoration: BoxDecoration(
                               color: theme.surface,
@@ -199,31 +204,29 @@ class WebViewPageState extends State<WebViewPage> {
 
       // set the web message callback for the port1
       await weMessengerChannel!.setWebMessageCallback((message) async {
-        final command = jsonDecode(message ?? "{}");
+        try {
+          final command = jsonDecode(message ?? "{}");
 
-        _logger.i("Message2 coming from web side: $message");
+          _logger.i("Message coming from web side: $message");
 
-        switch (command["command"]) {
-          case "IDENTIFICATION":
-            final data = {
-              "command": "IDENTIFICATION",
-              "data": {"bearer": "09379612324"}
-            };
+          switch (command["command"]) {
+            case IDENTIFICATION:
+              final res = await _sdr.userServiceClient
+                  .getWebViewIdentifyToken(GetWebViewIdentifyTokenReq());
 
-            await weMessengerChannel!.postMessage(
-              WebMessage(data: jsonEncode(data)),
-            );
-            break;
+              final data = {
+                "command": IDENTIFICATION,
+                "data": {"bearer": res.identifyToken}
+              };
+
+              await weMessengerChannel!.postMessage(
+                WebMessage(data: jsonEncode(data)),
+              );
+              break;
+          }
+        } catch (e) {
+          _logger.e("error on channel communication", e);
         }
-        // switch (command) {
-        //   case "IDENTIFICATION":
-        // TODO(any): implemete call profile Service and get identiry Token
-        //     //_sdr.userServiceClient.
-        //     await weMessengerChannel!.postMessage(
-        //       WebMessage(data: "09379612324"),
-        //     );
-        //     break;
-        // }
       });
       // transfer port2 to the webpage to initialize the communication
       await controller.postWebMessage(
