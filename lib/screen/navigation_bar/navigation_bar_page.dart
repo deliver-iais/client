@@ -89,7 +89,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
         (
           const Icon(MdiIcons.shoppingOutline),
           const Icon(MdiIcons.shopping),
-          _i18n.get("bamak")
+          _i18n.get("store")
         ),
     ];
   }
