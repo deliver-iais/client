@@ -257,50 +257,60 @@ class VerificationPageState extends State<VerificationPage> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: p16),
-                  child: StreamBuilder<int>(
-                    stream: _authRepo.watchResendTimer(),
-                    builder: (c, timer) {
-                      if (timer.hasData &&
-                          timer.data != null &&
-                          timer.data! > 0) {
-                        return Text("${_i18n.get(
-                          "you_can_request_an_sms_after",
-                        )} ${formatDuration(
-                          Duration(seconds: timer.data!),
-                        )}");
-                      }
-                      return StreamBuilder<VerificationType>(
-                        stream: _verificationType.stream,
-                        builder: (context, verificationTypeSnapshot) {
-                          if (verificationTypeSnapshot.hasData &&
-                              verificationTypeSnapshot.data != null) {
-                            return TextButton(
-                              onPressed: () async {
-                                try {
-                                  _verificationType.add(
-                                    await _authRepo.getVerificationCode(
-                                      forceToSendSms: true,
-                                    ),
-                                  );
-                                } catch (_) {
-                                  _logger.e(_);
+                StreamBuilder<bool>(
+                  stream: _isLoading,
+                  initialData: false,
+                  builder: (context, snapshot) {
+                    return !(snapshot.data ?? false)
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: p16),
+                            child: StreamBuilder<int>(
+                              stream: _authRepo.watchResendTimer(),
+                              builder: (c, timer) {
+                                if (timer.hasData &&
+                                    timer.data != null &&
+                                    timer.data! > 0) {
+                                  return Text("${_i18n.get(
+                                    "you_can_request_an_sms_after",
+                                  )} ${formatDuration(
+                                    Duration(seconds: timer.data!),
+                                  )}");
                                 }
+                                return StreamBuilder<VerificationType>(
+                                  stream: _verificationType.stream,
+                                  builder: (context, verificationTypeSnapshot) {
+                                    if (verificationTypeSnapshot.hasData &&
+                                        verificationTypeSnapshot.data != null) {
+                                      return TextButton(
+                                        onPressed: () async {
+                                          try {
+                                            _verificationType.add(
+                                              await _authRepo
+                                                  .getVerificationCode(
+                                                forceToSendSms: true,
+                                              ),
+                                            );
+                                          } catch (_) {
+                                            _logger.e(_);
+                                          }
+                                        },
+                                        child: Text(
+                                          verificationTypeSnapshot.data! ==
+                                                  VerificationType.MESSAGE
+                                              ? _i18n.get(
+                                                  "get_verification_code_by_sms",)
+                                              : _i18n.get("resend_sms_code"),
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
+                                  },
+                                );
                               },
-                              child: Text(
-                                verificationTypeSnapshot.data! ==
-                                        VerificationType.MESSAGE
-                                    ? _i18n.get("get_verification_code_by_sms")
-                                    : _i18n.get("resend_sms_code"),
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      );
-                    },
-                  ),
+                            ),
+                          )
+                        : const SizedBox.shrink();
+                  },
                 ),
               ],
             ),

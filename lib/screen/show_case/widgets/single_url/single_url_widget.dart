@@ -193,7 +193,7 @@ class SingleUrlWidget extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: p8,
+                      vertical: p4,
                       horizontal: p8,
                     ),
                     child: Column(

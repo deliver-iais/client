@@ -3,7 +3,8 @@ import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
-import 'package:deliver/box/dao/isar_manager.dart' if (dart.library.html)  'package:deliver/box/dao/web_isar_manager.dart';
+import 'package:deliver/box/dao/isar_manager.dart'
+    if (dart.library.html) 'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
@@ -21,7 +22,7 @@ import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/muc/pages/broadcast_status_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/navigation_bar/navigation_bar_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
@@ -72,8 +73,8 @@ import 'package:rxdart/rxdart.dart';
 
 const _animationCurves = Curves.linearToEaseOut;
 // Pages
-final _globalKeyNavigationCenter = GlobalKey();
-final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
+final _globalKeyNavigationBar = GlobalKey();
+final _navigationBar = NavigationBarPage(key: _globalKeyNavigationBar);
 
 const _empty = Empty(key: ValueKey("empty"));
 
@@ -116,14 +117,15 @@ const _connectionSettingsPage = ConnectionSettingPage(
 const _emptyRoute = "/";
 
 class PreMaybePopScope {
-  final Map<String, bool Function()> map = {};
+  final Map<String, Future<bool> Function()> map = {};
 
-  void register(String name, bool Function() callback) => map[name] = callback;
+  void register(String name, Future<bool> Function() callback) =>
+      map[name] = callback;
 
   void unregister(String name) => map.remove(name);
 
-  bool maybePop() =>
-      map.values.map((e) => e.call()).fold(true, (a, b) => a && b);
+  Future<bool> maybePop() => Future.wait<bool>(map.values.map((e) => e.call()))
+      .then((list) => !list.any((e) => !e));
 }
 
 class RoutingService {
@@ -154,74 +156,74 @@ class RoutingService {
     }
   }
 
-  void openLanguageSettings() {
+  void openLanguageSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "languageSettingsPage_open",
     );
-    _push(_languageSettings);
+    _push(_languageSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openPowerSaverSettings() {
+  void openPowerSaverSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "powerSaverSettingsPage_open",
     );
-    _push(_powerSaverSettings);
+    _push(_powerSaverSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openThemeSettings() {
+  void openThemeSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "themeSettingsPage_open",
     );
-    _push(_themeSettings);
+    _push(_themeSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openSecuritySettings() {
+  void openSecuritySettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "securitySettingsPage_open",
     );
-    _push(_securitySettings);
+    _push(_securitySettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openDeveloperPage() {
+  void openDeveloperPage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "developerPage_open",
     );
-    _push(_developerPage);
+    _push(_developerPage, popAllBeforePush: popAllBeforePush);
   }
 
-  void openDevices() {
+  void openDevices({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "devicesPage_open",
     );
-    _push(_devices);
+    _push(_devices, popAllBeforePush: popAllBeforePush);
   }
 
-  void openAutoDownload() {
+  void openAutoDownload({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "autoDownloadPage_open",
     );
-    _push(_autoDownload);
+    _push(_autoDownload, popAllBeforePush: popAllBeforePush);
   }
 
-  void openCallSetting() {
+  void openCallSetting({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "callSettingsPage_open",
     );
-    _push(_callSettings);
+    _push(_callSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openAboutSoftwarePage() {
+  void openAboutSoftwarePage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "aboutSoftwarePage_open",
     );
-    _push(_aboutSoftwarePage);
+    _push(_aboutSoftwarePage, popAllBeforePush: popAllBeforePush);
   }
 
-  void openContacts() {
+  void openContacts({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "contactsPage_open",
     );
-    _push(_contacts);
+    _push(_contacts, popAllBeforePush: popAllBeforePush);
   }
 
   void openNewContact() {
@@ -245,11 +247,11 @@ class RoutingService {
     _push(_showcase);
   }
 
-  void openConnectionSettingPage() {
+  void openConnectionSettingPage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "connectionSettingPage_open",
     );
-    _push(_connectionSettingsPage);
+    _push(_connectionSettingsPage, popAllBeforePush: popAllBeforePush);
   }
 
   String getCurrentRoomId() => _currentRoom;
@@ -606,7 +608,10 @@ class RoutingService {
         },
       );
 
-  void registerPreMaybePopScope(String name, bool Function() callback) =>
+  void registerPreMaybePopScope(
+    String name,
+    Future<bool> Function() callback,
+  ) =>
       _preMaybePopScope.register(name, callback);
 
   void unregisterPreMaybePopScope(String name) =>
@@ -619,13 +624,13 @@ class RoutingService {
     }
   }
 
-  bool preMaybePopScopeValue() => _preMaybePopScope.maybePop();
+  Future<bool> preMaybePopScopeValue() => _preMaybePopScope.maybePop();
 
-  bool maybePop() {
-    final value = _preMaybePopScope.maybePop();
+  Future<bool> maybePop() async {
+    final value = await _preMaybePopScope.maybePop();
     if (value) {
       if (canPop()) {
-        _homeNavigatorState.currentState?.maybePop();
+        unawaited(_homeNavigatorState.currentState?.maybePop());
       }
     }
     return value;
@@ -738,7 +743,7 @@ class RoutingService {
             if (isLarge(c)) {
               return _empty;
             } else {
-              return _navigationCenter;
+              return _navigationBar;
             }
           } catch (_) {
             return _empty;
@@ -751,14 +756,14 @@ class RoutingService {
       return SafeArea(
         child: ResizableWidget(
           key: _resizableWidgetState,
-          minPercentages: const [0.2, 0.5],
+          minPercentages: const [0.3, 0.5],
           maxPercentages: const [0.5, double.infinity],
           percentages: settings.showShowcasePage.value
               ? const [0.5, 0.5]
-              : const [0.2, 0.8],
+              : const [0.3, 0.7],
           separatorSize: 3,
           children: [
-            _navigationCenter,
+            _navigationBar,
             widget,
           ],
           onResized: (info) {
@@ -792,9 +797,12 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading(
-          {Color? color, VoidCallback? onBackButtonLeadingClick}) =>
-      Center(
+  Widget backButtonLeading({
+    Color? color,
+    VoidCallback? onBackButtonLeadingClick,
+  }) {
+    if (canPop()) {
+      return Center(
         child: BackButtonWidget(
           color: color,
           onPressed: () {
@@ -803,6 +811,10 @@ class RoutingService {
           },
         ),
       );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
 }
 
 class BackButtonWidget extends StatelessWidget {
@@ -900,11 +912,6 @@ class Empty extends StatelessWidget {
             scale: isInShowcasePage ? 1 : 1.1,
             child: Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.black54,
-                ),
                 AnimatedOpacity(
                   duration: AnimationSettings.standard,
                   curve: _animationCurves,

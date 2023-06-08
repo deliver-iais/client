@@ -1,12 +1,9 @@
-import 'package:animations/animations.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
-import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigaton_center_circle_avatar_widget.dart';
-import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -16,6 +13,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -75,7 +73,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         );
       }
     });
-    //_callRepo.listenBackgroundCall();
+
     super.initState();
   }
 
@@ -85,9 +83,6 @@ class NavigationCenterState extends State<NavigationCenter> {
     super.dispose();
   }
 
-  bool get showShowcase =>
-      settings.showShowcasePage.value && SHOWCASES_IS_AVAILABLE;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -96,7 +91,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: const CreateMucFloatingActionButton(),
         body: DefaultTabController(
-          length: showShowcase ? 0 : 4,
+          length: 4,
           child: NestedScrollView(
             controller: _sliverScrollController,
             floatHeaderSlivers: true,
@@ -105,46 +100,41 @@ class NavigationCenterState extends State<NavigationCenter> {
                 SliverAppBar(
                   pinned: true,
                   floating: true,
-                  backgroundColor: theme.colorScheme.background,
-                  leading: HideSliverAppbarAnimationWidget(
-                    child: const NavigationCenterCircleAvatarWidget(),
+                  elevation: 6,
+                  backgroundColor: elevation(
+                    theme.colorScheme.background,
+                    theme.colorScheme.primary,
+                    1.3,
                   ),
                   titleSpacing: 8.0,
-                  title: ConnectionStatus(isShowCase: showShowcase),
+                  toolbarHeight: APPBAR_HEIGHT,
+                  title: ConnectionStatus(normalTitle: _i18n.get("chats")),
                   actions: [
-                    HideSliverAppbarAnimationWidget(
-                      child: NavigationCenterAppbarActionsWidget(
-                        onShowcasePageToggle: () => setState(
-                          () {
-                            settings.showShowcasePage.toggleValue();
-                            _routingService.animateResizablePanels();
-                          },
-                        ),
-                        showShowcase: showShowcase,
-                        searchController: _searchBoxController,
-                      ),
+                    NavigationCenterAppbarActionsWidget(
+                      searchController: _searchBoxController,
                     ),
                   ],
-                  bottom: showShowcase
-                      ? null
-                      : TabBar(
-                          onTap: (index) {
-                            if (_chatScrollController.hasClients) {
-                              _chatScrollController.animateTo(
-                                0.0,
-                                curve: Curves.easeOut,
-                                duration: AnimationSettings.slow,
-                              );
-                            }
-                          },
-                          labelPadding: const EdgeInsets.all(10),
-                          tabs: [
-                            Text(_i18n.get("all")),
-                            Text(_i18n.get("personal")),
-                            Text(_i18n.get("channel")),
-                            Text(_i18n.get("group")),
-                          ],
-                        ),
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+                    child: TabBar(
+                      onTap: (index) {
+                        if (_chatScrollController.hasClients) {
+                          _chatScrollController.animateTo(
+                            0.0,
+                            curve: Curves.easeOut,
+                            duration: AnimationSettings.slow,
+                          );
+                        }
+                      },
+                      labelPadding: const EdgeInsets.all(10),
+                      tabs: [
+                        Text(_i18n.get("all")),
+                        Text(_i18n.get("personal")),
+                        Text(_i18n.get("channel")),
+                        Text(_i18n.get("group")),
+                      ],
+                    ),
+                  ),
                 ),
               ];
             },
@@ -163,56 +153,19 @@ class NavigationCenterState extends State<NavigationCenter> {
                 const HasCallRow(),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
                 Expanded(
-                  child: PageTransitionSwitcher(
-                    duration: AnimationSettings.standard,
-                    transitionBuilder: (
-                      child,
-                      animation,
-                      secondaryAnimation,
-                    ) {
-                      return SharedAxisTransition(
-                        fillColor: Colors.transparent,
-                        animation: animation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.scaled,
-                        child: child,
-                      );
-                    },
-                    child: !showShowcase
-                        ? TabBarView(
-                            children: [
-                              PageTransitionSwitcher(
-                                duration: AnimationSettings.standard,
-                                transitionBuilder: (
-                                  child,
-                                  animation,
-                                  secondaryAnimation,
-                                ) {
-                                  return SharedAxisTransition(
-                                    fillColor: Colors.transparent,
-                                    animation: animation,
-                                    secondaryAnimation: secondaryAnimation,
-                                    transitionType:
-                                        SharedAxisTransitionType.scaled,
-                                    child: child,
-                                  );
-                                },
-                                child: !showShowcase
-                                    ? _buildChatPageByCategory()
-                                    : const ShowcasePage(),
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.USER,
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.CHANNEL,
-                              ),
-                              _buildChatPageByCategory(
-                                roomCategory: Categories.GROUP,
-                              )
-                            ],
-                          )
-                        : const ShowcasePage(),
+                  child: TabBarView(
+                    children: [
+                      _buildChatPageByCategory(),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.USER,
+                      ),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.CHANNEL,
+                      ),
+                      _buildChatPageByCategory(
+                        roomCategory: Categories.GROUP,
+                      )
+                    ],
                   ),
                 ),
                 NewVersion.newVersionInfo(),
@@ -232,42 +185,4 @@ class NavigationCenterState extends State<NavigationCenter> {
       roomCategory: roomCategory,
     );
   }
-
-  Widget HideSliverAppbarAnimationWidget({required Widget child}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final opacity = constraints.biggest.height /
-            (MediaQuery.of(context).padding.top + kToolbarHeight);
-        return AnimatedOpacity(
-          duration: AnimationSettings.standard,
-          opacity: opacity > 0.5 ? opacity : 0,
-          child: child,
-        );
-      },
-    );
-  }
-
-// Widget buildMenu(BuildContext context) {
-//   final theme = Theme.of(context);
-//   return DescribedFeatureOverlay(
-//     featureId: FEATURE_1,
-//     tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
-//     backgroundColor: theme.colorScheme.tertiaryContainer,
-//     targetColor: theme.colorScheme.tertiary,
-//     title: Text(
-//       _i18n.get("create_group_feature_discovery_title"),
-//       textDirection: _i18n.defaultTextDirection,
-//       style: TextStyle(
-//         color: theme.colorScheme.onTertiaryContainer,
-//       ),
-//     ),
-//     description: FeatureDiscoveryDescriptionWidget(
-//       description: _i18n.get("create_group_feature_description"),
-//       descriptionStyle: TextStyle(
-//         color: theme.colorScheme.onTertiaryContainer,
-//       ),
-//     ),
-//     child:
-//   );
-// }
 }

@@ -156,11 +156,6 @@ class IntroPageState extends State<IntroPage> {
 
   Iterable<String> getFeatureDiscoverySteps() {
     final featureDiscoverySteps = <String>[];
-    if (SHOWCASES_IS_AVAILABLE) {
-      featureDiscoverySteps.add(
-        SHOW_CASE_FEATURE,
-      );
-    }
     if (isMobileNative) {
       featureDiscoverySteps.add(
         QRCODE_FEATURE,

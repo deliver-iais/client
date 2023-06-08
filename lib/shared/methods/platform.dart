@@ -6,7 +6,6 @@ import 'package:deliver/web_classes/platform_detect.dart'
     as platform_detector;
 import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
     as platform_pb;
-import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/service_discovery.pb.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 

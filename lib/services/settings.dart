@@ -90,8 +90,8 @@ class Settings {
     defaultValue: false,
   );
   final showShowcasePage = BooleanPersistent(
-    SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE.inSharedDaoStorage(),
-    defaultValue: SHOWCASES_IS_AVAILABLE && SHOWCASES_SHOWING_FIRST,
+    SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE.inMemoryStorage(),
+    defaultValue: SHOWCASES_SHOWING_FIRST,
   );
   final firebaseSettingIsSet = BooleanPersistent(
     SharedKeys.SHARED_DAO_FIREBASE_SETTING_IS_SET.inSharedDaoStorage(),
@@ -216,6 +216,10 @@ class Settings {
   final servicesInfo = StringPersistent(
     SharedKeys.SHARE_DAO_SERVICES_INFO.inSharedDaoStorage(),
     defaultValue: "",
+  );
+  final webViewUrl = StringPersistent(
+    SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
+    defaultValue: "http://172.16.121.52:4200",
   );
   final onceShowNewVersionInformation = OncePersistent(
     SharedKeys.ONCE_SHOW_NEW_VERSION_INFORMATION.inSharedDaoStorage(),
