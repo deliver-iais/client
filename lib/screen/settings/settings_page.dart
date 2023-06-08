@@ -200,14 +200,14 @@ class SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(CupertinoIcons.bookmark),
                       onPressed: (context) async {
                         _routingService
-                            .openRoom(_authRepo.currentUserUid.asString());
+                            .openRoom(_authRepo.currentUserUid.asString(), popAllBeforePush: true);
                       },
                     ),
                     SettingsTile(
                       title: _i18n.get("contacts"),
                       leading: const Icon(CupertinoIcons.person_2),
                       onPressed: (context) {
-                        _routingService.openContacts();
+                        _routingService.openContacts(popAllBeforePush: true);
                       },
                     ),
                   ],
@@ -251,20 +251,20 @@ class SettingsPageState extends State<SettingsPage> {
                   subtitle: _i18n.language.languageName,
                   leading: const Icon(CupertinoIcons.globe),
                   onPressed: (context) {
-                    _routingService.openLanguageSettings();
+                    _routingService.openLanguageSettings(popAllBeforePush: true);
                   },
                 ),
                 SettingsTile(
                   title: _i18n.get("security"),
                   leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                   onPressed: (context) =>
-                      _routingService.openSecuritySettings(),
+                      _routingService.openSecuritySettings(popAllBeforePush: true),
                 ),
                 SettingsTile(
                   title: _i18n.get("devices"),
                   leading: const Icon(CupertinoIcons.device_desktop),
                   onPressed: (c) {
-                    _routingService.openDevices();
+                    _routingService.openDevices(popAllBeforePush: true);
                   },
                 ),
                 if (isDesktopDevice)
@@ -281,14 +281,14 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("call"),
                     leading: const Icon(CupertinoIcons.phone),
                     releaseState: ReleaseState.NEW,
-                    onPressed: (context) => _routingService.openCallSetting(),
+                    onPressed: (context) => _routingService.openCallSetting(popAllBeforePush: true),
                   ),
                 SettingsTile(
                   title: _i18n["power_saver"],
                   leading: const Icon(CupertinoIcons.battery_25),
                   releaseState: ReleaseState.NEW,
                   onPressed: (context) {
-                    _routingService.openPowerSaverSettings();
+                    _routingService.openPowerSaverSettings(popAllBeforePush: true);
                   },
                 ),
               ],
@@ -312,7 +312,7 @@ class SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(CupertinoIcons.paintbrush),
                   releaseState: ReleaseState.NEW,
                   onPressed: (context) {
-                    _routingService.openThemeSettings();
+                    _routingService.openThemeSettings(popAllBeforePush: true);
                   },
                 ),
               ],
@@ -329,7 +329,7 @@ class SettingsPageState extends State<SettingsPage> {
                   title: _i18n.get("connection_settings"),
                   leading: const Icon(CupertinoIcons.settings),
                   onPressed: (context) =>
-                      _routingService.openConnectionSettingPage(),
+                      _routingService.openConnectionSettingPage(popAllBeforePush: true),
                 ),
               ],
             ),
@@ -341,7 +341,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: 'Developer Page',
                     subtitle: "Log Level: ${settings.logLevel.value.name}",
                     leading: const Icon(Icons.bug_report_rounded),
-                    onPressed: (context) => _routingService.openDeveloperPage(),
+                    onPressed: (context) => _routingService.openDeveloperPage(popAllBeforePush: true),
                   )
                 ],
               ),
@@ -352,7 +352,7 @@ class SettingsPageState extends State<SettingsPage> {
                   subtitle: "${_i18n.get("version")} $VERSION",
                   leading: const Icon(Icons.info_outline_rounded),
                   onPressed: (context) =>
-                      _routingService.openAboutSoftwarePage(),
+                      _routingService.openAboutSoftwarePage(popAllBeforePush: true),
                 ),
                 SettingsTile(
                   title: _i18n.get("logout"),

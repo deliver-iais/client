@@ -5,6 +5,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/brand_image.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -204,40 +205,47 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                 return const SizedBox.shrink();
               },
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("آدرس فروشگاه"),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: TextFormField(
-                minLines: 1,
-                controller: _webUrlTextController,
-                textInputAction: TextInputAction.send,
+            if (settings.showDeveloperPage.value) ...[
+              const Padding(
+                padding:
+                    EdgeInsetsDirectional.only(start: 18.0, end: 18.0, top: 16),
+                child: Text("آدرس فروشگاه"),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 45,
-                    vertical: 15,
-                  ),
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        minLines: 1,
+                        controller: _webUrlTextController,
+                        textInputAction: TextInputAction.done,
+                      ),
+                    ),
+                    const SizedBox(width: p8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 45,
+                          vertical: 15,
+                        ),
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                      ),
+                      onPressed: () {
+                        settings.webViewUrl.set(_webUrlTextController.text);
+                        if (widget.rootFromLoginPage) {
+                          Navigator.pop(context);
+                        } else {
+                          _routingServices.pop();
+                        }
+                      },
+                      child: Text(_i18n.get("save")),
+                    )
+                  ],
                 ),
-                onPressed: () {
-                  settings.webViewUrl.set(_webUrlTextController.text);
-                  if (widget.rootFromLoginPage) {
-                    Navigator.pop(context);
-                  } else {
-                    _routingServices.pop();
-                  }
-                },
-                child: Text(_i18n.get("save")),
               ),
-            )
+            ]
           ],
         ),
       ),

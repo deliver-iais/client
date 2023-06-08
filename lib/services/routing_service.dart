@@ -156,74 +156,74 @@ class RoutingService {
     }
   }
 
-  void openLanguageSettings() {
+  void openLanguageSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "languageSettingsPage_open",
     );
-    _push(_languageSettings);
+    _push(_languageSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openPowerSaverSettings() {
+  void openPowerSaverSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "powerSaverSettingsPage_open",
     );
-    _push(_powerSaverSettings);
+    _push(_powerSaverSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openThemeSettings() {
+  void openThemeSettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "themeSettingsPage_open",
     );
-    _push(_themeSettings);
+    _push(_themeSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openSecuritySettings() {
+  void openSecuritySettings({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "securitySettingsPage_open",
     );
-    _push(_securitySettings);
+    _push(_securitySettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openDeveloperPage() {
+  void openDeveloperPage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "developerPage_open",
     );
-    _push(_developerPage);
+    _push(_developerPage, popAllBeforePush: popAllBeforePush);
   }
 
-  void openDevices() {
+  void openDevices({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "devicesPage_open",
     );
-    _push(_devices);
+    _push(_devices, popAllBeforePush: popAllBeforePush);
   }
 
-  void openAutoDownload() {
+  void openAutoDownload({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "autoDownloadPage_open",
     );
-    _push(_autoDownload);
+    _push(_autoDownload, popAllBeforePush: popAllBeforePush);
   }
 
-  void openCallSetting() {
+  void openCallSetting({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "callSettingsPage_open",
     );
-    _push(_callSettings);
+    _push(_callSettings, popAllBeforePush: popAllBeforePush);
   }
 
-  void openAboutSoftwarePage() {
+  void openAboutSoftwarePage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "aboutSoftwarePage_open",
     );
-    _push(_aboutSoftwarePage);
+    _push(_aboutSoftwarePage, popAllBeforePush: popAllBeforePush);
   }
 
-  void openContacts() {
+  void openContacts({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "contactsPage_open",
     );
-    _push(_contacts);
+    _push(_contacts, popAllBeforePush: popAllBeforePush);
   }
 
   void openNewContact() {
