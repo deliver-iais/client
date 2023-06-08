@@ -247,11 +247,11 @@ class RoutingService {
     _push(_showcase);
   }
 
-  void openConnectionSettingPage() {
+  void openConnectionSettingPage({bool popAllBeforePush = false}) {
     _analyticsService.sendLogEvent(
       "connectionSettingPage_open",
     );
-    _push(_connectionSettingsPage);
+    _push(_connectionSettingsPage, popAllBeforePush: popAllBeforePush);
   }
 
   String getCurrentRoomId() => _currentRoom;
