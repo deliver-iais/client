@@ -53,11 +53,11 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   List<Contact> contacts = [];
 
-  List<String> members = [];
+  List<Uid> members = [];
 
   @override
   void initState() {
-    if(widget.openMucInfoDeterminationPage){
+    if (widget.openMucInfoDeterminationPage) {
       _createMucService.reset();
     }
     editingController = TextEditingController();
@@ -68,9 +68,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   Future<void> getMembers() async {
-    final res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
+    final res = await _mucRepo.getAllMembers(widget.mucUid!);
     for (final element in res) {
-      members.add(element!.memberUid);
+      members.add(element.memberUid);
     }
   }
 
@@ -83,12 +83,12 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
-            item.firstName!
+            item.firstName
                 .replaceAll(RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            (item.lastName != null &&
-                item.lastName!
+            (item.lastName.isNotEmpty &&
+                item.lastName
                     .replaceAll(RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
@@ -135,8 +135,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         ? snapshot.data!
                             .where(
                               (element) => checkIsPhoneNumber(
-                                element.countryCode,
-                                element.nationalNumber,
+                                element.phoneNumber.countryCode,
+                                element.phoneNumber.nationalNumber.toInt(),
                               ),
                             )
                             .toList()
@@ -144,9 +144,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                             .whereNot((element) => element.uid == null)
                             .where(
                               (element) =>
-                                  !_authRepo
-                                      .isCurrentUser(element.uid!.asUid()) &&
-                                  !element.isUsersContact(),
+                                  !_authRepo.isCurrentUser(element.uid!) &&
+                                  !(element.phoneNumber.countryCode == 0),
                             )
                             .toList();
 
@@ -222,7 +221,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                             useBroadcastSmsContacts: widget.useSmsBroadcastList,
                           )) {
                             if (contact.uid != null) {
-                              users.add(contact.uid!.asUid());
+                              users.add(contact.uid!);
                             }
                           }
                           final usersAddCode = await _mucRepo.addMucMember(

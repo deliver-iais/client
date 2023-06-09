@@ -7,9 +7,9 @@ import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/role.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_room.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
@@ -68,7 +68,6 @@ class ProfilePageState extends State<ProfilePage>
   final _i18n = GetIt.I.get<I18N>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _callRepo = GetIt.I.get<CallRepo>();
@@ -77,9 +76,11 @@ class ProfilePageState extends State<ProfilePage>
   late TabController _tabController;
   late int _tabsCount;
 
-  bool _isMucAdminOrOwner = false;
-  bool _isBotOwner = false;
-  bool _isMucOwner = false;
+  final BehaviorSubject<MucRole> _currentUserRole =
+      BehaviorSubject.seeded(MucRole.NONE);
+
+  final BehaviorSubject<MetaCount?> _metaCount = BehaviorSubject.seeded(null);
+  final BehaviorSubject<bool> _isBotOwner = BehaviorSubject.seeded(false);
 
   final BehaviorSubject<bool> _selectMediasForForward =
       BehaviorSubject.seeded(false);
@@ -89,7 +90,6 @@ class ProfilePageState extends State<ProfilePage>
   void initState() {
     _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
-
     super.initState();
   }
 
@@ -101,34 +101,22 @@ class ProfilePageState extends State<ProfilePage>
 
   bool _haveASpecialKindOfMeta(
     MetaType metaType,
-    AsyncSnapshot<MetaCount?> metaCount,
+    MetaCount? metaCount,
   ) {
-    if (metaCount.hasData && metaCount.data != null) {
+    if (metaCount != null) {
       switch (metaType) {
         case MetaType.MEDIA:
-          return metaCount.data!.mediasCount -
-                  metaCount.data!.allMediaDeletedCount !=
-              0;
+          return metaCount.mediasCount - metaCount.allMediaDeletedCount != 0;
         case MetaType.FILE:
-          return metaCount.data!.filesCount -
-                  metaCount.data!.allFilesDeletedCount !=
-              0;
+          return metaCount.filesCount - metaCount.allFilesDeletedCount != 0;
         case MetaType.AUDIO:
-          return metaCount.data!.voicesCount -
-                  metaCount.data!.allVoicesDeletedCount !=
-              0;
+          return metaCount.voicesCount - metaCount.allVoicesDeletedCount != 0;
         case MetaType.MUSIC:
-          return metaCount.data!.musicsCount -
-                  metaCount.data!.allMusicsDeletedCount !=
-              0;
+          return metaCount.musicsCount - metaCount.allMusicsDeletedCount != 0;
         case MetaType.CALL:
-          return metaCount.data!.callsCount -
-                  metaCount.data!.allCallDeletedCount !=
-              0;
+          return metaCount.callsCount - metaCount.allCallDeletedCount != 0;
         case MetaType.LINK:
-          return metaCount.data!.linkCount -
-                  metaCount.data!.allLinksDeletedCount !=
-              0;
+          return metaCount.linkCount - metaCount.allLinksDeletedCount != 0;
         case MetaType.NOT_SET:
           return false;
       }
@@ -137,8 +125,7 @@ class ProfilePageState extends State<ProfilePage>
     }
   }
 
-  // TODO(any): add call tab
-  void _setTabCount(AsyncSnapshot<MetaCount?> metaCount) {
+  void _setTabCount(MetaCount? metaCount) {
     _tabsCount = 0;
     for (final type in MetaType.values) {
       if (_haveASpecialKindOfMeta(type, metaCount)) {
@@ -147,8 +134,7 @@ class ProfilePageState extends State<ProfilePage>
     }
   }
 
-  // TODO(any): add call tab
-  List<Tab> _getTabList(AsyncSnapshot<MetaCount?> metaCount) {
+  List<Tab> _getTabList(MetaCount? metaCount) {
     final tabs = <Tab>[];
     for (final type in MetaType.values) {
       if (_haveASpecialKindOfMeta(type, metaCount)) {
@@ -181,19 +167,23 @@ class ProfilePageState extends State<ProfilePage>
     }
   }
 
+  bool _isAdminOrOwner(MucRole role) =>
+      role == MucRole.OWNER || role == MucRole.ADMIN;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
       body: FluidContainerWidget(
-        child: FutureBuilder<MetaCount?>(
-          future: _metaRepo.getMetaCount(widget.roomUid.asString()),
-          builder: (context, metaCount) {
-            _setTabCount(metaCount);
+        child: StreamBuilder(
+          stream: MergeStream([_currentUserRole.stream, _metaCount.stream]),
+          builder: (context, roleSnapshot) {
+            _setTabCount(_metaCount.value);
 
             _tabController = TabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isPrivateBaseMuc() && _isMucAdminOrOwner))
+                      (widget.roomUid.isPrivateBaseMuc() &&
+                          _isAdminOrOwner(_currentUserRole.value)))
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
@@ -201,14 +191,18 @@ class ProfilePageState extends State<ProfilePage>
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isPrivateBaseMuc() && _isMucAdminOrOwner))
+                      (widget.roomUid.isPrivateBaseMuc() &&
+                          _isAdminOrOwner(_currentUserRole.value)))
                   ? _tabsCount + 1
                   : _tabsCount,
               child: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return <Widget>[
-                    _buildSliverAppbar(),
-                    _buildInfo(context),
+                    _buildSliverAppbar(_currentUserRole.value),
+                    _buildInfo(
+                      context,
+                      _isAdminOrOwner(_currentUserRole.value),
+                    ),
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _SliverAppBarDelegate(
@@ -300,9 +294,11 @@ class ProfilePageState extends State<ProfilePage>
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
                                         (widget.roomUid.isPrivateBaseMuc() &&
-                                            _isMucAdminOrOwner))
+                                            _isAdminOrOwner(
+                                              _currentUserRole.value,
+                                            )))
                                       Tab(text: _i18n.get("members")),
-                                    ..._getTabList(metaCount),
+                                    ..._getTabList(_metaCount.value),
                                   ],
                                   controller: _tabController,
                                 );
@@ -322,53 +318,70 @@ class ProfilePageState extends State<ProfilePage>
                     children: [
                       if (widget.roomUid.isGroup() ||
                           (widget.roomUid.isPrivateBaseMuc() &&
-                              _isMucAdminOrOwner))
-                        SingleChildScrollView(
-                          child: MucMemberWidget(
-                            mucUid: widget.roomUid,
-                          ),
+                              _isAdminOrOwner(_currentUserRole.value)))
+                        MucMemberWidget(
+                          mucUid: widget.roomUid,
+                          currentUserRole: _currentUserRole.value,
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.MEDIA, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.MEDIA,
+                        _metaCount.value,
+                      ))
                         MediaTabUi(
-                          metaCount.data!.mediasCount,
+                          _metaCount.value!.mediasCount,
                           widget.roomUid,
                           selectedMedia: _selectedMeta,
                           allDeletedMediasCount:
-                              metaCount.data!.allMediaDeletedCount,
+                              _metaCount.value!.allMediaDeletedCount,
                           addSelectedMeta: (meta) => _addSelectedMeta(meta),
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.FILE, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.FILE,
+                        _metaCount.value,
+                      ))
                         DocumentAndFileUi(
                           roomUid: widget.roomUid,
                           selectedMeta: _selectedMeta,
                           addSelectedMeta: (meta) => _addSelectedMeta(meta),
-                          documentCount: metaCount.data!.filesCount,
+                          documentCount: _metaCount.value!.filesCount,
                           type: MetaType.FILE,
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.AUDIO, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.AUDIO,
+                        _metaCount.value,
+                      ))
                         MusicAndAudioUi(
                           roomUid: widget.roomUid,
                           selectedMeta: _selectedMeta,
                           addSelectedMeta: (meta) => _addSelectedMeta(meta),
                           type: MetaType.AUDIO,
-                          audioCount: metaCount.data!.voicesCount,
+                          audioCount: _metaCount.value!.voicesCount,
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.MUSIC, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.MUSIC,
+                        _metaCount.value,
+                      ))
                         MusicAndAudioUi(
                           roomUid: widget.roomUid,
                           type: MetaType.MUSIC,
                           selectedMeta: _selectedMeta,
                           addSelectedMeta: (meta) => _addSelectedMeta(meta),
-                          audioCount: metaCount.data!.musicsCount,
+                          audioCount: _metaCount.value!.musicsCount,
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.CALL, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.CALL,
+                        _metaCount.value,
+                      ))
                         CallTabUi(
-                          metaCount.data!.callsCount,
+                          _metaCount.value!.callsCount,
                           widget.roomUid,
                         ),
-                      if (_haveASpecialKindOfMeta(MetaType.LINK, metaCount))
+                      if (_haveASpecialKindOfMeta(
+                        MetaType.LINK,
+                        _metaCount.value,
+                      ))
                         LinkTabUi(
-                          metaCount.data!.linkCount,
+                          _metaCount.value!.linkCount,
                           widget.roomUid,
                         ),
                     ],
@@ -402,79 +415,87 @@ class ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  Widget _buildSliverAppbar() {
+  Widget _buildSliverAppbar(MucRole currentUserRole) {
     final theme = Theme.of(context);
-    return SliverAppBar(
-      pinned: true,
-      actions: <Widget>[
-        if ((widget.roomUid.isMuc() && _isMucOwner) || _isBotOwner)
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              final muc = await _mucRepo.getMuc(
-                widget.roomUid.asString(),
-              );
-              unawaited(
-                _routingService.openManageMuc(
-                  widget.roomUid.asString(),
-                  mucType: muc!.mucType,
-                ),
-              );
-              // showManageDialog();
-            },
-          ),
-        const SizedBox(width: 8),
-        _buildMenu(context),
-      ],
-      elevation: 10,
-      leading: _routingService.backButtonLeading(),
-      // shadowColor: theme.colorScheme.background,
-      backgroundColor: theme.colorScheme.background,
-      expandedHeight: 170,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsetsDirectional.only(
-          end: 70,
-          start: 70,
-          top: 2.0,
-        ),
-        expandedTitleScale: 1.1,
-        // background: ProfileBlurAvatar(widget.roomUid),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: RoomName(
-                      uid: widget.roomUid,
-                      maxLines: 2,
+    return StreamBuilder<bool>(
+      stream: _isBotOwner.stream,
+      builder: (context, botOwnerSnapshot) {
+        return SliverAppBar(
+          pinned: true,
+          actions: <Widget>[
+            if ((widget.roomUid.isMuc() && currentUserRole == MucRole.OWNER) ||
+                (botOwnerSnapshot.data ?? false))
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final muc = await _mucRepo.getMuc(
+                    widget.roomUid,
+                  );
+                  unawaited(
+                    _routingService.openManageMuc(
+                      widget.roomUid.asString(),
+                      mucType: muc!.mucType,
                     ),
-                  ),
-                  const Divider(color: Colors.transparent, height: 5),
-                  TitleStatus(
-                    currentRoomUid: widget.roomUid,
-                    style: theme.textTheme.bodySmall!,
-                  )
-                ],
+                  );
+                  // showManageDialog();
+                },
               ),
-            ),
-            ProfileAvatar(
-              roomUid: widget.roomUid,
-              showSetAvatar: false,
-              canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
-            ),
+            const SizedBox(width: 8),
+            _buildMenu(context),
           ],
-        ),
-      ),
+          elevation: 10,
+          leading: _routingService.backButtonLeading(),
+          // shadowColor: theme.colorScheme.background,
+          backgroundColor: theme.colorScheme.background,
+          expandedHeight: 170,
+          flexibleSpace: FlexibleSpaceBar(
+            titlePadding: const EdgeInsetsDirectional.only(
+              end: 70,
+              start: 70,
+              top: 2.0,
+            ),
+            expandedTitleScale: 1.1,
+            // background: ProfileBlurAvatar(widget.roomUid),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: RoomName(
+                          uid: widget.roomUid,
+                          maxLines: 2,
+                        ),
+                      ),
+                      const Divider(color: Colors.transparent, height: 5),
+                      TitleStatus(
+                        currentRoomUid: widget.roomUid,
+                        style: theme.textTheme.bodySmall!,
+                      )
+                    ],
+                  ),
+                ),
+                ProfileAvatar(
+                  roomUid: widget.roomUid,
+                  showSetAvatar: false,
+                  canSetAvatar: currentUserRole == MucRole.ADMIN ||
+                      currentUserRole == MucRole.OWNER ||
+                      (botOwnerSnapshot.data ?? false),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildInfo(BuildContext context) {
+  Widget _buildInfo(BuildContext context, bool isAdminOrOwner) {
     final theme = Theme.of(context);
     return SliverList(
       delegate: SliverChildListDelegate([
@@ -487,7 +508,7 @@ class ProfilePageState extends State<ProfilePage>
                 future: _contactRepo.getContact(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null &&
-                      snapshot.data!.countryCode != 0) {
+                      snapshot.data!.phoneNumber.countryCode != 0) {
                     return GestureDetector(
                       onPanDown: storeDragDownPosition,
                       child: Padding(
@@ -495,8 +516,8 @@ class ProfilePageState extends State<ProfilePage>
                         child: SettingsTile(
                           title: _i18n.get("phone"),
                           subtitle: buildPhoneNumber(
-                            snapshot.data!.countryCode,
-                            snapshot.data!.nationalNumber,
+                            snapshot.data!.phoneNumber.countryCode,
+                            snapshot.data!.phoneNumber.nationalNumber.toInt(),
                           ),
                           subtitleDirection: TextDirection.ltr,
                           subtitleTextStyle:
@@ -564,7 +585,7 @@ class ProfilePageState extends State<ProfilePage>
                               if (selectedString == "call") {
                                 launchUrl(
                                   Uri.parse(
-                                    "tel:${buildPhoneNumberSimpleText(snapshot.data!.countryCode, snapshot.data!.nationalNumber)}",
+                                    "tel:${buildPhoneNumberSimpleText(snapshot.data!.phoneNumber.countryCode, snapshot.data!.phoneNumber.nationalNumber.toInt())}",
                                   ),
                                 );
                               } else if (selectedString ==
@@ -583,8 +604,9 @@ class ProfilePageState extends State<ProfilePage>
                               } else if (selectedString == "copy") {
                                 saveToClipboard(
                                   buildPhoneNumberSimpleText(
-                                    snapshot.data!.countryCode,
-                                    snapshot.data!.nationalNumber,
+                                    snapshot.data!.phoneNumber.countryCode,
+                                    snapshot.data!.phoneNumber.nationalNumber
+                                        .toInt(),
                                   ),
                                 );
                               }
@@ -598,7 +620,7 @@ class ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            if (!widget.roomUid.isPrivateBaseMuc() || _isMucAdminOrOwner)
+            if (!widget.roomUid.isPrivateBaseMuc() || isAdminOrOwner)
               Padding(
                 padding: const EdgeInsetsDirectional.only(top: 8.0),
                 child: SettingsTile(
@@ -644,9 +666,8 @@ class ProfilePageState extends State<ProfilePage>
                 future: _contactRepo.getContact(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null &&
-                      snapshot.data!.description != null &&
-                      snapshot.data!.description!.isNotEmpty) {
-                    return description(snapshot.data!.description!, context);
+                      snapshot.data!.description.isNotEmpty) {
+                    return description(snapshot.data!.description, context);
                   } else {
                     return const SizedBox.shrink();
                   }
@@ -667,7 +688,7 @@ class ProfilePageState extends State<ProfilePage>
               ),
             if (widget.roomUid.isMuc())
               StreamBuilder<Muc?>(
-                stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                stream: _mucRepo.watchMuc(widget.roomUid),
                 builder: (c, muc) {
                   if (muc.hasData &&
                       muc.data != null &&
@@ -678,7 +699,7 @@ class ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            if (_isMucAdminOrOwner)
+            if (isAdminOrOwner)
               Padding(
                 padding: const EdgeInsetsDirectional.only(top: 8.0),
                 child: SettingsTile(
@@ -696,8 +717,8 @@ class ProfilePageState extends State<ProfilePage>
                 child: SettingsTile(
                   title: _i18n.get("broad_casts_status"),
                   leading: const Icon(MdiIcons.broadcast, size: 20),
-                  onPressed: (_) => _routingService
-                      .openBroadcastStatsPage(widget.roomUid),
+                  onPressed: (_) =>
+                      _routingService.openBroadcastStatsPage(widget.roomUid),
                 ),
               ),
           ],
@@ -740,7 +761,7 @@ class ProfilePageState extends State<ProfilePage>
           context: context,
           items: <PopupMenuEntry<OperationOnRoom>>[
             OperationOnRoomEntry(
-              roomId: widget.roomUid.asString(),
+              roomUid: widget.roomUid,
             )
           ],
         ),
@@ -749,30 +770,21 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _setupRoomSettings() async {
+    _metaCount.add(await _metaRepo.getMetaCount(widget.roomUid.asString()));
     if (widget.roomUid.isMuc()) {
       try {
-        final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
-          _authRepo.currentUserUid.asString(),
-          widget.roomUid.asString(),
+        final res = await _mucRepo.getMuc(
+          widget.roomUid,
         );
-        final mucOwner = await _mucRepo.isMucOwner(
-          _authRepo.currentUserUid.asString(),
-          widget.roomUid.asString(),
-        );
-
-        setState(() {
-          _isMucAdminOrOwner = isMucAdminOrAdmin;
-          _isMucOwner = mucOwner;
-        });
+        if (res != null) {
+          _currentUserRole.add(res.currentUserRole);
+        }
       } catch (e) {
         _logger.e(e);
       }
     } else if (widget.roomUid.isBot()) {
       try {
-        final botAvatarPermission = await _botRepo.fetchBotInfo(widget.roomUid);
-        setState(() {
-          _isBotOwner = botAvatarPermission.isOwner;
-        });
+        _isBotOwner.add((await _botRepo.fetchBotInfo(widget.roomUid)).isOwner);
       } catch (e) {
         _logger.e(e);
       }
@@ -781,11 +793,10 @@ class ProfilePageState extends State<ProfilePage>
       await _metaRepo.fetchMetaCountFromServer(
         widget.roomUid,
       );
+      _metaCount.add(await _metaRepo.getMetaCount(widget.roomUid.asString()));
     } catch (e) {
       _logger.e(e);
     }
-
-    setState(() {});
   }
 
   InputDecoration buildInputDecoration(String label) {

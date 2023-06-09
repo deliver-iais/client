@@ -1016,7 +1016,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomUid.asString()).distinct().listen((muc) {
+    _mucRepo.watchMuc(widget.roomUid).distinct().listen((muc) {
       if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
@@ -1038,19 +1038,17 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> checkChannelRole() async {
-    final res = await _mucRepo.isMucAdminOrOwner(
-      _authRepo.currentUserUid.asString(),
-      widget.roomUid.asString(),
+    final res = await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+      widget.roomUid,
     );
-    _hasPermissionInChannel.add(res);
+    _hasPermissionInChannel.add(res.isAdmin || res.isOwner);
   }
 
   Future<void> checkGroupRole() async {
-    final res = await _mucRepo.isMucAdminOrOwner(
-      _authRepo.currentUserUid.asString(),
-      widget.roomUid.asString(),
+    final res = await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+      widget.roomUid,
     );
-    _hasPermissionInGroup.add(res);
+    _hasPermissionInGroup.add(res.isAdmin || res.isOwner);
   }
 
   Future<void> fetchMucInfo(Uid uid) async {
@@ -1063,7 +1061,7 @@ class RoomPageState extends State<RoomPage> {
   Widget keyboardWidget() {
     return widget.roomUid.isChannel() || widget.roomUid.isBroadcast()
         ? MucBottomBar(
-            roomId: widget.roomUid.asString(),
+            roomUid: widget.roomUid,
             scrollToMessage: _handleScrollToMsg,
             inputMessage: buildNewMessageInput(),
           )
@@ -1979,7 +1977,7 @@ class RoomPageState extends State<RoomPage> {
       onClose: () {
         _lastPinedMessage.add(0);
         _mucDao.updateMuc(
-          uid: widget.roomUid.asString(),
+          uid: widget.roomUid,
           lastCanceledPinMessageId: _pinMessages.last.id,
         );
       },

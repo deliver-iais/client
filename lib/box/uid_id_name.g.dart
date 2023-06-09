@@ -3,48 +3,20 @@
 part of 'uid_id_name.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class UidIdNameAdapter extends TypeAdapter<UidIdName> {
-  @override
-  final int typeId = 4;
-
-  @override
-  UidIdName read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return UidIdName(
-      uid: fields[0] as String,
-      id: fields[1] as String?,
-      name: fields[2] as String?,
-      lastUpdate: fields[4] as int?,
+_$_UidIdName _$$_UidIdNameFromJson(Map<String, dynamic> json) => _$_UidIdName(
+      uid: uidFromJson(json['uid'] as String),
+      id: json['id'] as String?,
+      name: json['name'] as String?,
+      lastUpdateTime: json['lastUpdateTime'] as int? ?? 0,
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, UidIdName obj) {
-    writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.uid)
-      ..writeByte(1)
-      ..write(obj.id)
-      ..writeByte(2)
-      ..write(obj.name)
-      ..writeByte(4)
-      ..write(obj.lastUpdate);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UidIdNameAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+Map<String, dynamic> _$$_UidIdNameToJson(_$_UidIdName instance) =>
+    <String, dynamic>{
+      'uid': uidToJson(instance.uid),
+      'id': instance.id,
+      'name': instance.name,
+      'lastUpdateTime': instance.lastUpdateTime,
+    };

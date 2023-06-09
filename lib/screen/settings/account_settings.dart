@@ -188,13 +188,13 @@ class AccountSettingsState extends State<AccountSettings> {
                                           Icons.add_a_photo,
                                         ),
                                         onPressed: () =>
-                                              AvatarHelper.attachAvatarFile(
-                                            context: context,
-                                            onAvatarAttached: (path) {
-                                              Navigator.pop(context);
-                                              setAvatar(path);
-                                            },
-                                          ),
+                                            AvatarHelper.attachAvatarFile(
+                                          context: context,
+                                          onAvatarAttached: (path) {
+                                            Navigator.pop(context);
+                                            setAvatar(path);
+                                          },
+                                        ),
                                       ),
                                     ),
                                   )

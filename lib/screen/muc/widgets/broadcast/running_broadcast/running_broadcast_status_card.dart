@@ -6,8 +6,6 @@ import 'package:deliver/screen/muc/widgets/broadcast/resume_and_pause_broadcast_
 import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/gradiant_circle_progress_bar.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -54,30 +52,15 @@ class RunningBroadcastStatusCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsetsDirectional.all(p8),
             child: FutureBuilder<int>(
-              future: _mucDao.getAllMembersCount(broadcastRoomId.asString()),
+              future: _mucDao.getBroadCastAllMemberCount(broadcastRoomId),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != 0) {
                   final allWeMemberCount = snapshot.data! - 1;
-                  if (isAndroidNative) {
-                    return FutureBuilder<int>(
-                      future: _mucDao
-                          .getAllBroadcastSmsMembersCount(broadcastRoomId.asString()),
-                      builder: (context, snapshot) {
-                        final allSmsMemberCount = snapshot.data ?? 0;
-                        return _buildRunningBroadcastCard(
-                          theme,
-                          allSmsMemberCount + allWeMemberCount,
-                          runningStatus.data,
-                        );
-                      },
-                    );
-                  } else {
-                    return _buildRunningBroadcastCard(
-                      theme,
-                      allWeMemberCount,
-                      runningStatus.data,
-                    );
-                  }
+                  return _buildRunningBroadcastCard(
+                    theme,
+                    allWeMemberCount,
+                    runningStatus.data,
+                  );
                 } else {
                   return const SizedBox.shrink();
                 }

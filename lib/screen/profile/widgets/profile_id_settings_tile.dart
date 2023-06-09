@@ -30,7 +30,7 @@ class ProfileIdSettingsTileState extends State<ProfileIdSettingsTile> {
   Widget build(BuildContext context) {
     if (widget.roomUid.isChannel()) {
       return StreamBuilder<Muc?>(
-        stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+        stream: _mucRepo.watchMuc(widget.roomUid),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             return Padding(

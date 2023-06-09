@@ -4,7 +4,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -61,12 +60,12 @@ class _AttachContactState extends State<AttachContact> {
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
-            item.firstName!
+            item.firstName
                 .replaceAll(RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            (item.lastName != null &&
-                item.lastName!
+            (item.lastName.isNotEmpty &&
+                item.lastName
                     .replaceAll(RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
@@ -128,15 +127,15 @@ class _AttachContactState extends State<AttachContact> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatarWidget(
-                    contact.uid!.asUid(),
+                    contact.uid!,
                     37,
                     // borderRadius: secondaryBorder,
                     showSavedMessageLogoIfNeeded: true,
                   ),
                 ),
                 Text(
-                  contact.countryCode.toString() +
-                      contact.nationalNumber.toString(),
+                  contact.phoneNumber.countryCode.toString() +
+                      contact.phoneNumber.nationalNumber.toString(),
                 ),
                 Text(
                   buildName(contact.firstName, contact.lastName),
@@ -159,10 +158,10 @@ class _AttachContactState extends State<AttachContact> {
                     _messageRepo.sendShareUidMessage(
                       widget.roomUid,
                       message_pb.ShareUid()
-                        ..uid = contact.uid!.asUid()
+                        ..uid = contact.uid!
                         ..name = buildName(contact.firstName, contact.lastName)
-                        ..phoneNumber = "${contact.countryCode}"
-                            "${contact.nationalNumber}",
+                        ..phoneNumber = "${contact.phoneNumber.countryCode}"
+                            "${contact.phoneNumber.nationalNumber}",
                     );
                   },
                   child: Text(

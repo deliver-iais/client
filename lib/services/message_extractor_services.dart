@@ -114,11 +114,12 @@ class MessageExtractorServices {
 
   Future<String> getMessageSender(Uid from, Uid roomUid) async {
     if (roomUid.isChannel()) {
-      final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
-        _authRepo.currentUserUid.asString(),
-        roomUid.asString(),
+      final isMucOwnerOrAdminInChannel =
+          await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+        roomUid,
       );
-      if (!isMucOwnerOrAdminInChannel) {
+      if (!(isMucOwnerOrAdminInChannel.isAdmin ||
+          isMucOwnerOrAdminInChannel.isOwner)) {
         return _i18n.get("admin");
       }
     }

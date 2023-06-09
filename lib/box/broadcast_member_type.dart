@@ -1,0 +1,4 @@
+enum BroadCastMemberType{
+  SMS,
+  MESSAGE,
+}

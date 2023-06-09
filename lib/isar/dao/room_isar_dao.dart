@@ -99,19 +99,14 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   }
 
   @override
-  Stream<List<Room>> watchAllRooms({Categories? roomCategory}) async* {
+  Stream<List<Room>> watchAllRooms() async* {
     final box = await _openRoomIsar();
 
-    final filter = box.roomIsars
+    final query = box.roomIsars
         .filter()
         .deletedEqualTo(false)
-        .lastMessageIdGreaterThan(0);
-    final Query<RoomIsar> query;
-    if (roomCategory != null) {
-      query = filter.uidStartsWith(roomCategory.value.toString()).build();
-    } else {
-      query = filter.build();
-    }
+        .lastMessageIdGreaterThan(0)
+        .build();
 
     yield sortRooms(query.findAllSync().map((e) => e.fromIsar()).toList());
 

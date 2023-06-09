@@ -1,18 +1,21 @@
 import 'package:deliver/screen/room/widgets/broadcast_status_bar.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MucBottomBar extends StatefulWidget {
-  final String roomId;
+  final Uid roomUid;
   final Widget inputMessage;
-  final void Function(int dir, {required bool ctrlIsPressed, required bool hasPermission})
-      scrollToMessage;
+  final void Function(int dir,
+      {required bool ctrlIsPressed,
+      required bool hasPermission}) scrollToMessage;
 
   const MucBottomBar({
     super.key,
-    required this.roomId,
+    required this.roomUid,
     required this.scrollToMessage,
     required this.inputMessage,
   });
@@ -42,13 +45,13 @@ class _MucBottomBarState extends State<MucBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.roomId.isBroadcast()
+    return widget.roomUid.isBroadcast()
         ? BroadcastStatusBar(
-            roomUid: widget.roomId.asUid(),
+            roomUid: widget.roomUid,
             inputMessage: widget.inputMessage,
           )
         : MuteAndUnMuteRoomWidget(
-            roomId: widget.roomId,
+            roomUid: widget.roomUid,
             inputMessage: widget.inputMessage,
           );
   }

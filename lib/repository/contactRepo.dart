@@ -119,8 +119,7 @@ class ContactRepo {
     for (final element in contacts) {
       try {
         await _contactDao.save(
-          countryCode: element.phoneNumber.countryCode,
-          nationalNumber: element.phoneNumber.nationalNumber.toInt(),
+          phoneNumber: element.phoneNumber,
           updateTime: _syncedContacts.contains(element)
               ? DateTime.now().millisecondsSinceEpoch
               : null,
@@ -139,16 +138,15 @@ class ContactRepo {
 
     for (final element in contacts) {
       phoneContacts.removeWhere(
-        (pc) =>
-            (element.nationalNumber == pc.phoneNumber.nationalNumber.toInt() &&
-                ((element.uid != null &&
-                        _contactHash(
-                              name: pc.firstName,
-                              nationalNumber:
-                                  pc.phoneNumber.nationalNumber.toInt(),
-                            ) ==
-                            element.syncHash) ||
-                    (element.uid == null && element.updateTime != null))),
+        (pc) => (element.phoneNumber.nationalNumber.toInt() ==
+                pc.phoneNumber.nationalNumber.toInt() &&
+            ((element.uid != null &&
+                    _contactHash(
+                          name: pc.firstName,
+                          nationalNumber: pc.phoneNumber.nationalNumber.toInt(),
+                        ) ==
+                        element.syncHash) ||
+                (element.uid == null && element.updateTime > 0))),
       );
     }
     return phoneContacts;
@@ -163,14 +161,14 @@ class ContactRepo {
     if (contacts.isNotEmpty) {
       final filteredContacts = contacts
           .where(
-            (element) => ((element.updateTime == null)),
+            (element) => ((element.updateTime == 0)),
           )
           .toList()
           .map(
             (e) => Contact(
               phoneNumber: PhoneNumber(
-                countryCode: e.countryCode,
-                nationalNumber: Int64(e.nationalNumber),
+                countryCode: e.phoneNumber.countryCode,
+                nationalNumber: Int64(e.phoneNumber.nationalNumber.toInt()),
               ),
               firstName: e.firstName,
             ),
@@ -293,8 +291,7 @@ class ContactRepo {
     for (final contact in users) {
       _contactDao.save(
         uid: contact.uid.asString(),
-        countryCode: contact.phoneNumber.countryCode,
-        nationalNumber: contact.phoneNumber.nationalNumber.toInt(),
+        phoneNumber: contact.phoneNumber,
         firstName: contact.firstName,
         lastName: contact.lastName,
         description: contact.description,
@@ -309,7 +306,7 @@ class ContactRepo {
         buildName(contact.firstName, contact.lastName),
       );
       _uidIdNameDao.update(
-        contact.uid.asString(),
+        contact.uid,
         name: buildName(contact.firstName, contact.lastName),
       );
       _roomDao.updateRoom(uid: contact.uid);
@@ -321,19 +318,19 @@ class ContactRepo {
       // For now, Group and Bot not supported in server side!!
       final result =
           await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      return _uidIdNameDao.update(uid.asString(), id: result.id);
+      return _uidIdNameDao.update(uid, id: result.id);
     } catch (e) {
       _logger.e(e);
     }
   }
 
   Future<void> fetchMemberId(Member member) async {
-    if (!member.memberUid.asUid().isUser()) {
+    if (!member.memberUid.isUser()) {
       return;
     }
     final m = await _uidIdNameDao.getByUid(member.memberUid);
     if (m == null || m.id == null) {
-      return getUserIdByUid(member.memberUid.asUid());
+      return getUserIdByUid(member.memberUid);
     }
   }
 
@@ -376,10 +373,10 @@ class ContactRepo {
               "${element.firstName}${element.lastName}"
                   .toLowerCase()
                   .contains(text.toLowerCase()) &&
-              !_authRepo.isCurrentUser(element.uid!.asUid()) &&
-              !element.isUsersContact(),
+              !_authRepo.isCurrentUser(element.uid!) &&
+              !(element.phoneNumber.countryCode == 0),
         )
-        .map((e) => e.uid!.asUid())
+        .map((e) => e.uid!)
         .toList();
 
     return searchResult;
@@ -387,7 +384,7 @@ class ContactRepo {
 
 // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
   Future<contact_model.Contact?> getContact(Uid userUid) =>
-      _contactDao.getByUid(userUid.asString());
+      _contactDao.getByUid(userUid);
 
   Future<String?> getContactFromServer(
     Uid contactUid, {
@@ -399,14 +396,13 @@ class ContactRepo {
       final name = buildName(contact.user.firstName, contact.user.lastName);
 
       // Update uidIdName table
-      unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
+      unawaited(_uidIdNameDao.update(contactUid, name: name));
       if (!ignoreInsertingOrUpdatingContactDao) {
         // Update contact table
         unawaited(
           _contactDao.save(
             uid: contactUid.asString(),
-            countryCode: contact.user.phoneNumber.countryCode,
-            nationalNumber: contact.user.phoneNumber.nationalNumber.toInt(),
+            phoneNumber: contact.user.phoneNumber,
             firstName: contact.user.firstName,
             lastName: contact.user.lastName,
             description: contact.user.description,
@@ -425,7 +421,11 @@ class ContactRepo {
   }
 
   Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
-    final result = await _contactDao.get(countryCode, nationalNumber);
+    final result = await _contactDao.get(
+      PhoneNumber()
+        ..countryCode = countryCode
+        ..nationalNumber = Int64(nationalNumber),
+    );
     return result != null;
   }
 

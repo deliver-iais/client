@@ -21,11 +21,16 @@ import 'package:rxdart/rxdart.dart';
 final bucketGlobal = PageStorageBucket();
 
 class ChatsPage extends StatefulWidget {
-   final ScrollController _sliverScrollController;
+  final ScrollController _sliverScrollController;
   final Categories? roomCategory;
   final void Function(ScrollController) setChatScrollController;
 
-  const ChatsPage({super.key, required ScrollController scrollController, this.roomCategory, required this.setChatScrollController}) : _sliverScrollController = scrollController;
+  const ChatsPage({
+    super.key,
+    required ScrollController scrollController,
+    this.roomCategory,
+    required this.setChatScrollController,
+  }) : _sliverScrollController = scrollController;
 
   @override
   ChatsPageState createState() => ChatsPageState();
@@ -49,7 +54,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
-  final ScrollController _scrollController=ScrollController();
+  final ScrollController _scrollController = ScrollController();
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
   late StreamSubscription<List<RoomWrapper>> _streamSubscription;
   final List<Room> _pinRoomsList = <Room>[];
@@ -59,7 +64,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       context: context,
       items: <PopupMenuEntry<OperationOnRoom>>[
         OperationOnRoomEntry(
-          roomId: room.uid.asString(),
+          roomUid: room.uid,
           isPinned: room.pinned,
           onPinRoom: pinTheRoom,
         )
@@ -173,7 +178,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     );
 
     _streamSubscription = _roomRepo
-        .watchAllRooms(roomCategory: widget.roomCategory)
+        .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
           _pinRoomsList.clear();
@@ -184,6 +189,13 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
           }
 
           return _routingService.currentRouteStream.distinct().map((route) {
+            if (widget.roomCategory != null) {
+              roomsList = roomsList
+                  .where(
+                    (element) => element.uid.category == widget.roomCategory,
+                  )
+                  .toList();
+            }
             return roomsList
                 .map(
                   (r) => RoomWrapper(

@@ -27,7 +27,7 @@ class MucHelperService {
   }
 
   void changeMucMemberRole(Member member) {
-    switch (member.mucUid.asUid().asMucCategories()) {
+    switch (member.mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
         _mucRepo.changeChannelMemberRole(member);
       case MucCategories.GROUP:
@@ -39,7 +39,7 @@ class MucHelperService {
   }
 
   Future<bool> kickMucMember(Member member) {
-    switch (member.mucUid.asUid().asMucCategories()) {
+    switch (member.mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
         return _mucRepo.kickChannelMember(member);
       case MucCategories.GROUP:
@@ -52,7 +52,7 @@ class MucHelperService {
   }
 
   Future<void> banMucMember(Member member) {
-    switch (member.mucUid.asUid().asMucCategories()) {
+    switch (member.mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
         return _mucRepo.banChannelMember(member);
       case MucCategories.GROUP:
@@ -289,19 +289,4 @@ class MucHelperService {
     }
   }
 
-  int calculateMucPopulation(
-    Uid mucUid,
-    int population,
-  ) {
-    switch (mucUid.asMucCategories()) {
-      case MucCategories.CHANNEL:
-        return population;
-      case MucCategories.GROUP:
-        return population;
-      case MucCategories.BROADCAST:
-        return population - 1;
-      case MucCategories.NONE:
-        return 0;
-    }
-  }
 }

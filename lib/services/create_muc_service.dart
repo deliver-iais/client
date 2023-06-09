@@ -62,8 +62,8 @@ class CreateMucService {
   void deleteContact(Contact contact, {bool useBroadcastSmsContacts = false}) {
     getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).removeWhere(
       (c) =>
-          c.nationalNumber == contact.nationalNumber &&
-          c.countryCode == contact.countryCode,
+          c.phoneNumber.nationalNumber == contact.phoneNumber.nationalNumber &&
+          c.phoneNumber.countryCode == contact.phoneNumber.countryCode,
     );
     selectedMembersLengthStream(
       useBroadcastSmsContacts: useBroadcastSmsContacts,
@@ -87,7 +87,8 @@ class CreateMucService {
   bool isSelected(Contact contact, {bool useBroadcastSmsContacts = false}) =>
       getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).any(
         (c) =>
-            c.nationalNumber == contact.nationalNumber &&
-            c.countryCode == contact.countryCode,
+            c.phoneNumber.nationalNumber ==
+                contact.phoneNumber.nationalNumber &&
+            c.phoneNumber.countryCode == contact.phoneNumber.countryCode,
       );
 }

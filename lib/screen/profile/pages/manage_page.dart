@@ -2,7 +2,6 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_room.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -52,7 +51,6 @@ class MucManagePageState extends State<MucManagePage>
   final _mucHelper = GetIt.I.get<MucHelperService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _i18n = GetIt.I.get<I18N>();
   bool _showChannelIdError = false;
@@ -465,7 +463,7 @@ class MucManagePageState extends State<MucManagePage>
                           if (widget.roomUid.category == Categories.CHANNEL)
                             StreamBuilder<Muc?>(
                               stream: _mucRepo.watchMuc(
-                                widget.roomUid.asString(),
+                                widget.roomUid,
                               ),
                               builder: (c, muc) {
                                 if (muc.hasData && muc.data != null) {
@@ -482,9 +480,11 @@ class MucManagePageState extends State<MucManagePage>
                                               _i18n.defaultTextDirection,
                                           minLines: 1,
                                           validator: (value) =>
-                                              Validate.validateChannelId(value,
-                                                  showChannelIdError:
-                                                      _showChannelIdError,),
+                                              Validate.validateChannelId(
+                                            value,
+                                            showChannelIdError:
+                                                _showChannelIdError,
+                                          ),
                                           onChanged: (str) {
                                             if (str.isNotEmpty &&
                                                 str != muc.data!.id) {
@@ -517,8 +517,7 @@ class MucManagePageState extends State<MucManagePage>
                             ),
                           const SizedBox(height: 10),
                           StreamBuilder<Muc?>(
-                            stream:
-                                _mucRepo.watchMuc(widget.roomUid.asString()),
+                            stream: _mucRepo.watchMuc(widget.roomUid),
                             builder: (c, muc) {
                               if (muc.hasData && muc.data != null) {
                                 _mucInfo = muc.data!.info;
@@ -652,18 +651,15 @@ class MucManagePageState extends State<MucManagePage>
       try {
         final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
         _roomName = fetchMucInfo?.name ?? "";
-        final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
-          _authRepo.currentUserUid.asString(),
-          widget.roomUid.asString(),
+        final currentUserRole = await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+          widget.roomUid,
         );
-        final mucOwner = await _mucRepo.isMucOwner(
-          _authRepo.currentUserUid.asString(),
-          widget.roomUid.asString(),
-        );
+
         // TODO(ch): delete setState
         setState(() {
-          _isMucAdminOrOwner = isMucAdminOrAdmin;
-          _isMucOwner = mucOwner;
+          _isMucAdminOrOwner =
+              currentUserRole.isAdmin || currentUserRole.isOwner;
+          _isMucOwner = currentUserRole.isOwner;
           initProfileAvatar();
         });
       } catch (e) {
@@ -705,7 +701,7 @@ class MucManagePageState extends State<MucManagePage>
     if (widget.roomUid.isBot()) {
       changingInviteLink = buildInviteLinkForBot(widget.roomUid.node);
     } else {
-      final muc = await _mucRepo.getMuc(widget.roomUid.asString());
+      final muc = await _mucRepo.getMuc(widget.roomUid);
       if (muc != null) {
         var token = muc.token;
         if (token.isEmpty) {

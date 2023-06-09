@@ -3,45 +3,24 @@
 part of 'member.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class MemberAdapter extends TypeAdapter<Member> {
-  @override
-  final int typeId = 8;
-
-  @override
-  Member read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Member(
-      mucUid: fields[0] as String,
-      memberUid: fields[1] as String,
-      role: fields[2] as MucRole,
+_$_Member _$$_MemberFromJson(Map<String, dynamic> json) => _$_Member(
+      mucUid: uidFromJson(json['mucUid'] as String),
+      memberUid: uidFromJson(json['memberUid'] as String),
+      role: $enumDecodeNullable(_$MucRoleEnumMap, json['role']) ?? MucRole.NONE,
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, Member obj) {
-    writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.mucUid)
-      ..writeByte(1)
-      ..write(obj.memberUid)
-      ..writeByte(2)
-      ..write(obj.role);
-  }
+Map<String, dynamic> _$$_MemberToJson(_$_Member instance) => <String, dynamic>{
+      'mucUid': uidToJson(instance.mucUid),
+      'memberUid': uidToJson(instance.memberUid),
+      'role': _$MucRoleEnumMap[instance.role]!,
+    };
 
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MemberAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+const _$MucRoleEnumMap = {
+  MucRole.NONE: 'NONE',
+  MucRole.MEMBER: 'MEMBER',
+  MucRole.ADMIN: 'ADMIN',
+  MucRole.OWNER: 'OWNER',
+};

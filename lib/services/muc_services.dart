@@ -1,5 +1,4 @@
 import 'package:deliver/box/message.dart' as db;
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart'
     as broadcast_pb;
@@ -14,11 +13,9 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:protobuf/protobuf.dart';
 
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
   final _serVices = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<Uid?> createNewGroup(String groupName, String info) async {
@@ -106,9 +103,7 @@ class MucServices {
     try {
       final request = await _serVices.broadcastServiceClient
           .getBroadcast(broadcast_pb.GetBroadcastReq()..uid = broadcastUid);
-      return request.rebuild((p0) {
-        p0.population++;
-      });
+      return request;
     } catch (e) {
       return null;
     }
@@ -337,7 +332,7 @@ class MucServices {
     }
   }
 
-  Future<bool> changeCahnnelRole(Member member, Uid channel) async {
+  Future<bool> changeChannelRole(Member member, Uid channel) async {
     try {
       await _serVices.channelServiceClient.changeRole(
         channel_pb.ChangeRoleReq()
@@ -375,11 +370,13 @@ class MucServices {
         ..limit = limit
         ..pointer = pointer,
     );
-    final memberList = request.members
-        .map((e) => Member(uid: e, role: Role.NONE))
-        .toList()
-      ..add(Member(uid: _authRepo.currentUserUid, role: Role.OWNER));
-    return (memberList, request.finished);
+
+    return (
+      request.members
+          .map((uid) => Member(uid: uid, role: Role.MEMBER))
+          .toList(),
+      request.finished
+    );
   }
 
   Future<bool> leaveChannel(Uid channelUid) async {
@@ -408,7 +405,9 @@ class MucServices {
   }
 
   Future<bool> kickBroadcastMembers(
-      List<Member> members, Uid broadcastUid,) async {
+    List<Member> members,
+    Uid broadcastUid,
+  ) async {
     final kickMembersReq = broadcast_pb.KickMembersReq();
     for (final member in members) {
       kickMembersReq.members.add(member.uid);

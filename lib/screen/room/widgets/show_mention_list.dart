@@ -2,6 +2,7 @@ import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/profile/widgets/muc_member_mention_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,7 +12,7 @@ class ShowMentionList extends StatelessWidget {
   static final _mucRepo = GetIt.I.get<MucRepo>();
 
   final void Function(String) onSelected;
-  final String roomUid;
+  final Uid roomUid;
   final String query;
   final int mentionSelectedIndex;
 

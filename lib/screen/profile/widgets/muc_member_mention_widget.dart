@@ -1,5 +1,4 @@
 import 'package:deliver/box/uid_id_name.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class MucMemberMentionWidget extends StatelessWidget {
         },
         child: Row(
           children: [
-            CircleAvatarWidget(member.uid.asUid(), 18),
+            CircleAvatarWidget(member.uid, 18),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

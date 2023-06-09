@@ -9,7 +9,6 @@ import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -103,9 +102,12 @@ class BroadcastStatusBar extends StatelessWidget {
                                 TextButton(
                                   onPressed: () {
                                     _messageRepo.onDeletePendingMessage(
-                                        snapshot.data!.first.msg,);
+                                      snapshot.data!.first.msg,
+                                    );
                                     _pendingMessageDao
-                                        .deleteAllPendingMessageForRoom(roomUid);
+                                        .deleteAllPendingMessageForRoom(
+                                      roomUid,
+                                    );
                                   },
                                   child: Text(_i18N.get("delete")),
                                 ),
@@ -134,151 +136,129 @@ class BroadcastStatusBar extends StatelessWidget {
 
     return FutureBuilder<int>(
       key: const Key("_buildBroadcastStatusBar"),
-      future: _mucDao.getAllMembersCount(roomUid.asString()),
+      future: _mucDao.getBroadCastAllMemberCount(roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data! > 1) {
           final allMemberCount = snapshot.data! - 1;
-          return FutureBuilder<int>(
-            key: const Key("_buildBroadcastStatusBar"),
-            future: _mucDao.getAllBroadcastSmsMembersCount(roomUid.asString()),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final allSmsMemberCount = snapshot.data ?? 0;
-                final progressValue = 1 -
-                    ((broadcastStatusListLength) /
-                        (allMemberCount + allSmsMemberCount));
-                return Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Container(
-                    color: theme.colorScheme.surface,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TweenAnimationBuilder<double>(
-                              duration: AnimationSettings.verySlow,
-                              curve: Curves.easeInOut,
-                              tween: Tween<double>(
-                                begin: progressValue,
-                                end: progressValue,
-                              ),
-                              builder: (context, progress, _) =>
-                                  AnimatedContainer(
-                                duration: AnimationSettings.verySlow,
-                                decoration: BoxDecoration(
-                                  borderRadius: tertiaryBorder,
-                                  gradient: LinearGradient(
-                                    colors: broadcastRunningStatus !=
-                                            BroadcastRunningStatus.END
-                                        ? [
-                                            theme.colorScheme.primary,
-                                            theme.colorScheme.inversePrimary,
-                                            theme.colorScheme.onInverseSurface
-                                          ]
-                                        : [
-                                            theme.colorScheme.error,
-                                            theme.colorScheme.errorContainer,
-                                            theme.colorScheme.onInverseSurface
-                                          ],
-                                    stops: [
-                                      progress / 2,
-                                      progress,
-                                      progress,
+          final progressValue =
+              1 - ((broadcastStatusListLength) / (allMemberCount));
+          return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Container(
+              color: theme.colorScheme.surface,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TweenAnimationBuilder<double>(
+                        duration: AnimationSettings.verySlow,
+                        curve: Curves.easeInOut,
+                        tween: Tween<double>(
+                          begin: progressValue,
+                          end: progressValue,
+                        ),
+                        builder: (context, progress, _) => AnimatedContainer(
+                          duration: AnimationSettings.verySlow,
+                          decoration: BoxDecoration(
+                            borderRadius: tertiaryBorder,
+                            gradient: LinearGradient(
+                              colors: broadcastRunningStatus !=
+                                      BroadcastRunningStatus.END
+                                  ? [
+                                      theme.colorScheme.primary,
+                                      theme.colorScheme.inversePrimary,
+                                      theme.colorScheme.onInverseSurface
+                                    ]
+                                  : [
+                                      theme.colorScheme.error,
+                                      theme.colorScheme.errorContainer,
+                                      theme.colorScheme.onInverseSurface
                                     ],
-                                  ),
+                              stops: [
+                                progress / 2,
+                                progress,
+                                progress,
+                              ],
+                            ),
+                          ),
+                          child: SizedBox(
+                            height: 25,
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                curve: Curves.bounceOut,
+                                duration: AnimationSettings.actualStandard,
+                                style: TextStyle(
+                                  color: broadcastRunningStatus !=
+                                          BroadcastRunningStatus.END
+                                      ? progress < 0.55
+                                          ? theme.colorScheme.inverseSurface
+                                              .withOpacity(0.6)
+                                          : theme.colorScheme.primaryContainer
+                                      : progress < 0.55
+                                          ? theme.colorScheme.error
+                                              .withOpacity(0.6)
+                                          : theme.colorScheme.errorContainer,
                                 ),
-                                child: SizedBox(
-                                  height: 25,
-                                  child: Center(
-                                    child: AnimatedDefaultTextStyle(
-                                      curve: Curves.bounceOut,
-                                      duration:
-                                          AnimationSettings.actualStandard,
-                                      style: TextStyle(
-                                        color: broadcastRunningStatus !=
-                                                BroadcastRunningStatus.END
-                                            ? progress < 0.55
-                                                ? theme
-                                                    .colorScheme.inverseSurface
-                                                    .withOpacity(0.6)
-                                                : theme.colorScheme
-                                                    .primaryContainer
-                                            : progress < 0.55
-                                                ? theme.colorScheme.error
-                                                    .withOpacity(0.6)
-                                                : theme
-                                                    .colorScheme.errorContainer,
-                                      ),
-                                      child: Text(
-                                        "${(progress * 100).toInt()}%",
-                                      ),
-                                    ),
-                                  ),
+                                child: Text(
+                                  "${(progress * 100).toInt()}%",
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.remove_red_eye,
-                            color: theme.colorScheme.primary,
-                          ),
-                          onPressed: () =>
-                              _routingService.openBroadcastStatsPage(roomUid),
-                        ),
-                        if (broadcastRunningStatus ==
-                            BroadcastRunningStatus.RUNNING)
-                          IconButton(
-                            onPressed: () =>
-                                broadcastService.pauseBroadcast(roomUid),
-                            icon: Icon(
-                              Icons.pause_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        if (broadcastRunningStatus ==
-                                BroadcastRunningStatus.PAUSE &&
-                            waitingBroadcasts.isNotEmpty)
-                          IconButton(
-                            onPressed: () => broadcastService.resumeBroadcast(
-                              roomUid,
-                              waitingBroadcasts,
-                            ),
-                            icon: Icon(
-                              Icons.play_arrow_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        if (broadcastRunningStatus ==
-                            BroadcastRunningStatus.END)
-                          IconButton(
-                            onPressed: () =>
-                                broadcastService.resendFailedBroadcasts(
-                              roomUid,
-                              failedBroadcasts.toList(),
-                            ),
-                            icon: Icon(
-                              Icons.refresh_rounded,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        IconButton(
-                          onPressed: () =>
-                              broadcastService.cancelBroadcast(roomUid),
-                          icon: Icon(
-                            Icons.clear_rounded,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_red_eye,
+                      color: theme.colorScheme.primary,
+                    ),
+                    onPressed: () =>
+                        _routingService.openBroadcastStatsPage(roomUid),
+                  ),
+                  if (broadcastRunningStatus == BroadcastRunningStatus.RUNNING)
+                    IconButton(
+                      onPressed: () => broadcastService.pauseBroadcast(roomUid),
+                      icon: Icon(
+                        Icons.pause_rounded,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  if (broadcastRunningStatus == BroadcastRunningStatus.PAUSE &&
+                      waitingBroadcasts.isNotEmpty)
+                    IconButton(
+                      onPressed: () => broadcastService.resumeBroadcast(
+                        roomUid,
+                        waitingBroadcasts,
+                      ),
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  if (broadcastRunningStatus == BroadcastRunningStatus.END)
+                    IconButton(
+                      onPressed: () => broadcastService.resendFailedBroadcasts(
+                        roomUid,
+                        failedBroadcasts.toList(),
+                      ),
+                      icon: Icon(
+                        Icons.refresh_rounded,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  IconButton(
+                    onPressed: () => broadcastService.cancelBroadcast(roomUid),
+                    icon: Icon(
+                      Icons.clear_rounded,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           );
         } else {
           return const SizedBox.shrink();

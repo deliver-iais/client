@@ -330,7 +330,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       onSelected: (s) {
                         onMentionSelected(s);
                       },
-                      roomUid: widget.currentRoom.uid.asString(),
+                      roomUid: widget.currentRoom.uid,
                       mentionSelectedIndex: mentionSelectedIndex,
                     );
                   }
@@ -1012,7 +1012,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
   Future<void> addMentionByEnter() async {
     final value = await _mucRepo.getFilteredMember(
-      widget.currentRoom.uid.asString(),
+      widget.currentRoom.uid,
       query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
@@ -1073,7 +1073,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
           .getFilteredMember(
-            currentRoom.uid.asString(),
+            currentRoom.uid,
             query: _mentionQuery.value,
           )
           .then(
@@ -1181,7 +1181,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   void scrollDownInMentions() {
     _mucRepo
         .getFilteredMember(
-          currentRoom.uid.asString(),
+          currentRoom.uid,
           query: _mentionQuery.value,
         )
         .then(

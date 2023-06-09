@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:deliver/models/file.dart' as model;
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/drag_and_drop_service.dart';
@@ -39,7 +38,6 @@ class DragDropWidget extends StatefulWidget {
 class DragDropWidgetState extends State<DragDropWidget> {
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _dragAndDropService = GetIt.I.get<DragAndDropService>();
 
@@ -64,7 +62,8 @@ class DragDropWidgetState extends State<DragDropWidget> {
                         onDropMultiple: (files) async {
                           try {
                             if (files != null &&
-                                _routingServices.isInRoom(widget.roomUid.asString())) {
+                                _routingServices
+                                    .isInRoom(widget.roomUid.asString())) {
                               final inputFiles = <model.File>[];
                               for (final File file in (files)) {
                                 final url =
@@ -133,11 +132,10 @@ class DragDropWidgetState extends State<DragDropWidget> {
         widget.resetRoomPageDetails,
       );
     } else {
-      final res = await _mucRepo.isMucAdminOrOwner(
-        _authRepo.currentUserUid.asString(),
-        widget.roomUid.asString(),
+      final res = await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+        widget.roomUid,
       );
-      if (res) {
+      if (res.isAdmin || res.isOwner) {
         if (context.mounted) {
           showDialogInDesktop(
             inputFiles,
