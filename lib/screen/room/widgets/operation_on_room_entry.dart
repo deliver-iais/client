@@ -2,7 +2,6 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_room.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
@@ -13,6 +12,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -21,12 +21,12 @@ import 'package:rxdart/rxdart.dart';
 
 class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   final bool isPinned;
-  final String roomId;
+  final Uid roomUid;
   final void Function(String)? onPinRoom;
 
   const OperationOnRoomEntry({
     super.key,
-    required this.roomId,
+    required this.roomUid,
     this.onPinRoom,
     this.isPinned = false,
   });
@@ -48,17 +48,16 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   static final _roomDao = GetIt.I.get<RoomDao>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _mucHelper = GetIt.I.get<MucHelperService>();
-  static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
   void onDeleteRoom(OperationOnRoom operationOnRoom) =>
-      _roomRepo.getName(widget.roomId.asUid()).then((roomName) {
+      _roomRepo.getName(widget.roomUid).then((roomName) {
         showDialog(
           context: context,
           builder: (context) {
             return OnDeletePopupDialog(
-              roomUid: widget.roomId.asUid(),
+              roomUid: widget.roomUid,
               selected: operationOnRoom,
               roomName: roomName,
             );
@@ -73,7 +72,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         if (widget.onPinRoom != null)
           if (!widget.isPinned)
             PopupMenuItem(
-              onTap: () => widget.onPinRoom?.call(widget.roomId),
+              onTap: () => widget.onPinRoom?.call(widget.roomUid.asString()),
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.pin),
@@ -85,7 +84,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
           else
             PopupMenuItem(
               onTap: () => _roomDao.updateRoom(
-                uid: widget.roomId.asUid(),
+                uid: widget.roomUid,
                 pinned: false,
                 pinId: 0,
               ),
@@ -98,14 +97,14 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
               ),
             ),
         FutureBuilder<bool>(
-          future: _roomRepo.isRoomMuted(widget.roomId),
+          future: _roomRepo.isRoomMuted(widget.roomUid.asString()),
           builder: (context, snapshot) {
             final isMuted = snapshot.data ?? true;
             return PopupMenuItem(
               onTap: () {
                 isMuted
-                    ? _roomRepo.unMute(widget.roomId.asUid())
-                    : _roomRepo.mute(widget.roomId.asUid());
+                    ? _roomRepo.unMute(widget.roomUid)
+                    : _roomRepo.mute(widget.roomUid);
               },
               child: Row(
                 children: [
@@ -126,10 +125,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
           },
         ),
         FutureBuilder<bool>(
-          future: _mucRepo.isMucOwner(
-            _authRepo.currentUserUid.asString(),
-            widget.roomId,
-          ),
+          future: _mucRepo.currentUserIsMucOwner(widget.roomUid),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (!snapshot.data!) {
@@ -138,16 +134,16 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                   child: Row(
                     children: [
                       Icon(
-                        widget.roomId.asUid().isMuc()
+                        widget.roomUid.isMuc()
                             ? CupertinoIcons.arrow_turn_up_left
                             : CupertinoIcons.delete,
                       ),
                       const SizedBox(width: p12),
                       Text(
-                        !widget.roomId.asUid().isMuc()
+                        !widget.roomUid.isMuc()
                             ? _i18n.get("delete_chat")
                             : _mucHelper.leftMucTitle(
-                                widget.roomId.asUid(),
+                                widget.roomUid,
                               ),
                       ),
                     ],
@@ -162,7 +158,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                       const SizedBox(width: p12),
                       Text(
                         _mucHelper.deleteMucTitle(
-                          widget.roomId.asUid(),
+                          widget.roomUid,
                         ),
                       ),
                     ],
@@ -174,7 +170,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             }
           },
         ),
-        if (widget.roomId.isBot())
+        if (widget.roomUid.isBot())
           PopupMenuItem(
             onTap: () => _showAddBotToGroupDialog(),
             child: Row(
@@ -189,7 +185,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
           ),
         PopupMenuItem(
           onTap: () {
-            _roomRepo.reportRoom(widget.roomId.asUid());
+            _roomRepo.reportRoom(widget.roomUid);
             ToastDisplay.showToast(
               toastText: _i18n.get("report_result"),
               toastContext: context,
@@ -205,13 +201,15 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             ],
           ),
         ),
-        if (!widget.roomId.isMuc())
+        if (!widget.roomUid.isMuc())
           StreamBuilder<bool?>(
-            stream: _roomRepo.watchIsRoomBlocked(widget.roomId),
+            stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
             builder: (c, s) {
               return PopupMenuItem(
-                onTap: () =>
-                    _roomRepo.block(widget.roomId, block: !(s.data ?? false)),
+                onTap: () => _roomRepo.block(
+                  widget.roomUid.asString(),
+                  block: !(s.data ?? false),
+                ),
                 child: Row(
                   children: [
                     const Icon(Icons.block),
@@ -378,7 +376,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         return AlertDialog(
           title: const Icon(Icons.person_add),
           content: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.roomId.asUid()),
+            future: _roomRepo.getName(widget.roomUid),
             builder: (c, name) {
               if (name.hasData && name.data != null && name.data!.isNotEmpty) {
                 return Text(
@@ -401,8 +399,8 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 final basicNavigatorState = Navigator.of(context);
                 final c1NavigatorState = Navigator.of(c1);
 
-                final usersAddCode = await _mucRepo
-                    .addMucMember(uid.asUid(), [widget.roomId.asUid()]);
+                final usersAddCode =
+                    await _mucRepo.addMucMember(uid.asUid(), [widget.roomUid]);
                 if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();

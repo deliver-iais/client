@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:deliver/box/broadcast_member.dart';
+import 'package:deliver/box/broadcast_member_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -14,12 +16,15 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/validate.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -339,7 +344,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   for (var i = 0; i < contacts.length; i++) {
                     if (contacts[i].uid != null) {
                       memberUidList.add(
-                        contacts[i].uid!.asUid(),
+                        contacts[i].uid!,
                       );
                     }
                   }
@@ -389,11 +394,24 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
-  void _saveSmsBroadcastList(Uid mucUid) {
+  void _saveSmsBroadcastList(Uid broadcastUid) {
     final smsList =
         _createMucService.getContacts(useBroadcastSmsContacts: true);
     for (final smsMember in smsList) {
-      unawaited(_mucRepo.saveSmsBroadcastContact(smsMember, mucUid.asString()));
+      unawaited(
+        _mucRepo.saveSmsBroadcastContact(
+          BroadcastMember(
+            broadcastUid: broadcastUid,
+            name: buildName(smsMember.firstName, smsMember.lastName),
+            type: BroadCastMemberType.SMS,
+            phoneNumber: PhoneNumber()
+              ..nationalNumber =
+                  Int64(smsMember.phoneNumber.nationalNumber.toInt())
+              ..countryCode = smsMember.phoneNumber.countryCode,
+          ),
+          broadcastUid,
+        ),
+      );
     }
   }
 }

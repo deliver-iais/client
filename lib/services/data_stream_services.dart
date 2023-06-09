@@ -146,10 +146,9 @@ class DataStreamServices {
               }
               await _sdr.deleteMember(
                 Member(
-                  memberUid: message
-                      .persistEvent.mucSpecificPersistentEvent.issuer
-                      .asString(),
-                  mucUid: roomUid.asString(),
+                  memberUid:
+                      message.persistEvent.mucSpecificPersistentEvent.issuer,
+                  mucUid: roomUid,
                 ),
               );
               break;

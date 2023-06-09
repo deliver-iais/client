@@ -171,7 +171,7 @@ class UrlHandlerService {
             ..node = node
             ..category = category)
           .asString();
-      final muc = await _mucDao.get(roomUid);
+      final muc = await _mucDao.get(roomUid.asUid());
       if (muc != null) {
         _routingService.openRoom(
           roomUid,

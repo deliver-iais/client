@@ -3,63 +3,49 @@
 part of 'muc.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// JsonSerializableGenerator
 // **************************************************************************
 
-class MucAdapter extends TypeAdapter<Muc> {
-  @override
-  final int typeId = 7;
-
-  @override
-  Muc read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Muc(
-      uid: fields[0] as String,
-      name: fields[1] as String,
-      token: fields[2] as String,
-      id: fields[3] as String,
-      info: fields[4] as String,
-      pinMessagesIdList: (fields[5] as List).cast<int>(),
-      population: fields[6] as int,
-      lastCanceledPinMessageId: fields[7] as int,
-      mucType: fields[8] as MucType,
+_$_Muc _$$_MucFromJson(Map<String, dynamic> json) => _$_Muc(
+      uid: uidFromJson(json['uid'] as String),
+      name: json['name'] as String? ?? "",
+      token: json['token'] as String? ?? "",
+      id: json['id'] as String? ?? "",
+      info: json['info'] as String? ?? "",
+      pinMessagesIdList: (json['pinMessagesIdList'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          const [],
+      population: json['population'] ?? 0,
+      lastCanceledPinMessageId: json['lastCanceledPinMessageId'] ?? 0,
+      mucType: $enumDecodeNullable(_$MucTypeEnumMap, json['mucType']) ??
+          MucType.Public,
+      currentUserRole:
+          $enumDecodeNullable(_$MucRoleEnumMap, json['currentUserRole']) ??
+              MucRole.NONE,
     );
-  }
 
-  @override
-  void write(BinaryWriter writer, Muc obj) {
-    writer
-      ..writeByte(9)
-      ..writeByte(0)
-      ..write(obj.uid)
-      ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(2)
-      ..write(obj.token)
-      ..writeByte(3)
-      ..write(obj.id)
-      ..writeByte(4)
-      ..write(obj.info)
-      ..writeByte(5)
-      ..write(obj.pinMessagesIdList)
-      ..writeByte(6)
-      ..write(obj.population)
-      ..writeByte(7)
-      ..write(obj.lastCanceledPinMessageId)
-      ..writeByte(8)
-      ..write(obj.mucType);
-  }
+Map<String, dynamic> _$$_MucToJson(_$_Muc instance) => <String, dynamic>{
+      'uid': uidToJson(instance.uid),
+      'name': instance.name,
+      'token': instance.token,
+      'id': instance.id,
+      'info': instance.info,
+      'pinMessagesIdList': instance.pinMessagesIdList,
+      'population': instance.population,
+      'lastCanceledPinMessageId': instance.lastCanceledPinMessageId,
+      'mucType': _$MucTypeEnumMap[instance.mucType]!,
+      'currentUserRole': _$MucRoleEnumMap[instance.currentUserRole]!,
+    };
 
-  @override
-  int get hashCode => typeId.hashCode;
+const _$MucTypeEnumMap = {
+  MucType.Private: 'Private',
+  MucType.Public: 'Public',
+};
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MucAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
+const _$MucRoleEnumMap = {
+  MucRole.NONE: 'NONE',
+  MucRole.MEMBER: 'MEMBER',
+  MucRole.ADMIN: 'ADMIN',
+  MucRole.OWNER: 'OWNER',
+};

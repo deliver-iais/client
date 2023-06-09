@@ -9,7 +9,6 @@ import 'package:deliver/box/dao/broadcast_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/role.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
@@ -17,7 +16,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
@@ -244,11 +242,7 @@ class BroadcastService {
     final broadcastId = message.id;
     if (broadcastId != null) {
       _setBroadcastRunningStateAsActive(message.roomUid);
-      final members =
-          (await _mucDao.getAllMembers(broadcastRoomId.asString())).where(
-        (element) =>
-            element?.role == MucRole.MEMBER || element?.role == MucRole.NONE,
-      );
+      final members = (await _mucDao.getAllMembers(broadcastRoomId));
       final bcStatusList = await _setAllBroadcastMemberStatusAsWaiting(
         members,
         broadcastId,
@@ -368,14 +362,14 @@ class BroadcastService {
     final bcStatusList = <BroadcastStatus>[];
     for (final member in members) {
       final packetId = await _getMessageRepo.createBroadcastMessagePackedId(
-        member!.memberUid.asUid(),
+        member!.memberUid,
         broadcastId,
       );
       final broadcastStatus = BroadcastStatus(
         sendingId: packetId,
         broadcastMessageId: broadcastId,
         status: BroadcastMessageStatusType.WAITING,
-        to: member.memberUid,
+        to: member.memberUid.asString(),
       );
 
       await _broadcastDao.saveBroadcastStatus(
@@ -402,12 +396,11 @@ class BroadcastService {
     Message message,
   ) async {
     if (isAndroidNative) {
-      final members =
-          await _mucDao.getAllBroadcastSmsMembers(message.roomUid.asString());
+      final members = await _mucDao.getAllBroadcastSmsMembers(message.roomUid);
       final phoneNumbers = members
           .map(
             (member) => "0"
-                "${member?.nationalNumber}",
+                "${member?.phoneNumber!.nationalNumber.toInt()}",
           )
           .toList();
       if (members.isNotEmpty) {
@@ -415,7 +408,7 @@ class BroadcastService {
         for (var i = 0; i < phoneNumbers.length; i++) {
           final status = BroadcastStatus(
             broadcastMessageId: message.id!,
-            to: buildName(members[i]?.firstName, members[i]?.lastName),
+            to: members[i]!.name,
             status: BroadcastMessageStatusType.WAITING,
             sendingId: phoneNumbers[i],
             isSmsBroadcast: true,

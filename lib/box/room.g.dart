@@ -8,7 +8,7 @@ part of 'room.dart';
 
 _$_Room _$$_RoomFromJson(Map<String, dynamic> json) => _$_Room(
       uid: uidFromJson(json['uid'] as String),
-      lastMessage: getMessageFromJson(json['lastMessage'] as String),
+      lastMessage: getNullableMessageFromJson(json['lastMessage'] as String?),
       replyKeyboardMarkup: json['replyKeyboardMarkup'] as String?,
       draft: json['draft'] as String? ?? "",
       mentionsId: (json['mentionsId'] as List<dynamic>?)

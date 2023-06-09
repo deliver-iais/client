@@ -1,35 +1,20 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:hive/hive.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'uid_id_name.g.dart';
 
-@HiveType(typeId: UID_ID_NAME_TRACK_ID)
-class UidIdName {
-  // DbId
-  @HiveField(0)
-  String uid;
+part 'uid_id_name.freezed.dart';
 
-  @HiveField(1)
-  String? id;
-
-  @HiveField(2)
-  String? name;
-
-  @HiveField(4)
-  int? lastUpdate;
-
-  UidIdName({required this.uid, this.id, this.name, this.lastUpdate});
-
-  UidIdName copyWith({
-    required String uid,
+@freezed
+class UidIdName with _$UidIdName {
+  const factory UidIdName({
+    @UidJsonKey required Uid uid,
     String? id,
     String? name,
-    int? lastUpdate,
-  }) =>
-      UidIdName(
-        uid: uid,
-        id: id ?? this.id,
-        name: name ?? this.name,
-        lastUpdate: lastUpdate ?? this.lastUpdate,
-      );
+    @Default(0) int lastUpdateTime,
+  }) = _UidIdName;
+
+  factory UidIdName.fromJson(Map<String, Object?> json) =>
+      UidIdName.fromJson(json);
 }

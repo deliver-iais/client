@@ -43,7 +43,7 @@ class BotRepo {
 
     unawaited(
       _uidIdNameDao.update(
-        botUid.asString(),
+        botUid,
         name: result.name,
         id: botUid.node,
       ),

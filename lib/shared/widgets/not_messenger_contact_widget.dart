@@ -55,7 +55,7 @@ class NotMessengerContactWidget extends StatelessWidget {
               iconSize: 24,
               onPressed: () async {
                 final uri = Uri.parse(
-                  'sms:${contact.countryCode}${contact.nationalNumber}?body=$INVITE_MESSAGE',
+                  'sms:${contact.phoneNumber.countryCode}${contact.phoneNumber.nationalNumber}?body=$INVITE_MESSAGE',
                 );
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri);

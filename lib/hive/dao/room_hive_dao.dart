@@ -35,7 +35,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   }
 
   @override
-  Stream<List<Room>> watchAllRooms({Categories? roomCategory}) async* {
+  Stream<List<Room>> watchAllRooms() async* {
     final box = await _openRoom();
     yield sortRooms(
       box.values
@@ -50,10 +50,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
           (event) => sortRooms(
             box.values
                 .where(
-                  (element) => (element.lastMessageId > 0 &&
-                      !element.deleted &&
-                      (roomCategory == null ||
-                          element.uid.asUid().category == roomCategory)),
+                  (element) => (element.lastMessageId > 0 && !element.deleted),
                 )
                 .map((e) => e.fromHive())
                 .toList(),

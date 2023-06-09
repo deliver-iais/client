@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:collection/collection.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
@@ -56,6 +57,10 @@ class RoomRepo {
   final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
   final _metaDao = GetIt.I.get<MetaDao>();
   final _metaCount = GetIt.I.get<MetaCountDao>();
+
+  final BehaviorSubject<List<Room>> _rooms = BehaviorSubject.seeded([]);
+  final BehaviorSubject<List<Categories>> _roomsCategories =
+      BehaviorSubject.seeded([]);
 
   // TODO(any): should refactor and move to cache repo!
   final _isVerifiedCache =
@@ -181,7 +186,7 @@ class RoomRepo {
     }
 
     // Is in UidIdName Table
-    final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+    final uidIdName = await _uidIdNameDao.getByUid(uid);
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
@@ -199,11 +204,10 @@ class RoomRepo {
     if (uid.category == Categories.USER) {
       final contact = await _contactRepo.getContact(uid);
       if (contact != null &&
-          ((contact.firstName != null && contact.firstName!.isNotEmpty) ||
-              (contact.lastName != null && contact.lastName!.isNotEmpty))) {
+          ((contact.firstName.isNotEmpty) || (contact.lastName.isNotEmpty))) {
         final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
-        unawaited(_uidIdNameDao.update(uid.asString(), name: name));
+        unawaited(_uidIdNameDao.update(uid, name: name));
         return name;
       } else {
         final name = await _contactRepo.getContactFromServer(
@@ -222,7 +226,7 @@ class RoomRepo {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name);
-        unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
+        unawaited(_uidIdNameDao.update(uid, name: muc.name));
 
         return muc.name;
       }
@@ -241,7 +245,7 @@ class RoomRepo {
 
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
-      unawaited(_uidIdNameDao.update(uid.asString(), id: username));
+      unawaited(_uidIdNameDao.update(uid, id: username));
     }
 
     return (username ?? unknownName) ?? "Unknown";
@@ -251,7 +255,7 @@ class RoomRepo {
     if (uid.isBot()) {
       return Stream.value(uid.node);
     }
-    return _uidIdNameDao.watchIdByUid(uid.asString());
+    return _uidIdNameDao.watchIdByUid(uid);
   }
 
   Future<bool> deleteRoom(Uid roomUid) async {
@@ -280,7 +284,7 @@ class RoomRepo {
           await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao
           .update(
-            uid.asString(),
+            uid,
             id: result.id,
           )
           .ignore();
@@ -293,13 +297,13 @@ class RoomRepo {
 
   Future<bool> _isUserInfoNeedsToBeUpdated(Uid uid) async {
     final nowTime = clock.now().millisecondsSinceEpoch;
-    final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+    final uidIdName = await _uidIdNameDao.getByUid(uid);
 
     if (uidIdName == null) {
       return true;
-    } else if (uidIdName.name == null || uidIdName.lastUpdate == null) {
+    } else if (uidIdName.name == null || uidIdName.lastUpdateTime == 0) {
       return true;
-    } else if ((nowTime - uidIdName.lastUpdate!) > USER_INFO_CACHE_TIME) {
+    } else if ((nowTime - uidIdName.lastUpdateTime) > USER_INFO_CACHE_TIME) {
       return true;
     } else {
       return false;
@@ -327,7 +331,7 @@ class RoomRepo {
         if (muc != null && muc.name.isNotEmpty) {
           roomNameCache.set(uid.asString(), muc.name);
           unawaited(
-            _uidIdNameDao.update(uid.asString(), name: muc.name),
+            _uidIdNameDao.update(uid, name: muc.name),
           );
         }
       }
@@ -378,7 +382,8 @@ class RoomRepo {
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
-  Stream<bool> watchIsRoomMuted(Uid uid) => _muteDao.watchIsMuted(uid.asString());
+  Stream<bool> watchIsRoomMuted(Uid uid) =>
+      _muteDao.watchIsMuted(uid.asString());
 
   void mute(Uid uid) => _muteDao.mute(uid.asString());
 
@@ -388,7 +393,42 @@ class RoomRepo {
 
   Stream<bool?> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
-  Stream<List<Room>> watchAllRooms({Categories? roomCategory}) => _roomDao.watchAllRooms(roomCategory: roomCategory);
+  Stream<List<Room>> watchAllRooms() {
+    if (_rooms.value.isEmpty) {
+      _roomDao.watchAllRooms().listen((r) => _rooms.add(r));
+    }
+    return _rooms.stream;
+  }
+
+  Stream<List<Categories>> watchRoomsCategories() {
+    _rooms.listen((value) {
+      final res = <Categories>[];
+      if (_hasRoomCategory(Categories.USER)) {
+        res.add(Categories.USER);
+      }
+      if (_hasRoomCategory(Categories.GROUP)) {
+        res.add(Categories.GROUP);
+      }
+      if (_hasRoomCategory(Categories.CHANNEL)) {
+        res.add(Categories.CHANNEL);
+      }
+      if (_hasRoomCategory(Categories.BROADCAST)) {
+        res.add(Categories.BROADCAST);
+      }
+      if (!(const ListEquality().equals(_roomsCategories.value, res))) {
+        _roomsCategories.add(res);
+      }
+    });
+    return _roomsCategories.stream;
+  }
+
+  bool _hasRoomCategory(Categories categories) {
+    try {
+      _rooms.value.firstWhere((element) => element.uid.category == categories);
+      return true;
+    } catch (_) {}
+    return false;
+  }
 
   Stream<Room> watchRoom(Uid roomUid) => _roomDao.watchRoom(roomUid);
 
@@ -472,7 +512,8 @@ class RoomRepo {
         }
       });
 
-  Future<List<Uid>> getAllRooms()async   => (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
+  Future<List<Uid>> getAllRooms() async =>
+      (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
 
   Future<List<Uid>> searchInRooms(String text) async {
     if (text.isEmpty) {
@@ -487,7 +528,7 @@ class RoomRepo {
       }
       //search by id;
       else {
-        final id = (await _uidIdNameDao.getByUid(element.uid.asString()))?.id;
+        final id = (await _uidIdNameDao.getByUid(element.uid))?.id;
         if (id != null && id.toLowerCase().contains(text.toLowerCase())) {
           searchResult.add(element.uid);
         }
@@ -512,7 +553,7 @@ class RoomRepo {
       final info = await fetchUidById(synthesizeId);
       unawaited(
         _uidIdNameDao.update(
-          info.uid.asString(),
+          info.uid,
           id: synthesizeId,
         ),
       );

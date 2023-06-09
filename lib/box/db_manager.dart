@@ -30,7 +30,7 @@ enum TableInfo {
   MESSAGE_TABLE_NAME("MESSAGE", 1),
   MESSAGE_BRIEF_TABLE_NAME("MESSAGE_BRIEF", 1),
   MESSAGE_TYPE_TABLE_NAME("MESSAGE_TYPE", 1),
-  MUC_TABLE_NAME("MUC", 1),
+  MUC_TABLE_NAME("MUC", 2),
   MUTE_TABLE_NAME("MUTE", 1),
   ROLE_TABLE_NAME("ROLE", 1),
   ROOM_TABLE_NAME("ROOM", 3),
@@ -80,7 +80,8 @@ enum TableInfo {
 }
 
 class DBManager {
-  static void open(String key, TableInfo table) => BoxDao.addBox(
+  static void open(String key, TableInfo table) =>
+      BoxDao.addBox(
         key,
         BoxInfo(dbKey: key, name: table.name, version: table.version),
       );

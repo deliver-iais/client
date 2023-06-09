@@ -47,7 +47,9 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
       _messengerContacts = contacts
           .whereNot((element) => element.uid == null)
           .where(
-            (c) => !_authRepo.isCurrentUser(c.uid!.asUid()) && !c.isUsersContact(),
+            (c) =>
+                !_authRepo.isCurrentUser(c.uid!) &&
+                !(c.phoneNumber.countryCode == 0),
           )
           .sortedBy(
             (element) => buildName(element.firstName, element.lastName),
@@ -99,7 +101,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
                   if (c != null && c.uid != null) {
-                    _routingService.openRoom(c.uid!);
+                    _routingService.openRoom(c.uid!.asString());
                   }
                 });
               },
@@ -129,7 +131,9 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                     if (_messengerContacts.isEmpty) const EmptyContacts(),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsetsDirectional.symmetric(
+                          horizontal: 16.0,
+                        ),
                         child: FlexibleFixedHeightGridView(
                           itemCount: contacts.length,
                           itemBuilder: (context, index) {
@@ -137,7 +141,8 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                             if (c.uid != null) {
                               return GestureDetector(
                                 onTap: () => c.uid != null
-                                    ? _routingService.openRoom(c.uid!)
+                                    ? _routingService
+                                        .openRoom(c.uid!.asString())
                                     : null,
                                 child: ContactWidget(
                                   contact: c,
@@ -146,10 +151,10 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                   onCircleIcon: () => showQrCode(
                                     context,
                                     buildShareUserUrl(
-                                      c.countryCode,
-                                      c.nationalNumber,
-                                      c.firstName!,
-                                      c.lastName!,
+                                      c.phoneNumber.countryCode,
+                                      c.phoneNumber.nationalNumber.toInt(),
+                                      c.firstName,
+                                      c.lastName,
                                     ),
                                   ),
                                 ),
@@ -263,7 +268,8 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
               .where(
                 (c) =>
                     c.uid == null ||
-                    (!_authRepo.isCurrentUser(c.uid!.asUid()) && !c.isUsersContact()),
+                    (!_authRepo.isCurrentUser(c.uid!) &&
+                        !(c.phoneNumber.countryCode == 0)),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}")
               .sortedBy((element) => "${element.uid != null ? 0 : 1}"),
@@ -323,10 +329,10 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
                 onCircleIcon: () => showQrCode(
                   context,
                   buildShareUserUrl(
-                    c.countryCode,
-                    c.nationalNumber,
-                    c.firstName!,
-                    c.lastName!,
+                    c.phoneNumber.countryCode,
+                    c.phoneNumber.nationalNumber.toInt(),
+                    c.firstName,
+                    c.lastName,
                   ),
                 ),
               ),

@@ -33,7 +33,7 @@ class MucAppbarTitle extends StatelessWidget {
             ),
             Expanded(
               child: StreamBuilder<Muc?>(
-                stream: _mucRepo.watchMuc(mucUid.asString()),
+                stream: _mucRepo.watchMuc(mucUid),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Column(
@@ -49,8 +49,7 @@ class MucAppbarTitle extends StatelessWidget {
                         TitleStatus(
                           style: theme.textTheme.bodySmall!,
                           normalConditionWidget: Text(
-                            "${_mucHelper.calculateMucPopulation(snapshot.data!.uid.asUid(), snapshot.data!.population)}"
-                            " ${_mucHelper.mucAppBarMemberTitle(snapshot.data!.uid.asUid())}",
+                            "${snapshot.data!.population} ${_mucHelper.mucAppBarMemberTitle(snapshot.data!.uid)}",
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,

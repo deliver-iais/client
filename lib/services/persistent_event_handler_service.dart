@@ -7,7 +7,6 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
@@ -34,11 +33,12 @@ class PersistentEventHandlerService {
               MucSpecificPersistentEvent_Issue.AVATAR_CHANGED) {
         return const Tuple2("", false);
       }
-      final isMucOwnerOrAdminInChannel = await _mucRepo.isMucAdminOrOwner(
-        _authRepo.currentUserUid.asString(),
-        roomUid.asString(),
+      final isMucOwnerOrAdminInChannel =
+          await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
+        roomUid,
       );
-      if (!isMucOwnerOrAdminInChannel) {
+      if (!(isMucOwnerOrAdminInChannel.isAdmin ||
+          isMucOwnerOrAdminInChannel.isOwner)) {
         return Tuple2(_i18n.get("admin"), false);
       }
     }
