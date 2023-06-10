@@ -273,6 +273,7 @@ class MucRepo {
               name: channel.info.name,
               population: channel.population.toInt(),
               info: channel.info.info,
+              currentUserRole: getLocalRole(channel.requesterRole),
               token: channel.token,
               lastCanceledPinMessageId:
                   c != null ? c.lastCanceledPinMessageId : 0,
