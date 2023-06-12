@@ -166,7 +166,7 @@ class SettingsPageState extends State<SettingsPage> {
                         await _analyticsService.sendLogEvent(
                           "QRShare",
                         );
-                        final account = await _accountRepo.getAccount();
+                        final account =  _accountRepo.getAccount();
                         // Forced
                         // ignore: use_build_context_synchronously
                         showQrCode(

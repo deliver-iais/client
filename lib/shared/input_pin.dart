@@ -161,16 +161,11 @@ Widget buildTitle(BuildContext context) {
       padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
-          FutureBuilder(
-            future: account.getName(),
-            builder: (context, snapshot) {
-              return Text(
-                "${i18n.get("hi")}, ${snapshot.data}",
+           Text(
+                "${i18n.get("hi")}, ${account.getName()}",
                 style: theme.textTheme.titleLarge,
                 textDirection: i18n.defaultTextDirection,
-              );
-            },
-          ),
+              ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

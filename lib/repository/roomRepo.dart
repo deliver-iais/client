@@ -57,6 +57,19 @@ class RoomRepo {
   final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
   final _metaDao = GetIt.I.get<MetaDao>();
   final _metaCount = GetIt.I.get<MetaCountDao>();
+  final mentionAnimationId = BehaviorSubject<int?>.seeded(null);
+
+  void addMentionAnimationId(int id) {
+    mentionAnimationId.add(id);
+    Future.delayed(
+      const Duration(
+        seconds: 4,
+      ),
+    ).then((value) {
+      mentionAnimationId.add(null);
+    });
+  }
+
 
   final BehaviorSubject<List<Room>> _rooms = BehaviorSubject.seeded([]);
   final BehaviorSubject<List<Categories>> _roomsCategories =

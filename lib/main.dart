@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:clock/clock.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
-import 'package:deliver/box/account.dart';
 import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
@@ -300,7 +299,6 @@ Future<void> dbSetupDI() async {
   }
 
   Hive
-    ..registerAdapter(AccountAdapter())
     ..registerAdapter(LastActivityAdapter())
     ..registerAdapter(ContactHiveAdapter())
     ..registerAdapter(UidIdNameHiveAdapter())

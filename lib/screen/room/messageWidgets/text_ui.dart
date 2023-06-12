@@ -114,6 +114,7 @@ class _TextUIState extends State<TextUI> {
         onIdClick: widget.onUsernameClick,
         onBotCommandClick: widget.onBotCommandClick,
         onUrlClick: (text) => _urlHandlerService.onUrlTap(text),
+        messageId: widget.message.id,
       ),
     );
 

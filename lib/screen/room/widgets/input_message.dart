@@ -35,6 +35,7 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -364,7 +365,13 @@ class InputMessageWidgetState extends State<InputMessage> {
                 textController: widget.textController,
               ),
               Container(
-                decoration: BoxDecoration(color: theme.colorScheme.surface),
+                decoration: BoxDecoration(color: theme.colorScheme.surface,  boxShadow: [
+                  BoxShadow(
+                    color: theme.dividerColor.withOpacity(0.7),
+                    blurRadius: 2.0,
+                    offset: const Offset(0.0, 0.75),
+                  ),
+                ], ),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Row(

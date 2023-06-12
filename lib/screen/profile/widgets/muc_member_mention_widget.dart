@@ -1,6 +1,5 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
@@ -26,6 +25,7 @@ class MucMemberMentionWidget extends StatelessWidget {
     String? name,
     required BuildContext context,
   }) {
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -37,27 +37,21 @@ class MucMemberMentionWidget extends StatelessWidget {
           children: [
             CircleAvatarWidget(member.uid, 18),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ((name ?? username).isNotEmpty ? name : username)!.trim(),
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                if (name != null)
-                  Text(
-                    "@$username",
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-              ],
+            Text(
+              ((name ?? username).isNotEmpty ? name : username)!.trim(),
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleMedium,
             ),
+            const SizedBox(
+              width: 10,
+            ),
+            if (name != null)
+              Text(
+                "@$username",
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall
+                    ?.copyWith(color: theme.colorScheme.outline),
+              ),
           ],
         ),
       ),

@@ -1,11 +1,16 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/fonts/fonts.dart';
+import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:get_it/get_it.dart';
 
 // Transformers
 String simpleTransformer(Block block) => block.text;
@@ -24,8 +29,11 @@ Transformer<InlineSpan> inlineSpanTransformer({
   OnBotCommandClick? onBotCommandClick,
   OnUrlClick? onUrlClick,
   bool justHighlightSpoilers = false,
+  int? messageId,
 }) {
   return (b) {
+    final roomRepo = GetIt.I.get<RoomRepo>();
+    final accountRepo = GetIt.I.get<AccountRepo>();
     final noFormattingRegion =
         b.features.whereType<NoFormattingRegion>().firstOrNull;
     final url = b.features.whereType<UrlFeature>().firstOrNull;
@@ -127,13 +135,80 @@ Transformer<InlineSpan> inlineSpanTransformer({
       );
     }
 
-    return TextSpan(
-      text: text,
-      recognizer: gestureRecognizer,
-      style: textStyle,
-    );
+
+    if (messageId!= null && id != null && text=="@${accountRepo.getAccount()?.username}") {
+      return WidgetSpan(
+        child: StreamBuilder<int?>(
+          stream: roomRepo.mentionAnimationId,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data == messageId) {
+              return IntrinsicHeight(
+                child: IntrinsicWidth(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: mainBorder,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primaryContainer,
+                          colorScheme.tertiaryContainer
+                        ],
+                      ),
+                    ),
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                colorScheme.primaryContainer,
+                                colorScheme.tertiaryContainer.withOpacity(0.6)
+                              ],
+                            ),
+                            borderRadius: mainBorder,
+                          ),
+                        )
+                            .animate()
+                            .scaleXY(
+                              begin: 12,
+                              end: 1,
+                              duration: const Duration(milliseconds: 1500),
+                              delay: const Duration(milliseconds: 1200),
+                              curve: Curves.easeInOutQuad,
+                            )
+                            .shimmer(
+                              color: colorScheme.surface,
+                              delay: const Duration(milliseconds: 2000),
+                            ),
+                        Text.rich(
+                          _buildTextSpan(text, gestureRecognizer, textStyle),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              return Text.rich(
+                _buildTextSpan(text, gestureRecognizer, textStyle),
+              );
+            }
+          },
+        ),
+        // recognizer: gestureRecognizer,
+      );
+    } else {
+      return _buildTextSpan(text, gestureRecognizer, textStyle);
+    }
   };
 }
+
+TextSpan _buildTextSpan(
+  String text,
+  GestureRecognizer? gestureRecognizer,
+  TextStyle textStyle,
+) =>
+    TextSpan(text: text, recognizer: gestureRecognizer, style: textStyle);
 
 Transformer<InlineSpan> simpleInlineSpanTransformer({
   required Color defaultColor,

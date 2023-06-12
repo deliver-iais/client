@@ -1,4 +1,4 @@
-import 'package:deliver/box/account.dart';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -101,94 +101,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Section(
                 title: _i18n.get("two_step_verification"),
                 children: [
-                  FutureBuilder<Account?>(
-                    future: _accountRepo.getAccount(),
-                    builder: (context, accountData) {
-                      if (accountData.hasData && accountData.data != null) {
-                        return SettingsTile.switchTile(
-                          title: _i18n.get("two_step_verification"),
-                          leading: const Icon(CupertinoIcons.lock_shield),
-                          switchValue:
-                              accountData.data!.passwordProtected ?? false,
-                          onToggle: ({required newValue}) async {
-                            if (newValue) {
-                              if (accountData.data!.email != null &&
-                                  accountData.data!.email!.isNotEmpty) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return enableOrUpdateTwoStepVerification(
-                                      email: accountData.data!.email!,
-                                      updatePassword: false,
-                                    );
-                                  },
-                                ).ignore();
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (c) {
-                                    return AlertDialog(
-                                      content: Text(
-                                        _i18n.get("need_to_set_email"),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(c);
-                                            _routingService
-                                                .openAccountSettings();
-                                          },
-                                          child: Text(_i18n.get("go_setting")),
-                                        )
-                                      ],
-                                    );
-                                  },
-                                ).ignore();
-                              }
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return disableTwoStepVerification();
-                                },
-                              ).ignore();
-                            }
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  FutureBuilder<Account?>(
-                    future: _accountRepo.getAccount(),
-                    builder: (c, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.passwordProtected != null &&
-                          snapshot.data!.passwordProtected!) {
-                        return SettingsTile(
-                          title:
-                              _i18n.get("edit_two_step_verification_password"),
-                          leading: const Icon(Icons.edit),
-                          onPressed: (c) {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return enableOrUpdateTwoStepVerification(
-                                  email: snapshot.data!.email!,
-                                  updatePassword: true,
-                                );
-                              },
-                            );
-                          },
-                          trailing: const SizedBox.shrink(),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  )
+                  _buildAccountInfo(),
+                  _buildEditTwoStepVerification()
                 ],
               )
           ],
@@ -621,5 +535,86 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
       return _i18n.get("not_valid_input");
     }
     return null;
+  }
+
+  Widget _buildAccountInfo() {
+    final account = _accountRepo.getAccount();
+    if (account != null) {
+      return SettingsTile.switchTile(
+        title: _i18n.get("two_step_verification"),
+        leading: const Icon(CupertinoIcons.lock_shield),
+        switchValue: account.passwordProtected ?? false,
+        onToggle: ({required newValue}) async {
+          if (newValue) {
+            if (account.email != null && account.email!.isNotEmpty) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return enableOrUpdateTwoStepVerification(
+                    email: account.email!,
+                    updatePassword: false,
+                  );
+                },
+              ).ignore();
+            } else {
+              showDialog(
+                context: context,
+                builder: (c) {
+                  return AlertDialog(
+                    content: Text(
+                      _i18n.get("need_to_set_email"),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(c);
+                          _routingService.openAccountSettings();
+                        },
+                        child: Text(_i18n.get("go_setting")),
+                      )
+                    ],
+                  );
+                },
+              ).ignore();
+            }
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return disableTwoStepVerification();
+              },
+            ).ignore();
+          }
+        },
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildEditTwoStepVerification() {
+    final account = _accountRepo.getAccount();
+    if (account != null &&
+        account.passwordProtected != null &&
+        account.passwordProtected!) {
+      return SettingsTile(
+        title: _i18n.get("edit_two_step_verification_password"),
+        leading: const Icon(Icons.edit),
+        onPressed: (c) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return enableOrUpdateTwoStepVerification(
+                email: account.email!,
+                updatePassword: true,
+              );
+            },
+          );
+        },
+        trailing: const SizedBox.shrink(),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 }

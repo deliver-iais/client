@@ -1,3 +1,4 @@
+import 'package:deliver/box/account.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -106,6 +107,13 @@ class Settings {
     defaultValue: WindowFrame.empty,
     fromJsonMap: WindowFrameFromJson,
     toJsonMap: WindowFrameToJson,
+  );
+
+  final account = JsonMapPersistent<Account>(
+    SharedKeys.ACCOUNT.inSharedDaoStorage(),
+    defaultValue: Account.empty,
+    fromJsonMap: AccountFromJson,
+    toJsonMap: AccountToJson,
   );
   final lastMessageDeliveryAck = ProtoPersistent<MessageDeliveryAck>(
     SharedKeys.LAST_MESSAGE_DELIVERY_ACK.inSharedPreferenceStorage(),

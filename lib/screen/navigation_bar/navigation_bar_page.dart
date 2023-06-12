@@ -40,7 +40,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   final _webViewPage = WebViewPage(key: _globalKeyWebViewPage);
   final _showCasePage = ShowcasePage(key: _globalKeyShowcasePage);
   final _settingsPage = SettingsPage(key: _globalKeySettingsPage);
-  final _settingsAvatar = CircleAvatarWidget(_authRepo.currentUserUid, 16);
+  final _settingsAvatar = CircleAvatarWidget(_authRepo.currentUserUid, 14);
 
   @override
   void initState() {
