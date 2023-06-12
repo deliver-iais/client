@@ -127,19 +127,6 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
         );
   }
 
-  @override
-  Future<List<Room>> getAllGroups() async {
-    final box = await _openRoom();
-    return box.values
-        .where(
-          (element) =>
-              element.uid.asUid().category == Categories.GROUP &&
-              !element.deleted,
-        )
-        .map((e) => e.fromHive())
-        .toList();
-  }
-
   static String _keyRoom() => "room";
 
   Future<BoxPlus<RoomHive>> _openRoom() async {
@@ -150,5 +137,18 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
       await Hive.deleteBoxFromDisk(_keyRoom());
       return gen(Hive.openBox<RoomHive>(_keyRoom()));
     }
+  }
+
+  @override
+  Future<List<Room>> getAllBots() async {
+    final box = await _openRoom();
+    return box.values
+        .where(
+          (element) =>
+              element.uid.asUid().category == Categories.BOT &&
+              !element.deleted,
+        )
+        .map((e) => e.fromHive())
+        .toList();
   }
 }

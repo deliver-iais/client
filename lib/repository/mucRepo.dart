@@ -378,7 +378,8 @@ class MucRepo {
   }
 
   Future<({bool isAdmin, bool isOwner})> getCurrentUserRoleIsAdminOrOwner(
-      Uid mucUid) async {
+    Uid mucUid,
+  ) async {
     final muc = await _mucDao.get(mucUid);
     if (muc != null) {
       return (
@@ -672,7 +673,11 @@ class MucRepo {
         members.add(
           muc_pb.Member()
             ..uid = uid
-            ..role = mucUid.isChannel() ? muc_pb.Role.NONE : muc_pb.Role.MEMBER,
+            ..role = uid.isBot()
+                ? muc_pb.Role.ADMIN
+                : mucUid.isChannel()
+                    ? muc_pb.Role.NONE
+                    : muc_pb.Role.MEMBER,
         );
       }
 
