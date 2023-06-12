@@ -69,47 +69,49 @@ class _ShowcasePageState extends State<ShowcasePage> {
         child: StreamBuilder<List<ShowCase>?>(
           stream: _showCaseCache,
           builder: (context, snapshot) {
-            if (snapshot.data!= null && snapshot.hasData) {
-              if(snapshot.data!.isNotEmpty) {
+            if (snapshot.data != null && snapshot.hasData) {
+              if (snapshot.data!.isNotEmpty) {
                 return Column(
-                children: [
-                  Expanded(
-                    child: ListView.separated(
-                      controller: _controller,
-                      separatorBuilder: (context, index) {
-                        return const Divider(
-                          height: 1,
-                          thickness: 1,
-                        );
-                      },
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (ctx, index) {
-                        return _buildShowCaseItem(
-                          snapshot.data![index].json,
-                          isLast: (snapshot.data!.length == index + 1),
-                        );
+                  children: [
+                    Expanded(
+                      child: ListView.separated(
+                        controller: _controller,
+                        separatorBuilder: (context, index) {
+                          return Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: theme.colorScheme.outlineVariant
+                                .withOpacity(0.5),
+                          );
+                        },
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (ctx, index) {
+                          return _buildShowCaseItem(
+                            snapshot.data![index].json,
+                            isLast: (snapshot.data!.length == index + 1),
+                          );
+                        },
+                      ),
+                    ),
+                    StreamBuilder<bool>(
+                      stream: _isLoadMoreRunning
+                          .debounceTime(const Duration(milliseconds: 250)),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == true) {
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 40),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
                       },
                     ),
-                  ),
-                  StreamBuilder<bool>(
-                    stream: _isLoadMoreRunning
-                        .debounceTime(const Duration(milliseconds: 250)),
-                    builder: (context, snapshot) {
-                      if (snapshot.data == true) {
-                        return const Padding(
-                          padding: EdgeInsets.only(top: 10, bottom: 40),
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                ],
-              );
-              }else{
+                  ],
+                );
+              } else {
                 return const NoResultWidget();
               }
             }
@@ -137,7 +139,6 @@ class _ShowcasePageState extends State<ShowcasePage> {
           bannerCase: showCase.singleBanner,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
-          height: 200,
           width: showcaseBoxSingleBannerWidth(),
           showDescription: true,
         );
@@ -146,8 +147,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
           urlCase: showCase.singleUrl,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
-          imageHeight: 180,
-          width: 350,
+          width: showcaseBoxSingleBannerWidth(),
         );
       case Showcase_Type.groupedUrl:
         return GroupedUrlWidget(

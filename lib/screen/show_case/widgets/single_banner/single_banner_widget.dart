@@ -28,8 +28,8 @@ class SingleBannerWidget extends StatefulWidget {
   const SingleBannerWidget({
     Key? key,
     required this.bannerCase,
-    required this.height,
     required this.width,
+    this.height,
     this.isAdvertisement = false,
     this.isPrimary = false,
     this.showDescription = false,
@@ -61,104 +61,100 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
     return FutureBuilder(
       future: infoFuture,
       builder: (context, snapshot) {
-        return Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            borderRadius: secondaryBorder,
-            color: widget.showDescription && widget.isPrimary
-                ? theme.colorScheme.tertiaryContainer
-                : theme.colorScheme.surface,
-          ),
-          padding: widget.showDescription
-              ? const EdgeInsets.symmetric(vertical: p16, horizontal: p8)
-              : EdgeInsets.zero,
-          child: Stack(
-            children: [
-              Center(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: secondaryBorder,
-                    border: Border.all(color: theme.colorScheme.outlineVariant),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => SingleBannerWidget._routingService
+                    .openRoom(widget.bannerCase.uid.asString()),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                   ),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => SingleBannerWidget._routingService
-                          .openRoom(widget.bannerCase.uid.asString()),
-                      child: Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: secondaryBorder,
-                            child: SizedBox(
-                              height: widget.height,
-                              width: widget.width,
-                              child: FutureBuilder<String?>(
-                                future: SingleBannerWidget._fileRepo.getFile(
-                                  widget.bannerCase.bannerImg.uuid,
-                                  widget.bannerCase.bannerImg.name,
-                                ),
-                                builder: (c, s) {
-                                  if (s.hasData && s.data != null) {
-                                    return Image(
-                                      image: s.data!.imageProvider(),
-                                      height: widget.height,
-                                      width: widget.width,
-                                      fit: BoxFit.cover,
-                                    );
-                                  }
-                                  return TextLoader(
-                                    width: widget.width ??
-                                        MediaQuery.of(context).size.width,
-                                  );
-                                },
+                  child: SizedBox(
+                    width: widget.width,
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: secondaryBorder,
+                          child: SizedBox(
+                            height: widget.height,
+                            width: widget.width,
+                            child: FutureBuilder<String?>(
+                              future: SingleBannerWidget._fileRepo.getFile(
+                                widget.bannerCase.bannerImg.uuid,
+                                widget.bannerCase.bannerImg.name,
                               ),
+                              builder: (c, s) {
+                                if (s.hasData && s.data != null) {
+                                  return Image(
+                                    image: s.data!.imageProvider(),
+                                    height: widget.height,
+                                    width: widget.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                }
+                                return TextLoader(
+                                  width: widget.width ??
+                                      MediaQuery.of(context).size.width,
+                                );
+                              },
                             ),
                           ),
-                          if (widget.showDescription && snapshot.data != null)
-                            Padding(
-                              padding: const EdgeInsetsDirectional.all(15),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    widget.bannerCase.uid.isBot()
-                                        ? (snapshot.data! as BotInfo).name ?? ""
-                                        : (snapshot.data! as Muc).name,
-                                    maxLines: 1,
-                                    style: const TextStyle(fontSize: 16),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                  Text(
-                                    widget.bannerCase.uid.isBot()
-                                        ? (snapshot.data! as BotInfo)
-                                                .description ??
-                                            ""
-                                        : (snapshot.data! as Muc).info,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: theme.colorScheme.outline,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
+                        ),
+                        if (widget.showDescription && snapshot.data != null)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              vertical: p4,
+                              horizontal: p8,
                             ),
-                        ],
-                      ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.bannerCase.uid.isBot()
+                                      ? (snapshot.data! as BotInfo).name ?? ""
+                                      : (snapshot.data! as Muc).name,
+                                  maxLines: 1,
+                                  style: const TextStyle(fontSize: 16),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                Text(
+                                  widget.bannerCase.uid.isBot()
+                                      ? (snapshot.data! as BotInfo)
+                                              .description?.trim() ??
+                                          ""
+                                      : (snapshot.data! as Muc).info,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.outline,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              if (widget.isAdvertisement)
-                const PositionedDirectional(
-                  start: p4,
-                  top: p4,
-                  child: Ads(),
-                ),
-            ],
-          ),
+            ),
+            if (widget.isAdvertisement)
+              const PositionedDirectional(
+                start: p4,
+                top: p4,
+                child: Ads(),
+              ),
+          ],
         );
       },
     );
