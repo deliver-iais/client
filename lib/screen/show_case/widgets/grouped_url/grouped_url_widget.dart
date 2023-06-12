@@ -26,25 +26,18 @@ class GroupedUrlWidget extends StatelessWidget {
   }
 
   Widget _buildGroupedUrlsItem(int index, BuildContext context) {
-    final isLast = index == showCase.groupedUrl.urlsList.length - 1;
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsetsDirectional.only(
+      padding: const EdgeInsetsDirectional.only(
         start: p8,
-        end: isLast ? p16 * 2 : p8,
-        // This calculation is for some back and force animation bug in last item of list, we should padding at least exactly two time of sum normal padding
+        end: p8,
         bottom: p4,
       ),
-      child: Material(
-        elevation: 2,
-        borderRadius: secondaryBorder,
-        surfaceTintColor: theme.colorScheme.tertiary,
-        child: SingleUrlWidget(
-          urlCase: showCase.groupedUrl.urlsList[index],
-          width: showcaseBoxWidth(),
-          imageHeight: 170,
-        ),
+      child: SingleUrlWidget(
+        urlCase: showCase.groupedUrl.urlsList[index],
+        width: showcaseBoxWidth(),
+        imageHeight: 170,
       ),
     );
   }

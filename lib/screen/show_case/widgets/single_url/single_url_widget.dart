@@ -30,9 +30,9 @@ class SingleUrlWidget extends StatelessWidget {
   const SingleUrlWidget({
     Key? key,
     required this.urlCase,
-    this.isAdvertisement = false,
-    required this.imageHeight,
     required this.width,
+    this.imageHeight,
+    this.isAdvertisement = false,
     this.isPrimary = false,
   }) : super(key: key);
 
@@ -40,7 +40,6 @@ class SingleUrlWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isAdvertisement)
@@ -136,25 +135,21 @@ class SingleUrlWidget extends StatelessWidget {
                 }
               }
             },
-            child: Container(
-              width: width,
-              decoration: const BoxDecoration(borderRadius: secondaryBorder),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: secondaryBorder,
-                          border: Border.all(
-                            color: theme.colorScheme.outlineVariant,
-                          ),
-                        ),
-                        width: width,
-                        height: imageHeight,
-                        child: ClipRRect(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
+              ),
+              child: SizedBox(
+                width: width,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
                           borderRadius: secondaryBorder,
                           child: FutureBuilder<String?>(
                             future: _fileRepo.getFile(
@@ -166,58 +161,60 @@ class SingleUrlWidget extends StatelessWidget {
                                 return Image(
                                   image: s.data!.imageProvider(),
                                   fit: BoxFit.cover,
+                                  width: width,
+                                  height: imageHeight,
                                 );
                               }
                               return const TextLoader();
                             },
                           ),
                         ),
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional.topEnd,
-                        child: Container(
-                          margin: const EdgeInsets.all(p4),
-                          padding: const EdgeInsets.all(p4),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withOpacity(0.75),
-                            borderRadius: tertiaryBorder,
+                        Align(
+                          alignment: AlignmentDirectional.topEnd,
+                          child: Container(
+                            margin: const EdgeInsets.all(p4),
+                            padding: const EdgeInsets.all(p4),
+                            decoration: BoxDecoration(
+                              color:
+                                  theme.colorScheme.surface.withOpacity(0.75),
+                              borderRadius: mainBorder,
+                            ),
+                            child: Icon(
+                              Icons.open_in_new_rounded,
+                              size: 20,
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.9),
+                            ),
                           ),
-                          child: Icon(
-                            Icons.open_in_new_rounded,
-                            size: 20,
-                            color: theme.colorScheme.onSurface.withOpacity(0.9),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      vertical: p4,
-                      horizontal: p8,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          urlCase.name,
-                          maxLines: 1,
-                          style: const TextStyle(fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                          urlCase.description,
-                          maxLines: 1,
-                          style: TextStyle(color: theme.colorScheme.outline),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        )
                       ],
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        vertical: p4,
+                        horizontal: p8,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            urlCase.name,
+                            maxLines: 1,
+                            style: const TextStyle(fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            urlCase.description,
+                            maxLines: 1,
+                            style: TextStyle(color: theme.colorScheme.outline),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
