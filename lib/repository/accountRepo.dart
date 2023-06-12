@@ -32,7 +32,7 @@ class AccountRepo {
     if (settings.hasProfile.value) {
       return true;
     }
-    final account = await _accountDao.getAccount();
+    final account = getAccount();
     if (account != null && account.firstname != null) {
       settings.hasProfile.set(true);
       return true;
@@ -85,12 +85,12 @@ class AccountRepo {
     bool retry = false,
   }) async {
     try {
-      final account = await _accountDao.getAccount();
+      final account = getAccount();
       if ((account == null || account.username == null)) {
         final getIdRequest = await _sdr.queryServiceClient
             .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
 
-        _accountDao.updateAccount(username: getIdRequest.id).ignore();
+        _accountDao.updateAccount(username: getIdRequest.id);
       }
     } catch (e) {
       _logger.e(e);
@@ -100,7 +100,13 @@ class AccountRepo {
     }
   }
 
-  Future<Account?> getAccount() => _accountDao.getAccount();
+  Account? getAccount() {
+    final account = _accountDao.getAccount();
+    if (account != Account.empty) {
+      return account;
+    }
+    return null;
+  }
 
   Stream<Account?> getAccountAsStream() => _accountDao.getAccountStream();
 
@@ -114,11 +120,9 @@ class AccountRepo {
     final res = await _sdr.userServiceClient
         .updateEmail(UpdateEmailReq()..email = email);
     if (res.profile.isEmailVerified) {
-      _accountDao
-          .updateAccount(
-            email: res.profile.email,
-          )
-          .ignore();
+      _accountDao.updateAccount(
+        email: res.profile.email,
+      );
       return true;
     }
     return false;
@@ -131,7 +135,7 @@ class AccountRepo {
     String? description,
   }) async {
     try {
-      final account = await getAccount();
+      final account = getAccount();
 
       if (firstname == null || firstname.isEmpty) {
         return false;
@@ -183,7 +187,7 @@ class AccountRepo {
     }
     try {
       await _sdr.userServiceClient.updatePassword(updatePasswordReq);
-      await _accountDao.updateAccount(passwordProtected: true);
+      _accountDao.updateAccount(passwordProtected: true);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -201,7 +205,7 @@ class AccountRepo {
       if (res.profile.isPasswordProtected) {
         return false;
       } else {
-        _accountDao.updateAccount(passwordProtected: false).ignore();
+        _accountDao.updateAccount(passwordProtected: false);
       }
       return true;
     } catch (e) {
@@ -330,8 +334,8 @@ class AccountRepo {
     } catch (_) {}
   }
 
-  Future<String> getName() async {
-    final account = await getAccount();
+  String getName() {
+    final account = getAccount();
 
     return buildName(account!.firstname, account.lastname);
   }
@@ -341,7 +345,7 @@ class AccountRepo {
   }
 
   Future<bool> isTwoStepVerificationEnabled() async {
-    return (await _accountDao.getAccount())!.passwordProtected ?? false;
+    return (_accountDao.getAccount()).passwordProtected ?? false;
   }
 
   Future<bool> changeTwoStepVerificationPassword({

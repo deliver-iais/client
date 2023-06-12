@@ -808,18 +808,24 @@ class RoomPageState extends State<RoomPage> {
 
   void _updateRoomMentionIds(List<ItemPosition> items) {
     if (room.mentionsId.isNotEmpty) {
-      unawaited(
-        _roomRepo.updateMentionIds(
-          room.uid,
-          room.mentionsId
-              .where(
-                (element) => !items
-                    .map((e) => e.index + room.firstMessageId + 1)
-                    .contains(element),
-              )
-              .toList(),
-        ),
-      );
+      final difference =room.mentionsId.toSet().difference( room.mentionsId.where((element) => !items
+          .map((e) => e.index + room.firstMessageId + 1)
+          .contains(element),).toSet(),);
+      if (difference.isNotEmpty) {
+        _roomRepo.addMentionAnimationId(difference.last);
+        unawaited(
+          _roomRepo.updateMentionIds(
+            room.uid,
+            room.mentionsId
+                .where(
+                  (element) => !items
+                      .map((e) => e.index + room.firstMessageId + 1)
+                      .contains(element),
+                )
+                .toList(),
+          ),
+        );
+      }
     }
   }
 

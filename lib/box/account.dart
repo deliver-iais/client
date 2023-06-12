@@ -1,38 +1,28 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'account.g.dart';
 
-@HiveType(typeId: ACCOUNT_TRACK_ID)
+@JsonSerializable()
 class Account {
-  @HiveField(0)
-  int? countryCode;
+  final int? countryCode;
 
-  @HiveField(1)
-  int? nationalNumber;
+  final int? nationalNumber;
 
-  @HiveField(2)
-  String? username;
+  final String? username;
 
-  @HiveField(3)
-  String? firstname;
+  final String? firstname;
 
-  @HiveField(4)
-  String? lastname;
+  final String? lastname;
 
-  @HiveField(5)
-  bool? passwordProtected;
+  final bool? passwordProtected;
 
-  @HiveField(6)
-  String? email;
+  final String? email;
 
-  @HiveField(7)
-  String? description;
+  final String? description;
 
-  @HiveField(8)
-  bool? emailVerified;
+  final bool? emailVerified;
 
-  Account({
+  const Account({
     this.countryCode,
     this.nationalNumber,
     this.username,
@@ -43,6 +33,8 @@ class Account {
     this.description,
     this.emailVerified,
   });
+
+  static const empty = Account();
 
   Account copyWith({
     int? countryCode,
@@ -67,3 +59,6 @@ class Account {
         description: description ?? this.description,
       );
 }
+
+const AccountFromJson = _$AccountFromJson;
+const AccountToJson = _$AccountToJson;

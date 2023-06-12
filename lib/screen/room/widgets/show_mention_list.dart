@@ -6,7 +6,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-const OPTION_ITEM_HEIGHT = 52.0;
+const OPTION_ITEM_HEIGHT = 45.0;
 
 class ShowMentionList extends StatelessWidget {
   static final _mucRepo = GetIt.I.get<MucRepo>();
@@ -40,7 +40,7 @@ class ShowMentionList extends StatelessWidget {
                       : (members.data!.length * OPTION_ITEM_HEIGHT),
                   child: Container(
                     color: theme.colorScheme.background,
-                    child: ListView.separated(
+                    child: ListView.builder(
                       padding: EdgeInsets.zero,
                       itemCount: members.data!.length,
                       shrinkWrap: true,
@@ -59,7 +59,7 @@ class ShowMentionList extends StatelessWidget {
                           ),
                         );
                       },
-                      separatorBuilder: (context, index) => const Divider(),
+
                     ),
                   ),
                 ),

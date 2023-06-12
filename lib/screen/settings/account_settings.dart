@@ -42,7 +42,7 @@ class AccountSettingsState extends State<AccountSettings> {
   final _lastnameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
   final _descriptionTextController = TextEditingController();
-  Account _account = Account();
+  Account _account = Account.empty;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   bool _usernameIsAvailable = true;
@@ -107,291 +107,277 @@ class AccountSettingsState extends State<AccountSettings> {
           ),
         ),
         body: FluidContainerWidget(
-          child: FutureBuilder<Account?>(
-            future: _accountRepo.getAccount(),
-            builder: (c, snapshot) {
-              if (!snapshot.hasData || snapshot.data == null) {
-                return const SizedBox.shrink();
-              }
-              if (snapshot.hasData && snapshot.data != null) {
-                _account = snapshot.data!;
-              }
-              _usernameTextController.text = _account.username ?? "";
-              _firstnameTextController.text = _account.firstname ?? "";
-              _lastnameTextController.text = _account.lastname ?? "";
-              _descriptionTextController.text = _account.description ?? "";
-              _emailTextController.text = _account.email ?? "";
-
-              return ListView(
-                children: [
-                  Section(
-                    title: _i18n.get("avatar"),
-                    children: [
-                      NormalSettingsTitle(
-                        child: Center(
-                          child: StreamBuilder<String>(
-                            stream: _newAvatarPath,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData &&
-                                  snapshot.data != null &&
-                                  snapshot.data!.isNotEmpty) {
-                                return Stack(
-                                  children: [
-                                    Center(
-                                      child: CircleAvatar(
-                                        radius: 60,
-                                        backgroundImage:
-                                            snapshot.data!.imageProvider(),
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding:
-                                          EdgeInsetsDirectional.only(top: 45),
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 6.0,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              }
-                              return Stack(
-                                children: [
-                                  Center(
-                                    child: Container(
-                                      height: 130,
-                                      width: 130,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            Colors.grey[500]!.withOpacity(0.9),
-                                      ),
-                                      child: CircleAvatarWidget(
-                                        _authRepo.currentUserUid,
-                                        130,
-                                        hideName: true,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsetsDirectional.only(
-                                        top: 35,
-                                      ),
-                                      child: IconButton(
-                                        color: Colors.white,
-                                        splashRadius: 40,
-                                        iconSize: 50,
-                                        icon: const Icon(
-                                          Icons.add_a_photo,
-                                        ),
-                                        onPressed: () =>
-                                            AvatarHelper.attachAvatarFile(
-                                          context: context,
-                                          onAvatarAttached: (path) {
-                                            Navigator.pop(context);
-                                            setAvatar(path);
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Section(
-                    title: _i18n.get("account_info"),
-                    children: [
-                      NormalSettingsTitle(
-                        child: Column(
-                          children: [
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _firstnameTextController,
-                                    textInputAction: TextInputAction.send,
-                                    validator: validateFirstName,
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("firstName"),
-                                      isOptional: true,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _lastnameTextController,
-                                    textInputAction: TextInputAction.send,
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("lastName"),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Autocomplete<String>(
-                                    optionsBuilder: (textEditingValue) =>
-                                        _getUsernameSuggestion(
-                                      textEditingValue.text,
-                                    ),
-                                    initialValue: TextEditingValue(
-                                      text: _usernameTextController.text,
-                                    ),
-                                    onSelected: (selection) {
-                                      _usernameTextController.text = selection;
-                                      _usernameFormKey.currentState?.validate();
-                                    },
-                                    fieldViewBuilder: (
-                                      context,
-                                      textEditingController,
-                                      focusNode,
-                                      onFieldSubmitted,
-                                    ) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          onFieldSubmitted();
-                                        },
-                                        child: Column(
-                                          children: [
-                                            Form(
-                                              key: _usernameFormKey,
-                                              child: TextFormField(
-                                                minLines: 1,
-                                                focusNode: focusNode,
-                                                controller:
-                                                    textEditingController,
-                                                textInputAction:
-                                                    TextInputAction.send,
-                                                onChanged: (str) {
-                                                  _usernameTextController.text =
-                                                      str;
-                                                  _idIsIsAvailableChecker
-                                                      .add(str);
-                                                },
-                                                maxLength: 20,
-                                                validator: validateUsername,
-                                                decoration:
-                                                    buildInputDecoration(
-                                                  _i18n.get(
-                                                    "username",
-                                                  ),
-                                                  hintText: "alice_bob",
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                    optionsViewBuilder: (
-                                      con,
-                                      void Function(String) onSelected,
-                                      options,
-                                    ) {
-                                      return Stack(
-                                        children: [
-                                          Material(
-                                            child: Container(
-                                              color: CupertinoColors
-                                                  .inactiveGray
-                                                  .withOpacity(0.2),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: options.map((opt) {
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      onSelected(opt);
-                                                    },
-                                                    child: Container(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                        horizontal: 60,
-                                                        vertical: 10,
-                                                      ),
-                                                      child: Text(opt),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _i18n.get("username_helper"),
-                                          textAlign: TextAlign.justify,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
-                                    TextFormField(
-                                      minLines: 1,
-                                      controller: _emailTextController,
-                                      textInputAction: TextInputAction.send,
-                                      validator: validateEmail,
-                                      decoration: InputDecoration(
-                                        labelText: _i18n.get("email"),
-                                      ),
-                                    ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _descriptionTextController,
-                                    textInputAction: TextInputAction.send,
-                                    decoration: InputDecoration(
-                                      labelText: _i18n.get("description"),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: checkAndSend,
-                                child: Text(_i18n.get("save")),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              );
-            },
-          ),
+          child: buildAccount(),
         ),
       ),
+    );
+  }
+
+  Widget buildAccount() {
+    if (_accountRepo.getAccount() == null) {
+      return const SizedBox.shrink();
+    }
+    _account = _accountRepo.getAccount()!;
+    _usernameTextController.text = _account.username ?? "";
+    _firstnameTextController.text = _account.firstname ?? "";
+    _lastnameTextController.text = _account.lastname ?? "";
+    _descriptionTextController.text = _account.description ?? "";
+    _emailTextController.text = _account.email ?? "";
+
+    return ListView(
+      children: [
+        Section(
+          title: _i18n.get("avatar"),
+          children: [
+            NormalSettingsTitle(
+              child: Center(
+                child: StreamBuilder<String>(
+                  stream: _newAvatarPath,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data!.isNotEmpty) {
+                      return Stack(
+                        children: [
+                          Center(
+                            child: CircleAvatar(
+                              radius: 60,
+                              backgroundImage: snapshot.data!.imageProvider(),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsetsDirectional.only(top: 45),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 6.0,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          )
+                        ],
+                      );
+                    }
+                    return Stack(
+                      children: [
+                        Center(
+                          child: Container(
+                            height: 130,
+                            width: 130,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[500]!.withOpacity(0.9),
+                            ),
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              130,
+                              hideName: true,
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              top: 35,
+                            ),
+                            child: IconButton(
+                              color: Colors.white,
+                              splashRadius: 40,
+                              iconSize: 50,
+                              icon: const Icon(
+                                Icons.add_a_photo,
+                              ),
+                              onPressed: () => AvatarHelper.attachAvatarFile(
+                                context: context,
+                                onAvatarAttached: (path) {
+                                  Navigator.pop(context);
+                                  setAvatar(path);
+                                },
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
+        Section(
+          title: _i18n.get("account_info"),
+          children: [
+            NormalSettingsTitle(
+              child: Column(
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          minLines: 1,
+                          controller: _firstnameTextController,
+                          textInputAction: TextInputAction.send,
+                          validator: validateFirstName,
+                          decoration: buildInputDecoration(
+                            _i18n.get("firstName"),
+                            isOptional: true,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          minLines: 1,
+                          controller: _lastnameTextController,
+                          textInputAction: TextInputAction.send,
+                          decoration: buildInputDecoration(
+                            _i18n.get("lastName"),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Autocomplete<String>(
+                          optionsBuilder: (textEditingValue) =>
+                              _getUsernameSuggestion(
+                            textEditingValue.text,
+                          ),
+                          initialValue: TextEditingValue(
+                            text: _usernameTextController.text,
+                          ),
+                          onSelected: (selection) {
+                            _usernameTextController.text = selection;
+                            _usernameFormKey.currentState?.validate();
+                          },
+                          fieldViewBuilder: (
+                            context,
+                            textEditingController,
+                            focusNode,
+                            onFieldSubmitted,
+                          ) {
+                            return GestureDetector(
+                              onTap: () {
+                                onFieldSubmitted();
+                              },
+                              child: Column(
+                                children: [
+                                  Form(
+                                    key: _usernameFormKey,
+                                    child: TextFormField(
+                                      minLines: 1,
+                                      focusNode: focusNode,
+                                      controller: textEditingController,
+                                      textInputAction: TextInputAction.send,
+                                      onChanged: (str) {
+                                        _usernameTextController.text = str;
+                                        _idIsIsAvailableChecker.add(str);
+                                      },
+                                      maxLength: 20,
+                                      validator: validateUsername,
+                                      decoration: buildInputDecoration(
+                                        _i18n.get(
+                                          "username",
+                                        ),
+                                        hintText: "alice_bob",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          optionsViewBuilder: (
+                            con,
+                            void Function(String) onSelected,
+                            options,
+                          ) {
+                            return Stack(
+                              children: [
+                                Material(
+                                  child: Container(
+                                    color: CupertinoColors.inactiveGray
+                                        .withOpacity(0.2),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: options.map((opt) {
+                                        return InkWell(
+                                          onTap: () {
+                                            onSelected(opt);
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 60,
+                                              vertical: 10,
+                                            ),
+                                            child: Text(opt),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _i18n.get("username_helper"),
+                                textAlign: TextAlign.justify,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
+                          TextFormField(
+                            minLines: 1,
+                            controller: _emailTextController,
+                            textInputAction: TextInputAction.send,
+                            validator: validateEmail,
+                            decoration: InputDecoration(
+                              labelText: _i18n.get("email"),
+                            ),
+                          ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          minLines: 1,
+                          controller: _descriptionTextController,
+                          textInputAction: TextInputAction.send,
+                          decoration: InputDecoration(
+                            labelText: _i18n.get("description"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: checkAndSend,
+                      child: Text(_i18n.get("save")),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        )
+      ],
     );
   }
 

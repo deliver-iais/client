@@ -218,6 +218,7 @@ enum SharedKeys {
   SHOW_WS_WITH_HIGH_FRAME_RATE,
   HAS_PROFILE,
   VERSION,
+  ACCOUNT,
 }
 
 // Notification Constants

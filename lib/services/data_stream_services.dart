@@ -248,7 +248,7 @@ class DataStreamServices {
     return message.text.text
         .replaceAll("\n", " ")
         .split(" ")
-        .contains("@${(await _accountRepo.getAccount())!.username}");
+        .contains("@${( _accountRepo.getAccount())!.username}");
   }
 
   Future<void> _checkForReplyKeyBoard(Message message) async {
