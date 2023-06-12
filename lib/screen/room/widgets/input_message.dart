@@ -1220,7 +1220,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
-      }
+    }
     return "$text ";
   }
 

@@ -124,6 +124,32 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             );
           },
         ),
+        if (widget.roomUid.isChannel() || widget.roomUid.isGroup())
+          FutureBuilder(
+            future: _mucRepo.getCurrentUserRoleIsAdminOrOwner(widget.roomUid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  (snapshot.data!.isOwner || snapshot.data!.isAdmin)) {
+                return PopupMenuItem(
+                  onTap: () => _showAddBotToMucDialog(),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_add),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.roomUid.isChannel()
+                            ? _i18n.get("add_bot_to_channel")
+                            : _i18n.get("add_bot_to_group"),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
         FutureBuilder<bool>(
           future: _mucRepo.currentUserIsMucOwner(widget.roomUid),
           builder: (context, snapshot) {
@@ -170,19 +196,6 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             }
           },
         ),
-        if (widget.roomUid.isBot())
-          PopupMenuItem(
-            onTap: () => _showAddBotToGroupDialog(),
-            child: Row(
-              children: [
-                const Icon(Icons.person_add),
-                const SizedBox(width: 8),
-                Text(
-                  _i18n.get("add_to_group"),
-                ),
-              ],
-            ),
-          ),
         PopupMenuItem(
           onTap: () {
             _roomRepo.reportRoom(widget.roomUid);
@@ -228,9 +241,9 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
     );
   }
 
-  void _showAddBotToGroupDialog() {
-    final nameOfGroup = <String, String>{};
-    final groups = BehaviorSubject<List<String>>.seeded([]);
+  void _showAddBotToMucDialog() {
+    final names = <Uid, String>{};
+    final bots = BehaviorSubject<List<Uid>>.seeded([]);
 
     showDialog(
       context: context,
@@ -246,7 +259,11 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
               )
             ],
             contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: Text(_i18n.get("add_bot_to_group")),
+            title: Text(
+              widget.roomUid.isChannel()
+                  ? _i18n.get("add_bot_to_channel")
+                  : _i18n.get("add_bot_to_group"),
+            ),
             content: SizedBox(
               width: 350,
               height: MediaQuery.of(context).size.height / 2,
@@ -254,14 +271,13 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 children: [
                   AutoDirectionTextField(
                     onChanged: (str) {
-                      final searchRes = <String>[];
-                      for (final uid in nameOfGroup.keys) {
-                        if (nameOfGroup[uid]!.contains(str) ||
-                            nameOfGroup[uid] == str) {
+                      final searchRes = <Uid>[];
+                      for (final uid in names.keys) {
+                        if (names[uid]!.contains(str) || names[uid] == str) {
                           searchRes.add(uid);
                         }
                       }
-                      groups.add(searchRes);
+                      bots.add(searchRes);
                     },
                     decoration: InputDecoration(
                       hintText: _i18n.get("search"),
@@ -270,25 +286,21 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                     ),
                   ),
                   FutureBuilder<List<Room>>(
-                    future: _roomRepo.getAllGroups(),
-                    builder: (c, mucs) {
-                      if (mucs.hasData &&
-                          mucs.data != null &&
-                          mucs.data!.isNotEmpty) {
-                        final s = <String>[];
-                        for (final room in mucs.data!) {
-                          s.add(room.uid.asString());
-                        }
-                        groups.add(s);
+                    future: _roomRepo.getAllBots(),
+                    builder: (c, mucSnapshot) {
+                      if (mucSnapshot.hasData &&
+                          mucSnapshot.data != null &&
+                          mucSnapshot.data!.isNotEmpty) {
+                        bots.add(mucSnapshot.data!.map((e) => e.uid).toList());
 
-                        return StreamBuilder<List<String>>(
-                          stream: groups,
+                        return StreamBuilder<List<Uid>>(
+                          stream: bots,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               if (snapshot.data!.isEmpty) {
                                 return noGroupFoundWidget();
                               } else {
-                                final filteredGroupList = snapshot.data!;
+                                final filtereList = snapshot.data!;
                                 return Expanded(
                                   child: ListView.builder(
                                     shrinkWrap: true,
@@ -296,21 +308,19 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                                       return GestureDetector(
                                         child: FutureBuilder<String>(
                                           future: _roomRepo.getName(
-                                            filteredGroupList[i].asUid(),
+                                            filtereList[i],
                                           ),
                                           builder: (c, name) {
                                             if (name.hasData &&
                                                 name.data != null) {
-                                              nameOfGroup[
-                                                      filteredGroupList[i]] =
+                                              names[filtereList[i]] =
                                                   name.data!;
                                               return SizedBox(
                                                 height: 50,
                                                 child: Row(
                                                   children: [
                                                     CircleAvatarWidget(
-                                                      filteredGroupList[i]
-                                                          .asUid(),
+                                                      filtereList[i],
                                                       20,
                                                     ),
                                                     const SizedBox(
@@ -332,8 +342,8 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                                         onTap: () => _addBotToGroupButtonOnTab(
                                           context,
                                           c1,
-                                          filteredGroupList[i],
-                                          nameOfGroup[filteredGroupList[i]],
+                                          filtereList[i],
+                                          names[filtereList[i]],
                                         ),
                                       );
                                     },
@@ -367,8 +377,8 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   void _addBotToGroupButtonOnTab(
     BuildContext context,
     BuildContext c1,
-    String uid,
-    String? mucName,
+    Uid uid,
+    String? botName,
   ) {
     showDialog(
       context: context,
@@ -380,7 +390,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             builder: (c, name) {
               if (name.hasData && name.data != null && name.data!.isNotEmpty) {
                 return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
+                  "${_i18n.get("add")} $botName ${_i18n.get("to")} ${name.data}",
                 );
               } else {
                 return const SizedBox.shrink();
@@ -400,12 +410,12 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 final c1NavigatorState = Navigator.of(c1);
 
                 final usersAddCode =
-                    await _mucRepo.addMucMember(uid.asUid(), [widget.roomUid]);
+                    await _mucRepo.addMucMember(widget.roomUid, [uid]);
                 if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();
                   _routingService.openRoom(
-                    uid,
+                    widget.roomUid.asString(),
                   );
                 } else {
                   var message = _i18n.get("error_occurred");

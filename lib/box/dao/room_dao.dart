@@ -31,13 +31,13 @@ abstract interface class RoomDao {
 
   Stream<Room> watchRoom(Uid roomUid);
 
-  Future<List<Room>> getAllGroups();
+  Future<List<Room>> getAllBots();
 }
 
 mixin RoomSorter {
   List<Room> sortRooms(List<Room> list) => list
     ..sort(
-          (a, b) {
+      (a, b) {
         if (a.pinned && !b.pinned) {
           return -1;
         } else if (!a.pinned && b.pinned) {
@@ -46,8 +46,8 @@ mixin RoomSorter {
           return b.pinId - a.pinId;
         } else {
           return (b.synced
-              ? b.lastMessage?.time ?? b.lastUpdateTime
-              : b.lastUpdateTime) -
+                  ? b.lastMessage?.time ?? b.lastUpdateTime
+                  : b.lastUpdateTime) -
               (a.synced
                   ? a.lastMessage?.time ?? a.lastUpdateTime
                   : a.lastUpdateTime);

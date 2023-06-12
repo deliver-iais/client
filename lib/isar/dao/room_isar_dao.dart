@@ -4,24 +4,10 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/isar/room_isar.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
 
 class RoomDaoImpl with RoomSorter implements RoomDao {
-  @override
-  Future<List<Room>> getAllGroups() async {
-    final box = await _openRoomIsar();
-
-    return box.roomIsars
-        .filter()
-        .uidStartsWith(Categories.GROUP.value.toString())
-        .deletedEqualTo(false)
-        .findAllSync()
-        .map((e) => e.fromIsar())
-        .toList();
-  }
-
   @override
   Future<List<Room>> getAllRooms() async {
     final box = await _openRoomIsar();
@@ -130,4 +116,16 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   }
 
   Future<Isar> _openRoomIsar() => IsarManager.open();
+
+  @override
+  Future<List<Room>> getAllBots() async {
+    final box = await _openRoomIsar();
+
+    return box.roomIsars
+        .filter()
+        .uidStartsWith("4")
+        .findAllSync()
+        .map((e) => e.fromIsar())
+        .toList();
+  }
 }
