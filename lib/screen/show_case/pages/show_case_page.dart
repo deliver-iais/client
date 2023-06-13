@@ -139,6 +139,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
           bannerCase: showCase.singleBanner,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
+          height: 200,
           width: showcaseBoxSingleBannerWidth(),
           showDescription: true,
         );
@@ -147,6 +148,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
           urlCase: showCase.singleUrl,
           isAdvertisement: showCase.isAdvertisement,
           isPrimary: showCase.primary,
+          imageHeight: 200,
           width: showcaseBoxSingleBannerWidth(),
         );
       case Showcase_Type.groupedUrl:
