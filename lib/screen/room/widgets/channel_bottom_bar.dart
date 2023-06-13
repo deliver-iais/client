@@ -9,9 +9,11 @@ import 'package:flutter/services.dart';
 class MucBottomBar extends StatefulWidget {
   final Uid roomUid;
   final Widget inputMessage;
-  final void Function(int dir,
-      {required bool ctrlIsPressed,
-      required bool hasPermission}) scrollToMessage;
+  final void Function(
+    int dir, {
+    required bool ctrlIsPressed,
+    required bool hasPermission,
+  }) scrollToMessage;
 
   const MucBottomBar({
     super.key,

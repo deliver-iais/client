@@ -4,8 +4,6 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/screen/webview/webview_page.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -24,7 +22,6 @@ class NavigationBarPage extends StatefulWidget {
 
 class NavigationBarPageState extends State<NavigationBarPage> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
 
   late List<Widget> navigationBarWidgets;

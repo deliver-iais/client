@@ -26,8 +26,6 @@ class GroupedUrlWidget extends StatelessWidget {
   }
 
   Widget _buildGroupedUrlsItem(int index, BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsetsDirectional.only(
         start: p8,
