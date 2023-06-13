@@ -122,20 +122,23 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(_i18n.get("current_password")),
-              Pinput(
-                obscureText: true,
-                obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [NumberInputFormatter],
-                autofocus: true,
-                errorTextStyle:
-                    const TextStyle(fontSize: 12, color: Colors.red),
-                defaultPinTheme: defaultPinTheme(theme),
-                validator: (_) => _validatePin(_ ?? ""),
-                onChanged: (p) {
-                  setState2(() => _currentPass = p);
-                },
-                focusedPinTheme: focusedPinTheme(theme),
-                submittedPinTheme: submittedPinTheme(theme),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Pinput(
+                  obscureText: true,
+                  obscuringWidget: obscuringPinWidget(theme),
+                  inputFormatters: [NumberInputFormatter],
+                  autofocus: true,
+                  errorTextStyle:
+                      const TextStyle(fontSize: 12, color: Colors.red),
+                  defaultPinTheme: defaultPinTheme(theme),
+                  validator: (_) => _validatePin(_ ?? ""),
+                  onChanged: (p) {
+                    setState2(() => _currentPass = p);
+                  },
+                  focusedPinTheme: focusedPinTheme(theme),
+                  submittedPinTheme: submittedPinTheme(theme),
+                ),
               ),
             ],
           ),
@@ -428,7 +431,32 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               if (checkCurrentPassword) ...[
                 Text(_i18n.get("current_password")),
                 const SizedBox(height: 8),
-                Pinput(
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Pinput(
+                    obscureText: true,
+                    obscuringWidget: obscuringPinWidget(theme),
+                    inputFormatters: [NumberInputFormatter],
+                    autofocus: true,
+                    errorTextStyle:
+                        const TextStyle(fontSize: 12, color: Colors.red),
+                    defaultPinTheme: defaultPinTheme(theme),
+                    validator: (_) => _validatePin(_ ?? ""),
+                    onChanged: (p) {
+                      setState2(() => _currentPass = p);
+                    },
+                    focusedPinTheme: focusedPinTheme(theme),
+                    submittedPinTheme: submittedPinTheme(theme),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 32),
+              ],
+              Text(_i18n.get("password")),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Pinput(
                   obscureText: true,
                   obscuringWidget: obscuringPinWidget(theme),
                   inputFormatters: [NumberInputFormatter],
@@ -438,47 +466,31 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   defaultPinTheme: defaultPinTheme(theme),
                   validator: (_) => _validatePin(_ ?? ""),
                   onChanged: (p) {
-                    setState2(() => _currentPass = p);
+                    setState2(() => _pass = p);
                   },
                   focusedPinTheme: focusedPinTheme(theme),
                   submittedPinTheme: submittedPinTheme(theme),
                 ),
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 32),
-              ],
-              Text(_i18n.get("password")),
-              Pinput(
-                obscureText: true,
-                obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [NumberInputFormatter],
-                autofocus: true,
-                errorTextStyle:
-                    const TextStyle(fontSize: 12, color: Colors.red),
-                defaultPinTheme: defaultPinTheme(theme),
-                validator: (_) => _validatePin(_ ?? ""),
-                onChanged: (p) {
-                  setState2(() => _pass = p);
-                },
-                focusedPinTheme: focusedPinTheme(theme),
-                submittedPinTheme: submittedPinTheme(theme),
               ),
               const SizedBox(height: 16),
               Text(_i18n.get("repeat_password")),
-              Pinput(
-                obscureText: true,
-                obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [NumberInputFormatter],
-                autofocus: true,
-                errorTextStyle:
-                    const TextStyle(fontSize: 12, color: Colors.red),
-                defaultPinTheme: defaultPinTheme(theme),
-                validator: (_) => _validatePin(_ ?? ""),
-                onChanged: (p) {
-                  setState2(() => _repeatedPass = p);
-                },
-                focusedPinTheme: focusedPinTheme(theme),
-                submittedPinTheme: submittedPinTheme(theme),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Pinput(
+                  obscureText: true,
+                  obscuringWidget: obscuringPinWidget(theme),
+                  inputFormatters: [NumberInputFormatter],
+                  autofocus: true,
+                  errorTextStyle:
+                      const TextStyle(fontSize: 12, color: Colors.red),
+                  defaultPinTheme: defaultPinTheme(theme),
+                  validator: (_) => _validatePin(_ ?? ""),
+                  onChanged: (p) {
+                    setState2(() => _repeatedPass = p);
+                  },
+                  focusedPinTheme: focusedPinTheme(theme),
+                  submittedPinTheme: submittedPinTheme(theme),
+                ),
               ),
             ],
           ),
