@@ -59,26 +59,29 @@ class _LockPageState extends State<LockPage>
                 ),
               ),
               const SizedBox(height: 20),
-              Pinput(
-                obscureText: true,
-                obscuringWidget: obscuringPinWidget(theme),
-                inputFormatters: [NumberInputFormatter],
-                controller: _textEditingController,
-                autofocus: true,
-                focusNode: _focusNode,
-                errorTextStyle:
-                    const TextStyle(fontSize: 12, color: Colors.red),
-                defaultPinTheme: defaultPinTheme(theme),
-                validator: (_) => _validatePin(_ ?? ""),
-                onChanged: (pass) {
-                  if (pass.isEmpty || pass.length == 1) {
-                    setState(() {});
-                  } else if (pass.length == 4) {
-                    checkPassword(_textEditingController.text);
-                  }
-                },
-                focusedPinTheme: focusedPinTheme(theme),
-                submittedPinTheme: submittedPinTheme(theme),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Pinput(
+                  obscureText: true,
+                  obscuringWidget: obscuringPinWidget(theme),
+                  inputFormatters: [NumberInputFormatter],
+                  controller: _textEditingController,
+                  autofocus: true,
+                  focusNode: _focusNode,
+                  errorTextStyle:
+                      const TextStyle(fontSize: 12, color: Colors.red),
+                  defaultPinTheme: defaultPinTheme(theme),
+                  validator: (_) => _validatePin(_ ?? ""),
+                  onChanged: (pass) {
+                    if (pass.isEmpty || pass.length == 1) {
+                      setState(() {});
+                    } else if (pass.length == 4) {
+                      checkPassword(_textEditingController.text);
+                    }
+                  },
+                  focusedPinTheme: focusedPinTheme(theme),
+                  submittedPinTheme: submittedPinTheme(theme),
+                ),
               ),
               const SizedBox(height: 10),
               Text(_i18n.get("insert_pin")),

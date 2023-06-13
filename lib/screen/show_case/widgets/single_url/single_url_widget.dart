@@ -72,7 +72,7 @@ class SingleUrlWidget extends StatelessWidget {
                         urlCase.botCallback.bot.asString(),
                       )) {
                     if (context.mounted) {
-                      inputPin(
+                      ShowInputPin().inputPin(
                         context: context,
                         pinCodeSettings: urlCase.botCallback.pinCodeSettings,
                         data: urlCase.botCallback.data,

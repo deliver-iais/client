@@ -45,7 +45,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                   onPressed: () {
                     if (button.hasCallback() &&
                         button.callback.hasPinCodeSettings()) {
-                      inputPin(
+                      ShowInputPin().inputPin(
                         context: context,
                         pinCodeSettings: button.callback.pinCodeSettings,
                         data: button.callback.data,
