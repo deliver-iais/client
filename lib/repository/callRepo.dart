@@ -408,6 +408,7 @@ class CallRepo {
         case PermissionStatus.limited:
         case PermissionStatus.permanentlyDenied:
           return false;
+        case PermissionStatus.provisional:
         case PermissionStatus.granted:
           return true;
       }
