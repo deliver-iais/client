@@ -223,7 +223,7 @@ class Settings {
   );
   final webViewUrl = StringPersistent(
     SharedKeys.SHARE_DAO_WEB_VIEW_URL.inSharedDaoStorage(),
-    defaultValue: "http://172.16.121.52:4200",
+    defaultValue: "https://bamakkala.ir",
   );
   final onceShowNewVersionInformation = OncePersistent(
     SharedKeys.ONCE_SHOW_NEW_VERSION_INFORMATION.inSharedDaoStorage(),
