@@ -138,10 +138,6 @@ class NavigationBarPageState extends State<NavigationBarPage> {
 
   void setAppIndex(int index) {
     setState(() {
-      settings.showShowcasePage.set(index == 2);
-      // if (index == 2) {
-        _routingService.animateResizablePanels();
-      // }
       _currentPageIndex = index;
     });
   }

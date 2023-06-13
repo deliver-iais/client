@@ -90,10 +90,6 @@ class Settings {
     SharedKeys.SHARED_DAO_NOTIFICATION_FOREGROUND.inSharedDaoStorage(),
     defaultValue: false,
   );
-  final showShowcasePage = BooleanPersistent(
-    SharedKeys.SHARED_DAO_IS_SHOWCASE_ENABLE.inMemoryStorage(),
-    defaultValue: SHOWCASES_SHOWING_FIRST,
-  );
   final firebaseSettingIsSet = BooleanPersistent(
     SharedKeys.SHARED_DAO_FIREBASE_SETTING_IS_SET.inSharedDaoStorage(),
     defaultValue: false,

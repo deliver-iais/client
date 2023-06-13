@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
@@ -134,8 +133,7 @@ class RoutingService {
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _resizableWidgetState = GlobalKey<ResizableWidgetState>();
-  late final _navigatorObserver =
-      RoutingServiceNavigatorObserver(animateResizablePanels);
+  final _navigatorObserver = RoutingServiceNavigatorObserver(() => {});
   final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -638,92 +636,6 @@ class RoutingService {
 
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
-  void animateResizablePanels() {
-    final currentSize =
-        _resizableWidgetState.currentState?.controller.children.first.size ??
-            NAVIGATION_PANEL_MIN_WIDTH;
-
-    const showcasePageLargeSize = LARGE_BREAKDOWN_SIZE_WIDTH;
-    const showcasePageMiniSize = NAVIGATION_PANEL_MIN_WIDTH;
-    final chatsPageDesireSize = settings.navigationPanelSize.value;
-
-    late final double direction;
-    late final double distance;
-
-    if (isEmpty()) {
-      if (settings.showShowcasePage.value &&
-          currentSize < showcasePageLargeSize) {
-        distance = showcasePageLargeSize - currentSize;
-        direction = -1;
-      } else if (!settings.showShowcasePage.value &&
-          currentSize < chatsPageDesireSize) {
-        distance = chatsPageDesireSize - currentSize;
-        direction = -1;
-      } else if (!settings.showShowcasePage.value &&
-          currentSize > chatsPageDesireSize) {
-        distance = currentSize - chatsPageDesireSize;
-        direction = 1;
-      } else {
-        return;
-      }
-    } else {
-      if (settings.showShowcasePage.value &&
-          currentSize > showcasePageMiniSize) {
-        distance = currentSize - showcasePageMiniSize;
-        direction = 1;
-      } else if (!settings.showShowcasePage.value &&
-          currentSize < chatsPageDesireSize) {
-        distance = chatsPageDesireSize - currentSize;
-        direction = -1;
-      } else if (!settings.showShowcasePage.value &&
-          currentSize > chatsPageDesireSize) {
-        distance = currentSize - chatsPageDesireSize;
-        direction = 1;
-      } else {
-        return;
-      }
-    }
-
-    if (!settings.showAnimations.value) {
-      _resizableWidgetState.currentState?.controller.resize(
-        1,
-        Offset(
-          direction * distance,
-          0,
-        ),
-        shouldCallOnResize: false,
-      );
-
-      return;
-    }
-
-    final steps = AnimationSettings.actualSuperSlow.inMilliseconds;
-    var first = 0.0;
-
-    Timer.periodic(
-      const Duration(milliseconds: 2),
-      (timer) {
-        if (timer.tick < steps) {
-          final second = min(timer.tick / steps, 1.0);
-
-          final delta = distance *
-              (_animationCurves.transform(second) -
-                  _animationCurves.transform(first));
-
-          first = second;
-
-          _resizableWidgetState.currentState?.controller.resize(
-            1,
-            Offset(direction * delta, 0),
-            shouldCallOnResize: false,
-          );
-        } else {
-          timer.cancel();
-        }
-      },
-    );
-  }
-
   Widget outlet(BuildContext context) {
     final widget = ClipRect(
       child: Navigator(
@@ -758,18 +670,14 @@ class RoutingService {
           key: _resizableWidgetState,
           minPercentages: const [0.3, 0.5],
           maxPercentages: const [0.5, double.infinity],
-          percentages: settings.showShowcasePage.value
-              ? const [0.5, 0.5]
-              : const [0.3, 0.7],
+          percentages: const [0.3, 0.7],
           separatorSize: 3,
           children: [
             _navigationBar,
             widget,
           ],
           onResized: (info) {
-            if (!settings.showShowcasePage.value) {
-              settings.navigationPanelSize.set(info.first.size);
-            }
+            settings.navigationPanelSize.set(info.first.size);
           },
         ),
       );
@@ -901,58 +809,32 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: StreamBuilder<bool>(
-        stream: settings.showShowcasePage.stream,
-        builder: (context, snapshot) {
-          final isInShowcasePage = snapshot.data != null && snapshot.data!;
-
-          return AnimatedScale(
-            duration: AnimationSettings.standard,
-            curve: _animationCurves,
-            scale: isInShowcasePage ? 1 : 1.1,
-            child: Stack(
-              children: [
-                AnimatedOpacity(
-                  duration: AnimationSettings.standard,
-                  curve: _animationCurves,
-                  opacity: isInShowcasePage ? 0.8 : 1,
-                  child: Background(),
+      body: Stack(
+        children: [
+          Background(),
+          Center(
+            child: AnimatedContainer(
+              duration: AnimationSettings.standard,
+              curve: _animationCurves,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onPrimary,
+                borderRadius: secondaryBorder,
+              ),
+              padding: const EdgeInsetsDirectional.only(
+                end: p8,
+                start: p8,
+                top: p8,
+                bottom: p4,
+              ),
+              child: Text(
+                _i18n.get("please_select_a_chat_to_start_messaging"),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
                 ),
-                AnimatedOpacity(
-                  duration: AnimationSettings.standard,
-                  curve: _animationCurves,
-                  opacity: isInShowcasePage ? 0.5 : 1,
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: AnimationSettings.standard,
-                      curve: _animationCurves,
-                      decoration: BoxDecoration(
-                        color: isInShowcasePage
-                            ? theme.colorScheme.secondaryContainer
-                            : theme.colorScheme.onPrimary,
-                        borderRadius: secondaryBorder,
-                      ),
-                      padding: const EdgeInsetsDirectional.only(
-                        end: p8,
-                        start: p8,
-                        top: p8,
-                        bottom: p4,
-                      ),
-                      child: Text(
-                        _i18n.get("please_select_a_chat_to_start_messaging"),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: isInShowcasePage
-                              ? theme.colorScheme.onSecondaryContainer
-                              : theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
