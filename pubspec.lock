@@ -2641,18 +2641,18 @@ packages:
     dependency: "direct main"
     description:
       name: video_player
-      sha256: "6cec15c21974282994577ffcfb5b42e64a699d38583138ec8dcb3d0a6902a41c"
+      sha256: de95f0e9405f29b5582573d4166132e71f83b3158aac14e8ee5767a54f4f1fbd
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.5.2"
+    version: "2.6.1"
   video_player_android:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: video_player_android
       sha256: ae1c7d9a71c236a1bf9e567bd7ed4c90887e389a5f233b2192593f7f7395005c
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.9"
+    version: "2.4.8"
   video_player_avfoundation:
     dependency: transitive
     description:
