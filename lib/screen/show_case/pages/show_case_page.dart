@@ -76,6 +76,7 @@ class _ShowcasePageState extends State<ShowcasePage> {
                     Expanded(
                       child: ListView.separated(
                         controller: _controller,
+                        cacheExtent: 3000,
                         separatorBuilder: (context, index) {
                           return Divider(
                             height: 1,

@@ -165,7 +165,11 @@ class SingleUrlWidget extends StatelessWidget {
                                   height: imageHeight,
                                 );
                               }
-                              return const TextLoader();
+                              return SizedBox(
+                                height: imageHeight,
+                                width: width,
+                                child: const TextLoader(),
+                              );
                             },
                           ),
                         ),
