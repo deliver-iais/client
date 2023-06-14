@@ -167,7 +167,7 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                     SettingsTile(
                       title: _i18n.get("version"),
                       subtitleTextStyle: const TextStyle(),
-                      subtitle: "$VERSION.$REVISION",
+                      subtitle: APP_VERSION,
                       leading: const Icon(
                         CupertinoIcons.square_stack_3d_down_right,
                       ),

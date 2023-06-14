@@ -65,7 +65,6 @@ Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()
     ..version = VERSION
     ..revision = REVISION
-    ..clientVersion ="2.0.5"
     ..application = APPLICATION;
   if (isWeb) {
     platform

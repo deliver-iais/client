@@ -33,7 +33,7 @@ class NewFeatureDialog extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "v$VERSION",
+                  "v$APP_VERSION",
                   style: TextStyle(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w600,

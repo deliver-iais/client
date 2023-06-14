@@ -45,9 +45,9 @@ class Settings {
     SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
     defaultValue: "",
   );
-  final applicationVersion = IntPersistent(
+  final applicationVersion = StringPersistent(
     SharedKeys.VERSION.inSharedDaoStorage(),
-    defaultValue: 0,
+    defaultValue: "",
   );
   final dbHashCode = IntPersistent(
     SharedKeys.SHARED_DAO_DB_VERSION.inSharedDaoStorage(),
