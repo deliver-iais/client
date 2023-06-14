@@ -248,11 +248,12 @@ class AccountRepo {
     try {
       final applicationVersion = settings.applicationVersion.value;
       final dbHashCode = settings.dbHashCode.value;
-      if (applicationVersion == 0 || applicationVersion != VERSION) {
+      if (applicationVersion.isEmpty || applicationVersion == APP_VERSION) {
         if (dbHashCode != _dbManager.getDbVersionHashcode()) {
           try {
             await _dbManager.migrate(removeOld: true);
             settings.allRoomFetched.set(false);
+            settings.lastRoomMetadataUpdateTime.set(0);
             settings.onceShowNewVersionInformation.reset();
           } catch (e) {
             _logger.e(e);
@@ -269,7 +270,7 @@ class AccountRepo {
   Future<void> _updateSessionInformationIfNeed() async {
     try {
       final applicationVersion = settings.applicationVersion.value;
-      if (applicationVersion == 0 ||
+      if (applicationVersion.isEmpty ||
           shouldUpdateSessionPlatformInformation(applicationVersion)) {
         await updatePlatformVersion();
       }
@@ -283,17 +284,17 @@ class AccountRepo {
       await _sdr.sessionServiceClient.updateSessionPlatformInformation(
         UpdateSessionPlatformInformationReq()..platform = await getPlatformPB(),
       );
-      settings.applicationVersion.set(VERSION);
+      settings.applicationVersion.set(APP_VERSION);
     } catch (e) {
       _logger.e(e);
     }
   }
 
-  bool shouldUpdateSessionPlatformInformation(int previousVersion) =>
-      previousVersion != VERSION;
+  bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
+      previousVersion != APP_VERSION;
 
-  bool shouldShowNewFeaturesDialog(int previousVersion) =>
-      previousVersion != VERSION;
+  bool shouldShowNewFeaturesDialog(String previousVersion) =>
+      previousVersion != APP_VERSION;
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {

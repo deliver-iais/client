@@ -50,6 +50,17 @@ class _NavigationCenterAppbarActionsWidgetState
                 )
               ];
             },
+            viewTrailing: [
+              IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (widget.searchController.text.isEmpty) {
+                      Navigator.pop(context);
+                    } else {
+                      widget.searchController.clear();
+                    }
+                  },)
+            ],
             builder: (context, controller) {
               return IconButton(
                 icon: const Icon(Icons.search_rounded),

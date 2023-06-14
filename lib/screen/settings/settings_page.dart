@@ -349,7 +349,7 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile(
                   title: _i18n.get("about_software"),
-                  subtitle: "${_i18n.get("version")} $VERSION.$REVISION",
+                  subtitle: "${_i18n.get("version")} $APP_VERSION",
                   leading: const Icon(Icons.info_outline_rounded),
                   onPressed: (context) =>
                       _routingService.openAboutSoftwarePage(popAllBeforePush: true),
