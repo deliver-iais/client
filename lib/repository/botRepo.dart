@@ -8,7 +8,7 @@ import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -29,7 +29,7 @@ class BotRepo {
   final _botDao = GetIt.I.get<BotDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _autRepo = GetIt.I.get<AuthRepo>();
-
+  final _cachingRepo = GetIt.I.get<CachingRepo>();
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     final result =
         await _sdr.botServiceClient.getInfo(GetInfoReq()..bot = botUid);
@@ -55,7 +55,7 @@ class BotRepo {
       name = botUid.node;
     }
 
-    roomNameCache.set(botUid.asString(), name);
+    _cachingRepo.setName(botUid, name);
 
     unawaited(_botDao.save(botInfo));
 

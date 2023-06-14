@@ -518,7 +518,7 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _roomRepo.updateUserInfo(widget.roomUid);
+    _roomRepo.updateRoomInfo(widget.roomUid);
     _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
       if (_appIsActive) {
@@ -980,7 +980,8 @@ class RoomPageState extends State<RoomPage> {
       _editableMessage.add(message);
       _inputMessageTextController.text =
           synthesizeToOriginalWord(message.json.toText().text);
-      FocusScope.of(context).requestFocus(_inputMessageFocusNode);
+      _inputMessageFocusNode.requestFocus();
+      // FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
         resetRoomPageDetails: _resetRoomPageDetails,
@@ -1058,7 +1059,10 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> fetchMucInfo(Uid uid) async {
-    final muc = await _mucRepo.fetchMucInfo(widget.roomUid);
+    final muc = await _mucRepo.fetchMucInfo(
+      widget.roomUid,
+      needToFetchMembers: uid.category != Categories.CHANNEL,
+    );
     if (muc != null) {
       _roomRepo.updateRoomName(uid, muc.name);
     }

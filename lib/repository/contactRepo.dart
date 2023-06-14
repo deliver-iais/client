@@ -12,7 +12,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -48,6 +48,7 @@ class ContactRepo {
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
+  final _cachingRepo = GetIt.I.get<CachingRepo>();
   final _requestLock = Lock();
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
@@ -301,8 +302,8 @@ class ContactRepo {
         ),
       );
 
-      roomNameCache.set(
-        contact.uid.asString(),
+      _cachingRepo.setName(
+        contact.uid,
         buildName(contact.firstName, contact.lastName),
       );
       _uidIdNameDao.update(

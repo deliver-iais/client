@@ -158,6 +158,11 @@ class NavigationCenterState extends State<NavigationCenter> {
                                 padding: _appBarItemPadding,
                                 child: Text(_i18n.get("group")),
                               ),
+                            if (roomsCategories.contains(Categories.BOT))
+                              Padding(
+                                padding: _appBarItemPadding,
+                                child: Text(_i18n.get("bot")),
+                              ),
                             if (roomsCategories.contains(Categories.BROADCAST))
                               Padding(
                                 padding: _appBarItemPadding,
@@ -198,6 +203,10 @@ class NavigationCenterState extends State<NavigationCenter> {
                           if (roomsCategories.contains(Categories.GROUP))
                             _buildChatPageByCategory(
                               roomCategory: Categories.GROUP,
+                            ),
+                          if (roomsCategories.contains(Categories.BOT))
+                            _buildChatPageByCategory(
+                              roomCategory: Categories.BOT,
                             ),
                           if (roomsCategories.contains(Categories.BROADCAST))
                             _buildChatPageByCategory(

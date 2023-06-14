@@ -88,28 +88,12 @@ class RawKeyboardService {
     );
   }
 
-  void scrollDownInMentions(void Function() scrollDownInMention) {
-    scrollDownInMention();
-  }
-
-  void scrollUpInMentions(void Function() scrollUpInMention) {
-    scrollUpInMention();
-  }
-
   void sendMention(void Function() showMention) {
     showMention();
   }
 
-  void scrollUpInBotCommand(void Function() scrollUpInBotCommands) {
-    scrollUpInBotCommands();
-  }
-
   void sendBotCommandsByEnter(void Function() sendBotCommentByEnter) {
     sendBotCommentByEnter();
-  }
-
-  void scrollDownInBotCommand(void Function() scrollDownInBotCommands) {
-    scrollDownInBotCommands();
   }
 
   void searchHandling(RawKeyEvent event) {
@@ -124,36 +108,41 @@ class RawKeyboardService {
     }
   }
 
-  void navigateInMentions(
+  KeyEventResult navigateInMentions(
     String? mentionData,
     void Function() scrollDownInMention,
     RawKeyEvent event,
-    int mentionSelectedIndex,
     void Function() scrollUpInMention,
   ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != null) {
-      scrollUpInMentions(scrollUpInMention);
+      scrollUpInMention();
+      return KeyEventResult.handled;
     }
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown) &&
         !event.isAltPressed &&
         mentionData != null) {
-      scrollDownInMentions(scrollDownInMention);
+      scrollDownInMention();
+      return KeyEventResult.handled;
     }
+    return KeyEventResult.ignored;
   }
 
-  void navigateInBotCommand(
+  KeyEventResult navigateInBotCommand(
     RawKeyEvent event,
     void Function() scrollDownInBotCommands,
     void Function() scrollUpInBotCommands,
     String botCommandData,
   ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
-      scrollDownInBotCommand(scrollDownInBotCommands);
+      scrollDownInBotCommands();
+      return KeyEventResult.handled;
     } else if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
-      scrollUpInBotCommand(scrollUpInBotCommands);
+      scrollUpInBotCommands();
+      return KeyEventResult.handled;
     }
+    return KeyEventResult.ignored;
   }
 
   void handleCopyPastKeyPress(

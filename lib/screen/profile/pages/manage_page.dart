@@ -78,7 +78,7 @@ class MucManagePageState extends State<MucManagePage>
   @override
   void initState() {
     _mucType = widget.mucType;
-    _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
+    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true);
     // TODO(ch): check if need that much req
     _setupRoomSettings();
 

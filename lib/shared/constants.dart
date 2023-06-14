@@ -25,7 +25,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = 1;
+const VERSION = 3;
 const REVISION = 0;
 // const INSTALL_FROM = "سایت";
 
