@@ -47,13 +47,13 @@ class SettingsPageState extends State<SettingsPage> {
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
   StreamSubscription<dynamic>? subscription;
 
-  final account = BehaviorSubject<Account?>.seeded(null);
+  final _account = BehaviorSubject<Account?>.seeded(null);
 
   @override
   void initState() {
     _accountRepo.getUserProfileFromServer();
     subscription = MergeStream([
-      _accountRepo.getAccountAsStream().map(account.add),
+      _accountRepo.getAccountAsStream().map(_account.add),
       settings.showDeveloperPage.stream.map((event) => setState(() {}))
     ]).listen((value) {});
     super.initState();
@@ -62,7 +62,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     subscription?.cancel();
-    account.close();
+    _account.close();
     super.dispose();
   }
 
@@ -102,7 +102,7 @@ class SettingsPageState extends State<SettingsPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: StreamBuilder<Account?>(
-                          stream: account.stream,
+                          stream: _account.stream,
                           builder: (context, snapshot) {
                             if (snapshot.data != null) {
                               return Column(

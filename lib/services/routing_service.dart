@@ -57,6 +57,7 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/resizable/resizable_widget.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
@@ -689,12 +690,19 @@ class RoutingService {
   Future<void> logout() async {
     final authRepo = GetIt.I.get<AuthRepo>();
     if (authRepo.isLoggedIn()) {
-      GetIt.I.get<FireBaseServices>().deleteToken();
-      GetIt.I.get<CoreServices>().closeConnection();
-      await GetIt.I.get<AccountRepo>().logOut();
+      try {
+        try {
+          SharedDaoStorage.clear();
+          InMemoryStorage.clear();
+          SharedPreferenceStorage.clear();
+        } catch (_) {}
+        GetIt.I.get<FireBaseServices>().deleteToken();
+        GetIt.I.get<CoreServices>().closeConnection();
+        await GetIt.I.get<AccountRepo>().logOut();
+        await GetIt.I.get<DBManager>().deleteDB();
+        await IsarManager.deleteIsarDB();
+      } catch (_) {}
       await authRepo.logout();
-      await GetIt.I.get<DBManager>().deleteDB();
-      await IsarManager.deleteIsarDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
