@@ -220,6 +220,7 @@ Future<void> setupDI() async {
   registerSingleton<NotificationForegroundService>(
     NotificationForegroundService(),
   );
+  registerSingleton<CachingRepo>(CachingRepo());
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
   registerSingleton<FileInfoCache>(FileInfoCache());
@@ -232,7 +233,7 @@ Future<void> setupDI() async {
   registerSingleton<MetaRepo>(MetaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
-  registerSingleton<CachingRepo>(CachingRepo());
+
   registerSingleton<BroadcastService>(BroadcastService());
 
   try {

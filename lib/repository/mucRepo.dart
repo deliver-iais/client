@@ -7,7 +7,6 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/broadcast_member.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
@@ -15,7 +14,7 @@ import 'package:deliver/box/role.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -43,8 +42,6 @@ class MucRepo {
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
@@ -148,9 +145,8 @@ class MucRepo {
 
   Future<void> _fetchMucMembers(
     Uid mucUid,
-    int len, {
-    bool needToFetchMembersId = false,
-  }) async {
+    int len,
+  ) async {
     try {
       var i = 0;
       var membersSize = 0;
@@ -198,7 +194,6 @@ class MucRepo {
         _updateMemberListOfMUC(
           mucUid,
           members,
-          needToFetchMembersId: needToFetchMembersId,
         ),
       );
       if (len <= membersSize) {
@@ -224,8 +219,11 @@ class MucRepo {
   Future<void> deleteChannelJointToken({required Uid channelUid}) async =>
       _mucServices.deleteChannelJointToken(channelUid: channelUid);
 
-  // TODO(any): is it necessary to fetch all member every time???
-  Future<Muc?> fetchMucInfo(Uid mucUid, {bool createNewRoom = false}) async {
+  Future<Muc?> fetchMucInfo(
+    Uid mucUid, {
+    bool createNewRoom = false,
+    bool needToFetchMembers = false,
+  }) async {
     switch (mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
         final channel = await getChannelInfo(mucUid);
@@ -293,14 +291,13 @@ class MucRepo {
             );
           }
 
-          if (channel.requesterRole != muc_pb.Role.NONE &&
-              channel.requesterRole != muc_pb.Role.MEMBER) {
+          if (needToFetchMembers &&
+              (channel.requesterRole == muc_pb.Role.ADMIN ||
+                  channel.requesterRole == muc_pb.Role.OWNER)) {
             unawaited(
               _fetchMucMembers(
                 mucUid,
                 channel.population.toInt(),
-                needToFetchMembersId: channel.requesterRole == Role.OWNER ||
-                    channel.requesterRole == Role.ADMIN,
               ),
             );
           }
@@ -320,9 +317,11 @@ class MucRepo {
               currentUserRole: MucRole.OWNER,
             ),
           );
-          unawaited(
-            _fetchMucMembers(mucUid, broadcast.population.toInt()),
-          );
+          if (needToFetchMembers) {
+            unawaited(
+              _fetchMucMembers(mucUid, broadcast.population.toInt()),
+            );
+          }
         }
         return _mucDao.get(mucUid);
       case MucCategories.GROUP:
@@ -351,14 +350,15 @@ class MucRepo {
             ),
           );
 
-          unawaited(
-            _fetchMucMembers(
-              mucUid,
-              group.population.toInt(),
-              needToFetchMembersId: group.requesterRole == Role.OWNER ||
-                  group.requesterRole == Role.ADMIN,
-            ),
-          );
+          if (needToFetchMembers) {
+            unawaited(
+              _fetchMucMembers(
+                mucUid,
+                group.population.toInt(),
+              ),
+            );
+          }
+
           if (m != null) {
             _checkShowPin(
               mucUid,
@@ -686,9 +686,21 @@ class MucRepo {
         members,
       );
 
-      // TODO(any): we don't need fetch all members when we create new muc??
       if (usersAddCode == StatusCode.ok) {
-        unawaited(_fetchMucMembers(mucUid, members.length));
+        unawaited(
+          _updateMemberListOfMUC(
+            mucUid,
+            members
+                .map(
+                  (e) => Member(
+                    mucUid: mucUid,
+                    memberUid: e.uid,
+                    role: getLocalRole(e.role),
+                  ),
+                )
+                .toList(),
+          ),
+        );
       }
       return usersAddCode;
     } catch (e) {
@@ -713,18 +725,14 @@ class MucRepo {
 
   Future<void> _updateMemberListOfMUC(
     Uid mucUid,
-    List<Member> members, {
-    bool needToFetchMembersId = false,
-  }) async {
+    List<Member> members,
+  ) async {
     if (members.isNotEmpty) {
       await _mucDao.deleteAllMembers(mucUid);
     }
     for (final member in members) {
       {
         unawaited(_mucDao.saveMember(member));
-        if (needToFetchMembersId) {
-          unawaited(_contactRepo.fetchMemberId(member));
-        }
       }
     }
   }
@@ -756,10 +764,13 @@ class MucRepo {
     throw Exception("Not Valid Role! $role");
   }
 
-  Future<List<UidIdName?>> getFilteredMember(
+  Future<List<Uid>> getFilteredMember(
     Uid roomUid, {
     String? query,
   }) async {
+    if (query == null || query.isEmpty) {
+      return (await getAllMembers(roomUid)).map((e) => e.memberUid).toList();
+    }
     final uidIdNameList =
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
@@ -771,34 +782,43 @@ class MucRepo {
                   name: buildName(a.firstname, a.lastname),
                 );
               } else {
-                var uidIdName = await _uidIdNameDao.getByUid(member.memberUid);
-                if (uidIdName!.uid.isBot()) {
+                var uidIdName = await GetIt.I
+                    .get<RoomRepo>()
+                    .getUidIdName(member.memberUid);
+                if (uidIdName != null && uidIdName.uid.isBot()) {
                   uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
                 }
                 return uidIdName;
               }
             })
-            .where((e) => e.id != null && e.id!.isNotEmpty)
+            .where(
+              (uidIdName) =>
+                  uidIdName != null &&
+                  uidIdName.id != null &&
+                  uidIdName.id!.isNotEmpty,
+            )
             .toList();
     final fuzzyName = _getFuzzyList(
       uidIdNameList
-          .where((element) => element.name != null)
-          .map((event) => event.name)
+          .where((element) => element!.name != null)
+          .map((event) => event!.name)
           .toList(),
-      query!,
+      query,
     );
     final fuzzyId =
-        _getFuzzyList(uidIdNameList.map((event) => event.id).toList(), query);
+        _getFuzzyList(uidIdNameList.map((event) => event!.id).toList(), query);
 
     return uidIdNameList
         .where(
           (e) =>
               query.isEmpty ||
-              (fuzzyId.isNotEmpty && fuzzyId.contains(e.id)) ||
-              (e.name != null &&
+              (fuzzyId.isNotEmpty && fuzzyId.contains(e!.id)) ||
+              (e!.name != null &&
                   fuzzyName.isNotEmpty &&
                   fuzzyName.contains(e.name)),
         )
+        .toList()
+        .map((e) => e!.uid)
         .toList();
   }
 

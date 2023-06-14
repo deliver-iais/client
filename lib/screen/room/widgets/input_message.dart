@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -122,8 +123,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   final keyboardVisibilityController = KeyboardVisibilityController();
   StreamSubscription<bool>? _keyboardVisibilityControllerStream;
   late String _botCommandData;
-  int mentionSelectedIndex = 0;
-  int botCommandSelectedIndex = 0;
+  final BehaviorSubject<int> _mentionSelectedIndex = BehaviorSubject.seeded(0);
+  final BehaviorSubject<int> _botCommandSelectedIndex =
+      BehaviorSubject.seeded(0);
   final _inputTextKey = GlobalKey();
 
   final botCommandRegexp = RegExp(r"(\w)*");
@@ -327,14 +329,16 @@ class InputMessageWidgetState extends State<InputMessage> {
                   if (showMention.hasData && showMention.data != null) {
                     return ShowMentionList(
                       query: showMention.data!,
-                      onSelected: (s) {
-                        onMentionSelected(s);
-                      },
+                      onIdClick: onMentionSelected,
+                      onNameClick: ({required name, required node}) =>
+                          onMentionSelected(
+                        _markDownName(name: name, node: node),
+                      ),
                       roomUid: widget.currentRoom.uid,
-                      mentionSelectedIndex: mentionSelectedIndex,
+                      mentionSelectedIndex: _mentionSelectedIndex,
                     );
                   }
-                  mentionSelectedIndex = 0;
+                  _mentionSelectedIndex.add(0);
                   return const SizedBox.shrink();
                 },
               ),
@@ -343,7 +347,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 builder: (c, show) {
                   _botCommandData = show.data ?? "-";
                   if (_botCommandData == "-") {
-                    botCommandSelectedIndex = 0;
+                    _botCommandSelectedIndex.add(0);
                   }
                   return BotCommands(
                     botUid: widget.currentRoom.uid,
@@ -351,7 +355,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     onCommandClick: (command) {
                       onCommandSelected(command);
                     },
-                    botCommandSelectedIndex: botCommandSelectedIndex,
+                    botCommandSelectedIndex: _botCommandSelectedIndex,
                   );
                 },
               ),
@@ -364,13 +368,16 @@ class InputMessageWidgetState extends State<InputMessage> {
                 textController: widget.textController,
               ),
               Container(
-                decoration: BoxDecoration(color: theme.colorScheme.surface,  boxShadow: [
-                  BoxShadow(
-                    color: theme.dividerColor.withOpacity(0.7),
-                    blurRadius: 2.0,
-                    offset: const Offset(0.0, 0.75),
-                  ),
-                ], ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.dividerColor.withOpacity(0.7),
+                      blurRadius: 2.0,
+                      offset: const Offset(0.0, 0.75),
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Row(
@@ -845,15 +852,14 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
   }
 
-  void onMentionSelected(String? s) {
+  void onMentionSelected(String mention) {
     final start = widget.textController.selection.baseOffset;
-
     var block_1 = widget.textController.text.substring(0, start);
     final indexOf = block_1.lastIndexOf("@");
-    block_1 = block_1.substring(0, indexOf + 1);
+    block_1 = block_1.substring(0, indexOf);
     final block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
-    widget.textController.text = "$block_1${s ?? ""} $block_2";
+    widget.textController.text = "$block_1$mention $block_2";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(
         offset: widget.textController.text.length - block_2.length,
@@ -902,11 +908,11 @@ class InputMessageWidgetState extends State<InputMessage> {
             (settings.sendByEnter.value && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
-          mentionSelectedIndex >= 0 &&
+          _mentionSelectedIndex.value >= 0 &&
           _mentionQuery.value != null) {
         addMentionByEnter();
       } else if (widget.currentRoom.uid.isBot() &&
-          botCommandSelectedIndex >= 0 &&
+          _botCommandSelectedIndex.value >= 0 &&
           _botCommandQuery.value != "-") {
         addBotCommandByEnter();
       } else {
@@ -926,25 +932,20 @@ class InputMessageWidgetState extends State<InputMessage> {
       currentRoom.uid,
     );
     if (widget.currentRoom.uid.isGroup()) {
-      setState(() {
-        _rawKeyboardService.navigateInMentions(
-          _mentionQuery.value,
-          scrollDownInMentions,
-          event,
-          mentionSelectedIndex,
-          scrollUpInMentions,
-        );
-      });
+      return _rawKeyboardService.navigateInMentions(
+        _mentionQuery.value,
+        scrollDownInMentions,
+        event,
+        scrollUpInMentions,
+      );
     }
     if (widget.currentRoom.uid.isBot()) {
-      setState(() {
-        _rawKeyboardService.navigateInBotCommand(
-          event,
-          scrollDownInBotCommand,
-          scrollUpInBotCommand,
-          _botCommandData,
-        );
-      });
+      return _rawKeyboardService.navigateInBotCommand(
+        event,
+        _scrollDownInBotCommand,
+        _scrollUpInBotCommand,
+        _botCommandData,
+      );
     }
 
     return KeyEventResult.ignored;
@@ -981,35 +982,13 @@ class InputMessageWidgetState extends State<InputMessage> {
     return KeyEventResult.handled;
   }
 
-  void scrollUpInBotCommand() {
-    Future.delayed(const Duration(), () {}).then((_) {
-      moveCursorToEnd();
-    });
-    var length = 0;
-    if (botCommandSelectedIndex <= 0) {
-      _botRepo.getBotInfo(widget.currentRoom.uid).then(
-            (value) => {
-              if (value != null)
-                value.commands!.forEach((key, value) {
-                  if (key.contains(_botCommandData)) {
-                    length++;
-                  }
-                }),
-              botCommandSelectedIndex = length - 1,
-            },
-          );
-    } else {
-      botCommandSelectedIndex--;
-    }
-  }
-
   Future<void> addBotCommandByEnter() async {
     final value = await _botRepo.getBotInfo(widget.currentRoom.uid);
     if (value != null && value.commands!.isNotEmpty) {
       onCommandSelected(
         value.commands!.keys
             .where((element) => element.contains(_botCommandData))
-            .toList()[botCommandSelectedIndex],
+            .toList()[_botCommandSelectedIndex.value],
       );
     } else {
       sendMessage();
@@ -1022,28 +1001,30 @@ class InputMessageWidgetState extends State<InputMessage> {
       query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
-      onMentionSelected(value[mentionSelectedIndex]!.id);
+      final uidIdName =
+          await _roomRepo.getUidIdName(value[_mentionSelectedIndex.value]);
+      if (uidIdName != null) {
+        if (uidIdName.id != null && uidIdName.id!.isNotEmpty) {
+          onMentionSelected("@${uidIdName.id!}");
+        } else if (uidIdName.name != null && uidIdName.name!.isNotEmpty) {
+          onMentionSelected(
+            _markDownName(name: uidIdName.name!, node: uidIdName.uid.node),
+          );
+        }
+      }
     } else {
       sendMessage();
     }
   }
 
-  void scrollDownInBotCommand() {
-    var length = 0;
-    _botRepo.getBotInfo(widget.currentRoom.uid).then(
-          (value) => {
-            if (value != null)
-              value.commands!.forEach((key, value) {
-                if (key.contains(_botCommandData)) {
-                  length++;
-                }
-              }),
-            if (botCommandSelectedIndex >= length)
-              botCommandSelectedIndex = 0
-            else
-              botCommandSelectedIndex++,
-          },
-        );
+  String _markDownName({required String name, required String node}) =>
+      "[@$name](we://user?id=$node)";
+
+  void _scrollDownInBotCommand() =>
+      _botCommandSelectedIndex.add(_botCommandSelectedIndex.value + 1);
+
+  void _scrollUpInBotCommand() {
+    _botCommandSelectedIndex.add(max(0, _botCommandSelectedIndex.value - 1));
   }
 
   void _updateTextEditingValue(TextEditingValue value) {
@@ -1073,26 +1054,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         ),
       ),
     );
-  }
-
-  void scrollUpInMentions() {
-    if (mentionSelectedIndex <= 0) {
-      _mucRepo
-          .getFilteredMember(
-            currentRoom.uid,
-            query: _mentionQuery.value,
-          )
-          .then(
-            (value) => {
-              mentionSelectedIndex = value.length,
-            },
-          );
-    } else {
-      mentionSelectedIndex--;
-    }
-    Future.delayed(const Duration(), () {
-      moveCursorToEnd();
-    });
   }
 
   void sendMessage() {
@@ -1184,20 +1145,11 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
   }
 
-  void scrollDownInMentions() {
-    _mucRepo
-        .getFilteredMember(
-          currentRoom.uid,
-          query: _mentionQuery.value,
-        )
-        .then(
-          (value) => {
-            if (mentionSelectedIndex >= value.length)
-              {mentionSelectedIndex = 0}
-            else
-              {mentionSelectedIndex++}
-          },
-        );
+  void scrollDownInMentions() =>
+      _mentionSelectedIndex.add(_mentionSelectedIndex.value + 1);
+
+  void scrollUpInMentions() {
+    _mentionSelectedIndex.add(max(0, _mentionSelectedIndex.value - 1));
   }
 
   String getEditableMessageContent() {

@@ -18,10 +18,12 @@ import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/is_verified.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
@@ -35,9 +37,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-// TODO(any): should refactor and move to cache repo!
-final roomNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
 
 class RoomRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -57,6 +56,7 @@ class RoomRepo {
   final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
   final _metaDao = GetIt.I.get<MetaDao>();
   final _metaCount = GetIt.I.get<MetaCountDao>();
+  final _cachingRepo = GetIt.I.get<CachingRepo>();
   final mentionAnimationId = BehaviorSubject<int?>.seeded(null);
 
   void addMentionAnimationId(int id) {
@@ -91,10 +91,6 @@ class RoomRepo {
     }
   }
 
-  void cleanCache() {
-    roomNameCache.clear();
-  }
-
   bool fastForwardIsVerified(Uid uid) =>
       uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
 
@@ -124,13 +120,7 @@ class RoomRepo {
     return isVerified;
   }
 
-  String? fastForwardName(Uid uid) {
-    final name = roomNameCache.get(uid.asString());
-    if (name != null && name.isNotEmpty && !name.contains("null")) {
-      return name;
-    }
-    return null;
-  }
+  String? fastForwardName(Uid uid) => _cachingRepo.getName(uid);
 
   Future<void> _checkIsVerifiedIfNeeded(
     Uid uid,
@@ -163,6 +153,27 @@ class RoomRepo {
     );
   }
 
+  Future<UidIdName?> getUidIdName(Uid uid) async {
+    final name = await getName(uid);
+    final id = await _getIdByUid(uid);
+    if (id != null) {
+      return UidIdName(uid: uid, id: id, name: name);
+    }
+    return null;
+  }
+
+  Future<String?> _getIdByUid(Uid uid) async {
+    var id = _cachingRepo.getId(uid);
+    if (id != null) {
+      return id;
+    }
+    id = (await _uidIdNameDao.getByUid(uid))?.id;
+    if (id == null || id.isEmpty) {
+      id = await _getIdByUidFromServer(uid);
+    }
+    return id;
+  }
+
   Future<String> getName(
     Uid uid, {
     String? unknownName,
@@ -193,7 +204,7 @@ class RoomRepo {
     }
 
     // Is in cache
-    final name = roomNameCache.get(uid.asString());
+    final name = _cachingRepo.getName(uid);
     if (name != null && name.isNotEmpty) {
       return name;
     }
@@ -207,10 +218,13 @@ class RoomRepo {
       if (name.isEmpty) {
         name = uidIdName.id ?? "";
       }
+      if (uidIdName.id != null && uidIdName.id!.isNotEmpty) {
+        _cachingRepo.setId(uid, uidIdName.id!);
+      }
       // Set in cache
-      roomNameCache.set(uid.asString(), name);
+      _cachingRepo.setName(uid, name);
 
-      return roomNameCache.get(uid.asString())!;
+      return _cachingRepo.getName(uid)!;
     }
 
     // Is User
@@ -219,7 +233,7 @@ class RoomRepo {
       if (contact != null &&
           ((contact.firstName.isNotEmpty) || (contact.lastName.isNotEmpty))) {
         final name = buildName(contact.firstName, contact.lastName);
-        roomNameCache.set(uid.asString(), name);
+        _cachingRepo.setName(uid, name);
         unawaited(_uidIdNameDao.update(uid, name: name));
         return name;
       } else {
@@ -228,7 +242,7 @@ class RoomRepo {
           ignoreInsertingOrUpdatingContactDao: true,
         );
         if (name != null && name.isNotEmpty) {
-          roomNameCache.set(uid.asString(), name);
+          _cachingRepo.setName(uid, name);
           return name;
         }
       }
@@ -238,9 +252,8 @@ class RoomRepo {
     if (uid.isMuc()) {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name.isNotEmpty) {
-        roomNameCache.set(uid.asString(), muc.name);
+        _cachingRepo.setName(uid, muc.name);
         unawaited(_uidIdNameDao.update(uid, name: muc.name));
-
         return muc.name;
       }
     }
@@ -254,10 +267,12 @@ class RoomRepo {
       return uid.node;
     }
 
-    final username = await getIdByUid(uid);
+    final username = await _getIdByUidFromServer(uid);
 
     if (username != null) {
-      roomNameCache.set(uid.asString(), username);
+      _cachingRepo
+        ..setName(uid, username)
+        ..setId(uid, username);
       unawaited(_uidIdNameDao.update(uid, id: username));
     }
 
@@ -291,16 +306,21 @@ class RoomRepo {
     }
   }
 
-  Future<String?> getIdByUid(Uid uid) async {
+  Future<String?> _getIdByUidFromServer(Uid uid) async {
     try {
-      final result =
-          await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
+      final result = await _sdr.queryServiceClient.getIdByUid(
+        GetIdByUidReq()..uid = uid,
+      );
       _uidIdNameDao
           .update(
             uid,
             id: result.id,
           )
           .ignore();
+      if (uid.isUser()) {
+        _cachingRepo.setId(uid, result.id);
+      }
+
       return result.id;
     } catch (e) {
       _logger.e(e);
@@ -308,6 +328,7 @@ class RoomRepo {
     }
   }
   Future<List<Room>> getAllBots()=> _roomDao.getAllBots();
+
 
   Future<bool> _isUserInfoNeedsToBeUpdated(Uid uid) async {
     final nowTime = clock.now().millisecondsSinceEpoch;
@@ -324,7 +345,7 @@ class RoomRepo {
     }
   }
 
-  Future<void> updateUserInfo(
+  Future<void> updateRoomInfo(
     Uid uid, {
     bool foreToUpdate = false,
   }) async {
@@ -332,18 +353,17 @@ class RoomRepo {
       // Is User
       if (uid.category == Categories.USER) {
         final name = await _contactRepo.getContactFromServer(uid);
-        // TODO(chitsaz): this code was removed in you isVerified branch but it was unclear and i get it back again, (e.dansi should tell about this line)
-        await getIdByUid(uid);
+        await _getIdByUidFromServer(uid);
         if (name != null) {
-          roomNameCache.set(uid.asString(), name);
+          _cachingRepo.setName(uid, name);
         }
       }
       // Is Group or Channel
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
-        final muc = await _mucRepo.fetchMucInfo(uid);
+        final muc = await _mucRepo.fetchMucInfo(uid, needToFetchMembers: true);
         if (muc != null && muc.name.isNotEmpty) {
-          roomNameCache.set(uid.asString(), muc.name);
+          _cachingRepo.setName(uid, muc.name);
           unawaited(
             _uidIdNameDao.update(uid, name: muc.name),
           );
@@ -379,8 +399,7 @@ class RoomRepo {
     }
   }
 
-  void updateRoomName(Uid uid, String name) =>
-      roomNameCache.set(uid.asString(), name);
+  void updateRoomName(Uid uid, String name) => _cachingRepo.setName(uid, name);
 
   Future<bool> isRoomHaveACustomNotification(String uid) =>
       _customNotificationDao.HaveCustomNotificationSound(uid);
@@ -425,6 +444,9 @@ class RoomRepo {
       }
       if (_hasRoomCategory(Categories.CHANNEL)) {
         res.add(Categories.CHANNEL);
+      }
+      if (_hasRoomCategory(Categories.BOT)) {
+        res.add(Categories.BOT);
       }
       if (_hasRoomCategory(Categories.BROADCAST)) {
         res.add(Categories.BROADCAST);

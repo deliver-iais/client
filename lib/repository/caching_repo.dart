@@ -15,6 +15,20 @@ class RoomCache {
 class CachingRepo {
   final _rooms = LruCache<Uid, RoomCache>(storage: InMemoryStorage(10));
 
+  final _roomNameCache = LruCache<Uid, String>(storage: InMemoryStorage(100));
+
+  final _userIdCache = LruCache<Uid, String>(storage: InMemoryStorage(100));
+
+  void clearNamesCache() => _roomNameCache.clear();
+
+  String? getName(Uid uid) => _roomNameCache.get(uid);
+
+  void setName(Uid uid, String name) => _roomNameCache.set(uid, name);
+
+  void setId(Uid uid, String id) => _userIdCache.set(uid, id);
+
+  String? getId(Uid uid) => _userIdCache.get(uid);
+
   final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(200));
 
   // Room Page Caching

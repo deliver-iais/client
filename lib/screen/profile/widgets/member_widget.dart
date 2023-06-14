@@ -8,6 +8,7 @@ import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -102,13 +103,14 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
 
   Widget _buildMembersListView(List<Member> members) {
     return Expanded(
-      child: ListView.builder(
+      child: ListView.separated(
         itemCount: members.length,
         itemBuilder: (c, i) {
           return _buildMemberWidget(
             members[i],
           );
         },
+        separatorBuilder: (context, index) => const Divider(),
       ),
     );
   }
@@ -147,14 +149,12 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              (snapshot.data ?? "Unknown").trim(),
-                              overflow: TextOverflow.fade,
-                              maxLines: 1,
-                              softWrap: false,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
+                            TextLoader(
+                              text: Text(
+                                snapshot.data ?? "".replaceAll('', '\u200B'),
+                                style: (Theme.of(context).textTheme.titleSmall)!
+                                    .copyWith(height: 1.3),
+                                softWrap: false,
                               ),
                             ),
                             const SizedBox(height: 4),

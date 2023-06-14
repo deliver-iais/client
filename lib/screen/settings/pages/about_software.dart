@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:deliver/shared/widgets/client_version_informion.dart';
 
 class AboutSoftwarePage extends StatefulWidget {
   const AboutSoftwarePage({super.key});
@@ -166,7 +167,7 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                     SettingsTile(
                       title: _i18n.get("version"),
                       subtitleTextStyle: const TextStyle(),
-                      subtitle: VERSION.toString(),
+                      subtitle: "$VERSION.$REVISION",
                       leading: const Icon(
                         CupertinoIcons.square_stack_3d_down_right,
                       ),
@@ -278,7 +279,8 @@ class AboutSoftwarePageState extends State<AboutSoftwarePage> {
                     ),
                   ),
                 ],
-              )
+              ),
+              NewVersion.newVersionInfo(showEveryTime: true),
             ],
           ),
         ),
