@@ -204,6 +204,8 @@ class MemoryStorage {
   void save(SharedKeys key, String? value) {
     map[key] = value;
   }
+
+  void clear() => map.clear();
 }
 
 /// In Memory Implementation of Storage
@@ -217,6 +219,8 @@ class InMemoryStorage extends Storage {
 
   @override
   void save(String value) => _mem.save(key, value);
+
+  static void clear() => _mem.clear();
 }
 
 /// ShareDao Implementation of Storage
@@ -239,6 +243,8 @@ class SharedDaoStorage extends Storage {
 
   @override
   void save(String value) => _sharedDao.put(key, value);
+
+  static void clear() => _mem.clear();
 }
 
 /// SharedPreference Implementation of Storage
@@ -274,6 +280,8 @@ class SharedPreferenceStorage extends Storage {
 
   @override
   Future<void> save(String value) => _prefs.setString(key.name, value);
+
+  static void clear() => _prefs.clear();
 }
 
 // Persistent Variable Definitions

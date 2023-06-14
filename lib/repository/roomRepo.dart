@@ -327,8 +327,8 @@ class RoomRepo {
       return null;
     }
   }
-  Future<List<Room>> getAllBots()=> _roomDao.getAllBots();
 
+  Future<List<Room>> getAllBots() => _roomDao.getAllBots();
 
   Future<bool> _isUserInfoNeedsToBeUpdated(Uid uid) async {
     final nowTime = clock.now().millisecondsSinceEpoch;
@@ -427,9 +427,7 @@ class RoomRepo {
   Stream<bool?> watchIsRoomBlocked(String uid) => _blockDao.watchIsBlocked(uid);
 
   Stream<List<Room>> watchAllRooms() {
-    if (_rooms.value.isEmpty) {
-      _roomDao.watchAllRooms().listen((r) => _rooms.add(r));
-    }
+    _roomDao.watchAllRooms().listen((r) => _rooms.add(r));
     return _rooms.stream;
   }
 
@@ -617,7 +615,6 @@ class RoomRepo {
 
   Future<void> reportRoom(Uid roomUid) =>
       _sdr.queryServiceClient.report(ReportReq()..uid = roomUid);
-
 
   void updateRoomDraft(Uid roomUid, String draft) {
     _roomDao.updateRoom(uid: roomUid, draft: draft);

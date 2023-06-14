@@ -68,7 +68,7 @@ class ShowCaseDaoImpl extends ShowCaseDao {
 
   Future<BoxPlus<int>> _openShowcaseModifyTime() {
     DBManager.open(
-      _showcaseTableKey(),
+      _showcaseModifyTime(),
       TableInfo.SHOW_CASE_MODIFY_TIME_TABLE_NAME,
     );
     return gen(Hive.openBox<int>(_showcaseModifyTime()));

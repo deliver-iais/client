@@ -51,8 +51,9 @@ class BoxDao {
     return deleteBox(_key());
   }
 
-  static Future<void> deleteAllBoxNativeInWeb(
-      {bool deleteSharedDao = true,}) async {
+  static Future<void> deleteAllBoxNativeInWeb({
+    bool deleteSharedDao = true,
+  }) async {
     final idbFactory = getIdbFactory();
     final box = await Hive.openBox<BoxInfo>(_key());
     box.values.toList().forEach((boxInfo) async {
