@@ -182,6 +182,8 @@ T registerSingleton<T extends Object>(T instance) {
 }
 
 Future<void> setupDI() async {
+  registerSingleton<CachingRepo>(CachingRepo());
+
   await dbSetupDI();
 
   // Setup Logger
@@ -212,6 +214,7 @@ Future<void> setupDI() async {
   registerSingleton<CallService>(CallService());
   registerSingleton<EventService>(EventService());
   registerSingleton<AccountRepo>(AccountRepo());
+  registerSingleton<ContactRepo>(ContactRepo());
   await GetIt.I.get<AccountRepo>().checkUpdatePlatformSessionInformation();
 
   registerSingleton<FileService>(FileService());
@@ -220,12 +223,11 @@ Future<void> setupDI() async {
   registerSingleton<NotificationForegroundService>(
     NotificationForegroundService(),
   );
-  registerSingleton<CachingRepo>(CachingRepo());
+
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
   registerSingleton<FileInfoCache>(FileInfoCache());
   registerSingleton<FileRepo>(FileRepo());
-  registerSingleton<ContactRepo>(ContactRepo());
   registerSingleton<AvatarRepo>(AvatarRepo());
   registerSingleton<MucRepo>(MucRepo());
   registerSingleton<MucHelperService>(MucHelperService());

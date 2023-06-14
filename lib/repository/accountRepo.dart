@@ -251,7 +251,10 @@ class AccountRepo {
       if (applicationVersion.isEmpty || applicationVersion == APP_VERSION) {
         if (dbHashCode != _dbManager.getDbVersionHashcode()) {
           try {
-            await _dbManager.migrate(removeOld: true);
+            try {
+              await _dbManager.migrate(removeOld: true);
+            } catch (_) {}
+
             settings.allRoomFetched.set(false);
             settings.lastRoomMetadataUpdateTime.set(0);
             settings.onceShowNewVersionInformation.reset();
