@@ -2646,10 +2646,10 @@ packages:
     source: hosted
     version: "2.5.2"
   video_player_android:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: video_player_android
-      sha256: f338a5a396c845f4632959511cad3542cdf3167e1b2a1a948ef07f7123c03608
+      sha256: ae1c7d9a71c236a1bf9e567bd7ed4c90887e389a5f233b2192593f7f7395005c
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.4.9"
