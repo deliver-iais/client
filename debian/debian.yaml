@@ -5,7 +5,7 @@ flutter_app:
 
 control:
   Package: We
-  Version: 3.0
+  Version: 3.0.0
   Architecture: amd64
   Essential: no
   Priority: optional
