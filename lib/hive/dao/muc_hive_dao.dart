@@ -13,7 +13,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class MemberHiveDaoImpl extends MucDao {
+class MucDaoImpl extends MucDao {
   @override
   Future<void> delete(Uid uid) async {
     final box = await _openMuc();

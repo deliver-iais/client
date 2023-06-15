@@ -79,7 +79,7 @@ import 'package:deliver/hive/uid_id_name_hive.dart';
 import 'package:deliver/isar/dao/avatar_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/avatar_hive_dao.dart';
 import 'package:deliver/isar/dao/contact_isar_dao.dart'
-    if (dart.library.html) 'package:deliver/hive/dao/contact_hive.dart';
+    if (dart.library.html) 'package:deliver/hive/dao/contact_hive_dao.dart';
 import 'package:deliver/isar/dao/current_call_dao_isar.dart'
     if (dart.library.html) 'package:deliver/hive/dao/current_call_dao_hive.dart';
 import 'package:deliver/isar/dao/file_info_isar_dao.dart'
@@ -97,7 +97,7 @@ import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
 import 'package:deliver/isar/dao/room_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/room_hive_dao.dart';
 import 'package:deliver/isar/dao/uid_id_name_isar_dao.dart'
-    if (dart.library.html) 'package:deliver/hive/dao/uid_id_name_hive.dart';
+    if (dart.library.html) 'package:deliver/hive/dao/uid_id_name_hive_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/accountRepo.dart';
