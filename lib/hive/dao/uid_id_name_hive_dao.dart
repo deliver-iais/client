@@ -37,7 +37,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     final byUid = box.get(uid.asString());
     if (byUid == null) {
       await box.put(
-        uid,
+        uid.asString(),
         UidIdNameHive(
           uid: uid.asString(),
           id: id,
@@ -47,7 +47,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
       );
     } else {
       await box.put(
-        uid,
+        uid.asString(),
         byUid.copyWith(
           uid: uid.asString(),
           id: id,

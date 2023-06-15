@@ -69,7 +69,7 @@ class MucDaoImpl extends MucDao {
   Future<void> saveMember(Member member) async {
     final box = await _openMembers(member.mucUid.asString());
 
-    return box.put(member.memberUid, member.toHive());
+    return box.put(member.memberUid.asString(), member.toHive());
   }
 
   @override
@@ -112,10 +112,10 @@ class MucDaoImpl extends MucDao {
     MucRole? currentUserRole,
   }) async {
     final box = await _openMuc();
-    final muc = box.get(uid) ?? MucHive(uid: uid.asString());
+    final muc = box.get(uid.asString()) ?? MucHive(uid: uid.asString());
     box
         .put(
-          uid,
+          uid.asString(),
           muc.copyWith(
             uid: uid.asString(),
             info: info,
