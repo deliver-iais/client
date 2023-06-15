@@ -25,9 +25,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RoomWrapper {
@@ -392,9 +392,9 @@ class ChatItemState extends State<ChatItem> {
   IconData? _getChatIconDataByUid(Uid uid) {
     switch (uid.category) {
       case Categories.BOT:
-        return MdiIcons.robotOutline;
+        return FontAwesomeIcons.robot;
       case Categories.BROADCAST:
-        return MdiIcons.broadcast;
+        return FontAwesomeIcons.towerBroadcast;
       case Categories.CHANNEL:
         return Icons.campaign_outlined;
       case Categories.GROUP:

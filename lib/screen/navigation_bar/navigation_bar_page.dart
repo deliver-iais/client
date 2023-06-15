@@ -11,7 +11,6 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -84,8 +83,8 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       ),
       if (WEBVIEW_IS_AVAILABLE && isMobileNative)
         (
-          const Icon(MdiIcons.shoppingOutline),
-          const Icon(MdiIcons.shopping),
+          const Icon(Icons.store_outlined),
+          const Icon(Icons.store),
           _i18n.get("store")
         ),
     ];

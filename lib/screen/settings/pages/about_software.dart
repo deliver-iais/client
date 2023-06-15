@@ -8,6 +8,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/client_version_informion.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:deliver/shared/widgets/client_version_informion.dart';
 
 class AboutSoftwarePage extends StatefulWidget {
   const AboutSoftwarePage({super.key});
