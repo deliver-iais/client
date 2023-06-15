@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
-import 'package:deliver/box/account.dart';
 import 'package:deliver/box/dao/isar_manager.dart'
     if (dart.library.html) 'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
@@ -693,11 +692,10 @@ class RoutingService {
     if (authRepo.isLoggedIn()) {
       try {
         try {
-          SharedDaoStorage.clear();
+          await SharedDaoStorage.clear();
           InMemoryStorage.clear();
           SharedPreferenceStorage.clear();
-          settings.hasProfile.set(false);
-          settings.account.set(Account.empty);
+          await PersistentVariable.initAll();
         } catch (_) {}
         GetIt.I.get<FireBaseServices>().deleteToken();
         GetIt.I.get<CoreServices>().closeConnection();
