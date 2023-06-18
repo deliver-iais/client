@@ -70,7 +70,6 @@ class RoomRepo {
     });
   }
 
-
   final BehaviorSubject<List<Room>> _rooms = BehaviorSubject.seeded([]);
   final BehaviorSubject<List<Categories>> _roomsCategories =
       BehaviorSubject.seeded([]);
@@ -437,12 +436,13 @@ class RoomRepo {
       if (_hasRoomCategory(Categories.USER)) {
         res.add(Categories.USER);
       }
-      if (_hasRoomCategory(Categories.GROUP)) {
-        res.add(Categories.GROUP);
-      }
       if (_hasRoomCategory(Categories.CHANNEL)) {
         res.add(Categories.CHANNEL);
       }
+      if (_hasRoomCategory(Categories.GROUP)) {
+        res.add(Categories.GROUP);
+      }
+
       if (_hasRoomCategory(Categories.BOT)) {
         res.add(Categories.BOT);
       }

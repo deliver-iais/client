@@ -62,7 +62,13 @@ class NavigationBarPageState extends State<NavigationBarPage> {
               width: 2,
             )
           ],
-          Expanded(child: navigationBarWidgets[_currentPageIndex]),
+          Expanded(
+            child: IndexedStack(
+              index: _currentPageIndex,
+              children: navigationBarWidgets,
+              //Expanded(child: navigationBarWidgets[_currentPageIndex]),
+            ),
+          ),
         ],
       ),
     );
