@@ -102,11 +102,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: widget.selectMultiMessageSubject,
-      builder: (context, snapshot) {
-        return AnimatedDeleteWidget(
+    return  AnimatedDeleteWidget(
           child: _buildMessageBox(
             context,
             widget.message,
@@ -114,8 +110,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             messageReplyBrief: widget.messageReplyBrief,
           ),
         );
-      },
-    );
+
   }
 
   Widget _buildMessageBox(

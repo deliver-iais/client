@@ -55,13 +55,18 @@ class CachingRepo {
 
     if (r == null) {
       final rc = RoomCache();
-      // TODO(bitbeter): bug exists in here
-      // rc.widget.set(id, widget);
+      rc.widget.set(id, widget);
       _rooms.set(roomUid, rc);
     } else {
-      // TODO(bitbeter): bug exists in here
-      // r.widget.set(id, widget);
+      r.widget.set(id, widget);
     }
+  }
+
+  void clearAllMessageWidgetForRoom(
+    Uid roomUid,
+  ) {
+    final r = _rooms.get(roomUid);
+    r?.widget.clear();
   }
 
   void setMessageDimensionsSize(Uid roomId, int id, Size size) {

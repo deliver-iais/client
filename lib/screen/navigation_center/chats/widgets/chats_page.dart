@@ -23,7 +23,7 @@ final bucketGlobal = PageStorageBucket();
 class ChatsPage extends StatefulWidget {
   final ScrollController _sliverScrollController;
   final Categories? roomCategory;
-  final void Function(ScrollController) setChatScrollController;
+  final void Function(ScrollController, Categories?) setChatScrollController;
 
   const ChatsPage({
     super.key,
@@ -48,7 +48,8 @@ const Duration kReorderAnimationDuration = Duration(milliseconds: 100);
 /// Default duration of a moving animation.
 const Duration kMovingAnimationDuration = Duration(milliseconds: 100);
 
-class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
+class ChatsPageState extends State<ChatsPage>
+    with CustomPopupMenu, AutomaticKeepAliveClientMixin {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -58,6 +59,9 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
   late StreamSubscription<List<RoomWrapper>> _streamSubscription;
   final List<Room> _pinRoomsList = <Room>[];
+
+  @override
+  bool get wantKeepAlive => true;
 
   void _showCustomMenu(BuildContext context, Room room) {
     this.showMenu(
@@ -101,6 +105,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return AnimatedListView(
       scrollController: _scrollController,
       listController: _controller,
@@ -161,7 +166,9 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   @override
   void initState() {
-    widget.setChatScrollController(_scrollController);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.setChatScrollController(_scrollController, widget.roomCategory);
+    });
     _scrollController.addListener(() {
       widget._sliverScrollController.jumpTo(_scrollController.offset);
     });

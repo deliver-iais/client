@@ -182,6 +182,7 @@ class RoomPageState extends State<RoomPage> {
     _inputMessageTextController.dispose();
     _shouldScrollToLastMessageInRoom?.cancel();
     _mentionCount.close();
+    _cachingRepo.clearAllMessageWidgetForRoom(widget.roomUid);
     super.dispose();
   }
 
@@ -808,9 +809,15 @@ class RoomPageState extends State<RoomPage> {
 
   void _updateRoomMentionIds(List<ItemPosition> items) {
     if (room.mentionsId.isNotEmpty) {
-      final difference =room.mentionsId.toSet().difference( room.mentionsId.where((element) => !items
-          .map((e) => e.index + room.firstMessageId + 1)
-          .contains(element),).toSet(),);
+      final difference = room.mentionsId.toSet().difference(
+            room.mentionsId
+                .where(
+                  (element) => !items
+                      .map((e) => e.index + room.firstMessageId + 1)
+                      .contains(element),
+                )
+                .toSet(),
+          );
       if (difference.isNotEmpty) {
         _roomRepo.addMentionAnimationId(difference.last);
         unawaited(
@@ -996,7 +1003,7 @@ class RoomPageState extends State<RoomPage> {
     if (!widget.roomUid.isBroadcast()) {
       _repliedMessage.add(message);
       _waitingForForwardedMessage.add(false);
-      FocusScope.of(context).requestFocus(_inputMessageFocusNode);
+      _inputMessageFocusNode.requestFocus();
     }
   }
 
