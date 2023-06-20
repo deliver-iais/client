@@ -20,36 +20,47 @@ class UidIdNameHive {
   @HiveField(4)
   int? lastUpdate;
 
-  UidIdNameHive({required this.uid, this.id, this.name, this.lastUpdate});
+  @HiveField(5)
+  String? realName;
+
+  UidIdNameHive({
+    required this.uid,
+    this.id,
+    this.name,
+    this.lastUpdate,
+    this.realName,
+  });
 
   UidIdNameHive copyWith({
     required String uid,
     String? id,
     String? name,
     int? lastUpdate,
+    String? realName,
   }) =>
       UidIdNameHive(
         uid: uid,
         id: id ?? this.id,
         name: name ?? this.name,
         lastUpdate: lastUpdate ?? this.lastUpdate,
+        realName: realName ?? this.realName,
       );
 
-
   UidIdName fromHive() => UidIdName(
-    uid: uid.asUid(),
-    name: name,
-    id: id,
-    lastUpdateTime: lastUpdate??0,
-
-  );
+        uid: uid.asUid(),
+        name: name,
+        id: id,
+        realName: realName,
+        lastUpdateTime: lastUpdate ?? 0,
+      );
 }
 
 extension UidIdNameHiveMapper on UidIdName {
   UidIdNameHive toHive() => UidIdNameHive(
-    uid: uid.asString(),
-    name: name,
-    id: id,
-    lastUpdate: lastUpdateTime,
-  );
+        uid: uid.asString(),
+        name: name,
+        id: id,
+        realName: realName,
+        lastUpdate: lastUpdateTime,
+      );
 }

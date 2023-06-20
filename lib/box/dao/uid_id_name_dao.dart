@@ -10,7 +10,7 @@ abstract class UidIdNameDao {
 
   Future<String?> getUidById(String id);
 
-  Future<void> update(Uid uid, {String? id, String? name});
+  Future<void> update(Uid uid, {String? id, String? name,String? realName});
 
   Future<List<UidIdName>> search(String term);
 }

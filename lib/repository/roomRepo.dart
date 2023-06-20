@@ -29,7 +29,6 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -153,26 +152,47 @@ class RoomRepo {
     );
   }
 
-  Future<UidIdName?> getUidIdName(Uid uid) async {
-    final name = await getName(uid);
-    final id = await _getIdByUid(uid);
-    if (id != null) {
-      return UidIdName(uid: uid, id: id, name: name);
+  String? getCachedContactName(Uid uid) => _cachingRepo.getName(uid);
+
+  Future<UidIdName?> getUidIdNameOfMucMember(Uid uid) async {
+    String? id;
+    String? realName;
+    String? name;
+
+    realName = await _getRealNameFormDB(uid);
+    if (realName == null || realName.isEmpty) {
+      id = await _getIdByUid(uid);
+      if (id == null || id.isEmpty) {
+        realName = await _getRealNameFormServer(uid);
+      }
+    }
+
+    name = await _getNameFromDB(uid);
+
+    if (id != null || realName != null) {
+      return UidIdName(
+        uid: uid,
+        id: id,
+        name: name,
+        realName: realName,
+      );
     }
     return null;
   }
 
-  Future<String?> _getIdByUid(Uid uid) async {
-    var id = _cachingRepo.getId(uid);
-    if (id != null) {
-      return id;
-    }
-    id = (await _uidIdNameDao.getByUid(uid))?.id;
-    if (id == null || id.isEmpty) {
-      id = await _getIdByUidFromServer(uid);
-    }
-    return id;
-  }
+  Future<String?> _getRealNameFormServer(Uid uid) async =>
+      (await _contactRepo.getContactFromServer(uid)).realName;
+
+  Future<String?> _getRealNameFormDB(Uid uid) async =>
+      _cachingRepo.getRealName(uid) ?? (await _getUidIdName(uid))?.realName;
+
+  Future<String?> _getNameFromDB(Uid uid) async =>
+      _cachingRepo.getName(uid) ?? (await _getUidIdName(uid))?.name;
+
+  Future<String?> _getIdByUid(Uid uid) async =>
+      _cachingRepo.getId(uid) ??
+      (await _getUidIdName(uid))?.id ??
+      (await _getIdByUidFromServer(uid));
 
   Future<String> getName(
     Uid uid, {
@@ -210,7 +230,7 @@ class RoomRepo {
     }
 
     // Is in UidIdName Table
-    final uidIdName = await _uidIdNameDao.getByUid(uid);
+    final uidIdName = await _getUidIdName(uid);
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
@@ -218,33 +238,20 @@ class RoomRepo {
       if (name.isEmpty) {
         name = uidIdName.id ?? "";
       }
-      if (uidIdName.id != null && uidIdName.id!.isNotEmpty) {
-        _cachingRepo.setId(uid, uidIdName.id!);
-      }
       // Set in cache
       _cachingRepo.setName(uid, name);
-
       return _cachingRepo.getName(uid)!;
     }
 
     // Is User
     if (uid.category == Categories.USER) {
-      final contact = await _contactRepo.getContact(uid);
-      if (contact != null &&
-          ((contact.firstName.isNotEmpty) || (contact.lastName.isNotEmpty))) {
-        final name = buildName(contact.firstName, contact.lastName);
-        _cachingRepo.setName(uid, name);
-        unawaited(_uidIdNameDao.update(uid, name: name));
+      final name = (await _contactRepo.getContactFromServer(
+        uid,
+        ignoreInsertingOrUpdatingContactDao: true,
+      ))
+          .name;
+      if (name != null && name.isNotEmpty) {
         return name;
-      } else {
-        final name = await _contactRepo.getContactFromServer(
-          uid,
-          ignoreInsertingOrUpdatingContactDao: true,
-        );
-        if (name != null && name.isNotEmpty) {
-          _cachingRepo.setName(uid, name);
-          return name;
-        }
       }
     }
 
@@ -277,6 +284,22 @@ class RoomRepo {
     }
 
     return (username ?? unknownName) ?? "Unknown";
+  }
+
+  Future<UidIdName?> _getUidIdName(Uid uid) async {
+    final uidIdName = await _uidIdNameDao.getByUid(uid);
+    if (uidIdName != null) {
+      if (uidIdName.name != null) {
+        _cachingRepo.setName(uid, uidIdName.name!);
+      }
+      if (uidIdName.id != null) {
+        _cachingRepo.setId(uid, uidIdName.id!);
+      }
+      if (uidIdName.realName != null) {
+        _cachingRepo.setRealName(uid, uidIdName.realName!);
+      }
+    }
+    return uidIdName;
   }
 
   Stream<String?> watchId(Uid uid) {
@@ -352,7 +375,7 @@ class RoomRepo {
     if (foreToUpdate || await _isUserInfoNeedsToBeUpdated(uid)) {
       // Is User
       if (uid.category == Categories.USER) {
-        final name = await _contactRepo.getContactFromServer(uid);
+        final name = (await _contactRepo.getContactFromServer(uid)).name;
         await _getIdByUidFromServer(uid);
         if (name != null) {
           _cachingRepo.setName(uid, name);
@@ -537,11 +560,14 @@ class RoomRepo {
 
   Future<void> block(String uid, {bool? block}) async {
     if (block!) {
-      await _sdr.queryServiceClient.blockUid(BlockUidReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.blockUid(
+        BlockUidReq()..uid = uid.asUid(),
+      );
       return _blockDao.block(uid);
     } else {
-      await _sdr.queryServiceClient
-          .unblockUid(UnblockUidReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.unblockUid(
+        UnblockUidReq()..uid = uid.asUid(),
+      );
       return _blockDao.unblock(uid);
     }
   }
@@ -614,15 +640,20 @@ class RoomRepo {
   }
 
   Future<GetUidByIdRes> fetchUidById(String username) async {
-    return _sdr.queryServiceClient.getUidById(GetUidByIdReq()..id = username);
+    return _sdr.queryServiceClient.getUidById(
+      GetUidByIdReq()..id = username,
+    );
   }
 
   Future<GetIsVerifiedRes> _fetchIsVerified(Uid uid) async {
-    return _sdr.queryServiceClient.getIsVerified(GetIsVerifiedReq()..uid = uid);
+    return _sdr.queryServiceClient.getIsVerified(
+      GetIsVerifiedReq()..uid = uid,
+    );
   }
 
-  Future<void> reportRoom(Uid roomUid) =>
-      _sdr.queryServiceClient.report(ReportReq()..uid = roomUid);
+  Future<void> reportRoom(Uid roomUid) => _sdr.queryServiceClient.report(
+        ReportReq()..uid = roomUid,
+      );
 
   void updateRoomDraft(Uid roomUid, String draft) {
     _roomDao.updateRoom(uid: roomUid, draft: draft);

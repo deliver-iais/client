@@ -11,7 +11,7 @@ variables:
   PROJECT_NAME: deliver-web
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
   PROJECT_BUILD_NAME: "3.0"
-  PROJECT_BUILD_NUMBER: "79"
+  PROJECT_BUILD_NUMBER: "80"
 
 test:
   needs: [ ]

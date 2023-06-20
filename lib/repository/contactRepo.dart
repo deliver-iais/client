@@ -302,12 +302,18 @@ class ContactRepo {
         ),
       );
 
-      _cachingRepo.setName(
-        contact.uid,
-        buildName(contact.firstName, contact.lastName),
-      );
+      _cachingRepo
+        ..setName(
+          contact.uid,
+          buildName(contact.firstName, contact.lastName),
+        )
+        ..setRealName(
+          contact.uid,
+          buildName(contact.realFirstName, contact.realLastName),
+        );
       _uidIdNameDao.update(
         contact.uid,
+        realName: buildName(contact.realFirstName, contact.realLastName),
         name: buildName(contact.firstName, contact.lastName),
       );
       _roomDao.updateRoom(uid: contact.uid);
@@ -387,7 +393,7 @@ class ContactRepo {
   Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid);
 
-  Future<String?> getContactFromServer(
+  Future<({String? name, String? realName})> getContactFromServer(
     Uid contactUid, {
     bool ignoreInsertingOrUpdatingContactDao = false,
   }) async {
@@ -395,9 +401,16 @@ class ContactRepo {
       final contact = await _sdr.contactServiceClient
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
+      final realName =
+          buildName(contact.user.realFirstName, contact.user.realLastName);
 
       // Update uidIdName table
-      unawaited(_uidIdNameDao.update(contactUid, name: name));
+      unawaited(
+        _uidIdNameDao.update(contactUid, name: name, realName: realName),
+      );
+      _cachingRepo
+        ..setName(contactUid, name)
+        ..setRealName(contactUid, realName);
       if (!ignoreInsertingOrUpdatingContactDao) {
         // Update contact table
         unawaited(
@@ -414,10 +427,10 @@ class ContactRepo {
           ),
         );
       }
-      return name;
+      return (name: name, realName: realName);
     } catch (e) {
       _logger.e(e);
-      return null;
+      return (name: null, realName: null);
     }
   }
 
