@@ -1,8 +1,13 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:get_it/get_it.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       noFormattingRegionDetector(),
@@ -22,7 +27,7 @@ List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
 
 List<Detector> inputTextDetectors() => grayOutDetector([
       noFormattingRegionDetector(),
-      inlineUrlDetector(),
+      inlineUrlDetector(replaceWithContactName: false),
       urlDetector(),
       idDetector(),
       if (!isMacOSDevice && settings.parseAndShowGoogleEmojis.value)
@@ -50,9 +55,7 @@ final List<Detector> detectors = [
   spoilerDetector(),
 ];
 
-final justSpoilerDetectors = [
-  spoilerDetector(),
-];
+final justSpoilerDetectors = [spoilerDetector(), inlineUrlDetector()];
 
 List<Detector> grayOutDetector(List<Detector> detectors) =>
     detectors.map((d) => (block) => _grayOutDetector(block, d)).toList();
@@ -134,15 +137,36 @@ Detector noFormattingRegionDetector() => simpleRegexDetectorWithGenerator(
       lockToMoreParsing: true,
     );
 
-Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
+Detector inlineUrlDetector({bool replaceWithContactName = true}) =>
+    simpleRegexDetectorWithGenerator(
       UrlFeature.inlineUrlRegex,
       (match) => {
         UrlFeature(
           match.substring(match.indexOf("]") + 2, match.indexOf(")")),
         )
       },
-      replacer: (match) =>
-          match.substring(match.indexOf("[") + 1, match.indexOf("]")),
+      replacer: (match) {
+        if (replaceWithContactName) {
+          try {
+            final url =
+                match.substring(match.indexOf("(") + 1, match.indexOf(")"));
+            if (UrlHandlerService.isApplicationUrl(url)) {
+              final node = Uri.parse(url).queryParameters["id"];
+              if (node != null) {
+                final name = GetIt.I.get<RoomRepo>().getCachedContactName(
+                      Uid()
+                        ..node = node
+                        ..category = Categories.USER,
+                    );
+                if (name != null) {
+                  return "@$name";
+                }
+              }
+            }
+          } catch (_) {}
+        }
+        return match.substring(match.indexOf("[") + 1, match.indexOf("]"));
+      },
     );
 
 Detector idDetector() => idRegexDetector(IdFeature.regex, {IdFeature()});

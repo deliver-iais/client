@@ -145,7 +145,7 @@ class UrlHandlerService {
     }
   }
 
-  bool isApplicationUrl(String uri) {
+  static bool isApplicationUrl(String uri) {
     final applicationUrlRegex = RegExp(
       r"^"
       "(https://$APPLICATION_DOMAIN|we:/|$APPLICATION_DOMAIN)"

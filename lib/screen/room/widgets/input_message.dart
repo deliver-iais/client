@@ -1001,14 +1001,15 @@ class InputMessageWidgetState extends State<InputMessage> {
       query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
-      final uidIdName =
-          await _roomRepo.getUidIdName(value[_mentionSelectedIndex.value]);
+      final uidIdName = await _roomRepo
+          .getUidIdNameOfMucMember(value[_mentionSelectedIndex.value]);
       if (uidIdName != null) {
         if (uidIdName.id != null && uidIdName.id!.isNotEmpty) {
           onMentionSelected("@${uidIdName.id!}");
-        } else if (uidIdName.name != null && uidIdName.name!.isNotEmpty) {
+        } else if (uidIdName.realName != null &&
+            uidIdName.realName!.isNotEmpty) {
           onMentionSelected(
-            _markDownName(name: uidIdName.name!, node: uidIdName.uid.node),
+            _markDownName(name: uidIdName.realName!, node: uidIdName.uid.node),
           );
         }
       }

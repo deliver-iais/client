@@ -35,7 +35,12 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   }
 
   @override
-  Future<void> update(Uid uid, {String? id, String? name}) async {
+  Future<void> update(
+    Uid uid, {
+    String? id,
+    String? name,
+    String? realName,
+  }) async {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
     final box = await _openIsar();
     box.writeTxnSync(() {
@@ -47,6 +52,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
       box.uidIdNameIsars.putSync(
         UidIdNameIsar(
           uid: uid.asString(),
+          realName: realName ?? uidName.realName,
           name: name ?? uidName.name,
           id: id ?? uidName.id,
           lastUpdateTime: lastUpdateTime,

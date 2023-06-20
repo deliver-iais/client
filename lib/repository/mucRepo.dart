@@ -775,7 +775,7 @@ class MucRepo {
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
               if (_authRepo.isCurrentUser(member.memberUid)) {
-                final a = ( _accountRepo.getAccount())!;
+                final a = (_accountRepo.getAccount())!;
                 return UidIdName(
                   uid: member.memberUid,
                   id: a.username,
@@ -784,7 +784,7 @@ class MucRepo {
               } else {
                 var uidIdName = await GetIt.I
                     .get<RoomRepo>()
-                    .getUidIdName(member.memberUid);
+                    .getUidIdNameOfMucMember(member.memberUid);
                 if (uidIdName != null && uidIdName.uid.isBot()) {
                   uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
                 }
@@ -792,10 +792,7 @@ class MucRepo {
               }
             })
             .where(
-              (uidIdName) =>
-                  uidIdName != null &&
-                  uidIdName.id != null &&
-                  uidIdName.id!.isNotEmpty,
+              (uidIdName) => uidIdName != null,
             )
             .toList();
     final fuzzyName = _getFuzzyList(
@@ -808,6 +805,9 @@ class MucRepo {
     final fuzzyId =
         _getFuzzyList(uidIdNameList.map((event) => event!.id).toList(), query);
 
+    final fuzzyRealName = _getFuzzyList(
+        uidIdNameList.map((event) => event!.realName).toList(), query,);
+
     return uidIdNameList
         .where(
           (e) =>
@@ -815,7 +815,10 @@ class MucRepo {
               (fuzzyId.isNotEmpty && fuzzyId.contains(e!.id)) ||
               (e!.name != null &&
                   fuzzyName.isNotEmpty &&
-                  fuzzyName.contains(e.name)),
+                  fuzzyName.contains(e.name)) ||
+              (e.realName != null &&
+                  fuzzyRealName.isNotEmpty &&
+                  fuzzyRealName.contains(e.realName)),
         )
         .toList()
         .map((e) => e!.uid)

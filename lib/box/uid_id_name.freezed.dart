@@ -24,6 +24,7 @@ mixin _$UidIdName {
   Uid get uid => throw _privateConstructorUsedError;
   String? get id => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
+  String? get realName => throw _privateConstructorUsedError;
   int get lastUpdateTime => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +39,11 @@ abstract class $UidIdNameCopyWith<$Res> {
       _$UidIdNameCopyWithImpl<$Res, UidIdName>;
   @useResult
   $Res call(
-      {@UidJsonKey Uid uid, String? id, String? name, int lastUpdateTime});
+      {@UidJsonKey Uid uid,
+      String? id,
+      String? name,
+      String? realName,
+      int lastUpdateTime});
 }
 
 /// @nodoc
@@ -57,6 +62,7 @@ class _$UidIdNameCopyWithImpl<$Res, $Val extends UidIdName>
     Object? uid = null,
     Object? id = freezed,
     Object? name = freezed,
+    Object? realName = freezed,
     Object? lastUpdateTime = null,
   }) {
     return _then(_value.copyWith(
@@ -71,6 +77,10 @@ class _$UidIdNameCopyWithImpl<$Res, $Val extends UidIdName>
       name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      realName: freezed == realName
+          ? _value.realName
+          : realName // ignore: cast_nullable_to_non_nullable
               as String?,
       lastUpdateTime: null == lastUpdateTime
           ? _value.lastUpdateTime
@@ -88,7 +98,11 @@ abstract class _$$_UidIdNameCopyWith<$Res> implements $UidIdNameCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@UidJsonKey Uid uid, String? id, String? name, int lastUpdateTime});
+      {@UidJsonKey Uid uid,
+      String? id,
+      String? name,
+      String? realName,
+      int lastUpdateTime});
 }
 
 /// @nodoc
@@ -105,6 +119,7 @@ class __$$_UidIdNameCopyWithImpl<$Res>
     Object? uid = null,
     Object? id = freezed,
     Object? name = freezed,
+    Object? realName = freezed,
     Object? lastUpdateTime = null,
   }) {
     return _then(_$_UidIdName(
@@ -119,6 +134,10 @@ class __$$_UidIdNameCopyWithImpl<$Res>
       name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      realName: freezed == realName
+          ? _value.realName
+          : realName // ignore: cast_nullable_to_non_nullable
               as String?,
       lastUpdateTime: null == lastUpdateTime
           ? _value.lastUpdateTime
@@ -135,6 +154,7 @@ class _$_UidIdName implements _UidIdName {
       {@UidJsonKey required this.uid,
       this.id,
       this.name,
+      this.realName,
       this.lastUpdateTime = 0});
 
   factory _$_UidIdName.fromJson(Map<String, dynamic> json) =>
@@ -148,12 +168,14 @@ class _$_UidIdName implements _UidIdName {
   @override
   final String? name;
   @override
+  final String? realName;
+  @override
   @JsonKey()
   final int lastUpdateTime;
 
   @override
   String toString() {
-    return 'UidIdName(uid: $uid, id: $id, name: $name, lastUpdateTime: $lastUpdateTime)';
+    return 'UidIdName(uid: $uid, id: $id, name: $name, realName: $realName, lastUpdateTime: $lastUpdateTime)';
   }
 
   @override
@@ -164,13 +186,16 @@ class _$_UidIdName implements _UidIdName {
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.realName, realName) ||
+                other.realName == realName) &&
             (identical(other.lastUpdateTime, lastUpdateTime) ||
                 other.lastUpdateTime == lastUpdateTime));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, uid, id, name, lastUpdateTime);
+  int get hashCode =>
+      Object.hash(runtimeType, uid, id, name, realName, lastUpdateTime);
 
   @JsonKey(ignore: true)
   @override
@@ -191,6 +216,7 @@ abstract class _UidIdName implements UidIdName {
       {@UidJsonKey required final Uid uid,
       final String? id,
       final String? name,
+      final String? realName,
       final int lastUpdateTime}) = _$_UidIdName;
 
   factory _UidIdName.fromJson(Map<String, dynamic> json) =
@@ -203,6 +229,8 @@ abstract class _UidIdName implements UidIdName {
   String? get id;
   @override
   String? get name;
+  @override
+  String? get realName;
   @override
   int get lastUpdateTime;
   @override

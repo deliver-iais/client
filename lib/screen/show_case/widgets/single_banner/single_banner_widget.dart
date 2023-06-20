@@ -87,8 +87,8 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
                             width: widget.width,
                             child: FutureBuilder<String?>(
                               future: SingleBannerWidget._fileRepo.getFile(
-                                widget.bannerCase.bannerImg.uuid,
-                                widget.bannerCase.bannerImg.name,
+                                widget.bannerCase.img.uuid,
+                                widget.bannerCase.img.name,
                               ),
                               builder: (c, s) {
                                 if (s.hasData && s.data != null) {
