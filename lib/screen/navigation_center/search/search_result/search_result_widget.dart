@@ -29,7 +29,9 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
   @override
   void initState() {
     widget.searchBoxController.addListener(() {
-      _queryTermDebouncedSubject.add(widget.searchBoxController.text);
+      if(widget.searchBoxController.text.length > 2) {
+        _queryTermDebouncedSubject.add(widget.searchBoxController.text);
+      }
     });
     super.initState();
   }

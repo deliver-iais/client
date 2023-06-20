@@ -90,6 +90,7 @@ class ProfilePageState extends State<ProfilePage>
   void initState() {
     _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
+    _mucRepo.fetchMucInfo(widget.roomUid);
     super.initState();
   }
 
@@ -716,7 +717,8 @@ class ProfilePageState extends State<ProfilePage>
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
                   title: _i18n.get("broad_casts_status"),
-                  leading: const Icon(FontAwesomeIcons.towerBroadcast, size: 20),
+                  leading:
+                      const Icon(FontAwesomeIcons.towerBroadcast, size: 20),
                   onPressed: (_) =>
                       _routingService.openBroadcastStatsPage(widget.roomUid),
                 ),

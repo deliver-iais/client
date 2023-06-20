@@ -295,7 +295,6 @@ class ChatItemState extends State<ChatItem> {
                                             snapshot.data!.hiddenMessageCount;
                                       }
                                     }
-
                                     if (widget.room.draft.isNotEmpty &&
                                         unreadCount == 0) {
                                       return buildDraftMessageWidget(
@@ -420,9 +419,11 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildDraftMessageWidget(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: [
-        RichText(
+    return Flexible(
+      fit: FlexFit.tight,
+      child: SizedBox(
+        width: double.infinity,
+        child: RichText(
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.fade,
@@ -440,7 +441,7 @@ class ChatItemState extends State<ChatItem> {
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
