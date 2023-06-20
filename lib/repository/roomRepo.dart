@@ -71,6 +71,7 @@ class RoomRepo {
   }
 
   final BehaviorSubject<List<Room>> _rooms = BehaviorSubject.seeded([]);
+  final BehaviorSubject<List<String>?> _unreadRooms = BehaviorSubject.seeded(null);
   final BehaviorSubject<List<Categories>> _roomsCategories =
       BehaviorSubject.seeded([]);
 
@@ -428,6 +429,13 @@ class RoomRepo {
   Stream<List<Room>> watchAllRooms() {
     _roomDao.watchAllRooms().listen((r) => _rooms.add(r));
     return _rooms.stream;
+  }
+  Stream<List<String>?> watchAllUnreadRooms() {
+    if(_unreadRooms.value==null) {
+      _seenDao.watchAllRoomSeen().listen((r) => _unreadRooms.add(r));
+    }
+
+    return _unreadRooms.stream;
   }
 
   Stream<List<Categories>> watchRoomsCategories() {

@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -77,9 +78,8 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   List<(Widget, Widget, String)> getNavigationButtons() {
     return [
       (_settingsAvatar, _settingsAvatar, _i18n.get("settings")),
-      (
-        const Icon(CupertinoIcons.bubble_left_bubble_right),
-        const Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+    (_buildNavigatorIconWithBadge( CupertinoIcons.bubble_left_bubble_right),
+    _buildNavigatorIconWithBadge( CupertinoIcons.bubble_left_bubble_right_fill),
         _i18n.get("chats")
       ),
       (
@@ -94,6 +94,17 @@ class NavigationBarPageState extends State<NavigationBarPage> {
           _i18n.get("store")
         ),
     ];
+  }
+  Widget _buildNavigatorIconWithBadge(IconData iconData){
+    return Stack(
+      children: <Widget>[
+        SizedBox(
+          width: 50,
+          child: Icon(iconData, size: 27),
+        ),
+         const UnreadRoomCounterWidget(useShakingBellTransition: true , usePosition: true),
+      ],
+    );
   }
 
   NavigationBar? getNavigationBar(BuildContext context) {

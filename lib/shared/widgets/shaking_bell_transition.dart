@@ -81,11 +81,11 @@ class BellWs extends StatelessWidget {
               values: [
                 ValueDelegate.color(
                   const ['**'],
-                  value: theme.colorScheme.surface,
+                  value: theme.colorScheme.primaryContainer,
                 ),
                 ValueDelegate.strokeColor(
                   const ['**'],
-                  value: theme.colorScheme.surface,
+                  value: theme.colorScheme.primaryContainer,
                 ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
@@ -62,7 +63,7 @@ class NavigationCenterState extends State<NavigationCenter>
     _chatsScrollController[roomCategory] = chatScrollController;
   }
 
-  final _appBarItemPadding = const EdgeInsets.symmetric(horizontal: 20);
+  final _appBarItemPadding = const EdgeInsets.symmetric(horizontal: 12);
 
   @override
   void initState() {
@@ -118,9 +119,11 @@ class NavigationCenterState extends State<NavigationCenter>
         body: StreamBuilder<List<Categories>>(
           stream: _roomRepo.watchRoomsCategories(),
           builder: (context, roomsCategoriesSnapshot) {
-            final roomsCategories = roomsCategoriesSnapshot.data ?? [];
+            final allChatsCategory = <Categories?>[null];
+            final roomsCategories =
+                allChatsCategory + (roomsCategoriesSnapshot.data ?? []);
             _tabController =
-                TabController(length: roomsCategories.length + 1, vsync: this);
+                TabController(length: roomsCategories.length, vsync: this);
             _tabController?.addListener(() {
               if (_tabController!.previousIndex != _tabController!.index) {
                 _resetChatScrollControllers(null);
@@ -158,41 +161,49 @@ class NavigationCenterState extends State<NavigationCenter>
                         isScrollable: true,
                         labelPadding: const EdgeInsets.all(10),
                         onTap: (index) {
-                            final category =
-                                index == 0 ? null : roomsCategories[index - 1];
-                            _resetChatScrollControllers(category);
+                          final category =
+                              index == 0 ? null : roomsCategories[index - 1];
+                          _resetChatScrollControllers(category);
                         },
                         tabs: [
-                          Padding(
-                            padding: _appBarItemPadding,
-                            child: Text(
-                              _i18n.get("all"),
-                            ),
-                          ),
-                          if (roomsCategories.contains(Categories.USER))
+                          for (final category in roomsCategories)
                             Padding(
                               padding: _appBarItemPadding,
-                              child: Text(_i18n.get("personal")),
-                            ),
-                          if (roomsCategories.contains(Categories.CHANNEL))
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Text(_i18n.get("channel")),
-                            ),
-                          if (roomsCategories.contains(Categories.GROUP))
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Text(_i18n.get("group")),
-                            ),
-                          if (roomsCategories.contains(Categories.BOT))
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Text(_i18n.get("bot")),
-                            ),
-                          if (roomsCategories.contains(Categories.BROADCAST))
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Text(_i18n.get("broadcast")),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    _convertRoomCategoryToTabName(category),
+                                  ),
+                                  AnimatedBuilder(
+                                    animation: _tabController!.animation!,
+                                    builder: (context, child) {
+                                      return UnreadRoomCounterWidget(
+                                        categories: category,
+                                        bgColor: Color.alphaBlend(
+                                          theme.colorScheme.onSurfaceVariant
+                                              .withOpacity(
+                                            (1 -
+                                                    _getUnreadCountColor(
+                                                      roomsCategories
+                                                          .indexOf(category),
+                                                    )) *
+                                                0.5,
+                                          ),
+                                          theme.primaryColor.withOpacity(
+                                            _getUnreadCountColor(
+                                              roomsCategories.indexOf(category),
+                                            ),
+                                          ),
+                                        ),
+                                        needBorder: false,
+                                        usePadding: true,
+                                      );
+                                    },
+                                  )
+                                ],
+                              ),
                             ),
                         ],
                       ),
@@ -218,26 +229,9 @@ class NavigationCenterState extends State<NavigationCenter>
                     child: TabBarView(
                       controller: _tabController,
                       children: [
-                        _buildChatPageByCategory(),
-                        if (roomsCategories.contains(Categories.USER))
+                        for (final category in roomsCategories)
                           _buildChatPageByCategory(
-                            roomCategory: Categories.USER,
-                          ),
-                        if (roomsCategories.contains(Categories.CHANNEL))
-                          _buildChatPageByCategory(
-                            roomCategory: Categories.CHANNEL,
-                          ),
-                        if (roomsCategories.contains(Categories.GROUP))
-                          _buildChatPageByCategory(
-                            roomCategory: Categories.GROUP,
-                          ),
-                        if (roomsCategories.contains(Categories.BOT))
-                          _buildChatPageByCategory(
-                            roomCategory: Categories.BOT,
-                          ),
-                        if (roomsCategories.contains(Categories.BROADCAST))
-                          _buildChatPageByCategory(
-                            roomCategory: Categories.BROADCAST,
+                            roomCategory: category,
                           )
                       ],
                     ),
@@ -251,6 +245,39 @@ class NavigationCenterState extends State<NavigationCenter>
         ),
       ),
     );
+  }
+
+  double _getUnreadCountColor(int tabIndex) {
+    final value = _tabController!.animation!.value;
+
+    if (tabIndex == 0 && value < 1) {
+      return 1 - value;
+    } else if (value <= tabIndex && value > tabIndex - 1) {
+      return value - (tabIndex - 1);
+    } else if (value > tabIndex && value < tabIndex + 1) {
+      return (tabIndex + 1) - value;
+    }
+
+    return 0.0;
+  }
+
+  String _convertRoomCategoryToTabName(Categories? roomCategory) {
+    switch (roomCategory) {
+      case Categories.BOT:
+        return _i18n.get("bot");
+      case Categories.BROADCAST:
+        return _i18n.get("broadcast");
+      case Categories.CHANNEL:
+        return _i18n.get("channel");
+      case Categories.GROUP:
+        return _i18n.get("group");
+      case Categories.STORE:
+      case Categories.SYSTEM:
+        return "";
+      case Categories.USER:
+        return _i18n.get("personal");
+    }
+    return _i18n.get("all");
   }
 
   Widget _buildChatPageByCategory({Categories? roomCategory}) {
