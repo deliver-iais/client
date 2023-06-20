@@ -119,7 +119,12 @@ class MucRepo {
     ChannelType? channelType,
     String? channelId,
   }) async {
-    unawaited(addMucMember(mucUid, memberUidList));
+    unawaited(
+      addMucMember(
+        mucUid,
+        memberUidList,
+      ),
+    );
     unawaited(
       _insertNewMucInfoToDb(
         mucUid,
@@ -669,6 +674,13 @@ class MucRepo {
     try {
       var usersAddCode = 0;
       final members = <muc_pb.Member>[];
+      var role = muc_pb.Role.MEMBER;
+      if (mucUid.isChannel()) {
+        final mucInfo = await _mucDao.get(mucUid);
+        role = mucInfo!.mucType == MucType.Private
+            ? muc_pb.Role.MEMBER
+            : muc_pb.Role.NONE;
+      }
       for (final uid in memberUids) {
         members.add(
           muc_pb.Member()
@@ -676,7 +688,7 @@ class MucRepo {
             ..role = uid.isBot()
                 ? muc_pb.Role.ADMIN
                 : mucUid.isChannel()
-                    ? muc_pb.Role.NONE
+                    ? role
                     : muc_pb.Role.MEMBER,
         );
       }
