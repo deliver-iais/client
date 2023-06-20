@@ -7,50 +7,56 @@ class CircularCounterWidget extends StatelessWidget {
   final int unreadCount;
   final Color? bgColor;
   final bool needBorder;
+  final bool usePadding;
 
   const CircularCounterWidget({
     Key? key,
     required this.unreadCount,
     this.bgColor,
     this.needBorder = false,
+    this.usePadding = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnimatedScale(
-      scale: unreadCount > 0 ? 1 : 0,
+    return AnimatedPadding(
+      padding: EdgeInsetsDirectional.only(
+        start: unreadCount > 0 && usePadding ? 8.0 : 0,
+      ),
       duration: AnimationSettings.normal,
-      child: AnimatedOpacity(
-        opacity: unreadCount > 0 ? 1 : 0,
+      child: AnimatedScale(
+        scale: unreadCount > 0 ? 1 : 0,
         duration: AnimationSettings.normal,
-        child: Container(
-          constraints: const BoxConstraints(minWidth: 20),
-          height: 20,
-          padding: unreadCount < 10
-              ? const EdgeInsets.all(2.0)
-              : const EdgeInsets.symmetric(
-                  vertical: 2.0,
-                  horizontal: 6,
+        child: AnimatedOpacity(
+          opacity: unreadCount > 0 ? 1 : 0,
+          duration: AnimationSettings.normal,
+          child: AnimatedContainer(
+            duration: AnimationSettings.normal,
+            constraints: BoxConstraints(minWidth: unreadCount > 0 ? 16 : 0),
+            height: 16,
+            padding: unreadCount > 0
+                ? const EdgeInsets.symmetric(horizontal: 4)
+                : EdgeInsets.zero,
+            decoration: BoxDecoration(
+              color: bgColor ?? theme.colorScheme.primary,
+              borderRadius: mainBorder,
+              border: needBorder
+                  ? Border.all(
+                      color: theme.colorScheme.primaryContainer,
+                      width: 2,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                    )
+                  : null,
+            ),
+            child: AnimatedSwitchWidget(
+              child: Text(
+                "${unreadCount <= 0 ? '' : unreadCount}",
+                key: ValueKey<int>(unreadCount),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.surface,
                 ),
-          decoration: BoxDecoration(
-            color: bgColor ?? theme.colorScheme.primary,
-            borderRadius: mainBorder,
-            border: needBorder
-                ? Border.all(
-                    color: theme.colorScheme.surface,
-                    width: 2,
-                    strokeAlign: BorderSide.strokeAlignOutside,
-                  )
-                : null,
-          ),
-          child: AnimatedSwitchWidget(
-            child: Text(
-              "${unreadCount <= 0 ? '' : unreadCount}",
-              key: ValueKey<int>(unreadCount),
-              style: TextStyle(
-                fontSize: 12,
-                color: theme.colorScheme.onPrimary,
               ),
             ),
           ),

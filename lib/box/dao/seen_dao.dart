@@ -13,7 +13,7 @@ abstract class SeenDao {
 
   Future<void> addRoomSeen(String uid);
 
-  Stream<List<String?>> watchAllRoomSeen();
+  Stream<List<String>> watchAllRoomSeen();
 
   Future<void> deleteRoomSeen(String uid);
 
@@ -173,7 +173,7 @@ class SeenDaoImpl extends SeenDao {
   }
 
   @override
-  Stream<List<String?>> watchAllRoomSeen() async* {
+  Stream<List<String>> watchAllRoomSeen() async* {
     final box = await _openRoomSeen();
 
     yield box.values.toList();
