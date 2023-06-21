@@ -64,4 +64,19 @@ class MessageDaoImpl extends MessageDao {
       box.messageIsars.putSync(message.toIsar());
     });
   }
+
+  @override
+  Future<List<Message>> searchMessages(Uid roomUid, String keyword) async {
+    final box = await _openMessageIsar();
+
+    final messages = box.messageIsars
+        .filter()
+        .roomUidEqualTo(roomUid.asString())
+        .and()
+        .jsonContains(keyword)
+        .findAllSync()
+        .map((e) => e.fromIsar())
+        .toList();
+    return messages.reversed.toList();
+  }
 }

@@ -50,9 +50,11 @@ import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -99,14 +101,15 @@ class RoomPage extends StatefulWidget {
   RoomPageState createState() => RoomPageState();
 }
 
-class RoomPageState extends State<RoomPage> {
+class RoomPageState extends State<RoomPage>
+    with CustomPopupMenu, SingleTickerProviderStateMixin {
   static final _logger = GetIt.I.get<Logger>();
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _i18n = GetIt.I.get<I18N>();
 
   static final _scrollPositionDao = GetIt.I.get<ScrollPositionDao>();
   static final _mucDao = GetIt.I.get<MucDao>();
-
+  static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
@@ -135,6 +138,7 @@ class RoomPageState extends State<RoomPage> {
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
   StreamSubscription<AppLifecycle>? _subscription;
+  StreamSubscription<int>? _messageSubscription;
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -179,6 +183,7 @@ class RoomPageState extends State<RoomPage> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _messageSubscription?.cancel();
     _inputMessageTextController.dispose();
     _shouldScrollToLastMessageInRoom?.cancel();
     _mentionCount.close();
@@ -518,6 +523,18 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    // _searchBoxAnimationController = AnimationController(
+    //   duration: AnimationSettings.standard,
+    //   animationBehavior: AnimationBehavior.preserve,
+    //   vsync: this,
+    // );
+    // _searchBoxAnimation = Tween(begin: 40.0, end: 0.0).animate(
+    //   CurvedAnimation(
+    //     parent: _searchBoxAnimationController,
+    //     curve: Curves.easeInOut,
+    //   ),
+    // );
+
     _roomRepo.updateRoomInfo(widget.roomUid);
     _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
@@ -617,6 +634,10 @@ class RoomPageState extends State<RoomPage> {
             )
             .debounceTime(const Duration(milliseconds: 50))
             .asBroadcastStream();
+
+    _messageSubscription = _searchMessageService.foundMessageId.listen((value) {
+      scrollToFoundMessage(value);
+    });
 
     super.initState();
   }
@@ -1370,6 +1391,12 @@ class RoomPageState extends State<RoomPage> {
                       child: Row(
                         children: [
                           IconButton(
+                              onPressed: () {
+                                _searchMessageService
+                                    .buildNavigationCenter(room.uid);
+                              },
+                              icon: const Icon(Icons.search)),
+                          IconButton(
                             onPressed: () => _callRepo.openCallScreen(
                               context,
                               room.uid,
@@ -1897,6 +1924,10 @@ class RoomPageState extends State<RoomPage> {
     if (room.mentionsId.isNotEmpty) {
       _scrollToMessageWithHighlight(room.mentionsId.first);
     }
+  }
+
+  void scrollToFoundMessage(int id, {bool isForced = false}) {
+    _scrollToMessageWithHighlight(id);
   }
 
   void _scrollToReplyMessage(int scrollToMessageId, int currentMessageId) {

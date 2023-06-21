@@ -65,4 +65,18 @@ class MessageDaoImpl extends MessageDao {
 
   @override
   Future<void> updateMessage(Message message) => insertMessage(message);
+
+  @override
+  Future<List<Message>> searchMessages(Uid roomUid, String keyword) async {
+    final box = await _openMessages(roomUid.asString());
+    final messages = box.values
+        .where(
+          (msgHive) =>
+              msgHive.roomUid == roomUid.asString() &&
+              msgHive.json.contains(keyword),
+        )
+        .map((msgHive) => msgHive.fromHive())
+        .toList();
+    return messages.reversed.toList();
+  }
 }

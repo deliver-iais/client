@@ -146,6 +146,7 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/storage_path_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -237,6 +238,7 @@ Future<void> setupDI() async {
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   registerSingleton<BroadcastService>(BroadcastService());
+  registerSingleton<SearchMessageService>(SearchMessageService());
 
   try {
     registerSingleton<AudioAutoPlayService>(AudioAutoPlayService());
