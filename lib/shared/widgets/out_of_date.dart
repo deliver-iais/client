@@ -1,12 +1,13 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void showOutOfDateDialog(BuildContext context) {
   final i18n = GetIt.I.get<I18N>();
+  final urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   Future.delayed(Duration.zero, () {
     showDialog(
@@ -47,11 +48,8 @@ void showOutOfDateDialog(BuildContext context) {
                           vertical: 8,
                         ),
                       ),
-                      onPressed: () {
-                        launchUrl(
-                          Uri.parse("https://www.$APPLICATION_DOMAIN"),
-                        );
-                      },
+                      onPressed: () => urlHandlerService
+                          .handleNormalLink("https://www.$APPLICATION_DOMAIN"),
                       child: Text(i18n.get("update_now")),
                     ),
                   ],
