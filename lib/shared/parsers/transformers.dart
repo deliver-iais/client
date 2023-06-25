@@ -135,8 +135,9 @@ Transformer<InlineSpan> inlineSpanTransformer({
       );
     }
 
-
-    if (messageId!= null && id != null && text=="@${accountRepo.getAccount()?.username}") {
+    if (messageId != null &&
+        id != null &&
+        text == "@${accountRepo.getAccount()?.username}") {
       return WidgetSpan(
         child: StreamBuilder<int?>(
           stream: roomRepo.mentionAnimationId,
@@ -144,47 +145,39 @@ Transformer<InlineSpan> inlineSpanTransformer({
             if (snapshot.hasData && snapshot.data == messageId) {
               return IntrinsicHeight(
                 child: IntrinsicWidth(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: mainBorder,
-                      gradient: LinearGradient(
-                        colors: [
-                          colorScheme.primaryContainer,
-                          colorScheme.tertiaryContainer
-                        ],
-                      ),
-                    ),
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                colorScheme.primaryContainer,
-                                colorScheme.tertiaryContainer.withOpacity(0.6)
-                              ],
-                            ),
-                            borderRadius: mainBorder,
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.tertiaryContainer,
+                          borderRadius: mainBorder,
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(
+                            duration: const Duration(milliseconds: 1400),
+                          )
+                          .scaleXY(
+                            begin: 1,
+                            end: 1.8,
+                            duration: const Duration(milliseconds: 1400),
+                            curve: Curves.fastOutSlowIn,
+                          )
+                          .then(delay: const Duration(milliseconds: 700))
+                          .scaleXY(
+                            begin: 1,
+                            end: 2,
+                            duration: const Duration(milliseconds: 1400),
+                            curve: Curves.fastOutSlowIn,
+                          )
+                          .fadeOut(
+                            duration: const Duration(milliseconds: 1300),
                           ),
-                        )
-                            .animate()
-                            .scaleXY(
-                              begin: 12,
-                              end: 1,
-                              duration: const Duration(milliseconds: 1500),
-                              delay: const Duration(milliseconds: 1200),
-                              curve: Curves.easeInOutQuad,
-                            )
-                            .shimmer(
-                              color: colorScheme.surface,
-                              delay: const Duration(milliseconds: 2000),
-                            ),
-                        Text.rich(
-                          _buildTextSpan(text, gestureRecognizer, textStyle),
-                        )
-                      ],
-                    ),
+                      Text.rich(
+                        _buildTextSpan(text, gestureRecognizer, textStyle),
+                      )
+                    ],
                   ),
                 ),
               );
