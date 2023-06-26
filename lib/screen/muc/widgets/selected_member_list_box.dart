@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
@@ -13,12 +14,14 @@ class SelectedMemberListBox extends StatelessWidget {
   final String title;
   final bool useSmsBroadcastList;
   final VoidCallback onAddMemberClick;
+  final MucCategories categories;
 
   const SelectedMemberListBox({
     Key? key,
     required this.title,
     this.useSmsBroadcastList = false,
     required this.onAddMemberClick,
+    this.categories = MucCategories.NONE,
   }) : super(key: key);
 
   @override
@@ -114,7 +117,17 @@ class SelectedMemberListBox extends StatelessWidget {
                     contact: _createMucService.getContacts(
                       useBroadcastSmsContacts: useSmsBroadcastList,
                     )[index],
-                    circleIcon: Icons.remove_circle_outline,
+                    circleIcon: !((categories == MucCategories.BROADCAST &&
+                                snapshot.hasData &&
+                                snapshot.data! < 3) ||
+                            (categories == MucCategories.GROUP &&
+                                snapshot.hasData &&
+                                snapshot.data! < 2) ||
+                            (categories == MucCategories.CHANNEL &&
+                                snapshot.hasData &&
+                                snapshot.data! < 2))
+                        ? Icons.remove_circle_outline
+                        : null,
                     circleIconColor: Colors.red,
                     onCircleIcon: () => _createMucService.deleteContact(
                       _createMucService.getContacts(

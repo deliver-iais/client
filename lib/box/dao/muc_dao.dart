@@ -29,6 +29,8 @@ abstract class MucDao {
 
   Future<List<Member>> getAllMembers(Uid mucUid);
 
+  Future<List<Member>> getMembersFirstPage(Uid mucUid, int pageSize);
+
   Future<int> getBroadCastAllMemberCount(Uid mucUid);
 
   Stream<List<Member>> watchAllMembers(Uid mucUid);
