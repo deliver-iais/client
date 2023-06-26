@@ -102,10 +102,10 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   children: [
                     Row(
                       children: [
-                        SelectMucAvatar(mucAvatarPath: _mucAvatarPath),
-                        const SizedBox(
-                          width: 10,
-                        ),
+                        if (widget.categories != MucCategories.BROADCAST) ...[
+                          SelectMucAvatar(mucAvatarPath: _mucAvatarPath),
+                          const SizedBox(width: 10),
+                        ],
                         _buildMucNameForm(),
                       ],
                     ),
@@ -144,6 +144,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       title: _mucHelper.newMucListOfMembersTitle(
                         widget.categories,
                       ),
+                      categories: widget.categories,
                       onAddMemberClick: () {
                         _routingService.openMemberSelection(
                           categories: widget.categories,

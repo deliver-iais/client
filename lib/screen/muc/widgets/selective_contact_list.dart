@@ -256,24 +256,28 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         padding: const EdgeInsetsDirectional.only(
                           end: 5,
                         ),
-                        child: FloatingActionButton.extended(
-                          heroTag: "select_contacts",
-                          icon: const Icon(
-                            Icons.chevron_right_rounded,
-                          ),
-                          label: widget.useSmsBroadcastList
-                              ? Text(_i18n["add"])
-                              : Text(_i18n["next"]),
-                          onPressed: () {
-                            if (widget.openMucInfoDeterminationPage) {
-                              _routingService.openMucInfoDeterminationPage(
-                                categories: widget.categories,
-                              );
-                            } else {
-                              _routingService.pop();
-                            }
-                          },
-                        ),
+                        child: (widget.categories == MucCategories.BROADCAST &&
+                                snapshot.data! < 2)
+                            ? const SizedBox()
+                            : FloatingActionButton.extended(
+                                heroTag: "select_contacts",
+                                icon: const Icon(
+                                  Icons.chevron_right_rounded,
+                                ),
+                                label: widget.useSmsBroadcastList
+                                    ? Text(_i18n["add"])
+                                    : Text(_i18n["next"]),
+                                onPressed: () {
+                                  if (widget.openMucInfoDeterminationPage) {
+                                    _routingService
+                                        .openMucInfoDeterminationPage(
+                                      categories: widget.categories,
+                                    );
+                                  } else {
+                                    _routingService.pop();
+                                  }
+                                },
+                              ),
                       ),
               );
             } else {

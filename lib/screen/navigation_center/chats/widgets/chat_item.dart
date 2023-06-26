@@ -320,8 +320,8 @@ class ChatItemState extends State<ChatItem> {
                   ),
                   if (widget.room.mentionsId.isNotEmpty)
                     Container(
-                      width: 20,
-                      height: 20,
+                      width: 16,
+                      height: 16,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
                         shape: BoxShape.circle,
@@ -393,7 +393,7 @@ class ChatItemState extends State<ChatItem> {
       case Categories.BOT:
         return FontAwesomeIcons.robot;
       case Categories.BROADCAST:
-        return FontAwesomeIcons.towerBroadcast;
+        return CupertinoIcons.antenna_radiowaves_left_right;
       case Categories.CHANNEL:
         return Icons.campaign_outlined;
       case Categories.GROUP:

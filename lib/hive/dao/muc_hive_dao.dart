@@ -145,4 +145,11 @@ class MucDaoImpl extends MucDao {
   ) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Member>> getMembersFirstPage(Uid mucUid, int pageSize) async {
+    final box = await _openMembers(mucUid.asString());
+
+    return box.values.take(pageSize).map((e) => e.fromHive()).toList();
+  }
 }

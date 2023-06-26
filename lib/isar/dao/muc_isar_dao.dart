@@ -228,4 +228,30 @@ class MucDaoImpl extends MucDao {
   }
 
   Future<Isar> _openIsar() => IsarManager.open();
+
+  @override
+  Future<List<Member>> getMembersFirstPage(Uid mucUid, int pageSize) async {
+    final box = await _openIsar();
+    if (mucUid.isBroadcast()) {
+      return (box.broadcastMemberIsars
+              .filter()
+              .broadcastUidEqualTo(
+                mucUid.asString(),
+              )
+              .and()
+              .typeEqualTo(BroadCastMemberType.MESSAGE)
+              .limit(pageSize)
+              .findAllSync())
+          .map((e) => Member(mucUid: mucUid, memberUid: e.memberUid!.asUid()))
+          .toList();
+    } else {
+      return box.memberIsars
+          .filter()
+          .mucUidEqualTo(mucUid.asString())
+          .limit(pageSize)
+          .findAllSync()
+          .map((e) => e.fromIsar())
+          .toList();
+    }
+  }
 }

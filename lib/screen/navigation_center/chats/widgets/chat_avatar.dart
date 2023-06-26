@@ -16,10 +16,10 @@ class ChatAvatar extends StatelessWidget {
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18N = GetIt.I.get<I18N>();
-  final Uid userUid;
+  final Uid uid;
   final Color? borderColor;
 
-  const ChatAvatar(this.userUid, {super.key, this.borderColor});
+  const ChatAvatar(this.uid, {super.key, this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +27,16 @@ class ChatAvatar extends StatelessWidget {
     return Stack(
       children: <Widget>[
         CircleAvatarWidget(
-          userUid,
+          uid,
           CHAT_AVATAR_RADIUS,
+          key: ValueKey(uid.asString()),
           isHeroEnabled: false,
           showSavedMessageLogoIfNeeded: true,
         ),
-        if (userUid.category == Categories.USER &&
-            !_authRepo.isCurrentUser(userUid))
+        if (uid.category == Categories.USER &&
+            !_authRepo.isCurrentUser(uid))
           StreamBuilder<LastActivity?>(
-            stream: _lastActivityRepo.watch(userUid.asString()),
+            stream: _lastActivityRepo.watch(uid.asString()),
             builder: (c, la) {
               if (la.hasData && la.data != null && isOnline(la.data!.time)) {
                 return Positioned.directional(
