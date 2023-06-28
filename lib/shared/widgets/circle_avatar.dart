@@ -13,7 +13,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CircleAvatarWidget extends StatefulWidget {
@@ -74,7 +73,8 @@ class _CircleAvatarWidgetState extends State<CircleAvatarWidget> {
   @override
   void initState() {
     if (uid.isBroadcast()) {
-      broadcastUsersFuture = _broadcastService.getFirstPageOfBroadcastMembers(uid);
+      broadcastUsersFuture =
+          _broadcastService.getFirstPageOfBroadcastMembers(uid);
     }
 
     if (!isSystem() &&

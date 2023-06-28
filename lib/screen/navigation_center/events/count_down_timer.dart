@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/event_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
@@ -13,10 +14,12 @@ import 'package:rxdart/rxdart.dart';
 class CountDownTimer extends StatefulWidget {
   final int timeStamp;
   final BehaviorSubject<bool>? timeStampFired;
+  final Color color;
 
   const CountDownTimer({
     super.key,
     required this.timeStamp,
+    required this.color,
     this.timeStampFired,
   });
 
@@ -29,7 +32,6 @@ class _CountDownTimerState extends State<CountDownTimer>
   late AnimationController _repeatEndCallAnimationController;
   static final _eventService = GetIt.I.get<EventService>();
   Timer? timer;
-  double fontSize = 10.0;
 
   @override
   void initState() {
@@ -151,37 +153,34 @@ class _CountDownTimerState extends State<CountDownTimer>
     var hours = countTimer.hours.toString();
     var minutes = countTimer.minutes.toString();
     var seconds = countTimer.seconds.toString();
-    days = (days.length != 2 ? '0$days' : days).toPersianDigit();
-    hours = (hours.length != 2 ? '0$hours' : hours).toPersianDigit();
-    minutes = (minutes.length != 2 ? '0$minutes' : minutes).toPersianDigit();
-    seconds = (seconds.length != 2 ? '0$seconds' : seconds).toPersianDigit();
+    final i18n = GetIt.I.get<I18N>();
+    var fontSize = 10.0;
+    final textStyle = theme.textTheme.titleLarge!.copyWith(
+      fontStyle: FontStyle.italic,
+      fontSize: fontSize,
+      color: widget.color,
+    );
+
+    if (i18n.isPersian) {
+      days = (days.length != 2 ? '0$days' : days).toPersianDigit();
+      hours = (hours.length != 2 ? '0$hours' : hours).toPersianDigit();
+      minutes = (minutes.length != 2 ? '0$minutes' : minutes).toPersianDigit();
+      seconds = (seconds.length != 2 ? '0$seconds' : seconds).toPersianDigit();
+    } else {
+      fontSize = 8.0;
+      days = (days.length != 2 ? '0$days' : days);
+      hours = (hours.length != 2 ? '0$hours' : hours);
+      minutes = (minutes.length != 2 ? '0$minutes' : minutes);
+      seconds = (seconds.length != 2 ? '0$seconds' : seconds);
+    }
+
     return Row(
       key: const Key("timer"),
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          children: [
-            Text(
-              'روز',
-              style: theme.textTheme.titleLarge!.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize,
-              ),
-            ),
-            AnimatedSwitchWidget(
-              child: Text(
-                days,
-                key: ValueKey(countTimer.days),
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ),
-          ],
-        ),
+        _buildColumn(i18n.get("days"), days, countTimer.days, textStyle),
         SizedBox(
           width: 11,
           child: Column(
@@ -191,34 +190,31 @@ class _CountDownTimerState extends State<CountDownTimer>
               ),
               Text(
                 "  :",
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
+                style: textStyle,
               ),
             ],
           ),
         ),
-        Column(
-          children: [
-            Text(
-              'ساعت',
-              style: theme.textTheme.titleLarge!.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize,
+        _buildColumn(i18n.get("hours"), hours, countTimer.hours, textStyle),
+        SizedBox(
+          width: 11,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 13,
               ),
-            ),
-            AnimatedSwitchWidget(
-              child: Text(
-                hours,
-                key: ValueKey(countTimer.hours),
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
+              Text(
+                ":",
+                style: textStyle,
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        _buildColumn(
+          i18n.get("minutes"),
+          minutes,
+          countTimer.minutes,
+          textStyle,
         ),
         SizedBox(
           width: 11,
@@ -229,74 +225,43 @@ class _CountDownTimerState extends State<CountDownTimer>
               ),
               Text(
                 ":",
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
+                style: textStyle,
               ),
             ],
           ),
         ),
-        Column(
-          children: [
-            Text(
-              'دقیقه',
-              style: theme.textTheme.titleLarge!.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize,
-              ),
-            ),
-            AnimatedSwitchWidget(
-              child: Text(
-                minutes,
-                key: ValueKey(countTimer.minutes),
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          width: 11,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 13,
-              ),
-              Text(
-                ":",
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Column(
-          children: [
-            Text(
-              'ثانیه',
-              style: theme.textTheme.titleLarge!.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize,
-              ),
-            ),
-            AnimatedSwitchWidget(
-              child: Text(
-                seconds,
-                key: ValueKey(countTimer.seconds),
-                style: theme.textTheme.titleLarge!.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontSize: fontSize,
-                ),
-              ),
-            ),
-          ],
+        _buildColumn(
+          i18n.get("seconds"),
+          seconds,
+          countTimer.seconds,
+          textStyle,
         ),
       ],
     );
   }
+}
+
+Column _buildColumn(
+  String label,
+  String value,
+  int count,
+  TextStyle textStyle,
+) {
+  return Column(
+    children: [
+      Text(
+        label,
+        style: textStyle.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      AnimatedSwitchWidget(
+        child: Text(
+          value,
+          key: ValueKey(count),
+          style: textStyle,
+        ),
+      ),
+    ],
+  );
 }

@@ -886,6 +886,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  flip_panel_plus:
+    dependency: "direct main"
+    description:
+      name: flip_panel_plus
+      sha256: f4f31b7c1ecd4bcb3c2cc297c908b44a620c29dd57c9a3b7d5c82a48d2ae6018
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0+3"
   flutter:
     dependency: "direct main"
     description: flutter

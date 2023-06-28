@@ -650,5 +650,8 @@
   "you_have_not_contacts": "لم يتم العثور على جهات الاتصال",
   "your_password_update": "تم تحديث كلمة السر",
   "your_session_is_expired_please_login_again": "انتهى وقت الجلسة . يرجى تسجيل الدخول مجددا",
-  "your_session_is_has_a_problem": "حدث خلل في البرنامج. يرجى تسجيل الدخول مجددا"
+  "your_session_is_has_a_problem": "حدث خلل في البرنامج. يرجى تسجيل الدخول مجددا",
+  "more": "More",
+  "days": "Days",
+  "hours": "Hours"
 }

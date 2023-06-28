@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
+import 'package:deliver/screen/navigation_center/announcement/announcement_bar.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
@@ -213,6 +214,7 @@ class NavigationCenterState extends State<NavigationCenter>
               },
               body: Column(
                 children: <Widget>[
+                  if (!isLarge(context)) const AnnouncementBar(),
                   StreamBuilder<bool>(
                     stream: settings.showEvents.stream,
                     builder: (context, snapshot) {

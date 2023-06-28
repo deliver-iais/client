@@ -1,4 +1,5 @@
 // import 'package:deliver/box/message_markup.dart';
+import 'package:deliver_public_protocol/pub/v1/models/announcement.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
@@ -64,6 +65,10 @@ extension JsonMapper on String {
 
   Showcase toShowCase() {
     return Showcase.fromJson(this);
+  }
+
+  Announcement toAnnouncment() {
+    return Announcement.fromJson(this);
   }
 
   Link toLink() => Link.fromJson(this);
