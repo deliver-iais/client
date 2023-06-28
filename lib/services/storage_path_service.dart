@@ -60,7 +60,8 @@ class StoragePathService {
     if (isDesktopNative ||
         isIOSNative ||
         await _checkPermission.checkMediaLibraryPermission()) {
-      _isarLocalPath = await _getSupportedDirectoryPath(additionalPath: "We/db");
+      _isarLocalPath =
+          await _getSupportedDirectoryPath(additionalPath: "We/db");
       return _isarLocalPath!;
     }
     throw Exception("There is no Storage Permission!");

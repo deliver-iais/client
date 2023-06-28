@@ -32,10 +32,10 @@ class ServicesDiscoveryRepo {
   String _fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
   CoreServiceClient? _coreServiceClient;
+  ServiceDiscoveryClient? _serviceDiscoveryClient;
   bot.BotServiceClient? _botServiceClient;
   SessionServiceClient? _sessionServiceClient;
   QueryServiceClient? _queryServiceClient;
-  ServiceDiscoveryClient? _serviceDiscoveryClient;
   ContactServiceClient? _contactServiceClient;
   StickerServiceClient? _stickerServiceClient;
   FirebaseServiceClient? _firebaseServiceClient;

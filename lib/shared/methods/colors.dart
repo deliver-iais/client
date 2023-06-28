@@ -27,6 +27,40 @@ class ColorUtils {
     return int.parse(hex, radix: 16);
   }
 
+  static Color? stringColorToColor(String primaryColor) {
+    try {
+      if (primaryColor.startsWith("#")) {
+        primaryColor = primaryColor.substring(1);
+      }
+      return Color(
+        int.parse(
+          primaryColor,
+          radix: 16,
+        ),
+      ).withAlpha(255);
+    } catch (_) {
+      return Colors.transparent;
+    }
+  }
+
+  static Color getTextColorBasedOnBackgroundBrightness(Color color) {
+    return color.computeLuminance() < 0.5 ? Colors.white : Colors.black;
+  }
+
+  static Color? getContrastColor(Color color) {
+    return color.computeLuminance() < 0.5
+        ? Color.lerp(
+            Colors.white,
+            color,
+            0.5,
+          )
+        : Color.lerp(
+            Colors.black,
+            color,
+            0.7,
+          );
+  }
+
   ColorUtils._(); // private constructor
 }
 

@@ -82,6 +82,14 @@ class I18N {
     return TextDirection.ltr;
   }
 
+  CrossAxisAlignment getCrossAxisAlignment(String v) {
+    final string = v.trim();
+    if (string.isEmpty || string.isPersian()) {
+      return CrossAxisAlignment.start;
+    }
+    return CrossAxisAlignment.end;
+  }
+
   static final LocalizationsDelegate<I18N> delegate = _MyLocalizationDelegate();
 }
 

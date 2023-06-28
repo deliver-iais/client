@@ -22,6 +22,7 @@ import 'package:deliver/screen/muc/pages/broadcast_status_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_bar/navigation_bar_page.dart';
+import 'package:deliver/screen/navigation_center/announcement/announcement_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
@@ -109,6 +110,8 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
+const _announcement = AnnouncementPage(key: ValueKey("/announcement"));
 
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
@@ -244,6 +247,13 @@ class RoutingService {
       "showcasePage_open",
     );
     _push(_showcase);
+  }
+
+  void openAnnouncementPage() {
+    _analyticsService.sendLogEvent(
+      "announcementPage_open",
+    );
+    _push(_announcement);
   }
 
   void openConnectionSettingPage({bool popAllBeforePush = false}) {
@@ -654,7 +664,7 @@ class RoutingService {
                 (c, animation, secondaryAnimation) {
           try {
             if (isLarge(c)) {
-              return _empty;
+              return const AnnouncementPage();
             } else {
               return _navigationBar;
             }

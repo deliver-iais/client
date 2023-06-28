@@ -653,5 +653,8 @@
   "you_have_not_contacts": "You have not contacts on messenger yet",
   "your_password_update": "Your password updated",
   "your_session_is_expired_please_login_again": "Your session is expired, please login again",
-  "your_session_is_has_a_problem": "Your session has a problem, please login again"
+  "your_session_is_has_a_problem": "Your session has a problem, please login again",
+  "more": "More",
+  "days": "Days",
+  "hours": "Hours"
 }

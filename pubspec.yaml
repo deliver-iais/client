@@ -93,6 +93,7 @@ dependencies:
   #  firebase_crashlytics: 3.0.12
   firebase_messaging: 14.4.1
   fixnum: 1.1.0
+  flip_panel_plus: 1.0.0+3
   flutter:
     sdk: flutter
   flutter_animate: 4.1.1+1

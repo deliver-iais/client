@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart';
 import 'package:deliver/box/active_notification.dart';
+import 'package:deliver/box/announcement.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -17,6 +18,7 @@ import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/active_notification_dao.dart';
+import 'package:deliver/box/dao/announcement_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
@@ -102,6 +104,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/window_frame.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/analytics_repo.dart';
+import 'package:deliver/repository/announcement_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -272,6 +275,7 @@ Future<void> setupDI() async {
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
+  registerSingleton<AnnouncementRepo>(AnnouncementRepo());
   registerSingleton<DragAndDropService>(DragAndDropService());
   registerSingleton<PersistentEventHandlerService>(
     PersistentEventHandlerService(),
@@ -331,6 +335,7 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(IsVerifiedHiveAdapter())
     ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter())
+    ..registerAdapter(AnnouncementsAdapter())
     ..registerAdapter(RecentEmojiAdapter())
     ..registerAdapter(EmojiSkinToneAdapter())
     ..registerAdapter(RecentRoomsAdapter())
@@ -368,6 +373,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<LastCallStatusDao>(LastCallStatusDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+  registerSingleton<AnnouncementDao>(AnnouncementDaoImpl());
   registerSingleton<RecentEmojiDao>(RecentEmojiImpl());
   registerSingleton<EmojiSkinToneDao>(EmojiSkinToneImpl());
   registerSingleton<RecentSearchDao>(RecentSearchDaoImpl());
