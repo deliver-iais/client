@@ -13,6 +13,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/debug/commons_widgets.dart';
@@ -37,7 +38,6 @@ import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.d
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
-import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_start_information_box_widget.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/channel_bottom_bar.dart';
@@ -133,10 +133,9 @@ class RoomPageState extends State<RoomPage> {
   double _defaultMessageHeight = 1000;
   final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
-  final Map<int, Message> _selectedMessages = {};
   StreamSubscription<AppLifecycle>? _subscription;
 
-  final _highlightMessageId = BehaviorSubject.seeded(-1);
+  final _highlightMessagesId = BehaviorSubject<List<int>>.seeded([]);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
@@ -147,12 +146,10 @@ class RoomPageState extends State<RoomPage> {
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
-  final _searchMode = BehaviorSubject.seeded(false);
   final _timeHeader = BehaviorSubject<String>.seeded("");
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
-  final _selectMultiMessageSubject = BehaviorSubject.seeded(false);
   final _selectedMessageListIndex = BehaviorSubject<List<int>>.seeded([]);
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
@@ -192,7 +189,7 @@ class RoomPageState extends State<RoomPage> {
       onWillPop: () async {
         if ((_repliedMessage.value?.id ?? 0) > 0 ||
             _editableMessage.value != null ||
-            _selectedMessages.isNotEmpty) {
+            _selectedMessageListIndex.value.isNotEmpty) {
           _resetRoomPageDetails();
           return false;
         } else {
@@ -519,6 +516,9 @@ class RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    _selectedMessageListIndex.listen((value) {
+      _highlightMessagesId.add(value);
+    });
     _roomRepo.updateRoomInfo(widget.roomUid);
     _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
@@ -693,10 +693,6 @@ class RoomPageState extends State<RoomPage> {
           ),
           Debug(_pinMessages, label: "_pinMessages"),
           Debug(
-            _selectedMessages,
-            label: "_selectedMessages",
-          ),
-          Debug(
             _currentScrollIndex,
             label: "_currentScrollIndex",
           ),
@@ -727,7 +723,7 @@ class RoomPageState extends State<RoomPage> {
     final p = position.map((e) => e.index).reduce(max) + room.firstMessageId;
     if (_pinMessages.length > 1 &&
         _lastPinedMessage.value != p &&
-        _highlightMessageId.value == -1) {
+        _highlightMessagesId.value.isEmpty) {
       if (position.last.index == 0) {
         _lastPinedMessage.add(
           _pinMessages.first.id!,
@@ -928,10 +924,7 @@ class RoomPageState extends State<RoomPage> {
     _editableMessage.add(null);
     _repliedMessage.add(null);
     _waitingForForwardedMessage.add(false);
-    _selectMultiMessageSubject.add(false);
-    _selectedMessages.clear();
     _selectedMessageListIndex.add([]);
-    setState(() {});
   }
 
   void _sendForwardMessage() {
@@ -955,12 +948,7 @@ class RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  void unselectMessages() {
-    _selectMultiMessageSubject.add(false);
-    _selectedMessages.clear();
-    _selectedMessageListIndex.add([]);
-    setState(() {});
-  }
+  void unselectMessages() => _selectedMessageListIndex.add([]);
 
   Future<void> onUnPin(Message message) =>
       _messageRepo.unpinMessage(message).then((value) {
@@ -985,8 +973,9 @@ class RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
-      _inputMessageTextController.text =
-          synthesizeToOriginalWord(message.json.toText().text);
+      _inputMessageTextController.text = synthesizeToOriginalWord(
+        message.json.toText().text,
+      );
       _inputMessageFocusNode.requestFocus();
       // FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
@@ -1065,12 +1054,20 @@ class RoomPageState extends State<RoomPage> {
     _hasPermissionInGroup.add(res.isAdmin || res.isOwner);
   }
 
+  bool _isMucAdminOrOwner(MucRole role) =>
+      role == MucRole.ADMIN || role == MucRole.OWNER;
+
   Future<void> fetchMucInfo(Uid uid) async {
     final muc = await _mucRepo.fetchMucInfo(
       widget.roomUid,
       needToFetchMembers: uid.category != Categories.CHANNEL,
     );
     if (muc != null) {
+      if (muc.uid.isChannel()) {
+        _hasPermissionInChannel.add(_isMucAdminOrOwner(muc.currentUserRole));
+      } else {
+        _hasPermissionInGroup.add(_isMucAdminOrOwner(muc.currentUserRole));
+      }
       _roomRepo.updateRoomName(uid, muc.name);
     }
   }
@@ -1251,17 +1248,14 @@ class RoomPageState extends State<RoomPage> {
 
   AppBar buildAppBar() {
     final theme = Theme.of(context);
-    final controller = TextEditingController();
-    final checkSearchResult = BehaviorSubject<bool>.seeded(false);
-
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
         if (_featureFlags.hasVoiceCallPermission(room.uid))
-          StreamBuilder<bool>(
-            stream: _selectMultiMessageSubject,
+          StreamBuilder<List<int>>(
+            stream: _selectedMessageListIndex,
             builder: (context, snapshot) {
-              return snapshot.hasData && !snapshot.data!
+              return snapshot.hasData && snapshot.data!.isEmpty
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
                       featureId: CALL_FEATURE,
@@ -1398,126 +1392,81 @@ class RoomPageState extends State<RoomPage> {
             },
           ),
       ],
-      leadingWidth: _selectMultiMessageSubject.value ? 100 : null,
+      leadingWidth: _selectedMessageListIndex.value.isNotEmpty ? 100 : null,
       leading: GestureDetector(
-        child: StreamBuilder<bool>(
-          stream: _searchMode,
-          builder: (c, s) {
-            if (s.hasData && s.data!) {
-              return IconButton(
-                icon: const Icon(CupertinoIcons.search),
-                onPressed: () {
-                  //   searchMessage(controller.text, checkSearchResult);
-                },
+        child: StreamBuilder<List<int>>(
+          stream: _selectedMessageListIndex,
+          builder: (context, snapshot) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data!.isNotEmpty) {
+              return Row(
+                children: [
+                  IconButton(
+                    color: theme.colorScheme.primary,
+                    icon: const Icon(
+                      CupertinoIcons.xmark,
+                      size: 25,
+                    ),
+                    onPressed: () {
+                      unselectMessages();
+                    },
+                  ),
+                  AnimatedSwitchWidget(
+                    child: Text(
+                      snapshot.data!.length.toString(),
+                      // This key causes the AnimatedSwitcher to interpret this as a "new"
+                      // child each time the count changes, so that it will begin its animation
+                      // when the count changes.
+                      key: ValueKey<int>(
+                        snapshot.data!.length,
+                      ),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
               );
             } else {
-              return StreamBuilder<bool>(
-                stream: _selectMultiMessageSubject,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data!) {
-                    return Row(
-                      children: [
-                        IconButton(
-                          color: theme.colorScheme.primary,
-                          icon: const Icon(
-                            CupertinoIcons.xmark,
-                            size: 25,
-                          ),
-                          onPressed: () {
-                            unselectMessages();
-                          },
-                        ),
-                        AnimatedSwitchWidget(
-                          child: Text(
-                            _selectedMessages.length.toString(),
-                            // This key causes the AnimatedSwitcher to interpret this as a "new"
-                            // child each time the count changes, so that it will begin its animation
-                            // when the count changes.
-                            key: ValueKey<int>(_selectedMessages.length),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return _routingService.backButtonLeading();
-                  }
-                },
-              );
+              return _routingService.backButtonLeading();
             }
           },
         ),
       ),
       titleSpacing: 0.0,
-      title: StreamBuilder<bool>(
-        stream: _searchMode,
-        builder: (c, s) {
-          if (s.hasData && s.data!) {
-            return Row(
-              children: [
-                Flexible(
-                  child: AutoDirectionTextField(
-                    minLines: 1,
-                    controller: controller,
-                    autofocus: true,
-                    onTap: () {
-                      checkSearchResult.add(false);
-                    },
-                    onChanged: (s) {
-                      checkSearchResult.add(false);
-                    },
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (str) async {
-                      //   searchMessage(str, checkSearchResult);
-                    },
-                    decoration: InputDecoration(
-                      hintText: _i18n.get("search"),
-                      suffix: StreamBuilder<bool>(
-                        stream: checkSearchResult,
-                        builder: (c, s) {
-                          if (s.hasData && s.data!) {
-                            return Text(_i18n.get("not_found"));
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return StreamBuilder<bool>(
-              stream: _selectMultiMessageSubject,
-              builder: (c, sm) {
-                if (sm.hasData && sm.data!) {
+      title: StreamBuilder<List<int>>(
+        stream: _selectedMessageListIndex,
+        builder: (c, sm) {
+          if (sm.hasData && sm.data!.isNotEmpty) {
+            return FutureBuilder<List<Message>>(
+              future: _getSelectedMessage(),
+              builder: (context, selectedMessageSnapshot) {
+                if (selectedMessageSnapshot.hasData &&
+                    selectedMessageSnapshot.data != null &&
+                    selectedMessageSnapshot.data!.isNotEmpty) {
                   return SelectMultiMessageAppBar(
-                    selectedMessages: _selectedMessages,
+                    selectedMessages: selectedMessageSnapshot.data!,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
                     onClose: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
-                } else {
-                  if (widget.roomUid.isMuc()) {
-                    return MucAppbarTitle(mucUid: widget.roomUid);
-                  } else if (widget.roomUid.category == Categories.BOT) {
-                    return BotAppbarTitle(botUid: widget.roomUid);
-                  } else {
-                    return UserAppbarTitle(
-                      userUid: widget.roomUid,
-                    );
-                  }
                 }
+                return const SizedBox.shrink();
               },
             );
+          } else {
+            if (widget.roomUid.isMuc()) {
+              return MucAppbarTitle(mucUid: widget.roomUid);
+            } else if (widget.roomUid.category == Categories.BOT) {
+              return BotAppbarTitle(botUid: widget.roomUid);
+            } else {
+              return UserAppbarTitle(
+                userUid: widget.roomUid,
+              );
+            }
           }
         },
       ),
@@ -1774,15 +1723,14 @@ class RoomPageState extends State<RoomPage> {
       );
     }
 
-    return StreamBuilder<int>(
-      initialData: _highlightMessageId.value,
-      stream: _highlightMessageId,
+    return StreamBuilder<List<int>>(
+      initialData: _highlightMessagesId.value,
+      stream: _highlightMessagesId,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
           duration: AnimationSettings.fast,
-          color: _selectedMessages.containsKey(index + 1) ||
-                  (snapshot.data! == index + 1)
+          color: snapshot.data!.contains(index + 1)
               ? Theme.of(context).colorScheme.primary.withAlpha(100)
               : Colors.transparent,
           curve: Curves.elasticOut,
@@ -1845,7 +1793,6 @@ class RoomPageState extends State<RoomPage> {
       roomId: widget.roomUid,
       lastSeenMessageId: _lastSeenMessageId,
       pinMessages: _pinMessages,
-      selectMultiMessageSubject: _selectMultiMessageSubject,
       hasPermissionInGroup: _hasPermissionInGroup.value,
       hasPermissionInChannel: _hasPermissionInChannel,
       onEdit: () => onEdit(message),
@@ -1853,7 +1800,6 @@ class RoomPageState extends State<RoomPage> {
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
       width: maxWidth,
-      addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,
       selectedMessageListIndex: _selectedMessageListIndex,
@@ -1870,23 +1816,6 @@ class RoomPageState extends State<RoomPage> {
     } else {
       return msgBox;
     }
-  }
-
-  void _addForwardMessage(Message message) {
-    _selectedMessages.containsKey(message.id)
-        ? _selectedMessages.remove(message.id)
-        : _selectedMessages[message.id!] = message;
-
-    final smlIndex = _selectedMessageListIndex.value;
-    smlIndex.contains(message.id)
-        ? smlIndex.remove(message.id)
-        : smlIndex.add(message.id!);
-    _selectedMessageListIndex.add(smlIndex);
-
-    if (_selectedMessages.values.isEmpty) {
-      _selectMultiMessageSubject.add(false);
-    }
-    setState(() {});
   }
 
   void _scrollToLastMessage({bool isForced = false}) {
@@ -1928,9 +1857,9 @@ class RoomPageState extends State<RoomPage> {
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
       ).then((value) {
-        if (_highlightMessageId.value != -1 && shouldHighlight) {
+        if (_highlightMessagesId.value.isNotEmpty && shouldHighlight) {
           highlightMessageTimer = Timer(const Duration(seconds: 2), () {
-            _highlightMessageId.add(-1);
+            _highlightMessagesId.add([]);
           });
         }
       });
@@ -1943,19 +1872,33 @@ class RoomPageState extends State<RoomPage> {
 
       if (index != -1) {
         highlightMessageTimer?.cancel();
-        _highlightMessageId.add(index + room.firstMessageId);
+        _highlightMessagesId.add([index + room.firstMessageId]);
       }
     }
   }
 
-  void _deleteSelectedMessage() {
-    if (_selectedMessages.values.isNotEmpty) {
-      showDeleteMsgDialog(
-        _selectedMessages.values.toList(),
-        context,
-        unselectMessages,
-      );
-      _selectedMessages.clear();
+  Future<List<Message>> _getSelectedMessage() async {
+    final selected = <Message>[];
+    for (final id in _selectedMessageListIndex.value) {
+      final msg = await _getMessage(id);
+      if (msg != null) {
+        selected.add(msg);
+      }
+    }
+    return selected;
+  }
+
+  Future<void> _deleteSelectedMessage() async {
+    if (_selectedMessageListIndex.value.isNotEmpty) {
+      final selectedMessages = await _getSelectedMessage();
+      if (context.mounted && selectedMessages.isNotEmpty) {
+        showDeleteMsgDialog(
+          selectedMessages,
+          context,
+          unselectMessages,
+        );
+      }
+
       _selectedMessageListIndex.add([]);
     }
   }
@@ -1999,10 +1942,6 @@ class RoomPageState extends State<RoomPage> {
         );
       },
     );
-  }
-
-  void openRoomSearchBox() {
-    _searchMode.add(true);
   }
 }
 
