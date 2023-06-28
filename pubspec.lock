@@ -2553,10 +2553,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: "75f2846facd11168d007529d6cd8fcb2b750186bea046af9711f10b907e1587e"
+      sha256: eb1e00ab44303d50dd487aab67ebc575456c146c6af44422f9c13889984c00f3
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.10"
+    version: "6.1.11"
   url_launcher_android:
     dependency: transitive
     description:
@@ -2721,9 +2721,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: wakelock_windows
-      ref: win32-v5
-      resolved-ref: "2a9bca63a540771f241d688562351482b2cf234c"
-      url: "https://github.com/timsneath/wakelock"
+      ref: main
+      resolved-ref: f3610d6c246098fee74463de09434ed81fc2a7c8
+      url: "https://github.com/chandrabezzo/wakelock.git"
     source: git
     version: "0.2.2"
   watcher:

@@ -20,7 +20,7 @@ import 'package:get_it/get_it.dart';
 import 'package:share/share.dart';
 
 class SelectMultiMessageAppBar extends StatelessWidget {
-  final Map<int, Message> selectedMessages;
+  final List<Message> selectedMessages;
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
   final Function() onClose;
@@ -42,7 +42,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
   List<Message> _getSortedMessages() {
-    return selectedMessages.values.toList()
+    return selectedMessages
       ..sort(
         (a, b) => a.id == null
             ? 1
@@ -58,17 +58,17 @@ class SelectMultiMessageAppBar extends StatelessWidget {
     var hasPermissionToDeleteMsg = true;
     var shareType = MessageType.FILE;
     var canShareMessage = true;
-    if (selectedMessages.values.isNotEmpty && selectedMessages.values.first.roomUid.isBroadcast()) {
+    if (selectedMessages.isNotEmpty && selectedMessages.first.roomUid.isBroadcast()) {
       hasPermissionToDeleteMsg = false;
     }
-    for (final message in selectedMessages.values.toList()) {
+    for (final message in selectedMessages) {
       if (!(_authRepo.isCurrentUserSender(message) ||
           (message.roomUid.isChannel() && hasPermissionInChannel) ||
           (message.roomUid.isGroup() && hasPermissionInGroup))) {
         hasPermissionToDeleteMsg = false;
       }
     }
-    for (final message in selectedMessages.values.toList()) {
+    for (final message in selectedMessages) {
       if (message.type != MessageType.FILE && shareType == MessageType.FILE) {
         shareType = MessageType.TEXT;
       }
@@ -92,7 +92,6 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                 _routingService.openSelectForwardMessage(
                   forwardedMessages: _getSortedMessages(),
                 );
-                selectedMessages.clear();
               },
             ),
           ),

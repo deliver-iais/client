@@ -52,7 +52,6 @@ class BuildMessageBox extends StatefulWidget {
   final void Function(int, int) scrollToMessage;
   final void Function() onReply;
   final void Function() onEdit;
-  final void Function() addForwardMessage;
   final void Function() onDelete;
   final void Function() onPin;
   final void Function() onUnPin;
@@ -62,7 +61,6 @@ class BuildMessageBox extends StatefulWidget {
   final List<Message> pinMessages;
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
-  final BehaviorSubject<bool> selectMultiMessageSubject;
   final BehaviorSubject<List<int>> selectedMessageListIndex;
 
   const BuildMessageBox({
@@ -78,12 +76,10 @@ class BuildMessageBox extends StatefulWidget {
     required this.onDelete,
     required this.pinMessages,
     required this.onReply,
-    required this.selectMultiMessageSubject,
     required this.selectedMessageListIndex,
     required this.hasPermissionInGroup,
     required this.width,
     required this.hasPermissionInChannel,
-    required this.addForwardMessage,
     this.menuDisabled = false,
     this.messageReplyBrief,
   });
@@ -102,15 +98,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return  AnimatedDeleteWidget(
-          child: _buildMessageBox(
-            context,
-            widget.message,
-            widget.messageBefore,
-            messageReplyBrief: widget.messageReplyBrief,
-          ),
-        );
-
+    return AnimatedDeleteWidget(
+      child: _buildMessageBox(
+        context,
+        widget.message,
+        widget.messageBefore,
+        messageReplyBrief: widget.messageReplyBrief,
+      ),
+    );
   }
 
   Widget _buildMessageBox(
@@ -136,6 +131,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
+  void _addForwardMessage() {
+    final smlIndex = widget.selectedMessageListIndex.value;
+    smlIndex.contains(widget.message.id)
+        ? smlIndex.remove(widget.message.id)
+        : smlIndex.add(widget.message.id!);
+    widget.selectedMessageListIndex.add(smlIndex);
+  }
+
   bool isFirstMessageOfOneDirection(Message? msgBefore, Message msg) {
     var isFirstMessageInGroupedMessages = true;
 
@@ -145,7 +148,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       final d2 = date(msg.time);
 
       if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
-        if (!msgBefore!.isHidden && (msgBefore.type != MessageType.CALL || msgBefore.type != MessageType.CALL_LOG)) {
+        if (!msgBefore!.isHidden &&
+            (msgBefore.type != MessageType.CALL ||
+                msgBefore.type != MessageType.CALL_LOG)) {
           isFirstMessageInGroupedMessages = false;
         }
       }
@@ -186,31 +191,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (widget.selectMultiMessageSubject.value) {
-              widget.addForwardMessage();
-            } else if (!isDesktopDevice) {
-              FocusScope.of(context).unfocus();
-              _showCustomMenu(context, msg);
-            }
-          },
-          onSecondaryTap: !isDesktopDevice
-              ? null
-              : () {
-                  if (!widget.selectMultiMessageSubject.value) {
-                    _showCustomMenu(context, msg);
-                  }
-                },
-          onDoubleTap:
-              _hasPermissionForDoubleClickReply() ? widget.onReply : null,
-          onLongPress: () async {
-            await selectMessage();
-          },
-          onTapDown: storeTapDownPosition,
-          onSecondaryTapDown: storeTapDownPosition,
-          child: Padding(
+        _buildGestureDetector(
+          Padding(
             padding: EdgeInsetsDirectional.symmetric(
               vertical: msg.isHidden ? 0.0 : p4,
             ),
@@ -220,7 +202,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               onPinMessageClick: widget.scrollToMessage,
             ),
           ),
-        ),
+        )
       ],
     );
   }
@@ -228,7 +210,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   bool _hasPermissionToReply() =>
       !widget.roomId.isBroadcast() &&
       (!widget.roomId.isChannel() || widget.hasPermissionInChannel.value) &&
-      !widget.selectMultiMessageSubject.value;
+      !_selected();
 
   bool _hasPermissionForDoubleClickReply() =>
       isDesktopDevice && _hasPermissionToReply();
@@ -241,10 +223,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             ))
                 ?.msg ==
             null) {
-      if (!widget.selectMultiMessageSubject.value) {
-        widget.selectMultiMessageSubject.add(true);
-      }
-      widget.addForwardMessage();
+      _addForwardMessage();
     }
   }
 
@@ -281,33 +260,32 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         ),
       );
     }
-
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        if (widget.selectMultiMessageSubject.value) {
-          widget.addForwardMessage();
-        } else if (!isDesktopDevice) {
-          FocusScope.of(context).unfocus();
-          _showCustomMenu(context, message);
-        }
-      },
-      onSecondaryTap: !isDesktopDevice
-          ? null
-          : () {
-              if (!widget.selectMultiMessageSubject.value) {
-                _showCustomMenu(context, message);
-              }
-            },
-      onDoubleTap: _hasPermissionForDoubleClickReply() ? widget.onReply : null,
-      onLongPress: () async {
-        await selectMessage();
-      },
-      onTapDown: storeTapDownPosition,
-      onSecondaryTapDown: storeTapDownPosition,
-      child: messageWidget,
-    );
+    return _buildGestureDetector(messageWidget);
   }
+
+  bool _selected() => widget.selectedMessageListIndex.value.isNotEmpty;
+
+  Widget _buildGestureDetector(Widget child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          if (_selected()) {
+            _addForwardMessage();
+          } else if (!isDesktopDevice) {
+            FocusScope.of(context).unfocus();
+            _showCustomMenu();
+          }
+        },
+        onSecondaryTap: () =>
+            isDesktopDevice && !_selected() ? _showCustomMenu() : null,
+        onDoubleTap:
+            _hasPermissionForDoubleClickReply() ? widget.onReply : null,
+        onLongPress: () async {
+          await selectMessage();
+        },
+        onTapDown: storeTapDownPosition,
+        onSecondaryTapDown: storeTapDownPosition,
+        child: child,
+      );
 
   Widget showSentMessage(
     Message message, {
@@ -317,7 +295,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     final messageWidget = SentMessageBox(
       message: message,
       messageReplyBrief: messageReplyBrief,
-      onArrowIconClick: () => _showCustomMenu(context, message),
+      onArrowIconClick: _showCustomMenu,
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
       scrollToMessage: widget.scrollToMessage,
@@ -326,7 +304,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       storePosition: storeTapDownPosition,
       width: widget.width,
       onEdit: widget.onEdit,
-      showMenuDisable: widget.selectMultiMessageSubject.value,
+      showMenuDisable: _selected(),
     );
 
     return Row(
@@ -360,30 +338,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           )
         else
           messageWidget,
-        StreamBuilder<List<int>>(
-          stream: widget.selectedMessageListIndex,
-          builder: (context, snapshot) {
-            return AnimatedOpacity(
-              duration: AnimationSettings.superSlow,
-              opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
-              child: AnimatedContainer(
-                width: widget.selectMultiMessageSubject.value
-                    ? SELECTED_MESSAGE_CHECKBOX_WIDTH
-                    : 0,
-                duration: AnimationSettings.superSlow,
-                child: Checkbox(
-                  checkColor: Colors.white,
-                  fillColor: MaterialStateProperty.resolveWith(getColor),
-                  shape: const CircleBorder(),
-                  value: (snapshot.data ?? []).contains(widget.message.id),
-                  onChanged: (value) {
-                    widget.addForwardMessage();
-                  },
-                ),
-              ),
-            );
-          },
-        ),
+        _buildSelectedMessageStream(),
       ],
     );
   }
@@ -438,11 +393,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       scrollToMessage: widget.scrollToMessage,
       onUsernameClick: onUsernameClick,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
-      onArrowIconClick: () => _showCustomMenu(context, message),
+      onArrowIconClick: _showCustomMenu,
       storePosition: storeTapDownPosition,
       onEdit: widget.onEdit,
       width: widget.width,
-      showMenuDisable: widget.selectMultiMessageSubject.value,
+      showMenuDisable: _selected(),
     );
 
     return Padding(
@@ -477,40 +432,45 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             const SizedBox(width: 44),
           messageWidget,
           const Spacer(),
-          StreamBuilder<List<int>>(
-            stream: widget.selectedMessageListIndex,
-            builder: (context, snapshot) {
-              return AnimatedOpacity(
-                duration: AnimationSettings.superSlow,
-                opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
-                child: AnimatedContainer(
-                  width: widget.selectMultiMessageSubject.value
-                      ? SELECTED_MESSAGE_CHECKBOX_WIDTH
-                      : 0,
-                  duration: AnimationSettings.superSlow,
-                  child: Checkbox(
-                    checkColor: Colors.white,
-                    fillColor: MaterialStateProperty.resolveWith(getColor),
-                    shape: const CircleBorder(),
-                    value: (snapshot.data ?? []).contains(widget.message.id),
-                    onChanged: (value) {
-                      widget.addForwardMessage();
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
+          _buildSelectedMessageStream(),
         ],
       ),
     );
   }
 
-  Future<void> _showCustomMenu(
-    BuildContext context,
-    Message message,
-  ) async {
-    if (widget.menuDisabled || widget.selectMultiMessageSubject.value) {
+  Widget _buildSelectedMessageStream() => StreamBuilder<List<int>>(
+        stream: widget.selectedMessageListIndex,
+        builder: (context, snapshot) {
+          return AnimatedOpacity(
+            duration: AnimationSettings.superSlow,
+            opacity: snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.isNotEmpty
+                ? 1
+                : 0,
+            child: AnimatedContainer(
+              width: snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.isNotEmpty
+                  ? SELECTED_MESSAGE_CHECKBOX_WIDTH
+                  : 0,
+              duration: AnimationSettings.superSlow,
+              child: Checkbox(
+                checkColor: Colors.white,
+                fillColor: MaterialStateProperty.resolveWith(getColor),
+                shape: const CircleBorder(),
+                value: (snapshot.data ?? []).contains(widget.message.id),
+                onChanged: (value) {
+                  _addForwardMessage();
+                },
+              ),
+            ),
+          );
+        },
+      );
+
+  Future<void> _showCustomMenu() async {
+    if (widget.menuDisabled || _selected()) {
       return;
     }
 
@@ -518,10 +478,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       context: context,
       items: <PopupMenuEntry<OperationOnMessage>>[
         OperationOnMessageEntry(
-          message,
+          widget.message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,
           hasPermissionInGroup: widget.hasPermissionInGroup,
-          isPinned: widget.pinMessages.contains(message),
+          isPinned: widget.pinMessages.contains(widget.message),
         )
       ],
     );
@@ -694,7 +654,7 @@ class OperationOnMessageSelection {
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
       case MessageType.PAYMENT_INFORMATION:
-      }
+    }
   }
 
   void onResend() {
