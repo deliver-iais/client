@@ -37,7 +37,11 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   final _webViewPage = WebViewPage(key: _globalKeyWebViewPage);
   final _showCasePage = ShowcasePage(key: _globalKeyShowcasePage);
   final _settingsPage = SettingsPage(key: _globalKeySettingsPage);
-  final _settingsAvatar = CircleAvatarWidget(_authRepo.currentUserUid, 14);
+  final _settingsAvatar = CircleAvatarWidget(
+    _authRepo.currentUserUid,
+    14,
+    isHeroEnabled: false,
+  );
 
   @override
   void initState() {
@@ -78,8 +82,10 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   List<(Widget, Widget, String)> getNavigationButtons() {
     return [
       (_settingsAvatar, _settingsAvatar, _i18n.get("settings")),
-    (_buildNavigatorIconWithBadge( CupertinoIcons.bubble_left_bubble_right),
-    _buildNavigatorIconWithBadge( CupertinoIcons.bubble_left_bubble_right_fill),
+      (
+        _buildNavigatorIconWithBadge(CupertinoIcons.bubble_left_bubble_right),
+        _buildNavigatorIconWithBadge(
+            CupertinoIcons.bubble_left_bubble_right_fill),
         _i18n.get("chats")
       ),
       (
@@ -95,14 +101,16 @@ class NavigationBarPageState extends State<NavigationBarPage> {
         ),
     ];
   }
-  Widget _buildNavigatorIconWithBadge(IconData iconData){
+
+  Widget _buildNavigatorIconWithBadge(IconData iconData) {
     return Stack(
       children: <Widget>[
         SizedBox(
           width: 50,
           child: Icon(iconData, size: 27),
         ),
-         const UnreadRoomCounterWidget(useShakingBellTransition: true , usePosition: true),
+        const UnreadRoomCounterWidget(
+            useShakingBellTransition: true, usePosition: true),
       ],
     );
   }
