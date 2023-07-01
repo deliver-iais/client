@@ -59,6 +59,7 @@ class UserAppbarTitle extends StatelessWidget {
                           uid: userUid,
                           name: (snapshot.data)!.trim(),
                           style: theme.textTheme.titleMedium,
+                          showMuteIcon: true,
                         ),
                         TitleStatus(
                           currentRoomUid: userUid,

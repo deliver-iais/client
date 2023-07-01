@@ -166,7 +166,7 @@ class SettingsPageState extends State<SettingsPage> {
                         await _analyticsService.sendLogEvent(
                           "QRShare",
                         );
-                        final account =  _accountRepo.getAccount();
+                        final account = _accountRepo.getAccount();
                         // Forced
                         // ignore: use_build_context_synchronously
                         showQrCode(
@@ -199,8 +199,9 @@ class SettingsPageState extends State<SettingsPage> {
                       title: _i18n.get("saved_message"),
                       leading: const Icon(CupertinoIcons.bookmark),
                       onPressed: (context) async {
-                        _routingService
-                            .openRoom(_authRepo.currentUserUid.asString(), popAllBeforePush: true);
+                        _routingService.openRoom(
+                            _authRepo.currentUserUid.asString(),
+                            popAllBeforePush: true);
                       },
                     ),
                     SettingsTile(
@@ -219,7 +220,7 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile.switchTile(
                   title: _i18n.get("notification"),
-                  leading: const Icon(CupertinoIcons.bell),
+                  leading: const Icon(CupertinoIcons.volume_off),
                   switchValue: !settings.isAllNotificationDisabled.value,
                   onToggle: ({required newValue}) => setState(
                     () => settings.isAllNotificationDisabled.toggleValue(),
@@ -236,7 +237,7 @@ class SettingsPageState extends State<SettingsPage> {
                 if (isAndroidNative)
                   SettingsTile.switchTile(
                     title: _i18n.get("notification_advanced_mode"),
-                    leading: const Icon(CupertinoIcons.bell_circle_fill),
+                    leading: const Icon(CupertinoIcons.volume_down),
                     switchValue:
                         !settings.isNotificationAdvanceModeDisabled.value,
                     onToggle: ({required newValue}) => newValue
@@ -251,14 +252,15 @@ class SettingsPageState extends State<SettingsPage> {
                   subtitle: _i18n.language.languageName,
                   leading: const Icon(CupertinoIcons.globe),
                   onPressed: (context) {
-                    _routingService.openLanguageSettings(popAllBeforePush: true);
+                    _routingService.openLanguageSettings(
+                        popAllBeforePush: true);
                   },
                 ),
                 SettingsTile(
                   title: _i18n.get("security"),
                   leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-                  onPressed: (context) =>
-                      _routingService.openSecuritySettings(popAllBeforePush: true),
+                  onPressed: (context) => _routingService.openSecuritySettings(
+                      popAllBeforePush: true),
                 ),
                 SettingsTile(
                   title: _i18n.get("devices"),
@@ -281,14 +283,16 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("call"),
                     leading: const Icon(CupertinoIcons.phone),
                     releaseState: ReleaseState.NEW,
-                    onPressed: (context) => _routingService.openCallSetting(popAllBeforePush: true),
+                    onPressed: (context) =>
+                        _routingService.openCallSetting(popAllBeforePush: true),
                   ),
                 SettingsTile(
                   title: _i18n["power_saver"],
                   leading: const Icon(CupertinoIcons.battery_25),
                   releaseState: ReleaseState.NEW,
                   onPressed: (context) {
-                    _routingService.openPowerSaverSettings(popAllBeforePush: true);
+                    _routingService.openPowerSaverSettings(
+                        popAllBeforePush: true);
                   },
                 ),
               ],
@@ -328,8 +332,8 @@ class SettingsPageState extends State<SettingsPage> {
                 SettingsTile(
                   title: _i18n.get("connection_settings"),
                   leading: const Icon(CupertinoIcons.settings),
-                  onPressed: (context) =>
-                      _routingService.openConnectionSettingPage(popAllBeforePush: true),
+                  onPressed: (context) => _routingService
+                      .openConnectionSettingPage(popAllBeforePush: true),
                 ),
               ],
             ),
@@ -341,7 +345,8 @@ class SettingsPageState extends State<SettingsPage> {
                     title: 'Developer Page',
                     subtitle: "Log Level: ${settings.logLevel.value.name}",
                     leading: const Icon(Icons.bug_report_rounded),
-                    onPressed: (context) => _routingService.openDeveloperPage(popAllBeforePush: true),
+                    onPressed: (context) => _routingService.openDeveloperPage(
+                        popAllBeforePush: true),
                   )
                 ],
               ),
@@ -351,8 +356,8 @@ class SettingsPageState extends State<SettingsPage> {
                   title: _i18n.get("about_software"),
                   subtitle: "${_i18n.get("version")} $APP_VERSION",
                   leading: const Icon(Icons.info_outline_rounded),
-                  onPressed: (context) =>
-                      _routingService.openAboutSoftwarePage(popAllBeforePush: true),
+                  onPressed: (context) => _routingService.openAboutSoftwarePage(
+                      popAllBeforePush: true),
                 ),
                 SettingsTile(
                   title: _i18n.get("logout"),

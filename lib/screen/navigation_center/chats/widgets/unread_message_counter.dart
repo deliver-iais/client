@@ -13,12 +13,14 @@ class UnreadMessageCounterWidget extends StatefulWidget {
   final Uid roomUid;
   final int lastMessageId;
   final bool needBorder;
+  final bool checkIsRoomMuted;
 
   const UnreadMessageCounterWidget(
     this.roomUid,
     this.lastMessageId, {
     this.needBorder = false,
     super.key,
+    this.checkIsRoomMuted = false,
   });
 
   @override
@@ -29,7 +31,8 @@ class UnreadMessageCounterWidget extends StatefulWidget {
 class _UnreadMessageCounterWidgetState
     extends State<UnreadMessageCounterWidget> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final watchSeen = BehaviorSubject.seeded(0);
+  final _watchSeen = BehaviorSubject.seeded(0);
+  final _watchIsRoomMuted = BehaviorSubject.seeded(false);
   late BehaviorSubject<Seen> seenHandler = BehaviorSubject.seeded(
     Seen(
       uid: widget.roomUid.asString(),
@@ -38,6 +41,8 @@ class _UnreadMessageCounterWidgetState
     ),
   );
   Timer? timer;
+
+  late final Stream<Object> _streams;
 
   @override
   void initState() {
@@ -56,26 +61,39 @@ class _UnreadMessageCounterWidgetState
         .listen((event) {
           if (event == 1) {
             timer = Timer(const Duration(milliseconds: 100), () {
-              watchSeen.add(event);
+              _watchSeen.add(event);
             });
           } else {
             timer?.cancel();
-            watchSeen.add(event);
+            _watchSeen.add(event);
           }
         });
+
+    if (widget.checkIsRoomMuted) {
+      _roomRepo.watchIsRoomMuted(widget.roomUid).listen((event) {
+        _watchIsRoomMuted.add(event);
+      });
+    }
+
+    _streams = MergeStream([
+      _watchSeen,
+      if (widget.checkIsRoomMuted) _watchIsRoomMuted,
+    ]);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     getAndAddLastSeenToHandler();
-    return StreamBuilder<int>(
-      stream: watchSeen,
+    return StreamBuilder<Object>(
+      stream: _streams,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null && snapshot.data! > 0) {
+        if (_watchSeen.value > 0) {
           return CircularCounterWidget(
-            unreadCount: snapshot.data ?? 0,
+            unreadCount: _watchSeen.value,
             needBorder: widget.needBorder,
+            bgColor: _watchIsRoomMuted.value ? theme.disabledColor : null,
           );
         } else {
           return const SizedBox.shrink();
