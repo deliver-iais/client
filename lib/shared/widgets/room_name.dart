@@ -6,6 +6,7 @@ import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 
 class RoomName extends StatelessWidget {
@@ -18,6 +19,7 @@ class RoomName extends StatelessWidget {
   final int maxLines;
   final TextOverflow overflow;
   final bool forceToReturnSavedMessage;
+  final bool showMuteIcon;
 
   const RoomName({
     super.key,
@@ -28,6 +30,7 @@ class RoomName extends StatelessWidget {
     this.overflow = TextOverflow.ellipsis,
     this.status,
     this.forceToReturnSavedMessage = false,
+    this.showMuteIcon = false,
   });
 
   @override
@@ -69,7 +72,8 @@ class RoomName extends StatelessWidget {
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!) {
                   return Padding(
-                    padding: const EdgeInsetsDirectional.only(start: p4,bottom: 3),
+                    padding:
+                        const EdgeInsetsDirectional.only(start: p4, bottom: 3),
                     child: Icon(
                       CupertinoIcons.checkmark_seal_fill,
                       size: ((style ?? theme.textTheme.titleSmall)?.fontSize ??
@@ -81,7 +85,24 @@ class RoomName extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
               },
-            )
+            ),
+            if (showMuteIcon)
+              StreamBuilder<bool>(
+                stream: _roomRepo.watchIsRoomMuted(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.data == true) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: p8),
+                      child: Icon(
+                        CupertinoIcons.volume_off,
+                        size: 16,
+                        color: theme.disabledColor,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              )
           ],
         );
       },

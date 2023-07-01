@@ -109,7 +109,9 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
               child: Row(
                 children: [
                   Icon(
-                    isMuted ? CupertinoIcons.bell : CupertinoIcons.bell_slash,
+                    isMuted
+                        ? CupertinoIcons.volume_up
+                        : CupertinoIcons.volume_off,
                   ),
                   const SizedBox(width: p12),
                   Text(

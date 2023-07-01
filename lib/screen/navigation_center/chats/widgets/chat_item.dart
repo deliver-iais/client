@@ -246,6 +246,7 @@ class ChatItemState extends State<ChatItem> {
                     child: RoomName(
                       uid: widget.room.uid,
                       name: name,
+                      showMuteIcon: true,
                     ),
                   ),
                   if (widget.room.lastMessage != null)
@@ -339,6 +340,7 @@ class ChatItemState extends State<ChatItem> {
                       child: UnreadMessageCounterWidget(
                         widget.room.lastMessage!.roomUid,
                         widget.room.lastMessageId,
+                        checkIsRoomMuted: true,
                         key: ValueKey(
                           "unread-count${widget.room.uid}",
                         ),

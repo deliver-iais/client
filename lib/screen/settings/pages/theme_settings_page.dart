@@ -472,7 +472,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ),
                     SettingsTile.switchTile(
                       title: _i18n.get("play_in_chat_sounds"),
-                      leading: const Icon(CupertinoIcons.bell),
+                      leading: const Icon(CupertinoIcons.volume_off),
                       switchValue: settings.playInChatSounds.value,
                       onToggle: ({required newValue}) {
                         _analyticsService.sendLogEvent(
