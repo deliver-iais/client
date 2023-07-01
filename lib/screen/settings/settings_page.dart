@@ -200,8 +200,9 @@ class SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(CupertinoIcons.bookmark),
                       onPressed: (context) async {
                         _routingService.openRoom(
-                            _authRepo.currentUserUid.asString(),
-                            popAllBeforePush: true);
+                          _authRepo.currentUserUid.asString(),
+                          popAllBeforePush: true,
+                        );
                       },
                     ),
                     SettingsTile(
@@ -253,14 +254,16 @@ class SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(CupertinoIcons.globe),
                   onPressed: (context) {
                     _routingService.openLanguageSettings(
-                        popAllBeforePush: true);
+                      popAllBeforePush: true,
+                    );
                   },
                 ),
                 SettingsTile(
                   title: _i18n.get("security"),
                   leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                   onPressed: (context) => _routingService.openSecuritySettings(
-                      popAllBeforePush: true),
+                    popAllBeforePush: true,
+                  ),
                 ),
                 SettingsTile(
                   title: _i18n.get("devices"),
@@ -292,7 +295,8 @@ class SettingsPageState extends State<SettingsPage> {
                   releaseState: ReleaseState.NEW,
                   onPressed: (context) {
                     _routingService.openPowerSaverSettings(
-                        popAllBeforePush: true);
+                      popAllBeforePush: true,
+                    );
                   },
                 ),
               ],
@@ -346,7 +350,8 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: "Log Level: ${settings.logLevel.value.name}",
                     leading: const Icon(Icons.bug_report_rounded),
                     onPressed: (context) => _routingService.openDeveloperPage(
-                        popAllBeforePush: true),
+                      popAllBeforePush: true,
+                    ),
                   )
                 ],
               ),
@@ -357,7 +362,8 @@ class SettingsPageState extends State<SettingsPage> {
                   subtitle: "${_i18n.get("version")} $APP_VERSION",
                   leading: const Icon(Icons.info_outline_rounded),
                   onPressed: (context) => _routingService.openAboutSoftwarePage(
-                      popAllBeforePush: true),
+                    popAllBeforePush: true,
+                  ),
                 ),
                 SettingsTile(
                   title: _i18n.get("logout"),

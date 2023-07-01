@@ -85,7 +85,8 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       (
         _buildNavigatorIconWithBadge(CupertinoIcons.bubble_left_bubble_right),
         _buildNavigatorIconWithBadge(
-            CupertinoIcons.bubble_left_bubble_right_fill),
+          CupertinoIcons.bubble_left_bubble_right_fill,
+        ),
         _i18n.get("chats")
       ),
       (
@@ -110,7 +111,9 @@ class NavigationBarPageState extends State<NavigationBarPage> {
           child: Icon(iconData, size: 27),
         ),
         const UnreadRoomCounterWidget(
-            useShakingBellTransition: true, usePosition: true),
+          useShakingBellTransition: true,
+          usePosition: true,
+        ),
       ],
     );
   }
