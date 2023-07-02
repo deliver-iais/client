@@ -43,6 +43,8 @@ import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/channel_bottom_bar.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_message_room_footer.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_messages_in_room.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -65,6 +67,7 @@ import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
+import 'package:deliver/shared/widgets/room_message_result.dart';
 import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
@@ -421,7 +424,24 @@ class RoomPageState extends State<RoomPage>
                     },
                     child: event.connectionState == ConnectionState.waiting
                         ? const SizedBox.shrink()
-                        : buildMessagesListView(snapshot),
+                        : StreamBuilder<bool?>(
+                            stream: _searchMessageService.searchResult,
+                            builder: (context, srm) {
+                              if (srm.hasData &&
+                                  srm.data == true &&
+                                  !isLarge(context)) {
+                                return Column(
+                                  children: [
+                                    RoomMessageResult(
+                                      uid: room.uid,
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return buildMessagesListView(snapshot);
+                              }
+                            },
+                          ),
                   );
                 },
               ),
@@ -523,18 +543,6 @@ class RoomPageState extends State<RoomPage>
 
   @override
   void initState() {
-    // _searchBoxAnimationController = AnimationController(
-    //   duration: AnimationSettings.standard,
-    //   animationBehavior: AnimationBehavior.preserve,
-    //   vsync: this,
-    // );
-    // _searchBoxAnimation = Tween(begin: 40.0, end: 0.0).animate(
-    //   CurvedAnimation(
-    //     parent: _searchBoxAnimationController,
-    //     curve: Curves.easeInOut,
-    //   ),
-    // );
-
     _roomRepo.updateRoomInfo(widget.roomUid);
     _subscription = _appLifecycleService.lifecycleStream.listen((event) {
       _appIsActive = event == AppLifecycle.ACTIVE;
@@ -1193,7 +1201,27 @@ class RoomPageState extends State<RoomPage>
         },
       );
     } else {
-      return messageInput();
+      return StreamBuilder(
+        stream: _searchMessageService.inSearchMessageMode,
+        builder: (context, searchMessageMode) {
+          if (searchMessageMode.hasData && !isLarge(context)) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  SearchMessageRoomFooterWidget(uid: room.uid),
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return messageInput();
+          }
+        },
+      );
+
+      // return messageInput();
     }
   }
 
@@ -1259,7 +1287,16 @@ class RoomPageState extends State<RoomPage>
 
   PreferredSizeWidget buildAppbar() {
     return BlurredPreferredSizedWidget(
-      child: buildAppBar(),
+      child: StreamBuilder(
+        stream: _searchMessageService.inSearchMessageMode,
+        builder: (context, searchMessageMode) {
+          if (searchMessageMode.hasData && !isLarge(context)) {
+            return SearchMessageInRoomWidget(uid: room.uid);
+          } else {
+            return buildAppBar();
+          }
+        },
+      ),
     );
   }
 
@@ -1391,11 +1428,12 @@ class RoomPageState extends State<RoomPage>
                       child: Row(
                         children: [
                           IconButton(
-                              onPressed: () {
-                                _searchMessageService
-                                    .buildNavigationCenter(room.uid);
-                              },
-                              icon: const Icon(Icons.search)),
+                            onPressed: () {
+                              _searchMessageService.inSearchMessageMode
+                                  .add(room.uid);
+                            },
+                            icon: const Icon(Icons.search),
+                          ),
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
                               context,

@@ -5,6 +5,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_messages_in_room.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -17,6 +18,7 @@ import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -96,11 +98,11 @@ class NavigationCenterState extends State<NavigationCenter> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: const CreateMucFloatingActionButton(),
-        body: StreamBuilder(
-          stream: _searchMessageService.isSearchMessageMode,
+        body: StreamBuilder<Uid?>(
+          stream: _searchMessageService.inSearchMessageMode,
           builder: (context, searchMessageMode) {
-            if (searchMessageMode.hasData && searchMessageMode.data == true) {
-              return _searchMessageService.buildSearchMessagePage();
+            if (searchMessageMode.hasData && searchMessageMode.data != null  && isLarge(context)) {
+              return SearchMessageInRoomWidget(uid: searchMessageMode.data);
             } else {
               return StreamBuilder<List<Categories>>(
                 stream: _roomRepo.watchRoomsCategories(),
