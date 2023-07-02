@@ -1,5 +1,6 @@
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -15,19 +16,27 @@ class RoomCache {
 class CachingRepo {
   final _rooms = LruCache<Uid, RoomCache>(storage: InMemoryStorage(10));
 
-  final _roomNameCache = LruCache<Uid, String>(storage: InMemoryStorage(100));
+  final _roomNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
 
-  final _userIdCache = LruCache<Uid, String>(storage: InMemoryStorage(100));
+  final _userIdCache = LruCache<String, String>(storage: InMemoryStorage(100));
+
+  final _realNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
 
   void clearNamesCache() => _roomNameCache.clear();
 
-  String? getName(Uid uid) => _roomNameCache.get(uid);
+  String? getName(Uid uid) => _roomNameCache.get(uid.asString());
 
-  void setName(Uid uid, String name) => _roomNameCache.set(uid, name);
+  void setName(Uid uid, String name) =>
+      _roomNameCache.set(uid.asString(), name);
 
-  void setId(Uid uid, String id) => _userIdCache.set(uid, id);
+  void setId(Uid uid, String id) => _userIdCache.set(uid.asString(), id);
 
-  String? getId(Uid uid) => _userIdCache.get(uid);
+  String? getId(Uid uid) => _userIdCache.get(uid.asString());
+
+  void setRealName(Uid uid, String realName) =>
+      _realNameCache.set(uid.asString(), realName);
+
+  String? getRealName(Uid uid) => _realNameCache.get(uid.asString());
 
   final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(200));
 
@@ -55,13 +64,18 @@ class CachingRepo {
 
     if (r == null) {
       final rc = RoomCache();
-      // TODO(bitbeter): bug exists in here
-      // rc.widget.set(id, widget);
+      rc.widget.set(id, widget);
       _rooms.set(roomUid, rc);
     } else {
-      // TODO(bitbeter): bug exists in here
-      // r.widget.set(id, widget);
+      r.widget.set(id, widget);
     }
+  }
+
+  void clearAllMessageWidgetForRoom(
+    Uid roomUid,
+  ) {
+    final r = _rooms.get(roomUid);
+    r?.widget.clear();
   }
 
   void setMessageDimensionsSize(Uid roomId, int id, Size size) {

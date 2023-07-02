@@ -22,6 +22,7 @@ import 'package:deliver/screen/muc/pages/broadcast_status_page.dart';
 import 'package:deliver/screen/muc/pages/member_selection_page.dart';
 import 'package:deliver/screen/muc/pages/muc_info_determination_page.dart';
 import 'package:deliver/screen/navigation_bar/navigation_bar_page.dart';
+import 'package:deliver/screen/navigation_center/announcement/announcement_page.dart';
 import 'package:deliver/screen/profile/pages/custom_notification_sound_selection.dart';
 import 'package:deliver/screen/profile/pages/manage_page.dart';
 import 'package:deliver/screen/profile/pages/profile_page.dart';
@@ -58,6 +59,7 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/resizable/resizable_widget.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
@@ -109,6 +111,8 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
+const _announcement = AnnouncementPage(key: ValueKey("/announcement"));
 
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
@@ -245,6 +249,13 @@ class RoutingService {
       "showcasePage_open",
     );
     _push(_showcase);
+  }
+
+  void openAnnouncementPage() {
+    _analyticsService.sendLogEvent(
+      "announcementPage_open",
+    );
+    _push(_announcement);
   }
 
   void openConnectionSettingPage({bool popAllBeforePush = false}) {
@@ -655,7 +666,7 @@ class RoutingService {
                 (c, animation, secondaryAnimation) {
           try {
             if (isLarge(c)) {
-              return _empty;
+              return const AnnouncementPage();
             } else {
               return _navigationBar;
             }
@@ -691,12 +702,20 @@ class RoutingService {
   Future<void> logout() async {
     final authRepo = GetIt.I.get<AuthRepo>();
     if (authRepo.isLoggedIn()) {
-      GetIt.I.get<FireBaseServices>().deleteToken();
-      GetIt.I.get<CoreServices>().closeConnection();
-      await GetIt.I.get<AccountRepo>().logOut();
+      try {
+        try {
+          await SharedDaoStorage.clear();
+          InMemoryStorage.clear();
+          SharedPreferenceStorage.clear();
+          await PersistentVariable.initAll();
+        } catch (_) {}
+        GetIt.I.get<FireBaseServices>().deleteToken();
+        GetIt.I.get<CoreServices>().closeConnection();
+        await GetIt.I.get<AccountRepo>().logOut();
+        await GetIt.I.get<DBManager>().deleteDB();
+        await IsarManager.deleteIsarDB();
+      } catch (_) {}
       await authRepo.logout();
-      await GetIt.I.get<DBManager>().deleteDB();
-      await IsarManager.deleteIsarDB();
       popAll();
       await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(

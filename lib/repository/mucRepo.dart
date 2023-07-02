@@ -2,6 +2,7 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/broadcast_member.dart';
@@ -119,7 +120,12 @@ class MucRepo {
     ChannelType? channelType,
     String? channelId,
   }) async {
-    unawaited(addMucMember(mucUid, memberUidList));
+    unawaited(
+      addMucMember(
+        mucUid,
+        memberUidList,
+      ),
+    );
     unawaited(
       _insertNewMucInfoToDb(
         mucUid,
@@ -143,11 +149,13 @@ class MucRepo {
     }
   }
 
-  Future<void> _fetchMucMembers(
+  Future<List<Member>> fetchMucMembers(
     Uid mucUid,
     int len,
   ) async {
     try {
+      final pageSize = max(min(len, 15), 1);
+
       var i = 0;
       var membersSize = 0;
 
@@ -158,15 +166,17 @@ class MucRepo {
         switch (mucUid.asMucCategories()) {
           case MucCategories.BROADCAST:
             final result =
-                await _mucServices.getBroadcastMembers(mucUid, 15, i);
+                await _mucServices.getBroadcastMembers(mucUid, pageSize, i);
             finish = result.$2;
             fetchedMemberPage = result.$1;
           case MucCategories.CHANNEL:
-            final result = await _mucServices.getChannelMembers(mucUid, 15, i);
+            final result =
+                await _mucServices.getChannelMembers(mucUid, pageSize, i);
             finish = result.$2;
             fetchedMemberPage = result.$1;
           case MucCategories.GROUP:
-            final result = await _mucServices.getGroupMembers(mucUid, 15, i);
+            final result =
+                await _mucServices.getGroupMembers(mucUid, pageSize, i);
             finish = result.$2;
             fetchedMemberPage = result.$1;
           case MucCategories.NONE:
@@ -188,7 +198,7 @@ class MucRepo {
           }
         }
 
-        i = i + 15;
+        i = i + pageSize;
       }
       unawaited(
         _updateMemberListOfMUC(
@@ -197,13 +207,17 @@ class MucRepo {
         ),
       );
       if (len <= membersSize) {
-        return _mucDao.updateMuc(
+        await _mucDao.updateMuc(
           uid: mucUid,
           population: membersSize,
         );
       }
+
+      return members;
     } catch (e) {
       _logger.e(e);
+
+      return [];
     }
   }
 
@@ -295,7 +309,7 @@ class MucRepo {
               (channel.requesterRole == muc_pb.Role.ADMIN ||
                   channel.requesterRole == muc_pb.Role.OWNER)) {
             unawaited(
-              _fetchMucMembers(
+              fetchMucMembers(
                 mucUid,
                 channel.population.toInt(),
               ),
@@ -319,7 +333,7 @@ class MucRepo {
           );
           if (needToFetchMembers) {
             unawaited(
-              _fetchMucMembers(mucUid, broadcast.population.toInt()),
+              fetchMucMembers(mucUid, broadcast.population.toInt()),
             );
           }
         }
@@ -352,7 +366,7 @@ class MucRepo {
 
           if (needToFetchMembers) {
             unawaited(
-              _fetchMucMembers(
+              fetchMucMembers(
                 mucUid,
                 group.population.toInt(),
               ),
@@ -669,6 +683,13 @@ class MucRepo {
     try {
       var usersAddCode = 0;
       final members = <muc_pb.Member>[];
+      var role = muc_pb.Role.MEMBER;
+      if (mucUid.isChannel()) {
+        final mucInfo = await _mucDao.get(mucUid);
+        role = mucInfo!.mucType == MucType.Private
+            ? muc_pb.Role.MEMBER
+            : muc_pb.Role.NONE;
+      }
       for (final uid in memberUids) {
         members.add(
           muc_pb.Member()
@@ -676,7 +697,7 @@ class MucRepo {
             ..role = uid.isBot()
                 ? muc_pb.Role.ADMIN
                 : mucUid.isChannel()
-                    ? muc_pb.Role.NONE
+                    ? role
                     : muc_pb.Role.MEMBER,
         );
       }
@@ -775,7 +796,7 @@ class MucRepo {
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
               if (_authRepo.isCurrentUser(member.memberUid)) {
-                final a = ( _accountRepo.getAccount())!;
+                final a = (_accountRepo.getAccount())!;
                 return UidIdName(
                   uid: member.memberUid,
                   id: a.username,
@@ -784,7 +805,7 @@ class MucRepo {
               } else {
                 var uidIdName = await GetIt.I
                     .get<RoomRepo>()
-                    .getUidIdName(member.memberUid);
+                    .getUidIdNameOfMucMember(member.memberUid);
                 if (uidIdName != null && uidIdName.uid.isBot()) {
                   uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
                 }
@@ -792,10 +813,7 @@ class MucRepo {
               }
             })
             .where(
-              (uidIdName) =>
-                  uidIdName != null &&
-                  uidIdName.id != null &&
-                  uidIdName.id!.isNotEmpty,
+              (uidIdName) => uidIdName != null,
             )
             .toList();
     final fuzzyName = _getFuzzyList(
@@ -808,6 +826,11 @@ class MucRepo {
     final fuzzyId =
         _getFuzzyList(uidIdNameList.map((event) => event!.id).toList(), query);
 
+    final fuzzyRealName = _getFuzzyList(
+      uidIdNameList.map((event) => event!.realName).toList(),
+      query,
+    );
+
     return uidIdNameList
         .where(
           (e) =>
@@ -815,7 +838,10 @@ class MucRepo {
               (fuzzyId.isNotEmpty && fuzzyId.contains(e!.id)) ||
               (e!.name != null &&
                   fuzzyName.isNotEmpty &&
-                  fuzzyName.contains(e.name)),
+                  fuzzyName.contains(e.name)) ||
+              (e.realName != null &&
+                  fuzzyRealName.isNotEmpty &&
+                  fuzzyRealName.contains(e.realName)),
         )
         .toList()
         .map((e) => e!.uid)

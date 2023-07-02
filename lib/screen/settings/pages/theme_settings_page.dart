@@ -147,7 +147,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         roomId: FAKE_USER_UID,
         lastSeenMessageId: messages.length - 1,
         pinMessages: const [],
-        selectMultiMessageSubject: BehaviorSubject.seeded(false),
         hasPermissionInGroup: false,
         hasPermissionInChannel: BehaviorSubject.seeded(false),
         width: snapshot.maxWidth,
@@ -156,7 +155,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         onPin: () {},
         onUnPin: () {},
         onReply: () {},
-        addForwardMessage: () {},
         scrollToMessage: (a, b) {},
         onDelete: () {},
         selectedMessageListIndex: BehaviorSubject(),
@@ -474,7 +472,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ),
                     SettingsTile.switchTile(
                       title: _i18n.get("play_in_chat_sounds"),
-                      leading: const Icon(CupertinoIcons.bell),
+                      leading: const Icon(CupertinoIcons.volume_off),
                       switchValue: settings.playInChatSounds.value,
                       onToggle: ({required newValue}) {
                         _analyticsService.sendLogEvent(

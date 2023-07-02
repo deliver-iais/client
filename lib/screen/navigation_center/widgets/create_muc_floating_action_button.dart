@@ -5,8 +5,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreateMucFloatingActionButton extends StatefulWidget {
   const CreateMucFloatingActionButton({Key? key}) : super(key: key);
@@ -42,7 +42,7 @@ class _CreateMucFloatingActionButtonState
                   ),
                   _buildMenuItems(
                     "new_broadcast",
-                    const Icon(MdiIcons.broadcast),
+                    const Icon(FontAwesomeIcons.towerBroadcast),
                   ),
                   _buildMenuItems(
                     "new_group",

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -13,8 +15,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
-class CircleAvatarWidget extends StatelessWidget {
-  final Uid contactUid;
+class CircleAvatarWidget extends StatefulWidget {
+  final Uid uid;
   final double radius;
   final String forceText;
   final bool showSavedMessageLogoIfNeeded;
@@ -23,16 +25,9 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool forceToUpdateAvatar;
   final Widget? noAvatarWidget;
   final BorderRadius? borderRadius;
-  final _streamKey = GlobalKey();
-  final _futureKey = GlobalKey();
-  late final _globalKey = GlobalObjectKey(contactUid.asString());
 
-  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _authRepo = GetIt.I.get<AuthRepo>();
-
-  CircleAvatarWidget(
-    this.contactUid,
+  const CircleAvatarWidget(
+    this.uid,
     this.radius, {
     super.key,
     this.borderRadius,
@@ -44,56 +39,102 @@ class CircleAvatarWidget extends StatelessWidget {
     this.noAvatarWidget,
   });
 
-  bool isSavedMessage() =>
-      showSavedMessageLogoIfNeeded &&
-      _authRepo.isCurrentUser(contactUid);
+  @override
+  State<CircleAvatarWidget> createState() => _CircleAvatarWidgetState();
+}
 
-  bool isSystem() => contactUid.category == Categories.SYSTEM;
+class _CircleAvatarWidgetState extends State<CircleAvatarWidget> {
+  static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _broadcastService = GetIt.I.get<BroadcastService>();
+
+  Uid get uid => widget.uid;
+
+  final _streamKey = GlobalKey();
+
+  final _futureKey = GlobalKey();
+
+  late final Future<List<Uid>?> broadcastUsersFuture;
+
+  late final Future<String> nameFuture;
+
+  late final Stream<String?> lastAvatarFilePathStream;
+
+  late final _globalKey = GlobalObjectKey(uid.asString());
+
+  bool isSavedMessage() =>
+      widget.showSavedMessageLogoIfNeeded && _authRepo.isCurrentUser(uid);
+
+  bool isSystem() => uid.category == Categories.SYSTEM;
+
+  bool isBroadcast() => uid.category == Categories.BROADCAST;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme =
-        ExtraTheme.of(context).messageColorScheme(contactUid);
+  void initState() {
+    if (uid.isBroadcast()) {
+      broadcastUsersFuture =
+          _broadcastService.getFirstPageOfBroadcastMembers(uid);
+    }
 
-    var boxDecoration = BoxDecoration(
-      shape: BoxShape.circle,
-      color: scheme.primary,
-    );
-
-    if (borderRadius != null) {
-      boxDecoration = BoxDecoration(
-        borderRadius: borderRadius,
-        color: scheme.primary,
+    if (!isSystem() &&
+        !isSavedMessage() &&
+        !isBroadcast() &&
+        settings.showAvatarImages.value) {
+      lastAvatarFilePathStream = _avatarRepo.getLastAvatarFilePathStream(
+        uid,
+        forceToUpdate: widget.forceToUpdateAvatar,
       );
     }
 
-    return HeroMode(
-      enabled: settings.showAnimations.value && isHeroEnabled,
-      child: Hero(
-        tag: contactUid.asString(),
-        child: Container(
-          key: isWeb ? null : _globalKey,
-          width: radius * 2,
-          height: radius * 2,
-          clipBehavior: Clip.hardEdge,
-          decoration: boxDecoration,
-          child: getImageWidget(contactUid, scheme.onPrimary),
-        ),
-      ),
-    );
+    nameFuture = _roomRepo.getName(uid);
+    super.initState();
   }
 
-  Widget getImageWidget(Uid uid, Color textColor) {
-    if (uid.category == Categories.SYSTEM) {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = ExtraTheme.of(context).messageColorScheme(uid);
+
+    var boxDecoration = BoxDecoration(
+      shape: BoxShape.circle,
+      color: isBroadcast() ? null : scheme.primary,
+    );
+
+    if (widget.borderRadius != null) {
+      boxDecoration = BoxDecoration(
+        borderRadius: widget.borderRadius,
+        color: scheme.primary,
+      );
+    }
+    final imageContainer = Container(
+      key: isWeb ? null : _globalKey,
+      width: widget.radius * 2,
+      height: widget.radius * 2,
+      clipBehavior: Clip.hardEdge,
+      decoration: boxDecoration,
+      child: getImageWidget(scheme.onPrimary, context),
+    );
+    return widget.isHeroEnabled
+        ? HeroMode(
+            enabled: settings.showAnimations.value,
+            child: Hero(tag: uid.asString(), child: imageContainer),
+          )
+        : imageContainer;
+  }
+
+  Widget getImageWidget(Color textColor, BuildContext context) {
+    if (isSystem()) {
       return const Image(
         image: AssetImage('assets/images/logo.webp'),
       );
     } else if (isSavedMessage()) {
       return Icon(
         CupertinoIcons.bookmark,
-        size: radius,
+        size: widget.radius,
         color: textColor,
       );
+    } else if (isBroadcast()) {
+      return buildBroadcastAvatar(context);
     } else {
       if (!settings.showAvatarImages.value) {
         return showAvatarAlternative(textColor);
@@ -101,11 +142,8 @@ class CircleAvatarWidget extends StatelessWidget {
 
       return StreamBuilder<String?>(
         key: _streamKey,
-        initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-        stream: _avatarRepo.getLastAvatarFilePathStream(
-          contactUid,
-          forceToUpdate: forceToUpdateAvatar,
-        ),
+        initialData: _avatarRepo.fastForwardAvatarFilePath(uid),
+        stream: lastAvatarFilePathStream,
         builder: (context, snapshot) => builder(context, snapshot, textColor),
       );
     }
@@ -149,17 +187,17 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget showAvatarAlternative(Color textColor) =>
-      noAvatarWidget ?? showDisplayName(textColor);
+      widget.noAvatarWidget ?? showDisplayName(textColor);
 
   Widget showDisplayName(Color textColor) {
-    if (forceText.isNotEmpty) {
-      return avatarAlt(forceText.trim(), textColor);
+    if (widget.forceText.isNotEmpty) {
+      return avatarAlt(widget.forceText.trim(), textColor);
     }
     return DefaultTextStyle(
-      style: TextStyle(color: textColor, fontSize: radius, height: 1),
+      style: TextStyle(color: textColor, fontSize: widget.radius, height: 1),
       child: FutureBuilder<String>(
-        initialData: _roomRepo.fastForwardName(contactUid),
-        future: _roomRepo.getName(contactUid),
+        initialData: _roomRepo.fastForwardName(uid),
+        future: nameFuture,
         key: _futureKey,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
@@ -174,7 +212,7 @@ class CircleAvatarWidget extends StatelessWidget {
   }
 
   Widget avatarAlt(String name, Color textColor) {
-    if (hideName) {
+    if (widget.hideName) {
       return const SizedBox.shrink();
     }
     return Center(
@@ -183,8 +221,56 @@ class CircleAvatarWidget extends StatelessWidget {
             ? name.substring(0, 1).toUpperCase()
             : name.toUpperCase(),
         maxLines: 1,
-        style: TextStyle(color: textColor, fontSize: radius, height: 1),
+        style: TextStyle(color: textColor, fontSize: widget.radius, height: 1),
       ),
+    );
+  }
+
+  Widget buildBroadcastAvatar(BuildContext buildContext) {
+    return FutureBuilder<List<Uid>?>(
+      future: broadcastUsersFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          final recipientUidList = snapshot.data!;
+          final avatarCount =
+              recipientUidList.length > 4 ? 4 : recipientUidList.length;
+          final avatarSize =
+              (widget.radius * (avatarCount + 1 / (avatarCount * 2))) /
+                  avatarCount;
+          return SizedBox(
+            height: widget.radius * 2,
+            width: widget.radius * 2,
+            child: Stack(
+              children: List.generate(avatarCount, (index) {
+                final angle = (2 * pi * index) / avatarCount;
+                final dx = (widget.radius - avatarSize / 2) * (1 + cos(angle));
+                final dy = (widget.radius - avatarSize / 2) * (1 - sin(angle));
+
+                return Positioned(
+                  left: dx,
+                  top: dy,
+                  child: Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: CircleAvatarWidget(
+                      recipientUidList[index],
+                      20,
+                      isHeroEnabled: false,
+                    ),
+                  ),
+                );
+              }),
+            ),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 }

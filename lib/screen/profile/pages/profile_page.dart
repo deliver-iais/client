@@ -42,9 +42,9 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -90,6 +90,7 @@ class ProfilePageState extends State<ProfilePage>
   void initState() {
     _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
+    _mucRepo.fetchMucInfo(widget.roomUid);
     super.initState();
   }
 
@@ -716,7 +717,8 @@ class ProfilePageState extends State<ProfilePage>
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
                   title: _i18n.get("broad_casts_status"),
-                  leading: const Icon(MdiIcons.broadcast, size: 20),
+                  leading:
+                      const Icon(FontAwesomeIcons.towerBroadcast, size: 20),
                   onPressed: (_) =>
                       _routingService.openBroadcastStatsPage(widget.roomUid),
                 ),

@@ -17,6 +17,8 @@ import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+typedef InitFunction = Future<void> Function();
+
 /// Variable Interface
 abstract class _Variable<T> {
   final BehaviorSubject<T> _value;
@@ -51,7 +53,7 @@ abstract class _Variable<T> {
 abstract class Storage {
   final SharedKeys key;
 
-  const Storage(this.key);
+  Storage(this.key);
 
   void save(String value);
 
@@ -59,11 +61,24 @@ abstract class Storage {
 }
 
 /// Persistent Variable Interface
-abstract class _PersistentVariable<T> extends _Variable<T> {
+abstract class PersistentVariable<T> extends _Variable<T> {
+  static final initCallbackList = <InitFunction>[];
+
   final Storage storage;
 
-  _PersistentVariable(this.storage, {required super.defaultValue}) {
+  PersistentVariable(this.storage, {required super.defaultValue}) {
+    initCallbackList.add(() async {
+      _value.add(stringToType(null, defaultValue: defaultValue));
+    });
     init();
+  }
+
+  static Future<void> initAll() async {
+    for (final callback in initCallbackList) {
+      try {
+        unawaited(callback());
+      } catch (_) {}
+    }
   }
 
   Future<void> init() async {
@@ -93,7 +108,7 @@ abstract class _PersistentVariable<T> extends _Variable<T> {
 }
 
 /// String Persistent Variable Interface
-abstract class _StringPersistent extends _PersistentVariable<String> {
+abstract class _StringPersistent extends PersistentVariable<String> {
   _StringPersistent(super.storage, {required super.defaultValue});
 
   @override
@@ -105,7 +120,7 @@ abstract class _StringPersistent extends _PersistentVariable<String> {
 }
 
 /// Boolean Persistent Variable Interface
-abstract class _BooleanPersistent extends _PersistentVariable<bool> {
+abstract class _BooleanPersistent extends PersistentVariable<bool> {
   _BooleanPersistent(super.storage, {required super.defaultValue});
 
   void toggleValue() => set(!value);
@@ -119,7 +134,7 @@ abstract class _BooleanPersistent extends _PersistentVariable<bool> {
 }
 
 /// Number Persistent Variable Interface
-abstract class _NumberPersistent<T extends num> extends _PersistentVariable<T> {
+abstract class _NumberPersistent<T extends num> extends PersistentVariable<T> {
   _NumberPersistent(super.storage, {required super.defaultValue});
 
   @override
@@ -144,7 +159,7 @@ typedef FromJson<T> = T Function(String json);
 typedef ToJson<T> = String Function(T instance);
 
 /// Json String Persistent Variable Interface
-abstract class _JsonPersistent<T> extends _PersistentVariable<T> {
+abstract class _JsonPersistent<T> extends PersistentVariable<T> {
   final FromJson<T> fromJson;
   final ToJson<T> toJson;
 
@@ -172,7 +187,7 @@ abstract class _JsonPersistent<T> extends _PersistentVariable<T> {
 }
 
 /// Enum Persistent Variable Interface
-abstract class _EnumPersistent<T extends Enum> extends _PersistentVariable<T> {
+abstract class _EnumPersistent<T extends Enum> extends PersistentVariable<T> {
   final List<T> enumValues;
 
   _EnumPersistent(
@@ -204,6 +219,8 @@ class MemoryStorage {
   void save(SharedKeys key, String? value) {
     map[key] = value;
   }
+
+  void clear() => map.clear();
 }
 
 /// In Memory Implementation of Storage
@@ -217,6 +234,8 @@ class InMemoryStorage extends Storage {
 
   @override
   void save(String value) => _mem.save(key, value);
+
+  static void clear() => _mem.clear();
 }
 
 /// ShareDao Implementation of Storage
@@ -227,6 +246,7 @@ class SharedDaoStorage extends Storage {
   SharedDaoStorage(super.key);
 
   static Future<void> init() async {
+    _mem.clear();
     final m = await _sharedDao.toMap();
 
     for (final e in SharedKeys.values) {
@@ -239,6 +259,11 @@ class SharedDaoStorage extends Storage {
 
   @override
   void save(String value) => _sharedDao.put(key, value);
+
+  static Future<void> clear() async {
+    await _sharedDao.clear();
+    return init();
+  }
 }
 
 /// SharedPreference Implementation of Storage
@@ -274,6 +299,8 @@ class SharedPreferenceStorage extends Storage {
 
   @override
   Future<void> save(String value) => _prefs.setString(key.name, value);
+
+  static void clear() => _prefs.clear();
 }
 
 // Persistent Variable Definitions

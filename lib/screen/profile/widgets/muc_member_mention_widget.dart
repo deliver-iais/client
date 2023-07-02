@@ -22,7 +22,7 @@ class MucMemberMentionWidget extends StatefulWidget {
 
 class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
   String? username;
-  String? name;
+  String? realName;
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
@@ -37,8 +37,8 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
           onTap: () {
             if ((username != null && username!.isNotEmpty)) {
               widget.onIdClick("@${username!}");
-            } else if (name != null && name!.isNotEmpty) {
-              widget.onNameClick(name: name!, node: widget.member.node);
+            } else if (realName != null && realName!.isNotEmpty) {
+              widget.onNameClick(name: realName!, node: widget.member.node);
             }
           },
           child: Row(
@@ -46,21 +46,40 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
               CircleAvatarWidget(widget.member, 18),
               const SizedBox(width: 8),
               FutureBuilder(
-                future: _roomRepo.getUidIdName(widget.member),
+                future: _roomRepo.getUidIdNameOfMucMember(widget.member),
                 builder: (c, uidIdNameSnapShot) {
                   if (uidIdNameSnapShot.hasData &&
                       uidIdNameSnapShot.data != null) {
-                    name = uidIdNameSnapShot.data!.name;
                     username = uidIdNameSnapShot.data!.id;
+                    realName = uidIdNameSnapShot.data!.realName;
+                    final name = uidIdNameSnapShot.data!.name;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          (name ?? username)!.trim(),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
+                        Row(
+                          children: [
+                            if (name != null || username != null)
+                              Text(
+                                (name ?? username)!.trim(),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            if (realName != null &&
+                                realName!.isNotEmpty &&
+                                realName != name)
+                              Text(
+                                (realName)!.trim(),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                ),
+                              ),
+                          ],
                         ),
                         const SizedBox(
                           width: 10,
@@ -79,44 +98,6 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildGestureDetector({
-    required String username,
-    String? name,
-    required BuildContext context,
-  }) {
-    final theme = Theme.of(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          widget.onIdClick(username);
-        },
-        child: Row(
-          children: [
-            CircleAvatarWidget(widget.member, 18),
-            const SizedBox(width: 8),
-            Text(
-              ((name ?? username).isNotEmpty ? name : username)!.trim(),
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            if (name != null)
-              Text(
-                "@$username",
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(color: theme.colorScheme.outline),
-              ),
-          ],
         ),
       ),
     );

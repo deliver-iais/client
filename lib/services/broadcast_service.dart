@@ -11,6 +11,7 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
@@ -41,6 +42,7 @@ class BroadcastService {
   final _broadcastDao = GetIt.I.get<BroadcastDao>();
   final _logger = GetIt.I.get<Logger>();
   final _mucDao = GetIt.I.get<MucDao>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   MessageRepo? _messageRepo;
 
   Future<void> startBroadcast(
@@ -253,6 +255,20 @@ class BroadcastService {
         message,
       );
     }
+  }
+
+  Future<List<Uid>?> getFirstPageOfBroadcastMembers(Uid broadcastUid) async {
+    var recipientUidList = (await _mucDao.getMembersFirstPage(broadcastUid, 4))
+        .map((e) => e.memberUid)
+        .toList();
+
+    if (recipientUidList.isEmpty) {
+      recipientUidList = (await _mucRepo.fetchMucMembers(broadcastUid, 4))
+          .map((e) => e.memberUid)
+          .toList();
+    }
+
+    return recipientUidList;
   }
 
   bool _hasAnotherRunningBroadcast(Uid roomId) {

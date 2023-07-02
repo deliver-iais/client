@@ -25,9 +25,9 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hovering/hovering.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RoomWrapper {
@@ -246,6 +246,7 @@ class ChatItemState extends State<ChatItem> {
                     child: RoomName(
                       uid: widget.room.uid,
                       name: name,
+                      showMuteIcon: true,
                     ),
                   ),
                   if (widget.room.lastMessage != null)
@@ -295,7 +296,6 @@ class ChatItemState extends State<ChatItem> {
                                             snapshot.data!.hiddenMessageCount;
                                       }
                                     }
-
                                     if (widget.room.draft.isNotEmpty &&
                                         unreadCount == 0) {
                                       return buildDraftMessageWidget(
@@ -321,8 +321,8 @@ class ChatItemState extends State<ChatItem> {
                   ),
                   if (widget.room.mentionsId.isNotEmpty)
                     Container(
-                      width: 20,
-                      height: 20,
+                      width: 16,
+                      height: 16,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
                         shape: BoxShape.circle,
@@ -340,6 +340,7 @@ class ChatItemState extends State<ChatItem> {
                       child: UnreadMessageCounterWidget(
                         widget.room.lastMessage!.roomUid,
                         widget.room.lastMessageId,
+                        checkIsRoomMuted: true,
                         key: ValueKey(
                           "unread-count${widget.room.uid}",
                         ),
@@ -392,9 +393,9 @@ class ChatItemState extends State<ChatItem> {
   IconData? _getChatIconDataByUid(Uid uid) {
     switch (uid.category) {
       case Categories.BOT:
-        return MdiIcons.robotOutline;
+        return FontAwesomeIcons.robot;
       case Categories.BROADCAST:
-        return MdiIcons.broadcast;
+        return CupertinoIcons.antenna_radiowaves_left_right;
       case Categories.CHANNEL:
         return Icons.campaign_outlined;
       case Categories.GROUP:
@@ -420,9 +421,11 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildDraftMessageWidget(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: [
-        RichText(
+    return Flexible(
+      fit: FlexFit.tight,
+      child: SizedBox(
+        width: double.infinity,
+        child: RichText(
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.fade,
@@ -440,7 +443,7 @@ class ChatItemState extends State<ChatItem> {
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

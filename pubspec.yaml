@@ -29,9 +29,9 @@ dependency_overrides:
   # https://github.com/creativecreatorormaybenot/wakelock/pull/203 is merged.
   wakelock_windows:
     git:
-      url: https://github.com/timsneath/wakelock
-      ref: win32-v5
-      path: wakelock_windows
+      url: https://github.com/chandrabezzo/wakelock.git # repository
+      ref: main # branch
+      path: wakelock_windows/ # folder
 
 dependencies:
   all_sensors: 0.4.2
@@ -66,7 +66,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.15.10
+      ref: tags/v1.15.13
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.4.1
   desktop_lifecycle: 0.1.0
@@ -93,10 +93,11 @@ dependencies:
   #  firebase_crashlytics: 3.0.12
   firebase_messaging: 14.4.1
   fixnum: 1.1.0
+  flip_panel_plus: 1.0.0+3
   flutter:
     sdk: flutter
-  flutter_app_badger: 1.5.0
   flutter_animate: 4.1.1+1
+  flutter_app_badger: 1.5.0
   flutter_audio_waveforms: 1.2.1+8
   flutter_blurhash: 0.7.0
   flutter_dropzone: 3.0.5
@@ -159,7 +160,6 @@ dependencies:
   map_launcher: 2.5.0+1
   marquee: 2.2.3
   material_color_utilities: 0.2.0
-  material_design_icons_flutter: 6.0.7096
   meta: 1.9.1
   metadata_fetch: 0.4.1
   mime: 1.0.4
@@ -217,7 +217,7 @@ dependencies:
       url: https://github.com/EsmaeilDansi/Telephony.git
   tuple: 2.0.1
   universal_html: 2.2.3
-  url_launcher: 6.1.10
+  url_launcher: 6.1.11
   uuid: 3.0.7
   vibration: 1.7.6
   video_player: 2.6.1

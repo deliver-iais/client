@@ -13,7 +13,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class MemberHiveDaoImpl extends MucDao {
+class MucDaoImpl extends MucDao {
   @override
   Future<void> delete(Uid uid) async {
     final box = await _openMuc();
@@ -69,7 +69,7 @@ class MemberHiveDaoImpl extends MucDao {
   Future<void> saveMember(Member member) async {
     final box = await _openMembers(member.mucUid.asString());
 
-    return box.put(member.memberUid, member.toHive());
+    return box.put(member.memberUid.asString(), member.toHive());
   }
 
   @override
@@ -112,10 +112,10 @@ class MemberHiveDaoImpl extends MucDao {
     MucRole? currentUserRole,
   }) async {
     final box = await _openMuc();
-    final muc = box.get(uid) ?? MucHive(uid: uid.asString());
+    final muc = box.get(uid.asString()) ?? MucHive(uid: uid.asString());
     box
         .put(
-          uid,
+          uid.asString(),
           muc.copyWith(
             uid: uid.asString(),
             info: info,
@@ -144,5 +144,12 @@ class MemberHiveDaoImpl extends MucDao {
     Uid uid,
   ) {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Member>> getMembersFirstPage(Uid mucUid, int pageSize) async {
+    final box = await _openMembers(mucUid.asString());
+
+    return box.values.take(pageSize).map((e) => e.fromHive()).toList();
   }
 }

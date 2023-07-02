@@ -50,7 +50,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           onDetect: (b) {
             for (final barcode in b.barcodes) {
               final uri = barcode.rawValue;
-              if (uri != null && _urlHandlerService.isApplicationUrl(uri)) {
+              if (uri != null && UrlHandlerService.isApplicationUrl(uri)) {
                 stop();
                 _urlHandlerService.handleApplicationUri(uri);
                 break;

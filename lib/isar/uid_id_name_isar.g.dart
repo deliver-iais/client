@@ -32,8 +32,13 @@ const UidIdNameIsarSchema = CollectionSchema(
       name: r'name',
       type: IsarType.string,
     ),
-    r'uid': PropertySchema(
+    r'realName': PropertySchema(
       id: 3,
+      name: r'realName',
+      type: IsarType.string,
+    ),
+    r'uid': PropertySchema(
+      id: 4,
       name: r'uid',
       type: IsarType.string,
     )
@@ -60,6 +65,7 @@ int _uidIdNameIsarEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.id.length * 3;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.realName.length * 3;
   bytesCount += 3 + object.uid.length * 3;
   return bytesCount;
 }
@@ -73,7 +79,8 @@ void _uidIdNameIsarSerialize(
   writer.writeString(offsets[0], object.id);
   writer.writeLong(offsets[1], object.lastUpdateTime);
   writer.writeString(offsets[2], object.name);
-  writer.writeString(offsets[3], object.uid);
+  writer.writeString(offsets[3], object.realName);
+  writer.writeString(offsets[4], object.uid);
 }
 
 UidIdNameIsar _uidIdNameIsarDeserialize(
@@ -86,7 +93,8 @@ UidIdNameIsar _uidIdNameIsarDeserialize(
     id: reader.readStringOrNull(offsets[0]) ?? "",
     lastUpdateTime: reader.readLongOrNull(offsets[1]) ?? 0,
     name: reader.readStringOrNull(offsets[2]) ?? "",
-    uid: reader.readString(offsets[3]),
+    realName: reader.readStringOrNull(offsets[3]) ?? "",
+    uid: reader.readString(offsets[4]),
   );
   return object;
 }
@@ -105,6 +113,8 @@ P _uidIdNameIsarDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset) ?? "") as P;
     case 3:
+      return (reader.readStringOrNull(offset) ?? "") as P;
+    case 4:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -585,6 +595,142 @@ extension UidIdNameIsarQueryFilter
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'realName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'realName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'realName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'realName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      realNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'realName',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition> uidEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -766,6 +912,19 @@ extension UidIdNameIsarQuerySortBy
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> sortByRealName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'realName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
+      sortByRealNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'realName', Sort.desc);
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> sortByUid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uid', Sort.asc);
@@ -831,6 +990,19 @@ extension UidIdNameIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> thenByRealName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'realName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
+      thenByRealNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'realName', Sort.desc);
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> thenByUid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uid', Sort.asc);
@@ -867,6 +1039,13 @@ extension UidIdNameIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QDistinct> distinctByRealName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'realName', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QDistinct> distinctByUid(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -898,6 +1077,12 @@ extension UidIdNameIsarQueryProperty
   QueryBuilder<UidIdNameIsar, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, String, QQueryOperations> realNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'realName');
     });
   }
 

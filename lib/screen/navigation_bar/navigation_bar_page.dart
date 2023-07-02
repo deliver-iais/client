@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_counter.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
@@ -11,7 +12,6 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -37,7 +37,11 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   final _webViewPage = WebViewPage(key: _globalKeyWebViewPage);
   final _showCasePage = ShowcasePage(key: _globalKeyShowcasePage);
   final _settingsPage = SettingsPage(key: _globalKeySettingsPage);
-  final _settingsAvatar = CircleAvatarWidget(_authRepo.currentUserUid, 14);
+  final _settingsAvatar = CircleAvatarWidget(
+    _authRepo.currentUserUid,
+    14,
+    isHeroEnabled: false,
+  );
 
   @override
   void initState() {
@@ -63,7 +67,13 @@ class NavigationBarPageState extends State<NavigationBarPage> {
               width: 2,
             )
           ],
-          Expanded(child: navigationBarWidgets[_currentPageIndex]),
+          Expanded(
+            child: IndexedStack(
+              index: _currentPageIndex,
+              children: navigationBarWidgets,
+              //Expanded(child: navigationBarWidgets[_currentPageIndex]),
+            ),
+          ),
         ],
       ),
     );
@@ -73,8 +83,10 @@ class NavigationBarPageState extends State<NavigationBarPage> {
     return [
       (_settingsAvatar, _settingsAvatar, _i18n.get("settings")),
       (
-        const Icon(CupertinoIcons.bubble_left_bubble_right),
-        const Icon(CupertinoIcons.bubble_left_bubble_right_fill),
+        _buildNavigatorIconWithBadge(CupertinoIcons.bubble_left_bubble_right),
+        _buildNavigatorIconWithBadge(
+          CupertinoIcons.bubble_left_bubble_right_fill,
+        ),
         _i18n.get("chats")
       ),
       (
@@ -84,11 +96,26 @@ class NavigationBarPageState extends State<NavigationBarPage> {
       ),
       if (WEBVIEW_IS_AVAILABLE && isMobileNative)
         (
-          const Icon(MdiIcons.shoppingOutline),
-          const Icon(MdiIcons.shopping),
+          const Icon(Icons.store_outlined),
+          const Icon(Icons.store),
           _i18n.get("store")
         ),
     ];
+  }
+
+  Widget _buildNavigatorIconWithBadge(IconData iconData) {
+    return Stack(
+      children: <Widget>[
+        SizedBox(
+          width: 50,
+          child: Icon(iconData, size: 27),
+        ),
+        const UnreadRoomCounterWidget(
+          useShakingBellTransition: true,
+          usePosition: true,
+        ),
+      ],
+    );
   }
 
   NavigationBar? getNavigationBar(BuildContext context) {

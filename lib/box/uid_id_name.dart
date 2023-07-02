@@ -12,6 +12,7 @@ class UidIdName with _$UidIdName {
     @UidJsonKey required Uid uid,
     String? id,
     String? name,
+    String? realName,
     @Default(0) int lastUpdateTime,
   }) = _UidIdName;
 

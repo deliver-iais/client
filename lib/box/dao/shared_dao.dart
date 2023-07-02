@@ -10,6 +10,8 @@ abstract class SharedDao {
 
   Future<void> put(SharedKeys key, String value);
 
+  Future<void> clear();
+
   Future<Map<String, String>> toMap();
 }
 
@@ -39,5 +41,12 @@ class SharedDaoImpl extends SharedDao {
   Future<Map<String, String>> toMap() async {
     final box = await _open();
     return box.toMap().map((key, value) => MapEntry(key.toString(), value));
+  }
+
+  @override
+  Future<void> clear() async {
+    final box = await _open();
+
+    return box.clear();
   }
 }

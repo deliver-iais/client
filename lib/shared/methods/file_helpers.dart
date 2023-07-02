@@ -170,6 +170,11 @@ extension FileProtoExtensions on file_proto.File {
 
   bool isVoiceFileProto() =>
       isAudioFileProto() && audioWaveform.data.isNotEmpty;
+
+  bool isGifFileProto() => isImageFileType(type);
+
+  bool isJsonFileProto() =>
+      isJsonFileType(type) && isFileNameMimeMatchFileType(name, type);
 }
 
 extension MimeExtensions on String? {
@@ -258,6 +263,35 @@ bool isAudioFileType(String fileType) {
       lt.contains("mp4") ||
       lt.contains("ogg") ||
       lt.contains("opus");
+}
+
+bool isJsonFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+  return (lt.contains('json'));
+}
+
+bool isGifFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+  return (lt.contains('gif'));
+}
+
+bool isWsFileType(String fileType) {
+  final lt = fileType.toLowerCase();
+  return (lt.endsWith("ws"));
+}
+
+enum AnimationType { JSON, WS, GIF, NONE }
+
+AnimationType animationFileType(String fileType) {
+  if (isGifFileType(fileType)) {
+    return AnimationType.GIF;
+  } else if (isWsFileType(fileType)) {
+    return AnimationType.WS;
+  } else if (isJsonFileType(fileType)) {
+    return AnimationType.JSON;
+  } else {
+    return AnimationType.NONE;
+  }
 }
 
 extension ImagePath on String {

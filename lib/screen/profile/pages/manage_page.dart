@@ -97,7 +97,8 @@ class MucManagePageState extends State<MucManagePage>
             Column(
               children: [
                 buildHeaderMucCard(theme),
-                if (_profileAvatar.canSetAvatar)
+                if (_profileAvatar.canSetAvatar &&
+                    !widget.roomUid.isBroadcast())
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,

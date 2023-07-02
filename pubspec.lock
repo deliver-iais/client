@@ -583,11 +583,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.15.10"
-      resolved-ref: "752258f866b23307825956bd1c55408eb3795730"
+      ref: "tags/v1.15.13"
+      resolved-ref: "5b939cd1298fdda50259d68658a166e41e9e3050"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.15.10"
+    version: "1.15.13"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -886,6 +886,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  flip_panel_plus:
+    dependency: "direct main"
+    description:
+      name: flip_panel_plus
+      sha256: f4f31b7c1ecd4bcb3c2cc297c908b44a620c29dd57c9a3b7d5c82a48d2ae6018
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0+3"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1668,14 +1676,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.0"
-  material_design_icons_flutter:
-    dependency: "direct main"
-    description:
-      name: material_design_icons_flutter
-      sha256: "8ef8562d16e747b2d93e5da5c2508931588939c5c00ebc8e2768e803db7dfd3c"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.0.7096"
   meta:
     dependency: "direct main"
     description:
@@ -2553,10 +2553,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: "75f2846facd11168d007529d6cd8fcb2b750186bea046af9711f10b907e1587e"
+      sha256: eb1e00ab44303d50dd487aab67ebc575456c146c6af44422f9c13889984c00f3
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.10"
+    version: "6.1.11"
   url_launcher_android:
     dependency: transitive
     description:
@@ -2721,9 +2721,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: wakelock_windows
-      ref: win32-v5
-      resolved-ref: "2a9bca63a540771f241d688562351482b2cf234c"
-      url: "https://github.com/timsneath/wakelock"
+      ref: main
+      resolved-ref: f3610d6c246098fee74463de09434ed81fc2a7c8
+      url: "https://github.com/chandrabezzo/wakelock.git"
     source: git
     version: "0.2.2"
   watcher:

@@ -77,4 +77,6 @@ extension StringExtension on String {
   String convertUidStringToDaoKey() {
     return replaceAll(":", "-");
   }
+
+  String ifEmpty(String replace) => isEmpty ? replace : this;
 }

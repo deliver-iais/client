@@ -179,7 +179,8 @@ class WebViewPageState extends State<WebViewPage> {
 
     pullToRefreshController = PullToRefreshController(
       settings: PullToRefreshSettings(
-        color: Colors.blue,
+        color: settings.themeData.colorScheme.primaryContainer,
+        backgroundColor: settings.themeData.colorScheme.onPrimaryContainer,
       ),
       onRefresh: () async {
         if (defaultTargetPlatform == TargetPlatform.android) {
