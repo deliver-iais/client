@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
@@ -566,6 +567,9 @@ class CallBottomRowState extends State<CallBottomRow>
   }
 
   Future<void> _loadDevices(List<MediaDevice> devices) async {
+    if (isMobileNative) {
+      await Permission.bluetoothConnect.request();
+    }
     _audioInputs = devices.where((d) => d.kind == 'audioinput').toList();
     _audioOutputs = devices.where((d) => d.kind == 'audiooutput').toList();
   }
@@ -580,5 +584,4 @@ class CallBottomRowState extends State<CallBottomRow>
     await Hardware.instance.selectAudioOutput(device);
     setState(() {});
   }
-
 }
