@@ -48,10 +48,8 @@ class _SearchMessageRoomFooterWidgetState
                       final index = messagesList.data!.indexWhere(
                         (message) => message.id == currentId.data,
                       );
-                      if (currentId.data == -1) {
-                        _searchMessageService.foundMessageId
-                            .add(messagesList.data!.first.id!);
-                      }
+                      _searchMessageService.foundMessageId
+                          .add(messagesList.data!.first.id!);
                       return GestureDetector(
                         onTap: () {
                           _searchMessageService.searchResult.add(true);
