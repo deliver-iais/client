@@ -97,6 +97,7 @@ class CallRepo {
   bool _isCaller = false;
   bool _isVideo = false;
   bool _isConnected = false;
+  bool _isAnswerRecivied = false;
   bool _isMicMuted = false;
   bool _isDCReceived = false;
   bool _reconnectTry = false;
@@ -190,9 +191,10 @@ class CallRepo {
         case CallEventV2_Type.answer:
           if (from == to) {
             unawaited(_dispose());
-          } else if (!_isConnected) {
+          } else if (!_isAnswerRecivied) {
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
+            _isAnswerRecivied = true;
           }
           // else if (callEvent.answer.candidates == "RenegotiationNeeded") {
           //   _handleRenegotiationAnswer(callEvent.answer.body);
@@ -1942,16 +1944,20 @@ class CallRepo {
       _logger.i("end call in service");
 
       await _cleanLocalStream();
-      //await _cleanRtpSender();
-      if (_peerConnection != null) {
-        await _peerConnection?.close();
-        await _peerConnection?.dispose();
-        _peerConnection = null;
-      }
       _candidate = [];
     } catch (e) {
       _logger.e(e);
     } finally {
+      try {
+        if (_peerConnection != null) {
+          await _peerConnection?.close();
+          await _peerConnection?.dispose();
+          _peerConnection = null;
+        }
+      } catch (e) {
+        _logger.e(e);
+      }
+
       _roomUid = null;
       //End all Timers
       try {
@@ -1969,6 +1975,7 @@ class CallRepo {
       _isCaller = false;
       _isOfferReady = false;
       _isDCReceived = false;
+      _isAnswerRecivied = false;
       _callDuration = 0;
       _startCallTime = 0;
       _callDuration = 0;

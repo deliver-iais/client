@@ -110,7 +110,7 @@ dependencies:
     sdk: flutter
   flutter_map: 3.1.0
   flutter_staggered_grid_view: 0.6.2
-  flutter_webrtc: 0.9.31
+  flutter_webrtc: 0.9.34
   flutter_window_close: 0.2.2
   fluttertoast: 8.2.1
   font_awesome_flutter: 10.4.0
@@ -154,7 +154,7 @@ dependencies:
   just_audio: 0.9.31
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
-  livekit_client: 1.3.2
+  livekit_client: 1.3.5
   logger: 1.2.2
   lottie: 2.2.0
   map_launcher: 2.5.0+1
@@ -172,7 +172,7 @@ dependencies:
   path_provider_android: 2.0.27
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.3
-  permission_handler: 10.2.0
+  permission_handler: 10.4.1
   persian_datetime_picker:
     git:
       ref: master

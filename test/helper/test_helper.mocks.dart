@@ -1042,10 +1042,16 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         [uid],
       )) as String?);
   @override
-  _i30.Future<_i37.UidIdName?> getUidIdName(_i5.Uid? uid) =>
+  String? getCachedContactName(_i5.Uid? uid) =>
+      (super.noSuchMethod(Invocation.method(
+        #getCachedContactName,
+        [uid],
+      )) as String?);
+  @override
+  _i30.Future<_i37.UidIdName?> getUidIdNameOfMucMember(_i5.Uid? uid) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getUidIdName,
+          #getUidIdNameOfMucMember,
           [uid],
         ),
         returnValue: _i30.Future<_i37.UidIdName?>.value(),
@@ -1235,6 +1241,14 @@ class MockRoomRepo extends _i1.Mock implements _i35.RoomRepo {
         ),
         returnValue: _i30.Stream<List<_i34.Room>>.empty(),
       ) as _i30.Stream<List<_i34.Room>>);
+  @override
+  _i30.Stream<List<String>?> watchAllUnreadRooms() => (super.noSuchMethod(
+        Invocation.method(
+          #watchAllUnreadRooms,
+          [],
+        ),
+        returnValue: _i30.Stream<List<String>?>.empty(),
+      ) as _i30.Stream<List<String>?>);
   @override
   _i30.Stream<List<_i38.Categories>> watchRoomsCategories() =>
       (super.noSuchMethod(
@@ -2263,13 +2277,13 @@ class MockSeenDao extends _i1.Mock implements _i50.SeenDao {
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
   @override
-  _i30.Stream<List<String?>> watchAllRoomSeen() => (super.noSuchMethod(
+  _i30.Stream<List<String>> watchAllRoomSeen() => (super.noSuchMethod(
         Invocation.method(
           #watchAllRoomSeen,
           [],
         ),
-        returnValue: _i30.Stream<List<String?>>.empty(),
-      ) as _i30.Stream<List<String?>>);
+        returnValue: _i30.Stream<List<String>>.empty(),
+      ) as _i30.Stream<List<String>>);
   @override
   _i30.Future<void> deleteRoomSeen(String? uid) => (super.noSuchMethod(
         Invocation.method(
@@ -4606,6 +4620,15 @@ class MockI18N extends _i1.Mock implements _i64.I18N {
         ),
         returnValue: _i10.TextDirection.rtl,
       ) as _i10.TextDirection);
+  @override
+  _i21.CrossAxisAlignment getCrossAxisAlignment(String? v) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getCrossAxisAlignment,
+          [v],
+        ),
+        returnValue: _i21.CrossAxisAlignment.start,
+      ) as _i21.CrossAxisAlignment);
 }
 
 /// A class which mocks [MuteDao].
@@ -4689,6 +4712,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i67.UidIdNameDao {
     _i5.Uid? uid, {
     String? id,
     String? name,
+    String? realName,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4697,6 +4721,7 @@ class MockUidIdNameDao extends _i1.Mock implements _i67.UidIdNameDao {
           {
             #id: id,
             #name: name,
+            #realName: realName,
           },
         ),
         returnValue: _i30.Future<void>.value(),
@@ -4889,7 +4914,7 @@ class MockContactRepo extends _i1.Mock implements _i68.ContactRepo {
         returnValue: _i30.Future<_i70.Contact?>.value(),
       ) as _i30.Future<_i70.Contact?>);
   @override
-  _i30.Future<String?> getContactFromServer(
+  _i30.Future<({String name, String realName})> getContactFromServer(
     _i5.Uid? contactUid, {
     bool? ignoreInsertingOrUpdatingContactDao = false,
   }) =>
@@ -4902,8 +4927,8 @@ class MockContactRepo extends _i1.Mock implements _i68.ContactRepo {
                 ignoreInsertingOrUpdatingContactDao
           },
         ),
-        returnValue: _i30.Future<String?>.value(),
-      ) as _i30.Future<String?>);
+        returnValue: _i30.Future<({String name, String realName})>.value(null),
+      ) as _i30.Future<({String name, String realName})>);
   @override
   _i30.Future<bool> contactIsExist(
     int? countryCode,
@@ -5217,6 +5242,21 @@ class MockMucRepo extends _i1.Mock implements _i74.MucRepo {
         ),
         returnValue: _i30.Future<bool>.value(false),
       ) as _i30.Future<bool>);
+  @override
+  _i30.Future<List<_i71.Member>> fetchMucMembers(
+    _i5.Uid? mucUid,
+    int? len,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #fetchMucMembers,
+          [
+            mucUid,
+            len,
+          ],
+        ),
+        returnValue: _i30.Future<List<_i71.Member>>.value(<_i71.Member>[]),
+      ) as _i30.Future<List<_i71.Member>>);
   @override
   _i30.Future<String> getGroupJointToken({required _i5.Uid? groupUid}) =>
       (super.noSuchMethod(
@@ -6489,7 +6529,7 @@ class MockCallService extends _i1.Mock implements _i18.CallService {
           #findCallEventType,
           [eventCallType],
         ),
-        returnValue: _i92.CallType.VIDEO,
+        returnValue: _i92.CallType.AUDIO,
       ) as _i92.CallType);
   @override
   _i16.CallEvent_CallType findProtoCallEventType(
@@ -6866,6 +6906,21 @@ class MockMucDao extends _i1.Mock implements _i98.MucDao {
         Invocation.method(
           #getAllMembers,
           [mucUid],
+        ),
+        returnValue: _i30.Future<List<_i71.Member>>.value(<_i71.Member>[]),
+      ) as _i30.Future<List<_i71.Member>>);
+  @override
+  _i30.Future<List<_i71.Member>> getMembersFirstPage(
+    _i5.Uid? mucUid,
+    int? pageSize,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getMembersFirstPage,
+          [
+            mucUid,
+            pageSize,
+          ],
         ),
         returnValue: _i30.Future<List<_i71.Member>>.value(<_i71.Member>[]),
       ) as _i30.Future<List<_i71.Member>>);
@@ -7635,14 +7690,6 @@ class MockUrlHandlerService extends _i1.Mock
         returnValueForMissingStub: null,
       );
   @override
-  bool isApplicationUrl(String? uri) => (super.noSuchMethod(
-        Invocation.method(
-          #isApplicationUrl,
-          [uri],
-        ),
-        returnValue: false,
-      ) as bool);
-  @override
   String normalizeApplicationUrl(String? uri) => (super.noSuchMethod(
         Invocation.method(
           #normalizeApplicationUrl,
@@ -7935,6 +7982,14 @@ class MockRoutingService extends _i1.Mock implements _i102.RoutingService {
   void openShowcase() => super.noSuchMethod(
         Invocation.method(
           #openShowcase,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  void openAnnouncementPage() => super.noSuchMethod(
+        Invocation.method(
+          #openAnnouncementPage,
           [],
         ),
         returnValueForMissingStub: null,
