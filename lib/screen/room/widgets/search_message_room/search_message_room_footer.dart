@@ -22,7 +22,7 @@ class _SearchMessageRoomFooterWidgetState
     extends State<SearchMessageRoomFooterWidget> {
   static final _i18n = GetIt.I.get<I18N>();
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
-  late List<int?> allMessageIds = [];
+  late List<int?> _allMessageIds = [];
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +40,7 @@ class _SearchMessageRoomFooterWidgetState
               ),
               builder: (context, messagesList) {
                 if (messagesList.hasData && messagesList.data!.isNotEmpty) {
-                  _searchMessageService.foundMessageId
-                      .add(messagesList.data!.first.id!);
-                  allMessageIds =
+                  _allMessageIds =
                       messagesList.data!.map((message) => message.id).toList();
                   return StreamBuilder<int>(
                     stream: _searchMessageService.foundMessageId,
@@ -50,6 +48,10 @@ class _SearchMessageRoomFooterWidgetState
                       final index = messagesList.data!.indexWhere(
                         (message) => message.id == currentId.data,
                       );
+                      if (currentId.data == -1) {
+                        _searchMessageService.foundMessageId
+                            .add(messagesList.data!.first.id!);
+                      }
                       return GestureDetector(
                         onTap: () {
                           _searchMessageService.searchResult.add(true);
@@ -59,25 +61,43 @@ class _SearchMessageRoomFooterWidgetState
                             IconButton(
                               onPressed: () {
                                 if (index < messagesList.data!.length) {
-                                  _onDownButtonPressed(currentId.data!);
+                                  _onUpButtonPressed(currentId.data!);
                                 }
                               },
-                              icon: const Icon(
-                                Icons.keyboard_arrow_down_sharp,
+                              icon: Icon(
+                                color: index == messagesList.data!.length - 1
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onInverseSurface
+                                    : Theme.of(context).primaryColor,
+                                Icons.keyboard_arrow_up_sharp,
                               ),
                             ),
                             IconButton(
                               onPressed: () {
                                 if (index >= 0) {
-                                  _onUpButtonPressed(currentId.data!);
+                                  _onDownButtonPressed(currentId.data!);
                                 }
                               },
-                              icon: const Icon(Icons.keyboard_arrow_up_sharp),
+                              icon: Icon(
+                                Icons.keyboard_arrow_down_sharp,
+                                color: index == 0
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onInverseSurface
+                                    : Theme.of(context).primaryColor,
+                              ),
                             ),
                             Expanded(
                               child: Text(
                                 "${index + 1} ${_i18n.get("of")} ${messagesList.data!.length}",
                                 textAlign: TextAlign.end,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context).primaryColor,
+                                    ),
                               ),
                             ),
                           ],
@@ -90,19 +110,29 @@ class _SearchMessageRoomFooterWidgetState
                     children: [
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.keyboard_arrow_down_sharp,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
                         ),
                       ),
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(Icons.keyboard_arrow_up_sharp),
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                       ),
                       Expanded(
-                        child: Text(
-                          _i18n.get("no_results"),
-                          textAlign: TextAlign.end,
-                        ),
+                        child: _searchMessageService.searchResult.value == true
+                            ? const SizedBox()
+                            : Text(
+                                _i18n.get("no_results"),
+                                textAlign: TextAlign.end,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                              ),
                       ),
                     ],
                   );
@@ -131,17 +161,17 @@ class _SearchMessageRoomFooterWidgetState
   }
 
   void _onDownButtonPressed(int currentId) {
-    final currentIndex = allMessageIds.indexOf(currentId);
+    final currentIndex = _allMessageIds.indexOf(currentId);
     if (currentIndex > 0) {
-      final previousId = allMessageIds[currentIndex - 1];
+      final previousId = _allMessageIds[currentIndex - 1];
       _searchMessageService.foundMessageId.add(previousId!);
     }
   }
 
   void _onUpButtonPressed(int currentId) {
-    final currentIndex = allMessageIds.indexOf(currentId);
-    if (currentIndex < allMessageIds.length - 1) {
-      final nextId = allMessageIds[currentIndex + 1];
+    final currentIndex = _allMessageIds.indexOf(currentId);
+    if (currentIndex < _allMessageIds.length - 1) {
+      final nextId = _allMessageIds[currentIndex + 1];
       _searchMessageService.foundMessageId.add(nextId!);
     }
   }

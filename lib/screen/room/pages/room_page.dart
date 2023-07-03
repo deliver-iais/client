@@ -645,7 +645,9 @@ class RoomPageState extends State<RoomPage>
             .asBroadcastStream();
 
     _messageSubscription = _searchMessageService.foundMessageId.listen((value) {
-      scrollToFoundMessage(value);
+      if(value != -1) {
+        scrollToFoundMessage(value);
+      }
     });
 
     super.initState();
@@ -1191,42 +1193,38 @@ class RoomPageState extends State<RoomPage>
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomUid.category == Categories.BOT) {
-      return StreamBuilder<Room?>(
-        stream: _room,
-        builder: (c, s) {
-          if (s.hasData &&
-              s.data!.uid.category == Categories.BOT &&
-              s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-            return BotStartWidget(botUid: widget.roomUid);
-          } else {
-            return messageInput();
-          }
-        },
-      );
-    } else {
-      return StreamBuilder(
-        stream: _searchMessageService.inSearchMessageMode,
-        builder: (context, searchMessageMode) {
-          if (searchMessageMode.hasData && !isLarge(context)) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  SearchMessageRoomFooterWidget(uid: room.uid),
-                  SizedBox(
-                    height: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return messageInput();
-          }
-        },
-      );
-
-      // return messageInput();
-    }
+    return StreamBuilder(
+      stream: _searchMessageService.inSearchMessageMode,
+      builder: (context, searchMessageMode) {
+        if (searchMessageMode.hasData && !isLarge(context)) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SearchMessageRoomFooterWidget(uid: room.uid),
+                SizedBox(
+                  height: MediaQuery.of(context).viewInsets.bottom,
+                ),
+              ],
+            ),
+          );
+        } else if (widget.roomUid.category == Categories.BOT) {
+          return StreamBuilder<Room?>(
+            stream: _room,
+            builder: (c, s) {
+              if (s.hasData &&
+                  s.data!.uid.category == Categories.BOT &&
+                  s.data!.lastMessageId - s.data!.firstMessageId == 0) {
+                return BotStartWidget(botUid: widget.roomUid);
+              } else {
+                return messageInput();
+              }
+            },
+          );
+        } else {
+          return messageInput();
+        }
+      },
+    );
   }
 
   Widget messageInput() => StreamBuilder(
@@ -1309,6 +1307,13 @@ class RoomPageState extends State<RoomPage>
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
+        IconButton(
+          onPressed: () {
+            _searchMessageService.inSearchMessageMode
+                .add(room.uid);
+          },
+          icon: const Icon(Icons.search),
+        ),
         if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<List<int>>(
             stream: _selectedMessageListIndex,
@@ -1428,13 +1433,6 @@ class RoomPageState extends State<RoomPage>
                       ),
                       child: Row(
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              _searchMessageService.inSearchMessageMode
-                                  .add(room.uid);
-                            },
-                            icon: const Icon(Icons.search),
-                          ),
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
                               context,

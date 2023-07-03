@@ -72,6 +72,7 @@ class _BuildMemberWidgetState extends State<BuildMemberWidget> {
               onPressed: () => {
                 _searchMessageService.inSearchMessageMode.add(null),
                 _searchMessageService.text.add(null),
+                _searchMessageService.foundMessageId.add(-1),
                 if (!isLarge(context)) {_routingServices.pop()}
               },
             )
