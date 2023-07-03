@@ -5,10 +5,12 @@ import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/screen/webview/webview_page.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver_public_protocol/pub/v1/lb.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -94,13 +96,23 @@ class NavigationBarPageState extends State<NavigationBarPage> {
         const Icon(CupertinoIcons.house_fill),
         _i18n.get("home")
       ),
-      if (WEBVIEW_IS_AVAILABLE && isMobileNative)
+      if (WEBVIEW_IS_AVAILABLE && isMobileNative && _showStore())
         (
           const Icon(Icons.store_outlined),
           const Icon(Icons.store),
           _i18n.get("store")
         ),
     ];
+  }
+
+  bool _showStore() {
+    try {
+      return GetInfoRes.fromJson(settings.servicesInfo.value)
+          .clientSettings
+          .showStore;
+    } catch (e) {
+      return false;
+    }
   }
 
   Widget _buildNavigatorIconWithBadge(IconData iconData) {
