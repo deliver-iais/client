@@ -157,7 +157,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         onReply: () {},
         scrollToMessage: (a, b) {},
         onDelete: () {},
-        selectedMessageListIndex: BehaviorSubject(),
+        selectedMessageListIndex: BehaviorSubject.seeded([]),
       ),
     );
   }

@@ -14,25 +14,25 @@ class CallTypeAdapter extends TypeAdapter<CallType> {
   CallType read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return CallType.VIDEO;
-      case 1:
         return CallType.AUDIO;
+      case 1:
+        return CallType.VIDEO;
       case 2:
         return CallType.GROUP_VIDEO;
       case 3:
         return CallType.GROUP_AUDIO;
       default:
-        return CallType.VIDEO;
+        return CallType.AUDIO;
     }
   }
 
   @override
   void write(BinaryWriter writer, CallType obj) {
     switch (obj) {
-      case CallType.VIDEO:
+      case CallType.AUDIO:
         writer.writeByte(0);
         break;
-      case CallType.AUDIO:
+      case CallType.VIDEO:
         writer.writeByte(1);
         break;
       case CallType.GROUP_VIDEO:

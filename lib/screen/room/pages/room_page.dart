@@ -64,13 +64,12 @@ import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
-import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
+import 'package:deliver/shared/widgets/room_appbar_title.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/room_message_result.dart';
 import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -1521,15 +1520,9 @@ class RoomPageState extends State<RoomPage>
               },
             );
           } else {
-            if (widget.roomUid.isMuc()) {
-              return MucAppbarTitle(mucUid: widget.roomUid);
-            } else if (widget.roomUid.category == Categories.BOT) {
-              return BotAppbarTitle(botUid: widget.roomUid);
-            } else {
-              return UserAppbarTitle(
-                userUid: widget.roomUid,
-              );
-            }
+            return RoomAppbarTitle(
+              uid: widget.roomUid,
+            );
           }
         },
       ),
