@@ -154,6 +154,10 @@ class Settings {
     defaultValue: isAutoNightModeEnable.value &&
         PlatformDispatcher.instance.platformBrightness == Brightness.dark,
   );
+  late final autoUpdateIsEnable = BooleanPersistent(
+    SharedKeys.SHARED_DAO_AUTO_UPDATE_IS_ENABLE.inSharedDaoStorage(),
+    defaultValue: false,
+  );
   late final showDeveloperDetails = BooleanPersistent(
     SharedKeys.SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS
         .inMemoryStorage(),

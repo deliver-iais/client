@@ -27,6 +27,7 @@ import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/link.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
@@ -40,7 +41,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
 
@@ -775,16 +775,5 @@ class OperationOnMessageSelection {
       toastText: _i18n.get("report_message"),
       toastContext: context,
     );
-  }
-
-  void onShowInFolder(String path) {
-    final shell = Shell();
-    if (isWindowsNative) {
-      shell.run('explorer.exe /select,"${path.replaceAll("/", "\\")}"');
-    } else if (isLinuxNative) {
-      shell.run('nautilus "$path"');
-    } else if (isMacOSNative) {
-      shell.run('open $path');
-    }
   }
 }
