@@ -54,6 +54,7 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   final SearchController _searchBoxController = SearchController();
   final ScrollController _sliverScrollController = ScrollController();
+  final _sliverScrollControllerOffset = BehaviorSubject<double>.seeded(0);
   final Map<Categories?, ScrollController> _chatsScrollController = {};
   TabController? _tabController;
 
@@ -72,6 +73,9 @@ class NavigationCenterState extends State<NavigationCenter>
       if (event.isNotEmpty) {
         _routingService.openRoom(event);
       }
+    });
+    _sliverScrollController.addListener(() {
+      _sliverScrollControllerOffset.add(_sliverScrollController.offset);
     });
 
     modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
@@ -214,6 +218,7 @@ class NavigationCenterState extends State<NavigationCenter>
               },
               body: Column(
                 children: <Widget>[
+                  NewVersion.newVersionDownloadingStatusCard(context,_sliverScrollControllerOffset),
                   if (!isLarge(context)) const AnnouncementBar(),
                   StreamBuilder<bool>(
                     stream: settings.showEvents.stream,

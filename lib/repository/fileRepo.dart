@@ -12,6 +12,7 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
@@ -221,6 +222,7 @@ class FileRepo {
   Future<String?> getFile(
     String uuid,
     String filename, {
+    String? directUrl,
     ThumbnailSize? thumbnailSize,
     bool intiProgressbar = true,
     bool showAlertOnError = false,
@@ -234,6 +236,7 @@ class FileRepo {
       uuid,
       filename,
       size: thumbnailSize,
+      directUrl: directUrl,
       initProgressbar: intiProgressbar,
       showAlertOnError: showAlertOnError,
     );
@@ -316,14 +319,19 @@ class FileRepo {
   }
 
   Future<void> openFile(
-    String filePath,
-  ) async {
+    String filePath, {
+    bool preferShowInFolder = false,
+  }) async {
     if (isWeb) {
       // isWeb Checked
       // ignore: unsafe_html
       html.window.open(filePath, "_");
     } else {
-      OpenFilex.open(filePath).ignore();
+      if (preferShowInFolder && isLinuxNative) {
+        onShowInFolder(filePath);
+      } else {
+        OpenFilex.open(filePath).ignore();
+      }
     }
   }
 

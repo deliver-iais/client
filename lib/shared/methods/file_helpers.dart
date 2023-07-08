@@ -18,6 +18,7 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as p;
+import 'package:process_run/shell.dart';
 
 String normalizePath(String path) =>
     isWeb ? path : p.normalize(path).replaceAll("\\", "/");
@@ -329,6 +330,17 @@ String lookupMimeTypeFromPath(String path, {List<int>? headerBytes}) {
 
 final _deliverMimeTypeResolver = MimeTypeResolver()
   ..addExtension("jfif", "image/jpeg");
+
+void onShowInFolder(String path) {
+  final shell = Shell();
+  if (isWindowsNative) {
+    shell.run('explorer.exe /select,"${path.replaceAll("/", "\\")}"');
+  } else if (isLinuxNative) {
+    shell.run('nautilus "$path"');
+  } else if (isMacOSNative) {
+    shell.run('open $path');
+  }
+}
 
 // TODO(bitbeter): Use these for later
 // const List<String> videoFormats = [
