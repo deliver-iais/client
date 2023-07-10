@@ -152,6 +152,7 @@ class FileService {
   Future<String?> getFile(
     String uuid,
     String filename, {
+    String? directUrl,
     ThumbnailSize? size,
     bool initProgressbar = true,
     bool showAlertOnError = false,
@@ -173,6 +174,7 @@ class FileService {
       filename,
       initProgressbar: initProgressbar,
       showAlertOnError: showAlertOnError,
+      directUrl: directUrl,
     );
   }
 
@@ -192,15 +194,18 @@ class FileService {
   Future<String?> _getFile(
     String uuid,
     String filename, {
+    String? directUrl,
     bool initProgressbar = true,
     bool showAlertOnError = false,
   }) async {
-    final cancelToken = CancelToken();
-    _addCancelToken(cancelToken, uuid);
-
     try {
-      final res = await _dio.get(
-        "/$uuid/$filename",
+      final cancelToken = CancelToken();
+      if (directUrl == null) {
+        _addCancelToken(cancelToken, uuid);
+      }
+      final dio = directUrl != null ? Dio() : _dio;
+      final res = await dio.get(
+        directUrl ?? "/$uuid/$filename",
         onReceiveProgress: (i, j) {
           if (initProgressbar) {
             if (filesProgressBarStatus.value[uuid] == null) {
@@ -212,7 +217,7 @@ class FileService {
           }
         },
         options: Options(responseType: ResponseType.bytes),
-        cancelToken: cancelToken,
+        cancelToken: directUrl != null ? null : cancelToken,
       );
       if (isWeb) {
         return Uri.dataFromBytes(res.data).toString();

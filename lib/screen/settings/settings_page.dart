@@ -365,6 +365,16 @@ class SettingsPageState extends State<SettingsPage> {
                     popAllBeforePush: true,
                   ),
                 ),
+                SettingsTile.switchTile(
+                  title: _i18n.get("automatic_update"),
+                  leading: const Icon(Icons.update_rounded),
+                  switchValue: settings.autoUpdateIsEnable.value,
+                  onToggle: ({required newValue}) {
+                    setState(() {
+                      settings.autoUpdateIsEnable.toggleValue();
+                    });
+                  },
+                ),
                 SettingsTile(
                   title: _i18n.get("logout"),
                   leading: const Icon(CupertinoIcons.square_arrow_left),
