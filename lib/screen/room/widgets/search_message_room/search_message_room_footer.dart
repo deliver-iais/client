@@ -48,57 +48,57 @@ class _SearchMessageRoomFooterWidgetState
                       final index = messagesList.data!.indexWhere(
                         (message) => message.id == currentId.data,
                       );
-                      _searchMessageService.foundMessageId
-                          .add(messagesList.data!.first.id!);
-                      return GestureDetector(
-                        onTap: () {
-                          _searchMessageService.searchResult.add(true);
-                        },
-                        child: Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                if (index < messagesList.data!.length) {
-                                  _onUpButtonPressed(currentId.data!);
-                                }
-                              },
-                              icon: Icon(
-                                color: index == messagesList.data!.length - 1
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onInverseSurface
-                                    : Theme.of(context).primaryColor,
-                                Icons.keyboard_arrow_up_sharp,
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: InkWell(
+                          onTap: () {
+                            if (_searchMessageService
+                                    .openSearchResultPageOnFooter.value ==
+                                false) {
+                              _searchMessageService.openSearchResultPageOnFooter
+                                  .add(true);
+                            } else {
+                              _searchMessageService.openSearchResultPageOnFooter
+                                  .add(false);
+                            }
+                          },
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  if (index < messagesList.data!.length) {
+                                    _onUpButtonPressed(currentId.data!);
+                                  }
+                                },
+                                icon: Icon(
+                                  color: index == messagesList.data!.length - 1
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onInverseSurface
+                                      : Theme.of(context).primaryColor,
+                                  Icons.keyboard_arrow_up_sharp,
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                if (index >= 0) {
-                                  _onDownButtonPressed(currentId.data!);
-                                }
-                              },
-                              icon: Icon(
-                                Icons.keyboard_arrow_down_sharp,
-                                color: index == 0
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onInverseSurface
-                                    : Theme.of(context).primaryColor,
+                              IconButton(
+                                onPressed: () {
+                                  if (index >= 0) {
+                                    _onDownButtonPressed(currentId.data!);
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down_sharp,
+                                  color: index == 0
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onInverseSurface
+                                      : Theme.of(context).primaryColor,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                "${index + 1} ${_i18n.get("of")} ${messagesList.data!.length}",
-                                textAlign: TextAlign.end,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context).primaryColor,
-                                    ),
+                              Expanded(
+                                child: _footerStatus(index, messagesList.data!),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -119,18 +119,11 @@ class _SearchMessageRoomFooterWidgetState
                         color: Theme.of(context).colorScheme.onInverseSurface,
                       ),
                       Expanded(
-                        child: _searchMessageService.searchResult.value == true
+                        child: _searchMessageService
+                                    .openSearchResultPageOnFooter.value ==
+                                true
                             ? const SizedBox()
-                            : Text(
-                                _i18n.get("no_results"),
-                                textAlign: TextAlign.end,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                              ),
+                            : _footerStatus(0, []),
                       ),
                     ],
                   );
@@ -172,5 +165,23 @@ class _SearchMessageRoomFooterWidgetState
       final nextId = _allMessageIds[currentIndex + 1];
       _searchMessageService.foundMessageId.add(nextId!);
     }
+  }
+
+  Widget _footerStatus(int index, List<Message> messagesList) {
+    return messagesList.isNotEmpty
+        ? Text(
+            "${index + 1} ${_i18n.get("of")} ${messagesList.length}",
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).primaryColor,
+                ),
+          )
+        : Text(
+            _i18n.get("no_results"),
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).primaryColor,
+                ),
+          );
   }
 }

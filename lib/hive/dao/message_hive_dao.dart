@@ -4,8 +4,10 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/hive/message_hive.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/string_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -70,11 +72,16 @@ class MessageDaoImpl extends MessageDao {
   Future<List<Message>> searchMessages(Uid roomUid, String keyword) async {
     final box = await _openMessages(roomUid.asString());
     final messages = box.values
-        .where(
-          (msgHive) =>
-              msgHive.roomUid == roomUid.asString() &&
-              msgHive.json.contains(keyword),
-        )
+        .where((msgHive) {
+          if (msgHive.roomUid == roomUid.asString()) {
+            if (msgHive.type == MessageType.TEXT) {
+              return msgHive.json.toText().text.contains(keyword);
+            } else if (msgHive.type == MessageType.FILE) {
+              return msgHive.json.toFile().caption.contains(keyword);
+            }
+          }
+          return false;
+        })
         .map((msgHive) => msgHive.fromHive())
         .toList();
     return messages.reversed.toList();

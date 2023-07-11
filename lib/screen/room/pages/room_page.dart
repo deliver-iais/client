@@ -66,7 +66,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_appbar_title.dart';
-import 'package:deliver/shared/widgets/room_message_result.dart';
+import 'package:deliver/shared/widgets/room_message_result_in_page.dart';
 import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -421,14 +421,14 @@ class RoomPageState extends State<RoomPage>
                     child: event.connectionState == ConnectionState.waiting
                         ? const SizedBox.shrink()
                         : StreamBuilder<bool?>(
-                            stream: _searchMessageService.searchResult,
+                            stream: _searchMessageService.openSearchResultPageOnFooter,
                             builder: (context, srm) {
                               if (srm.hasData &&
                                   srm.data == true &&
                                   !isLarge(context)) {
                                 return Column(
                                   children: [
-                                    RoomMessageResult(
+                                    RoomMessageResultInPage(
                                       uid: room.uid,
                                     ),
                                   ],
@@ -1307,6 +1307,7 @@ class RoomPageState extends State<RoomPage>
       actions: [
         IconButton(
           onPressed: () {
+            _searchMessageService.closeSearch();
             _searchMessageService.inSearchMessageMode
                 .add(room.uid);
           },

@@ -235,6 +235,8 @@ class NavigationCenterState extends State<NavigationCenter>
                     },
                     body: Column(
                       children: <Widget>[
+                        NewVersion.newVersionDownloadingStatusCard(
+                            context, _sliverScrollControllerOffset),
                         if (!isLarge(context)) const AnnouncementBar(),
                         StreamBuilder<bool>(
                           stream: settings.showEvents.stream,
@@ -267,133 +269,6 @@ class NavigationCenterState extends State<NavigationCenter>
                 },
               );
             }
-        body: StreamBuilder<List<Categories>>(
-          stream: _roomRepo.watchRoomsCategories(),
-          builder: (context, roomsCategoriesSnapshot) {
-            final allChatsCategory = <Categories?>[null];
-            final roomsCategories =
-                allChatsCategory + (roomsCategoriesSnapshot.data ?? []);
-            _tabController =
-                TabController(length: roomsCategories.length, vsync: this);
-            _tabController?.addListener(() {
-              if (_tabController!.previousIndex != _tabController!.index) {
-                _resetChatScrollControllers(null);
-                for (final cat in Categories.values) {
-                  _resetChatScrollControllers(cat);
-                }
-              }
-            });
-            return NestedScrollView(
-              controller: _sliverScrollController,
-              floatHeaderSlivers: true,
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    pinned: true,
-                    floating: true,
-                    elevation: 6,
-                    backgroundColor: elevation(
-                      theme.colorScheme.background,
-                      theme.colorScheme.primary,
-                      1.3,
-                    ),
-                    titleSpacing: 8.0,
-                    toolbarHeight: APPBAR_HEIGHT,
-                    title: ConnectionStatus(normalTitle: _i18n.get("chats")),
-                    actions: [
-                      NavigationCenterAppbarActionsWidget(
-                        searchController: _searchBoxController,
-                      ),
-                    ],
-                    bottom: PreferredSize(
-                      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
-                      child: TabBar(
-                        controller: _tabController,
-                        isScrollable: true,
-                        labelPadding: const EdgeInsets.all(10),
-                        onTap: (index) {
-                          final category =
-                              index == 0 ? null : roomsCategories[index - 1];
-                          _resetChatScrollControllers(category);
-                        },
-                        tabs: [
-                          for (final category in roomsCategories)
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    _convertRoomCategoryToTabName(category),
-                                  ),
-                                  AnimatedBuilder(
-                                    animation: _tabController!.animation!,
-                                    builder: (context, child) {
-                                      return UnreadRoomCounterWidget(
-                                        categories: category,
-                                        bgColor: Color.alphaBlend(
-                                          theme.colorScheme.onSurfaceVariant
-                                              .withOpacity(
-                                            (1 -
-                                                    _getUnreadCountColor(
-                                                      roomsCategories
-                                                          .indexOf(category),
-                                                    )) *
-                                                0.5,
-                                          ),
-                                          theme.primaryColor.withOpacity(
-                                            _getUnreadCountColor(
-                                              roomsCategories.indexOf(category),
-                                            ),
-                                          ),
-                                        ),
-                                        needBorder: false,
-                                        usePadding: true,
-                                      );
-                                    },
-                                  )
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ];
-              },
-              body: Column(
-                children: <Widget>[
-                  NewVersion.newVersionDownloadingStatusCard(context,_sliverScrollControllerOffset),
-                  if (!isLarge(context)) const AnnouncementBar(),
-                  StreamBuilder<bool>(
-                    stream: settings.showEvents.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!) {
-                        return const HasEventsRow();
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  const HasCallRow(),
-                  if (!isLarge(context)) const AudioPlayerAppBar(),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        for (final category in roomsCategories)
-                          _buildChatPageByCategory(
-                            roomCategory: category,
-                          )
-                      ],
-                    ),
-                  ),
-                  NewVersion.newVersionInfo(),
-                  NewVersion.aborted(context),
-                ],
-              ),
-            );
           },
         ),
       ),

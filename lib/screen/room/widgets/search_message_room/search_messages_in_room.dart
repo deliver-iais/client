@@ -1,10 +1,9 @@
-import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/widgets/search_message_room/build_member_widget.dart';
 import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/room_message_result.dart';
+import 'package:deliver/shared/widgets/room_message_result_in_page.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -25,23 +24,8 @@ class SearchMessageInRoomWidget extends StatefulWidget {
 
 class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
   late SearchMessageService searchMessageService;
-  final TextEditingController _localController = TextEditingController();
-  final StreamController<int> _streamController = StreamController<int>();
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _i18n = GetIt.I.get<I18N>();
-
-  @override
-  void dispose() {
-    _localController.dispose();
-    _streamController.close();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    _searchMessageService.inSearchMessageMode.add(widget.uid);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +47,15 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    if (_searchMessageService.searchResult.hasValue &&
-                        _searchMessageService.searchResult.value == true) {
-                      _searchMessageService.searchResult.add(false);
+                    if (_searchMessageService
+                            .openSearchResultPageOnFooter.hasValue &&
+                        _searchMessageService
+                                .openSearchResultPageOnFooter.value ==
+                            true) {
+                      _searchMessageService.openSearchResultPageOnFooter
+                          .add(false);
                     } else {
-                      _searchMessageService.inSearchMessageMode.add(null);
-                      _searchMessageService.text.add(null);
-                      _searchMessageService.foundMessageId.add(-1);
+                      _searchMessageService.closeSearch();
                     }
                   },
                   child: Text(
@@ -87,14 +73,7 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
             const SizedBox(
               height: 1,
             ),
-            Expanded(
-              child: StreamBuilder<int>(
-                stream: _streamController.stream,
-                builder: (context, snapshot) {
-                  return _buildMessageList();
-                },
-              ),
-            ),
+            Expanded(child: _buildMessageList()),
           ]
         ],
       ),
@@ -126,7 +105,7 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        RoomMessageResult(
+        RoomMessageResultInPage(
           uid: widget.uid!,
         ),
       ],

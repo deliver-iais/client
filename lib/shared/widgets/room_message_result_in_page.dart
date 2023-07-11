@@ -13,27 +13,23 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class RoomMessageResult extends StatefulWidget {
+class RoomMessageResultInPage extends StatefulWidget {
   final Uid uid;
 
-  const RoomMessageResult({
+  const RoomMessageResultInPage({
     super.key,
     required this.uid,
   });
 
   @override
-  State<RoomMessageResult> createState() => _RoomMessageResultState();
+  State<RoomMessageResultInPage> createState() =>
+      _RoomMessageResultInPageState();
 }
 
-class _RoomMessageResultState extends State<RoomMessageResult> {
+class _RoomMessageResultInPageState extends State<RoomMessageResultInPage> {
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,45 +77,48 @@ class _RoomMessageResultState extends State<RoomMessageResult> {
   }
 
   Widget _buildMessage(Uid uid, Message message) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        _searchMessageService.searchResult.add(false);
-        _searchMessageService.foundMessageId.add(message.id!);
-      },
-      child: Directionality(
-        textDirection: _i18n.defaultTextDirection,
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.translucent,
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: () {
+          _searchMessageService.openSearchResultPageOnFooter.add(false);
+          _searchMessageService.foundMessageId.add(message.id!);
+        },
         child: Padding(
-          padding: const EdgeInsetsDirectional.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircleAvatarWidget(message.from, 18),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RoomName(
-                            uid: message.from,
+          padding: const EdgeInsets.all(8.0),
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircleAvatarWidget(message.from, 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RoomName(
+                              uid: message.from,
+                            ),
                           ),
-                        ),
-                        Row(
-                          children: _buildDateAndStatusMessage(message),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: p8,
-                    ),
-                    _buildLastMessage(message)
-                  ],
-                ),
-              )
-            ],
+                          Row(
+                            children: _buildDateAndStatusMessage(message),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: p8,
+                      ),
+                      _buildLastMessage(message)
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

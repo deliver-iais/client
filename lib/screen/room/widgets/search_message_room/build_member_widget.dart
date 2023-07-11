@@ -28,55 +28,56 @@ class _BuildMemberWidgetState extends State<BuildMemberWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        _routingServices.openProfile(widget.uid.asString());
-      },
-      child: Padding(
-        padding: const EdgeInsetsDirectional.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CircleAvatarWidget(widget.uid, 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FutureBuilder<String>(
-                      future: _roomRepo.getName(widget.uid),
-                      builder: (context, snapshot) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextLoader(
-                              text: Text(
-                                snapshot.data ?? "".replaceAll('', '\u200B'),
-                                style: (Theme.of(context).textTheme.titleSmall)!
-                                    .copyWith(height: 1.3),
-                                softWrap: false,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: () {
+          _routingServices.openProfile(widget.uid.asString());
+        },
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatarWidget(widget.uid, 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FutureBuilder<String>(
+                        future: _roomRepo.getName(widget.uid),
+                        builder: (context, snapshot) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextLoader(
+                                text: Text(
+                                  snapshot.data ?? "".replaceAll('', '\u200B'),
+                                  style:
+                                      (Theme.of(context).textTheme.titleSmall)!
+                                          .copyWith(height: 1.3),
+                                  softWrap: false,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                        );
-                      },
+                              const SizedBox(height: 4),
+                            ],
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () => {
-                _searchMessageService.inSearchMessageMode.add(null),
-                _searchMessageService.text.add(null),
-                _searchMessageService.foundMessageId.add(-1),
-                if (!isLarge(context)) {_routingServices.pop()}
-              },
-            )
-          ],
+              IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () => {
+                  _searchMessageService.closeSearch(),
+                  if (!isLarge(context)) {_routingServices.pop()}
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
