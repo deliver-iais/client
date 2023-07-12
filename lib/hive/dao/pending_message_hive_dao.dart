@@ -76,7 +76,14 @@ class PendingMessageDaoImpl extends PendingMessageDao {
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
     final box = await _openPendingMessages();
-    return box.put(pm.packetId, pm.toHive());
+    if (pm.msg.id != null) {
+      return box.put(
+        _generatePendingEditedMessageKey(pm.roomUid.asString(), pm.msg.id!),
+        pm.toHive(),
+      );
+    } else {
+      return box.put(pm.packetId, pm.toHive());
+    }
   }
 
   @override
