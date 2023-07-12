@@ -453,15 +453,20 @@ class BroadcastService {
         await messageExtractorServices.extractMessageSimpleRepresentative(
       messageExtractorServices.extractProtocolBufferMessage(message),
     );
-    var text = "${_i18n.get("sms_broad_cast_title")}:\n${mb.typeDetails}";
-    if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
-      text = "$text,";
-    }
-    if (mb.text.isNotEmpty) {
-      text =
-          "$text  ${mb.text.split("\n").map((e) => e.trim()).where((e) => e.isNotEmpty).join(" ")}";
-    }
-    return "$text\n$APPLICATION_LANDING_URL";
+
+    // var text = "${_i18n.get("sms_broad_cast_title")}:\n${mb.typeDetails}";
+    // if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty) {
+    //   text = "$text,";
+    // }
+    // if (mb.text.isNotEmpty) {
+    //   text =
+    //       "$text  ${mb.text.split("\n").map((e) => e.trim()).where((e) => e.isNotEmpty).join(" ")}";
+    // }
+    // return "$text\n$APPLICATION_LANDING_URL";
+
+    // Changing This For Now
+    return "${mb.typeDetails.isNotEmpty ? "${mb.typeDetails}, " : ""}${mb.text}"
+        .trim();
   }
 
   int getBroadcastIdFromPacketId(String packetId) {
@@ -475,15 +480,21 @@ class BroadcastService {
     for (var i = 0; i < bcStatusList.length; i++) {
       if (_broadcastRunningStatus[message.roomUid]?.value ==
           BroadcastRunningStatus.RUNNING) {
-        await BackgroundSms.sendMessage(
-          phoneNumber: bcStatusList[i].sendingId,
-          message: await _createSmsMessageFromMessage(message),
-        );
-        await _broadcastDao.deleteBroadcastStatus(
-          bcStatusList[i].sendingId,
-          message.roomUid,
-        );
-        await Future.delayed(const Duration(seconds: BROADCAST_SMS_DELAY));
+        final smsText = await _createSmsMessageFromMessage(message);
+
+        if (smsText.isNotEmpty) {
+          await BackgroundSms.sendMessage(
+            phoneNumber: bcStatusList[i].sendingId,
+            message: smsText,
+          );
+          await _broadcastDao.deleteBroadcastStatus(
+            bcStatusList[i].sendingId,
+            message.roomUid,
+          );
+          await Future.delayed(const Duration(seconds: BROADCAST_SMS_DELAY));
+        } else {
+          break;
+        }
       } else {
         break;
       }
