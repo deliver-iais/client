@@ -421,7 +421,8 @@ class RoomPageState extends State<RoomPage>
                     child: event.connectionState == ConnectionState.waiting
                         ? const SizedBox.shrink()
                         : StreamBuilder<bool?>(
-                            stream: _searchMessageService.openSearchResultPageOnFooter,
+                            stream: _searchMessageService
+                                .openSearchResultPageOnFooter,
                             builder: (context, srm) {
                               if (srm.hasData &&
                                   srm.data == true &&
@@ -642,8 +643,9 @@ class RoomPageState extends State<RoomPage>
             .debounceTime(const Duration(milliseconds: 50))
             .asBroadcastStream();
 
-    _messageSubscription = _searchMessageService.foundMessageId.listen((value) {
-      if(value != -1) {
+    _messageSubscription =
+        _searchMessageService.currentSelectedMessageId.listen((value) {
+      if (value != -1) {
         scrollToFoundMessage(value);
       }
     });
@@ -1195,14 +1197,27 @@ class RoomPageState extends State<RoomPage>
       stream: _searchMessageService.inSearchMessageMode,
       builder: (context, searchMessageMode) {
         if (searchMessageMode.hasData && !isLarge(context)) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                SearchMessageRoomFooterWidget(uid: room.uid),
-                SizedBox(
-                  height: MediaQuery.of(context).viewInsets.bottom,
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: AnimatedSize(
+                  duration: AnimationSettings.slow,
+                  curve: Curves.easeInOut,
+                  child: child,
                 ),
-              ],
+              );
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SearchMessageRoomFooterWidget(uid: room.uid),
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                ],
+              ),
             ),
           );
         } else if (widget.roomUid.category == Categories.BOT) {
@@ -1219,7 +1234,19 @@ class RoomPageState extends State<RoomPage>
             },
           );
         } else {
-          return messageInput();
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: AnimatedSize(
+                  duration: AnimationSettings.slow,
+                  child: child,
+                ),
+              );
+            },
+            child: messageInput(),
+          );
         }
       },
     );
@@ -1308,8 +1335,7 @@ class RoomPageState extends State<RoomPage>
         IconButton(
           onPressed: () {
             _searchMessageService.closeSearch();
-            _searchMessageService.inSearchMessageMode
-                .add(room.uid);
+            _searchMessageService.inSearchMessageMode.add(room.uid);
           },
           icon: const Icon(Icons.search),
         ),

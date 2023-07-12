@@ -35,9 +35,13 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
           children: [
             Expanded(
               child: SearchBox(
-                onChange: (str) => _searchMessageService.text.add(str),
-                onCancel: () => _searchMessageService.text.add(null),
-              ),
+                  onChange: (str) => {
+                        _searchMessageService.text.add(str),
+                      },
+                  onCancel: () => {
+                        _searchMessageService.text.add(null),
+                        _searchMessageService.currentSelectedMessageId.add(-1)
+                      },),
             ),
             if (!isLarge(context)) ...[
               const SizedBox(

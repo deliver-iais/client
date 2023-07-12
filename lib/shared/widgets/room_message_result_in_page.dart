@@ -12,6 +12,7 @@ import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class RoomMessageResultInPage extends StatefulWidget {
   final Uid uid;
@@ -37,7 +38,8 @@ class _RoomMessageResultInPageState extends State<RoomMessageResultInPage> {
       child: Container(
         color: Theme.of(context).colorScheme.background,
         child: StreamBuilder<String?>(
-          stream: _searchMessageService.text,
+          stream: _searchMessageService.text
+              .debounceTime(const Duration(milliseconds: 600)),
           builder: (context, text) {
             if (text.hasData && text.data!.isNotEmpty) {
               return FutureBuilder<List<Message>>(
@@ -83,7 +85,7 @@ class _RoomMessageResultInPageState extends State<RoomMessageResultInPage> {
       child: InkWell(
         onTap: () {
           _searchMessageService.openSearchResultPageOnFooter.add(false);
-          _searchMessageService.foundMessageId.add(message.id!);
+          _searchMessageService.currentSelectedMessageId.add(message.id!);
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -92,7 +94,8 @@ class _RoomMessageResultInPageState extends State<RoomMessageResultInPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatarWidget(message.from, 18),
+                CircleAvatarWidget(message.from, 18,
+                    key: ValueKey(message.from)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

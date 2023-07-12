@@ -43,81 +43,82 @@ class _SearchMessageRoomFooterWidgetState
                   _allMessageIds =
                       messagesList.data!.map((message) => message.id).toList();
                   return StreamBuilder<int>(
-                    stream: _searchMessageService.foundMessageId,
+                    stream: _searchMessageService.currentSelectedMessageId,
                     builder: (context, currentId) {
-                      final index = messagesList.data!.indexWhere(
-                        (message) => message.id == currentId.data,
-                      );
-                      return MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: InkWell(
-                          onTap: () {
-                            if (_searchMessageService
-                                    .openSearchResultPageOnFooter.value ==
-                                false) {
-                              _searchMessageService.openSearchResultPageOnFooter
-                                  .add(true);
-                            } else {
-                              _searchMessageService.openSearchResultPageOnFooter
-                                  .add(false);
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  if (index < messagesList.data!.length) {
-                                    _onUpButtonPressed(currentId.data!);
-                                  }
-                                },
-                                icon: Icon(
-                                  color: index == messagesList.data!.length - 1
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .onInverseSurface
-                                      : Theme.of(context).primaryColor,
-                                  Icons.keyboard_arrow_up_sharp,
+                      if (currentId.hasData && currentId.data != null) {
+                        final index = messagesList.data!.indexWhere(
+                          (message) => message.id == currentId.data,
+                        );
+                        if (index == -1) {
+                          _searchMessageService.currentSelectedMessageId
+                              .add(messagesList.data!.first.id!);
+                        }
+                        return MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: InkWell(
+                            onTap: () {
+                              if (_searchMessageService
+                                      .openSearchResultPageOnFooter.value ==
+                                  false) {
+                                _searchMessageService
+                                    .openSearchResultPageOnFooter
+                                    .add(true);
+                              } else {
+                                _searchMessageService
+                                    .openSearchResultPageOnFooter
+                                    .add(false);
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    if (index < messagesList.data!.length) {
+                                      _onUpButtonPressed(currentId.data!);
+                                    }
+                                  },
+                                  icon: Icon(
+                                    color:
+                                        index == messagesList.data!.length - 1
+                                            ? Theme.of(context)
+                                                .primaryColor
+                                                .withOpacity(0.4)
+                                            : Theme.of(context).primaryColor,
+                                    Icons.keyboard_arrow_up_sharp,
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  if (index >= 0) {
-                                    _onDownButtonPressed(currentId.data!);
-                                  }
-                                },
-                                icon: Icon(
-                                  Icons.keyboard_arrow_down_sharp,
-                                  color: index == 0
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .onInverseSurface
-                                      : Theme.of(context).primaryColor,
+                                IconButton(
+                                  onPressed: () {
+                                    if (index >= 0) {
+                                      _onDownButtonPressed(currentId.data!);
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down_sharp,
+                                    color: index == 0
+                                        ? Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.4)
+                                        : Theme.of(context).primaryColor,
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: _footerStatus(index, messagesList.data!),
-                              ),
-                            ],
+                                Expanded(
+                                  child:
+                                      _footerStatus(index, messagesList.data!),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        return const SizedBox();
+                      }
                     },
                   );
                 } else {
                   return Row(
                     children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.keyboard_arrow_down_sharp,
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.keyboard_arrow_up_sharp),
-                        color: Theme.of(context).colorScheme.onInverseSurface,
-                      ),
+                      ..._disableButton(),
                       Expanded(
                         child: _searchMessageService
                                     .openSearchResultPageOnFooter.value ==
@@ -131,20 +132,7 @@ class _SearchMessageRoomFooterWidgetState
               },
             );
           } else {
-            return Row(
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down_sharp,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.keyboard_arrow_up_sharp),
-                ),
-              ],
-            );
+            return Row(children: _disableButton());
           }
         },
       ),
@@ -155,7 +143,7 @@ class _SearchMessageRoomFooterWidgetState
     final currentIndex = _allMessageIds.indexOf(currentId);
     if (currentIndex > 0) {
       final previousId = _allMessageIds[currentIndex - 1];
-      _searchMessageService.foundMessageId.add(previousId!);
+      _searchMessageService.currentSelectedMessageId.add(previousId!);
     }
   }
 
@@ -163,7 +151,7 @@ class _SearchMessageRoomFooterWidgetState
     final currentIndex = _allMessageIds.indexOf(currentId);
     if (currentIndex < _allMessageIds.length - 1) {
       final nextId = _allMessageIds[currentIndex + 1];
-      _searchMessageService.foundMessageId.add(nextId!);
+      _searchMessageService.currentSelectedMessageId.add(nextId!);
     }
   }
 
@@ -183,5 +171,22 @@ class _SearchMessageRoomFooterWidgetState
                   color: Theme.of(context).primaryColor,
                 ),
           );
+  }
+
+  List<Widget> _disableButton() {
+    return [
+      IconButton(
+        onPressed: () {},
+        icon: Icon(
+          Icons.keyboard_arrow_down_sharp,
+          color: Theme.of(context).primaryColor.withOpacity(0.4),
+        ),
+      ),
+      IconButton(
+        onPressed: () {},
+        icon: const Icon(Icons.keyboard_arrow_up_sharp),
+        color: Theme.of(context).primaryColor.withOpacity(0.4),
+      ),
+    ];
   }
 }

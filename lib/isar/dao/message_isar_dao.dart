@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/isar/message_isar.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
 
@@ -75,16 +74,10 @@ class MessageDaoImpl extends MessageDao {
         .filter()
         .roomUidEqualTo(roomUid.asString())
         .findAllSync()
-        .where((msgIsar) {
-          if (msgIsar.type == MessageType.TEXT) {
-            return msgIsar.json.toText().text.contains(keyword);
-          } else if (msgIsar.type == MessageType.FILE) {
-            return msgIsar.json.toFile().caption.contains(keyword);
-          }
-          return false;
-        })
         .map((e) => e.fromIsar())
-        .toList();
+        .where((msg) {
+      return isMessageContainKeyword(msg, keyword);
+    }).toList();
 
     return messages.reversed.toList();
   }
