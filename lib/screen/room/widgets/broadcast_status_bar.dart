@@ -139,7 +139,7 @@ class BroadcastStatusBar extends StatelessWidget {
       future: _mucDao.getBroadCastAllMemberCount(roomUid),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data! > 1) {
-          final allMemberCount = snapshot.data! - 1;
+          final allMemberCount = snapshot.data!;
           final progressValue =
               1 - ((broadcastStatusListLength) / (allMemberCount));
           return Directionality(

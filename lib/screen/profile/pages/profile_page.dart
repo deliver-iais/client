@@ -17,7 +17,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/profile/widgets/call_tab/call_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
@@ -707,7 +706,7 @@ class ProfilePageState extends State<ProfilePage>
                   title: _i18n.get("add_member"),
                   leading: const Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
-                    categories: MucCategories.CHANNEL,
+                    categories:widget.roomUid.asMucCategories(),
                     mucUid: widget.roomUid,
                   ),
                 ),

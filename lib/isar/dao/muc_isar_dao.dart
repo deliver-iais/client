@@ -200,6 +200,7 @@ class MucDaoImpl extends MucDao {
       final query = box.broadcastMemberIsars
           .filter()
           .broadcastUidEqualTo(mucUid.asString())
+          .typeEqualTo(BroadCastMemberType.MESSAGE)
           .build();
 
       yield query

@@ -1,6 +1,8 @@
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/member.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact_list.dart';
@@ -33,6 +35,8 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
   final _routingService = GetIt.I.get<RoutingService>();
 
   final _createMucService = GetIt.I.get<CreateMucService>();
+
+  final _mucRepo = GetIt.I.get<MucRepo>();
 
   final _contactRepo = GetIt.I.get<ContactRepo>();
 
@@ -104,12 +108,21 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
                           if (!snapshot.hasData) {
                             return const SizedBox.shrink();
                           }
-                          final members = snapshot.data!;
-                          return Text(
-                            members >= 1
-                                ? '$members ${_i18n["of"]} ${_createMucService.getMaxMemberLength(widget.categories)}'
-                                : '${_i18n["up_to"]} ${_createMucService.getMaxMemberLength(widget.categories)} ${_i18n["members"]}',
-                            style: theme.textTheme.labelSmall,
+
+                          return FutureBuilder<List<Member>>(
+                            future: widget.mucUid != null
+                                ? _mucRepo.getAllMembers(widget.mucUid!)
+                                : null,
+                            builder: (context, currentMember) {
+                              final members = snapshot.data! +
+                                  (currentMember.data?.length ?? 0);
+                              return Text(
+                                members >= 1
+                                    ? '$members ${_i18n["of"]} ${_createMucService.getMaxMemberLength(widget.categories)}'
+                                    : '${_i18n["up_to"]} ${_createMucService.getMaxMemberLength(widget.categories)} ${_i18n["members"]}',
+                                style: theme.textTheme.labelSmall,
+                              );
+                            },
                           );
                         },
                       )
