@@ -239,6 +239,18 @@ class DataStreamServices {
           message.time.toInt(),
         );
       }
+
+      // Step 7 - Update Seen if Call Log from Current User
+      if (message.whichType() == Message_Type.callLog) {
+        final callLog = message.callLog;
+        if (callLog.from.asStringWithSession() ==
+            _authRepo.currentUserUid.asStringWithSession()) {
+          await _seenDao.updateMySeen(
+            uid: roomUid.asString(),
+            messageId: message.id.toInt(),
+          );
+        }
+      }
     }
 
     return msg;
@@ -248,7 +260,7 @@ class DataStreamServices {
     return message.text.text
         .replaceAll("\n", " ")
         .split(" ")
-        .contains("@${( _accountRepo.getAccount())!.username}");
+        .contains("@${(_accountRepo.getAccount())!.username}");
   }
 
   Future<void> _checkForReplyKeyBoard(Message message) async {
