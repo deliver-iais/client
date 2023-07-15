@@ -11,7 +11,7 @@ class SearchMessageService {
       BehaviorSubject.seeded(null);
   final BehaviorSubject<int> currentSelectedMessageId =
       BehaviorSubject.seeded(-1);
-  final Map<String, List<Message>> _searchCache = {};
+  final Map<Uid, Map<String, List<Message>>> _searchCache = {};
   final BehaviorSubject<String?> text = BehaviorSubject.seeded(null);
   final BehaviorSubject<bool?> openSearchResultPageOnFooter =
       BehaviorSubject.seeded(false);
@@ -31,23 +31,22 @@ class SearchMessageService {
     if (keyword.isEmpty) {
       return [];
     }
-    final cacheResult = _searchCache[keyword];
-
+    final roomCache = _searchCache[roomUid] ?? {};
+    final cacheResult = roomCache[keyword];
     if (cacheResult != null) {
       return cacheResult;
     }
-
     final subString =
-        findSubstringInSearchResults(_searchCache.keys.toList(), keyword);
+        findSubstringInSearchResults(roomCache.keys.toList(), keyword);
     if (subString.isNotEmpty) {
-      return _searchCache[subString]
+      return roomCache[subString]
               ?.where((msg) => isMessageContainKeyword(msg, keyword))
               .toList() ??
           [];
     }
-
     final messages = await _messageDao.searchMessages(roomUid, keyword);
-    _searchCache[keyword] = messages;
+    roomCache[keyword] = messages;
+    _searchCache[roomUid] = roomCache;
     return messages;
   }
 
