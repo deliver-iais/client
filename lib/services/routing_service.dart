@@ -299,6 +299,7 @@ class RoutingService {
         popAllBeforePush: popAllBeforePush,
       );
       shouldScrollToLastMessageInRoom.add(false);
+      _searchMessageService.clearCache();
     } else if (isInRoom(roomId)) {
       shouldScrollToLastMessageInRoom.add(true);
     }
