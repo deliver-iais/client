@@ -99,7 +99,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
               }
             },
           ),
-        if (isMobileNative)
+        if (isMobileNative || isWeb)
           _buildPopupMenuItem(
             _i18n.get("save_to_gallery"),
             CupertinoIcons.down_arrow,

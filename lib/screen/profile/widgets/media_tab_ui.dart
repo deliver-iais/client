@@ -9,6 +9,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -125,29 +126,24 @@ class MediaTabUiState extends State<MediaTabUi> {
                   ),
           ),
           if (widget.selectedMedia.isNotEmpty)
-            Align(
-              alignment: Alignment.bottomRight,
-              child: IconButton(
-                onPressed: () => widget.addSelectedMeta(media),
-                icon: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color: Theme.of(context).hoverColor.withOpacity(0.5),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      widget.selectedMedia.contains(media)
-                          ? Icons.check_circle_outline
-                          : Icons.panorama_fish_eye,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
+            Theme(
+              data: ThemeData(
+                unselectedWidgetColor: Colors.white,
+              ),
+              child: Container(
+                margin: const EdgeInsetsDirectional.all(p8),
+                width: 23,
+                height: 23,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(3)),
+                  color: Theme.of(context).hoverColor.withOpacity(0.4),
+                ),
+                child: Checkbox(
+                  value: widget.selectedMedia.contains(media),
+                  onChanged: (val) => widget.addSelectedMeta(media),
                 ),
               ),
-            )
+            ),
         ],
       ),
     );

@@ -19,8 +19,11 @@ class ImageMediaWidget extends StatelessWidget {
     return ExtendedImage(
       image: filePath.imageProvider(),
       mode: ExtendedImageMode.gesture,
-      initGestureConfigHandler: (state) =>
-          GestureConfig(inPageView: true, minScale: 1.0, maxScale: 4.0),
+      initGestureConfigHandler: (state) => GestureConfig(
+          inPageView: true,
+          minScale: 1.0,
+          maxScale: 4.0,
+          reverseMousePointerScrollDirection: true,),
       enableSlideOutPage: true,
       onDoubleTap: (state) => onDoubleTap(state),
     );
