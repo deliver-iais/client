@@ -505,6 +505,7 @@
   "select_time": "Select time",
   "selected_chats": "Selected Chats",
   "selected_file": "Selected Files",
+  "selected_item": "Selected Items",
   "send": "Send",
   "send_To": "Send to...",
   "send_by_shift_enter": "Send Message by Shift + Enter",

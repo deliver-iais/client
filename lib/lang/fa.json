@@ -505,6 +505,7 @@
   "select_time": "زمان را انتخاب کنید",
   "selected_chats": "گفتگو‌های انتخاب شده",
   "selected_file": "فایل انتخاب شده",
+  "selected_item": "مورد انتخاب شده",
   "send": "ارسال پیام",
   "send_To": "ارسال به...",
   "send_by_shift_enter": "ارسال پیام با Shift + Enter",
