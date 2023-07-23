@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:badges/badges.dart' as badges;
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/meta.dart';
@@ -14,10 +13,10 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/profile/widgets/call_tab/call_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
@@ -29,6 +28,7 @@ import 'package:deliver/screen/profile/widgets/profile_id_settings_tile.dart';
 import 'package:deliver/screen/room/widgets/operation_on_room_entry.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -41,6 +41,7 @@ import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
@@ -64,6 +65,7 @@ class ProfilePageState extends State<ProfilePage>
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _i18n = GetIt.I.get<I18N>();
   final _mucRepo = GetIt.I.get<MucRepo>();
@@ -74,7 +76,6 @@ class ProfilePageState extends State<ProfilePage>
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
-  late int _tabsCount;
 
   final BehaviorSubject<MucRole> _currentUserRole =
       BehaviorSubject.seeded(MucRole.NONE);
@@ -126,13 +127,14 @@ class ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _setTabCount(MetaCount? metaCount) {
-    _tabsCount = 0;
+  int _getTabCounts() {
+    var tabsCount = 0;
     for (final type in MetaType.values) {
-      if (_haveASpecialKindOfMeta(type, metaCount)) {
-        _tabsCount++;
+      if (_haveASpecialKindOfMeta(type, _metaCount.value)) {
+        tabsCount++;
       }
     }
+    return _shouldShowMemberTab() ? tabsCount + 1 : tabsCount;
   }
 
   List<Tab> _getTabList(MetaCount? metaCount) {
@@ -171,31 +173,19 @@ class ProfilePageState extends State<ProfilePage>
   bool _isAdminOrOwner(MucRole role) =>
       role == MucRole.OWNER || role == MucRole.ADMIN;
 
+  bool _shouldShowMemberTab() => (widget.roomUid.isGroup() ||
+      (widget.roomUid.isPrivateBaseMuc() &&
+          _isAdminOrOwner(_currentUserRole.value)));
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: FluidContainerWidget(
         child: StreamBuilder(
           stream: MergeStream([_currentUserRole.stream, _metaCount.stream]),
           builder: (context, roleSnapshot) {
-            _setTabCount(_metaCount.value);
-
-            _tabController = TabController(
-              length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isPrivateBaseMuc() &&
-                          _isAdminOrOwner(_currentUserRole.value)))
-                  ? _tabsCount + 1
-                  : _tabsCount,
-              vsync: this,
-            );
-
             return DefaultTabController(
-              length: (widget.roomUid.isGroup() ||
-                      (widget.roomUid.isPrivateBaseMuc() &&
-                          _isAdminOrOwner(_currentUserRole.value)))
-                  ? _tabsCount + 1
-                  : _tabsCount,
+              length: _getTabCounts(),
               child: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return <Widget>[
@@ -204,122 +194,15 @@ class ProfilePageState extends State<ProfilePage>
                       context,
                       _isAdminOrOwner(_currentUserRole.value),
                     ),
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _SliverAppBarDelegate(
-                        maxHeight: 45,
-                        minHeight: 45,
-                        child: Box(
-                          borderRadius: BorderRadius.zero,
-                          child: StreamBuilder<bool>(
-                            stream: _selectMediasForForward,
-                            builder: (context, selectMediaToForward) {
-                              if (selectMediaToForward.hasData &&
-                                  selectMediaToForward.data != null &&
-                                  selectMediaToForward.data!) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      badges.Badge(
-                                        badgeStyle: badges.BadgeStyle(
-                                          badgeColor: theme.colorScheme.primary,
-                                        ),
-                                        badgeContent: Text(
-                                          _selectedMeta.length.toString(),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: theme.colorScheme.onPrimary,
-                                          ),
-                                        ),
-                                        child: IconButton(
-                                          color: theme.colorScheme.primary,
-                                          icon: const Icon(
-                                            Icons.clear,
-                                            size: 25,
-                                          ),
-                                          onPressed: () {
-                                            _selectMediasForForward.add(false);
-                                            _selectedMeta.clear();
-                                            setState(() {});
-                                          },
-                                        ),
-                                      ),
-                                      if (isAndroidNative)
-                                        Tooltip(
-                                          message: _i18n.get("share"),
-                                          child: IconButton(
-                                            color: theme.colorScheme.primary,
-                                            icon: const Icon(
-                                              Icons.share,
-                                              size: 25,
-                                            ),
-                                            onPressed: () async {
-                                              final paths =
-                                                  await _getPathOfMeta(
-                                                _selectedMeta,
-                                              );
-                                              if (paths.isNotEmpty) {
-                                                Share.shareFiles(paths)
-                                                    .ignore();
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      Tooltip(
-                                        message: _i18n.get("forward"),
-                                        child: IconButton(
-                                          color: theme.colorScheme.primary,
-                                          icon: const Icon(
-                                            Icons.forward,
-                                            size: 25,
-                                          ),
-                                          onPressed: () {
-                                            _routingService
-                                                .openSelectForwardMessage(
-                                              metas: _selectedMeta,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return TabBar(
-                                  isScrollable: true,
-                                  tabs: [
-                                    if (widget.roomUid.isGroup() ||
-                                        (widget.roomUid.isPrivateBaseMuc() &&
-                                            _isAdminOrOwner(
-                                              _currentUserRole.value,
-                                            )))
-                                      Tab(text: _i18n.get("members")),
-                                    ..._getTabList(_metaCount.value),
-                                  ],
-                                  controller: _tabController,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildSelectionBox(),
                   ];
                 },
                 body: Box(
                   borderRadius: BorderRadius.zero,
                   child: TabBarView(
                     physics: const NeverScrollableScrollPhysics(),
-                    controller: _tabController,
                     children: [
-                      if (widget.roomUid.isGroup() ||
-                          (widget.roomUid.isPrivateBaseMuc() &&
-                              _isAdminOrOwner(_currentUserRole.value)))
+                      if (_shouldShowMemberTab())
                         MucMemberWidget(
                           mucUid: widget.roomUid,
                           currentUserRole: _currentUserRole.value,
@@ -707,7 +590,7 @@ class ProfilePageState extends State<ProfilePage>
                   title: _i18n.get("add_member"),
                   leading: const Icon(Icons.person_add),
                   onPressed: (_) => _routingService.openMemberSelection(
-                    categories: MucCategories.CHANNEL,
+                    categories: widget.roomUid.asMucCategories(),
                     mucUid: widget.roomUid,
                   ),
                 ),
@@ -804,6 +687,128 @@ class ProfilePageState extends State<ProfilePage>
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
+    );
+  }
+
+  SliverPersistentHeader _buildSelectionBox() {
+    final theme = Theme.of(context);
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _SliverAppBarDelegate(
+        maxHeight: 60,
+        minHeight: 60,
+        child: StreamBuilder<bool>(
+          stream: _selectMediasForForward,
+          builder: (context, selectMediaToForward) {
+            if (selectMediaToForward.hasData &&
+                selectMediaToForward.data != null &&
+                selectMediaToForward.data!) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: tertiaryBorder,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: p8,
+                ),
+                margin: const EdgeInsets.all(
+                  p8,
+                ),
+                child: Row(
+                  children: [
+                    if (isAndroidNative)
+                      Tooltip(
+                        message: _i18n.get("share"),
+                        child: IconButton(
+                          color: theme.colorScheme.primary,
+                          icon: const Icon(
+                            Icons.share,
+                            size: 20,
+                          ),
+                          onPressed: () async {
+                            final paths = await _getPathOfMeta(
+                              _selectedMeta,
+                            );
+                            if (paths.isNotEmpty) {
+                              Share.shareFiles(paths).ignore();
+                            }
+                          },
+                        ),
+                      ),
+                    Tooltip(
+                      message: _i18n.get("forward"),
+                      child: IconButton(
+                        color: theme.colorScheme.primary,
+                        icon: const Icon(
+                          CupertinoIcons.arrowshape_turn_up_right,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          _routingService.openSelectForwardMessage(
+                            metas: _selectedMeta,
+                          );
+                        },
+                      ),
+                    ),
+                    if (_selectedMeta.length == 1)
+                      Tooltip(
+                        message: _i18n.get("show_in_chat"),
+                        child: IconButton(
+                          color: theme.colorScheme.primary,
+                          icon: const Icon(
+                            CupertinoIcons.eye,
+                            size: 20,
+                          ),
+                          onPressed: () async {
+                            final id = _selectedMeta.first.messageId;
+                            final message = await _messageRepo.getMessage(
+                              roomUid: widget.roomUid,
+                              id: id,
+                            );
+                            if (message != null) {
+                              _routingService.openRoom(
+                                widget.roomUid.asString(),
+                                forceToOpenRoom: true,
+                                initialIndex: id,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    const Spacer(),
+                    Text(
+                      ("${_selectedMeta.length} ${_i18n.get("selected_item")}"),
+                    ),
+                    Tooltip(
+                      message: _i18n.get("cancel"),
+                      child: IconButton(
+                        color: theme.colorScheme.primary,
+                        icon: const Icon(
+                          Icons.clear,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          _selectMediasForForward.add(false);
+                          _selectedMeta.clear();
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return TabBar(
+                isScrollable: true,
+                tabs: [
+                  if (_shouldShowMemberTab()) Tab(text: _i18n.get("members")),
+                  ..._getTabList(_metaCount.value),
+                ],
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 

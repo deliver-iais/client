@@ -257,7 +257,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           end: 5,
                         ),
                         child: (widget.categories == MucCategories.BROADCAST &&
-                                snapshot.data! < 2)
+                           ( !widget.useSmsBroadcastList &&   snapshot.data! < 2)
+                              )
                             ? const SizedBox()
                             : FloatingActionButton.extended(
                                 heroTag: "select_contacts",
@@ -298,10 +299,11 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
           )) {
             if (_createMucService
-                    .selectedMembersLengthStream(
-                      useBroadcastSmsContacts: widget.useSmsBroadcastList,
-                    )
-                    .value <
+                        .selectedMembersLengthStream(
+                          useBroadcastSmsContacts: widget.useSmsBroadcastList,
+                        )
+                        .value +
+                    members.length <
                 _createMucService.getMaxMemberLength(widget.categories)) {
               _createMucService.addContact(
                 items![index],

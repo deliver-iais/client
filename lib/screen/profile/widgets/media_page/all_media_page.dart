@@ -95,16 +95,16 @@ class _AllMediaPageState extends State<AllMediaPage>
       LruCache<int, String>(storage: InMemoryStorage(500));
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   StreamSubscription<int>? _getIndexOfMediaStream;
-  late List<Animation<double>> animationList;
-  late AnimationController _animationController;
-  late AnimationController controller;
-  Animation<double>? _animation;
-  late DoubleClickAnimationListener _animationListener;
+  late List<Animation<double>> rotateAnimationList;
+  late AnimationController _doubleTapScaleAnimationController;
+  late AnimationController _rotateAnimationController;
+  Animation<double>? _doubleTapScaleAnimation;
+  late DoubleClickAnimationListener _doubleTapScaleAnimationListener;
   final List<double> _doubleTapScales = <double>[1.0, 2.0];
   int _differenceBetweenActualIndexAndShowingIndex = 0;
   int? _initialMediaIndex;
   Widget? _initialMediaUiFromMessageWidget;
-  int _animationIndex = 0;
+  int _rotateAnimationIndex = 0;
   bool _disableRotate = false;
 
   Future<Meta?> _getMedia(
@@ -148,34 +148,36 @@ class _AllMediaPageState extends State<AllMediaPage>
   void dispose() {
     _getIndexOfMediaStream?.cancel();
     _pageController.dispose();
-    _animationController.dispose();
-    controller.dispose();
+    _doubleTapScaleAnimationController.dispose();
+    _rotateAnimationController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     _initialMediaIndex = widget.initialMediaIndex;
-    controller = AnimationController(
+    _rotateAnimationController = AnimationController(
       duration: AnimationSettings.normal,
       vsync: this,
     )..addStatusListener((status) async {
         if (status == AnimationStatus.completed) {
           await Future.delayed(AnimationSettings.normal);
-          _animationIndex = (_animationIndex + 1) % 4;
+          _rotateAnimationIndex = (_rotateAnimationIndex + 1) % 4;
           _disableRotate = false;
         }
       });
-    _animationController = AnimationController(
+    _doubleTapScaleAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
 
-    animationList = [
-      Tween<double>(begin: 0, end: pi / 2).animate(controller),
-      Tween<double>(begin: pi / 2, end: pi).animate(controller),
-      Tween<double>(begin: pi, end: 3 * pi / 2).animate(controller),
-      Tween<double>(begin: 3 * pi / 2, end: 2 * pi).animate(controller)
+    rotateAnimationList = [
+      Tween<double>(begin: 0, end: pi / 2).animate(_rotateAnimationController),
+      Tween<double>(begin: pi / 2, end: pi).animate(_rotateAnimationController),
+      Tween<double>(begin: pi, end: 3 * pi / 2)
+          .animate(_rotateAnimationController),
+      Tween<double>(begin: 3 * pi / 2, end: 2 * pi)
+          .animate(_rotateAnimationController)
     ];
     super.initState();
   }
@@ -387,7 +389,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: AnimatedBuilder(
-                    animation: animationList[_animationIndex],
+                    animation: rotateAnimationList[_rotateAnimationIndex],
                     child: (file.isImageFileProto())
                         ? ImageMediaWidget(
                             onDoubleTap: (state) {
@@ -400,11 +402,13 @@ class _AllMediaPageState extends State<AllMediaPage>
                               double end;
 
                               //remove old
-                              _animation?.removeListener(_animationListener);
+                              _doubleTapScaleAnimation?.removeListener(
+                                _doubleTapScaleAnimationListener,
+                              );
 
                               //stop pre
                               //reset to use
-                              _animationController
+                              _doubleTapScaleAnimationController
                                 ..stop()
                                 ..reset();
 
@@ -414,19 +418,23 @@ class _AllMediaPageState extends State<AllMediaPage>
                                 end = _doubleTapScales[0];
                               }
 
-                              _animationListener = () {
+                              _doubleTapScaleAnimationListener = () {
                                 //print(_animation.value);
                                 state.handleDoubleTap(
-                                  scale: _animation?.value,
+                                  scale: _doubleTapScaleAnimation?.value,
                                   doubleTapPosition: pointerDownPosition,
                                 );
                               };
-                              _animation = _animationController
-                                  .drive(Tween<double>(begin: begin, end: end));
+                              _doubleTapScaleAnimation =
+                                  _doubleTapScaleAnimationController.drive(
+                                Tween<double>(begin: begin, end: end),
+                              );
 
-                              _animation?.addListener(_animationListener);
+                              _doubleTapScaleAnimation?.addListener(
+                                _doubleTapScaleAnimationListener,
+                              );
 
-                              _animationController.forward();
+                              _doubleTapScaleAnimationController.forward();
                             },
                             filePath: filePath,
                           )
@@ -434,10 +442,12 @@ class _AllMediaPageState extends State<AllMediaPage>
                             caption: file.caption,
                             videoFilePath: filePath,
                           ),
-                    builder: (context, child) => Transform.rotate(
-                      angle: animationList[_animationIndex].value,
-                      child: child,
-                    ),
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: rotateAnimationList[_rotateAnimationIndex].value,
+                        child: child,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -532,8 +542,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                                         index,
                                         filePath.data!,
                                       );
-
-                                      final mediaUi = buildMediaUi(
+                                      return buildMediaUi(
                                         filePath: filePath.data!,
                                         file: file,
                                         createdOn:
@@ -543,11 +552,6 @@ class _AllMediaPageState extends State<AllMediaPage>
                                         messageId:
                                             mediaSnapShot.data!.messageId,
                                       );
-                                      return isDesktopDevice
-                                          ? InteractiveViewer(
-                                              child: mediaUi,
-                                            )
-                                          : mediaUi;
                                     } else {
                                       return _buildLoading();
                                     }
@@ -561,6 +565,7 @@ class _AllMediaPageState extends State<AllMediaPage>
                         },
                         itemCount: _allMediaCount.value,
                         onPageChanged: (index) {
+                          _rotateAnimationController.value = 0;
                           _videoPlayerService.desktopPlayers[
                                   _fileCache.get(_currentIndex.value).hashCode]
                               ?.stop();
@@ -700,7 +705,7 @@ class _AllMediaPageState extends State<AllMediaPage>
             onPressed: () {
               if (!_disableRotate) {
                 _disableRotate = true;
-                controller.forward(from: 0);
+                _rotateAnimationController.forward(from: 0);
               }
             },
             tooltip: _i18n.get("rotate"),
@@ -709,25 +714,6 @@ class _AllMediaPageState extends State<AllMediaPage>
               color: Colors.white,
             ),
           ),
-          if (isAndroidNative)
-            IconButton(
-              tooltip: _i18n.get("share"),
-              onPressed: () async {
-                final message = await getMessage();
-                if (context.mounted) {
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(
-                    OperationOnMessage.SHARE,
-                  );
-                }
-              },
-              icon: const Icon(
-                Icons.share_rounded,
-                color: Colors.white,
-              ),
-            ),
           if (isDesktopNative) _buildPopupMenuButton(),
         ],
       ),
@@ -760,58 +746,13 @@ class _AllMediaPageState extends State<AllMediaPage>
         const SizedBox(
           width: 10,
         ),
-        StreamBuilder<int>(
-          stream: _currentIndex,
-          builder: (context, snapshot) {
-            if (_needVideoPopupMenu(snapshot.data)) {
-              return _buildPopupMenuButton();
-            } else if (isMobileNative || isWeb) {
-              return IconButton(
-                icon: const Icon(
-                  CupertinoIcons.down_arrow,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  final message = await getMessage();
-                  if (context.mounted) {
-                    isWeb
-                        ? await OperationOnMessageSelection(
-                            message: message!,
-                            context: context,
-                          ).selectOperation(OperationOnMessage.SAVE)
-                        : await OperationOnMessageSelection(
-                            message: message!,
-                            context: context,
-                          ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
-                  }
-                },
-                tooltip: _i18n.get(isWeb ? "save" : "save_to_gallery"),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
+        if (!isDesktopNative) _buildPopupMenuButton(),
       ],
       title: MediaAppBarCounterWidget(
         currentIndex: _currentIndex,
         mediaCount: _allMediaCount,
       ),
     );
-  }
-
-  bool _needVideoPopupMenu(int? index) {
-    if (index != null &&
-        index != -1 &&
-        _mediaCache.values.toList().isNotEmpty &&
-        _mediaCache[_allMediaCount.value - index] != null) {
-      return _mediaCache[_allMediaCount.value - index]!
-          .json
-          .toFile()
-          .isVideoFileProto();
-    } else {
-      return widget.message?.json.toFile().isVideoFileProto() ?? false;
-    }
   }
 
   PopupMenuButton<dynamic> _buildPopupMenuButton() {
