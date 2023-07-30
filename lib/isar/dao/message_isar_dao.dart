@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/isar/message_isar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -73,6 +74,11 @@ class MessageDaoImpl extends MessageDao {
     final messages = box.messageIsars
         .filter()
         .roomUidEqualTo(roomUid.asString())
+        .typeEqualTo(MessageType.TEXT)
+        .or()
+        .typeEqualTo(MessageType.FILE)
+        .and()
+        .jsonContains(keyword)
         .findAllSync()
         .map((e) => e.fromIsar())
         .where((msg) {
