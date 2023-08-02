@@ -312,7 +312,7 @@ SPEC CHECKSUMS:
   desktop_lifecycle: a600c10e12fe033c7be9078f2e929b8241f2c1e3
   desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
-  file_selector_macos: 0f85c1108e2fd597b58246bc0b0c1cb483d7593b
+  file_selector_macos: 468fb6b81fac7c0e88d71317f3eec34c3b008ff9
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
   firebase_analytics: 1bcc9c17d3441da3f74c4b937b25a65bd155858f
   firebase_core: 104c957652eab7d9d9c779102f509714a56ad382
