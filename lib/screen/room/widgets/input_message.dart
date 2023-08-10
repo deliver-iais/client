@@ -1001,8 +1001,9 @@ class InputMessageWidgetState extends State<InputMessage> {
       query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
-      final uidIdName = await _roomRepo
-          .getUidIdNameOfMucMember(value[_mentionSelectedIndex.value]);
+      final uidIdName = await _roomRepo.getUidIdNameOfMucMember(
+        value[_mentionSelectedIndex.value].memberUid,
+      );
       if (uidIdName != null) {
         if (uidIdName.id != null && uidIdName.id!.isNotEmpty) {
           onMentionSelected("@${uidIdName.id!}");

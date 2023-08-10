@@ -149,10 +149,14 @@ class MucRepo {
     }
   }
 
+  /*
+  * Get muc member with query only works on Group
+   */
   Future<List<Member>> fetchMucMembers(
     Uid mucUid,
-    int len,
-  ) async {
+    int len, {
+    String query = "",
+  }) async {
     try {
       final pageSize = max(min(len, 15), 1);
 
@@ -175,8 +179,8 @@ class MucRepo {
             finish = result.$2;
             fetchedMemberPage = result.$1;
           case MucCategories.GROUP:
-            final result =
-                await _mucServices.getGroupMembers(mucUid, pageSize, i);
+            final result = await _mucServices
+                .getGroupMembers(mucUid, pageSize, i, query: query);
             finish = result.$2;
             fetchedMemberPage = result.$1;
           case MucCategories.NONE:
@@ -191,6 +195,8 @@ class MucRepo {
                 mucUid: mucUid,
                 memberUid: member.uid,
                 role: getLocalRole(member.role),
+                username: member.userName,
+                name: member.name,
               ),
             );
           } catch (e) {
@@ -411,6 +417,35 @@ class MucRepo {
 
   Future<List<Member>> getAllMembers(Uid mucUid) =>
       _mucDao.getAllMembers(mucUid);
+
+  Future<List<Member>> getAllMembersWithUserName(
+    Uid mucUid, {
+    String query = "*",
+  }) async {
+    var members = <Member>[];
+    try {
+      final membersWithUsername = await _mucServices.getGroupMembers(
+        mucUid,
+        50,
+        0,
+        query: query,
+      );
+      for (final member in membersWithUsername.$1) {
+        final m = Member(
+          mucUid: mucUid,
+          memberUid: member.uid,
+          name: member.name,
+          role: getLocalRole(member.role),
+          username: member.userName,
+        );
+        await _mucDao.saveMember(m);
+        members.add(m);
+      }
+    } catch(_){
+      members = await _mucDao.getAllMembers(mucUid);
+    }
+    return members;
+  }
 
   Stream<List<Member>> watchAllMembers(Uid mucUid) =>
       _mucDao.watchAllMembers(mucUid);
@@ -785,66 +820,53 @@ class MucRepo {
     throw Exception("Not Valid Role! $role");
   }
 
-  Future<List<Uid>> getFilteredMember(
+  Future<List<Member>> getFilteredMember(
     Uid roomUid, {
     String? query,
   }) async {
     if (query == null || query.isEmpty) {
-      return (await getAllMembers(roomUid)).map((e) => e.memberUid).toList();
+      return getAllMembersWithUserName(roomUid);
     }
-    final uidIdNameList =
-        await Stream.fromIterable(await getAllMembers(roomUid))
-            .asyncMap((member) async {
-              if (_authRepo.isCurrentUser(member.memberUid)) {
-                final a = (_accountRepo.getAccount())!;
-                return UidIdName(
-                  uid: member.memberUid,
-                  id: a.username,
-                  name: buildName(a.firstname, a.lastname),
-                );
-              } else {
-                var uidIdName = await GetIt.I
-                    .get<RoomRepo>()
-                    .getUidIdNameOfMucMember(member.memberUid);
-                if (uidIdName != null && uidIdName.uid.isBot()) {
-                  uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
-                }
-                return uidIdName;
-              }
-            })
-            .where(
-              (uidIdName) => uidIdName != null,
-            )
-            .toList();
+
+    final members = await getAllMembersWithUserName(roomUid, query: query);
+
     final fuzzyName = _getFuzzyList(
-      uidIdNameList
+      members
           .where((element) => element!.name != null)
           .map((event) => event!.name)
           .toList(),
       query,
     );
+
     final fuzzyId =
-        _getFuzzyList(uidIdNameList.map((event) => event!.id).toList(), query);
+        _getFuzzyList(members.map((event) => event!.username).toList(), query);
+
+    final memberWithRealNames = <Member>[];
+    for (final member in members) {
+      var uidIdName = await GetIt.I
+          .get<RoomRepo>()
+          .getUidIdNameOfMucMember(member.memberUid);
+      uidIdName!.realName;
+      if (uidIdName.uid.isBot()) {
+        uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
+      }
+      memberWithRealNames
+          .add(member.copyWith.call(realName: uidIdName.realName ?? ""));
+    }
 
     final fuzzyRealName = _getFuzzyList(
-      uidIdNameList.map((event) => event!.realName).toList(),
+      memberWithRealNames.map((e) => e.realName).toList(),
       query,
     );
 
-    return uidIdNameList
+    return members
         .where(
           (e) =>
               query.isEmpty ||
-              (fuzzyId.isNotEmpty && fuzzyId.contains(e!.id)) ||
-              (e!.name != null &&
-                  fuzzyName.isNotEmpty &&
-                  fuzzyName.contains(e.name)) ||
-              (e.realName != null &&
-                  fuzzyRealName.isNotEmpty &&
-                  fuzzyRealName.contains(e.realName)),
+              (fuzzyId.isNotEmpty && fuzzyId.contains(e!.username)) ||
+              (fuzzyName.isNotEmpty && fuzzyName.contains(e.name)) ||
+              (fuzzyRealName.isNotEmpty && fuzzyRealName.contains(e.realName)),
         )
-        .toList()
-        .map((e) => e!.uid)
         .toList();
   }
 

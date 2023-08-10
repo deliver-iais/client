@@ -2067,6 +2067,7 @@ class MockFileRepo extends _i1.Mock implements _i44.FileRepo {
   _i30.Future<String?> getFile(
     String? uuid,
     String? filename, {
+    String? directUrl,
     _i46.ThumbnailSize? thumbnailSize,
     bool? intiProgressbar = true,
     bool? showAlertOnError = false,
@@ -2079,6 +2080,7 @@ class MockFileRepo extends _i1.Mock implements _i44.FileRepo {
             filename,
           ],
           {
+            #directUrl: directUrl,
             #thumbnailSize: thumbnailSize,
             #intiProgressbar: intiProgressbar,
             #showAlertOnError: showAlertOnError,
@@ -2146,10 +2148,15 @@ class MockFileRepo extends _i1.Mock implements _i44.FileRepo {
         returnValueForMissingStub: null,
       );
   @override
-  _i30.Future<void> openFile(String? filePath) => (super.noSuchMethod(
+  _i30.Future<void> openFile(
+    String? filePath, {
+    bool? preferShowInFolder = false,
+  }) =>
+      (super.noSuchMethod(
         Invocation.method(
           #openFile,
           [filePath],
+          {#preferShowInFolder: preferShowInFolder},
         ),
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
@@ -2472,8 +2479,9 @@ class MockMucServices extends _i1.Mock implements _i51.MucServices {
   _i30.Future<(List<Member>, bool)> getGroupMembers(
     _i5.Uid? groupUid,
     int? limit,
-    int? pointer,
-  ) =>
+    int? pointer, {
+    String? query = r'',
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #getGroupMembers,
@@ -2482,6 +2490,7 @@ class MockMucServices extends _i1.Mock implements _i51.MucServices {
             limit,
             pointer,
           ],
+          {#query: query},
         ),
         returnValue: _i30.Future<(List<Member>, bool)>.value(null),
       ) as _i30.Future<(List<Member>, bool)>);
@@ -4002,6 +4011,88 @@ class MockQueryServiceClient extends _i1.Mock
         ),
       ) as _i8.ResponseFuture<_i4.EndGroupCallRes>);
   @override
+  _i8.ResponseFuture<_i4.SetMuteSettingsOfRoomRes> setMuteSettingsOfRoom(
+    _i4.SetMuteSettingsOfRoomReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setMuteSettingsOfRoom,
+          [request],
+          {#options: options},
+        ),
+        returnValue: _FakeResponseFuture_10<_i4.SetMuteSettingsOfRoomRes>(
+          this,
+          Invocation.method(
+            #setMuteSettingsOfRoom,
+            [request],
+            {#options: options},
+          ),
+        ),
+      ) as _i8.ResponseFuture<_i4.SetMuteSettingsOfRoomRes>);
+  @override
+  _i8.ResponseFuture<_i4.UpdateSettingsRes> updateSettings(
+    _i4.UpdateSettingsReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateSettings,
+          [request],
+          {#options: options},
+        ),
+        returnValue: _FakeResponseFuture_10<_i4.UpdateSettingsRes>(
+          this,
+          Invocation.method(
+            #updateSettings,
+            [request],
+            {#options: options},
+          ),
+        ),
+      ) as _i8.ResponseFuture<_i4.UpdateSettingsRes>);
+  @override
+  _i8.ResponseFuture<_i4.GetSettingsRes> getSettings(
+    _i4.GetSettingsReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getSettings,
+          [request],
+          {#options: options},
+        ),
+        returnValue: _FakeResponseFuture_10<_i4.GetSettingsRes>(
+          this,
+          Invocation.method(
+            #getSettings,
+            [request],
+            {#options: options},
+          ),
+        ),
+      ) as _i8.ResponseFuture<_i4.GetSettingsRes>);
+  @override
+  _i8.ResponseFuture<_i4.CheckCallAvailabilityStatusRes>
+      checkCallAvailabilityStatus(
+    _i4.CheckCallAvailabilityStatusReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+          (super.noSuchMethod(
+            Invocation.method(
+              #checkCallAvailabilityStatus,
+              [request],
+              {#options: options},
+            ),
+            returnValue:
+                _FakeResponseFuture_10<_i4.CheckCallAvailabilityStatusRes>(
+              this,
+              Invocation.method(
+                #checkCallAvailabilityStatus,
+                [request],
+                {#options: options},
+              ),
+            ),
+          ) as _i8.ResponseFuture<_i4.CheckCallAvailabilityStatusRes>);
+  @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
     _i8.ClientMethod<Q, R>? method,
     _i30.Stream<Q>? requests, {
@@ -5245,8 +5336,9 @@ class MockMucRepo extends _i1.Mock implements _i74.MucRepo {
   @override
   _i30.Future<List<_i71.Member>> fetchMucMembers(
     _i5.Uid? mucUid,
-    int? len,
-  ) =>
+    int? len, {
+    String? query = r'',
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #fetchMucMembers,
@@ -5254,6 +5346,7 @@ class MockMucRepo extends _i1.Mock implements _i74.MucRepo {
             mucUid,
             len,
           ],
+          {#query: query},
         ),
         returnValue: _i30.Future<List<_i71.Member>>.value(<_i71.Member>[]),
       ) as _i30.Future<List<_i71.Member>>);
@@ -5657,7 +5750,7 @@ class MockMucRepo extends _i1.Mock implements _i74.MucRepo {
         returnValue: _i77.MucRole.NONE,
       ) as _i77.MucRole);
   @override
-  _i30.Future<List<_i5.Uid>> getFilteredMember(
+  _i30.Future<List<_i71.Member>> getFilteredMember(
     _i5.Uid? roomUid, {
     String? query,
   }) =>
@@ -5667,8 +5760,8 @@ class MockMucRepo extends _i1.Mock implements _i74.MucRepo {
           [roomUid],
           {#query: query},
         ),
-        returnValue: _i30.Future<List<_i5.Uid>>.value(<_i5.Uid>[]),
-      ) as _i30.Future<List<_i5.Uid>>);
+        returnValue: _i30.Future<List<_i71.Member>>.value(<_i71.Member>[]),
+      ) as _i30.Future<List<_i71.Member>>);
   @override
   _i78.MucType pbMucTypeToHiveMucType(_i12.ChannelType? channelType) =>
       (super.noSuchMethod(
@@ -7254,6 +7347,14 @@ class MockSettings extends _i1.Mock implements _i99.Settings {
         returnValue: _FakeBooleanPersistent_27(
           this,
           Invocation.getter(#themeIsDark),
+        ),
+      ) as _i19.BooleanPersistent);
+  @override
+  _i19.BooleanPersistent get autoUpdateIsEnable => (super.noSuchMethod(
+        Invocation.getter(#autoUpdateIsEnable),
+        returnValue: _FakeBooleanPersistent_27(
+          this,
+          Invocation.getter(#autoUpdateIsEnable),
         ),
       ) as _i19.BooleanPersistent);
   @override
@@ -9643,6 +9744,7 @@ class MockFileService extends _i1.Mock implements _i46.FileService {
   _i30.Future<String?> getFile(
     String? uuid,
     String? filename, {
+    String? directUrl,
     _i46.ThumbnailSize? size,
     bool? initProgressbar = true,
     bool? showAlertOnError = false,
@@ -9655,6 +9757,7 @@ class MockFileService extends _i1.Mock implements _i46.FileService {
             filename,
           ],
           {
+            #directUrl: directUrl,
             #size: size,
             #initProgressbar: initProgressbar,
             #showAlertOnError: showAlertOnError,

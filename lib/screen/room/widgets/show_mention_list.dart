@@ -73,7 +73,7 @@ class _ShowMentionListState extends State<ShowMentionList> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FutureBuilder<List<Uid>>(
+    return FutureBuilder<List<Member>>(
       future: _mucRepo.getFilteredMember(widget.roomUid, query: widget.query),
       builder: (c, members) {
         if (members.hasData && members.data!.isNotEmpty) {

@@ -14,7 +14,9 @@ class Member with _$Member {
     @UidJsonKey required Uid mucUid,
     @UidJsonKey required Uid memberUid,
     @Default(MucRole.NONE) MucRole role,
-
+    @Default("") String username,
+    @Default("") String name,
+    @Default("") String realName,
   }) = _Member;
 
   factory Member.fromJson(Map<String, Object?> json) => Member.fromJson(json);

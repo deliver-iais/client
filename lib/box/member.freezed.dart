@@ -25,6 +25,9 @@ mixin _$Member {
   @UidJsonKey
   Uid get memberUid => throw _privateConstructorUsedError;
   MucRole get role => throw _privateConstructorUsedError;
+  String get username => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  String get realName => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -36,7 +39,13 @@ abstract class $MemberCopyWith<$Res> {
   factory $MemberCopyWith(Member value, $Res Function(Member) then) =
       _$MemberCopyWithImpl<$Res, Member>;
   @useResult
-  $Res call({@UidJsonKey Uid mucUid, @UidJsonKey Uid memberUid, MucRole role});
+  $Res call(
+      {@UidJsonKey Uid mucUid,
+      @UidJsonKey Uid memberUid,
+      MucRole role,
+      String username,
+      String name,
+      String realName});
 }
 
 /// @nodoc
@@ -55,6 +64,9 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
     Object? mucUid = null,
     Object? memberUid = null,
     Object? role = null,
+    Object? username = null,
+    Object? name = null,
+    Object? realName = null,
   }) {
     return _then(_value.copyWith(
       mucUid: null == mucUid
@@ -69,6 +81,18 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
           ? _value.role
           : role // ignore: cast_nullable_to_non_nullable
               as MucRole,
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      realName: null == realName
+          ? _value.realName
+          : realName // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -79,7 +103,13 @@ abstract class _$$_MemberCopyWith<$Res> implements $MemberCopyWith<$Res> {
       __$$_MemberCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@UidJsonKey Uid mucUid, @UidJsonKey Uid memberUid, MucRole role});
+  $Res call(
+      {@UidJsonKey Uid mucUid,
+      @UidJsonKey Uid memberUid,
+      MucRole role,
+      String username,
+      String name,
+      String realName});
 }
 
 /// @nodoc
@@ -95,6 +125,9 @@ class __$$_MemberCopyWithImpl<$Res>
     Object? mucUid = null,
     Object? memberUid = null,
     Object? role = null,
+    Object? username = null,
+    Object? name = null,
+    Object? realName = null,
   }) {
     return _then(_$_Member(
       mucUid: null == mucUid
@@ -109,6 +142,18 @@ class __$$_MemberCopyWithImpl<$Res>
           ? _value.role
           : role // ignore: cast_nullable_to_non_nullable
               as MucRole,
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      realName: null == realName
+          ? _value.realName
+          : realName // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -119,7 +164,10 @@ class _$_Member implements _Member {
   const _$_Member(
       {@UidJsonKey required this.mucUid,
       @UidJsonKey required this.memberUid,
-      this.role = MucRole.NONE});
+      this.role = MucRole.NONE,
+      this.username = "",
+      this.name = "",
+      this.realName = ""});
 
   factory _$_Member.fromJson(Map<String, dynamic> json) =>
       _$$_MemberFromJson(json);
@@ -133,10 +181,19 @@ class _$_Member implements _Member {
   @override
   @JsonKey()
   final MucRole role;
+  @override
+  @JsonKey()
+  final String username;
+  @override
+  @JsonKey()
+  final String name;
+  @override
+  @JsonKey()
+  final String realName;
 
   @override
   String toString() {
-    return 'Member(mucUid: $mucUid, memberUid: $memberUid, role: $role)';
+    return 'Member(mucUid: $mucUid, memberUid: $memberUid, role: $role, username: $username, name: $name, realName: $realName)';
   }
 
   @override
@@ -147,12 +204,18 @@ class _$_Member implements _Member {
             (identical(other.mucUid, mucUid) || other.mucUid == mucUid) &&
             (identical(other.memberUid, memberUid) ||
                 other.memberUid == memberUid) &&
-            (identical(other.role, role) || other.role == role));
+            (identical(other.role, role) || other.role == role) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.realName, realName) ||
+                other.realName == realName));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, mucUid, memberUid, role);
+  int get hashCode => Object.hash(
+      runtimeType, mucUid, memberUid, role, username, name, realName);
 
   @JsonKey(ignore: true)
   @override
@@ -172,7 +235,10 @@ abstract class _Member implements Member {
   const factory _Member(
       {@UidJsonKey required final Uid mucUid,
       @UidJsonKey required final Uid memberUid,
-      final MucRole role}) = _$_Member;
+      final MucRole role,
+      final String username,
+      final String name,
+      final String realName}) = _$_Member;
 
   factory _Member.fromJson(Map<String, dynamic> json) = _$_Member.fromJson;
 
@@ -184,6 +250,12 @@ abstract class _Member implements Member {
   Uid get memberUid;
   @override
   MucRole get role;
+  @override
+  String get username;
+  @override
+  String get name;
+  @override
+  String get realName;
   @override
   @JsonKey(ignore: true)
   _$$_MemberCopyWith<_$_Member> get copyWith =>

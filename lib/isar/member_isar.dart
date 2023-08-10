@@ -14,6 +14,12 @@ class MemberIsar {
 
   String memberUid;
 
+  String username;
+
+  String realName;
+
+  String name;
+
   @enumerated
   MucRole role;
 
@@ -21,19 +27,28 @@ class MemberIsar {
     required this.mucUid,
     required this.memberUid,
     this.role = MucRole.NONE,
+    this.username = "",
+    this.realName = "",
+    this.name = "",
   });
 
-  Member fromIsar() =>
-      Member(
+  Member fromIsar() => Member(
         mucUid: mucUid.asUid(),
         memberUid: memberUid.asUid(),
         role: role,
+        username: username,
+        realName: realName,
+        name: name,
       );
 }
 
-extension MemberIsarMapper on Member{
-  MemberIsar toIsar() =>
-      MemberIsar(mucUid: mucUid.asString(),
-          memberUid: memberUid.asString(),
-          role: role,);
+extension MemberIsarMapper on Member {
+  MemberIsar toIsar() => MemberIsar(
+        mucUid: mucUid.asString(),
+        memberUid: memberUid.asString(),
+        role: role,
+        username: username,
+        realName: realName,
+        name: name,
+      );
 }
