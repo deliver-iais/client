@@ -47,14 +47,22 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   void initState() {
     if (widget.formField.whichType() == form_pb.Form_Field_Type.dateField &&
         widget.formField.dateField.defaultDate.isNotEmpty) {
-      _dateEditingController = TextEditingController(
-        text: _getDefaultDAte(
-          widget.formField.dateField.defaultDate,
-          widget.formField.dateField.isHijriShamsi,
-        ),
-      );
+      _setDateDefault();
     }
     super.initState();
+  }
+
+  void _setDateDefault() {
+    _dateEditingController = TextEditingController(
+      text: _getDefaultDAte(
+        widget.formField.dateField.defaultDate,
+        widget.formField.dateField.isHijriShamsi,
+      ),
+    );
+    widget.formResult.previewOverride[widget.formField.id] =
+        _dateEditingController.text;
+    widget.formResult.values[widget.formField.id] =
+        widget.formField.dateField.defaultDate;
   }
 
   String _getDefaultDAte(String date, bool isHijriShamsi) {

@@ -8,7 +8,9 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto;
 import 'package:flutter/material.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 class BotTableWidget extends StatefulWidget {
   final Message message;
@@ -29,6 +31,8 @@ class BotTableWidget extends StatefulWidget {
 class _BotTableWidgetState extends State<BotTableWidget> {
   final _controller = ScrollController();
   final _i18n = GetIt.I.get<I18N>();
+  final _fileService = GetIt.I.get<FileService>();
+  WidgetsToImageController controller = WidgetsToImageController();
 
   @override
   Widget build(BuildContext context) {
@@ -85,16 +89,27 @@ class _BotTableWidgetState extends State<BotTableWidget> {
       builder: (c) {
         return AlertDialog(
           scrollable: true,
-          contentPadding:
-              const EdgeInsets.all(p8),
+          contentPadding: const EdgeInsets.all(p8),
           actionsPadding:
               const EdgeInsets.only(left: p8, bottom: p8, right: p8),
           titlePadding: EdgeInsets.zero,
-          content: ClipRRect(borderRadius: buttonBorder, child: table),
+          content: ClipRRect(
+            borderRadius: buttonBorder,
+            child: WidgetsToImage(controller: controller, child: table),
+          ),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(c),
               child: Text(_i18n.get("close")),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final res = await controller.capture();
+                if (res != null) {
+                  await _fileService.saveCaptureFile(res);
+                }
+              },
+              child: Text(_i18n.get("save")),
             )
           ],
         );

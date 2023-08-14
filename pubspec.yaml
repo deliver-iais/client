@@ -169,6 +169,7 @@ dependencies:
   pasteboard: 0.2.0
   path: 1.8.3
   path_provider: 2.0.15
+  widgets_to_image: 0.0.2
   path_provider_android: 2.0.27
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.3
