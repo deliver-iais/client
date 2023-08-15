@@ -309,17 +309,6 @@ class FileService {
     }
   }
 
-  Future<void> saveCaptureFile(Uint8List res) async {
-    try {
-      final file = await _downloadedFileDir("test1.png");
-      file.writeAsBytesSync(
-        res,
-      );
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   Future<void> saveFileInDesktopDownloadFolder(
     String name,
     String filePath,
@@ -352,6 +341,14 @@ class FileService {
             : File(path).readAsBytesSync(),
       );
     } catch (_) {}
+  }
+
+  Future<void> saveCaptureFile(Uint8List res, String path) async {
+    try {
+      File(path).writeAsBytesSync(res);
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<String?> _getFileThumbnail(

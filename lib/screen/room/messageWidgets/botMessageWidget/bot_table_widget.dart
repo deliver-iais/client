@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/horizontal_list_widget.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -8,9 +11,9 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto;
 import 'package:flutter/material.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:widgets_to_image/widgets_to_image.dart';
+import 'package:file_picker/file_picker.dart';
 
 class BotTableWidget extends StatefulWidget {
   final Message message;
@@ -32,7 +35,23 @@ class _BotTableWidgetState extends State<BotTableWidget> {
   final _controller = ScrollController();
   final _i18n = GetIt.I.get<I18N>();
   final _fileService = GetIt.I.get<FileService>();
-  WidgetsToImageController controller = WidgetsToImageController();
+  final widgetToImageController = WidgetsToImageController();
+
+  void onSaveAs(Uint8List res) {
+    Future.delayed(const Duration(milliseconds: 350)).then((value) {
+      FilePicker.platform
+          .saveFile(
+        lockParentWindow: true,
+        dialogTitle: 'Save file',
+        fileName: "رزرو"+".png",
+      )
+          .then((outputFile) {
+        if (outputFile != null) {
+          _fileService.saveCaptureFile(res, outputFile);
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +88,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
               onPressed: () => showInDialog(
                 buildTableWidget(
                   context: context,
+                  c: widgetToImageController,
                   controller: ScrollController(),
                   maxWidth: MediaQuery.of(context).size.width * 2 / 3,
                   rows: rows,
@@ -95,7 +115,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
           titlePadding: EdgeInsets.zero,
           content: ClipRRect(
             borderRadius: buttonBorder,
-            child: WidgetsToImage(controller: controller, child: table),
+            child: table,
           ),
           actions: [
             ElevatedButton(
@@ -104,9 +124,10 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final res = await controller.capture();
+                final res = await widgetToImageController.capture();
                 if (res != null) {
-                  await _fileService.saveCaptureFile(res);
+                  onSaveAs(res);
+                  // await _fileService.saveCaptureFile(res);
                 }
               },
               child: Text(_i18n.get("save")),
@@ -121,6 +142,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
     required BuildContext context,
     required ScrollController controller,
     required double maxWidth,
+    WidgetsToImageController?  c,
     required List<TableRow> rows,
     required Map<int, TableColumnWidth> columnWidths,
     BorderRadius radius = tertiaryBorder,
@@ -140,7 +162,18 @@ class _BotTableWidgetState extends State<BotTableWidget> {
           child: SingleChildScrollView(
             controller: controller,
             scrollDirection: Axis.horizontal,
-            child: Table(
+            child: c!= null? WidgetsToImage(
+              controller: c,
+              child: Table(
+                border: TableBorder.all(
+                  color: widget.colorScheme.primary,
+                  borderRadius: radius,
+                ),
+                columnWidths: columnWidths,
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: rows,
+              ),
+            ):Table(
               border: TableBorder.all(
                 color: widget.colorScheme.primary,
                 borderRadius: radius,
