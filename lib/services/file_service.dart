@@ -345,7 +345,7 @@ class FileService {
 
   Future<void> saveCaptureFile(Uint8List res, String path) async {
     try {
-      File(path).writeAsBytesSync(res);
+      File("$path.jpg").writeAsBytesSync(res);
     } catch (e) {
       _logger.e(e);
     }
