@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_tim
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formatted_text_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/radio_button_filed_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/rich_formatted_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/settings.dart';
@@ -97,6 +98,13 @@ class BotFormMessageState extends State<BotFormMessage> {
 
           break;
         case proto_pb.Form_Field_Type.radioButtonList:
+          _widgets.add(
+            RadioButtonFieldWidget(
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              selected: (value) => _setResult(field, value),
+            ),
+          );
         case proto_pb.Form_Field_Type.list:
           _widgets.add(
             FormListWidget(

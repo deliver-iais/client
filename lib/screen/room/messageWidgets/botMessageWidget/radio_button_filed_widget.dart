@@ -23,6 +23,7 @@ class RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
   final _formKey = GlobalKey<FormState>();
   final ShakeWidgetController shakeWidgetController = ShakeWidgetController();
   BehaviorSubject<List<String>> selectedItems = BehaviorSubject.seeded([]);
+  BehaviorSubject<String> selectedItem = BehaviorSubject.seeded("");
 
   @override
   Widget build(BuildContext context) {
@@ -81,19 +82,26 @@ class RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
                         );
                       },
                     )
-                  : RadioListTile<List<String>>(
-                      title: Text(
-                        widget.formField.id,
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
-                        softWrap: true,
-                      ),
-                      groupValue: widget.formField.radioButtonList.values,
-                      activeColor: Colors.green,
-                      onChanged: (s) => widget.selected(""),
-                      toggleable: true,
-                      value: widget.formField.radioButtonList.values,
+                  : StreamBuilder<String>(
+                      stream: selectedItem.stream,
+                      builder: (context, selected) {
+                        return Column(
+                          children: <Widget>[
+                            for (String value
+                                in widget.formField.radioButtonList.values)
+                              RadioListTile(
+                                value: value,
+                                groupValue: selected.data,
+                                title: Text(value),
+                                onChanged: (val) {
+                                  selectedItem.add(val!);
+                                  widget.selected(val);
+                                },
+                                activeColor: Colors.green,
+                              )
+                          ],
+                        );
+                      },
                     ),
             ),
           ],
