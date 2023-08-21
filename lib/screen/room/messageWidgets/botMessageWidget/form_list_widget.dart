@@ -31,35 +31,59 @@ class FormListWidget extends StatelessWidget {
           children: [
             Form(
               key: _formKey,
-              child: DropdownSearch<String>(
-                validator: (value) {
-                  if (!formField.isOptional && value == null) {
-                    shakeWidgetController.shake();
-                    return _i18n.get("please_select_one");
-                  } else {
-                    return null;
-                  }
-                },
-                popupProps: const PopupProps.menu(
-                  showSearchBox: true,
-                  showSelectedItems: true,
-                  searchFieldProps: TextFieldProps(
-                    style: TextStyle(),
-                  ),
-                  constraints: BoxConstraints(maxHeight: 200),
-                  searchDelay: Duration(milliseconds: 200),
-                ),
-                items: formField.whichType() == form_pb.Form_Field_Type.list
-                    ? formField.list.values
-                    : formField.radioButtonList.values,
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    labelText: formField.id,
-                    hintText: formField.hint,
-                  ),
-                ),
-                onChanged: selected,
-              ),
+              child: formField.list.hasMultiSelection()
+                  ? DropdownSearch<String>.multiSelection(
+                      items: formField.list.values,
+                      validator: (value) {
+                        if (!formField.isOptional &&
+                            (value == null || value.isEmpty)) {
+                          shakeWidgetController.shake();
+                          return _i18n.get("please_select_one");
+                        } else {
+                          return null;
+                        }
+                      },
+                      popupProps: const PopupPropsMultiSelection.menu(
+                        showSelectedItems: true,
+                        showSearchBox: true,
+                        searchFieldProps: TextFieldProps(
+                          style: TextStyle(),
+                        ),
+                        constraints: BoxConstraints(maxHeight: 200),
+                        searchDelay: Duration(milliseconds: 200),
+                      ),
+                      onChanged: (values) => selected(values.join(",")),
+                    )
+                  : DropdownSearch<String>(
+                      validator: (value) {
+                        if (!formField.isOptional && value == null) {
+                          shakeWidgetController.shake();
+                          return _i18n.get("please_select_one");
+                        } else {
+                          return null;
+                        }
+                      },
+                      popupProps: const PopupProps.menu(
+                        showSearchBox: true,
+                        showSelectedItems: true,
+                        searchFieldProps: TextFieldProps(
+                          style: TextStyle(),
+                        ),
+                        constraints: BoxConstraints(maxHeight: 200),
+                        searchDelay: Duration(milliseconds: 200),
+                      ),
+                      items:
+                          formField.whichType() == form_pb.Form_Field_Type.list
+                              ? formField.list.values
+                              : formField.radioButtonList.values,
+                      dropdownDecoratorProps: DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: formField.id,
+                          hintText: formField.hint,
+                        ),
+                      ),
+                      onChanged: selected,
+                    ),
             ),
           ],
         ),

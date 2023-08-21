@@ -1,17 +1,18 @@
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 class RadioButtonFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final Function selected;
-  final GlobalKey<FormState> formValidator;
+  final void Function(String?) selected;
+  final void Function(GlobalKey<FormState>) setFormKey;
 
   const RadioButtonFieldWidget({
     super.key,
     required this.formField,
     required this.selected,
-    required this.formValidator,
+    required this.setFormKey,
   });
 
   @override
@@ -19,80 +20,85 @@ class RadioButtonFieldWidget extends StatefulWidget {
 }
 
 class RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
-  late String selected;
+  final _formKey = GlobalKey<FormState>();
+  final ShakeWidgetController shakeWidgetController = ShakeWidgetController();
+  BehaviorSubject<List<String>> selectedItems = BehaviorSubject.seeded([]);
 
-  // TODO(any): need check
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.shrink();
-
-    // return Padding(
-    //   padding: const EdgeInsetsDirectional.only(start: 7, end: 7),
-    //   child: Container(
-    //     child: Column(
-    //       children: [
-    //         SizedBox(
-    //           height: 10,
-    //         ),
-    //         Form(
-    //             key: widget.formValidator,
-    //             child: FormBuilderRadioGroup(
-    //                 wrapDirection: Axis.vertical,
-    //                 onChanged: (value) {
-    //                   setState(() {
-    //                     selected = value;
-    //                   });
-    //                   widget.selected(value);
-    //                 },
-    //                 validator: (value) {
-    //                   if (value == null && !widget.formField.isOptional) {
-    //                     return null;
-    //                   } else if (value == null) {
-    //                     return _i18n
-    //                         .getTraslateValue("please_select_one");
-    //                   }
-    //                   return null;
-    //                 },
-    //                 decoration: InputDecoration(
-    //                     labelText: widget.formField.label,
-    //                     enabledBorder: OutlineInputBorder(
-    //                       borderSide: BorderSide(color: Colors.blue),
-    //                       borderRadius: BorderRadius.circular(20),
-    //                     ),
-    //                     focusedBorder: OutlineInputBorder(
-    //                       borderSide: BorderSide(color: Colors.blue),
-    //                       borderRadius: BorderRadius.circular(20),
-    //                     ),
-    //                     border: OutlineInputBorder(
-    //                         borderRadius: BorderRadius.circular(20)),
-    //                     disabledBorder: OutlineInputBorder(
-    //                       borderSide: BorderSide(
-    //                         color: Colors.red,
-    //                       ),
-    //                       borderRadius: BorderRadius.circular(20),
-    //                     ),
-    //                     labelStyle: TextStyle(color: Colors.blue)),
-    //                 options: widget.formField.radioButtonList.values
-    //                     .map((value) => FormBuilderFieldOption(
-    //                           value: value,
-    //                           child: Row(
-    //                             children: [
-    //                               Text(
-    //                                 '$value',
-    //                                 style: TextStyle(
-    //                                     color: (selected != null &&
-    //                                             value == selected)
-    //                                         ? Colors.blueAccent
-    //                                         : Colors.white),
-    //                               ),
-    //                             ],
-    //                           ),
-    //                         ))
-    //                     .toList(growable: true),
-    //                 name: "t,")),
-    //       ],
-    //     ),
-    //   ),
-    // );
+    return Container(
+      margin: const EdgeInsetsDirectional.symmetric(vertical: 6),
+      child: ShakeWidget(
+        controller: shakeWidgetController,
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: widget.formField.radioButtonList.hasMultiSelection()
+                  ? ListView.builder(
+                      itemCount: widget.formField.radioButtonList.values.length,
+                      itemBuilder: (_, index) {
+                        final data =
+                            widget.formField.radioButtonList.values[index];
+                        return Card(
+                          color: Colors.white,
+                          elevation: 2.0,
+                          child: StreamBuilder<List<String>>(
+                            stream: selectedItems.stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return Checkbox(
+                                  value: snapshot.data!.contains(data),
+                                  onChanged: (_) {
+                                    if (snapshot.data!.contains(data)) {
+                                      selectedItems.add(
+                                        selectedItems.value
+                                            .where(
+                                              (
+                                                element,
+                                              ) =>
+                                                  element != data,
+                                            )
+                                            .toList(),
+                                      );
+                                      widget.selected(
+                                        selectedItems.value.join(","),
+                                      );
+                                    } else {
+                                      selectedItems.add(
+                                        selectedItems.value..add(data),
+                                      );
+                                      widget.selected(
+                                        selectedItems.value.join(","),
+                                      ); // select
+                                    }
+                                  },
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        );
+                      },
+                    )
+                  : RadioListTile<List<String>>(
+                      title: Text(
+                        widget.formField.id,
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                        softWrap: true,
+                      ),
+                      groupValue: widget.formField.radioButtonList.values,
+                      activeColor: Colors.green,
+                      onChanged: (s) => widget.selected(""),
+                      toggleable: true,
+                      value: widget.formField.radioButtonList.values,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
