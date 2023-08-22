@@ -156,14 +156,19 @@ class _BotTableWidgetState extends State<BotTableWidget> {
                       children: rows,
                     ),
                   )
-                : Table(
-                    border: TableBorder.all(
-                      color: widget.colorScheme.primary,
-                      borderRadius: radius,
-                    ),
-                    columnWidths: columnWidths,
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    children: rows,
+                : Column(
+                    children: [
+                      Table(
+                        border: TableBorder.all(
+                          color: widget.colorScheme.primary,
+                          borderRadius: radius,
+                        ),
+                        columnWidths: columnWidths,
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        children: rows,
+                      ),
+                    ],
                   ),
           ),
         ),
