@@ -60,5 +60,5 @@ enum MessageType {
   PAYMENT_INFORMATION,
 
   @HiveField(18)
-  CALL_LOG
+  CALL_LOG,
 }
