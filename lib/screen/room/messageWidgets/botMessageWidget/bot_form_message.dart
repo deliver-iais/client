@@ -108,19 +108,12 @@ class BotFormMessageState extends State<BotFormMessage> {
           break;
         case proto_pb.Form_Field_Type.list:
           _widgets.add(
-            RadioButtonFieldWidget(
+            FormListWidget(
               formField: field,
               setFormKey: (key) => formFieldsKey[field.id] = key,
               selected: (value) => _setResult(field, value),
             ),
           );
-          // _widgets.add(
-          //   FormListWidget(
-          //     formField: field,
-          //     setFormKey: (key) => formFieldsKey[field.id] = key,
-          //     selected: (value) => _setResult(field, value),
-          //   ),
-          // );
           break;
         case proto_pb.Form_Field_Type.formattedTextField:
           _widgets.add(
