@@ -43,6 +43,12 @@ class FormListWidget extends StatelessWidget {
                           return null;
                         }
                       },
+                      dropdownDecoratorProps: DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: formField.id,
+                          hintText: formField.hint,
+                        ),
+                      ),
                       popupProps: const PopupPropsMultiSelection.menu(
                         showSelectedItems: true,
                         showSearchBox: true,
@@ -72,10 +78,7 @@ class FormListWidget extends StatelessWidget {
                         constraints: BoxConstraints(maxHeight: 200),
                         searchDelay: Duration(milliseconds: 200),
                       ),
-                      items:
-                          formField.whichType() == form_pb.Form_Field_Type.list
-                              ? formField.list.values
-                              : formField.radioButtonList.values,
+                      items: formField.list.values,
                       dropdownDecoratorProps: DropDownDecoratorProps(
                         dropdownSearchDecoration: InputDecoration(
                           labelText: formField.id,
