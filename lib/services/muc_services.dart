@@ -146,13 +146,15 @@ class MucServices {
   Future<(List<Member> members, bool finished)> getGroupMembers(
     Uid groupUid,
     int limit,
-    int pointer,
-  ) async {
+    int pointer, {
+    String query = "",
+  }) async {
     final request = await _serVices.groupServiceClient.getMembers(
       group_pb.GetMembersReq()
         ..uid = groupUid
         ..pointer = pointer
-        ..limit = limit,
+        ..limit = limit
+        ..query = query,
     );
     return (request.members, request.finished);
   }

@@ -200,12 +200,12 @@ class AuthRepo {
   }
 
   Future<String> getAccessToken() async {
-    if (isDeliverTokenValid(accessToken)) {
+    if (isDeliverTokenValid(accessToken, isAccessToken: true)) {
       return accessToken;
     }
 
     return _accessTokenLock.synchronized(() async {
-      if (!isDeliverTokenValid(accessToken)) {
+      if (!isDeliverTokenValid(accessToken, isAccessToken: true)) {
         if (!isDeliverTokenValid(refreshToken())) {
           unawaited(GetIt.I.get<RoutingService>().logout());
           return "";
@@ -402,7 +402,8 @@ class AuthRepo {
   }
 
   void emitNewClientVersionInformationIfNeeded(ClientVersion clientVersion) {
-    if (newClientVersionInformation.value == null && clientVersion.hasVersion()) {
+    if (newClientVersionInformation.value == null &&
+        clientVersion.hasVersion()) {
       newClientVersionInformation.add(clientVersion);
     }
   }
@@ -417,6 +418,10 @@ class AuthRepo {
     required String accessToken,
     required String refreshToken,
   }) {
+    settings.accessTokenExpireTime
+        .set(clock.now().millisecondsSinceEpoch + (900 * 1000));
+    settings.refreshTokenExpireTime
+        .set(clock.now().millisecondsSinceEpoch +( 3000000 * 1000));
     settings.accessToken.set(accessToken);
     settings.refreshToken.set(refreshToken);
     settings.refreshTokenDao.set(refreshToken);
@@ -427,7 +432,8 @@ class AuthRepo {
     String? accessToken,
     String? refreshToken,
   }) {
-    if (isDeliverTokenValid(accessToken ?? this.accessToken) &&
+    if (isDeliverTokenValid(accessToken ?? this.accessToken,
+            isAccessToken: true) &&
         isDeliverTokenValid(refreshToken ?? this.refreshToken())) {
       return true;
     } else {
@@ -465,21 +471,42 @@ class AuthRepo {
     }
   }
 
-  bool isDeliverTokenValid(String token) {
-    return token.isNotEmpty && !isDeliverTokenExpired(token);
+  bool _checkAccessTokenIsExpired() {
+    final now = clock.now();
+    return settings.accessTokenExpireTime.value > 0 &&
+        now.millisecondsSinceEpoch > settings.accessTokenExpireTime.value;
   }
 
-  bool isDeliverTokenExpired(String token) {
+  bool _checkRefreshTokenIsExpired() {
+    final now = clock.now();
+    return settings.refreshTokenExpireTime.value > 0 &&
+        now.millisecondsSinceEpoch > settings.refreshTokenExpireTime.value;
+  }
+
+  bool isDeliverTokenValid(String token, {bool isAccessToken = false}) {
+    return token.isNotEmpty && !_isDeliverTokenExpired(token);
+  }
+
+  bool _isDeliverTokenExpired(String token, {bool isAccessToken = false}) {
     final expirationDate = JwtDecoder.getExpirationDate(token);
 
     final now = clock.now();
 
     final diffDuration = Duration(milliseconds: _serverTimeDiff.abs());
-
+    var res = false;
     if (_serverTimeDiff > 0) {
-      return now.subtract(diffDuration).isAfter(expirationDate);
+      res = now.subtract(diffDuration).isAfter(expirationDate);
     } else {
-      return now.add(diffDuration).isAfter(expirationDate);
+      res = (now.add(diffDuration).isAfter(expirationDate));
+    }
+    if (res) {
+      return res;
+    } else {
+      if (isAccessToken) {
+        return _checkAccessTokenIsExpired();
+      } else {
+        return _checkRefreshTokenIsExpired();
+      }
     }
   }
 }

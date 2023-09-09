@@ -34,7 +34,7 @@ class FormSimpleInputFieldWidgetState
         widget.formField.whichType() == form_pb.Form_Field_Type.textField
             ? widget.formField.textField.defaultText
             : widget.formField.numberField.defaultNumber.toInt() != 0
-                ? widget.formField.numberField.defaultNumber.toString()
+                ? widget.formField.numberField.defaultNumber.toInt().toString()
                 : "";
     if (_textEditingController.text.isNotEmpty) {
       widget.setResult(_textEditingController.text);
@@ -122,15 +122,15 @@ class FormSimpleInputFieldWidgetState
   }
 
   String? validateFormTextField(String? value) {
-    if (value == null) {
+    if (widget.formField.isOptional) {
       return null;
     }
-    if (value.isEmpty && !widget.formField.isOptional) {
+    if ((value == null || value.isEmpty) && !widget.formField.isOptional) {
       shakeWidgetController.shake();
       return _i18n.get("this_filed_not_empty");
     }
     if (widget.formField.whichType() == form_pb.Form_Field_Type.numberField) {
-      if (!_isNumeric(value)) {
+      if (!_isNumeric(value!)) {
         shakeWidgetController.shake();
         return _i18n.get("enter_numeric_value");
       }
@@ -139,15 +139,16 @@ class FormSimpleInputFieldWidgetState
         widget.formField.textField.preValidationRegex.isNotEmpty) {
       final Pattern pattern = widget.formField.textField.preValidationRegex;
       final regex = RegExp(pattern.toString());
-      if (!regex.hasMatch(value)) {
+      if (!regex.hasMatch(value!)) {
         shakeWidgetController.shake();
         return _i18n.get("not_valid_input");
       }
+
     }
 
     final max = widget.formField.textField.max;
     final min = widget.formField.textField.min;
-    if (value.isEmpty && widget.formField.isOptional) {
+    if (value!.isEmpty && widget.formField.isOptional) {
       return null;
     } else if (max > 0 && value.length > max) {
       return "${_i18n.get("max_length")}  $max";

@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/widgets/horizontal_list_widget.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -9,6 +10,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:widgets_to_image/widgets_to_image.dart';
 
 class BotTableWidget extends StatefulWidget {
   final Message message;
@@ -29,6 +31,8 @@ class BotTableWidget extends StatefulWidget {
 class _BotTableWidgetState extends State<BotTableWidget> {
   final _controller = ScrollController();
   final _i18n = GetIt.I.get<I18N>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final widgetToImageController = WidgetsToImageController();
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +69,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
               onPressed: () => showInDialog(
                 buildTableWidget(
                   context: context,
+                  c: widgetToImageController,
                   controller: ScrollController(),
                   maxWidth: MediaQuery.of(context).size.width * 2 / 3,
                   rows: rows,
@@ -85,16 +90,27 @@ class _BotTableWidgetState extends State<BotTableWidget> {
       builder: (c) {
         return AlertDialog(
           scrollable: true,
-          contentPadding:
-              const EdgeInsets.all(p8),
+          contentPadding: const EdgeInsets.all(p8),
           actionsPadding:
               const EdgeInsets.only(left: p8, bottom: p8, right: p8),
           titlePadding: EdgeInsets.zero,
-          content: ClipRRect(borderRadius: buttonBorder, child: table),
+          content: ClipRRect(
+            borderRadius: buttonBorder,
+            child: table,
+          ),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(c),
               child: Text(_i18n.get("close")),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final res = await widgetToImageController.capture();
+                if (res != null) {
+                  _fileRepo.saveTableAdImage(res, _i18n.get("save"));
+                }
+              },
+              child: Text(_i18n.get("save")),
             )
           ],
         );
@@ -106,6 +122,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
     required BuildContext context,
     required ScrollController controller,
     required double maxWidth,
+    WidgetsToImageController? c,
     required List<TableRow> rows,
     required Map<int, TableColumnWidth> columnWidths,
     BorderRadius radius = tertiaryBorder,
@@ -125,15 +142,34 @@ class _BotTableWidgetState extends State<BotTableWidget> {
           child: SingleChildScrollView(
             controller: controller,
             scrollDirection: Axis.horizontal,
-            child: Table(
-              border: TableBorder.all(
-                color: widget.colorScheme.primary,
-                borderRadius: radius,
-              ),
-              columnWidths: columnWidths,
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: rows,
-            ),
+            child: c != null
+                ? WidgetsToImage(
+                    controller: c,
+                    child: Table(
+                      border: TableBorder.all(
+                        color: widget.colorScheme.primary,
+                        borderRadius: radius,
+                      ),
+                      columnWidths: columnWidths,
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      children: rows,
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Table(
+                        border: TableBorder.all(
+                          color: widget.colorScheme.primary,
+                          borderRadius: radius,
+                        ),
+                        columnWidths: columnWidths,
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        children: rows,
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),

@@ -34,7 +34,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
 
   final TextEditingController _timeEditingController = TextEditingController();
 
-  final TextEditingController _dateEditingController = TextEditingController();
+  TextEditingController _dateEditingController = TextEditingController();
   final ShakeWidgetController _shakeWidgetController = ShakeWidgetController();
 
   DateTime? _selectedDate;
@@ -42,6 +42,38 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   TimeOfDay? _selectedTime;
 
   Jalali? _selectedDateJalali;
+
+  @override
+  void initState() {
+    if (widget.formField.whichType() == form_pb.Form_Field_Type.dateField &&
+        widget.formField.dateField.defaultDate.isNotEmpty) {
+      _setDateDefault();
+    }
+    super.initState();
+  }
+
+  void _setDateDefault() {
+    _dateEditingController = TextEditingController(
+      text: _getDefaultDAte(
+        widget.formField.dateField.defaultDate,
+        widget.formField.dateField.isHijriShamsi,
+      ),
+    );
+    widget.formResult.previewOverride[widget.formField.id] =
+        _dateEditingController.text;
+    widget.formResult.values[widget.formField.id] =
+        widget.formField.dateField.defaultDate;
+  }
+
+  String _getDefaultDAte(String date, bool isHijriShamsi) {
+    if (isHijriShamsi) {
+      return Jalali.fromDateTime(
+        DateTime.fromMillisecondsSinceEpoch(int.parse(date)),
+      ).formatCompactDate();
+    } else {
+      return getDateFormatter(DateTime.parse(date));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +231,14 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
     );
   }
 
+  Jalali _getPersianDefaultDate(String date) =>
+      _selectedDateJalali ??
+      (date.isNotEmpty
+          ? Jalali.fromDateTime(
+              DateTime.fromMillisecondsSinceEpoch(int.parse(date)),
+            )
+          : Jalali.now());
+
   Future<void> _selectDate(BuildContext context) async {
     if ((widget.formField.whichType() ==
                 form_pb.Form_Field_Type.dateAndTimeField &&
@@ -207,7 +247,8 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             widget.formField.dateField.isHijriShamsi)) {
       final picked = await showPersianDatePicker(
         context: context,
-        initialDate: _selectedDateJalali ?? Jalali.now(),
+        initialDate:
+            _getPersianDefaultDate(widget.formField.dateField.defaultDate),
         firstDate: getJalaliFirstDate(),
         lastDate: getJalaliEndDate(),
       );

@@ -81,10 +81,12 @@ class _CircleAvatarWidgetState extends State<CircleAvatarWidget> {
         !isSavedMessage() &&
         !isBroadcast() &&
         settings.showAvatarImages.value) {
-      lastAvatarFilePathStream = _avatarRepo.getLastAvatarFilePathStream(
-        uid,
-        forceToUpdate: widget.forceToUpdateAvatar,
-      );
+      lastAvatarFilePathStream = _avatarRepo
+          .getLastAvatarFilePathStream(
+            uid,
+            forceToUpdate: widget.forceToUpdateAvatar,
+          )
+          .asBroadcastStream();
     }
 
     nameFuture = _roomRepo.getName(uid);
