@@ -53,6 +53,7 @@ import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -141,6 +142,7 @@ class RoutingService {
   final _recentRoomsDao = GetIt.I.get<RecentRoomsDao>();
   final _preMaybePopScope = PreMaybePopScope();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
+  static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
@@ -297,6 +299,7 @@ class RoutingService {
         popAllBeforePush: popAllBeforePush,
       );
       shouldScrollToLastMessageInRoom.add(false);
+      _searchMessageService.clearCache();
     } else if (isInRoom(roomId)) {
       shouldScrollToLastMessageInRoom.add(true);
     }
@@ -733,7 +736,11 @@ class RoutingService {
         child: BackButtonWidget(
           color: color,
           onPressed: () {
-            onBackButtonLeadingClick?.call();
+            if (_searchMessageService.inSearchMessageMode.hasValue &&
+                _searchMessageService.inSearchMessageMode.value != null){
+              _searchMessageService.inSearchMessageMode.add(null);
+            }
+              onBackButtonLeadingClick?.call();
             pop();
           },
         ),

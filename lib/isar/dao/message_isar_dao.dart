@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/isar/message_isar.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
 
@@ -63,5 +65,25 @@ class MessageDaoImpl extends MessageDao {
       }
       box.messageIsars.putSync(message.toIsar());
     });
+  }
+
+  @override
+  Future<List<Message>> searchMessages(Uid roomUid, String keyword) async {
+    final box = await _openMessageIsar();
+
+    final messages = box.messageIsars
+        .filter()
+        .roomUidEqualTo(roomUid.asString())
+        .group((q) =>
+            q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
+        .and()
+        .jsonContains(keyword)
+        .findAllSync()
+        .map((e) => e.fromIsar())
+        .where((msg) {
+      return isMessageContainKeyword(msg, keyword);
+    }).toList();
+
+    return messages.reversed.toList();
   }
 }

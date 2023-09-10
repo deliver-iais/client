@@ -659,6 +659,8 @@
   "your_password_update": "رمز شما بروز شد",
   "your_session_is_expired_please_login_again": "سشن شما منقضی شده است، لطفا دوباره وارد برنامه شوید",
   "your_session_is_has_a_problem": "مشکلی در برنامه ایجاد شده، لطفا دوباره وارد برنامه شوید",
+  "search_messages_in": "جستجوی پیام در",
+  "search_for_messages": "جستجوی پیام ها",
   "more": "بیشتر",
   "days": "روز",
   "hours": "ساعت"

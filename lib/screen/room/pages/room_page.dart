@@ -43,6 +43,8 @@ import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/channel_bottom_bar.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_message_room_footer.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_messages_in_room.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -50,9 +52,11 @@ import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -62,6 +66,7 @@ import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_appbar_title.dart';
+import 'package:deliver/shared/widgets/room_message_result_in_page.dart';
 import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -97,14 +102,15 @@ class RoomPage extends StatefulWidget {
   RoomPageState createState() => RoomPageState();
 }
 
-class RoomPageState extends State<RoomPage> {
+class RoomPageState extends State<RoomPage>
+    with CustomPopupMenu, SingleTickerProviderStateMixin {
   static final _logger = GetIt.I.get<Logger>();
   static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _i18n = GetIt.I.get<I18N>();
 
   static final _scrollPositionDao = GetIt.I.get<ScrollPositionDao>();
   static final _mucDao = GetIt.I.get<MucDao>();
-
+  static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
@@ -125,13 +131,13 @@ class RoomPageState extends State<RoomPage> {
   int _lastReceivedMessageId = 0;
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
-  List<Message> searchResult = [];
   int _currentScrollIndex = 0;
   bool _appIsActive = true;
   double _defaultMessageHeight = 1000;
   final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
   StreamSubscription<AppLifecycle>? _subscription;
+  StreamSubscription<int>? _messageSubscription;
 
   final _highlightMessagesId = BehaviorSubject<List<int>>.seeded([]);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -174,6 +180,7 @@ class RoomPageState extends State<RoomPage> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _messageSubscription?.cancel();
     _inputMessageTextController.dispose();
     _shouldScrollToLastMessageInRoom?.cancel();
     _mentionCount.close();
@@ -412,7 +419,21 @@ class RoomPageState extends State<RoomPage> {
                     },
                     child: event.connectionState == ConnectionState.waiting
                         ? const SizedBox.shrink()
-                        : buildMessagesListView(snapshot),
+                        : StreamBuilder<bool?>(
+                            stream: _searchMessageService
+                                .openSearchResultPageOnFooter,
+                            builder: (context, srm) {
+                              if (srm.hasData &&
+                                  srm.data == true &&
+                                  !isLarge(context)) {
+                                return RoomMessageResultInPage(
+                                  uid: room.uid,
+                                );
+                              } else {
+                                return buildMessagesListView(snapshot);
+                              }
+                            },
+                          ),
                   );
                 },
               ),
@@ -616,6 +637,13 @@ class RoomPageState extends State<RoomPage> {
             )
             .debounceTime(const Duration(milliseconds: 50))
             .asBroadcastStream();
+
+    _messageSubscription =
+        _searchMessageService.currentSelectedMessageId.listen((value) {
+      if (value != -1) {
+        scrollToFoundMessage(value);
+      }
+    });
 
     super.initState();
   }
@@ -1160,22 +1188,63 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget buildNewMessageInput() {
-    if (widget.roomUid.category == Categories.BOT) {
-      return StreamBuilder<Room?>(
-        stream: _room,
-        builder: (c, s) {
-          if (s.hasData &&
-              s.data!.uid.category == Categories.BOT &&
-              s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-            return BotStartWidget(botUid: widget.roomUid);
-          } else {
-            return messageInput();
-          }
-        },
-      );
-    } else {
-      return messageInput();
-    }
+    return StreamBuilder(
+      stream: _searchMessageService.inSearchMessageMode,
+      builder: (context, searchMessageMode) {
+        if (searchMessageMode.hasData && !isLarge(context)) {
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: AnimatedSize(
+                  duration: AnimationSettings.slow,
+                  curve: Curves.easeInOut,
+                  child: child,
+                ),
+              );
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SearchMessageRoomFooterWidget(uid: room.uid),
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (widget.roomUid.category == Categories.BOT) {
+          return StreamBuilder<Room?>(
+            stream: _room,
+            builder: (c, s) {
+              if (s.hasData &&
+                  s.data!.uid.category == Categories.BOT &&
+                  s.data!.lastMessageId - s.data!.firstMessageId == 0) {
+                return BotStartWidget(botUid: widget.roomUid);
+              } else {
+                return messageInput();
+              }
+            },
+          );
+        } else {
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: AnimatedSize(
+                  duration: AnimationSettings.slow,
+                  child: child,
+                ),
+              );
+            },
+            child: messageInput(),
+          );
+        }
+      },
+    );
   }
 
   Widget messageInput() => StreamBuilder(
@@ -1240,7 +1309,16 @@ class RoomPageState extends State<RoomPage> {
 
   PreferredSizeWidget buildAppbar() {
     return BlurredPreferredSizedWidget(
-      child: buildAppBar(),
+      child: StreamBuilder(
+        stream: _searchMessageService.inSearchMessageMode,
+        builder: (context, searchMessageMode) {
+          if (searchMessageMode.hasData && !isLarge(context)) {
+            return SearchMessageInRoomWidget(uid: room.uid);
+          } else {
+            return buildAppBar();
+          }
+        },
+      ),
     );
   }
 
@@ -1249,6 +1327,16 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
+        Padding(
+          padding: const EdgeInsets.only(left: 5),
+          child: IconButton(
+            onPressed: () {
+              _searchMessageService.closeSearch();
+              _searchMessageService.inSearchMessageMode.add(room.uid);
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ),
         if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<List<int>>(
             stream: _selectedMessageListIndex,
@@ -1704,7 +1792,12 @@ class RoomPageState extends State<RoomPage> {
 
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
     if (tuple != null) {
-      widget = _cachedBuildMessage(index, tuple, maxWidth);
+      widget = StreamBuilder<String?>(
+        stream: _searchMessageService.text,
+        builder: (context, snapshot) {
+          return _cachedBuildMessage(index, tuple, maxWidth);
+        },
+      );
     } else {
       widget = FutureBuilder<Tuple2<Message?, Message?>>(
         initialData: _fastForwardFetchMessageAndMessageBefore(index),
@@ -1743,7 +1836,7 @@ class RoomPageState extends State<RoomPage> {
 
     Widget? w;
 
-    if (!tuple.item2!.isHidden) {
+    if (_searchMessageService.text.value == null && !tuple.item2!.isHidden) {
       w = _cachingRepo.getMessageWidget(widget.roomUid, index);
     }
 
@@ -1792,6 +1885,7 @@ class RoomPageState extends State<RoomPage> {
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
       width: maxWidth,
+      pattern: _searchMessageService.text.value ?? "",
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,
       selectedMessageListIndex: _selectedMessageListIndex,
@@ -1825,6 +1919,10 @@ class RoomPageState extends State<RoomPage> {
     if (room.mentionsId.isNotEmpty) {
       _scrollToMessageWithHighlight(room.mentionsId.first);
     }
+  }
+
+  void scrollToFoundMessage(int id, {bool isForced = false}) {
+    _scrollToMessageWithHighlight(id);
   }
 
   void _scrollToReplyMessage(int scrollToMessageId, int currentMessageId) {

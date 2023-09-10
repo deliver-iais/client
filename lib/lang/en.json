@@ -661,5 +661,7 @@
   "your_session_is_has_a_problem": "Your session has a problem, please login again",
   "more": "More",
   "days": "Days",
-  "hours": "Hours"
+  "hours": "Hours",
+  "search_messages_in": "Search messages in",
+  "search_for_messages": "Search for messages"
 }

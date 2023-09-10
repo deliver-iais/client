@@ -7,7 +7,9 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_count
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_messages_in_room.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -18,6 +20,7 @@ import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -52,6 +55,7 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   final SearchController _searchBoxController = SearchController();
   final ScrollController _sliverScrollController = ScrollController();
   final _sliverScrollControllerOffset = BehaviorSubject<double>.seeded(0);
@@ -121,132 +125,167 @@ class NavigationCenterState extends State<NavigationCenter>
       child: Scaffold(
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: const CreateMucFloatingActionButton(),
-        body: StreamBuilder<List<Categories>>(
-          stream: _roomRepo.watchRoomsCategories(),
-          builder: (context, roomsCategoriesSnapshot) {
-            final allChatsCategory = <Categories?>[null];
-            final roomsCategories =
-                allChatsCategory + (roomsCategoriesSnapshot.data ?? []);
-            _tabController =
-                TabController(length: roomsCategories.length, vsync: this);
-            _tabController?.addListener(() {
-              if (_tabController!.previousIndex != _tabController!.index) {
-                _resetChatScrollControllers(null);
-                for (final cat in Categories.values) {
-                  _resetChatScrollControllers(cat);
-                }
-              }
-            });
-            return NestedScrollView(
-              controller: _sliverScrollController,
-              floatHeaderSlivers: true,
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    pinned: true,
-                    floating: true,
-                    elevation: 6,
-                    backgroundColor: elevation(
-                      theme.colorScheme.background,
-                      theme.colorScheme.primary,
-                      1.3,
-                    ),
-                    titleSpacing: 8.0,
-                    toolbarHeight: APPBAR_HEIGHT,
-                    title: ConnectionStatus(normalTitle: _i18n.get("chats")),
-                    actions: [
-                      NavigationCenterAppbarActionsWidget(
-                        searchController: _searchBoxController,
-                      ),
-                    ],
-                    bottom: PreferredSize(
-                      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
-                      child: TabBar(
-                        controller: _tabController,
-                        isScrollable: true,
-                        labelPadding: const EdgeInsets.all(10),
-                        onTap: (index) {
-                          final category =
-                              index == 0 ? null : roomsCategories[index - 1];
-                          _resetChatScrollControllers(category);
-                        },
-                        tabs: [
-                          for (final category in roomsCategories)
-                            Padding(
-                              padding: _appBarItemPadding,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    _convertRoomCategoryToTabName(category),
+        body: StreamBuilder<Uid?>(
+          stream: _searchMessageService.inSearchMessageMode,
+          builder: (context, searchMessageMode) {
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: searchMessageMode.hasData &&
+                      searchMessageMode.data != null &&
+                      isLarge(context)
+                  ? SearchMessageInRoomWidget(
+                      key: const Key("1"),
+                      uid: searchMessageMode.data,
+                    )
+                  : StreamBuilder<List<Categories>>(
+                      stream: _roomRepo.watchRoomsCategories(),
+                      builder: (context, roomsCategoriesSnapshot) {
+                        final allChatsCategory = <Categories?>[null];
+                        final roomsCategories = allChatsCategory +
+                            (roomsCategoriesSnapshot.data ?? []);
+                        _tabController = TabController(
+                          length: roomsCategories.length,
+                          vsync: this,
+                        );
+                        _tabController?.addListener(() {
+                          if (_tabController!.previousIndex !=
+                              _tabController!.index) {
+                            _resetChatScrollControllers(null);
+                            for (final cat in Categories.values) {
+                              _resetChatScrollControllers(cat);
+                            }
+                          }
+                        });
+                        return NestedScrollView(
+                          controller: _sliverScrollController,
+                          floatHeaderSlivers: true,
+                          headerSliverBuilder: (context, innerBoxIsScrolled) {
+                            return <Widget>[
+                              SliverAppBar(
+                                pinned: true,
+                                floating: true,
+                                elevation: 6,
+                                backgroundColor: elevation(
+                                  theme.colorScheme.background,
+                                  theme.colorScheme.primary,
+                                  1.3,
+                                ),
+                                titleSpacing: 8.0,
+                                toolbarHeight: APPBAR_HEIGHT,
+                                title: ConnectionStatus(
+                                  normalTitle: _i18n.get("chats"),
+                                ),
+                                actions: [
+                                  NavigationCenterAppbarActionsWidget(
+                                    searchController: _searchBoxController,
                                   ),
-                                  AnimatedBuilder(
-                                    animation: _tabController!.animation!,
-                                    builder: (context, child) {
-                                      return UnreadRoomCounterWidget(
-                                        categories: category,
-                                        bgColor: Color.alphaBlend(
-                                          theme.colorScheme.onSurfaceVariant
-                                              .withOpacity(
-                                            (1 -
-                                                    _getUnreadCountColor(
-                                                      roomsCategories
-                                                          .indexOf(category),
-                                                    )) *
-                                                0.5,
-                                          ),
-                                          theme.primaryColor.withOpacity(
-                                            _getUnreadCountColor(
-                                              roomsCategories.indexOf(category),
-                                            ),
+                                ],
+                                bottom: PreferredSize(
+                                  preferredSize:
+                                      const Size.fromHeight(APPBAR_HEIGHT),
+                                  child: TabBar(
+                                    controller: _tabController,
+                                    isScrollable: true,
+                                    labelPadding: const EdgeInsets.all(10),
+                                    onTap: (index) {
+                                      final category = index == 0
+                                          ? null
+                                          : roomsCategories[index - 1];
+                                      _resetChatScrollControllers(category);
+                                    },
+                                    tabs: [
+                                      for (final category in roomsCategories)
+                                        Padding(
+                                          padding: _appBarItemPadding,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
+                                                _convertRoomCategoryToTabName(
+                                                  category,
+                                                ),
+                                              ),
+                                              AnimatedBuilder(
+                                                animation:
+                                                    _tabController!.animation!,
+                                                builder: (context, child) {
+                                                  return UnreadRoomCounterWidget(
+                                                    categories: category,
+                                                    bgColor: Color.alphaBlend(
+                                                      theme.colorScheme
+                                                          .onSurfaceVariant
+                                                          .withOpacity(
+                                                        (1 -
+                                                                _getUnreadCountColor(
+                                                                  roomsCategories
+                                                                      .indexOf(
+                                                                    category,
+                                                                  ),
+                                                                )) *
+                                                            0.5,
+                                                      ),
+                                                      theme.primaryColor
+                                                          .withOpacity(
+                                                        _getUnreadCountColor(
+                                                          roomsCategories
+                                                              .indexOf(
+                                                            category,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    needBorder: false,
+                                                    usePadding: true,
+                                                  );
+                                                },
+                                              )
+                                            ],
                                           ),
                                         ),
-                                        needBorder: false,
-                                        usePadding: true,
-                                      );
-                                    },
-                                  )
-                                ],
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
+                            ];
+                          },
+                          body: Column(
+                            children: <Widget>[
+                              NewVersion.newVersionDownloadingStatusCard(
+                                context,
+                                _sliverScrollControllerOffset,
+                              ),
+                              if (!isLarge(context)) const AnnouncementBar(),
+                              StreamBuilder<bool>(
+                                stream: settings.showEvents.stream,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData && snapshot.data!) {
+                                    return const HasEventsRow();
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
+                                },
+                              ),
+                              const HasCallRow(),
+                              if (!isLarge(context)) const AudioPlayerAppBar(),
+                              Expanded(
+                                child: TabBarView(
+                                  controller: _tabController,
+                                  children: [
+                                    for (final category in roomsCategories)
+                                      _buildChatPageByCategory(
+                                        roomCategory: category,
+                                      )
+                                  ],
+                                ),
+                              ),
+                              NewVersion.newVersionInfo(),
+                              NewVersion.aborted(context),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                ];
-              },
-              body: Column(
-                children: <Widget>[
-                  NewVersion.newVersionDownloadingStatusCard(context,_sliverScrollControllerOffset),
-                  if (!isLarge(context)) const AnnouncementBar(),
-                  StreamBuilder<bool>(
-                    stream: settings.showEvents.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!) {
-                        return const HasEventsRow();
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  const HasCallRow(),
-                  if (!isLarge(context)) const AudioPlayerAppBar(),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        for (final category in roomsCategories)
-                          _buildChatPageByCategory(
-                            roomCategory: category,
-                          )
-                      ],
-                    ),
-                  ),
-                  NewVersion.newVersionInfo(),
-                  NewVersion.aborted(context),
-                ],
-              ),
             );
           },
         ),
