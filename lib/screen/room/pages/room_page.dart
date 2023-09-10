@@ -131,7 +131,6 @@ class RoomPageState extends State<RoomPage>
   int _lastReceivedMessageId = 0;
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
-  List<Message> searchResult = [];
   int _currentScrollIndex = 0;
   bool _appIsActive = true;
   double _defaultMessageHeight = 1000;
@@ -427,12 +426,8 @@ class RoomPageState extends State<RoomPage>
                               if (srm.hasData &&
                                   srm.data == true &&
                                   !isLarge(context)) {
-                                return Column(
-                                  children: [
-                                    RoomMessageResultInPage(
-                                      uid: room.uid,
-                                    ),
-                                  ],
+                                return RoomMessageResultInPage(
+                                  uid: room.uid,
                                 );
                               } else {
                                 return buildMessagesListView(snapshot);
@@ -1332,12 +1327,15 @@ class RoomPageState extends State<RoomPage>
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        IconButton(
-          onPressed: () {
-            _searchMessageService.closeSearch();
-            _searchMessageService.inSearchMessageMode.add(room.uid);
-          },
-          icon: const Icon(Icons.search),
+        Padding(
+          padding: const EdgeInsets.only(left: 5),
+          child: IconButton(
+            onPressed: () {
+              _searchMessageService.closeSearch();
+              _searchMessageService.inSearchMessageMode.add(room.uid);
+            },
+            icon: const Icon(Icons.search),
+          ),
         ),
         if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<List<int>>(
@@ -1794,7 +1792,12 @@ class RoomPageState extends State<RoomPage>
 
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
     if (tuple != null) {
-      widget = _cachedBuildMessage(index, tuple, maxWidth);
+      widget = StreamBuilder<String?>(
+        stream: _searchMessageService.text,
+        builder: (context, snapshot) {
+          return _cachedBuildMessage(index, tuple, maxWidth);
+        },
+      );
     } else {
       widget = FutureBuilder<Tuple2<Message?, Message?>>(
         initialData: _fastForwardFetchMessageAndMessageBefore(index),
@@ -1833,7 +1836,7 @@ class RoomPageState extends State<RoomPage>
 
     Widget? w;
 
-    if (!tuple.item2!.isHidden) {
+    if (_searchMessageService.text.value == null && !tuple.item2!.isHidden) {
       w = _cachingRepo.getMessageWidget(widget.roomUid, index);
     }
 
@@ -1882,6 +1885,7 @@ class RoomPageState extends State<RoomPage>
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
       width: maxWidth,
+      pattern: _searchMessageService.text.value ?? "",
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,
       selectedMessageListIndex: _selectedMessageListIndex,

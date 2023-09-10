@@ -74,9 +74,8 @@ class MessageDaoImpl extends MessageDao {
     final messages = box.messageIsars
         .filter()
         .roomUidEqualTo(roomUid.asString())
-        .typeEqualTo(MessageType.TEXT)
-        .or()
-        .typeEqualTo(MessageType.FILE)
+        .group((q) =>
+            q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
         .and()
         .jsonContains(keyword)
         .findAllSync()

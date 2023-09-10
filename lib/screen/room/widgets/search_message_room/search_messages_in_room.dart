@@ -8,6 +8,7 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SearchMessageInRoomWidget extends StatefulWidget {
   final Uid? uid;
@@ -27,6 +28,16 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _i18n = GetIt.I.get<I18N>();
 
+  final _keyBord = BehaviorSubject.seeded("");
+
+  @override
+  void initState() {
+    _keyBord.debounceTime(const Duration(milliseconds: 250)).listen((event) {
+      _searchMessageService.text.add(event);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,13 +46,12 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
           children: [
             Expanded(
               child: SearchBox(
-                  onChange: (str) => {
-                        _searchMessageService.text.add(str),
-                      },
-                  onCancel: () => {
-                        _searchMessageService.text.add(null),
-                        _searchMessageService.currentSelectedMessageId.add(-1)
-                      },),
+                onChange: (str) => {_keyBord.add(str)},
+                onCancel: () => {
+                  _searchMessageService.text.add(null),
+                  _searchMessageService.currentSelectedMessageId.add(-1)
+                },
+              ),
             ),
             if (!isLarge(context)) ...[
               const SizedBox(
@@ -98,17 +108,18 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        BuildMemberWidget(uid: widget.uid!),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          color: Theme.of(context).colorScheme.onInverseSurface,
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            textDirection: _i18n.defaultTextDirection,
-            _i18n.get("search_for_messages"),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
+        BuildRoomWidget(uid: widget.uid!),
+        const Divider(),
+        // Container(
+        //   width: MediaQuery.of(context).size.width,
+        //   color: Theme.of(context).colorScheme.onInverseSurface,
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: Text(
+        //     textDirection: _i18n.defaultTextDirection,
+        //     _i18n.get("search_for_messages"),
+        //     style: const TextStyle(fontWeight: FontWeight.bold),
+        //   ),
+        // ),
         RoomMessageResultInPage(
           uid: widget.uid!,
         ),

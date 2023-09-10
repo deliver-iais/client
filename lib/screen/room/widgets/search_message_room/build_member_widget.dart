@@ -9,19 +9,19 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class BuildMemberWidget extends StatefulWidget {
+class BuildRoomWidget extends StatefulWidget {
   final Uid uid;
 
-  const BuildMemberWidget({
+  const BuildRoomWidget({
     super.key,
     required this.uid,
   });
 
   @override
-  State<BuildMemberWidget> createState() => _BuildMemberWidgetState();
+  State<BuildRoomWidget> createState() => _BuildRoomWidgetState();
 }
 
-class _BuildMemberWidgetState extends State<BuildMemberWidget> {
+class _BuildRoomWidgetState extends State<BuildRoomWidget> {
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();

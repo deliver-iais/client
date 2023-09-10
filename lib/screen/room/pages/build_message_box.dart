@@ -58,6 +58,7 @@ class BuildMessageBox extends StatefulWidget {
   final bool menuDisabled;
   final double width;
   final int lastSeenMessageId;
+  final String pattern;
   final List<Message> pinMessages;
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
@@ -81,6 +82,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.width,
     required this.hasPermissionInChannel,
     this.menuDisabled = false,
+    this.pattern = "",
     this.messageReplyBrief,
   });
 
@@ -297,7 +299,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       messageReplyBrief: messageReplyBrief,
       onArrowIconClick: _showCustomMenu,
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
-      pattern: "",
+      pattern: widget.pattern,
       scrollToMessage: widget.scrollToMessage,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
@@ -388,7 +390,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     final Widget messageWidget = ReceivedMessageBox(
       message: message,
       messageReplyBrief: messageReplyBrief,
-      pattern: "",
+      pattern: widget.pattern,
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: widget.scrollToMessage,
       onUsernameClick: onUsernameClick,
