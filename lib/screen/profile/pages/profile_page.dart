@@ -75,8 +75,6 @@ class ProfilePageState extends State<ProfilePage>
   final _callRepo = GetIt.I.get<CallRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
-  late TabController _tabController;
-
   final BehaviorSubject<MucRole> _currentUserRole =
       BehaviorSubject.seeded(MucRole.NONE);
 
@@ -97,7 +95,6 @@ class ProfilePageState extends State<ProfilePage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
