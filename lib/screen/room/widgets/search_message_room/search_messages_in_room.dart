@@ -5,17 +5,13 @@ import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/room_message_result_in_page.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchMessageInRoomWidget extends StatefulWidget {
-  final Uid? uid;
-
   const SearchMessageInRoomWidget({
     super.key,
-    this.uid,
   });
 
   @override
@@ -24,7 +20,6 @@ class SearchMessageInRoomWidget extends StatefulWidget {
 }
 
 class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
-  late SearchMessageService searchMessageService;
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -108,7 +103,7 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        BuildRoomWidget(uid: widget.uid!),
+        BuildRoomWidget(uid: _searchMessageService.getUid()!),
         const Divider(),
         // Container(
         //   width: MediaQuery.of(context).size.width,
@@ -121,7 +116,7 @@ class SearchMessageInRoomWidgetState extends State<SearchMessageInRoomWidget> {
         //   ),
         // ),
         RoomMessageResultInPage(
-          uid: widget.uid!,
+          uid: _searchMessageService.getUid()!,
         ),
       ],
     );

@@ -16,7 +16,8 @@ class SearchMessageService {
   final BehaviorSubject<bool?> openSearchResultPageOnFooter =
       BehaviorSubject.seeded(false);
   final _messageDao = GetIt.I.get<MessageDao>();
-  late Uid? uid;
+
+  Uid? getUid() => inSearchMessageMode.value;
 
   void closeSearch() {
     inSearchMessageMode.add(null);

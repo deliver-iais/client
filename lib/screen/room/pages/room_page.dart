@@ -1313,7 +1313,7 @@ class RoomPageState extends State<RoomPage>
         stream: _searchMessageService.inSearchMessageMode,
         builder: (context, searchMessageMode) {
           if (searchMessageMode.hasData && !isLarge(context)) {
-            return SearchMessageInRoomWidget(uid: room.uid);
+            return const SearchMessageInRoomWidget();
           } else {
             return buildAppBar();
           }
@@ -1329,12 +1329,22 @@ class RoomPageState extends State<RoomPage>
       actions: [
         Padding(
           padding: const EdgeInsets.only(left: 5),
-          child: IconButton(
-            onPressed: () {
-              _searchMessageService.closeSearch();
-              _searchMessageService.inSearchMessageMode.add(room.uid);
+          child: StreamBuilder<Uid?>(
+            stream: _searchMessageService.inSearchMessageMode,
+            builder: (context, snapshot) {
+              return IconButton(
+                onPressed: () {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    _searchMessageService.closeSearch();
+                  } else {
+                    _searchMessageService.inSearchMessageMode.add(room.uid);
+                  }
+                },
+                icon: snapshot.hasData && snapshot.data != null
+                    ? const Icon(Icons.close)
+                    : const Icon(Icons.search),
+              );
             },
-            icon: const Icon(Icons.search),
           ),
         ),
         if (_featureFlags.hasVoiceCallPermission(room.uid))

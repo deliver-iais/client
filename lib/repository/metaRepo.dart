@@ -153,7 +153,9 @@ class MetaRepo {
   }
 
   bool isMessageContainMeta(Message message) {
-    if (message.type == MessageType.FILE || message.type == MessageType.CALL || message.type == MessageType.CALL_LOG) {
+    if (message.type == MessageType.FILE ||
+        message.type == MessageType.CALL ||
+        message.type == MessageType.CALL_LOG) {
       return true;
     } else if (message.type == MessageType.TEXT) {
       return isTextContainUrlFeature(
@@ -192,21 +194,18 @@ class MetaRepo {
     required String roomUid,
     required MetaGroup metaGroup,
   }) async {
-    var reTryFailedFetch = 3;
-    while (reTryFailedFetch > 0) {
-      try {
-        reTryFailedFetch--;
-        final metaIndex = await _sdr.queryServiceClient.fetchMessageMetaIndex(
-          FetchMessageMetaIndexReq()
-            ..group = metaGroup
-            ..messageId = Int64(messageId)
-            ..roomUid = roomUid.asUid(),
-        );
-        return metaIndex.index.toInt();
-      } catch (e) {
-        _logger.e(e);
-      }
+    try {
+      final metaIndex = await _sdr.queryServiceClient.fetchMessageMetaIndex(
+        FetchMessageMetaIndexReq()
+          ..group = metaGroup
+          ..messageId = Int64(messageId)
+          ..roomUid = roomUid.asUid(),
+      );
+      return metaIndex.index.toInt();
+    } catch (e) {
+      _logger.e(e);
     }
+
     return null;
   }
 
@@ -442,7 +441,8 @@ class MetaRepo {
   }
 
   MetaType findMetaTypeFromMessageData(Message message) {
-    if (message.type == MessageType.CALL || message.type == MessageType.CALL_LOG) {
+    if (message.type == MessageType.CALL ||
+        message.type == MessageType.CALL_LOG) {
       return MetaType.CALL;
     } else if (message.type == MessageType.FILE) {
       return message.json.toFile().findMetaTypeFromFileProto();

@@ -6,6 +6,8 @@ import 'package:grpc/service_api.dart';
 
 // TODO(hasan): We should add some DAO models for saving and sending analytics to server after some periods of time, https://gitlab.iais.co/deliver/wiki/-/issues/420
 class AnalyticsRepo {
+
+
   /// All type of GRPC requests in application
   static final Map<String, int> _requestsFrequency = {};
 
@@ -58,9 +60,9 @@ class AnalyticsRepo {
   }
 
   void incRF(String key) {
-    if (!kDebugMode) {
-      return;
-    }
+    // if (!kDebugMode) {
+    //   return;
+    // }
     _events.add(null);
     countUp(_requestsFrequency, key);
   }
