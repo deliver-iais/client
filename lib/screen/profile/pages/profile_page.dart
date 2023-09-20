@@ -87,9 +87,8 @@ class ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true);
+    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true,needToFetchMembers: true);
     _setupRoomSettings();
-    _mucRepo.fetchMucInfo(widget.roomUid);
     super.initState();
   }
 

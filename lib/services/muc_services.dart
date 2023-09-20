@@ -149,6 +149,7 @@ class MucServices {
     int pointer, {
     String query = "*",
   }) async {
+
     final request = await _serVices.groupServiceClient.getMembers(
       group_pb.GetMembersReq()
         ..uid = groupUid

@@ -94,7 +94,7 @@ class AuthRepo {
       _setCurrentUserUidFromRefreshToken(refreshToken());
     }
     // Run just first time...
-    await _syncTimeAndServersSettingWithServer();
+    await syncTimeAndServersSettingWithServer();
   }
 
   Future<VerificationType> getVerificationCode({
@@ -273,7 +273,7 @@ class AuthRepo {
     );
   }
 
-  Future<void> _syncTimeAndServersSettingWithServer({
+  Future<void> syncTimeAndServersSettingWithServer({
     bool retry = true,
     int timeout = 1,
   }) async {
@@ -298,10 +298,11 @@ class AuthRepo {
       }
       emitNewClientVersionInformationIfNeeded(getInfoRes.lastVersion);
     } catch (_) {
+      _logger.e(_.toString());
       if (retry) {
         // Retry with more timeout duration
         unawaited(
-          _syncTimeAndServersSettingWithServer(
+          syncTimeAndServersSettingWithServer(
             timeout: 20,
             retry: false,
           ),
