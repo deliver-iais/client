@@ -1098,13 +1098,44 @@ class RoomPageState extends State<RoomPage>
   }
 
   Widget keyboardWidget() {
-    return widget.roomUid.isChannel() || widget.roomUid.isBroadcast()
-        ? MucBottomBar(
-            roomUid: widget.roomUid,
-            scrollToMessage: _handleScrollToMsg,
-            inputMessage: buildNewMessageInput(),
-          )
-        : buildNewMessageInput();
+    return StreamBuilder(
+      stream: _searchMessageService.inSearchMessageMode,
+      builder: (context, searchMessageMode) {
+        if (searchMessageMode.hasData && !isLarge(context)) {
+          return AnimatedSwitcher(
+            duration: AnimationSettings.slow,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: AnimatedSize(
+                  duration: AnimationSettings.slow,
+                  curve: Curves.easeInOut,
+                  child: child,
+                ),
+              );
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SearchMessageRoomFooterWidget(uid: room.uid),
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return widget.roomUid.isChannel()
+              ? MucBottomBar(
+                  roomUid: widget.roomUid,
+                  scrollToMessage: _handleScrollToMsg,
+                  inputMessage: buildNewMessageInput(),
+                )
+              : buildNewMessageInput();
+        }
+      },
+    );
   }
 
   Widget scrollDownButtonWidget() {
@@ -1187,63 +1218,34 @@ class RoomPageState extends State<RoomPage>
   }
 
   Widget buildNewMessageInput() {
-    return StreamBuilder(
-      stream: _searchMessageService.inSearchMessageMode,
-      builder: (context, searchMessageMode) {
-        if (searchMessageMode.hasData && !isLarge(context)) {
-          return AnimatedSwitcher(
-            duration: AnimationSettings.slow,
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: AnimatedSize(
-                  duration: AnimationSettings.slow,
-                  curve: Curves.easeInOut,
-                  child: child,
-                ),
-              );
-            },
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SearchMessageRoomFooterWidget(uid: room.uid),
-                  SizedBox(
-                    height: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                ],
-              ),
+    if (widget.roomUid.category == Categories.BOT) {
+      return StreamBuilder<Room?>(
+        stream: _room,
+        builder: (c, s) {
+          if (s.hasData &&
+              s.data!.uid.category == Categories.BOT &&
+              s.data!.lastMessageId - s.data!.firstMessageId == 0) {
+            return BotStartWidget(botUid: widget.roomUid);
+          } else {
+            return messageInput();
+          }
+        },
+      );
+    } else {
+      return AnimatedSwitcher(
+        duration: AnimationSettings.slow,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: AnimatedSize(
+              duration: AnimationSettings.slow,
+              child: child,
             ),
           );
-        } else if (widget.roomUid.category == Categories.BOT) {
-          return StreamBuilder<Room?>(
-            stream: _room,
-            builder: (c, s) {
-              if (s.hasData &&
-                  s.data!.uid.category == Categories.BOT &&
-                  s.data!.lastMessageId - s.data!.firstMessageId == 0) {
-                return BotStartWidget(botUid: widget.roomUid);
-              } else {
-                return messageInput();
-              }
-            },
-          );
-        } else {
-          return AnimatedSwitcher(
-            duration: AnimationSettings.slow,
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: AnimatedSize(
-                  duration: AnimationSettings.slow,
-                  child: child,
-                ),
-              );
-            },
-            child: messageInput(),
-          );
-        }
-      },
-    );
+        },
+        child: messageInput(),
+      );
+    }
   }
 
   Widget messageInput() => StreamBuilder(
