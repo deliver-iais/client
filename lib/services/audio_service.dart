@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_vlc/dart_vlc.dart'
     if (dart.library.html) 'package:deliver/web_classes/dart_vlc.dart' as vlc;
 import 'package:deliver/services/audio_auto_play_service.dart';
@@ -157,15 +157,15 @@ class AudioService {
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    try {
-      _mainPlayer.completedStream.listen((_) async {
-        // TODO(any): check to see if message has been edited or deleted
-        stopAudio();
-        await _playAndSetAudioAutoPLayList();
-      });
-    } catch (e) {
-      GetIt.I.get<Logger>().e(e);
-    }
+    // try {
+    //   // _mainPlayer.completedStream.listen((_) async {
+    //   //   // TODO(any): check to see if message has been edited or deleted
+    //   //   stopAudio();
+    //   //   await _playAndSetAudioAutoPLayList();
+    //   // });
+    // } catch (e) {
+    //   GetIt.I.get<Logger>().e(e);
+    // }
   }
 
   Future<void> _playAndSetAudioAutoPLayList() async {
@@ -194,8 +194,8 @@ class AudioService {
   ValueStream<Duration> get temporaryPlayerPosition =>
       _temporaryPlayer.positionStream;
 
-  Future<Duration?> get temporaryPlayerDuration =>
-      _temporaryPlayer._audioPlayer.getDuration();
+  Future<Duration?> get temporaryPlayerDuration => Future.value(Duration(microseconds: 0));
+      // _temporaryPlayer._audioPlayer.getDuration();
 
   ValueStream<AudioTrack?> get track => _trackStream;
 
@@ -384,73 +384,75 @@ class AudioService {
 }
 
 class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
-  final soundOutSource = AssetSource("audios/sound_out.wav");
-  final soundInSource = AssetSource("audios/sound_in.wav");
-  final beepSoundSource = AssetSource("audios/beep_sound.mp3");
-  final busySoundSource = AssetSource("audios/busy_sound.mp3");
-  final endCallSource = AssetSource("audios/end_call.mp3");
-  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
-
-  final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
-  final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
+  // final soundOutSource = AssetSource("audios/sound_out.wav");
+  // final soundInSource = AssetSource("audios/sound_in.wav");
+  // final beepSoundSource = AssetSource("audios/beep_sound.mp3");
+  // final busySoundSource = AssetSource("audios/busy_sound.mp3");
+  // final endCallSource = AssetSource("audios/end_call.mp3");
+  // final incomingCallSource = AssetSource("audios/incoming_call.mp3");
+  //
+  // final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
+  // final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
 
   @override
   void playSoundOut() {
-    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
+    // _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
   }
 
   @override
   void playSoundIn() {
-    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
+    // _fastAudioPlayer.play(soundInSource, position: Duration.zero);
   }
 
   @override
   void playBeepSound() {
-    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
+    // _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
   }
 
   @override
   void playBusySound() {
-    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
+    // _callAudioPlayer.play(busySoundSource, position: Duration.zero);
   }
 
   @override
   void stopCallAudioPlayer() {
-    _callAudioPlayer.stop();
+    // _callAudioPlayer.stop();
   }
 
   @override
   void playEndCallSound() {
-    _callAudioPlayer.play(endCallSource, position: Duration.zero);
+    // _callAudioPlayer.play(endCallSource, position: Duration.zero);
   }
 
   @override
   void turnDownTheVolume() {
-    _callAudioPlayer.setVolume(0.3);
+    // _callAudioPlayer.setVolume(0.3);
   }
 
   @override
   void turnUpTheVolume() {
-    _callAudioPlayer.setVolume(1);
+    // _callAudioPlayer.setVolume(1);
   }
 
   @override
   void playIncomingCallSound() {
-    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
+    // _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
   }
 }
 
 class AudioPlayersAudioPlayer implements AudioPlayerModule {
-  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
+  // final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
 
   double playbackRate = 1.0;
 
   @override
   ValueStream<Duration> get positionStream =>
-      _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
+      Stream.value(Duration.zero).shareValueSeeded(Duration.zero);
+
+  // _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
 
   @override
-  Stream<void> get completedStream => _audioPlayer.onPlayerComplete;
+  Stream<void> get completedStream => Stream.empty();
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
@@ -459,47 +461,47 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
 
   @override
   void play(String path) {
-    _audioCurrentState.add(AudioPlayerState.playing);
-    _audioPlayer
-      ..play(
-        isWeb ? UrlSource(path) : DeviceFileSource(path),
-      )
-      ..setPlaybackRate(playbackRate);
+    // _audioCurrentState.add(AudioPlayerState.playing);
+    // _audioPlayer
+    //   ..play(
+    //     isWeb ? UrlSource(path) : DeviceFileSource(path),
+    //   )
+    //   ..setPlaybackRate(playbackRate);
   }
 
   @override
   void seek(Duration duration) {
-    _audioPlayer.seek(duration);
+    // _audioPlayer.seek(duration);
   }
 
   @override
   void pause() {
-    if (_audioPlayer.state == PlayerState.playing) {
-      _audioCurrentState.add(AudioPlayerState.paused);
-      _audioPlayer.pause();
-    }
+    // if (_audioPlayer.state == PlayerState.playing) {
+    //   _audioCurrentState.add(AudioPlayerState.paused);
+    //   _audioPlayer.pause();
+    // }
   }
 
   @override
   void stop() {
-    _audioCurrentState.add(AudioPlayerState.stopped);
-    _audioPlayer.stop();
+    // _audioCurrentState.add(AudioPlayerState.stopped);
+    // _audioPlayer.stop();
   }
 
   @override
   void resume() {
-    _audioCurrentState.add(AudioPlayerState.playing);
-    _audioPlayer
-      ..resume()
-      ..setPlaybackRate(playbackRate);
+    // _audioCurrentState.add(AudioPlayerState.playing);
+    // _audioPlayer
+    //   ..resume()
+    //   ..setPlaybackRate(playbackRate);
   }
 
   @override
   void setPlaybackRate(double playbackRate) {
-    this.playbackRate = playbackRate;
-    _audioPlayer
-      ..resume()
-      ..setPlaybackRate(playbackRate);
+    // this.playbackRate = playbackRate;
+    // _audioPlayer
+    //   ..resume()
+    //   ..setPlaybackRate(playbackRate);
   }
 
   @override
@@ -653,50 +655,55 @@ class FakeIntermediatePlayer implements IntermediatePlayerModule {
 }
 
 class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
-  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "looped-audio");
+  // final AudioPlayer _audioPlayer = AudioPlayer(playerId: "looped-audio");
 
   @override
   void play(AudioSourcePath path, {String? prefix}) {
-    late final Source source;
-
-    if (path.isDeviceFile) {
-      source = DeviceFileSource(path.path);
-    } else if (path.isAssets) {
-      source = AssetSource(path.path);
-    } else {
-      source = UrlSource(path.path);
-    }
-    if (prefix != null) {
-      _audioPlayer.audioCache.prefix = prefix;
-    }
-    _audioPlayer
-      ..setReleaseMode(ReleaseMode.loop)
-      ..play(source, position: Duration.zero);
+    return;
+    // late final Source source;
+    //
+    // if (path.isDeviceFile) {
+    //   source = DeviceFileSource(path.path);
+    // } else if (path.isAssets) {
+    //   source = AssetSource(path.path);
+    // } else {
+    //   source = UrlSource(path.path);
+    // }
+    // if (prefix != null) {
+    //   _audioPlayer.audioCache.prefix = prefix;
+    // }
+    // _audioPlayer
+    //   ..setReleaseMode(ReleaseMode.loop)
+    //   ..play(source, position: Duration.zero);
   }
 
   @override
   void stop() {
-    _audioPlayer.stop();
+    // _audioPlayer.stop();
   }
 
   @override
   ValueStream<Duration> get positionStream =>
-      _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
+      Stream.value(Duration.zero).shareValueSeeded(Duration.zero);
+
+  // _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
 
   @override
   ValueStream<AudioPlayerState> get stateStream =>
-      _audioPlayer.onPlayerStateChanged.map((event) {
-        switch (event) {
-          case PlayerState.stopped:
-            return AudioPlayerState.stopped;
-          case PlayerState.playing:
-            return AudioPlayerState.playing;
-          case PlayerState.paused:
-            return AudioPlayerState.paused;
-          case PlayerState.completed:
-            return AudioPlayerState.stopped;
-        }
-      }).shareValueSeeded(AudioPlayerState.stopped);
+      Stream.value(AudioPlayerState.loading)
+          .shareValueSeeded(AudioPlayerState.loading);
+// _audioPlayer.onPlayerStateChanged.map((event) {
+//   switch (event) {
+//     case PlayerState.stopped:
+//       return AudioPlayerState.stopped;
+//     case PlayerState.playing:
+//       return AudioPlayerState.playing;
+//     case PlayerState.paused:
+//       return AudioPlayerState.paused;
+//     case PlayerState.completed:
+//       return AudioPlayerState.stopped;
+//   }
+// }).shareValueSeeded(AudioPlayerState.stopped);
 }
 
 class VlcAudioAudioPlayer implements AudioPlayerModule {

@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/analytics_repo.dart';
+import 'package:deliver/box/query_log.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -22,9 +23,13 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 import 'package:share/share.dart';
+
+import '../../../box/dao/query_log_dao.dart';
+import '../../../box/db_manager.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -41,6 +46,8 @@ class DeveloperPageState extends State<DeveloperPage> with CustomPopupMenu {
   final _callRepo = GetIt.I.get<CallRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _fileService = GetIt.I.get<FileService>();
+  final  _queryLogDao = GetIt.I.get<QueryLogDao>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -426,6 +433,69 @@ class DeveloperPageState extends State<DeveloperPage> with CustomPopupMenu {
                 )
               ],
             ),
+            Section(
+              title: "Analytics - Query Log",
+              children: [
+                StreamBuilder(
+                  stream: _queryLogDao.watchQueryLogs().asBroadcastStream(),
+                  builder: (context, snapshot) {
+                    return Table(
+                      border: TableBorder.all(borderRadius: mainBorder),
+                      columnWidths: const {
+                        0: FlexColumnWidth(0.8),
+                        1: FlexColumnWidth(0.2)
+                      },
+                      children: [
+                        const TableRow(
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Grpc Path"),
+                              ),
+                            ),
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Frequency"),
+                              ),
+                            )
+                          ],
+                        ),
+                        for (final e
+                        in snapshot.data ?? [])
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 8,
+                                  ),
+                                  child: Text(e.address),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Text((e.count).toString()),
+                                ),
+                              )
+                            ],
+                          )
+                      ],
+                    );
+                  },
+                )
+              ],
+            ),
+
             Section(
               title: "Analytics - Core Stream Packets Frequency",
               children: [

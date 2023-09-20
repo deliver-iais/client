@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
+//import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/repository/messageRepo.dart';
@@ -57,7 +57,7 @@ const BOTTOM_BUTTONS_HEIGHT = 80.0;
 class ShareBoxState extends State<ShareBox> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final _audioPlayer = AudioPlayer();
+  //final _audioPlayer = AudioPlayer();
   final _remainingPixelsStream = BehaviorSubject.seeded(APPBAR_HEIGHT * 2);
   final _draggableScrollableController = DraggableScrollableController();
 
@@ -94,7 +94,7 @@ class ShareBoxState extends State<ShareBox> {
 
   @override
   void dispose() {
-    _audioPlayer.stop();
+    //_audioPlayer.stop();
     _draggableScrollableController.dispose();
     super.dispose();
   }
@@ -140,11 +140,11 @@ class ShareBoxState extends State<ShareBox> {
               playMusic: (index, path) {
                 setState(() {
                   if (_playAudioIndex == index) {
-                    _audioPlayer.pause();
+                    //_audioPlayer.pause();
                     isAudioPlayingMap[index] = false;
                     _playAudioIndex = -1;
                   } else {
-                    _audioPlayer.play(DeviceFileSource(path));
+                    //_audioPlayer.play(DeviceFileSource(path));
                     isAudioPlayingMap.remove(_playAudioIndex);
                     isAudioPlayingMap[index] = true;
                     _playAudioIndex = index;
@@ -291,7 +291,7 @@ class ShareBoxState extends State<ShareBox> {
                         if (_currentPage.index == index) {
                           return;
                         }
-                        unawaited(_audioPlayer.stop());
+                        //unawaited(_audioPlayer.stop());
                         switch (index) {
                           case 0:
                             _currentPage = ShareBoxPage.GALLERY;
@@ -363,7 +363,7 @@ class ShareBoxState extends State<ShareBox> {
                         child: ShareBoxInputCaption(
                           count: finalSelected.length,
                           onSend: (caption) {
-                            _audioPlayer.stop();
+                            //_audioPlayer.stop();
                             Navigator.pop(co);
 
                             _messageRepo.sendMultipleFilesMessages(
