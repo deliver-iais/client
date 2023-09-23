@@ -25,7 +25,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = 4;
+const VERSION = 5;
 const REVISION = 0;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
@@ -277,6 +277,7 @@ const BROADCAST_MESSAGE_STATUS_TYPE_TRACK_ID = 41;
 const IS_VERIFIED_TRACK_ID = 42;
 const LAST_CALL_STATUS_TRACK_ID = 43;
 const ANNOUNCMENT_TRACK_ID = 44;
+const QUERY_LOG_TRACK_ID = 45;
 
 // Emoji
 const MAX_RECENT_EMOJI_LENGTH = 48;

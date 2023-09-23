@@ -124,6 +124,15 @@ bool isHiddenPbMessage(message_pb.Message message) {
   }
 }
 
+bool isMessageContainKeyword(Message msg, String keyword) {
+  if (msg.type == MessageType.TEXT) {
+    return msg.json.toText().text.contains(keyword);
+  } else if (msg.type == MessageType.FILE) {
+    return msg.json.toFile().caption.contains(keyword);
+  }
+  return false;
+}
+
 bool isHiddenMessage(Message message) {
   final type = message.type;
   switch (type) {
@@ -277,7 +286,7 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.NOT_SET;
     case message_pb.Message_Type.paymentInformation:
       return MessageType.PAYMENT_INFORMATION;
-    }
+  }
 }
 
 Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) =>

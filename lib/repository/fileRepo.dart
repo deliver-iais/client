@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -16,6 +17,7 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -284,6 +286,22 @@ class FileRepo {
       if (url != null) {
         _fileService.saveDownloadedFile(url, name);
       }
+    });
+  }
+
+  void saveTableAdImage(Uint8List res, String title) {
+    Future.delayed(const Duration(milliseconds: 250)).then((value) {
+      FilePicker.platform
+          .saveFile(
+        lockParentWindow: true,
+        type: FileType.image,
+        dialogTitle: title,
+      )
+          .then((outputFile) {
+        if (outputFile != null) {
+          _fileService.saveCaptureFile(res, outputFile);
+        }
+      });
     });
   }
 

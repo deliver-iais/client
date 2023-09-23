@@ -1,6 +1,6 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class Debug extends StatelessWidget {
   final String? label;

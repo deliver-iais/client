@@ -230,6 +230,18 @@ class _AllMediaPageState extends State<AllMediaPage>
     return _metaRepo.getMetaCount(widget.roomUid.asString());
   }
 
+  Future<int?> _getCorrectIndexOfMedia() async {
+    final i = await _getMediaIndex();
+    if (i != null && widget.message != null) {
+      final m = await _getMedia(i);
+      if (m == null || m.messageId != widget.messageId) {
+        return null;
+      }
+      return i;
+    }
+    return i;
+  }
+
   Future<int?> _getMediaIndex() async {
     if (_initialMediaIndex != null && widget.mediaCount != null) {
       await _getAndSetDeletedIndexList();
@@ -324,9 +336,9 @@ class _AllMediaPageState extends State<AllMediaPage>
         appBar: _buildAppbar(),
         backgroundColor: Colors.transparent,
         body: FutureBuilder<int?>(
-          future: _getMediaIndex(),
+          future: _getCorrectIndexOfMedia(),
           builder: (c, index) {
-            return buildAnimation(buildMediaByIndex(index));
+            return buildAnimation(buildMediaByIndex(index.data));
           },
         ),
       ),
@@ -477,7 +489,7 @@ class _AllMediaPageState extends State<AllMediaPage>
     );
   }
 
-  Stack buildMediaByIndex(AsyncSnapshot<int?> indexData) {
+  Stack buildMediaByIndex(int? indexData) {
     return Stack(
       children: [
         Row(
@@ -492,7 +504,8 @@ class _AllMediaPageState extends State<AllMediaPage>
                     child: (indexSnapShot.hasData &&
                             indexSnapShot.data != -1 &&
                             indexSnapShot.data != _allMediaCount.value &&
-                            !_isInvalidIndex())
+                            indexData != null &&
+                            !_isNotInvalidIndex())
                         ? IconButton(
                             onPressed: () {
                               _pageController.nextPage(
@@ -512,9 +525,9 @@ class _AllMediaPageState extends State<AllMediaPage>
             Expanded(
               child: Padding(
                 padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
-                child: indexData.data == null || _isInvalidIndex()
+                child: indexData == null || _isNotInvalidIndex()
                     ? _buildSingleMediaIfMessageExist(
-                        hasData: indexData.hasData,
+                        hasData: indexData != null,
                       )
                     : ExtendedImageGesturePageView.builder(
                         itemBuilder: (context, idx) {
@@ -587,7 +600,8 @@ class _AllMediaPageState extends State<AllMediaPage>
                     duration: AnimationSettings.standard,
                     child: (indexSnapShot.hasData &&
                             indexSnapShot.data! > 1 &&
-                            !_isInvalidIndex())
+                            indexData != null &&
+                            !_isNotInvalidIndex())
                         ? IconButton(
                             onPressed: () {
                               _pageController.previousPage(
@@ -612,7 +626,7 @@ class _AllMediaPageState extends State<AllMediaPage>
     );
   }
 
-  bool _isInvalidIndex() => _currentIndex.value > _allMediaCount.value;
+  bool _isNotInvalidIndex() => _currentIndex.value > _allMediaCount.value;
 
   Widget buildBottomSection({
     required int messageId,

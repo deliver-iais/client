@@ -75,8 +75,6 @@ class ProfilePageState extends State<ProfilePage>
   final _callRepo = GetIt.I.get<CallRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
-  late TabController _tabController;
-
   final BehaviorSubject<MucRole> _currentUserRole =
       BehaviorSubject.seeded(MucRole.NONE);
 
@@ -89,15 +87,13 @@ class ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true);
+    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true,needToFetchMembers: true);
     _setupRoomSettings();
-    _mucRepo.fetchMucInfo(widget.roomUid);
     super.initState();
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 

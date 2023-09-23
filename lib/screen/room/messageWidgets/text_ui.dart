@@ -51,7 +51,7 @@ class TextUI extends StatefulWidget {
         text = _extractText(message),
         blocks = onePathMultiDetection(
           [Block(text: _extractText(message), features: {})],
-          detectorsWithSearchTermDetector(),
+          detectorsWithSearchTermDetector(searchTerm: searchTerm ?? ""),
         );
 
   static String _extractText(Message msg) {

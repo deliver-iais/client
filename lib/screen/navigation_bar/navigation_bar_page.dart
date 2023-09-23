@@ -59,6 +59,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       bottomNavigationBar: getNavigationBar(context),
       body: Row(
         children: [

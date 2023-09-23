@@ -41,10 +41,31 @@ class Settings {
     SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedDaoStorage(),
     defaultValue: "",
   );
+  final accessTokenGetTime = IntPersistent(
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    defaultValue: 0,
+  );
+
+  final accessTokenExpireTime = IntPersistent(
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    defaultValue: 0,
+  );
+
+  final refreshTokenGetTime = IntPersistent(
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    defaultValue: 0,
+  );
+
+  final refreshTokenExpireTime = IntPersistent(
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    defaultValue: 0,
+  );
+
   final localPassword = StringPersistent(
     SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
     defaultValue: "",
   );
+
   final applicationVersion = StringPersistent(
     SharedKeys.VERSION.inSharedDaoStorage(),
     defaultValue: "",

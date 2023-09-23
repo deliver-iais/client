@@ -7,7 +7,9 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_room_count
 import 'package:deliver/screen/navigation_center/events/has_event_row.dart';
 import 'package:deliver/screen/navigation_center/widgets/create_muc_floating_action_button.dart';
 import 'package:deliver/screen/navigation_center/widgets/navigation_center_appBar/navigation_center_appbar_actions_widget.dart';
+import 'package:deliver/screen/room/widgets/search_message_room/search_messages_in_room.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -18,6 +20,7 @@ import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -52,6 +55,7 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _searchMessageService = GetIt.I.get<SearchMessageService>();
   final SearchController _searchBoxController = SearchController();
   final ScrollController _sliverScrollController = ScrollController();
   final _sliverScrollControllerOffset = BehaviorSubject<double>.seeded(0);
@@ -65,10 +69,18 @@ class NavigationCenterState extends State<NavigationCenter>
     _chatsScrollController[roomCategory] = chatScrollController;
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _appBarItemPadding = const EdgeInsets.symmetric(horizontal: 12);
 
   @override
   void initState() {
+    _searchMessageService.inSearchMessageMode.listen((value) {
+      if (value != null) {
+        _scaffoldKey.currentState?.openDrawer();
+      } else {
+        _scaffoldKey.currentState?.closeDrawer();
+      }
+    });
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
         _routingService.openRoom(event);
@@ -119,6 +131,8 @@ class NavigationCenterState extends State<NavigationCenter>
     final theme = Theme.of(context);
     return FluidContainerWidget(
       child: Scaffold(
+        key: _scaffoldKey,
+        drawer: const SearchMessageInRoomWidget(),
         backgroundColor: theme.colorScheme.background,
         floatingActionButton: const CreateMucFloatingActionButton(),
         body: StreamBuilder<List<Categories>>(
@@ -127,8 +141,10 @@ class NavigationCenterState extends State<NavigationCenter>
             final allChatsCategory = <Categories?>[null];
             final roomsCategories =
                 allChatsCategory + (roomsCategoriesSnapshot.data ?? []);
-            _tabController =
-                TabController(length: roomsCategories.length, vsync: this);
+            _tabController = TabController(
+              length: roomsCategories.length,
+              vsync: this,
+            );
             _tabController?.addListener(() {
               if (_tabController!.previousIndex != _tabController!.index) {
                 _resetChatScrollControllers(null);
@@ -143,6 +159,7 @@ class NavigationCenterState extends State<NavigationCenter>
               headerSliverBuilder: (context, innerBoxIsScrolled) {
                 return <Widget>[
                   SliverAppBar(
+                    automaticallyImplyLeading: false,
                     pinned: true,
                     floating: true,
                     elevation: 6,
@@ -153,7 +170,9 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                     titleSpacing: 8.0,
                     toolbarHeight: APPBAR_HEIGHT,
-                    title: ConnectionStatus(normalTitle: _i18n.get("chats")),
+                    title: ConnectionStatus(
+                      normalTitle: _i18n.get("chats"),
+                    ),
                     actions: [
                       NavigationCenterAppbarActionsWidget(
                         searchController: _searchBoxController,
@@ -179,7 +198,9 @@ class NavigationCenterState extends State<NavigationCenter>
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Text(
-                                    _convertRoomCategoryToTabName(category),
+                                    _convertRoomCategoryToTabName(
+                                      category,
+                                    ),
                                   ),
                                   AnimatedBuilder(
                                     animation: _tabController!.animation!,
@@ -191,14 +212,17 @@ class NavigationCenterState extends State<NavigationCenter>
                                               .withOpacity(
                                             (1 -
                                                     _getUnreadCountColor(
-                                                      roomsCategories
-                                                          .indexOf(category),
+                                                      roomsCategories.indexOf(
+                                                        category,
+                                                      ),
                                                     )) *
                                                 0.5,
                                           ),
                                           theme.primaryColor.withOpacity(
                                             _getUnreadCountColor(
-                                              roomsCategories.indexOf(category),
+                                              roomsCategories.indexOf(
+                                                category,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -218,7 +242,10 @@ class NavigationCenterState extends State<NavigationCenter>
               },
               body: Column(
                 children: <Widget>[
-                  NewVersion.newVersionDownloadingStatusCard(context,_sliverScrollControllerOffset),
+                  NewVersion.newVersionDownloadingStatusCard(
+                    context,
+                    _sliverScrollControllerOffset,
+                  ),
                   if (!isLarge(context)) const AnnouncementBar(),
                   StreamBuilder<bool>(
                     stream: settings.showEvents.stream,

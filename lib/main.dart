@@ -38,6 +38,7 @@ import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
+import 'package:deliver/box/dao/query_log_dao.dart';
 import 'package:deliver/box/dao/recent_emoji_dao.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/dao/recent_search_dao.dart';
@@ -58,6 +59,7 @@ import 'package:deliver/box/meta.dart';
 import 'package:deliver/box/meta_count.dart';
 import 'package:deliver/box/meta_type.dart';
 import 'package:deliver/box/muc_type.dart';
+import 'package:deliver/box/query_log.dart';
 import 'package:deliver/box/recent_emoji.dart';
 import 'package:deliver/box/recent_rooms.dart';
 import 'package:deliver/box/recent_search.dart';
@@ -149,6 +151,7 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/persistent_event_handler_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/storage_path_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -240,6 +243,7 @@ Future<void> setupDI() async {
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   registerSingleton<BroadcastService>(BroadcastService());
+  registerSingleton<SearchMessageService>(SearchMessageService());
 
   try {
     registerSingleton<AudioAutoPlayService>(AudioAutoPlayService());
@@ -289,6 +293,7 @@ Future<void> setupDI() async {
 }
 
 Future<void> dbSetupDI() async {
+  registerSingleton<QueryLogDao>(QueryLogDao());
   registerSingleton<AnalyticsService>(AnalyticsService());
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
@@ -345,7 +350,8 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(BroadcastMessageStatusTypeAdapter())
     ..registerAdapter(BroadcastSuccessAndFailedCountAdapter())
     ..registerAdapter(CurrentCallInfoHiveAdapter())
-    ..registerAdapter(LastCallStatusHiveAdapter());
+    ..registerAdapter(LastCallStatusHiveAdapter())
+    ..registerAdapter(QueryLogAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());

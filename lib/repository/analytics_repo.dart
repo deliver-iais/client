@@ -1,11 +1,16 @@
 import 'dart:async';
-
+import 'package:deliver/box/dao/query_log_dao.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/service_api.dart';
+import 'package:hive/hive.dart';
+
+import '../box/query_log.dart';
 
 // TODO(hasan): We should add some DAO models for saving and sending analytics to server after some periods of time, https://gitlab.iais.co/deliver/wiki/-/issues/420
 class AnalyticsRepo {
+
+
   /// All type of GRPC requests in application
   static final Map<String, int> _requestsFrequency = {};
 
@@ -36,6 +41,7 @@ class AnalyticsRepo {
 
   final StreamController<void> _daoEvents = StreamController.broadcast();
 
+  final QueryLogDao _queryLogDao = GetIt.I.get<QueryLogDao>();
   /// All core stream events of changes
   Stream<void> get coreStreamEvents => _coreStreamEvents.stream;
 
@@ -58,11 +64,15 @@ class AnalyticsRepo {
   }
 
   void incRF(String key) {
-    if (!kDebugMode) {
-      return;
-    }
+    // if (!kDebugMode) {
+    //   return;
+    // }
     _events.add(null);
     countUp(_requestsFrequency, key);
+
+    if(key.contains("QueryService")) {
+      _queryLogDao.updateQueryLog(key, 1);
+    }
   }
 
   void incPVF(String key) {

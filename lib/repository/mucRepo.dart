@@ -163,26 +163,28 @@ class MucRepo {
       var i = 0;
       var membersSize = 0;
 
-      var finish = false;
       final members = <Member>[];
-      while (i <= len || !finish) {
+      while (i <= len) {
         var fetchedMemberPage = <muc_pb.Member>[];
         switch (mucUid.asMucCategories()) {
           case MucCategories.BROADCAST:
             final result =
                 await _mucServices.getBroadcastMembers(mucUid, pageSize, i);
-            finish = result.$2;
             fetchedMemberPage = result.$1;
+            break;
           case MucCategories.CHANNEL:
             final result =
                 await _mucServices.getChannelMembers(mucUid, pageSize, i);
-            finish = result.$2;
             fetchedMemberPage = result.$1;
+            break;
           case MucCategories.GROUP:
+            final result =
+                await _mucServices.getGroupMembers(mucUid, pageSize, i);
             final result = await _mucServices
                 .getGroupMembers(mucUid, pageSize, i, query: query);
             finish = result.$2;
             fetchedMemberPage = result.$1;
+            break;
           case MucCategories.NONE:
             break;
         }

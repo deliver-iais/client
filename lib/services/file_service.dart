@@ -343,6 +343,14 @@ class FileService {
     } catch (_) {}
   }
 
+  Future<void> saveCaptureFile(Uint8List res, String path) async {
+    try {
+      File("$path.jpg").writeAsBytesSync(res);
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
   Future<String?> _getFileThumbnail(
     String uuid,
     String filename,

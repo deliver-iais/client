@@ -8,6 +8,8 @@ abstract class MessageDao {
 
   Future<void> updateMessage(Message message);
 
+  Future<List<Message>> searchMessages(Uid roomUid, String keyword);
+
   Future<Message?> getMessage(Uid roomUid, int id);
 
   Future<List<Message>> getMessagePage(

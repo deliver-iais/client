@@ -98,6 +98,7 @@ class SearchBoxState extends State<SearchBox> {
             child: SizedBox(
               height: height,
               child: AutoDirectionTextField(
+                autofocus: true,
                 style: const TextStyle(fontSize: 16),
                 focusNode: _getFocusNode(),
                 controller: widget.controller ?? _localController,
