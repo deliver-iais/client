@@ -152,48 +152,11 @@ class RoomRepo {
       expireTime,
     );
   }
+  String ? getContactNameFromCache(Uid uid )=> _cachingRepo.getName(uid) ;
 
-  String? getCachedContactName(Uid uid) => _cachingRepo.getName(uid);
 
-  Future<UidIdName?> getUidIdNameOfMucMember(Uid uid) async {
-    String? id;
-    String? realName;
-    String? name;
-
-    realName = await _getRealNameFormDB(uid);
-    if (realName == null || realName.isEmpty) {
-      id = await _getIdByUid(uid);
-      if (id == null || id.isEmpty) {
-        realName = await _getRealNameFormServer(uid);
-      }
-    }
-
-    name = await _getNameFromDB(uid);
-
-    if (id != null || realName != null) {
-      return UidIdName(
-        uid: uid,
-        id: id,
-        name: name,
-        realName: realName,
-      );
-    }
-    return null;
-  }
-
-  Future<String?> _getRealNameFormServer(Uid uid) async =>
-      (await _contactRepo.getContactFromServer(uid)).realName;
-
-  Future<String?> _getRealNameFormDB(Uid uid) async =>
-      _cachingRepo.getRealName(uid) ?? (await _getUidIdName(uid))?.realName;
-
-  Future<String?> _getNameFromDB(Uid uid) async =>
+  Future<String?> getMyContactNameOfMember(Uid uid) async =>
       _cachingRepo.getName(uid) ?? (await _getUidIdName(uid))?.name;
-
-  Future<String?> _getIdByUid(Uid uid) async =>
-      _cachingRepo.getId(uid) ??
-      (await _getUidIdName(uid))?.id ??
-      (await _getIdByUidFromServer(uid));
 
   Future<String> getName(
     Uid uid, {
@@ -369,8 +332,11 @@ class RoomRepo {
     }
   }
 
-  Future<void> updateRoomInfo(Uid uid,
-      {bool foreToUpdate = false, bool needToFetchMembers = false,}) async {
+  Future<void> updateRoomInfo(
+    Uid uid, {
+    bool foreToUpdate = false,
+    bool needToFetchMembers = false,
+  }) async {
     if (foreToUpdate || await _isUserInfoNeedsToBeUpdated(uid)) {
       // Is User
       if (uid.category == Categories.USER) {
@@ -383,8 +349,10 @@ class RoomRepo {
       // Is Group or Channel
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
-        final muc = await _mucRepo.fetchMucInfo(uid,
-            needToFetchMembers: needToFetchMembers);
+        final muc = await _mucRepo.fetchMucInfo(
+          uid,
+          needToFetchMembers: needToFetchMembers,
+        );
         if (muc != null && muc.name.isNotEmpty) {
           _cachingRepo.setName(uid, muc.name);
           unawaited(

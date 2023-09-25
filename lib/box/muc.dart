@@ -16,8 +16,8 @@ class Muc with _$Muc {
     @Default("") String id,
     @Default("") String info,
     @Default([]) List<int> pinMessagesIdList,
-    @Default(0) population,
-    @Default(0) lastCanceledPinMessageId,
+    @Default(0) int population,
+    @Default(0) int lastCanceledPinMessageId,
     @Default(MucType.Public) MucType mucType,
     @Default(MucRole.NONE) MucRole currentUserRole,
   }) = _Muc;

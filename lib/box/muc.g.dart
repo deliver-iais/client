@@ -16,8 +16,8 @@ _$_Muc _$$_MucFromJson(Map<String, dynamic> json) => _$_Muc(
               ?.map((e) => e as int)
               .toList() ??
           const [],
-      population: json['population'] ?? 0,
-      lastCanceledPinMessageId: json['lastCanceledPinMessageId'] ?? 0,
+      population: json['population'] as int? ?? 0,
+      lastCanceledPinMessageId: json['lastCanceledPinMessageId'] as int? ?? 0,
       mucType: $enumDecodeNullable(_$MucTypeEnumMap, json['mucType']) ??
           MucType.Public,
       currentUserRole:

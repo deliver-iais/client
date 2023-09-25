@@ -21,13 +21,8 @@ class MucMemberMentionWidget extends StatefulWidget {
 }
 
 class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-
   @override
   Widget build(BuildContext context) {
-    String? username = widget.member.username;
-    String? realName = widget.member.realName;
-    String? name = widget.member.name;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: MouseRegion(
@@ -35,41 +30,20 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if ((username != null && username!.isNotEmpty)) {
-              widget.onIdClick("@${username!}");
-            } else if (realName != null && realName!.isNotEmpty) {
+            if ((widget.member.username.isNotEmpty)) {
+              widget.onIdClick("@${widget.member.username}");
+            } else if (widget.member.realName.isNotEmpty) {
               widget.onNameClick(
-                  name: realName!, node: widget.member.memberUid.node);
+                name: widget.member.realName,
+                node: widget.member.memberUid.node,
+              );
             }
           },
           child: Row(
             children: [
               CircleAvatarWidget(widget.member.memberUid, 18),
               const SizedBox(width: 8),
-              if (username == "" || realName == "" || name == "")
-                FutureBuilder(
-                  future: _roomRepo
-                      .getUidIdNameOfMucMember(widget.member.memberUid),
-                  builder: (c, uidIdNameSnapShot) {
-                    if (uidIdNameSnapShot.hasData &&
-                        uidIdNameSnapShot.data != null) {
-                      if (username == "") {
-                        username = uidIdNameSnapShot.data!.id;
-                      }
-                      if (realName == "") {
-                        realName = uidIdNameSnapShot.data!.realName;
-                      }
-                      if (realName == "") {
-                        name = uidIdNameSnapShot.data!.name;
-                      }
-                      name = uidIdNameSnapShot.data!.name;
-                      return mentionDetails(username, realName, name);
-                    }
-                    return const SizedBox.shrink();
-                  },
-                )
-              else
-                mentionDetails(username, realName, name)
+              mentionDetails()
             ],
           ),
         ),
@@ -77,28 +51,35 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
     );
   }
 
-  Widget mentionDetails(String? username, String? realName, String? name) {
+  Widget mentionDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            if (name != null || username != null)
-              Text(
-                (name ?? username)!.trim(),
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
+            FutureBuilder<String>(
+                future: GetIt.I.get<RoomRepo>().getName(widget.member.memberUid),
+                builder: (c, n) {
+                  if (n.hasData && n.data != null) {
+                    return Text(
+                      n.data!,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
             const SizedBox(
               width: 10,
             ),
-            if (realName != null && realName!.isNotEmpty && realName != name)
+
               Text(
-                (realName)!.trim(),
+                (widget.member.realName).trim(),
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                 ),
               ),
@@ -107,9 +88,9 @@ class _MucMemberMentionWidgetState extends State<MucMemberMentionWidget> {
         const SizedBox(
           width: 10,
         ),
-        if (username != null && username!.isNotEmpty)
+        if (widget.member.username.isNotEmpty)
           Text(
-            "@$username",
+            "@${widget.member.username}",
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 12,

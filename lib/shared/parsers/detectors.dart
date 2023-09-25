@@ -153,7 +153,7 @@ Detector inlineUrlDetector({bool replaceWithContactName = true}) =>
             if (UrlHandlerService.isApplicationUrl(url)) {
               final node = Uri.parse(url).queryParameters["id"];
               if (node != null) {
-                final name = GetIt.I.get<RoomRepo>().getCachedContactName(
+                final name = GetIt.I.get<RoomRepo>().getContactNameFromCache(
                       Uid()
                         ..node = node
                         ..category = Categories.USER,

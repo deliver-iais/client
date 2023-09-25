@@ -12,16 +12,12 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/role.dart';
-import 'package:deliver/box/uid_id_name.dart';
-import 'package:deliver/repository/accountRepo.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as group_pb;
@@ -41,8 +37,6 @@ class MucRepo {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
-  final _accountRepo = GetIt.I.get<AccountRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
@@ -158,7 +152,7 @@ class MucRepo {
     String query = "",
   }) async {
     try {
-      final pageSize = max(min(len, 15), 1);
+      final pageSize = max(min(len, 50), 1);
 
       var i = 0;
       var membersSize = 0;
@@ -178,11 +172,8 @@ class MucRepo {
             fetchedMemberPage = result.$1;
             break;
           case MucCategories.GROUP:
-            final result =
-                await _mucServices.getGroupMembers(mucUid, pageSize, i);
             final result = await _mucServices
                 .getGroupMembers(mucUid, pageSize, i, query: query);
-            finish = result.$2;
             fetchedMemberPage = result.$1;
             break;
           case MucCategories.NONE:
@@ -198,7 +189,7 @@ class MucRepo {
                 memberUid: member.uid,
                 role: getLocalRole(member.role),
                 username: member.userName,
-                name: member.name,
+                realName: member.name,
               ),
             );
           } catch (e) {
@@ -436,14 +427,14 @@ class MucRepo {
         final m = Member(
           mucUid: mucUid,
           memberUid: member.uid,
-          name: member.name,
+          realName: member.name,
           role: getLocalRole(member.role),
           username: member.userName,
         );
         await _mucDao.saveMember(m);
         members.add(m);
       }
-    } catch(_){
+    } catch (_) {
       members = await _mucDao.getAllMembers(mucUid);
     }
     return members;
@@ -830,31 +821,23 @@ class MucRepo {
       return getAllMembersWithUserName(roomUid);
     }
 
-    final members = await getAllMembersWithUserName(roomUid, query: query);
-
-    final fuzzyName = _getFuzzyList(
-      members
-          .where((element) => element!.name != null)
-          .map((event) => event!.name)
-          .toList(),
-      query,
-    );
+    final members = await _mucDao.getAllMembers(roomUid);
 
     final fuzzyId =
-        _getFuzzyList(members.map((event) => event!.username).toList(), query);
+        _getFuzzyList(members.map((event) => event.username).toList(), query);
 
     final memberWithRealNames = <Member>[];
     for (final member in members) {
-      var uidIdName = await GetIt.I
+      final name = await GetIt.I
           .get<RoomRepo>()
-          .getUidIdNameOfMucMember(member.memberUid);
-      uidIdName!.realName;
-      if (uidIdName.uid.isBot()) {
-        uidIdName = uidIdName.copyWith(id: uidIdName.uid.node);
-      }
-      memberWithRealNames
-          .add(member.copyWith.call(realName: uidIdName.realName ?? ""));
+          .getMyContactNameOfMember(member.memberUid);
+
+      memberWithRealNames.add(member.copyWith.call(name: name ?? ""));
     }
+    final fuzzyName = _getFuzzyList(
+      members.map((event) => event.name).toList(),
+      query,
+    );
 
     final fuzzyRealName = _getFuzzyList(
       memberWithRealNames.map((e) => e.realName).toList(),
@@ -865,8 +848,8 @@ class MucRepo {
         .where(
           (e) =>
               query.isEmpty ||
-              (fuzzyId.isNotEmpty && fuzzyId.contains(e!.username)) ||
-              (fuzzyName.isNotEmpty && fuzzyName.contains(e.name)) ||
+              (fuzzyId.isNotEmpty && fuzzyId.contains(e.username)) ||
+              (fuzzyName.isNotEmpty && fuzzyName.contains(e.realName)) ||
               (fuzzyRealName.isNotEmpty && fuzzyRealName.contains(e.realName)),
         )
         .toList();

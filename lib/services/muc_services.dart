@@ -155,7 +155,7 @@ class MucServices {
         ..uid = groupUid
         ..pointer = pointer
         ..limit = limit
-        ..query = "dansi",
+        ..query = query,
     );
     return (request.members, request.finished);
   }

@@ -27,8 +27,8 @@ mixin _$Muc {
   String get id => throw _privateConstructorUsedError;
   String get info => throw _privateConstructorUsedError;
   List<int> get pinMessagesIdList => throw _privateConstructorUsedError;
-  dynamic get population => throw _privateConstructorUsedError;
-  dynamic get lastCanceledPinMessageId => throw _privateConstructorUsedError;
+  int get population => throw _privateConstructorUsedError;
+  int get lastCanceledPinMessageId => throw _privateConstructorUsedError;
   MucType get mucType => throw _privateConstructorUsedError;
   MucRole get currentUserRole => throw _privateConstructorUsedError;
 
@@ -49,8 +49,8 @@ abstract class $MucCopyWith<$Res> {
       String id,
       String info,
       List<int> pinMessagesIdList,
-      dynamic population,
-      dynamic lastCanceledPinMessageId,
+      int population,
+      int lastCanceledPinMessageId,
       MucType mucType,
       MucRole currentUserRole});
 }
@@ -73,8 +73,8 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
     Object? id = null,
     Object? info = null,
     Object? pinMessagesIdList = null,
-    Object? population = freezed,
-    Object? lastCanceledPinMessageId = freezed,
+    Object? population = null,
+    Object? lastCanceledPinMessageId = null,
     Object? mucType = null,
     Object? currentUserRole = null,
   }) {
@@ -103,14 +103,14 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
           ? _value.pinMessagesIdList
           : pinMessagesIdList // ignore: cast_nullable_to_non_nullable
               as List<int>,
-      population: freezed == population
+      population: null == population
           ? _value.population
           : population // ignore: cast_nullable_to_non_nullable
-              as dynamic,
-      lastCanceledPinMessageId: freezed == lastCanceledPinMessageId
+              as int,
+      lastCanceledPinMessageId: null == lastCanceledPinMessageId
           ? _value.lastCanceledPinMessageId
           : lastCanceledPinMessageId // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as int,
       mucType: null == mucType
           ? _value.mucType
           : mucType // ignore: cast_nullable_to_non_nullable
@@ -136,8 +136,8 @@ abstract class _$$_MucCopyWith<$Res> implements $MucCopyWith<$Res> {
       String id,
       String info,
       List<int> pinMessagesIdList,
-      dynamic population,
-      dynamic lastCanceledPinMessageId,
+      int population,
+      int lastCanceledPinMessageId,
       MucType mucType,
       MucRole currentUserRole});
 }
@@ -157,8 +157,8 @@ class __$$_MucCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$_Muc>
     Object? id = null,
     Object? info = null,
     Object? pinMessagesIdList = null,
-    Object? population = freezed,
-    Object? lastCanceledPinMessageId = freezed,
+    Object? population = null,
+    Object? lastCanceledPinMessageId = null,
     Object? mucType = null,
     Object? currentUserRole = null,
   }) {
@@ -187,10 +187,14 @@ class __$$_MucCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$_Muc>
           ? _value._pinMessagesIdList
           : pinMessagesIdList // ignore: cast_nullable_to_non_nullable
               as List<int>,
-      population: freezed == population ? _value.population! : population,
-      lastCanceledPinMessageId: freezed == lastCanceledPinMessageId
-          ? _value.lastCanceledPinMessageId!
-          : lastCanceledPinMessageId,
+      population: null == population
+          ? _value.population
+          : population // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastCanceledPinMessageId: null == lastCanceledPinMessageId
+          ? _value.lastCanceledPinMessageId
+          : lastCanceledPinMessageId // ignore: cast_nullable_to_non_nullable
+              as int,
       mucType: null == mucType
           ? _value.mucType
           : mucType // ignore: cast_nullable_to_non_nullable
@@ -248,10 +252,10 @@ class _$_Muc implements _Muc {
 
   @override
   @JsonKey()
-  final dynamic population;
+  final int population;
   @override
   @JsonKey()
-  final dynamic lastCanceledPinMessageId;
+  final int lastCanceledPinMessageId;
   @override
   @JsonKey()
   final MucType mucType;
@@ -276,10 +280,11 @@ class _$_Muc implements _Muc {
             (identical(other.info, info) || other.info == info) &&
             const DeepCollectionEquality()
                 .equals(other._pinMessagesIdList, _pinMessagesIdList) &&
-            const DeepCollectionEquality()
-                .equals(other.population, population) &&
-            const DeepCollectionEquality().equals(
-                other.lastCanceledPinMessageId, lastCanceledPinMessageId) &&
+            (identical(other.population, population) ||
+                other.population == population) &&
+            (identical(
+                    other.lastCanceledPinMessageId, lastCanceledPinMessageId) ||
+                other.lastCanceledPinMessageId == lastCanceledPinMessageId) &&
             (identical(other.mucType, mucType) || other.mucType == mucType) &&
             (identical(other.currentUserRole, currentUserRole) ||
                 other.currentUserRole == currentUserRole));
@@ -295,8 +300,8 @@ class _$_Muc implements _Muc {
       id,
       info,
       const DeepCollectionEquality().hash(_pinMessagesIdList),
-      const DeepCollectionEquality().hash(population),
-      const DeepCollectionEquality().hash(lastCanceledPinMessageId),
+      population,
+      lastCanceledPinMessageId,
       mucType,
       currentUserRole);
 
@@ -322,8 +327,8 @@ abstract class _Muc implements Muc {
       final String id,
       final String info,
       final List<int> pinMessagesIdList,
-      final dynamic population,
-      final dynamic lastCanceledPinMessageId,
+      final int population,
+      final int lastCanceledPinMessageId,
       final MucType mucType,
       final MucRole currentUserRole}) = _$_Muc;
 
@@ -343,9 +348,9 @@ abstract class _Muc implements Muc {
   @override
   List<int> get pinMessagesIdList;
   @override
-  dynamic get population;
+  int get population;
   @override
-  dynamic get lastCanceledPinMessageId;
+  int get lastCanceledPinMessageId;
   @override
   MucType get mucType;
   @override
