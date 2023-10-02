@@ -54,6 +54,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
                   child: CircleAvatarWidget(
                     widget.uid,
                     26,
+                    key: Key(widget.uid.asString()),
                     showSavedMessageLogoIfNeeded: true,
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -58,6 +59,7 @@ class ContactWidget extends StatelessWidget {
                         CircleAvatarWidget(
                           contact.uid!,
                           37,
+                          key: Key(contact.uid!.asString()),
                           borderRadius: secondaryBorder,
                           showSavedMessageLogoIfNeeded: true,
                         )

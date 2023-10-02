@@ -137,7 +137,11 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CircleAvatarWidget(member.memberUid, 18),
+            CircleAvatarWidget(
+              member.memberUid,
+              18,
+              key: Key(member.memberUid.asString()),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Row(
