@@ -152,8 +152,8 @@ class RoomRepo {
       expireTime,
     );
   }
-  String ? getContactNameFromCache(Uid uid )=> _cachingRepo.getName(uid) ;
 
+  String? getContactNameFromCache(Uid uid) => _cachingRepo.getName(uid);
 
   Future<String?> getMyContactNameOfMember(Uid uid) async =>
       _cachingRepo.getName(uid) ?? (await _getUidIdName(uid))?.name;
@@ -552,32 +552,22 @@ class RoomRepo {
   Future<List<Uid>> getAllRooms() async =>
       (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
 
-  Future<List<Uid>> searchInRooms(String text) async {
+  Future<List<UidIdName>> searchInRooms(String text) async {
     if (text.isEmpty) {
       return [];
     }
-    final searchResult = <Uid>[];
-    for (final element in await _roomDao.getAllRooms()) {
-      final name = await getName(element.uid, unknownName: "");
-      //search by name
-      if (name.toLowerCase().contains(text.toLowerCase()) && name.isNotEmpty) {
-        searchResult.add(element.uid);
-      }
-      //search by id;
-      else {
-        final id = (await _uidIdNameDao.getByUid(element.uid))?.id;
-        if (id != null && id.toLowerCase().contains(text.toLowerCase())) {
-          searchResult.add(element.uid);
-        }
-      }
-    }
-    if (_i18n.get("saved_message").toLowerCase().contains(
-          text.toLowerCase(),
-        )) {
-      searchResult.add(_authRepo.currentUserUid);
+    final searchResult = await _uidIdNameDao.search(text);
+
+    if (text.contains("sa") || text.contains("پی") || text.contains("ذخی")) {
+      searchResult
+          .add(UidIdName(uid: _authRepo.currentUserUid, name: "saved_message"));
     }
 
     return searchResult;
+  }
+
+  Future<List<Uid>> searchInRoomsAsUid(String text) async {
+    return (await searchInRooms(text)).map((e) => e.uid).toList();
   }
 
   Future<String> getUidById(String id) async {

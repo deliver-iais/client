@@ -26,6 +26,7 @@ mixin _$UidIdName {
   String? get name => throw _privateConstructorUsedError;
   String? get realName => throw _privateConstructorUsedError;
   int get lastUpdateTime => throw _privateConstructorUsedError;
+  bool? get isContact => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,7 +44,8 @@ abstract class $UidIdNameCopyWith<$Res> {
       String? id,
       String? name,
       String? realName,
-      int lastUpdateTime});
+      int lastUpdateTime,
+      bool? isContact});
 }
 
 /// @nodoc
@@ -64,6 +66,7 @@ class _$UidIdNameCopyWithImpl<$Res, $Val extends UidIdName>
     Object? name = freezed,
     Object? realName = freezed,
     Object? lastUpdateTime = null,
+    Object? isContact = freezed,
   }) {
     return _then(_value.copyWith(
       uid: null == uid
@@ -86,6 +89,10 @@ class _$UidIdNameCopyWithImpl<$Res, $Val extends UidIdName>
           ? _value.lastUpdateTime
           : lastUpdateTime // ignore: cast_nullable_to_non_nullable
               as int,
+      isContact: freezed == isContact
+          ? _value.isContact
+          : isContact // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ) as $Val);
   }
 }
@@ -102,7 +109,8 @@ abstract class _$$_UidIdNameCopyWith<$Res> implements $UidIdNameCopyWith<$Res> {
       String? id,
       String? name,
       String? realName,
-      int lastUpdateTime});
+      int lastUpdateTime,
+      bool? isContact});
 }
 
 /// @nodoc
@@ -121,6 +129,7 @@ class __$$_UidIdNameCopyWithImpl<$Res>
     Object? name = freezed,
     Object? realName = freezed,
     Object? lastUpdateTime = null,
+    Object? isContact = freezed,
   }) {
     return _then(_$_UidIdName(
       uid: null == uid
@@ -143,6 +152,10 @@ class __$$_UidIdNameCopyWithImpl<$Res>
           ? _value.lastUpdateTime
           : lastUpdateTime // ignore: cast_nullable_to_non_nullable
               as int,
+      isContact: freezed == isContact
+          ? _value.isContact
+          : isContact // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -155,7 +168,8 @@ class _$_UidIdName implements _UidIdName {
       this.id,
       this.name,
       this.realName,
-      this.lastUpdateTime = 0});
+      this.lastUpdateTime = 0,
+      this.isContact});
 
   factory _$_UidIdName.fromJson(Map<String, dynamic> json) =>
       _$$_UidIdNameFromJson(json);
@@ -172,10 +186,12 @@ class _$_UidIdName implements _UidIdName {
   @override
   @JsonKey()
   final int lastUpdateTime;
+  @override
+  final bool? isContact;
 
   @override
   String toString() {
-    return 'UidIdName(uid: $uid, id: $id, name: $name, realName: $realName, lastUpdateTime: $lastUpdateTime)';
+    return 'UidIdName(uid: $uid, id: $id, name: $name, realName: $realName, lastUpdateTime: $lastUpdateTime, isContact: $isContact)';
   }
 
   @override
@@ -189,13 +205,15 @@ class _$_UidIdName implements _UidIdName {
             (identical(other.realName, realName) ||
                 other.realName == realName) &&
             (identical(other.lastUpdateTime, lastUpdateTime) ||
-                other.lastUpdateTime == lastUpdateTime));
+                other.lastUpdateTime == lastUpdateTime) &&
+            (identical(other.isContact, isContact) ||
+                other.isContact == isContact));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, uid, id, name, realName, lastUpdateTime);
+  int get hashCode => Object.hash(
+      runtimeType, uid, id, name, realName, lastUpdateTime, isContact);
 
   @JsonKey(ignore: true)
   @override
@@ -217,7 +235,8 @@ abstract class _UidIdName implements UidIdName {
       final String? id,
       final String? name,
       final String? realName,
-      final int lastUpdateTime}) = _$_UidIdName;
+      final int lastUpdateTime,
+      final bool? isContact}) = _$_UidIdName;
 
   factory _UidIdName.fromJson(Map<String, dynamic> json) =
       _$_UidIdName.fromJson;
@@ -233,6 +252,8 @@ abstract class _UidIdName implements UidIdName {
   String? get realName;
   @override
   int get lastUpdateTime;
+  @override
+  bool? get isContact;
   @override
   @JsonKey(ignore: true)
   _$$_UidIdNameCopyWith<_$_UidIdName> get copyWith =>

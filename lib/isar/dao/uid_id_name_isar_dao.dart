@@ -26,9 +26,9 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     final box = await _openIsar();
     return box.uidIdNameIsars
         .filter()
-        .nameContains(term)
+        .nameContains(term, caseSensitive: false)
         .or()
-        .idContains(term)
+        .idContains(term, caseSensitive: false)
         .findAllSync()
         .map((e) => e.fromIsar())
         .toList();
@@ -40,6 +40,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     String? id,
     String? name,
     String? realName,
+    bool? isContact,
   }) async {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
     final box = await _openIsar();
@@ -55,6 +56,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
           realName: realName ?? uidName.realName,
           name: name ?? uidName.name,
           id: id ?? uidName.id,
+          isContact: isContact ?? uidName.isContact,
           lastUpdateTime: lastUpdateTime,
         ),
       );

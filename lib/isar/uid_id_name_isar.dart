@@ -19,11 +19,14 @@ class UidIdNameIsar {
 
   int lastUpdateTime;
 
+  bool isContact;
+
   UidIdNameIsar({
     required this.uid,
     this.name = "",
     this.id = "",
     this.lastUpdateTime = 0,
+    this.isContact = false,
     this.realName = "",
   });
 
@@ -31,6 +34,7 @@ class UidIdNameIsar {
         uid: uid.asUid(),
         name: name,
         id: id,
+        isContact: isContact,
         realName: realName,
         lastUpdateTime: lastUpdateTime,
       );
@@ -41,6 +45,7 @@ extension UidIdNameHiveMapper on UidIdName {
         uid: uid.asString(),
         name: name ?? '',
         id: id ?? '',
+        isContact: isContact??false,
         realName: realName ?? '',
         lastUpdateTime: lastUpdateTime,
       );

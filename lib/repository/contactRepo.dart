@@ -11,7 +11,6 @@ import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
@@ -42,7 +41,6 @@ import 'package:synchronized/synchronized.dart';
 class ContactRepo {
   final _logger = GetIt.I.get<Logger>();
   final _contactDao = GetIt.I.get<ContactDao>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
@@ -313,6 +311,7 @@ class ContactRepo {
         );
       _uidIdNameDao.update(
         contact.uid,
+        isContact: true,
         realName: buildName(contact.realFirstName, contact.realLastName),
         name: buildName(contact.firstName, contact.lastName),
       );
@@ -325,7 +324,11 @@ class ContactRepo {
       // For now, Group and Bot not supported in server side!!
       final result =
           await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      return _uidIdNameDao.update(uid, id: result.id);
+      return _uidIdNameDao.update(
+        uid,
+        id: result.id,
+        isContact: true,
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -369,26 +372,6 @@ class ContactRepo {
     }
   }
 
-  Future<List<Uid>> searchInContacts(String text) async {
-    if (text.isEmpty) {
-      return [];
-    }
-    final searchResult = (await _contactDao.getAllContacts())
-        .where(
-          (element) =>
-              element.uid != null &&
-              "${element.firstName}${element.lastName}"
-                  .toLowerCase()
-                  .contains(text.toLowerCase()) &&
-              !_authRepo.isCurrentUser(element.uid!) &&
-              !(element.phoneNumber.countryCode == 0),
-        )
-        .map((e) => e.uid!)
-        .toList();
-
-    return searchResult;
-  }
-
 // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
   Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid);
@@ -406,7 +389,11 @@ class ContactRepo {
 
       // Update uidIdName table
       unawaited(
-        _uidIdNameDao.update(contactUid, name: name, realName: realName),
+        _uidIdNameDao.update(
+          contactUid,
+          name: name,
+          realName: realName,
+        ),
       );
       _cachingRepo
         ..setName(contactUid, name)

@@ -14,6 +14,7 @@ class UidIdName with _$UidIdName {
     String? name,
     String? realName,
     @Default(0) int lastUpdateTime,
+     bool? isContact,
   }) = _UidIdName;
 
   factory UidIdName.fromJson(Map<String, Object?> json) =>

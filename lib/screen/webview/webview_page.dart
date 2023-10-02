@@ -32,7 +32,7 @@ class WebViewPageState extends State<WebViewPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
-  late InAppWebViewController webViewController;
+  InAppWebViewController? webViewController;
   late PullToRefreshController? pullToRefreshController;
   late WebMessagePort? weMessengerChannel;
   final webViewSettings = InAppWebViewSettings(
@@ -184,11 +184,11 @@ class WebViewPageState extends State<WebViewPage> {
       ),
       onRefresh: () async {
         if (defaultTargetPlatform == TargetPlatform.android) {
-          await webViewController.reload();
+          await webViewController?.reload();
         } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          await webViewController.loadUrl(
+          await webViewController?.loadUrl(
             urlRequest: URLRequest(
-              url: await webViewController.getUrl(),
+              url: await webViewController?.getUrl(),
             ),
           );
         }
@@ -203,8 +203,11 @@ class WebViewPageState extends State<WebViewPage> {
   }
 
   Future<bool> checkWebviewCanBackOrNot() async {
-    if (await webViewController.canGoBack()) {
-      unawaited(webViewController.goBack());
+    if (webViewController == null) {
+      return true;
+    }
+    if (await webViewController!.canGoBack()) {
+      unawaited(webViewController!.goBack());
 
       return false;
     }

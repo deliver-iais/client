@@ -15,8 +15,10 @@ import 'package:get_it/get_it.dart';
 
 class RoomInformationWidget extends StatefulWidget {
   final Uid uid;
+  final String? name;
 
-  const RoomInformationWidget({Key? key, required this.uid}) : super(key: key);
+  const RoomInformationWidget({Key? key, required this.uid, this.name})
+      : super(key: key);
 
   @override
   State<RoomInformationWidget> createState() => _RoomInformationWidgetState();
@@ -65,6 +67,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
                       SizedBox(
                         width: 200,
                         child: RoomName(
+                          name: widget.name,
                           uid: widget.uid,
                           forceToReturnSavedMessage: true,
                         ),

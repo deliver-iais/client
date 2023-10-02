@@ -22,23 +22,28 @@ const UidIdNameIsarSchema = CollectionSchema(
       name: r'id',
       type: IsarType.string,
     ),
-    r'lastUpdateTime': PropertySchema(
+    r'isContact': PropertySchema(
       id: 1,
+      name: r'isContact',
+      type: IsarType.bool,
+    ),
+    r'lastUpdateTime': PropertySchema(
+      id: 2,
       name: r'lastUpdateTime',
       type: IsarType.long,
     ),
     r'name': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'name',
       type: IsarType.string,
     ),
     r'realName': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'realName',
       type: IsarType.string,
     ),
     r'uid': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'uid',
       type: IsarType.string,
     )
@@ -77,10 +82,11 @@ void _uidIdNameIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.id);
-  writer.writeLong(offsets[1], object.lastUpdateTime);
-  writer.writeString(offsets[2], object.name);
-  writer.writeString(offsets[3], object.realName);
-  writer.writeString(offsets[4], object.uid);
+  writer.writeBool(offsets[1], object.isContact);
+  writer.writeLong(offsets[2], object.lastUpdateTime);
+  writer.writeString(offsets[3], object.name);
+  writer.writeString(offsets[4], object.realName);
+  writer.writeString(offsets[5], object.uid);
 }
 
 UidIdNameIsar _uidIdNameIsarDeserialize(
@@ -91,10 +97,11 @@ UidIdNameIsar _uidIdNameIsarDeserialize(
 ) {
   final object = UidIdNameIsar(
     id: reader.readStringOrNull(offsets[0]) ?? "",
-    lastUpdateTime: reader.readLongOrNull(offsets[1]) ?? 0,
-    name: reader.readStringOrNull(offsets[2]) ?? "",
-    realName: reader.readStringOrNull(offsets[3]) ?? "",
-    uid: reader.readString(offsets[4]),
+    isContact: reader.readBoolOrNull(offsets[1]) ?? false,
+    lastUpdateTime: reader.readLongOrNull(offsets[2]) ?? 0,
+    name: reader.readStringOrNull(offsets[3]) ?? "",
+    realName: reader.readStringOrNull(offsets[4]) ?? "",
+    uid: reader.readString(offsets[5]),
   );
   return object;
 }
@@ -109,12 +116,14 @@ P _uidIdNameIsarDeserializeProp<P>(
     case 0:
       return (reader.readStringOrNull(offset) ?? "") as P;
     case 1:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 2:
-      return (reader.readStringOrNull(offset) ?? "") as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 3:
       return (reader.readStringOrNull(offset) ?? "") as P;
     case 4:
+      return (reader.readStringOrNull(offset) ?? "") as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -400,6 +409,16 @@ extension UidIdNameIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'id',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterFilterCondition>
+      isContactEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isContact',
+        value: value,
       ));
     });
   }
@@ -886,6 +905,19 @@ extension UidIdNameIsarQuerySortBy
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> sortByIsContact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isContact', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
+      sortByIsContactDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isContact', Sort.desc);
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
       sortByLastUpdateTime() {
     return QueryBuilder.apply(this, (query) {
@@ -964,6 +996,19 @@ extension UidIdNameIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy> thenByIsContact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isContact', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
+      thenByIsContactDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isContact', Sort.desc);
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QAfterSortBy>
       thenByLastUpdateTime() {
     return QueryBuilder.apply(this, (query) {
@@ -1025,6 +1070,12 @@ extension UidIdNameIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<UidIdNameIsar, UidIdNameIsar, QDistinct> distinctByIsContact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isContact');
+    });
+  }
+
   QueryBuilder<UidIdNameIsar, UidIdNameIsar, QDistinct>
       distinctByLastUpdateTime() {
     return QueryBuilder.apply(this, (query) {
@@ -1065,6 +1116,12 @@ extension UidIdNameIsarQueryProperty
   QueryBuilder<UidIdNameIsar, String, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<UidIdNameIsar, bool, QQueryOperations> isContactProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isContact');
     });
   }
 

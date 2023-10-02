@@ -12,6 +12,7 @@ _$_UidIdName _$$_UidIdNameFromJson(Map<String, dynamic> json) => _$_UidIdName(
       name: json['name'] as String?,
       realName: json['realName'] as String?,
       lastUpdateTime: json['lastUpdateTime'] as int? ?? 0,
+      isContact: json['isContact'] as bool?,
     );
 
 Map<String, dynamic> _$$_UidIdNameToJson(_$_UidIdName instance) =>
@@ -21,4 +22,5 @@ Map<String, dynamic> _$$_UidIdNameToJson(_$_UidIdName instance) =>
       'name': instance.name,
       'realName': instance.realName,
       'lastUpdateTime': instance.lastUpdateTime,
+      'isContact': instance.isContact,
     };

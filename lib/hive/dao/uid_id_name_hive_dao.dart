@@ -24,7 +24,13 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   }
 
   @override
-  Future<void> update(Uid uid, {String? id, String? name,String? realName}) async {
+  Future<void> update(
+    Uid uid, {
+    String? id,
+    String? name,
+    String? realName,
+    bool? isContact,
+  }) async {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
 
     if (name != null) {
@@ -42,6 +48,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
           uid: uid.asString(),
           id: id,
           name: name,
+          isContact: isContact ?? false,
           realName: realName,
           lastUpdate: lastUpdateTime,
         ),
@@ -52,6 +59,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
         byUid.copyWith(
           uid: uid.asString(),
           id: id,
+          isContact: isContact ?? false,
           realName: realName,
           name: name,
           lastUpdate: lastUpdateTime,

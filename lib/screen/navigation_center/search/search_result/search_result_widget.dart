@@ -1,3 +1,4 @@
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -29,78 +30,92 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
   @override
   void initState() {
     widget.searchBoxController.addListener(() {
-      if(widget.searchBoxController.text.length > 2) {
+      if (widget.searchBoxController.text.length > 2) {
         _queryTermDebouncedSubject.add(widget.searchBoxController.text);
       }
     });
     super.initState();
   }
 
+  bool _localHasResult = false;
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<List<Uid>>>(
-      future: searchUidList(widget.searchBoxController.text),
-      builder: (c, snaps) {
-        if (!snaps.hasData || snaps.data!.isEmpty) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(34.0),
-            child: CircularProgressIndicator(),
-          ),);
-        }
-        final contacts = snaps.data![0];
-        final roomAndContacts = snaps.data![1];
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              if (contacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("contacts")),
-                ...searchResultWidget(contacts),
-              ],
-              if (roomAndContacts.isNotEmpty) ...[
-                buildTitle(_i18n.get("local_search")),
-                ...searchResultWidget(roomAndContacts)
-              ],
-              StreamBuilder<String>(
-                stream: _queryTermDebouncedSubject
-                    .debounceTime(const Duration(milliseconds: 250)),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data!.isNotEmpty) {
-                    return FutureBuilder<List<Uid>>(
-                      future: globalSearchUser(snapshot.data!),
-                      builder: (c, snaps) {
-                        if (!snaps.hasData) {
-                          return const Padding(
-                            padding: EdgeInsets.all(24.0),
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        final global = snaps.data!;
-                        if (global.isEmpty &&
-                            roomAndContacts.isEmpty &&
-                            contacts.isEmpty) {
-                          return const NoResultWidget();
-                        }
-                        return Column(
-                          children: [
-                            if (global.isNotEmpty) ...[
-                              buildTitle(_i18n.get("global_search")),
-                              ...searchResultWidget(global)
-                            ]
-                          ],
-                        );
-                      },
+    return Column(
+      children: [
+        FutureBuilder<List<UidIdName>>(
+          future: searchByName(widget.searchBoxController.text),
+          builder: (c, snaps) {
+            _localHasResult = snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
+            if (snaps.connectionState == ConnectionState.waiting &&
+                (!snaps.hasData || snaps.data!.isEmpty)) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(34.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            final contacts = snaps.data!
+                .where((element) => element.isContact ?? false)
+                .toList();
+            final roomAndContacts = snaps.data!
+                .where((element) => !(element.isContact ?? false))
+                .toList();
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (contacts.isNotEmpty) ...[
+                    buildTitle(_i18n.get("contacts")),
+                    ...searchResultWidget(contacts),
+                  ],
+                  if (roomAndContacts.isNotEmpty) ...[
+                    buildTitle(_i18n.get("local_search")),
+                    ...searchResultWidget(roomAndContacts)
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+        StreamBuilder<String>(
+          stream: _queryTermDebouncedSubject
+              .debounceTime(const Duration(milliseconds: 250)),
+          builder: (context, snapshot) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data!.isNotEmpty) {
+              return FutureBuilder<List<Uid>>(
+                future: globalSearchUser(snapshot.data!),
+                builder: (c, snaps) {
+                  if (!snaps.hasData) {
+                    return const Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
                     );
-                  } else {
-                    return const SizedBox.shrink();
                   }
+                  final global = snaps.data!;
+                  if (global.isEmpty && !_localHasResult) {
+                    return const NoResultWidget();
+                  }
+                  return Column(
+                    children: [
+                      if (global.isNotEmpty) ...[
+                        buildTitle(_i18n.get("global_search")),
+                        ...searchResultWidget(
+                          global.map((e) => UidIdName(uid: e)).toList(),
+                        )
+                      ]
+                    ],
+                  );
                 },
-              )
-            ],
-          ),
-        );
-      },
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        )
+      ],
     );
   }
 
@@ -119,25 +134,20 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     );
   }
 
-  Future<List<List<Uid>>> searchUidList(String query) async {
-    return [
-      //in contacts
-      await _contactRepo.searchInContacts(query),
-      //in rooms
-      await _roomRepo.searchInRooms(query),
-    ];
-  }
+  Future<List<UidIdName>> searchByName(String query) =>
+      _roomRepo.searchInRooms(query);
 
   Future<List<Uid>> globalSearchUser(String query) {
     return _contactRepo.searchUser(query);
   }
 
-  List<Widget> searchResultWidget(List<Uid> uidList) {
+  List<Widget> searchResultWidget(List<UidIdName> uidList) {
     return List.generate(
       uidList.length,
       (index) {
         return RoomInformationWidget(
-          uid: uidList[index],
+          uid: uidList[index].uid,
+          name: uidList[index].name,
         );
       },
     );

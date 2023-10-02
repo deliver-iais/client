@@ -22,13 +22,14 @@ class UidIdNameHiveAdapter extends TypeAdapter<UidIdNameHive> {
       name: fields[2] as String?,
       lastUpdate: fields[4] as int?,
       realName: fields[5] as String?,
+      isContact: fields[6] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, UidIdNameHive obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class UidIdNameHiveAdapter extends TypeAdapter<UidIdNameHive> {
       ..writeByte(4)
       ..write(obj.lastUpdate)
       ..writeByte(5)
-      ..write(obj.realName);
+      ..write(obj.realName)
+      ..writeByte(6)
+      ..write(obj.isContact);
   }
 
   @override

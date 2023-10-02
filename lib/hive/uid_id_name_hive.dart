@@ -23,12 +23,18 @@ class UidIdNameHive {
   @HiveField(5)
   String? realName;
 
+
+  @HiveField(6)
+  bool isContact;
+
+
   UidIdNameHive({
     required this.uid,
     this.id,
     this.name,
     this.lastUpdate,
     this.realName,
+    this.isContact = false,
   });
 
   UidIdNameHive copyWith({
@@ -37,26 +43,31 @@ class UidIdNameHive {
     String? name,
     int? lastUpdate,
     String? realName,
+    bool? isContact,
   }) =>
       UidIdNameHive(
         uid: uid,
         id: id ?? this.id,
         name: name ?? this.name,
+        isContact: isContact ?? this.isContact,
         lastUpdate: lastUpdate ?? this.lastUpdate,
         realName: realName ?? this.realName,
       );
 
-  UidIdName fromHive() => UidIdName(
+  UidIdName fromHive() =>
+      UidIdName(
         uid: uid.asUid(),
         name: name,
         id: id,
+        isContact: isContact,
         realName: realName,
         lastUpdateTime: lastUpdate ?? 0,
       );
 }
 
 extension UidIdNameHiveMapper on UidIdName {
-  UidIdNameHive toHive() => UidIdNameHive(
+  UidIdNameHive toHive() =>
+      UidIdNameHive(
         uid: uid.asString(),
         name: name,
         id: id,

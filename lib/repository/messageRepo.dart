@@ -278,6 +278,7 @@ class MessageRepo {
                           room.lastMessageId))) {
             unawaited(_notifyOfflineMessagesWhenAppInBackground(roomMetadata));
           }
+          unawaited(_roomRepo.getName(roomMetadata.roomUid));
           return true;
         }
       } else {
