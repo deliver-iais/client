@@ -21,12 +21,17 @@ test:
     - echo "Flutter Test not passing for Now - Use `flutter test` instead"
 publish-we-android:
   needs: [ test ]
+  when: manual
   extends: [ .publish-android-definition ]
 
 publish-we-web:
   needs: [ test ]
+  when: manual
+
   extends: [ .publish-web-definition ]
 
 deploy-we-web:
+  when: manual
+
   needs: [ publish-we-web ]
   extends: [ .deploy-web-definition ]
