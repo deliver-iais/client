@@ -736,20 +736,14 @@ class MucRepo {
       );
 
       if (usersAddCode == StatusCode.ok) {
-        unawaited(
-          _updateMemberListOfMUC(
-            mucUid,
-            members
-                .map(
-                  (e) => Member(
-                    mucUid: mucUid,
-                    memberUid: e.uid,
-                    role: getLocalRole(e.role),
-                  ),
-                )
-                .toList(),
-          ),
-        );
+        for (final element in members) {
+            unawaited(_mucDao.saveMember(Member(
+               mucUid: mucUid,
+               memberUid: element.uid,
+               role: getLocalRole(element.role),
+             )));
+        }
+
       }
       return usersAddCode;
     } catch (e) {

@@ -552,22 +552,28 @@ class RoomRepo {
   Future<List<Uid>> getAllRooms() async =>
       (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
 
-  Future<List<UidIdName>> searchInRooms(String text) async {
+  Stream<List<UidIdName>> searchInRooms(String text) async* {
     if (text.isEmpty) {
-      return [];
+      yield [];
     }
-    final searchResult = await _uidIdNameDao.search(text);
+    var res = <Uid, UidIdName>{};
+    final searchInContacts = await _uidIdNameDao.searchInContacts(text);
 
     if (text.contains("sa") || text.contains("پی") || text.contains("ذخی")) {
-      searchResult
+      searchInContacts
           .add(UidIdName(uid: _authRepo.currentUserUid, name: "saved_message"));
     }
+    res = {for (var e in searchInContacts) e.uid: e};
 
-    return searchResult;
-  }
+    yield searchInContacts;
 
-  Future<List<Uid>> searchInRoomsAsUid(String text) async {
-    return (await searchInRooms(text)).map((e) => e.uid).toList();
+    for (final r in await _roomDao.getAllRooms()) {
+      final n = await getName(r.uid);
+      if (n.contains(text) && !res.containsKey(r.uid)) {
+        searchInContacts.add(UidIdName(uid: r.uid, name: n));
+      }
+    }
+    yield searchInContacts;
   }
 
   Future<String> getUidById(String id) async {

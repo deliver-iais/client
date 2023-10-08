@@ -43,8 +43,8 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FutureBuilder<List<UidIdName>>(
-          future: searchByName(widget.searchBoxController.text),
+        StreamBuilder<List<UidIdName>>(
+          stream: _roomRepo.searchInRooms(widget.searchBoxController.text),
           builder: (c, snaps) {
             _localHasResult = snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
             if (snaps.connectionState == ConnectionState.waiting &&
@@ -134,8 +134,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     );
   }
 
-  Future<List<UidIdName>> searchByName(String query) =>
-      _roomRepo.searchInRooms(query);
+
 
   Future<List<Uid>> globalSearchUser(String query) {
     return _contactRepo.searchUser(query);

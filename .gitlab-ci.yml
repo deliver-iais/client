@@ -2,6 +2,7 @@ include:
   - project: deliver/gitlab-templates
     file: flutter.gitlab-ci.yml
 
+
 stages:
   - test
   - publish

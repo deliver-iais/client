@@ -1,3 +1,4 @@
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
@@ -33,30 +34,56 @@ class SearchBoxAndListWidget extends StatelessWidget {
           stream: queryTermDebouncedSubject,
           builder: (context, query) {
             return Expanded(
-              child: FutureBuilder<List<Uid>>(
-                future: query.data != null && query.data!.isNotEmpty
-                    ? roomRepo.searchInRoomsAsUid(query.data!)
-                    : roomRepo.getAllRooms(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data!.isNotEmpty) {
-                    if (snapshot.data!
-                        .map((e) => e.asString())
-                        .contains(authRepo.currentUserUid.asString())) {
-                      final index = snapshot.data!
-                          .map((e) => e.asString())
-                          .toList()
-                          .indexOf(authRepo.currentUserUid.asString());
-                      snapshot.data!.removeAt(index);
-                    }
-                    snapshot.data!.insert(0, authRepo.currentUserUid);
-                    return listWidget(snapshot.data!);
-                  } else {
-                    return emptyWidget;
-                  }
-                },
-              ),
+              child: query.data == null || query.data!.isEmpty
+                  ? FutureBuilder<List<Uid>>(
+                      future: roomRepo.getAllRooms(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.isNotEmpty) {
+                          if (snapshot.data!
+                              .map((e) => e.asString())
+                              .contains(authRepo.currentUserUid.asString())) {
+                            final index = snapshot.data!
+                                .map((e) => e.asString())
+                                .toList()
+                                .indexOf(authRepo.currentUserUid.asString());
+                            snapshot.data!.removeAt(index);
+                          }
+                          snapshot.data!.insert(0, authRepo.currentUserUid);
+                          return listWidget(snapshot.data!);
+                        } else {
+                          return emptyWidget;
+                        }
+                      },
+                    )
+                  : StreamBuilder<List<UidIdName>>(
+                      stream: roomRepo.searchInRooms(query.data!),
+                      builder: (c, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.isNotEmpty) {
+                          if (snapshot.data!
+                              .map((e) => e.uid.asString())
+                              .contains(authRepo.currentUserUid.asString())) {
+                            final index = snapshot.data!
+                                .map((e) => e.uid.asString())
+                                .toList()
+                                .indexOf(authRepo.currentUserUid.asString());
+                            snapshot.data!.removeAt(index);
+                          }
+                          snapshot.data!.insert(
+                            0,
+                            UidIdName(uid: authRepo.currentUserUid),
+                          );
+                          return listWidget(
+                            snapshot.data!.map((e) => e.uid).toList(),
+                          );
+                        } else {
+                          return emptyWidget;
+                        }
+                      },
+                    ),
             );
           },
         ),

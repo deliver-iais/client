@@ -12,4 +12,5 @@ abstract class UidIdNameDao {
       {String? id, String? name, String? realName, bool? isContact = false,});
 
   Future<List<UidIdName>> search(String term);
+  Future<List<UidIdName>> searchInContacts(String term);
 }

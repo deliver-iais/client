@@ -116,4 +116,21 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     DBManager.open(_key2(), TableInfo.ID_UID_NAME_TABLE_NAME);
     return gen(Hive.openBox<String>(_key2()));
   }
+
+  @override
+  Future<List<UidIdName>> searchInContacts(String term) async {
+    final text = term.toLowerCase();
+    final box = await _open();
+    final res = box.values
+        .where(
+          (element) =>
+              element.isContact &&
+              ((element.id != null &&
+                      element.id.toString().toLowerCase().contains(text)) ||
+                  (element.name != null &&
+                      element.name!.toLowerCase().contains(text))),
+        )
+        .toList();
+    return res.map((e) => e.fromHive()).toList();
+  }
 }

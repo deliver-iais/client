@@ -75,4 +75,22 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   }
 
   Future<Isar> _openIsar() => IsarManager.open();
+
+  @override
+  Future<List<UidIdName>> searchInContacts(String term) async {
+    final box = await _openIsar();
+    return box.uidIdNameIsars
+        .filter()
+        .isContactEqualTo(true)
+        .and()
+        .group(
+          (q) => q
+              .nameContains(term, caseSensitive: false)
+              .or()
+              .idContains(term, caseSensitive: false),
+        )
+        .findAllSync()
+        .map((e) => e.fromIsar())
+        .toList();
+  }
 }
