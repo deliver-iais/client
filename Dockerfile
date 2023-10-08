@@ -7,8 +7,7 @@ COPY pubspec.lock /usr/local/bin/app/pubspec.lock
 WORKDIR /usr/local/bin/app
 
 # Get App Dependencies
-RUN flutter channel stable
-RUN flutter upgrade 3.10.5
+RUN flutter doctor -v
 RUN flutter pub get
 
 # Copy the app files to the container
