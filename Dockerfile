@@ -8,7 +8,7 @@ WORKDIR /usr/local/bin/app
 
 # Get App Dependencies
 RUN flutter doctor -v
-RUN upgrade 3.10.5 --force
+RUN flutter upgrade 3.10.5 --force
 RUN flutter pub get
 
 # Copy the app files to the container
