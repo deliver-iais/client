@@ -249,7 +249,7 @@ class CoreServices {
               case ServerPacket_Type.notSet:
               case ServerPacket_Type.expletivePacket:
                 break;
-              }
+            }
           } catch (_) {}
           gotResponse(isPong: serverPacket.hasPong());
         },

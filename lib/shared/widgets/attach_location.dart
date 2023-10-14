@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -71,11 +70,10 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               ),
               children: [
                 TileLayer(
-                  tilesContainerBuilder: settings.themeIsDark.value
-                      ? darkModeTilesContainerBuilder
-                      : null,
+                  // tilesContainerBuilder: settings.themeIsDark.value
+                  //     ? darkModeTilesContainerBuilder
+                  //     : null,
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: const ['a', 'b', 'c'],
                 ),
                 MarkerLayer(
                   markers: [
@@ -83,8 +81,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       // width: pointSize,
                       // height: pointSize,
                       point: currentLocation,
-                      builder: (_) {
-                        return Container(
+                      child:Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
@@ -107,20 +104,17 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                               color: theme.colorScheme.primary,
                             ),
                           ),
-                        );
-                      },
+                        ),
                     ),
                     Marker(
                       point: pointerLocation,
-                      builder: (_) {
-                        return GestureDetector(
+                      child: GestureDetector(
                           child: Icon(
                             Icons.location_pin,
                             color: Theme.of(context).colorScheme.error,
                             size: 28,
                           ),
-                        );
-                      },
+                        ),
                     )
                   ],
                 )
@@ -208,10 +202,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
     setState(() {
       final newLocation =
           mapController.pointToLatLng(CustomPoint(pointX, pointY));
-      if (newLocation != null) {
-        pointerLocation = newLocation;
-      }
-    });
+      pointerLocation = newLocation;
+        });
   }
 
   double _getPointX(BuildContext context) {
@@ -254,10 +246,12 @@ class AttachLocation {
             latitude: 35.699693143116974,
             timestamp: null,
             accuracy: 0.0,
+            altitudeAccuracy: 1.0,
             altitude: 0.0,
             heading: 0.0,
             speed: 0.0,
             speedAccuracy: 0.0,
+            headingAccuracy: 1.0,
           );
           return PointToLatLngPage(
             position: defaultPosition,
@@ -280,7 +274,6 @@ class AttachLocation {
       children: [
         TileLayer(
           urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: const ['a', 'b', 'c'],
         ),
         MarkerLayer(
           markers: [
@@ -291,7 +284,7 @@ class AttachLocation {
                 position.latitude,
                 position.longitude,
               ),
-              builder: (ctx) => Icon(
+              child: Icon(
                 Icons.location_pin,
                 color: Theme.of(context).colorScheme.error,
                 size: 28,

@@ -556,24 +556,32 @@ class RoomRepo {
     if (text.isEmpty) {
       yield [];
     }
-    var res = <Uid, UidIdName>{};
-    final searchInContacts = await _uidIdNameDao.searchInContacts(text);
 
-    if (text.contains("sa") || text.contains("پی") || text.contains("ذخی")) {
-      searchInContacts
-          .add(UidIdName(uid: _authRepo.currentUserUid, name: "saved_message"));
-    }
-    res = {for (var e in searchInContacts) e.uid: e};
-
-    yield searchInContacts;
+    final searchRooms = <UidIdName>[];
 
     for (final r in await _roomDao.getAllRooms()) {
       final n = await getName(r.uid);
-      if (n.contains(text) && !res.containsKey(r.uid)) {
-        searchInContacts.add(UidIdName(uid: r.uid, name: n));
+      if (n.contains(text)) {
+        searchRooms.add(UidIdName(uid: r.uid, name: n));
       }
     }
-    yield searchInContacts;
+    if (text.contains("sa") || text.contains("پی") || text.contains("ذخی")) {
+      searchRooms
+          .add(UidIdName(uid: _authRepo.currentUserUid, name: "saved_message"));
+    }
+    yield searchRooms;
+
+    final res = {for (final e in searchRooms) e.uid: e};
+
+    final searchInContacts = await _uidIdNameDao.searchInContacts(text);
+
+    for (final element in searchInContacts) {
+      if (!res.containsKey(element.uid)) {
+        searchRooms.add(element);
+      }
+    }
+
+    yield searchRooms;
   }
 
   Future<String> getUidById(String id) async {

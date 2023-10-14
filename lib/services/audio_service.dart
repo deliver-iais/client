@@ -69,6 +69,7 @@ enum AudioPlayerState {
 
   /// Paused. The user can [resumeAudio] the playback without providing the URL.
   paused,
+  disposed
 }
 
 typedef OnDoneCallback = void Function();

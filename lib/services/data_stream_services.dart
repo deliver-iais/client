@@ -697,7 +697,7 @@ class DataStreamServices {
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
-      _logger.e("error in saving message", e);
+      _logger.e("error in saving message", error:e);
       return null;
     }
   }

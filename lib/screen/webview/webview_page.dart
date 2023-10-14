@@ -247,7 +247,7 @@ class WebViewPageState extends State<WebViewPage> {
               break;
           }
         } catch (e) {
-          _logger.e("error on channel communication", e);
+          _logger.e("error on channel communication", error:e);
         }
       });
       // transfer port2 to the webpage to initialize the communication

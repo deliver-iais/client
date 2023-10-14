@@ -11,13 +11,15 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   @override
   Future<List<Room>> getAllRooms() async {
     final box = await _openRoomIsar();
-    return box.roomIsars
-        .filter()
-        .deletedEqualTo(false)
-        .sortByLastUpdateTimeDesc()
-        .findAllSync()
-        .map((e) => e.fromIsar())
-        .toList();
+    return sortRooms(
+      box.roomIsars
+          .filter()
+          .deletedEqualTo(false)
+          .sortByLastUpdateTimeDesc()
+          .findAllSync()
+          .map((e) => e.fromIsar())
+          .toList(),
+    );
   }
 
   @override

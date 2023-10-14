@@ -18,8 +18,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:gallery_saver/files.dart';
-import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
 import 'package:image_compression/image_compression.dart';
@@ -298,11 +296,11 @@ class FileService {
               : File(path).readAsBytesSync(),
         );
       } else {
-        if (isVideo(path)) {
-          await GallerySaver.saveVideo(path);
-        } else {
-          await GallerySaver.saveImage(path);
-        }
+        // if (isVideo(path)) {
+        //   await GallerySaver.saveVideo(path);
+        // } else {
+        //   await GallerySaver.saveImage(path);
+        // }
       }
     } catch (_) {
       _logger.e(_);

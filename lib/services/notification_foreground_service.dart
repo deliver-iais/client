@@ -306,6 +306,12 @@ class NotificationHandler extends TaskHandler {
     FlutterForegroundTask.launchApp("/");
     sPort?.send('onNotificationPressed');
   }
+
+  @override
+  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+    // TODO: implement onRepeatEvent
+    throw UnimplementedError();
+  }
 }
 
 // The callback function should always be a top-level function.
@@ -354,5 +360,11 @@ class CallForegroundHandler extends TaskHandler {
     // signal it to restore state when the app is already started.
     FlutterForegroundTask.launchApp("/call-screen");
     sPort?.send('onNotificationPressed');
+  }
+
+  @override
+  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+    // TODO: implement onRepeatEvent
+    throw UnimplementedError();
   }
 }

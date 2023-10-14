@@ -16,14 +16,14 @@ class CustomDesktopSelectableRegionContextMenu {
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.copy,
               )
-              .onPressed()
+              .onPressed!()
           : null,
       handleSelectAll: editableTextState.selectAllEnabled
           ? () => editableTextState.contextMenuButtonItems
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.selectAll,
               )
-              .onPressed()
+              .onPressed!()
           : null,
     );
   }

@@ -70,7 +70,7 @@ void showQrCode(BuildContext context, String url) {
           children: <Widget>[
             Container(
               color: Colors.white,
-              child: QrImage(
+              child: QrImageView(
                 data: url,
                 padding: EdgeInsets.zero,
                 foregroundColor: Colors.black,

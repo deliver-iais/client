@@ -17,13 +17,13 @@ class LastActivityRepo {
 
   final _sdp = GetIt.I.get<ServicesDiscoveryRepo>();
 
-  Future<void> updateLastActivity(Uid userUId) async {
-    final la = await _lastActivityDao.get(userUId.asString());
+  Future<void> updateLastActivity(Uid userUid) async {
+    final la = await _lastActivityDao.get(userUid.asString());
     if (la != null &&
         clock.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
       return;
     } else {
-      return _getLastActivityTime(userUId);
+      return _getLastActivityTime(userUid);
     }
   }
 

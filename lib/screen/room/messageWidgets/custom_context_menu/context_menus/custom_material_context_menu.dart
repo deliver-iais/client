@@ -27,21 +27,21 @@ class CustomMaterialContextMenu {
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.cut,
               )
-              .onPressed()
+              .onPressed!()
           : null,
       handleCopy: editableTextState.copyEnabled
           ? () => editableTextState.contextMenuButtonItems
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.copy,
               )
-              .onPressed()
+              .onPressed!()
           : null,
       handleSelectAll: editableTextState.selectAllEnabled
           ? () => editableTextState.contextMenuButtonItems
               .firstWhere(
                 (element) => element.type == ContextMenuButtonType.selectAll,
               )
-              .onPressed()
+              .onPressed!()
           : null,
       handlePaste: editableTextState.pasteEnabled
           ? () async {

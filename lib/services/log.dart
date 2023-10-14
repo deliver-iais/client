@@ -7,7 +7,7 @@ import 'package:logger/logger.dart';
 
 // TODO(any): implement file output instead of using src importing
 // ignore: implementation_imports
-import 'package:logger/src/outputs/file_output.dart';
+import 'package:logger/src/outputs/file_output.dart' as f;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -27,7 +27,7 @@ class DeliverLogFilter extends LogFilter {
 class DeliverLogOutput extends LogOutput {
   final consoleOutput = ConsoleOutput();
 
-  late final FileOutput? fileOutput;
+  late final f.FileOutput? fileOutput;
 
   Future<String> getLogFilePath() async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -37,7 +37,7 @@ class DeliverLogOutput extends LogOutput {
   @override
   Future<void> init() async {
     if (!isWeb) {
-      fileOutput = FileOutput(file: File(await getLogFilePath()));
+      fileOutput = f.FileOutput(file: File(await getLogFilePath()));
       fileOutput?.init();
       consoleOutput.init();
     }
@@ -51,9 +51,16 @@ class DeliverLogOutput extends LogOutput {
     }
   }
 
-  @override
-  void destroy() {
-    consoleOutput.destroy();
-    fileOutput?.destroy();
-  }
+  // @override
+  // Future<Function> destroy() {
+  //     consoleOutput.destroy();
+  //     fileOutput?.destroy();
+  // }
+
+// @override
+  // void destroy() {
+  //   consoleOutput.destroy();
+  //   fileOutput?.destroy();
+  //
+  // }
 }

@@ -85,7 +85,7 @@ class AvatarRepo {
       }
       return completer.complete();
     } on GrpcError catch (e) {
-      _logger.e("grpc error for $userUid", e);
+      _logger.e("grpc error for $userUid",error: e);
       if (e.code == StatusCode.notFound) {
         await _avatarDao.clearAllAvatars(userUid.asString());
         await _avatarDao.saveLastAvatarAsNull(userUid.asString());
@@ -96,7 +96,7 @@ class AvatarRepo {
 
   Future<bool> _isAvatarNeedsToBeUpdated(Uid userUid) async {
     if (_authRepo.isCurrentUser(userUid)) {
-      _logger.v("current user avatar update needed");
+      _logger.t("current user avatar update needed");
       return true;
     }
     final nowTime = clock.now().millisecondsSinceEpoch;
@@ -106,7 +106,7 @@ class AvatarRepo {
     final ac = _avatarCache.get(key);
 
     if (ac != null && (nowTime - ac.lastUpdateTime) > AVATAR_CACHE_TIME) {
-      _logger.v(
+      _logger.t(
         "exceeded from $AVATAR_CACHE_TIME in cache - $nowTime ${ac.lastUpdateTime}",
       );
       return true;
@@ -117,18 +117,18 @@ class AvatarRepo {
     final lastAvatar = await _avatarDao.getLastAvatar(userUid.asString());
 
     if (lastAvatar == null) {
-      _logger.v("last avatar is null - $userUid");
+      _logger.t("last avatar is null - $userUid");
       return true;
     } else if ((lastAvatar.avatarIsEmpty) &&
         (nowTime - lastAvatar.lastUpdateTime) > NULL_AVATAR_CACHE_TIME) {
       // has no avatar and exceeded from 4 hours
-      _logger.v(
+      _logger.t(
         "exceeded from $NULL_AVATAR_CACHE_TIME DAO, and AVATAR WAS NULL - $userUid",
       );
       return true;
     } else if ((nowTime - lastAvatar.lastUpdateTime) > AVATAR_CACHE_TIME) {
       // 24 hours
-      _logger.v("exceeded from $AVATAR_CACHE_TIME in DAO - $userUid");
+      _logger.t("exceeded from $AVATAR_CACHE_TIME in DAO - $userUid");
       return true;
     } else {
       _avatarCache.set(key, lastAvatar);

@@ -161,7 +161,7 @@ class CallRepo {
   bool _isAccepted = false;
   bool _notifyIncomingCall = false;
   Timer? timer;
-  StreamSubscription<PhoneStateStatus?>? _phoneStateStream;
+  StreamSubscription<PhoneState?>? _phoneStateStream;
 
   ReceivePort? _receivePort;
 
@@ -421,22 +421,19 @@ class CallRepo {
   }
 
   void startListenToPhoneCallState() {
-    _phoneStateStream = PhoneState.phoneStateStream.listen((event) {
-      if (event != null) {
-        if (event == PhoneStateStatus.CALL_STARTED) {
-          _analyticsService.sendLogEvent(
-            "callOnHold",
-          );
-          _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
-          if (_isDCReceived) {
-            _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
-          }
-        } else if (event == PhoneStateStatus.CALL_ENDED) {
-          _logger.i("PhoneState.phoneStateStream=CALL_ENDED");
-          if (_isDCReceived) {
-            _dataChannel!
-                .send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD_ENDED));
-          }
+    _phoneStateStream = PhoneState.stream.listen((event) {
+      if (event.status == PhoneStateStatus.CALL_STARTED) {
+        _analyticsService.sendLogEvent(
+          "callOnHold",
+        );
+        _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
+        if (_isDCReceived) {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
+        }
+      } else if (event.status == PhoneStateStatus.CALL_ENDED) {
+        _logger.i("PhoneState.phoneStateStream=CALL_ENDED");
+        if (_isDCReceived) {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD_ENDED));
         }
       }
     });
@@ -466,7 +463,7 @@ class CallRepo {
       'mandatory': {},
       'optional': [
         {'DtlsSrtpKeyAgreement': true},
-      ]
+      ],
     };
 
     _sdpConstraints = {
@@ -1056,7 +1053,7 @@ class CallRepo {
             ? true
             : {
                 'deviceId': {'exact': source.id},
-                'mandatory': {'frameRate': 30.0}
+                'mandatory': {'frameRate': 30.0},
               }
       });
       stream.getVideoTracks()[0].onEnded = () {
@@ -1656,7 +1653,7 @@ class CallRepo {
       candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
     }
     _logger.i(
-      "candidateNumber:$candidateNumber",
+      "candidateNumber:$candidateNumber", error:
       "candidateTimeLimit:$candidateTimeLimit",
     );
     if (isAnswer) {
@@ -2304,5 +2301,10 @@ class FirstTaskHandler extends TaskHandler {
     // signal it to restore state when the app is already started.
     FlutterForegroundTask.launchApp("/call-screen");
     sPort?.send('onNotificationPressed');
+  }
+
+  @override
+  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+    return Future.value();
   }
 }

@@ -229,7 +229,7 @@ class LoginPageState extends State<LoginPage> {
                   height: 200,
                   padding: const EdgeInsets.all(8.0),
                   color: Colors.white,
-                  child: QrImage(
+                  child: QrImageView(
                     data:
                         "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
                     padding: EdgeInsets.zero,

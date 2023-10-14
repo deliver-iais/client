@@ -85,9 +85,9 @@ class LocationMessageWidget extends StatelessWidget {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: settings.themeIsDark.value
-                        ? darkModeTilesContainerBuilder
-                        : null,
+                    // tilesContainerBuilder: settings.themeIsDark.value
+                    //     ? darkModeTilesContainerBuilder
+                    //     : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: const ['a', 'b', 'c'],
@@ -96,14 +96,12 @@ class LocationMessageWidget extends StatelessWidget {
                     markers: [
                       Marker(
                         point: LatLng(location.latitude, location.longitude),
-                        builder: (_) {
-                          return GestureDetector(
-                            child: Icon(
-                              Icons.location_pin,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                        },
+                        child: GestureDetector(
+                          child: Icon(
+                            Icons.location_pin,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -163,18 +161,17 @@ class LocationDialog extends StatelessWidget {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: settings.themeIsDark.value
-                        ? darkModeTilesContainerBuilder
-                        : null,
+                    // tilesContainerBuilder: settings.themeIsDark.value
+                    //     ? darkModeTilesContainerBuilder
+                    //     : null,
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: const ['a', 'b', 'c'],
                   ),
                   MarkerLayer(
                     markers: [
                       Marker(
                         point: LatLng(location.latitude, location.longitude),
-                        builder: (ctx) => CircleAvatarWidget(from, 20),
+                        child: CircleAvatarWidget(from, 20),
                       ),
                     ],
                   ),
@@ -313,20 +310,19 @@ class _LocationPageState extends State<LocationPage> {
                 children: [
                   TileLayer(
                     tileProvider: NetworkTileProvider(),
-                    tilesContainerBuilder: settings.themeIsDark.value
-                        ? darkModeTilesContainerBuilder
-                        : null,
+                    // tilesContainerBuilder: settings.themeIsDark.value
+                    //     ? darkModeTilesContainerBuilder
+                    //     : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: const ['a', 'b', 'c'],
                   ),
                   MarkerLayer(
                     markers: [
                       if (position != null)
                         Marker(
-                          point: LatLng(position.latitude, position.longitude),
-                          builder: (_) {
-                            return Container(
+                            point:
+                                LatLng(position.latitude, position.longitude),
+                            child: Container(
                               alignment: Alignment.topCenter,
                               padding: const EdgeInsetsDirectional.all(8),
                               decoration: BoxDecoration(
@@ -350,24 +346,19 @@ class _LocationPageState extends State<LocationPage> {
                                   color: theme.colorScheme.primary,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            )),
                       Marker(
-                        point: LatLng(
-                          widget.location.latitude,
-                          widget.location.longitude,
-                        ),
-                        builder: (_) {
-                          return GestureDetector(
+                          point: LatLng(
+                            widget.location.latitude,
+                            widget.location.longitude,
+                          ),
+                          child: GestureDetector(
                             child: Icon(
                               Icons.location_on_sharp,
                               color: Theme.of(context).colorScheme.error,
                               size: 28,
                             ),
-                          );
-                        },
-                      ),
+                          )),
                     ],
                   ),
                 ],
@@ -439,8 +430,7 @@ class _LocationPageState extends State<LocationPage> {
                               initialData: _roomRepo.fastForwardName(
                                 widget.message.from,
                               ),
-                              future: _roomRepo
-                                  .getName(widget.message.from),
+                              future: _roomRepo.getName(widget.message.from),
                               builder: (context, snapshot) {
                                 final roomName =
                                     snapshot.data ?? _i18n.get("loading");

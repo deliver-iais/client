@@ -87,14 +87,12 @@ class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
                 tileProvider: NetworkTileProvider(),
                 urlTemplate:
                     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: const ['a', 'b', 'c'],
               ),
               MarkerLayer(
                 markers: [
                   Marker(
                     point: LatLng(location.latitude, location.longitude),
-                    builder: (ctx) =>
-                        CircleAvatarWidget(widget.message.from, 20),
+                    child: CircleAvatarWidget(widget.message.from, 20),
                   ),
                 ],
               ),

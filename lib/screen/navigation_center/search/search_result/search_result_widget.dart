@@ -65,14 +65,15 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  if (contacts.isNotEmpty) ...[
-                    buildTitle(_i18n.get("contacts")),
-                    ...searchResultWidget(contacts),
-                  ],
                   if (roomAndContacts.isNotEmpty) ...[
                     buildTitle(_i18n.get("local_search")),
                     ...searchResultWidget(roomAndContacts)
                   ],
+                  if (contacts.isNotEmpty) ...[
+                    buildTitle(_i18n.get("contacts")),
+                    ...searchResultWidget(contacts),
+                  ],
+
                 ],
               ),
             );

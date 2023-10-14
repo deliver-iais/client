@@ -845,7 +845,7 @@ class MessageRepo {
     try {
       tempType = detectFileMimeByFileModel(file);
     } catch (e) {
-      _logger.e("Error in getting file type", e);
+      _logger.e("Error in getting file type", error:e);
     }
 
     try {
@@ -856,7 +856,7 @@ class MessageRepo {
         "File size set to file size: $tempFileSize",
       );
     } catch (e) {
-      _logger.e("Error in fetching fake file size", e);
+      _logger.e("Error in fetching fake file size", error:e);
     }
 
     // Get size of image
@@ -876,7 +876,7 @@ class MessageRepo {
         }
       }
     } catch (e) {
-      _logger.e("Error in fetching fake file dimensions", e);
+      _logger.e("Error in fetching fake file dimensions", error:e);
     }
     final file_pb.AudioWaveform audioWaveForm;
     if (file.isVoice ?? false) {
