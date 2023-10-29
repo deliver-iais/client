@@ -105,10 +105,10 @@ class _$ContactCopyWithImpl<$Res, $Val extends Contact>
 }
 
 /// @nodoc
-abstract class _$$_ContactCopyWith<$Res> implements $ContactCopyWith<$Res> {
-  factory _$$_ContactCopyWith(
-          _$_Contact value, $Res Function(_$_Contact) then) =
-      __$$_ContactCopyWithImpl<$Res>;
+abstract class _$$ContactImplCopyWith<$Res> implements $ContactCopyWith<$Res> {
+  factory _$$ContactImplCopyWith(
+          _$ContactImpl value, $Res Function(_$ContactImpl) then) =
+      __$$ContactImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -122,10 +122,11 @@ abstract class _$$_ContactCopyWith<$Res> implements $ContactCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_ContactCopyWithImpl<$Res>
-    extends _$ContactCopyWithImpl<$Res, _$_Contact>
-    implements _$$_ContactCopyWith<$Res> {
-  __$$_ContactCopyWithImpl(_$_Contact _value, $Res Function(_$_Contact) _then)
+class __$$ContactImplCopyWithImpl<$Res>
+    extends _$ContactCopyWithImpl<$Res, _$ContactImpl>
+    implements _$$ContactImplCopyWith<$Res> {
+  __$$ContactImplCopyWithImpl(
+      _$ContactImpl _value, $Res Function(_$ContactImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -139,7 +140,7 @@ class __$$_ContactCopyWithImpl<$Res>
     Object? syncHash = null,
     Object? updateTime = null,
   }) {
-    return _then(_$_Contact(
+    return _then(_$ContactImpl(
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
@@ -174,8 +175,8 @@ class __$$_ContactCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Contact implements _Contact {
-  const _$_Contact(
+class _$ContactImpl implements _Contact {
+  const _$ContactImpl(
       {@PhoneNumberJsonKey required this.phoneNumber,
       @NullableUidJsonKey this.uid,
       this.firstName = "",
@@ -184,8 +185,8 @@ class _$_Contact implements _Contact {
       this.syncHash = 0,
       this.updateTime = 0});
 
-  factory _$_Contact.fromJson(Map<String, dynamic> json) =>
-      _$$_ContactFromJson(json);
+  factory _$ContactImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ContactImplFromJson(json);
 
   @override
   @PhoneNumberJsonKey
@@ -218,7 +219,7 @@ class _$_Contact implements _Contact {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Contact &&
+            other is _$ContactImpl &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.uid, uid) || other.uid == uid) &&
@@ -242,12 +243,12 @@ class _$_Contact implements _Contact {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_ContactCopyWith<_$_Contact> get copyWith =>
-      __$$_ContactCopyWithImpl<_$_Contact>(this, _$identity);
+  _$$ContactImplCopyWith<_$ContactImpl> get copyWith =>
+      __$$ContactImplCopyWithImpl<_$ContactImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_ContactToJson(
+    return _$$ContactImplToJson(
       this,
     );
   }
@@ -261,9 +262,9 @@ abstract class _Contact implements Contact {
       final String lastName,
       final String description,
       final int syncHash,
-      final int updateTime}) = _$_Contact;
+      final int updateTime}) = _$ContactImpl;
 
-  factory _Contact.fromJson(Map<String, dynamic> json) = _$_Contact.fromJson;
+  factory _Contact.fromJson(Map<String, dynamic> json) = _$ContactImpl.fromJson;
 
   @override
   @PhoneNumberJsonKey
@@ -283,6 +284,6 @@ abstract class _Contact implements Contact {
   int get updateTime;
   @override
   @JsonKey(ignore: true)
-  _$$_ContactCopyWith<_$_Contact> get copyWith =>
+  _$$ContactImplCopyWith<_$ContactImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -6,7 +6,8 @@ part of 'uid_id_name.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_UidIdName _$$_UidIdNameFromJson(Map<String, dynamic> json) => _$_UidIdName(
+_$UidIdNameImpl _$$UidIdNameImplFromJson(Map<String, dynamic> json) =>
+    _$UidIdNameImpl(
       uid: uidFromJson(json['uid'] as String),
       id: json['id'] as String?,
       name: json['name'] as String?,
@@ -15,7 +16,7 @@ _$_UidIdName _$$_UidIdNameFromJson(Map<String, dynamic> json) => _$_UidIdName(
       isContact: json['isContact'] as bool?,
     );
 
-Map<String, dynamic> _$$_UidIdNameToJson(_$_UidIdName instance) =>
+Map<String, dynamic> _$$UidIdNameImplToJson(_$UidIdNameImpl instance) =>
     <String, dynamic>{
       'uid': uidToJson(instance.uid),
       'id': instance.id,

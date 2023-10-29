@@ -6,7 +6,7 @@ part of 'muc.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Muc _$$_MucFromJson(Map<String, dynamic> json) => _$_Muc(
+_$MucImpl _$$MucImplFromJson(Map<String, dynamic> json) => _$MucImpl(
       uid: uidFromJson(json['uid'] as String),
       name: json['name'] as String? ?? "",
       token: json['token'] as String? ?? "",
@@ -25,7 +25,7 @@ _$_Muc _$$_MucFromJson(Map<String, dynamic> json) => _$_Muc(
               MucRole.NONE,
     );
 
-Map<String, dynamic> _$$_MucToJson(_$_Muc instance) => <String, dynamic>{
+Map<String, dynamic> _$$MucImplToJson(_$MucImpl instance) => <String, dynamic>{
       'uid': uidToJson(instance.uid),
       'name': instance.name,
       'token': instance.token,

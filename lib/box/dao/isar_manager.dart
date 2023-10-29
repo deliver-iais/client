@@ -5,6 +5,7 @@ import 'package:deliver/isar/current_call_info_isar.dart';
 import 'package:deliver/isar/file_info_isar.dart';
 import 'package:deliver/isar/is_verified_isar.dart';
 import 'package:deliver/isar/last_call_status_isar.dart';
+import 'package:deliver/isar/local_network_connections_isar.dart';
 import 'package:deliver/isar/member_isar.dart';
 import 'package:deliver/isar/message_isar.dart';
 import 'package:deliver/isar/muc_isar.dart';
@@ -37,6 +38,7 @@ class IsarManager {
         UidIdNameIsarSchema,
         BroadcastMemberIsarSchema,
         ContactIsarSchema,
+        LocalNetworkConnectionsIsarSchema
       ],
       directory: dir,
     );

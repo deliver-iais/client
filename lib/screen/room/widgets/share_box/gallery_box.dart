@@ -234,7 +234,8 @@ class GalleryBoxState extends State<GalleryBox> {
                     image: DecorationImage(
                       image: Image.file(
                         fileSnapshot.data!,
-                        cacheWidth: 200,
+                        cacheWidth: 100,
+                        cacheHeight: 100,
                         height: ((2 - i) * 10) + 480,
                       ).image,
                       fit: BoxFit.cover,

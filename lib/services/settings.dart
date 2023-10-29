@@ -99,6 +99,11 @@ class Settings {
     SharedKeys.SHARED_DAO_SEND_BY_ENTER.inSharedDaoStorage(),
     defaultValue: isDesktopDevice,
   );
+
+  final localNetworkMessenger = BooleanPersistent(
+    SharedKeys.SHARED_DAO_LOCAL_NETWORK_MESSENGER.inSharedDaoStorage(),
+    defaultValue: false,
+  );
   final hasProfile = BooleanPersistent(
     SharedKeys.HAS_PROFILE.inSharedDaoStorage(),
     defaultValue: false,

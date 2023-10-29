@@ -176,6 +176,15 @@ class FileService {
     );
   }
 
+  Future<String?> saveFile(String uuid, String filename, List<int> data) async {
+    final file = await localFile(
+      uuid,
+      filename.split('.').last,
+    );
+    file.writeAsBytesSync(data);
+    return file.path;
+  }
+
   Future<String> saveFileInAppDirectory(
     File file,
     String name,
@@ -220,12 +229,7 @@ class FileService {
       if (isWeb) {
         return Uri.dataFromBytes(res.data).toString();
       } else {
-        final file = await localFile(
-          uuid,
-          filename.split('.').last,
-        );
-        file.writeAsBytesSync(res.data);
-        return file.path;
+        return saveFile(uuid, filename, res.data);
       }
     } catch (e) {
       if ((e as DioError).type != DioErrorType.cancel && showAlertOnError) {
@@ -493,10 +497,6 @@ class FileService {
     return null;
   }
 
-  bool fileInProgress() {
-    return false;
-  }
-
   /// file path is path of file in native device and data byte in web
   Future<Response<dynamic>?> uploadFile(
     String filePath,
@@ -560,13 +560,7 @@ class FileService {
               options.onSendProgress = (i, j) {
                 if (i / j < 1) {
                   sendActivity?.call(i);
-                  if (filesProgressBarStatus.value[uploadKey] == null) {
-                    filesProgressBarStatus
-                        .add(filesProgressBarStatus.value..[uploadKey] = 0);
-                  }
-                  filesProgressBarStatus.add(
-                    filesProgressBarStatus.value..[uploadKey] = (i / j),
-                  );
+                  updateFileProgressbar((i / j), uploadKey);
                 }
               };
               handler.next(options);
@@ -585,6 +579,15 @@ class FileService {
     } else {
       return result;
     }
+  }
+
+  void updateFileProgressbar(double r, String uuid) {
+    if (filesProgressBarStatus.value[uuid] == null) {
+      filesProgressBarStatus.add(filesProgressBarStatus.value..[uuid] = 0);
+    }
+    filesProgressBarStatus.add(
+      filesProgressBarStatus.value..[uuid] = r,
+    );
   }
 
   Future<model.File> compressFile(model.File file) async {

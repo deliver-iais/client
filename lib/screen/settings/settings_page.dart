@@ -9,6 +9,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -45,6 +46,7 @@ class SettingsPageState extends State<SettingsPage> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _backgroundService = GetIt.I.get<BackgroundService>();
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
+  static final _coreService = GetIt.I.get<CoreServices>();
   StreamSubscription<dynamic>? subscription;
 
   final _account = BehaviorSubject<Account?>.seeded(null);
@@ -281,6 +283,18 @@ class SettingsPageState extends State<SettingsPage> {
                       setState(() => settings.sendByEnter.toggleValue());
                     },
                   ),
+                SettingsTile.switchTile(
+                  title: _i18n.get("local_network"),
+                  leading:
+                      const Icon(CupertinoIcons.antenna_radiowaves_left_right),
+                  switchValue: settings.localNetworkMessenger.value,
+                  onToggle: ({required newValue}) {
+                    setState(
+                      () => settings.localNetworkMessenger.toggleValue(),
+                    );
+                    _coreService.initStreamConnection();
+                  },
+                ),
                 if (_featureFlags.isVoiceCallAvailable())
                   SettingsTile(
                     title: _i18n.get("call"),

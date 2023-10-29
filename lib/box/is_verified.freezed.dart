@@ -75,22 +75,22 @@ class _$IsVerifiedCopyWithImpl<$Res, $Val extends IsVerified>
 }
 
 /// @nodoc
-abstract class _$$_IsVerifiedCopyWith<$Res>
+abstract class _$$IsVerifiedImplCopyWith<$Res>
     implements $IsVerifiedCopyWith<$Res> {
-  factory _$$_IsVerifiedCopyWith(
-          _$_IsVerified value, $Res Function(_$_IsVerified) then) =
-      __$$_IsVerifiedCopyWithImpl<$Res>;
+  factory _$$IsVerifiedImplCopyWith(
+          _$IsVerifiedImpl value, $Res Function(_$IsVerifiedImpl) then) =
+      __$$IsVerifiedImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({@UidJsonKey Uid uid, int lastUpdate, int expireTime});
 }
 
 /// @nodoc
-class __$$_IsVerifiedCopyWithImpl<$Res>
-    extends _$IsVerifiedCopyWithImpl<$Res, _$_IsVerified>
-    implements _$$_IsVerifiedCopyWith<$Res> {
-  __$$_IsVerifiedCopyWithImpl(
-      _$_IsVerified _value, $Res Function(_$_IsVerified) _then)
+class __$$IsVerifiedImplCopyWithImpl<$Res>
+    extends _$IsVerifiedCopyWithImpl<$Res, _$IsVerifiedImpl>
+    implements _$$IsVerifiedImplCopyWith<$Res> {
+  __$$IsVerifiedImplCopyWithImpl(
+      _$IsVerifiedImpl _value, $Res Function(_$IsVerifiedImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -100,7 +100,7 @@ class __$$_IsVerifiedCopyWithImpl<$Res>
     Object? lastUpdate = null,
     Object? expireTime = null,
   }) {
-    return _then(_$_IsVerified(
+    return _then(_$IsVerifiedImpl(
       uid: null == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
@@ -119,14 +119,14 @@ class __$$_IsVerifiedCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_IsVerified implements _IsVerified {
-  const _$_IsVerified(
+class _$IsVerifiedImpl implements _IsVerified {
+  const _$IsVerifiedImpl(
       {@UidJsonKey required this.uid,
       required this.lastUpdate,
       required this.expireTime});
 
-  factory _$_IsVerified.fromJson(Map<String, dynamic> json) =>
-      _$$_IsVerifiedFromJson(json);
+  factory _$IsVerifiedImpl.fromJson(Map<String, dynamic> json) =>
+      _$$IsVerifiedImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -145,7 +145,7 @@ class _$_IsVerified implements _IsVerified {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_IsVerified &&
+            other is _$IsVerifiedImpl &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.lastUpdate, lastUpdate) ||
                 other.lastUpdate == lastUpdate) &&
@@ -160,12 +160,12 @@ class _$_IsVerified implements _IsVerified {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_IsVerifiedCopyWith<_$_IsVerified> get copyWith =>
-      __$$_IsVerifiedCopyWithImpl<_$_IsVerified>(this, _$identity);
+  _$$IsVerifiedImplCopyWith<_$IsVerifiedImpl> get copyWith =>
+      __$$IsVerifiedImplCopyWithImpl<_$IsVerifiedImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_IsVerifiedToJson(
+    return _$$IsVerifiedImplToJson(
       this,
     );
   }
@@ -175,10 +175,10 @@ abstract class _IsVerified implements IsVerified {
   const factory _IsVerified(
       {@UidJsonKey required final Uid uid,
       required final int lastUpdate,
-      required final int expireTime}) = _$_IsVerified;
+      required final int expireTime}) = _$IsVerifiedImpl;
 
   factory _IsVerified.fromJson(Map<String, dynamic> json) =
-      _$_IsVerified.fromJson;
+      _$IsVerifiedImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -189,6 +189,6 @@ abstract class _IsVerified implements IsVerified {
   int get expireTime;
   @override
   @JsonKey(ignore: true)
-  _$$_IsVerifiedCopyWith<_$_IsVerified> get copyWith =>
+  _$$IsVerifiedImplCopyWith<_$IsVerifiedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

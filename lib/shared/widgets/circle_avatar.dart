@@ -159,7 +159,7 @@ class _CircleAvatarWidgetState extends State<CircleAvatarWidget> {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
       final imgP = snapshot.data!.imageProvider();
 
-      final image = Image(image: imgP, fit: BoxFit.cover);
+      final image = Image(image: imgP, fit: BoxFit.cover,);
 
       final completer = Completer<ImageInfo>();
       imgP.resolve(const ImageConfiguration()).addListener(

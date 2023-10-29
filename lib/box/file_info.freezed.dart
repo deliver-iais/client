@@ -79,21 +79,22 @@ class _$FileInfoCopyWithImpl<$Res, $Val extends FileInfo>
 }
 
 /// @nodoc
-abstract class _$$_FileInfoCopyWith<$Res> implements $FileInfoCopyWith<$Res> {
-  factory _$$_FileInfoCopyWith(
-          _$_FileInfo value, $Res Function(_$_FileInfo) then) =
-      __$$_FileInfoCopyWithImpl<$Res>;
+abstract class _$$FileInfoImplCopyWith<$Res>
+    implements $FileInfoCopyWith<$Res> {
+  factory _$$FileInfoImplCopyWith(
+          _$FileInfoImpl value, $Res Function(_$FileInfoImpl) then) =
+      __$$FileInfoImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String name, String uuid, String sizeType, String path});
 }
 
 /// @nodoc
-class __$$_FileInfoCopyWithImpl<$Res>
-    extends _$FileInfoCopyWithImpl<$Res, _$_FileInfo>
-    implements _$$_FileInfoCopyWith<$Res> {
-  __$$_FileInfoCopyWithImpl(
-      _$_FileInfo _value, $Res Function(_$_FileInfo) _then)
+class __$$FileInfoImplCopyWithImpl<$Res>
+    extends _$FileInfoCopyWithImpl<$Res, _$FileInfoImpl>
+    implements _$$FileInfoImplCopyWith<$Res> {
+  __$$FileInfoImplCopyWithImpl(
+      _$FileInfoImpl _value, $Res Function(_$FileInfoImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -104,7 +105,7 @@ class __$$_FileInfoCopyWithImpl<$Res>
     Object? sizeType = null,
     Object? path = null,
   }) {
-    return _then(_$_FileInfo(
+    return _then(_$FileInfoImpl(
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -127,15 +128,15 @@ class __$$_FileInfoCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_FileInfo implements _FileInfo {
-  const _$_FileInfo(
+class _$FileInfoImpl implements _FileInfo {
+  const _$FileInfoImpl(
       {required this.name,
       required this.uuid,
       required this.sizeType,
       required this.path});
 
-  factory _$_FileInfo.fromJson(Map<String, dynamic> json) =>
-      _$$_FileInfoFromJson(json);
+  factory _$FileInfoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$FileInfoImplFromJson(json);
 
   @override
   final String name;
@@ -155,7 +156,7 @@ class _$_FileInfo implements _FileInfo {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_FileInfo &&
+            other is _$FileInfoImpl &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.uuid, uuid) || other.uuid == uuid) &&
             (identical(other.sizeType, sizeType) ||
@@ -170,12 +171,12 @@ class _$_FileInfo implements _FileInfo {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_FileInfoCopyWith<_$_FileInfo> get copyWith =>
-      __$$_FileInfoCopyWithImpl<_$_FileInfo>(this, _$identity);
+  _$$FileInfoImplCopyWith<_$FileInfoImpl> get copyWith =>
+      __$$FileInfoImplCopyWithImpl<_$FileInfoImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_FileInfoToJson(
+    return _$$FileInfoImplToJson(
       this,
     );
   }
@@ -186,9 +187,10 @@ abstract class _FileInfo implements FileInfo {
       {required final String name,
       required final String uuid,
       required final String sizeType,
-      required final String path}) = _$_FileInfo;
+      required final String path}) = _$FileInfoImpl;
 
-  factory _FileInfo.fromJson(Map<String, dynamic> json) = _$_FileInfo.fromJson;
+  factory _FileInfo.fromJson(Map<String, dynamic> json) =
+      _$FileInfoImpl.fromJson;
 
   @override
   String get name;
@@ -200,6 +202,6 @@ abstract class _FileInfo implements FileInfo {
   String get path;
   @override
   @JsonKey(ignore: true)
-  _$$_FileInfoCopyWith<_$_FileInfo> get copyWith =>
+  _$$FileInfoImplCopyWith<_$FileInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

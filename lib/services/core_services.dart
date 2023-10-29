@@ -11,7 +11,9 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -26,7 +28,7 @@ import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum ConnectionStatus { Connected, Disconnected, Connecting }
+enum ConnectionStatus { Connected, Disconnected, Connecting, LocalNetwork }
 
 final disconnectedTime = BehaviorSubject.seeded(0);
 final connectionError = BehaviorSubject.seeded("");
@@ -40,12 +42,30 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
   final _analyticRepo = GetIt.I.get<AnalyticsRepo>();
   final _callService = GetIt.I.get<CallService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _uptimeStartTime = BehaviorSubject.seeded(0);
   final _reconnectCount = BehaviorSubject.seeded(0);
+
+  CoreServices() {
+    _connectionStatus.distinct().listen((event) {
+      connectionStatus.add(event);
+    });
+
+    Connectivity().onConnectivityChanged.listen((result) {
+      if (result != ConnectivityResult.none) {
+        retryConnection(forced: true);
+      } else {
+        _onConnectionError();
+      }
+      if (settings.localNetworkMessenger.value) {
+        _serverLessService.start();
+      }
+    });
+  }
 
   @visibleForTesting
   bool responseChecked = false;
@@ -63,14 +83,24 @@ class CoreServices {
 
   Timer? _disconnectedTimer;
 
+  Timer? _connectToLocalNetworkTimer;
+
   var _lastPongTime = 0;
 
   var _lastRoomMetadataUpdateTime = settings.lastRoomMetadataUpdateTime.value;
 
   int get lastRoomMetadataUpdateTime => _lastRoomMetadataUpdateTime;
 
+  void useLocalNetwork() {
+    _serverLessService.start();
+    proposeUseLocalNetwork.add(false);
+    _connectionStatus.add(ConnectionStatus.LocalNetwork);
+  }
+
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+
+  BehaviorSubject<bool> proposeUseLocalNetwork = BehaviorSubject.seeded(false);
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
@@ -81,7 +111,7 @@ class CoreServices {
     }
     _connectionTimer?.cancel();
     // _responseStream?.cancel();
-    _connectionStatus.add(ConnectionStatus.Connecting);
+    _updateConnectionStatus(ConnectionStatus.Connecting);
     startStream();
     startCheckerTimer();
   }
@@ -92,23 +122,44 @@ class CoreServices {
   }
 
   Future<void> initStreamConnection() async {
-    retryConnection();
-    _connectionStatus.distinct().listen((event) {
-      connectionStatus.add(event);
-    });
+    if (settings.localNetworkMessenger.value) {
+      _serverLessService.start();
+      _connectionStatus.add(ConnectionStatus.LocalNetwork);
+    }
+    retryConnection(forced: true);
+  }
 
-    Connectivity().onConnectivityChanged.listen((result) {
-      if (result != ConnectivityResult.none) {
-        retryConnection(forced: true);
-      } else {
-        _onConnectionError();
+  void _startConnectToLocalNetworkTimer() {
+    if (!settings.localNetworkMessenger.value &&
+        !(_connectToLocalNetworkTimer?.isActive ?? false)) {
+      _connectToLocalNetworkTimer =
+          Timer(const Duration(seconds: CONNECT_TO_LOCAL_NETWORK_TIME), () {
+        proposeUseLocalNetwork.add(true);
+      });
+    }
+  }
+
+  void _updateConnectionStatus(ConnectionStatus status) {
+    if (_connectionStatus.value == ConnectionStatus.LocalNetwork) {
+      if (status == ConnectionStatus.Connected) {
+        settings.localNetworkMessenger.set(false);
+        _connectionStatus.add(status);
       }
-    });
+    } else {
+      _connectionStatus.add(status);
+    }
+    if (status == ConnectionStatus.Connected) {
+      _connectToLocalNetworkTimer?.cancel();
+      proposeUseLocalNetwork.add(false);
+    }
+    if (status == ConnectionStatus.Disconnected) {
+      _startConnectToLocalNetworkTimer();
+    }
   }
 
   void closeConnection() {
     try {
-      _connectionStatus.add(ConnectionStatus.Disconnected);
+      _updateConnectionStatus(ConnectionStatus.Disconnected);
       _clientPacketStream?.close();
       if (_connectionTimer != null) {
         _connectionTimer!.cancel();
@@ -160,7 +211,7 @@ class CoreServices {
       _disconnectedTimer?.cancel();
     } catch (_) {}
     if (isPong || _lastPongTime != 0) {
-      _connectionStatus.add(ConnectionStatus.Connected);
+      _updateConnectionStatus(ConnectionStatus.Connected);
     }
 
     backoffTime = MIN_BACKOFF_TIME;
@@ -276,7 +327,7 @@ class CoreServices {
   }
 
   void _changeStateToDisconnected() {
-    _connectionStatus.add(ConnectionStatus.Disconnected);
+    _updateConnectionStatus(ConnectionStatus.Disconnected);
     disconnectedTime.add(backoffTime - 1);
     _uptimeStartTime.add(0);
   }
@@ -323,7 +374,8 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
-    _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
+    _sendClientPacket(clientPacket,
+        forceToSendEvenNotConnected: true, forceToSendToServer: true);
     FlutterForegroundTask.saveData(
       key: "BackgroundActivationTime",
       value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
@@ -398,15 +450,20 @@ class CoreServices {
   Future<void> _sendClientPacket(
     ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
+    bool forceToSendToServer = false,
   }) async {
     try {
-      if (isWeb ||
-          _clientPacketStream == null ||
-          _clientPacketStream!.isClosed) {
-        await _services.coreServiceClient.sendClientPacket(packet);
-      } else if (forceToSendEvenNotConnected ||
-          _connectionStatus.value == ConnectionStatus.Connected) {
-        _clientPacketStream!.add(packet);
+      if (!forceToSendToServer && settings.localNetworkMessenger.value) {
+        await _serverLessService.sendClientPacket(packet);
+      } else {
+        if (isWeb ||
+            _clientPacketStream == null ||
+            _clientPacketStream!.isClosed) {
+          await _services.coreServiceClient.sendClientPacket(packet);
+        } else if (forceToSendEvenNotConnected ||
+            _connectionStatus.value == ConnectionStatus.Connected) {
+          _clientPacketStream!.add(packet);
+        }
       }
     } catch (e) {
       _logger.e(e);

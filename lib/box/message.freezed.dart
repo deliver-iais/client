@@ -164,10 +164,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
 }
 
 /// @nodoc
-abstract class _$$_MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
-  factory _$$_MessageCopyWith(
-          _$_Message value, $Res Function(_$_Message) then) =
-      __$$_MessageCopyWithImpl<$Res>;
+abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
+  factory _$$MessageImplCopyWith(
+          _$MessageImpl value, $Res Function(_$MessageImpl) then) =
+      __$$MessageImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -189,10 +189,11 @@ abstract class _$$_MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_MessageCopyWithImpl<$Res>
-    extends _$MessageCopyWithImpl<$Res, _$_Message>
-    implements _$$_MessageCopyWith<$Res> {
-  __$$_MessageCopyWithImpl(_$_Message _value, $Res Function(_$_Message) _then)
+class __$$MessageImplCopyWithImpl<$Res>
+    extends _$MessageCopyWithImpl<$Res, _$MessageImpl>
+    implements _$$MessageImplCopyWith<$Res> {
+  __$$MessageImplCopyWithImpl(
+      _$MessageImpl _value, $Res Function(_$MessageImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -214,7 +215,7 @@ class __$$_MessageCopyWithImpl<$Res>
     Object? forwardedFrom = freezed,
     Object? generatedBy = freezed,
   }) {
-    return _then(_$_Message(
+    return _then(_$MessageImpl(
       roomUid: null == roomUid
           ? _value.roomUid
           : roomUid // ignore: cast_nullable_to_non_nullable
@@ -281,8 +282,8 @@ class __$$_MessageCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Message implements _Message {
-  const _$_Message(
+class _$MessageImpl implements _Message {
+  const _$MessageImpl(
       {@UidJsonKey required this.roomUid,
       @UidJsonKey required this.from,
       @UidJsonKey required this.to,
@@ -299,8 +300,8 @@ class _$_Message implements _Message {
       @NullableUidJsonKey this.forwardedFrom,
       @NullableUidJsonKey this.generatedBy});
 
-  factory _$_Message.fromJson(Map<String, dynamic> json) =>
-      _$$_MessageFromJson(json);
+  factory _$MessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MessageImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -352,7 +353,7 @@ class _$_Message implements _Message {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Message &&
+            other is _$MessageImpl &&
             (identical(other.roomUid, roomUid) || other.roomUid == roomUid) &&
             (identical(other.from, from) || other.from == from) &&
             (identical(other.to, to) || other.to == to) &&
@@ -399,12 +400,12 @@ class _$_Message implements _Message {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_MessageCopyWith<_$_Message> get copyWith =>
-      __$$_MessageCopyWithImpl<_$_Message>(this, _$identity);
+  _$$MessageImplCopyWith<_$MessageImpl> get copyWith =>
+      __$$MessageImplCopyWithImpl<_$MessageImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_MessageToJson(
+    return _$$MessageImplToJson(
       this,
     );
   }
@@ -426,9 +427,9 @@ abstract class _Message implements Message {
       final String? markup,
       final int? id,
       @NullableUidJsonKey final Uid? forwardedFrom,
-      @NullableUidJsonKey final Uid? generatedBy}) = _$_Message;
+      @NullableUidJsonKey final Uid? generatedBy}) = _$MessageImpl;
 
-  factory _Message.fromJson(Map<String, dynamic> json) = _$_Message.fromJson;
+  factory _Message.fromJson(Map<String, dynamic> json) = _$MessageImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -467,6 +468,6 @@ abstract class _Message implements Message {
   Uid? get generatedBy;
   @override
   @JsonKey(ignore: true)
-  _$$_MessageCopyWith<_$_Message> get copyWith =>
+  _$$MessageImplCopyWith<_$MessageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

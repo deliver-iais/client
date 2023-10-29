@@ -6,7 +6,8 @@ part of 'message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Message _$$_MessageFromJson(Map<String, dynamic> json) => _$_Message(
+_$MessageImpl _$$MessageImplFromJson(Map<String, dynamic> json) =>
+    _$MessageImpl(
       roomUid: uidFromJson(json['roomUid'] as String),
       from: uidFromJson(json['from'] as String),
       to: uidFromJson(json['to'] as String),
@@ -25,7 +26,7 @@ _$_Message _$$_MessageFromJson(Map<String, dynamic> json) => _$_Message(
       generatedBy: nullAbleUidFromJson(json['generatedBy'] as String?),
     );
 
-Map<String, dynamic> _$$_MessageToJson(_$_Message instance) =>
+Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
     <String, dynamic>{
       'roomUid': uidToJson(instance.roomUid),
       'from': uidToJson(instance.from),

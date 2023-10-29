@@ -2,6 +2,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
@@ -29,54 +30,80 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Connected,
-      stream: _messageRepo.updatingStatus.stream,
-      builder: (c, status) {
-        final state = title(status.data!);
+    return StreamBuilder<bool>(
+      stream: _coreService.proposeUseLocalNetwork,
+      builder: (c, proposeUseLocalNetwork) {
+        return StreamBuilder<TitleStatusConditions>(
+          initialData: TitleStatusConditions.Connected,
+          stream: _messageRepo.updatingStatus.stream,
+          builder: (c, status) {
+            final state = title(status.data!);
 
-        return AnimatedSwitchWidget(
-          child: StreamBuilder<dynamic>(
-            key: Key(state),
-            stream: _i18n.localeStream,
-            builder: (context, snapshot) {
-              return Row(
-                children: [
-                  Flexible(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (status.data == TitleStatusConditions.Disconnected) {
-                          _routingService.openConnectionSettingPage();
-                        }
-                      },
-                      child: Text(
-                        state,
-                        overflow: TextOverflow.fade,
-                        maxLines: 1,
-                        softWrap: true,
-                        key: ValueKey(randomString(10)),
+            return AnimatedSwitchWidget(
+              child: StreamBuilder<dynamic>(
+                key: Key(state),
+                stream: _i18n.localeStream,
+                builder: (context, snapshot) {
+                  if (proposeUseLocalNetwork.data ?? false) {
+                    return Row(
+                      children: [
+                        const Icon(CupertinoIcons.antenna_radiowaves_left_right,
+                            color: Colors.indigo, size: 30,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          child: Text(_i18n.get("local_network_?")),
+                        ),
+                        Switch(
+                          value: !(proposeUseLocalNetwork.data ?? false),
+                          onChanged: (c) {
+                            settings.localNetworkMessenger.set(true);
+                            _coreService.useLocalNetwork();
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Flexible(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (status.data ==
+                                TitleStatusConditions.Disconnected) {
+                              _routingService.openConnectionSettingPage();
+                            }
+                          },
+                          child: Text(
+                            state,
+                            overflow: TextOverflow.fade,
+                            maxLines: 1,
+                            softWrap: true,
+                            key: ValueKey(randomString(10)),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  if (status.data != TitleStatusConditions.Connected)
-                    LoadingDotAnimation(
-                      dotsColor: theme.textTheme.titleLarge?.color ??
-                          theme.colorScheme.primary,
-                    ),
-                  if (status.data == TitleStatusConditions.Disconnected)
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 23,
-                      onPressed: _coreService.fasterRetryConnection,
-                      icon: Icon(
-                        CupertinoIcons.refresh,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+                      if (status.data != TitleStatusConditions.Connected &&
+                          status.data != TitleStatusConditions.LocalNetwork)
+                        LoadingDotAnimation(
+                          dotsColor: theme.textTheme.titleLarge?.color ??
+                              theme.colorScheme.primary,
+                        ),
+                      if (status.data == TitleStatusConditions.Disconnected)
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 23,
+                          onPressed: _coreService.fasterRetryConnection,
+                          icon: Icon(
+                            CupertinoIcons.refresh,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
@@ -94,6 +121,8 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
         return widget.normalTitle.capitalCase;
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
+      case TitleStatusConditions.LocalNetwork:
+        return _i18n.get("local_network").capitalCase;
     }
   }
 }

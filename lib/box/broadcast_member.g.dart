@@ -6,8 +6,9 @@ part of 'broadcast_member.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_BroadcastMember _$$_BroadcastMemberFromJson(Map<String, dynamic> json) =>
-    _$_BroadcastMember(
+_$BroadcastMemberImpl _$$BroadcastMemberImplFromJson(
+        Map<String, dynamic> json) =>
+    _$BroadcastMemberImpl(
       broadcastUid: uidFromJson(json['broadcastUid'] as String),
       memberUid: nullAbleUidFromJson(json['memberUid'] as String?),
       phoneNumber: nullAblePhoneNumberFromJson(json['phoneNumber'] as String?),
@@ -16,7 +17,8 @@ _$_BroadcastMember _$$_BroadcastMemberFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String? ?? "",
     );
 
-Map<String, dynamic> _$$_BroadcastMemberToJson(_$_BroadcastMember instance) =>
+Map<String, dynamic> _$$BroadcastMemberImplToJson(
+        _$BroadcastMemberImpl instance) =>
     <String, dynamic>{
       'broadcastUid': uidToJson(instance.broadcastUid),
       'memberUid': nullableUidToJson(instance.memberUid),

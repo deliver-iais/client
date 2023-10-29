@@ -195,6 +195,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                                 File(imagePath),
                                                 height: 500,
                                                 cacheWidth: 200,
+                                                cacheHeight: 200,
                                               ).image,
                                               fit: BoxFit.cover,
                                             ),

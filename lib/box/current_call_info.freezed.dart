@@ -113,11 +113,11 @@ class _$CurrentCallInfoCopyWithImpl<$Res, $Val extends CurrentCallInfo>
 }
 
 /// @nodoc
-abstract class _$$_CurrentCallInfoCopyWith<$Res>
+abstract class _$$CurrentCallInfoImplCopyWith<$Res>
     implements $CurrentCallInfoCopyWith<$Res> {
-  factory _$$_CurrentCallInfoCopyWith(
-          _$_CurrentCallInfo value, $Res Function(_$_CurrentCallInfo) then) =
-      __$$_CurrentCallInfoCopyWithImpl<$Res>;
+  factory _$$CurrentCallInfoImplCopyWith(_$CurrentCallInfoImpl value,
+          $Res Function(_$CurrentCallInfoImpl) then) =
+      __$$CurrentCallInfoImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -132,11 +132,11 @@ abstract class _$$_CurrentCallInfoCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_CurrentCallInfoCopyWithImpl<$Res>
-    extends _$CurrentCallInfoCopyWithImpl<$Res, _$_CurrentCallInfo>
-    implements _$$_CurrentCallInfoCopyWith<$Res> {
-  __$$_CurrentCallInfoCopyWithImpl(
-      _$_CurrentCallInfo _value, $Res Function(_$_CurrentCallInfo) _then)
+class __$$CurrentCallInfoImplCopyWithImpl<$Res>
+    extends _$CurrentCallInfoCopyWithImpl<$Res, _$CurrentCallInfoImpl>
+    implements _$$CurrentCallInfoImplCopyWith<$Res> {
+  __$$CurrentCallInfoImplCopyWithImpl(
+      _$CurrentCallInfoImpl _value, $Res Function(_$CurrentCallInfoImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -151,7 +151,7 @@ class __$$_CurrentCallInfoCopyWithImpl<$Res>
     Object? offerBody = null,
     Object? offerCandidate = null,
   }) {
-    return _then(_$_CurrentCallInfo(
+    return _then(_$CurrentCallInfoImpl(
       callEvent: null == callEvent
           ? _value.callEvent
           : callEvent // ignore: cast_nullable_to_non_nullable
@@ -190,8 +190,8 @@ class __$$_CurrentCallInfoCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_CurrentCallInfo implements _CurrentCallInfo {
-  const _$_CurrentCallInfo(
+class _$CurrentCallInfoImpl implements _CurrentCallInfo {
+  const _$CurrentCallInfoImpl(
       {@CallEventV2JsonKey required this.callEvent,
       required this.from,
       required this.to,
@@ -201,8 +201,8 @@ class _$_CurrentCallInfo implements _CurrentCallInfo {
       this.offerBody = "",
       this.offerCandidate = ""});
 
-  factory _$_CurrentCallInfo.fromJson(Map<String, dynamic> json) =>
-      _$$_CurrentCallInfoFromJson(json);
+  factory _$CurrentCallInfoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CurrentCallInfoImplFromJson(json);
 
   @override
   @CallEventV2JsonKey
@@ -233,7 +233,7 @@ class _$_CurrentCallInfo implements _CurrentCallInfo {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_CurrentCallInfo &&
+            other is _$CurrentCallInfoImpl &&
             (identical(other.callEvent, callEvent) ||
                 other.callEvent == callEvent) &&
             (identical(other.from, from) || other.from == from) &&
@@ -258,12 +258,13 @@ class _$_CurrentCallInfo implements _CurrentCallInfo {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_CurrentCallInfoCopyWith<_$_CurrentCallInfo> get copyWith =>
-      __$$_CurrentCallInfoCopyWithImpl<_$_CurrentCallInfo>(this, _$identity);
+  _$$CurrentCallInfoImplCopyWith<_$CurrentCallInfoImpl> get copyWith =>
+      __$$CurrentCallInfoImplCopyWithImpl<_$CurrentCallInfoImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_CurrentCallInfoToJson(
+    return _$$CurrentCallInfoImplToJson(
       this,
     );
   }
@@ -278,10 +279,10 @@ abstract class _CurrentCallInfo implements CurrentCallInfo {
       required final bool notificationSelected,
       required final bool isAccepted,
       final String offerBody,
-      final String offerCandidate}) = _$_CurrentCallInfo;
+      final String offerCandidate}) = _$CurrentCallInfoImpl;
 
   factory _CurrentCallInfo.fromJson(Map<String, dynamic> json) =
-      _$_CurrentCallInfo.fromJson;
+      _$CurrentCallInfoImpl.fromJson;
 
   @override
   @CallEventV2JsonKey
@@ -302,6 +303,6 @@ abstract class _CurrentCallInfo implements CurrentCallInfo {
   String get offerCandidate;
   @override
   @JsonKey(ignore: true)
-  _$$_CurrentCallInfoCopyWith<_$_CurrentCallInfo> get copyWith =>
+  _$$CurrentCallInfoImplCopyWith<_$CurrentCallInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

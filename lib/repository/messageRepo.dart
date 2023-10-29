@@ -76,6 +76,7 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
+  LocalNetwork
 }
 
 enum PendingMessageRepeatedStatus {
@@ -133,6 +134,8 @@ class MessageRepo {
         case ConnectionStatus.Connecting:
           updatingStatus.add(TitleStatusConditions.Connecting);
           break;
+        case ConnectionStatus.LocalNetwork:
+          updatingStatus.add(TitleStatusConditions.LocalNetwork);
       }
     });
   }
@@ -750,6 +753,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fileUuid,
       file.name,
+      uid: rooms.first,
       packetIds: pendingMessagePacketId,
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
@@ -845,7 +849,7 @@ class MessageRepo {
     try {
       tempType = detectFileMimeByFileModel(file);
     } catch (e) {
-      _logger.e("Error in getting file type", error:e);
+      _logger.e("Error in getting file type", error: e);
     }
 
     try {
@@ -856,7 +860,7 @@ class MessageRepo {
         "File size set to file size: $tempFileSize",
       );
     } catch (e) {
-      _logger.e("Error in fetching fake file size", error:e);
+      _logger.e("Error in fetching fake file size", error: e);
     }
 
     // Get size of image
@@ -876,7 +880,7 @@ class MessageRepo {
         }
       }
     } catch (e) {
-      _logger.e("Error in fetching fake file dimensions", error:e);
+      _logger.e("Error in fetching fake file dimensions", error: e);
     }
     final file_pb.AudioWaveform audioWaveForm;
     if (file.isVoice ?? false) {
@@ -967,6 +971,7 @@ class MessageRepo {
     final fileInfo = await _fileRepo.uploadClonedFile(
       fakeFileInfo.uuid,
       fakeFileInfo.name,
+      uid: pm.roomUid,
       packetIds: [pm.packetId],
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
@@ -1220,6 +1225,7 @@ class MessageRepo {
   }
 
   bool _fileOfMessageIsValid(file_pb.File file) =>
+      settings.localNetworkMessenger.value ||
       (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>

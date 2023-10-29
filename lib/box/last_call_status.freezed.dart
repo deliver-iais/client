@@ -80,22 +80,22 @@ class _$LastCallStatusCopyWithImpl<$Res, $Val extends LastCallStatus>
 }
 
 /// @nodoc
-abstract class _$$_LastCallStatusCopyWith<$Res>
+abstract class _$$LastCallStatusImplCopyWith<$Res>
     implements $LastCallStatusCopyWith<$Res> {
-  factory _$$_LastCallStatusCopyWith(
-          _$_LastCallStatus value, $Res Function(_$_LastCallStatus) then) =
-      __$$_LastCallStatusCopyWithImpl<$Res>;
+  factory _$$LastCallStatusImplCopyWith(_$LastCallStatusImpl value,
+          $Res Function(_$LastCallStatusImpl) then) =
+      __$$LastCallStatusImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({int id, String callId, String roomUid, int expireTime});
 }
 
 /// @nodoc
-class __$$_LastCallStatusCopyWithImpl<$Res>
-    extends _$LastCallStatusCopyWithImpl<$Res, _$_LastCallStatus>
-    implements _$$_LastCallStatusCopyWith<$Res> {
-  __$$_LastCallStatusCopyWithImpl(
-      _$_LastCallStatus _value, $Res Function(_$_LastCallStatus) _then)
+class __$$LastCallStatusImplCopyWithImpl<$Res>
+    extends _$LastCallStatusCopyWithImpl<$Res, _$LastCallStatusImpl>
+    implements _$$LastCallStatusImplCopyWith<$Res> {
+  __$$LastCallStatusImplCopyWithImpl(
+      _$LastCallStatusImpl _value, $Res Function(_$LastCallStatusImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -106,7 +106,7 @@ class __$$_LastCallStatusCopyWithImpl<$Res>
     Object? roomUid = null,
     Object? expireTime = null,
   }) {
-    return _then(_$_LastCallStatus(
+    return _then(_$LastCallStatusImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -129,15 +129,15 @@ class __$$_LastCallStatusCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_LastCallStatus implements _LastCallStatus {
-  const _$_LastCallStatus(
+class _$LastCallStatusImpl implements _LastCallStatus {
+  const _$LastCallStatusImpl(
       {required this.id,
       required this.callId,
       required this.roomUid,
       required this.expireTime});
 
-  factory _$_LastCallStatus.fromJson(Map<String, dynamic> json) =>
-      _$$_LastCallStatusFromJson(json);
+  factory _$LastCallStatusImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LastCallStatusImplFromJson(json);
 
   @override
   final int id;
@@ -157,7 +157,7 @@ class _$_LastCallStatus implements _LastCallStatus {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_LastCallStatus &&
+            other is _$LastCallStatusImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.callId, callId) || other.callId == callId) &&
             (identical(other.roomUid, roomUid) || other.roomUid == roomUid) &&
@@ -172,12 +172,13 @@ class _$_LastCallStatus implements _LastCallStatus {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_LastCallStatusCopyWith<_$_LastCallStatus> get copyWith =>
-      __$$_LastCallStatusCopyWithImpl<_$_LastCallStatus>(this, _$identity);
+  _$$LastCallStatusImplCopyWith<_$LastCallStatusImpl> get copyWith =>
+      __$$LastCallStatusImplCopyWithImpl<_$LastCallStatusImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_LastCallStatusToJson(
+    return _$$LastCallStatusImplToJson(
       this,
     );
   }
@@ -188,10 +189,10 @@ abstract class _LastCallStatus implements LastCallStatus {
       {required final int id,
       required final String callId,
       required final String roomUid,
-      required final int expireTime}) = _$_LastCallStatus;
+      required final int expireTime}) = _$LastCallStatusImpl;
 
   factory _LastCallStatus.fromJson(Map<String, dynamic> json) =
-      _$_LastCallStatus.fromJson;
+      _$LastCallStatusImpl.fromJson;
 
   @override
   int get id;
@@ -203,6 +204,6 @@ abstract class _LastCallStatus implements LastCallStatus {
   int get expireTime;
   @override
   @JsonKey(ignore: true)
-  _$$_LastCallStatusCopyWith<_$_LastCallStatus> get copyWith =>
+  _$$LastCallStatusImplCopyWith<_$LastCallStatusImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

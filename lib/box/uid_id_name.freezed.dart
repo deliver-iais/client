@@ -98,10 +98,11 @@ class _$UidIdNameCopyWithImpl<$Res, $Val extends UidIdName>
 }
 
 /// @nodoc
-abstract class _$$_UidIdNameCopyWith<$Res> implements $UidIdNameCopyWith<$Res> {
-  factory _$$_UidIdNameCopyWith(
-          _$_UidIdName value, $Res Function(_$_UidIdName) then) =
-      __$$_UidIdNameCopyWithImpl<$Res>;
+abstract class _$$UidIdNameImplCopyWith<$Res>
+    implements $UidIdNameCopyWith<$Res> {
+  factory _$$UidIdNameImplCopyWith(
+          _$UidIdNameImpl value, $Res Function(_$UidIdNameImpl) then) =
+      __$$UidIdNameImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -114,11 +115,11 @@ abstract class _$$_UidIdNameCopyWith<$Res> implements $UidIdNameCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_UidIdNameCopyWithImpl<$Res>
-    extends _$UidIdNameCopyWithImpl<$Res, _$_UidIdName>
-    implements _$$_UidIdNameCopyWith<$Res> {
-  __$$_UidIdNameCopyWithImpl(
-      _$_UidIdName _value, $Res Function(_$_UidIdName) _then)
+class __$$UidIdNameImplCopyWithImpl<$Res>
+    extends _$UidIdNameCopyWithImpl<$Res, _$UidIdNameImpl>
+    implements _$$UidIdNameImplCopyWith<$Res> {
+  __$$UidIdNameImplCopyWithImpl(
+      _$UidIdNameImpl _value, $Res Function(_$UidIdNameImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -131,7 +132,7 @@ class __$$_UidIdNameCopyWithImpl<$Res>
     Object? lastUpdateTime = null,
     Object? isContact = freezed,
   }) {
-    return _then(_$_UidIdName(
+    return _then(_$UidIdNameImpl(
       uid: null == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
@@ -162,8 +163,8 @@ class __$$_UidIdNameCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_UidIdName implements _UidIdName {
-  const _$_UidIdName(
+class _$UidIdNameImpl implements _UidIdName {
+  const _$UidIdNameImpl(
       {@UidJsonKey required this.uid,
       this.id,
       this.name,
@@ -171,8 +172,8 @@ class _$_UidIdName implements _UidIdName {
       this.lastUpdateTime = 0,
       this.isContact});
 
-  factory _$_UidIdName.fromJson(Map<String, dynamic> json) =>
-      _$$_UidIdNameFromJson(json);
+  factory _$UidIdNameImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UidIdNameImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -198,7 +199,7 @@ class _$_UidIdName implements _UidIdName {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_UidIdName &&
+            other is _$UidIdNameImpl &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
@@ -218,12 +219,12 @@ class _$_UidIdName implements _UidIdName {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_UidIdNameCopyWith<_$_UidIdName> get copyWith =>
-      __$$_UidIdNameCopyWithImpl<_$_UidIdName>(this, _$identity);
+  _$$UidIdNameImplCopyWith<_$UidIdNameImpl> get copyWith =>
+      __$$UidIdNameImplCopyWithImpl<_$UidIdNameImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_UidIdNameToJson(
+    return _$$UidIdNameImplToJson(
       this,
     );
   }
@@ -236,10 +237,10 @@ abstract class _UidIdName implements UidIdName {
       final String? name,
       final String? realName,
       final int lastUpdateTime,
-      final bool? isContact}) = _$_UidIdName;
+      final bool? isContact}) = _$UidIdNameImpl;
 
   factory _UidIdName.fromJson(Map<String, dynamic> json) =
-      _$_UidIdName.fromJson;
+      _$UidIdNameImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -256,6 +257,6 @@ abstract class _UidIdName implements UidIdName {
   bool? get isContact;
   @override
   @JsonKey(ignore: true)
-  _$$_UidIdNameCopyWith<_$_UidIdName> get copyWith =>
+  _$$UidIdNameImplCopyWith<_$UidIdNameImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

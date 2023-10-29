@@ -7,15 +7,19 @@ import 'dart:typed_data';
 
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
@@ -49,6 +53,7 @@ class FileRepo {
     required List<String> packetIds,
     void Function(int)? sendActivity,
     bool isVoice = false,
+    Uid? uid,
   }) async {
     final clonedFilePath = await _fileCache.getFilePath(
       "real",
@@ -56,109 +61,133 @@ class FileRepo {
       convertToDataByteInWeb: true,
     );
 
-    Response? value;
-    try {
-      value = await _fileService.uploadFile(
-        clonedFilePath!,
-        name,
-        uploadKey: uploadKey,
-        sendActivity: sendActivity,
-        isVoice: isVoice,
-      );
-      await _analyticsService.sendLogEvent(
-        "successFileUpload",
-      );
-    } on DioError catch (e) {
-      if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
-        ToastDisplay.showToast(
-          toastText: e.response!.data,
-          maxWidth: 500.0,
-          duration: AnimationSettings.actualSuperUltraSlow,
-        );
-        for (final packetId in packetIds) {
-          GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
-        }
-        cancelUploadFile(uploadKey);
-        await _analyticsService.sendLogEvent(
-          "unSuccessFileUpload",
-          parameters: {
-            "errorCode": e.response?.statusCode,
-            "error": e.response?.data
-          },
-        );
-      } else if (e.response == null && e.type != DioErrorType.cancel) {
-        ToastDisplay.showToast(
-          toastText: _i18N.get("connection_error"),
-          maxWidth: 500.0,
-          duration: AnimationSettings.actualSuperUltraSlow,
-        );
-        for (final packetId in packetIds) {
-          GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
-        }
-        cancelUploadFile(uploadKey);
-        await _analyticsService.sendLogEvent(
-          "failedFileUpload",
-        );
-      } else {
-        await _analyticsService.sendLogEvent(
-          "unknownFileUpload",
-          parameters: {
-            "errorCode": e.response?.statusCode,
-            "error": e.response?.data
-          },
+    if (settings.localNetworkMessenger.value) {
+
+      await GetIt.I.get<ServerLessService>().sendFileRequest(uid!, uploadKey);
+      final res = await GetIt.I.get<ServerLessService>().sendFile(
+            filename: name,
+            filePath: clonedFilePath!,
+            uuid: uploadKey,
+            to: uid,
+          );
+      if (res) {
+        final size = await io.File(clonedFilePath).length();
+        await _updateFileInfoWithRealUuid(uploadKey, uploadKey, name);
+        return file_pb.File(
+          uuid: uploadKey,
+          name: name,
+          size: Int64(size),
+          type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
+          sign: DateTime.now().millisecondsSinceEpoch.toString(),
         );
       }
-      _logger.e(e);
-    }
-    if (value != null) {
-      final json = jsonDecode(value.toString()) as Map;
-      _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
-
+      return null;
+    } else {
+      Response? value;
       try {
-        var uploadedFile = file_pb.File();
-        uploadedFile = file_pb.File()
-          ..uuid = json["uuid"]
-          ..size = Int64.parseInt(json["size"])
-          ..type = json["type"]
-          ..name = json["name"]
-          ..width = json["width"] ?? 0
-          ..height = json["height"] ?? 0
-          ..duration = json["duration"] ?? 0
-          ..blurHash = json["blurHash"] ?? ""
-          ..hash = json["hash"] ?? ""
-          ..sign = json["sign"] ?? "";
-        if (json["audioWaveform"] != null) {
-          final audioWaveform = json["audioWaveform"] as Map;
-          if (audioWaveform.isNotEmpty) {
-            uploadedFile.audioWaveform = file_pb.AudioWaveform(
-              bits: audioWaveform["bits"] ?? 0,
-              channels: audioWaveform["channels"] ?? 0,
-              data: audioWaveform["data"] != null
-                  ? List<int>.from(audioWaveform["data"])
-                  : [],
-              length: audioWaveform["length"] ?? 0,
-              sampleRate: audioWaveform["sampleRate"] ?? 0,
-              samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
-              version: audioWaveform["version"] ?? 0,
-            );
+        value = await _fileService.uploadFile(
+          clonedFilePath!,
+          name,
+          uploadKey: uploadKey,
+          sendActivity: sendActivity,
+          isVoice: isVoice,
+        );
+        await _analyticsService.sendLogEvent(
+          "successFileUpload",
+        );
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
+          ToastDisplay.showToast(
+            toastText: e.response!.data,
+            maxWidth: 500.0,
+            duration: AnimationSettings.actualSuperUltraSlow,
+          );
+          for (final packetId in packetIds) {
+            GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
           }
+          cancelUploadFile(uploadKey);
+          await _analyticsService.sendLogEvent(
+            "unSuccessFileUpload",
+            parameters: {
+              "errorCode": e.response?.statusCode,
+              "error": e.response?.data
+            },
+          );
+        } else if (e.response == null && e.type != DioErrorType.cancel) {
+          ToastDisplay.showToast(
+            toastText: _i18N.get("connection_error"),
+            maxWidth: 500.0,
+            duration: AnimationSettings.actualSuperUltraSlow,
+          );
+          for (final packetId in packetIds) {
+            GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+          }
+          cancelUploadFile(uploadKey);
+          await _analyticsService.sendLogEvent(
+            "failedFileUpload",
+          );
+        } else {
+          await _analyticsService.sendLogEvent(
+            "unknownFileUpload",
+            parameters: {
+              "errorCode": e.response?.statusCode,
+              "error": e.response?.data
+            },
+          );
         }
-        _logger.v(uploadedFile);
-
-        localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
-        await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid, name);
-        _fileService.updateFileStatus(uploadedFile.uuid, FileStatus.COMPLETED);
-        return uploadedFile;
-      } catch (e) {
-        _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
         _logger.e(e);
+      }
+      if (value != null) {
+        final json = jsonDecode(value.toString()) as Map;
+        _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
+
+        try {
+          var uploadedFile = file_pb.File();
+          uploadedFile = file_pb.File()
+            ..uuid = json["uuid"]
+            ..size = Int64.parseInt(json["size"])
+            ..type = json["type"]
+            ..name = json["name"]
+            ..width = json["width"] ?? 0
+            ..height = json["height"] ?? 0
+            ..duration = json["duration"] ?? 0
+            ..blurHash = json["blurHash"] ?? ""
+            ..hash = json["hash"] ?? ""
+            ..sign = json["sign"] ?? "";
+          if (json["audioWaveform"] != null) {
+            final audioWaveform = json["audioWaveform"] as Map;
+            if (audioWaveform.isNotEmpty) {
+              uploadedFile.audioWaveform = file_pb.AudioWaveform(
+                bits: audioWaveform["bits"] ?? 0,
+                channels: audioWaveform["channels"] ?? 0,
+                data: audioWaveform["data"] != null
+                    ? List<int>.from(audioWaveform["data"])
+                    : [],
+                length: audioWaveform["length"] ?? 0,
+                sampleRate: audioWaveform["sampleRate"] ?? 0,
+                samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
+                version: audioWaveform["version"] ?? 0,
+              );
+            }
+          }
+          _logger.v(uploadedFile);
+
+          localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
+          await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid, name);
+          _fileService.updateFileStatus(
+              uploadedFile.uuid, FileStatus.COMPLETED);
+          return uploadedFile;
+        } catch (e) {
+          _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+          _logger.e(e);
+          return null;
+        }
+      } else {
+        _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+        _fileService.filesProgressBarStatus
+            .add(_fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
         return null;
       }
-    } else {
-      _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
-      _fileService.filesProgressBarStatus
-          .add(_fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
-      return null;
     }
   }
 
@@ -256,6 +285,22 @@ class FileRepo {
       return filePath;
     } else {
       return null;
+    }
+  }
+
+  Future<void> saveLocalNetworkFile({
+    required String uuid,
+    required String filename,
+    required List<int> data,
+  }) async {
+    final path = await _fileService.saveFile(uuid, filename, data);
+    if (path != null) {
+      await _fileCache.saveFileInfo(
+        uuid,
+        path,
+        filename,
+        'real',
+      );
     }
   }
 

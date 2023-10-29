@@ -184,7 +184,6 @@ class AvatarRepo {
     final key = _getAvatarCacheKey(userUid);
 
     final cachedAvatar = _avatarCacheBehaviorSubjects.get(key);
-
     if (cachedAvatar != null) {
       yield* cachedAvatar.asBroadcastStream();
     }

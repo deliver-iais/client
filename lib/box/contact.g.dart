@@ -6,7 +6,8 @@ part of 'contact.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Contact _$$_ContactFromJson(Map<String, dynamic> json) => _$_Contact(
+_$ContactImpl _$$ContactImplFromJson(Map<String, dynamic> json) =>
+    _$ContactImpl(
       phoneNumber: fromJson(json['phoneNumber'] as String),
       uid: nullAbleUidFromJson(json['uid'] as String?),
       firstName: json['firstName'] as String? ?? "",
@@ -16,7 +17,7 @@ _$_Contact _$$_ContactFromJson(Map<String, dynamic> json) => _$_Contact(
       updateTime: json['updateTime'] as int? ?? 0,
     );
 
-Map<String, dynamic> _$$_ContactToJson(_$_Contact instance) =>
+Map<String, dynamic> _$$ContactImplToJson(_$ContactImpl instance) =>
     <String, dynamic>{
       'phoneNumber': toJson(instance.phoneNumber),
       'uid': nullableUidToJson(instance.uid),

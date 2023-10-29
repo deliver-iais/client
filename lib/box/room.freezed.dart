@@ -175,9 +175,10 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
 }
 
 /// @nodoc
-abstract class _$$_RoomCopyWith<$Res> implements $RoomCopyWith<$Res> {
-  factory _$$_RoomCopyWith(_$_Room value, $Res Function(_$_Room) then) =
-      __$$_RoomCopyWithImpl<$Res>;
+abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
+  factory _$$RoomImplCopyWith(
+          _$RoomImpl value, $Res Function(_$RoomImpl) then) =
+      __$$RoomImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -202,9 +203,10 @@ abstract class _$$_RoomCopyWith<$Res> implements $RoomCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_RoomCopyWithImpl<$Res> extends _$RoomCopyWithImpl<$Res, _$_Room>
-    implements _$$_RoomCopyWith<$Res> {
-  __$$_RoomCopyWithImpl(_$_Room _value, $Res Function(_$_Room) _then)
+class __$$RoomImplCopyWithImpl<$Res>
+    extends _$RoomCopyWithImpl<$Res, _$RoomImpl>
+    implements _$$RoomImplCopyWith<$Res> {
+  __$$RoomImplCopyWithImpl(_$RoomImpl _value, $Res Function(_$RoomImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -226,7 +228,7 @@ class __$$_RoomCopyWithImpl<$Res> extends _$RoomCopyWithImpl<$Res, _$_Room>
     Object? seenSynced = null,
     Object? shouldUpdateMediaCount = null,
   }) {
-    return _then(_$_Room(
+    return _then(_$RoomImpl(
       uid: null == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
@@ -293,8 +295,8 @@ class __$$_RoomCopyWithImpl<$Res> extends _$RoomCopyWithImpl<$Res, _$_Room>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Room implements _Room {
-  const _$_Room(
+class _$RoomImpl implements _Room {
+  const _$RoomImpl(
       {@UidJsonKey required this.uid,
       @NullableMessageJsonKey this.lastMessage,
       this.replyKeyboardMarkup,
@@ -312,7 +314,8 @@ class _$_Room implements _Room {
       this.shouldUpdateMediaCount = true})
       : _mentionsId = mentionsId;
 
-  factory _$_Room.fromJson(Map<String, dynamic> json) => _$$_RoomFromJson(json);
+  factory _$RoomImpl.fromJson(Map<String, dynamic> json) =>
+      _$$RoomImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -374,7 +377,7 @@ class _$_Room implements _Room {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Room &&
+            other is _$RoomImpl &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.lastMessage, lastMessage) ||
                 other.lastMessage == lastMessage) &&
@@ -426,12 +429,12 @@ class _$_Room implements _Room {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_RoomCopyWith<_$_Room> get copyWith =>
-      __$$_RoomCopyWithImpl<_$_Room>(this, _$identity);
+  _$$RoomImplCopyWith<_$RoomImpl> get copyWith =>
+      __$$RoomImplCopyWithImpl<_$RoomImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_RoomToJson(
+    return _$$RoomImplToJson(
       this,
     );
   }
@@ -453,9 +456,9 @@ abstract class _Room implements Room {
       final bool pinned,
       final bool synced,
       final bool seenSynced,
-      final bool shouldUpdateMediaCount}) = _$_Room;
+      final bool shouldUpdateMediaCount}) = _$RoomImpl;
 
-  factory _Room.fromJson(Map<String, dynamic> json) = _$_Room.fromJson;
+  factory _Room.fromJson(Map<String, dynamic> json) = _$RoomImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -491,5 +494,6 @@ abstract class _Room implements Room {
   bool get shouldUpdateMediaCount;
   @override
   @JsonKey(ignore: true)
-  _$$_RoomCopyWith<_$_Room> get copyWith => throw _privateConstructorUsedError;
+  _$$RoomImplCopyWith<_$RoomImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

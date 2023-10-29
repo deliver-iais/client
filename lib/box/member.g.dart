@@ -6,7 +6,7 @@ part of 'member.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Member _$$_MemberFromJson(Map<String, dynamic> json) => _$_Member(
+_$MemberImpl _$$MemberImplFromJson(Map<String, dynamic> json) => _$MemberImpl(
       mucUid: uidFromJson(json['mucUid'] as String),
       memberUid: uidFromJson(json['memberUid'] as String),
       role: $enumDecodeNullable(_$MucRoleEnumMap, json['role']) ?? MucRole.NONE,
@@ -15,7 +15,8 @@ _$_Member _$$_MemberFromJson(Map<String, dynamic> json) => _$_Member(
       realName: json['realName'] as String? ?? "",
     );
 
-Map<String, dynamic> _$$_MemberToJson(_$_Member instance) => <String, dynamic>{
+Map<String, dynamic> _$$MemberImplToJson(_$MemberImpl instance) =>
+    <String, dynamic>{
       'mucUid': uidToJson(instance.mucUid),
       'memberUid': uidToJson(instance.memberUid),
       'role': _$MucRoleEnumMap[instance.role]!,

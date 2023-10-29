@@ -6,7 +6,7 @@ part of 'room.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Room _$$_RoomFromJson(Map<String, dynamic> json) => _$_Room(
+_$RoomImpl _$$RoomImplFromJson(Map<String, dynamic> json) => _$RoomImpl(
       uid: uidFromJson(json['uid'] as String),
       lastMessage: getNullableMessageFromJson(json['lastMessage'] as String?),
       replyKeyboardMarkup: json['replyKeyboardMarkup'] as String?,
@@ -28,7 +28,8 @@ _$_Room _$$_RoomFromJson(Map<String, dynamic> json) => _$_Room(
       shouldUpdateMediaCount: json['shouldUpdateMediaCount'] as bool? ?? true,
     );
 
-Map<String, dynamic> _$$_RoomToJson(_$_Room instance) => <String, dynamic>{
+Map<String, dynamic> _$$RoomImplToJson(_$RoomImpl instance) =>
+    <String, dynamic>{
       'uid': uidToJson(instance.uid),
       'lastMessage': nullableMessageToJson(instance.lastMessage),
       'replyKeyboardMarkup': instance.replyKeyboardMarkup,

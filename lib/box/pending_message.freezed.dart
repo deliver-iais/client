@@ -103,11 +103,11 @@ class _$PendingMessageCopyWithImpl<$Res, $Val extends PendingMessage>
 }
 
 /// @nodoc
-abstract class _$$_PendingMessageCopyWith<$Res>
+abstract class _$$PendingMessageImplCopyWith<$Res>
     implements $PendingMessageCopyWith<$Res> {
-  factory _$$_PendingMessageCopyWith(
-          _$_PendingMessage value, $Res Function(_$_PendingMessage) then) =
-      __$$_PendingMessageCopyWithImpl<$Res>;
+  factory _$$PendingMessageImplCopyWith(_$PendingMessageImpl value,
+          $Res Function(_$PendingMessageImpl) then) =
+      __$$PendingMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -122,11 +122,11 @@ abstract class _$$_PendingMessageCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_PendingMessageCopyWithImpl<$Res>
-    extends _$PendingMessageCopyWithImpl<$Res, _$_PendingMessage>
-    implements _$$_PendingMessageCopyWith<$Res> {
-  __$$_PendingMessageCopyWithImpl(
-      _$_PendingMessage _value, $Res Function(_$_PendingMessage) _then)
+class __$$PendingMessageImplCopyWithImpl<$Res>
+    extends _$PendingMessageCopyWithImpl<$Res, _$PendingMessageImpl>
+    implements _$$PendingMessageImplCopyWith<$Res> {
+  __$$PendingMessageImplCopyWithImpl(
+      _$PendingMessageImpl _value, $Res Function(_$PendingMessageImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -138,7 +138,7 @@ class __$$_PendingMessageCopyWithImpl<$Res>
     Object? failed = null,
     Object? status = null,
   }) {
-    return _then(_$_PendingMessage(
+    return _then(_$PendingMessageImpl(
       roomUid: null == roomUid
           ? _value.roomUid
           : roomUid // ignore: cast_nullable_to_non_nullable
@@ -165,16 +165,16 @@ class __$$_PendingMessageCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_PendingMessage implements _PendingMessage {
-  const _$_PendingMessage(
+class _$PendingMessageImpl implements _PendingMessage {
+  const _$PendingMessageImpl(
       {@UidJsonKey required this.roomUid,
       required this.packetId,
       @MessageJsonKey required this.msg,
       this.failed = false,
       required this.status});
 
-  factory _$_PendingMessage.fromJson(Map<String, dynamic> json) =>
-      _$$_PendingMessageFromJson(json);
+  factory _$PendingMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PendingMessageImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -199,7 +199,7 @@ class _$_PendingMessage implements _PendingMessage {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_PendingMessage &&
+            other is _$PendingMessageImpl &&
             (identical(other.roomUid, roomUid) || other.roomUid == roomUid) &&
             (identical(other.packetId, packetId) ||
                 other.packetId == packetId) &&
@@ -216,12 +216,13 @@ class _$_PendingMessage implements _PendingMessage {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_PendingMessageCopyWith<_$_PendingMessage> get copyWith =>
-      __$$_PendingMessageCopyWithImpl<_$_PendingMessage>(this, _$identity);
+  _$$PendingMessageImplCopyWith<_$PendingMessageImpl> get copyWith =>
+      __$$PendingMessageImplCopyWithImpl<_$PendingMessageImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_PendingMessageToJson(
+    return _$$PendingMessageImplToJson(
       this,
     );
   }
@@ -233,10 +234,10 @@ abstract class _PendingMessage implements PendingMessage {
       required final String packetId,
       @MessageJsonKey required final Message msg,
       final bool failed,
-      required final SendingStatus status}) = _$_PendingMessage;
+      required final SendingStatus status}) = _$PendingMessageImpl;
 
   factory _PendingMessage.fromJson(Map<String, dynamic> json) =
-      _$_PendingMessage.fromJson;
+      _$PendingMessageImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -252,6 +253,6 @@ abstract class _PendingMessage implements PendingMessage {
   SendingStatus get status;
   @override
   @JsonKey(ignore: true)
-  _$$_PendingMessageCopyWith<_$_PendingMessage> get copyWith =>
+  _$$PendingMessageImplCopyWith<_$PendingMessageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

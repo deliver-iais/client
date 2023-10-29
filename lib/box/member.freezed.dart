@@ -98,9 +98,10 @@ class _$MemberCopyWithImpl<$Res, $Val extends Member>
 }
 
 /// @nodoc
-abstract class _$$_MemberCopyWith<$Res> implements $MemberCopyWith<$Res> {
-  factory _$$_MemberCopyWith(_$_Member value, $Res Function(_$_Member) then) =
-      __$$_MemberCopyWithImpl<$Res>;
+abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
+  factory _$$MemberImplCopyWith(
+          _$MemberImpl value, $Res Function(_$MemberImpl) then) =
+      __$$MemberImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -113,10 +114,11 @@ abstract class _$$_MemberCopyWith<$Res> implements $MemberCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_MemberCopyWithImpl<$Res>
-    extends _$MemberCopyWithImpl<$Res, _$_Member>
-    implements _$$_MemberCopyWith<$Res> {
-  __$$_MemberCopyWithImpl(_$_Member _value, $Res Function(_$_Member) _then)
+class __$$MemberImplCopyWithImpl<$Res>
+    extends _$MemberCopyWithImpl<$Res, _$MemberImpl>
+    implements _$$MemberImplCopyWith<$Res> {
+  __$$MemberImplCopyWithImpl(
+      _$MemberImpl _value, $Res Function(_$MemberImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -129,7 +131,7 @@ class __$$_MemberCopyWithImpl<$Res>
     Object? name = null,
     Object? realName = null,
   }) {
-    return _then(_$_Member(
+    return _then(_$MemberImpl(
       mucUid: null == mucUid
           ? _value.mucUid
           : mucUid // ignore: cast_nullable_to_non_nullable
@@ -160,8 +162,8 @@ class __$$_MemberCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Member implements _Member {
-  const _$_Member(
+class _$MemberImpl implements _Member {
+  const _$MemberImpl(
       {@UidJsonKey required this.mucUid,
       @UidJsonKey required this.memberUid,
       this.role = MucRole.NONE,
@@ -169,8 +171,8 @@ class _$_Member implements _Member {
       this.name = "",
       this.realName = ""});
 
-  factory _$_Member.fromJson(Map<String, dynamic> json) =>
-      _$$_MemberFromJson(json);
+  factory _$MemberImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MemberImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -200,7 +202,7 @@ class _$_Member implements _Member {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Member &&
+            other is _$MemberImpl &&
             (identical(other.mucUid, mucUid) || other.mucUid == mucUid) &&
             (identical(other.memberUid, memberUid) ||
                 other.memberUid == memberUid) &&
@@ -220,12 +222,12 @@ class _$_Member implements _Member {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_MemberCopyWith<_$_Member> get copyWith =>
-      __$$_MemberCopyWithImpl<_$_Member>(this, _$identity);
+  _$$MemberImplCopyWith<_$MemberImpl> get copyWith =>
+      __$$MemberImplCopyWithImpl<_$MemberImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_MemberToJson(
+    return _$$MemberImplToJson(
       this,
     );
   }
@@ -238,9 +240,9 @@ abstract class _Member implements Member {
       final MucRole role,
       final String username,
       final String name,
-      final String realName}) = _$_Member;
+      final String realName}) = _$MemberImpl;
 
-  factory _Member.fromJson(Map<String, dynamic> json) = _$_Member.fromJson;
+  factory _Member.fromJson(Map<String, dynamic> json) = _$MemberImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -258,6 +260,6 @@ abstract class _Member implements Member {
   String get realName;
   @override
   @JsonKey(ignore: true)
-  _$$_MemberCopyWith<_$_Member> get copyWith =>
+  _$$MemberImplCopyWith<_$MemberImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -94,11 +94,11 @@ class _$BroadcastMemberCopyWithImpl<$Res, $Val extends BroadcastMember>
 }
 
 /// @nodoc
-abstract class _$$_BroadcastMemberCopyWith<$Res>
+abstract class _$$BroadcastMemberImplCopyWith<$Res>
     implements $BroadcastMemberCopyWith<$Res> {
-  factory _$$_BroadcastMemberCopyWith(
-          _$_BroadcastMember value, $Res Function(_$_BroadcastMember) then) =
-      __$$_BroadcastMemberCopyWithImpl<$Res>;
+  factory _$$BroadcastMemberImplCopyWith(_$BroadcastMemberImpl value,
+          $Res Function(_$BroadcastMemberImpl) then) =
+      __$$BroadcastMemberImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -110,11 +110,11 @@ abstract class _$$_BroadcastMemberCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_BroadcastMemberCopyWithImpl<$Res>
-    extends _$BroadcastMemberCopyWithImpl<$Res, _$_BroadcastMember>
-    implements _$$_BroadcastMemberCopyWith<$Res> {
-  __$$_BroadcastMemberCopyWithImpl(
-      _$_BroadcastMember _value, $Res Function(_$_BroadcastMember) _then)
+class __$$BroadcastMemberImplCopyWithImpl<$Res>
+    extends _$BroadcastMemberCopyWithImpl<$Res, _$BroadcastMemberImpl>
+    implements _$$BroadcastMemberImplCopyWith<$Res> {
+  __$$BroadcastMemberImplCopyWithImpl(
+      _$BroadcastMemberImpl _value, $Res Function(_$BroadcastMemberImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -126,7 +126,7 @@ class __$$_BroadcastMemberCopyWithImpl<$Res>
     Object? type = null,
     Object? name = null,
   }) {
-    return _then(_$_BroadcastMember(
+    return _then(_$BroadcastMemberImpl(
       broadcastUid: null == broadcastUid
           ? _value.broadcastUid
           : broadcastUid // ignore: cast_nullable_to_non_nullable
@@ -153,16 +153,16 @@ class __$$_BroadcastMemberCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_BroadcastMember implements _BroadcastMember {
-  const _$_BroadcastMember(
+class _$BroadcastMemberImpl implements _BroadcastMember {
+  const _$BroadcastMemberImpl(
       {@UidJsonKey required this.broadcastUid,
       @NullableUidJsonKey this.memberUid,
       @NullablePhoneNumberJsonKey this.phoneNumber,
       this.type = BroadCastMemberType.MESSAGE,
       this.name = ""});
 
-  factory _$_BroadcastMember.fromJson(Map<String, dynamic> json) =>
-      _$$_BroadcastMemberFromJson(json);
+  factory _$BroadcastMemberImpl.fromJson(Map<String, dynamic> json) =>
+      _$$BroadcastMemberImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -189,7 +189,7 @@ class _$_BroadcastMember implements _BroadcastMember {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_BroadcastMember &&
+            other is _$BroadcastMemberImpl &&
             (identical(other.broadcastUid, broadcastUid) ||
                 other.broadcastUid == broadcastUid) &&
             (identical(other.memberUid, memberUid) ||
@@ -208,12 +208,13 @@ class _$_BroadcastMember implements _BroadcastMember {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_BroadcastMemberCopyWith<_$_BroadcastMember> get copyWith =>
-      __$$_BroadcastMemberCopyWithImpl<_$_BroadcastMember>(this, _$identity);
+  _$$BroadcastMemberImplCopyWith<_$BroadcastMemberImpl> get copyWith =>
+      __$$BroadcastMemberImplCopyWithImpl<_$BroadcastMemberImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_BroadcastMemberToJson(
+    return _$$BroadcastMemberImplToJson(
       this,
     );
   }
@@ -225,10 +226,10 @@ abstract class _BroadcastMember implements BroadcastMember {
       @NullableUidJsonKey final Uid? memberUid,
       @NullablePhoneNumberJsonKey final PhoneNumber? phoneNumber,
       final BroadCastMemberType type,
-      final String name}) = _$_BroadcastMember;
+      final String name}) = _$BroadcastMemberImpl;
 
   factory _BroadcastMember.fromJson(Map<String, dynamic> json) =
-      _$_BroadcastMember.fromJson;
+      _$BroadcastMemberImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -245,6 +246,6 @@ abstract class _BroadcastMember implements BroadcastMember {
   String get name;
   @override
   @JsonKey(ignore: true)
-  _$$_BroadcastMemberCopyWith<_$_BroadcastMember> get copyWith =>
+  _$$BroadcastMemberImplCopyWith<_$BroadcastMemberImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

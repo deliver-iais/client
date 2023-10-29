@@ -6,8 +6,8 @@ part of 'pending_message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_PendingMessage _$$_PendingMessageFromJson(Map<String, dynamic> json) =>
-    _$_PendingMessage(
+_$PendingMessageImpl _$$PendingMessageImplFromJson(Map<String, dynamic> json) =>
+    _$PendingMessageImpl(
       roomUid: uidFromJson(json['roomUid'] as String),
       packetId: json['packetId'] as String,
       msg: getMessageFromJson(json['msg'] as String),
@@ -15,7 +15,8 @@ _$_PendingMessage _$$_PendingMessageFromJson(Map<String, dynamic> json) =>
       status: $enumDecode(_$SendingStatusEnumMap, json['status']),
     );
 
-Map<String, dynamic> _$$_PendingMessageToJson(_$_PendingMessage instance) =>
+Map<String, dynamic> _$$PendingMessageImplToJson(
+        _$PendingMessageImpl instance) =>
     <String, dynamic>{
       'roomUid': uidToJson(instance.roomUid),
       'packetId': instance.packetId,

@@ -124,9 +124,9 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$$_MucCopyWith<$Res> implements $MucCopyWith<$Res> {
-  factory _$$_MucCopyWith(_$_Muc value, $Res Function(_$_Muc) then) =
-      __$$_MucCopyWithImpl<$Res>;
+abstract class _$$MucImplCopyWith<$Res> implements $MucCopyWith<$Res> {
+  factory _$$MucImplCopyWith(_$MucImpl value, $Res Function(_$MucImpl) then) =
+      __$$MucImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -143,9 +143,9 @@ abstract class _$$_MucCopyWith<$Res> implements $MucCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_MucCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$_Muc>
-    implements _$$_MucCopyWith<$Res> {
-  __$$_MucCopyWithImpl(_$_Muc _value, $Res Function(_$_Muc) _then)
+class __$$MucImplCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$MucImpl>
+    implements _$$MucImplCopyWith<$Res> {
+  __$$MucImplCopyWithImpl(_$MucImpl _value, $Res Function(_$MucImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -162,7 +162,7 @@ class __$$_MucCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$_Muc>
     Object? mucType = null,
     Object? currentUserRole = null,
   }) {
-    return _then(_$_Muc(
+    return _then(_$MucImpl(
       uid: null == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
@@ -209,8 +209,8 @@ class __$$_MucCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$_Muc>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Muc implements _Muc {
-  const _$_Muc(
+class _$MucImpl implements _Muc {
+  const _$MucImpl(
       {@UidJsonKey required this.uid,
       this.name = "",
       this.token = "",
@@ -223,7 +223,8 @@ class _$_Muc implements _Muc {
       this.currentUserRole = MucRole.NONE})
       : _pinMessagesIdList = pinMessagesIdList;
 
-  factory _$_Muc.fromJson(Map<String, dynamic> json) => _$$_MucFromJson(json);
+  factory _$MucImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MucImplFromJson(json);
 
   @override
   @UidJsonKey
@@ -272,7 +273,7 @@ class _$_Muc implements _Muc {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Muc &&
+            other is _$MucImpl &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.token, token) || other.token == token) &&
@@ -308,12 +309,12 @@ class _$_Muc implements _Muc {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_MucCopyWith<_$_Muc> get copyWith =>
-      __$$_MucCopyWithImpl<_$_Muc>(this, _$identity);
+  _$$MucImplCopyWith<_$MucImpl> get copyWith =>
+      __$$MucImplCopyWithImpl<_$MucImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_MucToJson(
+    return _$$MucImplToJson(
       this,
     );
   }
@@ -330,9 +331,9 @@ abstract class _Muc implements Muc {
       final int population,
       final int lastCanceledPinMessageId,
       final MucType mucType,
-      final MucRole currentUserRole}) = _$_Muc;
+      final MucRole currentUserRole}) = _$MucImpl;
 
-  factory _Muc.fromJson(Map<String, dynamic> json) = _$_Muc.fromJson;
+  factory _Muc.fromJson(Map<String, dynamic> json) = _$MucImpl.fromJson;
 
   @override
   @UidJsonKey
@@ -357,5 +358,6 @@ abstract class _Muc implements Muc {
   MucRole get currentUserRole;
   @override
   @JsonKey(ignore: true)
-  _$$_MucCopyWith<_$_Muc> get copyWith => throw _privateConstructorUsedError;
+  _$$MucImplCopyWith<_$MucImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

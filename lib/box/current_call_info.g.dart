@@ -6,8 +6,9 @@ part of 'current_call_info.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_CurrentCallInfo _$$_CurrentCallInfoFromJson(Map<String, dynamic> json) =>
-    _$_CurrentCallInfo(
+_$CurrentCallInfoImpl _$$CurrentCallInfoImplFromJson(
+        Map<String, dynamic> json) =>
+    _$CurrentCallInfoImpl(
       callEvent: callEventV2FromJson(json['callEvent'] as String),
       from: json['from'] as String,
       to: json['to'] as String,
@@ -18,7 +19,8 @@ _$_CurrentCallInfo _$$_CurrentCallInfoFromJson(Map<String, dynamic> json) =>
       offerCandidate: json['offerCandidate'] as String? ?? "",
     );
 
-Map<String, dynamic> _$$_CurrentCallInfoToJson(_$_CurrentCallInfo instance) =>
+Map<String, dynamic> _$$CurrentCallInfoImplToJson(
+        _$CurrentCallInfoImpl instance) =>
     <String, dynamic>{
       'callEvent': callEventV2ToJson(instance.callEvent),
       'from': instance.from,
