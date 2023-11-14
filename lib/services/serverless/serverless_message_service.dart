@@ -7,7 +7,10 @@ import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message.dart' as model;
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
@@ -19,6 +22,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -46,6 +50,7 @@ class ServerLessMessageService {
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
+  final _callService = GetIt.I.get<CallService>();
   final _serverLessService = GetIt.I.get<ServerLessService>();
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
   final _logger = GetIt.I.get<Logger>();
@@ -101,9 +106,33 @@ class ServerLessMessageService {
       case ClientPacket_Type.callOffer:
       case ClientPacket_Type.callAnswer:
       case ClientPacket_Type.callEvent:
+          final callEvent = clientPacket.callEvent;
+          await _sendCallEvent(callEvent);
+        break;
       case ClientPacket_Type.notSet:
         break;
     }
+  }
+
+  Future<void> _sendTextMessage(
+      MessageByClient messageByClient,
+      int id, {
+        bool edited = false,
+      }) async {
+    final message = Message()
+      ..from = _authRepo.currentUserUid
+      ..to = messageByClient.to
+      ..packetId = messageByClient.packetId
+      ..replyToId = messageByClient.replyToId
+      ..id = Int64(id)
+      ..edited = edited
+      ..text = messageByClient.text
+      ..forwardFrom = messageByClient.forwardFrom
+      ..time = Int64(
+        DateTime.now().millisecondsSinceEpoch,
+      );
+
+    await _sendMessage(to: message.to, message: message);
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
@@ -138,27 +167,6 @@ class ServerLessMessageService {
       ..time = Int64(
         DateTime.now().millisecondsSinceEpoch,
       );
-    await _sendMessage(to: message.to, message: message);
-  }
-
-  Future<void> _sendTextMessage(
-    MessageByClient messageByClient,
-    int id, {
-    bool edited = false,
-  }) async {
-    final message = Message()
-      ..from = _authRepo.currentUserUid
-      ..to = messageByClient.to
-      ..packetId = messageByClient.packetId
-      ..replyToId = messageByClient.replyToId
-      ..id = Int64(id)
-      ..edited = edited
-      ..text = messageByClient.text
-      ..forwardFrom = messageByClient.forwardFrom
-      ..time = Int64(
-        DateTime.now().millisecondsSinceEpoch,
-      );
-
     await _sendMessage(to: message.to, message: message);
   }
 
@@ -245,6 +253,10 @@ class ServerLessMessageService {
         unawaited(
           _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
         );
+      } else if(type == CALL_EVENT) {
+        unawaited(
+          _dataStreamService.handleCallEvent(call_pb.CallEventV2.fromBuffer(await request.first)),
+        );
       } else if (type == MESSAGE) {
         unawaited(
           _processMessage(request),
@@ -282,6 +294,13 @@ class ServerLessMessageService {
             name: resendFileRequest.name,
           ),
         );
+      } else if (type == CALL_EVENT) {
+        final callEvents = CallEvents.callEvent(
+          CallEventV2.fromBuffer(await request.first),
+        );
+        _callService
+          ..addCallEvent(callEvents)
+          ..shouldRemoveData = false;
       }
     } catch (e) {
       _logger.e(e);
@@ -517,5 +536,34 @@ class ServerLessMessageService {
       }
       _pendingAck[ack.to.asString()]?.add(ack);
     }
+  }
+
+  Future<void> _sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) async {
+    final ip = await _serverLessService.getIp(_authRepo.currentUserUid.asString());
+    final callEvent = CallEventV2()
+    ..id = callEventV2ByClient.id
+    ..to = callEventV2ByClient.to
+    ..isVideo = callEventV2ByClient.isVideo
+    ..from = _authRepo.currentUserUid
+    ..time = DateTime.now() as Int64;
+    if(callEventV2ByClient.hasRinging()) {
+      callEvent.ringing = callEventV2ByClient.ringing;
+    } else if(callEventV2ByClient.hasAnswer()) {
+      callEvent.offer = callEventV2ByClient.offer;
+    }
+    else if(callEventV2ByClient.hasBusy()) {
+      callEvent.end = callEventV2ByClient.end;
+    }
+    else if(callEventV2ByClient.hasDecline()) {
+      callEvent.answer = callEventV2ByClient.answer;
+    }
+    else if(callEventV2ByClient.hasDecline()) {
+      callEvent.decline = callEventV2ByClient.decline;
+    }
+    else if(callEventV2ByClient.hasDecline()) {
+      callEvent.busy = callEventV2ByClient.busy;
+    }
+    await _serverLessService.sendRequest(callEvent.writeToBuffer(), ip!);
+
   }
 }
