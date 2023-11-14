@@ -113,7 +113,7 @@ class AuthRepo {
       GetVerificationCodeReq()
         ..phoneNumber = phone
         ..type =
-            forceToSendSms ? VerificationType.SMS : VerificationType.MESSAGE
+            forceToSendSms ? VerificationType.SMS : VerificationType.SMS
         ..platform = platform,
       options: CallOptions(
         timeout: const Duration(seconds: 10),

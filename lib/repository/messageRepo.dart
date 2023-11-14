@@ -35,6 +35,7 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -116,6 +117,7 @@ class MessageRepo {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
@@ -163,7 +165,6 @@ class MessageRepo {
       var finished = false;
       var pointer = 0;
       final allRoomFetched = settings.allRoomFetched.value;
-      final appRunInForeground = !_appLifecycleService.isActive;
       if (!allRoomFetched) {
         updatingStatus.add(TitleStatusConditions.Syncing);
         _logger.i('syncing');
@@ -200,7 +201,6 @@ class MessageRepo {
           for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
             if (await _updateRoom(
               roomMetadata,
-              appRunInForeground: appRunInForeground,
               indexOfRoom:
                   getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
             )) {
@@ -235,7 +235,6 @@ class MessageRepo {
   /// return true if have new room or new message
   Future<bool> _updateRoom(
     RoomMetadata roomMetadata, {
-    bool appRunInForeground = false,
     int indexOfRoom = 0,
   }) async {
     try {
@@ -268,19 +267,12 @@ class MessageRepo {
               synced: false,
               lastCurrentUserSentMessageId:
                   roomMetadata.lastCurrentUserSentMessageId.toInt(),
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              lastMessageId: max(
+                  roomMetadata.lastMessageId.toInt(), room?.lastMessageId ?? 0),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             ),
           );
-
-          if (appRunInForeground &&
-              (room == null ||
-                  (indexOfRoom < FETCH_ROOM_METADATA_IN_BACKGROUND_RECONNECT &&
-                      roomMetadata.lastMessageId.toInt() >
-                          room.lastMessageId))) {
-            unawaited(_notifyOfflineMessagesWhenAppInBackground(roomMetadata));
-          }
           unawaited(_roomRepo.getName(roomMetadata.roomUid));
           return true;
         }
@@ -1415,41 +1407,43 @@ class MessageRepo {
     int pageSize, {
     bool retry = true,
   }) async {
-    final key = "$roomUid-$page";
-    var completer = _completerMap[key];
-    if (completer == null || completer.isCompleted) {
-      completer = Completer();
-      _completerMap[key] = completer;
-      try {
-        final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(
-          FetchMessagesReq()
-            ..roomUid = roomUid
-            ..pointer = Int64(page * pageSize)
-            ..type = FetchMessagesReq_Type.FORWARD_FETCH
-            ..limit = pageSize,
-        );
-        final nonRepeatedMessage =
-            _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
-        await _dataStreamServices.handleFetchMessagesActions(
-          roomUid,
-          nonRepeatedMessage,
-        );
-        final messages = await _dataStreamServices
-            .saveFetchMessages(fetchMessagesRes.messages);
-        _cachingRepo.setMessages(
-          roomUid,
-          messages,
-        );
-        completer.complete([]);
-      } catch (e) {
-        _logger.e(e);
-        completer.complete([]);
-        if (retry) {
-          await _getMessagesFromServer(roomUid, page, pageSize, retry: false);
+    if (!settings.localNetworkMessenger.value) {
+      final key = "$roomUid-$page";
+      var completer = _completerMap[key];
+      if (completer == null || completer.isCompleted) {
+        completer = Completer();
+        _completerMap[key] = completer;
+        try {
+          final fetchMessagesRes = await _sdr.queryServiceClient.fetchMessages(
+            FetchMessagesReq()
+              ..roomUid = roomUid
+              ..pointer = Int64(page * pageSize)
+              ..type = FetchMessagesReq_Type.FORWARD_FETCH
+              ..limit = pageSize,
+          );
+          final nonRepeatedMessage =
+              _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
+          await _dataStreamServices.handleFetchMessagesActions(
+            roomUid,
+            nonRepeatedMessage,
+          );
+          final messages = await _dataStreamServices
+              .saveFetchMessages(fetchMessagesRes.messages);
+          _cachingRepo.setMessages(
+            roomUid,
+            messages,
+          );
+          completer.complete([]);
+        } catch (e) {
+          _logger.e(e);
+          completer.complete([]);
+          if (retry) {
+            await _getMessagesFromServer(roomUid, page, pageSize, retry: false);
+          }
         }
+      } else {
+        await completer.future;
       }
-    } else {
-      await completer.future;
     }
   }
 
@@ -1542,7 +1536,7 @@ class MessageRepo {
         return msg;
       }
     }
-    return _messageDao.getMessage(roomUid, id);
+    return _messageDao.getMessageById(roomUid, id);
   }
 
   Future<PendingMessage?> getPendingMessage(String packetId) =>
@@ -1590,6 +1584,7 @@ class MessageRepo {
         roomUid,
         clock.now().millisecondsSinceEpoch,
         index ?? 0,
+        index ?? 0,
         MessageEventAction.PENDING_DELETE,
       ),
     );
@@ -1633,11 +1628,15 @@ class MessageRepo {
 
   Future<bool> _deleteMessage(Message message) async {
     try {
-      await _sdr.queryServiceClient.deleteMessage(
-        DeleteMessageReq()
-          ..messageId = Int64(message.id!)
-          ..roomUid = message.roomUid,
-      );
+      final request = DeleteMessageReq()
+        ..messageId = Int64(message.id!)
+        ..roomUid = message.roomUid;
+      if (settings.localNetworkMessenger.value) {
+        _serverLessMessageService.deleteMessage(request);
+      } else {
+        await _sdr.queryServiceClient.deleteMessage(request);
+      }
+
       return true;
     } catch (e) {
       _logger.e(e);
@@ -1657,12 +1656,15 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
+            _cachingRepo.setMessage(msg.roomUid, msg.localNetworkMessageId!, msg);
+
             await _messageDao.updateMessage(msg);
             messageEventSubject.add(
               MessageEvent(
                 message.roomUid,
                 clock.now().millisecondsSinceEpoch,
                 message.id!,
+                message.localNetworkMessageId!,
                 MessageEventAction.DELETE,
               ),
             );
@@ -1680,6 +1682,9 @@ class MessageRepo {
             }
             await _roomDao.updateRoom(
               uid: msg.roomUid,
+              lastUpdateTime: settings.localNetworkMessenger.value
+                  ? DateTime.now().millisecondsSinceEpoch
+                  : null,
               lastMessage: lastNotHiddenMessage,
             );
           }
@@ -1716,10 +1721,12 @@ class MessageRepo {
           editableMessage.roomUid,
           clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
+          editableMessage.localNetworkMessageId!,
           MessageEventAction.PENDING_EDIT,
         ),
       );
-      await _sdr.queryServiceClient.updateMessage(
+
+      await _edit(
         UpdateMessageReq()
           ..message = updatedMessage
           ..messageId = Int64(editableMessage.id ?? 0),
@@ -1740,19 +1747,31 @@ class MessageRepo {
           editableMessage.roomUid,
           clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
+          editableMessage.localNetworkMessageId!,
           MessageEventAction.EDIT,
         ),
       );
       final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
 
-      if (editableMessage.id == room.lastMessage?.id) {
+      if (editableMessage.localNetworkMessageId == room.lastMessage?.id) {
         await _roomDao.updateRoom(
           uid: roomUid,
-          lastMessage: editableMessage,
+          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+          lastMessage: editableMessage.copyWith(json:(message_pb.Text()..text = text).writeToJson()),
         );
       }
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  Future<void> _edit(UpdateMessageReq updateMessageReq) async {
+    if (settings.localNetworkMessenger.value) {
+      _serverLessMessageService.editMessage(
+          messageByClient: updateMessageReq.message,
+          messageId: updateMessageReq.messageId.toInt(),);
+    } else {
+      await _sdr.queryServiceClient.updateMessage(updateMessageReq);
     }
   }
 
@@ -1776,6 +1795,7 @@ class MessageRepo {
             editableMessage.roomUid,
             clock.now().millisecondsSinceEpoch,
             editableMessage.id!,
+            editableMessage.localNetworkMessageId!,
             MessageEventAction.PENDING_EDIT,
           ),
         );
@@ -1823,6 +1843,7 @@ class MessageRepo {
             editableMessage.roomUid,
             clock.now().millisecondsSinceEpoch,
             editableMessage.id!,
+            editableMessage.localNetworkMessageId!,
             MessageEventAction.PENDING_EDIT,
           ),
         );
@@ -1846,6 +1867,7 @@ class MessageRepo {
           editableMessage.roomUid,
           clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
+          editableMessage.localNetworkMessageId!,
           MessageEventAction.EDIT,
         ),
       );

@@ -61,7 +61,7 @@ class _CircularFileStatusIndicatorState
                       SendingStatus.UPLOAD_FILE_COMPLETED ||
                   !(widget.message.forwardedFrom == null))) {
             return FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(file.uuid, file.name),
+              future: _fileRepo.getFileIfExist(file.uuid),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
                   return _showExistedFile(file, path.data!);
@@ -87,7 +87,7 @@ class _CircularFileStatusIndicatorState
     } else {
       return FutureBuilder<String?>(
         initialData: _fileRepo.localUploadedFilePath[file.uuid],
-        future: _fileRepo.getFileIfExist(file.uuid, file.name),
+        future: _fileRepo.getFileIfExist(file.uuid),
         builder: (c, fileSnapShot) {
           Widget child = const SizedBox();
           if (fileSnapShot.hasData && fileSnapShot.data != null) {

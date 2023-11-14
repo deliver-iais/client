@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:deliver/box/meta_type.dart' as meta;
 import 'package:deliver/models/file.dart' as file_model;
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
@@ -82,6 +83,10 @@ String detectFileMimeByFileModel(file_model.File file) => isWeb
 
 String _detectFileMimeByFilePath(String? filePath) {
   final fileMainType = _detectFileTypeByNameAndContent(filePath);
+  if (settings.localNetworkMessenger.value &&
+      fileMainType.mimeByName == "audio/mp4") {
+    return fileMainType.mimeByName;
+  }
   if (fileMainType.hasSameMainType()) {
     return fileMainType.mimeByContent;
   } else {

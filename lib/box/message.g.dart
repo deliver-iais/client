@@ -20,8 +20,10 @@ _$MessageImpl _$$MessageImplFromJson(Map<String, dynamic> json) =>
       edited: json['edited'] as bool? ?? false,
       encrypted: json['encrypted'] as bool? ?? false,
       isHidden: json['isHidden'] as bool? ?? false,
+      isLocalMessage: json['isLocalMessage'] as bool? ?? false,
       markup: json['markup'] as String?,
       id: json['id'] as int?,
+      localNetworkMessageId: json['localNetworkMessageId'] as int?,
       forwardedFrom: nullAbleUidFromJson(json['forwardedFrom'] as String?),
       generatedBy: nullAbleUidFromJson(json['generatedBy'] as String?),
     );
@@ -39,8 +41,10 @@ Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
       'edited': instance.edited,
       'encrypted': instance.encrypted,
       'isHidden': instance.isHidden,
+      'isLocalMessage': instance.isLocalMessage,
       'markup': instance.markup,
       'id': instance.id,
+      'localNetworkMessageId': instance.localNetworkMessageId,
       'forwardedFrom': nullableUidToJson(instance.forwardedFrom),
       'generatedBy': nullableUidToJson(instance.generatedBy),
     };

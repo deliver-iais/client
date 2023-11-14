@@ -12,6 +12,7 @@ _$PendingMessageImpl _$$PendingMessageImplFromJson(Map<String, dynamic> json) =>
       packetId: json['packetId'] as String,
       msg: getMessageFromJson(json['msg'] as String),
       failed: json['failed'] as bool? ?? false,
+      isLocalMessage: json['isLocalMessage'] as bool? ?? false,
       status: $enumDecode(_$SendingStatusEnumMap, json['status']),
     );
 
@@ -22,6 +23,7 @@ Map<String, dynamic> _$$PendingMessageImplToJson(
       'packetId': instance.packetId,
       'msg': messageToJson(instance.msg),
       'failed': instance.failed,
+      'isLocalMessage': instance.isLocalMessage,
       'status': _$SendingStatusEnumMap[instance.status]!,
     };
 

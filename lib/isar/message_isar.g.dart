@@ -52,43 +52,53 @@ const MessageIsarSchema = CollectionSchema(
       name: r'isHidden',
       type: IsarType.bool,
     ),
-    r'json': PropertySchema(
+    r'isLocalMessage': PropertySchema(
       id: 7,
+      name: r'isLocalMessage',
+      type: IsarType.bool,
+    ),
+    r'json': PropertySchema(
+      id: 8,
       name: r'json',
       type: IsarType.string,
     ),
+    r'localNetworkMessageId': PropertySchema(
+      id: 9,
+      name: r'localNetworkMessageId',
+      type: IsarType.long,
+    ),
     r'markup': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'markup',
       type: IsarType.string,
     ),
     r'packetId': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'packetId',
       type: IsarType.string,
     ),
     r'replyToId': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'replyToId',
       type: IsarType.long,
     ),
     r'roomUid': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'roomUid',
       type: IsarType.string,
     ),
     r'time': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'time',
       type: IsarType.long,
     ),
     r'to': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'to',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'type',
       type: IsarType.byte,
       enumMap: _MessageIsartypeEnumValueMap,
@@ -167,14 +177,16 @@ void _messageIsarSerialize(
   writer.writeString(offsets[4], object.generatedBy);
   writer.writeLong(offsets[5], object.id);
   writer.writeBool(offsets[6], object.isHidden);
-  writer.writeString(offsets[7], object.json);
-  writer.writeString(offsets[8], object.markup);
-  writer.writeString(offsets[9], object.packetId);
-  writer.writeLong(offsets[10], object.replyToId);
-  writer.writeString(offsets[11], object.roomUid);
-  writer.writeLong(offsets[12], object.time);
-  writer.writeString(offsets[13], object.to);
-  writer.writeByte(offsets[14], object.type.index);
+  writer.writeBool(offsets[7], object.isLocalMessage);
+  writer.writeString(offsets[8], object.json);
+  writer.writeLong(offsets[9], object.localNetworkMessageId);
+  writer.writeString(offsets[10], object.markup);
+  writer.writeString(offsets[11], object.packetId);
+  writer.writeLong(offsets[12], object.replyToId);
+  writer.writeString(offsets[13], object.roomUid);
+  writer.writeLong(offsets[14], object.time);
+  writer.writeString(offsets[15], object.to);
+  writer.writeByte(offsets[16], object.type.index);
 }
 
 MessageIsar _messageIsarDeserialize(
@@ -191,14 +203,16 @@ MessageIsar _messageIsarDeserialize(
     generatedBy: reader.readStringOrNull(offsets[4]),
     id: reader.readLongOrNull(offsets[5]),
     isHidden: reader.readBoolOrNull(offsets[6]) ?? false,
-    json: reader.readString(offsets[7]),
-    markup: reader.readStringOrNull(offsets[8]),
-    packetId: reader.readString(offsets[9]),
-    replyToId: reader.readLongOrNull(offsets[10]) ?? 0,
-    roomUid: reader.readString(offsets[11]),
-    time: reader.readLong(offsets[12]),
-    to: reader.readString(offsets[13]),
-    type: _MessageIsartypeValueEnumMap[reader.readByteOrNull(offsets[14])] ??
+    isLocalMessage: reader.readBoolOrNull(offsets[7]) ?? false,
+    json: reader.readString(offsets[8]),
+    localNetworkMessageId: reader.readLongOrNull(offsets[9]),
+    markup: reader.readStringOrNull(offsets[10]),
+    packetId: reader.readString(offsets[11]),
+    replyToId: reader.readLongOrNull(offsets[12]) ?? 0,
+    roomUid: reader.readString(offsets[13]),
+    time: reader.readLong(offsets[14]),
+    to: reader.readString(offsets[15]),
+    type: _MessageIsartypeValueEnumMap[reader.readByteOrNull(offsets[16])] ??
         MessageType.NOT_SET,
   );
   object.dbId = id;
@@ -227,20 +241,24 @@ P _messageIsarDeserializeProp<P>(
     case 6:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
-    case 9:
       return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readLongOrNull(offset)) as P;
     case 10:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 11:
       return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
+      return (reader.readLong(offset)) as P;
+    case 15:
+      return (reader.readString(offset)) as P;
+    case 16:
       return (_MessageIsartypeValueEnumMap[reader.readByteOrNull(offset)] ??
           MessageType.NOT_SET) as P;
     default:
@@ -1023,6 +1041,16 @@ extension MessageIsarQueryFilter
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      isLocalMessageEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isLocalMessage',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition> jsonEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1150,6 +1178,80 @@ extension MessageIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'json',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'localNetworkMessageId',
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'localNetworkMessageId',
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'localNetworkMessageId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'localNetworkMessageId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'localNetworkMessageId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      localNetworkMessageIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'localNetworkMessageId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1960,6 +2062,19 @@ extension MessageIsarQuerySortBy
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> sortByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      sortByIsLocalMessageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.desc);
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> sortByJson() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'json', Sort.asc);
@@ -1969,6 +2084,20 @@ extension MessageIsarQuerySortBy
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> sortByJsonDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'json', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      sortByLocalNetworkMessageId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localNetworkMessageId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      sortByLocalNetworkMessageIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localNetworkMessageId', Sort.desc);
     });
   }
 
@@ -2156,6 +2285,19 @@ extension MessageIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> thenByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      thenByIsLocalMessageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.desc);
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> thenByJson() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'json', Sort.asc);
@@ -2165,6 +2307,20 @@ extension MessageIsarQuerySortThenBy
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> thenByJsonDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'json', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      thenByLocalNetworkMessageId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localNetworkMessageId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      thenByLocalNetworkMessageIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localNetworkMessageId', Sort.desc);
     });
   }
 
@@ -2301,10 +2457,23 @@ extension MessageIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QDistinct> distinctByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isLocalMessage');
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QDistinct> distinctByJson(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'json', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QDistinct>
+      distinctByLocalNetworkMessageId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'localNetworkMessageId');
     });
   }
 
@@ -2405,9 +2574,22 @@ extension MessageIsarQueryProperty
     });
   }
 
+  QueryBuilder<MessageIsar, bool, QQueryOperations> isLocalMessageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isLocalMessage');
+    });
+  }
+
   QueryBuilder<MessageIsar, String, QQueryOperations> jsonProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'json');
+    });
+  }
+
+  QueryBuilder<MessageIsar, int?, QQueryOperations>
+      localNetworkMessageIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'localNetworkMessageId');
     });
   }
 

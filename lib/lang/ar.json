@@ -624,6 +624,7 @@
   "use_custom_ip": "استخدام العنوان المخصص",
   "use_sms_broad_cast_title": "Using SMS for non-application recipients",
   "use_sms_broad_cast_desc": "By activating this option, you can select a list of your contacts who do not have the application installed, and messages will be sent to them via SMS",
+  "use_default_udp_address": "استفاده از ادرس از پیش تعیین شده",
   "user_experience": "تجربة المستخدم",
   "username": "اسم المستخدم",
   "username_already_exist": "اسم المستخدم هذا موجود بالفعل",

@@ -1,4 +1,4 @@
-import 'package:deliver/box/dao/local_network-conneaction_dao.dart';
+import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -38,15 +38,17 @@ class ChatAvatar extends StatelessWidget {
           isHeroEnabled: false,
           showSavedMessageLogoIfNeeded: true,
         ),
-        if (settings.localNetworkMessenger.value &&
-            uid.category == Categories.USER &&
+        if (
+        uid.category == Categories.USER &&
             !_authRepo.isCurrentUser(uid))
           StreamBuilder<LocalNetworkConnections?>(
             stream: _localNetworkDao.watch(uid),
             builder: (c, la) {
-              if (la.hasData && (la.data != null)) {
+              if (settings.localNetworkMessenger.value && la.hasData &&
+                  (la.data != null)) {
                 return Positioned.directional(
-                  top: 1,
+                  bottom: 0.0,
+                  end: 0.0,
                   textDirection: _i18N.defaultTextDirection,
                   child: Container(
                     width: 18.0,
@@ -74,44 +76,49 @@ class ChatAvatar extends StatelessWidget {
                   ),
                 );
               } else {
+                if (uid.category == Categories.USER &&
+                    !_authRepo.isCurrentUser(uid)) {
+                  return StreamBuilder<LastActivity?>(
+                    stream: _lastActivityRepo.watch(uid.asString()),
+                    builder: (c, la) {
+                      if (la.hasData && la.data != null &&
+                          isOnline(la.data!.time)) {
+                        return Positioned.directional(
+                          bottom: 0.0,
+                          end: 0.0,
+                          textDirection: _i18N.defaultTextDirection,
+                          child: Container(
+                            width: 17.0,
+                            height: 17.0,
+                            decoration: BoxDecoration(
+                              color: borderColor ??
+                                  theme.scaffoldBackgroundColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 12.0,
+                                height: 12.0,
+                                clipBehavior: Clip.antiAlias,
+                                decoration: BoxDecoration(
+                                  color: ACTIVE_COLOR,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  );
+                }
                 return const SizedBox.shrink();
               }
             },
           ),
-        if (uid.category == Categories.USER && !_authRepo.isCurrentUser(uid))
-          StreamBuilder<LastActivity?>(
-            stream: _lastActivityRepo.watch(uid.asString()),
-            builder: (c, la) {
-              if (la.hasData && la.data != null && isOnline(la.data!.time)) {
-                return Positioned.directional(
-                  bottom: 0.0,
-                  end: 0.0,
-                  textDirection: _i18N.defaultTextDirection,
-                  child: Container(
-                    width: 17.0,
-                    height: 17.0,
-                    decoration: BoxDecoration(
-                      color: borderColor ?? theme.scaffoldBackgroundColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 12.0,
-                        height: 12.0,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: ACTIVE_COLOR,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
+
       ],
     );
   }

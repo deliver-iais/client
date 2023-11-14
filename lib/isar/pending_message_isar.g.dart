@@ -23,28 +23,33 @@ const PendingMessageIsarSchema = CollectionSchema(
       name: r'failed',
       type: IsarType.bool,
     ),
-    r'messageId': PropertySchema(
+    r'isLocalMessage': PropertySchema(
       id: 1,
+      name: r'isLocalMessage',
+      type: IsarType.bool,
+    ),
+    r'messageId': PropertySchema(
+      id: 2,
       name: r'messageId',
       type: IsarType.long,
     ),
     r'msg': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'msg',
       type: IsarType.string,
     ),
     r'packetId': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'packetId',
       type: IsarType.string,
     ),
     r'roomUid': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'roomUid',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'status',
       type: IsarType.byte,
       enumMap: _PendingMessageIsarstatusEnumValueMap,
@@ -83,11 +88,12 @@ void _pendingMessageIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeBool(offsets[0], object.failed);
-  writer.writeLong(offsets[1], object.messageId);
-  writer.writeString(offsets[2], object.msg);
-  writer.writeString(offsets[3], object.packetId);
-  writer.writeString(offsets[4], object.roomUid);
-  writer.writeByte(offsets[5], object.status.index);
+  writer.writeBool(offsets[1], object.isLocalMessage);
+  writer.writeLong(offsets[2], object.messageId);
+  writer.writeString(offsets[3], object.msg);
+  writer.writeString(offsets[4], object.packetId);
+  writer.writeString(offsets[5], object.roomUid);
+  writer.writeByte(offsets[6], object.status.index);
 }
 
 PendingMessageIsar _pendingMessageIsarDeserialize(
@@ -98,12 +104,13 @@ PendingMessageIsar _pendingMessageIsarDeserialize(
 ) {
   final object = PendingMessageIsar(
     failed: reader.readBoolOrNull(offsets[0]) ?? false,
-    messageId: reader.readLong(offsets[1]),
-    msg: reader.readString(offsets[2]),
-    packetId: reader.readString(offsets[3]),
-    roomUid: reader.readString(offsets[4]),
+    isLocalMessage: reader.readBoolOrNull(offsets[1]) ?? false,
+    messageId: reader.readLong(offsets[2]),
+    msg: reader.readString(offsets[3]),
+    packetId: reader.readString(offsets[4]),
+    roomUid: reader.readString(offsets[5]),
     status: _PendingMessageIsarstatusValueEnumMap[
-            reader.readByteOrNull(offsets[5])] ??
+            reader.readByteOrNull(offsets[6])] ??
         SendingStatus.UPLOAD_FILE_COMPLETED,
   );
   return object;
@@ -119,14 +126,16 @@ P _pendingMessageIsarDeserializeProp<P>(
     case 0:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (_PendingMessageIsarstatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           SendingStatus.UPLOAD_FILE_COMPLETED) as P;
@@ -304,6 +313,16 @@ extension PendingMessageIsarQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterFilterCondition>
+      isLocalMessageEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isLocalMessage',
+        value: value,
       ));
     });
   }
@@ -852,6 +871,20 @@ extension PendingMessageIsarQuerySortBy
   }
 
   QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
+      sortByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
+      sortByIsLocalMessageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
       sortByMessageId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageId', Sort.asc);
@@ -953,6 +986,20 @@ extension PendingMessageIsarQuerySortThenBy
   }
 
   QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
+      thenByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
+      thenByIsLocalMessageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLocalMessage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QAfterSortBy>
       thenByMessageId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageId', Sort.asc);
@@ -1033,6 +1080,13 @@ extension PendingMessageIsarQueryWhereDistinct
   }
 
   QueryBuilder<PendingMessageIsar, PendingMessageIsar, QDistinct>
+      distinctByIsLocalMessage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isLocalMessage');
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, PendingMessageIsar, QDistinct>
       distinctByMessageId() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'messageId');
@@ -1079,6 +1133,13 @@ extension PendingMessageIsarQueryProperty
   QueryBuilder<PendingMessageIsar, bool, QQueryOperations> failedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'failed');
+    });
+  }
+
+  QueryBuilder<PendingMessageIsar, bool, QQueryOperations>
+      isLocalMessageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isLocalMessage');
     });
   }
 

@@ -46,8 +46,6 @@ class CallService {
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
-  final BehaviorSubject<CallEvents> _callEvents =
-      BehaviorSubject.seeded(CallEvents.none);
 
   late RTCVideoRenderer _localRenderer;
   late RTCVideoRenderer _remoteRenderer;
@@ -61,9 +59,6 @@ class CallService {
   bool isHole = false;
 
   CallService() {
-    _callEvents.distinct().listen((event) {
-      callEvents.add(event);
-    });
     _isCallStart.distinct().listen((event) {
       isCallStart.add(event);
     });
@@ -74,7 +69,7 @@ class CallService {
   }
 
   void addCallEvent(CallEvents event) {
-    _callEvents.add(event);
+    callEvents.add(event);
   }
 
   Future<void> saveCallOnDb(CurrentCallInfo callInfo) async {

@@ -17,6 +17,7 @@ class Room with _$Room {
     @Default([]) List<int> mentionsId,
     @Default(0) int lastUpdateTime,
     @Default(0) int lastMessageId,
+    @Default(0) int lastLocalNetworkMessageId,
     @Default(0) int firstMessageId,
     @Default(0) int pinId,
     @Default(0) int lastCurrentUserSentMessageId,

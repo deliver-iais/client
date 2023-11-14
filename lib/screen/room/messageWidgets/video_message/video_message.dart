@@ -63,7 +63,7 @@ class VideoMessageState extends State<VideoMessage> {
         child: Stack(
           children: [
             FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(video.uuid, video.name),
+              future: _fileRepo.getFileIfExist(video.uuid),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
                   if (widget.message.id == null) {

@@ -22,6 +22,7 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
       draft: fields[5] as String?,
       lastUpdateTime: fields[6] as int,
       lastMessageId: fields[4] as int,
+      lastLocalNetworkMessageId: fields[16] as int,
       firstMessageId: fields[7] as int,
       deleted: fields[2] as bool,
       pinned: fields[8] as bool,
@@ -38,7 +39,7 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
   @override
   void write(BinaryWriter writer, RoomHive obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -68,7 +69,9 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
       ..writeByte(14)
       ..write(obj.mentionsId)
       ..writeByte(15)
-      ..write(obj.shouldUpdateMediaCount);
+      ..write(obj.shouldUpdateMediaCount)
+      ..writeByte(16)
+      ..write(obj.lastLocalNetworkMessageId);
   }
 
   @override

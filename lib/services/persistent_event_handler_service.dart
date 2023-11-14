@@ -69,7 +69,7 @@ class PersistentEventHandlerService {
     Uid roomUid,
     int messageId,
   ) async {
-    final message = await _messageDao.getMessage(
+    final message = await _messageDao.getMessageById(
       roomUid,
       messageId,
     );

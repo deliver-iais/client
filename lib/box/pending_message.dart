@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'pending_message.freezed.dart';
+
 part 'pending_message.g.dart';
 
 @freezed
@@ -14,6 +15,7 @@ class PendingMessage with _$PendingMessage {
     required String packetId,
     @MessageJsonKey required Message msg,
     @Default(false) bool failed,
+    @Default(false) bool isLocalMessage,
     required SendingStatus status,
   }) = _PendingMessage;
 

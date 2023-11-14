@@ -40,8 +40,10 @@ class Message with _$Message {
     @Default(false) bool edited,
     @Default(false) bool encrypted,
     @Default(false) bool isHidden,
+    @Default(false) bool isLocalMessage,
     String? markup,
     int? id,
+    int? localNetworkMessageId,
     @NullableUidJsonKey Uid? forwardedFrom,
     @NullableUidJsonKey Uid? generatedBy,
   }) = _Message;

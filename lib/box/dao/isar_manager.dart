@@ -23,7 +23,7 @@ class IsarManager {
 
   static Future<Isar> open() async {
     final dir = await _storagePathService.localPathIsar;
-    return _isar ??= Isar.openSync(
+    _isar ??= Isar.openSync(
       [
         AvatarIsarSchema,
         PendingMessageIsarSchema,
@@ -38,10 +38,13 @@ class IsarManager {
         UidIdNameIsarSchema,
         BroadcastMemberIsarSchema,
         ContactIsarSchema,
-        LocalNetworkConnectionsIsarSchema
+        LocalNetworkConnectionsIsarSchema,
       ],
       directory: dir,
     );
+
+    return _isar!;
+
   }
 
   static Future<void> deleteIsarDB() async {

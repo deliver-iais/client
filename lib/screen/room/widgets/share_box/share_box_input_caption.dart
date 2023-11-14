@@ -36,7 +36,7 @@ class ShareBoxInputCaption extends StatelessWidget {
             hintText: _i18n.get("add_caption"),
             border: InputBorder.none,
             hintStyle: const TextStyle(fontSize: 16),
-            suffixIcon: buildSendButton(theme),
+            prefixIcon: buildSendButton(theme),
             hintTextDirection: _i18n.defaultTextDirection,
             isCollapsed: true,
             // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
@@ -67,7 +67,8 @@ class ShareBoxInputCaption extends StatelessWidget {
           ),
           child: IconButton(
             icon: Icon(
-              CupertinoIcons.arrow_up,
+              CupertinoIcons.location,
+              size: 28,
               color: theme.colorScheme.primary,
             ),
             onPressed: () => onSend(_controller.text),

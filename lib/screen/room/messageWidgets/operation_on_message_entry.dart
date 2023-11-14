@@ -8,6 +8,7 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -143,7 +144,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               FutureBuilder(
                 future: _fileRepo.getFileIfExist(
                   widget.message.json.toFile().uuid,
-                  widget.message.json.toFile().name,
                 ),
                 builder: (c, fe) {
                   if (fe.hasData && fe.data != null) {
@@ -329,7 +329,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               FutureBuilder<String?>(
                 future: _fileRepo.getFileIfExist(
                   widget.message.json.toFile().uuid,
-                  widget.message.json.toFile().name,
                 ),
                 builder: (c, snapshot) {
                   if (snapshot.hasData) {
@@ -356,7 +355,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
       pendingMessage.msg.type == MessageType.FILE
-          ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPLETED
+          ? (settings.localNetworkMessenger.value ||
+              pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPLETED)
           : pendingMessage.failed;
 
   Widget deleteMenuWidget(

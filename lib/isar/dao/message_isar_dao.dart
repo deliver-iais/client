@@ -13,13 +13,25 @@ import 'package:isar/isar.dart';
 
 class MessageDaoImpl extends MessageDao {
   @override
-  Future<Message?> getMessage(Uid roomUid, int id) async {
+  Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessageIsar();
     return box.messageIsars
         .filter()
         .roomUidEqualTo(roomUid.asString())
         .and()
         .idEqualTo(id)
+        .findFirstSync()
+        ?.fromIsar();
+  }
+
+  @override
+  Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id) async {
+    final box = await _openMessageIsar();
+    return box.messageIsars
+        .filter()
+        .roomUidEqualTo(roomUid.asString())
+        .and()
+        .localNetworkMessageIdEqualTo(id)
         .findFirstSync()
         ?.fromIsar();
   }
@@ -35,7 +47,7 @@ class MessageDaoImpl extends MessageDao {
         .filter()
         .roomUidEqualTo(roomUid.asString())
         .and()
-        .idBetween(page * pageSize, (page + 1) * pageSize)
+        .localNetworkMessageIdBetween(page * pageSize, (page + 1) * pageSize)
         .findAllSync()
         .map((e) => e.fromIsar())
         .toList();

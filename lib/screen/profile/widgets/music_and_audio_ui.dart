@@ -70,7 +70,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                       ? theme.hoverColor.withOpacity(0.4)
                       : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
-                    future: _fileRepo.getFileIfExist(fileUuid, fileName),
+                    future: _fileRepo.getFileIfExist(fileUuid),
                     builder: (context, filePath) {
                       if (filePath.hasData && filePath.data != null) {
                         return Column(

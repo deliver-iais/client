@@ -104,7 +104,7 @@ class MediaTabUiState extends State<MediaTabUi> {
             child: file.isVideoFileProto()
                 ? _buildThumbnailUi(file, isVideoFile: true)
                 : FutureBuilder<String?>(
-                    future: _fileRepo.getFileIfExist(file.uuid, file.name),
+                    future: _fileRepo.getFileIfExist(file.uuid),
                     builder: (c, filePath) {
                       Widget c = const SizedBox.shrink();
                       if (filePath.hasData && filePath.data != null) {

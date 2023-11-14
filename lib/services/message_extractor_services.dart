@@ -506,6 +506,7 @@ class MessageExtractorServices {
       packetId: message.packetId,
       time: message.time.toInt(),
       to: message.to,
+      localNetworkMessageId: message.id.toInt(),
       from: message.from,
       replyToId: message.replyToId.toInt(),
       forwardedFrom: message.forwardFrom,

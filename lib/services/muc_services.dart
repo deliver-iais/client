@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart' as db;
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart'
     as broadcast_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'

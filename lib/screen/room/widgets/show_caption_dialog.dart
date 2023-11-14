@@ -253,7 +253,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         return FutureBuilder<String?>(
           future: _fileRepo.getFileIfExist(
             _editableMessageFile!.uuid,
-            _editableMessageFile!.name,
           ),
           builder: (c, s) {
             if (s.hasData && s.data != null) {
@@ -314,7 +313,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       path = _editedFile?.path ??
           await _fileRepo.getFileIfExist(
             _editableMessageFile!.uuid,
-            _editableMessageFile!.name,
           );
     } else {
       path = getWidgetFilesIndex(index)?.path;

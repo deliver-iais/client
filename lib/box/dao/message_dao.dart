@@ -10,7 +10,9 @@ abstract class MessageDao {
 
   Future<List<Message>> searchMessages(Uid roomUid, String keyword);
 
-  Future<Message?> getMessage(Uid roomUid, int id);
+  Future<Message?> getMessageById(Uid roomUid, int id);
+
+  Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id);
 
   Future<List<Message>> getMessagePage(
     Uid roomUid,

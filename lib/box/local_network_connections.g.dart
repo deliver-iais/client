@@ -10,8 +10,8 @@ _$LocalNetworkConnectionsImpl _$$LocalNetworkConnectionsImplFromJson(
         Map<String, dynamic> json) =>
     _$LocalNetworkConnectionsImpl(
       uid: uidFromJson(json['uid'] as String),
-      ip: json['ip'],
-      lastUpdateTime: json['lastUpdateTime'],
+      ip: json['ip'] as String,
+      lastUpdateTime: json['lastUpdateTime'] as int,
     );
 
 Map<String, dynamic> _$$LocalNetworkConnectionsImplToJson(

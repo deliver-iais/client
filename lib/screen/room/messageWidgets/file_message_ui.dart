@@ -186,7 +186,6 @@ class FileMessageUiState extends State<FileMessageUi> {
   Future<void> downloadFile() async {
     final isExist = await _fileRepo.isExist(
       widget.file.uuid,
-      widget.file.name,
     );
     if (!isExist) {
       await _fileRepo.getFile(

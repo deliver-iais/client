@@ -805,14 +805,14 @@ class RoomPageState extends State<RoomPage>
         ))
             ?.msg;
       } else {
-        msg = await _getMessage(value!.id, useCache: false);
+        msg = await _getMessage(value!.lnmId, useCache: false);
       }
       if (msg != null) {
         // Refresh message cache
-        _cachingRepo.setMessage(widget.roomUid, value.id, msg);
+        _cachingRepo.setMessage(widget.roomUid, value.lnmId, msg);
       }
       // Refresh message widget cache
-      _cachingRepo.setMessageWidget(widget.roomUid, value.id - 1, null);
+      _cachingRepo.setMessageWidget(widget.roomUid, value.lnmId - 1, null);
     });
   }
 
@@ -1594,6 +1594,10 @@ class RoomPageState extends State<RoomPage>
           _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
+
+        //todo
+    initialScrollIndex = _itemCount;
+
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         final currentPixel = scrollNotification.metrics.pixels;
@@ -1741,8 +1745,12 @@ class RoomPageState extends State<RoomPage>
     int index,
   ) async {
     return Tuple2(
-      await _messageAtIndex(index - 1),
-      await _messageAtIndex(index),
+      index > 1 && index < _itemCount + room.firstMessageId
+          ? await _messageAtIndex(index - 1)
+          : null,
+      (index + 1) > 1 && (index + 1) <= _itemCount + room.firstMessageId
+          ? await _messageAtIndex(index)
+          : null,
     );
   }
 
@@ -1754,7 +1762,7 @@ class RoomPageState extends State<RoomPage>
               index + 1,
             ))
                 ?.msg ??
-            await _getMessage(index + 1, useCache: useCache);
+            await _getMessage(index+1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {

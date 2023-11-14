@@ -26,6 +26,7 @@ mixin _$PendingMessage {
   @MessageJsonKey
   Message get msg => throw _privateConstructorUsedError;
   bool get failed => throw _privateConstructorUsedError;
+  bool get isLocalMessage => throw _privateConstructorUsedError;
   SendingStatus get status => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,6 +46,7 @@ abstract class $PendingMessageCopyWith<$Res> {
       String packetId,
       @MessageJsonKey Message msg,
       bool failed,
+      bool isLocalMessage,
       SendingStatus status});
 
   $MessageCopyWith<$Res> get msg;
@@ -67,6 +69,7 @@ class _$PendingMessageCopyWithImpl<$Res, $Val extends PendingMessage>
     Object? packetId = null,
     Object? msg = null,
     Object? failed = null,
+    Object? isLocalMessage = null,
     Object? status = null,
   }) {
     return _then(_value.copyWith(
@@ -85,6 +88,10 @@ class _$PendingMessageCopyWithImpl<$Res, $Val extends PendingMessage>
       failed: null == failed
           ? _value.failed
           : failed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isLocalMessage: null == isLocalMessage
+          ? _value.isLocalMessage
+          : isLocalMessage // ignore: cast_nullable_to_non_nullable
               as bool,
       status: null == status
           ? _value.status
@@ -115,6 +122,7 @@ abstract class _$$PendingMessageImplCopyWith<$Res>
       String packetId,
       @MessageJsonKey Message msg,
       bool failed,
+      bool isLocalMessage,
       SendingStatus status});
 
   @override
@@ -136,6 +144,7 @@ class __$$PendingMessageImplCopyWithImpl<$Res>
     Object? packetId = null,
     Object? msg = null,
     Object? failed = null,
+    Object? isLocalMessage = null,
     Object? status = null,
   }) {
     return _then(_$PendingMessageImpl(
@@ -155,6 +164,10 @@ class __$$PendingMessageImplCopyWithImpl<$Res>
           ? _value.failed
           : failed // ignore: cast_nullable_to_non_nullable
               as bool,
+      isLocalMessage: null == isLocalMessage
+          ? _value.isLocalMessage
+          : isLocalMessage // ignore: cast_nullable_to_non_nullable
+              as bool,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -171,6 +184,7 @@ class _$PendingMessageImpl implements _PendingMessage {
       required this.packetId,
       @MessageJsonKey required this.msg,
       this.failed = false,
+      this.isLocalMessage = false,
       required this.status});
 
   factory _$PendingMessageImpl.fromJson(Map<String, dynamic> json) =>
@@ -188,11 +202,14 @@ class _$PendingMessageImpl implements _PendingMessage {
   @JsonKey()
   final bool failed;
   @override
+  @JsonKey()
+  final bool isLocalMessage;
+  @override
   final SendingStatus status;
 
   @override
   String toString() {
-    return 'PendingMessage(roomUid: $roomUid, packetId: $packetId, msg: $msg, failed: $failed, status: $status)';
+    return 'PendingMessage(roomUid: $roomUid, packetId: $packetId, msg: $msg, failed: $failed, isLocalMessage: $isLocalMessage, status: $status)';
   }
 
   @override
@@ -205,13 +222,15 @@ class _$PendingMessageImpl implements _PendingMessage {
                 other.packetId == packetId) &&
             (identical(other.msg, msg) || other.msg == msg) &&
             (identical(other.failed, failed) || other.failed == failed) &&
+            (identical(other.isLocalMessage, isLocalMessage) ||
+                other.isLocalMessage == isLocalMessage) &&
             (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, roomUid, packetId, msg, failed, status);
+  int get hashCode => Object.hash(
+      runtimeType, roomUid, packetId, msg, failed, isLocalMessage, status);
 
   @JsonKey(ignore: true)
   @override
@@ -234,6 +253,7 @@ abstract class _PendingMessage implements PendingMessage {
       required final String packetId,
       @MessageJsonKey required final Message msg,
       final bool failed,
+      final bool isLocalMessage,
       required final SendingStatus status}) = _$PendingMessageImpl;
 
   factory _PendingMessage.fromJson(Map<String, dynamic> json) =
@@ -249,6 +269,8 @@ abstract class _PendingMessage implements PendingMessage {
   Message get msg;
   @override
   bool get failed;
+  @override
+  bool get isLocalMessage;
   @override
   SendingStatus get status;
   @override

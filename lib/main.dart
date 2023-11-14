@@ -32,7 +32,7 @@ import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/is_verified_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
-import 'package:deliver/box/dao/local_network-conneaction_dao.dart';
+import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/meta_count_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
@@ -81,7 +81,7 @@ import 'package:deliver/hive/muc_hive.dart';
 import 'package:deliver/hive/pending_message_hive.dart';
 import 'package:deliver/hive/room_hive.dart';
 import 'package:deliver/hive/uid_id_name_hive.dart';
-import 'package:deliver/isar/dao/LocalNetworkConnectionIsarDao.dart';
+import 'package:deliver/isar/dao/local_network_connection_isar_dao.dart';
 import 'package:deliver/isar/dao/avatar_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/avatar_hive_dao.dart';
 import 'package:deliver/isar/dao/contact_isar_dao.dart'
@@ -155,6 +155,8 @@ import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/search_message_service.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
+import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/storage_path_service.dart';
@@ -203,7 +205,7 @@ Future<void> setupDI() async {
   final logger = registerSingleton<Logger>(
     Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
-      level: kDebugMode ? Level.info : Level.nothing,
+      level: kDebugMode ? Level.info : Level.off,
       output: GetIt.I.get<DeliverLogOutput>(),
     ),
   )..i("db and log initialized");
@@ -276,6 +278,8 @@ Future<void> setupDI() async {
   registerSingleton<DataStreamServices>(DataStreamServices());
   registerSingleton<ServerLessFileService>(ServerLessFileService());
   registerSingleton<ServerLessService>(ServerLessService());
+  registerSingleton<ServerLessMucService>(ServerLessMucService());
+  registerSingleton<ServerLessMessageService>(ServerLessMessageService());
   registerSingleton<CoreServices>(CoreServices());
   registerSingleton<FireBaseServices>(FireBaseServices());
 

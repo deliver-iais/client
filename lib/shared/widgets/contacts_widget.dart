@@ -1,12 +1,20 @@
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/local_network-connection_dao.dart';
+import 'package:deliver/box/local_network_connections.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/theme/theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ContactWidget extends StatelessWidget {
   final Contact contact;
@@ -25,6 +33,10 @@ class ContactWidget extends StatelessWidget {
     this.currentMember = false,
     this.onCircleIcon,
   });
+
+  static final _localNetworkDao = GetIt.I.get<LocalNetworkConnectionDao>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18N = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +61,7 @@ class ContactWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Stack(
+              Row(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,30 +116,74 @@ class ContactWidget extends StatelessWidget {
                           ),
                         ),
                       ),
+
                     ],
                   ),
-                  AnimatedOpacity(
-                    duration: AnimationSettings.normal,
-                    opacity: isSelected ? 1 : 0,
-                    child: AnimatedScale(
-                      duration: AnimationSettings.normal,
-                      scale: isSelected ? 1 : 0.8,
-                      child: Container(
-                        height: 74,
-                        width: 74,
-                        decoration: BoxDecoration(
-                          borderRadius: secondaryBorder,
-                          color: theme.colorScheme.primary.withOpacity(0.6),
-                        ),
-                        child: Icon(
-                          Icons.check_box_rounded,
-                          color: theme.colorScheme.onPrimary,
-                          size: 40,
-                        ),
+                  if (settings.localNetworkMessenger.value)
+                    if (contact.uid != null &&
+                        contact.uid!.category == Categories.USER &&
+                        !_authRepo.isCurrentUser(contact.uid!))
+                      StreamBuilder<LocalNetworkConnections?>(
+                        stream: _localNetworkDao.watch(contact.uid!),
+                        builder: (c, la) {
+                          if (la.hasData && (la.data != null)) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  width: 18.0,
+                                  height: 18.0,
+                                  decoration: BoxDecoration(
+                                    color: theme.scaffoldBackgroundColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      width: 17.0,
+                                      height: 17.0,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        color: ACTIVE_COLOR,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        CupertinoIcons
+                                            .antenna_radiowaves_left_right,
+                                        color: Colors.white,
+                                        size: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
                       ),
-                    ),
-                  )
                 ],
+              ),
+              AnimatedOpacity(
+                duration: AnimationSettings.normal,
+                opacity: isSelected ? 1 : 0,
+                child: AnimatedScale(
+                  duration: AnimationSettings.normal,
+                  scale: isSelected ? 1 : 0.8,
+                  child: Container(
+                    height: 74,
+                    width: 74,
+                    decoration: BoxDecoration(
+                      borderRadius: secondaryBorder,
+                      color: theme.colorScheme.primary.withOpacity(0.6),
+                    ),
+                    child: Icon(
+                      Icons.check_box_rounded,
+                      color: theme.colorScheme.onPrimary,
+                      size: 40,
+                    ),
+                  ),
+                ),
               ),
               if (circleIcon != null)
                 Padding(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -81,6 +82,7 @@ class DataStreamServices {
     required bool isOnlineMessage,
     bool saveInDatabase = true,
     bool isFirebaseMessage = false,
+    bool isLocalNetworkMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
 
@@ -133,6 +135,15 @@ class DataStreamServices {
                   deleted: false,
                 );
               }
+              unawaited(
+                _sdr.saveMember(
+                  Member(
+                    memberUid:
+                        message.persistEvent.mucSpecificPersistentEvent.issuer,
+                    mucUid: roomUid,
+                  ),
+                ),
+              );
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
@@ -186,10 +197,19 @@ class DataStreamServices {
           break;
       }
     }
-    final msg = (await saveMessageInMessagesDB(message))!;
+    final msg = (await saveMessageInMessagesDB(
+      message,
+      roomUid,
+      isLocalNetworkMessage: isLocalNetworkMessage,
+    ))!;
+    final isHidden = msg.isHidden ||
+        (message.edited && settings.localNetworkMessenger.value);
+    if (msg.edited && settings.localNetworkMessenger.value) {
+      unawaited(_editServerLessMessage(roomUid, message));
+    }
 
     if (isOnlineMessage) {
-      if (!msg.isHidden) {
+      if (!isHidden) {
         await _seenDao.addRoomSeen(roomUid.asString());
       }
 
@@ -198,11 +218,21 @@ class DataStreamServices {
       // Check if Mentioned.
       await _roomDao.updateRoom(
         uid: roomUid,
-        lastMessage: msg.isHidden ? null : msg,
-        lastMessageId: msg.id,
+        lastMessage: isHidden ? null : msg,
+        lastMessageId: !(message.edited && settings.localNetworkMessenger.value)
+            ? msg.id
+            : null,
         lastUpdateTime: msg.time,
         deleted: false,
       );
+
+      if (settings.localNetworkMessenger.value) {
+        final room = await _roomDao.getRoom(roomUid);
+        if (room != null && room.lastMessage?.id! == message.id.toInt()) {
+          await _roomDao.updateRoom(uid: roomUid, lastMessage: msg);
+        }
+      }
+
       if (roomUid.category == Categories.GROUP) {
         if (await isMentioned(message)) {
           unawaited(_roomRepo.processMentionIds(roomUid, [msg.id!]));
@@ -215,7 +245,7 @@ class DataStreamServices {
       }
 
       // Step 4 - Notify Message
-      if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
+      if (!isHidden && await shouldNotifyForThisMessage(message)) {
         _notificationServices.notifyIncomingMessage(
           message,
           roomUid.asString(),
@@ -304,7 +334,7 @@ class DataStreamServices {
       }
     }
 
-    final savedMsg = await _messageDao.getMessage(roomUid, id);
+    final savedMsg = await _messageDao.getMessageById(roomUid, id);
 
     if (savedMsg != null) {
       if (savedMsg.type == MessageType.FILE && savedMsg.id != null) {
@@ -345,10 +375,27 @@ class DataStreamServices {
           roomUid,
           deleteActionTime,
           id,
+          savedMsg.localNetworkMessageId!,
           MessageEventAction.DELETE,
         ),
       );
     }
+  }
+
+  Future<void> _editServerLessMessage(Uid roomUid, Message message) async {
+    final time = message.time.toInt();
+    final msg = _messageExtractorServices.extractMessage(message);
+    await _messageDao.updateMessage(msg);
+    _cachingRepo.setMessage(roomUid, message.id.toInt(), msg);
+    messageEventSubject.add(
+      MessageEvent(
+        roomUid,
+        time,
+        message.id.toInt(),
+        message.id.toInt(),
+        MessageEventAction.EDIT,
+      ),
+    );
   }
 
   Future<void> _onMessageEdited(
@@ -362,7 +409,7 @@ class DataStreamServices {
     final time = message.time.toInt();
 
     //if from fetch that means non repeated and should be save
-    final savedMsg = await _messageDao.getMessage(roomUid, id);
+    final savedMsg = await _messageDao.getMessageById(roomUid, id);
 
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
     if (savedMsg == null) {
@@ -418,6 +465,7 @@ class DataStreamServices {
         roomUid,
         time,
         id,
+        savedMsg.localNetworkMessageId!,
         MessageEventAction.EDIT,
       ),
     );
@@ -505,12 +553,15 @@ class DataStreamServices {
     );
   }
 
-  Future<void> handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+  Future<void> handleAckMessage(
+    MessageDeliveryAck messageDeliveryAck, {
+    bool isLocalNetworkMessage = false,
+  }) async {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
     final packetId = messageDeliveryAck.packetId;
-    final id = messageDeliveryAck.id.toInt();
+
     final time = messageDeliveryAck.time.toInt();
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
@@ -518,7 +569,22 @@ class DataStreamServices {
     } else {
       final pm = await _pendingMessageDao.getPendingMessage(packetId);
       if (pm != null) {
-        final msg = pm.msg.copyWith(id: id, time: time);
+        var localNetworkMessageId = messageDeliveryAck.id;
+        if (!isLocalNetworkMessage) {
+          final room = await _roomDao.getRoom(pm.roomUid);
+          if (room != null) {
+            localNetworkMessageId = Int64(
+              max(messageDeliveryAck.id.toInt(), (room.lastMessageId + 1)),
+            );
+          }
+        }
+
+        final msg = pm.msg.copyWith(
+          id: messageDeliveryAck.id.toInt(),
+          localNetworkMessageId: localNetworkMessageId.toInt(),
+          time: time,
+          isLocalMessage: isLocalNetworkMessage,
+        );
         if (msg.type == MessageType.FILE) {
           final file = msg.json.toFile();
           await _checkForNewMedia(file, msg.roomUid);
@@ -531,7 +597,12 @@ class DataStreamServices {
         if (pm.roomUid.isBroadcast()) {
           unawaited(_broadcastService.startBroadcast(msg));
         }
-        await _saveMessageAndUpdateRoomAndSeen(msg, messageDeliveryAck);
+        await _saveMessageAndUpdateRoomAndSeen(
+          msg,
+          messageDeliveryAck.copyWith((p0) {
+            p0.id = localNetworkMessageId;
+          }),
+        );
       } else {
         await _analyticsService.sendLogEvent(
           "nullPendingMessageOnAck",
@@ -571,7 +642,7 @@ class DataStreamServices {
       final broadcastMessageId = _broadcastService
           .getBroadcastIdFromPacketId(messageDeliveryAck.packetId);
 
-      final broadcastMessage = await _messageDao.getMessage(
+      final broadcastMessage = await _messageDao.getMessageById(
         broadcastRoomUid,
         broadcastMessageId,
       );
@@ -602,7 +673,7 @@ class DataStreamServices {
     await _roomDao.updateRoom(
       uid: msg.roomUid,
       lastMessage: msg.isHidden ? null : msg,
-      lastMessageId: msg.id,
+      lastMessageId: msg.localNetworkMessageId,
     );
     if (msg.isHidden) {
       return _increaseHiddenMessageCount(msg.roomUid.asString());
@@ -691,13 +762,22 @@ class DataStreamServices {
 
   Future<message_model.Message?> saveMessageInMessagesDB(
     Message message,
-  ) async {
+    Uid roomUid, {
+    bool isLocalNetworkMessage = false,
+  }) async {
     try {
-      final msg = _messageExtractorServices.extractMessage(message);
+      var msg = _messageExtractorServices.extractMessage(message);
+      if (!isLocalNetworkMessage) {
+        final room = await _roomDao.getRoom(roomUid);
+        if (room != null) {
+          msg = msg.copyWith.call(
+              localNetworkMessageId: max(room.lastMessageId + 1, msg.id!));
+        }
+      }
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
-      _logger.e("error in saving message", error:e);
+      _logger.e("error in saving message", error: e);
       return null;
     }
   }
@@ -714,7 +794,7 @@ class DataStreamServices {
       pointer -= 1;
 
       try {
-        final msg = await _messageDao.getMessage(roomUid, pointer);
+        final msg = await _messageDao.getMessageById(roomUid, pointer);
 
         if (msg != null) {
           if (msg.id! <= firstMessageId ||

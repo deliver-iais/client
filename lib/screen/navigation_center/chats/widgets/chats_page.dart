@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -52,6 +53,7 @@ class ChatsPageState extends State<ChatsPage>
     with CustomPopupMenu, AutomaticKeepAliveClientMixin {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
@@ -106,18 +108,23 @@ class ChatsPageState extends State<ChatsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return AnimatedListView(
-      scrollController: _scrollController,
-      listController: _controller,
-      initialItemCount: _dispatcher.currentList.length,
-      itemBuilder: (context, index, data) =>
-          itemBuilder(context, _dispatcher.currentList[index], data),
-      animator: const DefaultAnimatedListAnimator(
-        dismissIncomingDuration: kDismissOrIncomingAnimationDuration,
-        reorderDuration: kReorderAnimationDuration,
-        resizeDuration: kResizeAnimationDuration,
-        movingDuration: kMovingAnimationDuration,
-      ),
+    return StreamBuilder<void>(
+      stream: _localNetworkConnectionDao.watchAll(),
+      builder: (context, snapshot) {
+        return AnimatedListView(
+          scrollController: _scrollController,
+          listController: _controller,
+          initialItemCount: _dispatcher.currentList.length,
+          itemBuilder: (context, index, data) =>
+              itemBuilder(context, _dispatcher.currentList[index], data),
+          animator: const DefaultAnimatedListAnimator(
+            dismissIncomingDuration: kDismissOrIncomingAnimationDuration,
+            reorderDuration: kReorderAnimationDuration,
+            resizeDuration: kResizeAnimationDuration,
+            movingDuration: kMovingAnimationDuration,
+          ),
+        );
+      },
     );
   }
 

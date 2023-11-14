@@ -25,6 +25,7 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
       json: fields[11] as String,
       isHidden: fields[12] as bool,
       id: fields[1] as int?,
+      localNetworkMessageId: fields[15] as int?,
       type: fields[10] as MessageType,
       replyToId: fields[6] as int,
       edited: fields[8] as bool,
@@ -38,7 +39,7 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
   @override
   void write(BinaryWriter writer, MessageHive obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.roomUid)
       ..writeByte(1)
@@ -68,7 +69,9 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
       ..writeByte(13)
       ..write(obj.markup)
       ..writeByte(14)
-      ..write(obj.generatedBy);
+      ..write(obj.generatedBy)
+      ..writeByte(15)
+      ..write(obj.localNetworkMessageId);
   }
 
   @override
@@ -95,6 +98,7 @@ MessageHive _$MessageHiveFromJson(Map<String, dynamic> json) => MessageHive(
       json: json['json'] as String,
       isHidden: json['isHidden'] as bool,
       id: json['id'] as int?,
+      localNetworkMessageId: json['localNetworkMessageId'] as int?,
       type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.NOT_SET,
       replyToId: json['replyToId'] as int? ?? 0,
@@ -122,6 +126,7 @@ Map<String, dynamic> _$MessageHiveToJson(MessageHive instance) =>
       'isHidden': instance.isHidden,
       'markup': instance.markup,
       'generatedBy': instance.generatedBy,
+      'localNetworkMessageId': instance.localNetworkMessageId,
     };
 
 const _$MessageTypeEnumMap = {

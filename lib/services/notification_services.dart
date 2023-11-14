@@ -536,7 +536,6 @@ class LinuxNotifier implements Notifier {
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
         la.fileUuid,
-        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -944,7 +943,6 @@ class AndroidNotifier implements Notifier {
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
         la.fileUuid,
-        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -997,7 +995,6 @@ class AndroidNotifier implements Notifier {
     if (la != null && !la.avatarIsEmpty) {
       path = await _fileRepo.getFileIfExist(
         la.fileUuid,
-        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
     }
@@ -1133,7 +1130,6 @@ class IOSNotifier implements Notifier {
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
         la.fileUuid,
-        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 
@@ -1256,7 +1252,6 @@ class MacOSNotifier implements Notifier {
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
         la.fileUuid,
-        la.fileName,
         thumbnailSize: ThumbnailSize.medium,
       );
 

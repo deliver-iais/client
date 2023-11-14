@@ -21,6 +21,7 @@ abstract interface class RoomDao {
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
+    int? lastLocalNetworkMessageId,
   });
 
   Future<List<Room>> getAllRooms();

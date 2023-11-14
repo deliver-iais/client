@@ -7,9 +7,10 @@ class MessageEvent {
   Uid roomUid;
   int time;
   int id;
+  int lnmId;
   MessageEventAction action;
 
-  MessageEvent(this.roomUid, this.time, this.id, this.action);
+  MessageEvent(this.roomUid, this.time, this.id, this.lnmId, this.action);
 
   @override
   bool operator ==(Object other) =>

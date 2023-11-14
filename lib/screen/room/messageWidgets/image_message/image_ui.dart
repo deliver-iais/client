@@ -56,7 +56,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
 
   late final getFileIfExist = _fileRepo.getFileIfExist(
     widget.image.uuid,
-    widget.image.name,
   );
 
   late final width = max(widget.image.width, 1) * 1.0;
@@ -113,7 +112,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                             child = FutureBuilder<String?>(
                               future: _fileRepo.getFileIfExist(
                                 widget.image.uuid,
-                                widget.image.name,
                               ),
                               builder: (c, path) {
                                 if (path.hasData && path.data != null) {

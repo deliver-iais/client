@@ -34,8 +34,10 @@ mixin _$Message {
   bool get edited => throw _privateConstructorUsedError;
   bool get encrypted => throw _privateConstructorUsedError;
   bool get isHidden => throw _privateConstructorUsedError;
+  bool get isLocalMessage => throw _privateConstructorUsedError;
   String? get markup => throw _privateConstructorUsedError;
   int? get id => throw _privateConstructorUsedError;
+  int? get localNetworkMessageId => throw _privateConstructorUsedError;
   @NullableUidJsonKey
   Uid? get forwardedFrom => throw _privateConstructorUsedError;
   @NullableUidJsonKey
@@ -63,8 +65,10 @@ abstract class $MessageCopyWith<$Res> {
       bool edited,
       bool encrypted,
       bool isHidden,
+      bool isLocalMessage,
       String? markup,
       int? id,
+      int? localNetworkMessageId,
       @NullableUidJsonKey Uid? forwardedFrom,
       @NullableUidJsonKey Uid? generatedBy});
 }
@@ -93,8 +97,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
     Object? edited = null,
     Object? encrypted = null,
     Object? isHidden = null,
+    Object? isLocalMessage = null,
     Object? markup = freezed,
     Object? id = freezed,
+    Object? localNetworkMessageId = freezed,
     Object? forwardedFrom = freezed,
     Object? generatedBy = freezed,
   }) {
@@ -143,6 +149,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
           ? _value.isHidden
           : isHidden // ignore: cast_nullable_to_non_nullable
               as bool,
+      isLocalMessage: null == isLocalMessage
+          ? _value.isLocalMessage
+          : isLocalMessage // ignore: cast_nullable_to_non_nullable
+              as bool,
       markup: freezed == markup
           ? _value.markup
           : markup // ignore: cast_nullable_to_non_nullable
@@ -150,6 +160,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      localNetworkMessageId: freezed == localNetworkMessageId
+          ? _value.localNetworkMessageId
+          : localNetworkMessageId // ignore: cast_nullable_to_non_nullable
               as int?,
       forwardedFrom: freezed == forwardedFrom
           ? _value.forwardedFrom
@@ -182,8 +196,10 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
       bool edited,
       bool encrypted,
       bool isHidden,
+      bool isLocalMessage,
       String? markup,
       int? id,
+      int? localNetworkMessageId,
       @NullableUidJsonKey Uid? forwardedFrom,
       @NullableUidJsonKey Uid? generatedBy});
 }
@@ -210,8 +226,10 @@ class __$$MessageImplCopyWithImpl<$Res>
     Object? edited = null,
     Object? encrypted = null,
     Object? isHidden = null,
+    Object? isLocalMessage = null,
     Object? markup = freezed,
     Object? id = freezed,
+    Object? localNetworkMessageId = freezed,
     Object? forwardedFrom = freezed,
     Object? generatedBy = freezed,
   }) {
@@ -260,6 +278,10 @@ class __$$MessageImplCopyWithImpl<$Res>
           ? _value.isHidden
           : isHidden // ignore: cast_nullable_to_non_nullable
               as bool,
+      isLocalMessage: null == isLocalMessage
+          ? _value.isLocalMessage
+          : isLocalMessage // ignore: cast_nullable_to_non_nullable
+              as bool,
       markup: freezed == markup
           ? _value.markup
           : markup // ignore: cast_nullable_to_non_nullable
@@ -267,6 +289,10 @@ class __$$MessageImplCopyWithImpl<$Res>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      localNetworkMessageId: freezed == localNetworkMessageId
+          ? _value.localNetworkMessageId
+          : localNetworkMessageId // ignore: cast_nullable_to_non_nullable
               as int?,
       forwardedFrom: freezed == forwardedFrom
           ? _value.forwardedFrom
@@ -295,8 +321,10 @@ class _$MessageImpl implements _Message {
       this.edited = false,
       this.encrypted = false,
       this.isHidden = false,
+      this.isLocalMessage = false,
       this.markup,
       this.id,
+      this.localNetworkMessageId,
       @NullableUidJsonKey this.forwardedFrom,
       @NullableUidJsonKey this.generatedBy});
 
@@ -334,9 +362,14 @@ class _$MessageImpl implements _Message {
   @JsonKey()
   final bool isHidden;
   @override
+  @JsonKey()
+  final bool isLocalMessage;
+  @override
   final String? markup;
   @override
   final int? id;
+  @override
+  final int? localNetworkMessageId;
   @override
   @NullableUidJsonKey
   final Uid? forwardedFrom;
@@ -346,7 +379,7 @@ class _$MessageImpl implements _Message {
 
   @override
   String toString() {
-    return 'Message(roomUid: $roomUid, from: $from, to: $to, packetId: $packetId, time: $time, json: $json, replyToId: $replyToId, type: $type, edited: $edited, encrypted: $encrypted, isHidden: $isHidden, markup: $markup, id: $id, forwardedFrom: $forwardedFrom, generatedBy: $generatedBy)';
+    return 'Message(roomUid: $roomUid, from: $from, to: $to, packetId: $packetId, time: $time, json: $json, replyToId: $replyToId, type: $type, edited: $edited, encrypted: $encrypted, isHidden: $isHidden, isLocalMessage: $isLocalMessage, markup: $markup, id: $id, localNetworkMessageId: $localNetworkMessageId, forwardedFrom: $forwardedFrom, generatedBy: $generatedBy)';
   }
 
   @override
@@ -369,8 +402,12 @@ class _$MessageImpl implements _Message {
                 other.encrypted == encrypted) &&
             (identical(other.isHidden, isHidden) ||
                 other.isHidden == isHidden) &&
+            (identical(other.isLocalMessage, isLocalMessage) ||
+                other.isLocalMessage == isLocalMessage) &&
             (identical(other.markup, markup) || other.markup == markup) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.localNetworkMessageId, localNetworkMessageId) ||
+                other.localNetworkMessageId == localNetworkMessageId) &&
             (identical(other.forwardedFrom, forwardedFrom) ||
                 other.forwardedFrom == forwardedFrom) &&
             (identical(other.generatedBy, generatedBy) ||
@@ -392,8 +429,10 @@ class _$MessageImpl implements _Message {
       edited,
       encrypted,
       isHidden,
+      isLocalMessage,
       markup,
       id,
+      localNetworkMessageId,
       forwardedFrom,
       generatedBy);
 
@@ -424,8 +463,10 @@ abstract class _Message implements Message {
       final bool edited,
       final bool encrypted,
       final bool isHidden,
+      final bool isLocalMessage,
       final String? markup,
       final int? id,
+      final int? localNetworkMessageId,
       @NullableUidJsonKey final Uid? forwardedFrom,
       @NullableUidJsonKey final Uid? generatedBy}) = _$MessageImpl;
 
@@ -457,9 +498,13 @@ abstract class _Message implements Message {
   @override
   bool get isHidden;
   @override
+  bool get isLocalMessage;
+  @override
   String? get markup;
   @override
   int? get id;
+  @override
+  int? get localNetworkMessageId;
   @override
   @NullableUidJsonKey
   Uid? get forwardedFrom;

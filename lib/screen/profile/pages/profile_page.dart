@@ -279,7 +279,7 @@ class ProfilePageState extends State<ProfilePage>
     final paths = <String>[];
     for (final media in metas) {
       final file = media.json.toFile();
-      final path = await (_fileRepo.getFileIfExist(file.uuid, file.name));
+      final path = await (_fileRepo.getFileIfExist(file.uuid,));
       if (path != null) {
         paths.add(path);
       }

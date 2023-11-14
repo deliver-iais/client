@@ -27,6 +27,7 @@ import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -125,14 +126,18 @@ class RoomRepo {
   Future<void> _checkIsVerifiedIfNeeded(
     Uid uid,
   ) async {
-    final nowTime = clock.now().millisecondsSinceEpoch;
-    final info = await _getIsVerified(uid);
-    if (info?.lastUpdate == null ||
-        (nowTime - info!.lastUpdate) > IS_VERIFIED_CACHE_TIME) {
-      final isVerifiedRes = await _fetchIsVerified(uid);
-      final expireTime = isVerifiedRes.expireTime.toInt();
-      return _updateIsVerified(uid, expireTime);
+    try{
+      final nowTime = clock.now().millisecondsSinceEpoch;
+      final info = await _getIsVerified(uid);
+      if (info?.lastUpdate == null ||
+          (nowTime - info!.lastUpdate) > IS_VERIFIED_CACHE_TIME) {
+        final isVerifiedRes = await _fetchIsVerified(uid);
+        final expireTime = isVerifiedRes.expireTime.toInt();
+        return _updateIsVerified(uid, expireTime);
+    }} catch(_){
+      _logger.e(_);
     }
+
   }
 
   Future<void> _updateIsVerified(
@@ -171,7 +176,10 @@ class RoomRepo {
     if (uid.isSameEntity(FAKE_USER_UID.asString())) {
       return FAKE_USER_NAME;
     }
-    await _checkIsVerifiedIfNeeded(uid);
+    if(false){
+      await _checkIsVerifiedIfNeeded(uid);
+    }
+
 
     // Is System Id
     if (uid.category == Categories.SYSTEM &&

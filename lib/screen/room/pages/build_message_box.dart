@@ -594,7 +594,6 @@ class OperationOnMessageSelection {
       case OperationOnMessage.SHOW_IN_FOLDER:
         final path = await _fileRepo.getFileIfExist(
           message.json.toFile().uuid,
-          message.json.toFile().name,
         );
         if (path != null) {
           onShowInFolder(path);
@@ -679,7 +678,6 @@ class OperationOnMessageSelection {
       try {
         final result = await _fileRepo.getFileIfExist(
           message.json.toFile().uuid,
-          message.json.toFile().name,
         );
         if (result!.isNotEmpty) {
           return Share.shareFiles(

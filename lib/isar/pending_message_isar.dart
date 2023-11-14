@@ -21,6 +21,8 @@ class PendingMessageIsar {
 
   final int messageId;
 
+  final bool isLocalMessage;
+
   @enumerated
   SendingStatus status;
 
@@ -31,6 +33,7 @@ class PendingMessageIsar {
     required this.status,
     required this.messageId,
     this.failed = false,
+    this.isLocalMessage = false,
   });
 
   PendingMessage fromIsar() => PendingMessage(
@@ -38,6 +41,7 @@ class PendingMessageIsar {
         packetId: packetId,
         failed: failed,
         status: status,
+        isLocalMessage: isLocalMessage,
         msg: getMessageFromJson(msg),
       );
 }
@@ -48,7 +52,8 @@ extension PendingMessageIsarMapper on PendingMessage {
         packetId: packetId,
         failed: failed,
         status: status,
-        msg:messageToJson(msg),
+      isLocalMessage:isLocalMessage,
+        msg: messageToJson(msg),
         messageId: msg.id ?? 0,
       );
 }

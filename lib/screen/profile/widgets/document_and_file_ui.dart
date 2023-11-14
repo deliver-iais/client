@@ -66,7 +66,6 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                   child: FutureBuilder<String?>(
                     future: _fileRepo.getFileIfExist(
                       filePb.uuid,
-                      filePb.name,
                     ),
                     builder: (context, filePath) {
                       if (filePath.hasData && filePath.data != null) {

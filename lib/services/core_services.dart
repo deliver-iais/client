@@ -11,9 +11,10 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/serverless/serverless_constance.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -42,11 +43,12 @@ class CoreServices {
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
-  final _serverLessService = GetIt.I.get<ServerLessService>();
   final _analyticRepo = GetIt.I.get<AnalyticsRepo>();
   final _callService = GetIt.I.get<CallService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
+  final _serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
   final _uptimeStartTime = BehaviorSubject.seeded(0);
   final _reconnectCount = BehaviorSubject.seeded(0);
 
@@ -62,7 +64,7 @@ class CoreServices {
         _onConnectionError();
       }
       if (settings.localNetworkMessenger.value) {
-        _serverLessService.start();
+        _serverLessService.restart();
       }
     });
   }
@@ -123,7 +125,7 @@ class CoreServices {
 
   Future<void> initStreamConnection() async {
     if (settings.localNetworkMessenger.value) {
-      _serverLessService.start();
+      unawaited(_serverLessService.restart());
       _connectionStatus.add(ConnectionStatus.LocalNetwork);
     }
     retryConnection(forced: true);
@@ -142,8 +144,13 @@ class CoreServices {
   void _updateConnectionStatus(ConnectionStatus status) {
     if (_connectionStatus.value == ConnectionStatus.LocalNetwork) {
       if (status == ConnectionStatus.Connected) {
-        settings.localNetworkMessenger.set(false);
         _connectionStatus.add(status);
+        if (settings.localNetworkMessenger.value) {
+          settings.localNetworkMessenger.set(false);
+        }
+        _serverLessService.dispose();
+        _connectToLocalNetworkTimer?.cancel();
+        proposeUseLocalNetwork.add(false);
       }
     } else {
       _connectionStatus.add(status);
@@ -454,7 +461,7 @@ class CoreServices {
   }) async {
     try {
       if (!forceToSendToServer && settings.localNetworkMessenger.value) {
-        await _serverLessService.sendClientPacket(packet);
+        await _serverLessMessageService.sendClientPacket(packet);
       } else {
         if (isWeb ||
             _clientPacketStream == null ||

@@ -18,6 +18,8 @@ class RoomIsar {
 
   int lastMessageId;
 
+  int lastLocalNetworkMessageId;
+
   String? draft;
 
   int lastUpdateTime;
@@ -45,6 +47,7 @@ class RoomIsar {
     this.lastMessage,
     this.deleted = false,
     this.lastMessageId = 0,
+    this.lastLocalNetworkMessageId = 0,
     this.draft,
     this.lastUpdateTime = 0,
     this.firstMessageId = 0,
@@ -63,6 +66,7 @@ class RoomIsar {
         lastMessage: getNullableMessageFromJson(lastMessage),
         deleted: deleted,
         lastMessageId: lastMessageId,
+        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         firstMessageId: firstMessageId,
         draft: draft ?? "",
         lastUpdateTime: lastUpdateTime,
@@ -84,6 +88,7 @@ extension RoomIsarMapper on Room {
         deleted: deleted,
         draft: draft,
         seenSynced: seenSynced,
+        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         shouldUpdateMediaCount: shouldUpdateMediaCount,
         synced: synced,
         lastUpdateTime: lastUpdateTime,

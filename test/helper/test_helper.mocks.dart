@@ -7943,6 +7943,15 @@ class MockSettings extends _i1.Mock implements _i101.Settings {
       ) as _i19.BooleanPersistent);
 
   @override
+  _i19.BooleanPersistent get useDefaultUdpAddress => (super.noSuchMethod(
+        Invocation.getter(#useDefaultUdpAddress),
+        returnValue: _FakeBooleanPersistent_27(
+          this,
+          Invocation.getter(#useDefaultUdpAddress),
+        ),
+      ) as _i19.BooleanPersistent);
+
+  @override
   _i19.BooleanPersistent get hasProfile => (super.noSuchMethod(
         Invocation.getter(#hasProfile),
         returnValue: _FakeBooleanPersistent_27(

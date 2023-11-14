@@ -104,6 +104,11 @@ class Settings {
     SharedKeys.SHARED_DAO_LOCAL_NETWORK_MESSENGER.inSharedDaoStorage(),
     defaultValue: false,
   );
+
+  final useDefaultUdpAddress = BooleanPersistent(
+    SharedKeys.SHARED_DAO_USE_DEFAULT_UDP_ADDRESS.inSharedDaoStorage(),
+    defaultValue: false,
+  );
   final hasProfile = BooleanPersistent(
     SharedKeys.HAS_PROFILE.inSharedDaoStorage(),
     defaultValue: false,

@@ -30,6 +30,9 @@ import 'package:fuzzy/fuzzy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:deliver/services/settings.dart';
+
+import '../services/serverless/serverless_muc_service.dart';
 
 class MucRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -43,15 +46,21 @@ class MucRepo {
     String groupName,
     String info,
   ) async {
-    final groupUid = await _mucServices.createNewGroup(groupName, info);
-    if (groupUid != null) {
-      await _sendAndSaveMucMembers(
-        groupUid,
-        memberUidList,
-        groupName,
-        info,
-      );
-      return groupUid;
+    if (settings.localNetworkMessenger.value) {
+      return GetIt.I
+          .get<ServerLessMucService>()
+          .createGroup(name: groupName, members: memberUidList);
+    } else {
+      final groupUid = await _mucServices.createNewGroup(groupName, info);
+      if (groupUid != null) {
+        await _sendAndSaveMucMembers(
+          groupUid,
+          memberUidList,
+          groupName,
+          info,
+        );
+        return groupUid;
+      }
     }
     return null;
   }
@@ -63,24 +72,31 @@ class MucRepo {
     ChannelType channelType,
     String info,
   ) async {
-    final channelUid = await _mucServices.createNewChannel(
-      channelName,
-      channelType,
-      channelId,
-      info,
-    );
-
-    if (channelUid != null) {
-      await _sendAndSaveMucMembers(
-        channelUid,
-        memberUidList,
+    if (settings.localNetworkMessenger.value) {
+      return GetIt.I
+          .get<ServerLessMucService>()
+          .createChannel(name: channelName, members: memberUidList);
+    } else {
+      final channelUid = await _mucServices.createNewChannel(
         channelName,
+        channelType,
+        channelId,
         info,
-        channelType: channelType,
-        channelId: channelId,
       );
-      return channelUid;
+
+      if (channelUid != null) {
+        await _sendAndSaveMucMembers(
+          channelUid,
+          memberUidList,
+          channelName,
+          info,
+          channelType: channelType,
+          channelId: channelId,
+        );
+        return channelUid;
+      }
     }
+
     return null;
   }
 
@@ -730,22 +746,26 @@ class MucRepo {
         );
       }
 
-      usersAddCode = await _addMucMember(
-        mucUid,
-        members,
-      );
+      if (settings.localNetworkMessenger.value) {
+        await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
+        return StatusCode.ok;
+      } else {
+        usersAddCode = await _addMucMember(
+          mucUid,
+          members,
+        );
 
-      if (usersAddCode == StatusCode.ok) {
-        for (final element in members) {
+        if (usersAddCode == StatusCode.ok) {
+          for (final element in members) {
             unawaited(_mucDao.saveMember(Member(
-               mucUid: mucUid,
-               memberUid: element.uid,
-               role: getLocalRole(element.role),
-             )));
+              mucUid: mucUid,
+              memberUid: element.uid,
+              role: getLocalRole(element.role),
+            )));
+          }
         }
-
+        return usersAddCode;
       }
-      return usersAddCode;
     } catch (e) {
       _logger.e(e);
       return StatusCode.unknown;

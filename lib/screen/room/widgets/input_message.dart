@@ -747,7 +747,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                   currentRoom.uid,
                 ).attachLocationInWindows(),
               ),
-            if (!showSendButton && !widget.waitingForForward)
+            if (!showSendButton &&
+                !widget.waitingForForward &&
+                !(settings.localNetworkMessenger.value &&
+                    widget.currentRoom.uid.isMuc()))
               IconButton(
                 icon: const Icon(
                   CupertinoIcons.paperclip,
@@ -1002,16 +1005,16 @@ class InputMessageWidgetState extends State<InputMessage> {
     );
     if (value.isNotEmpty) {
       final indexedMember = value[_mentionSelectedIndex.value];
-        if (indexedMember.username.isNotEmpty) {
-          onMentionSelected("@${indexedMember.username}");
-        } else if (indexedMember.realName.isNotEmpty) {
-          onMentionSelected(
-            _markDownName(
-                name: indexedMember.realName,
-                node: indexedMember.memberUid.node,),
-          );
-        }
-
+      if (indexedMember.username.isNotEmpty) {
+        onMentionSelected("@${indexedMember.username}");
+      } else if (indexedMember.realName.isNotEmpty) {
+        onMentionSelected(
+          _markDownName(
+            name: indexedMember.realName,
+            node: indexedMember.memberUid.node,
+          ),
+        );
+      }
     } else {
       sendMessage();
     }

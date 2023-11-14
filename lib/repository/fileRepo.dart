@@ -12,9 +12,10 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -24,6 +25,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:logger/logger.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -62,25 +64,55 @@ class FileRepo {
     );
 
     if (settings.localNetworkMessenger.value) {
-
-      await GetIt.I.get<ServerLessService>().sendFileRequest(uid!, uploadKey);
-      final res = await GetIt.I.get<ServerLessService>().sendFile(
-            filename: name,
-            filePath: clonedFilePath!,
+      if (await GetIt.I
+          .get<ServerLessMessageService>()
+          .sendFileSendRequestMessage(
+            to: uid!,
             uuid: uploadKey,
-            to: uid,
+          )) {
+        await Future.delayed(const Duration(milliseconds: 700));
+        final res = await GetIt.I.get<ServerLessMessageService>().sendFile(
+              filename: name,
+              filePath: clonedFilePath!,
+              uuid: uploadKey,
+              to: uid,
+            );
+        if (res) {
+          var tempDimension = Size.zero;
+          try {
+            final tempType =
+                detectFileMimeByFileModel(model.File(clonedFilePath, name));
+            if (isImageFileType(tempType)) {
+              tempDimension = getImageDimension(clonedFilePath);
+
+              _logger.d(
+                "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
+              );
+              if (tempDimension == Size.zero) {
+                tempDimension =
+                    const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
+                _logger.d(
+                  "File dimensions set to default size because it was zero to zero, 200x200",
+                );
+              }
+            }
+          } catch (e) {
+            _logger.e("Error in fetching fake file dimensions", error: e);
+          }
+          final size = await io.File(clonedFilePath).length();
+          await _updateFileInfoWithRealUuid(uploadKey, uploadKey, name);
+          return file_pb.File(
+            uuid: uploadKey,
+            name: getFileName(name),
+            width: tempDimension.width,
+            height: tempDimension.height,
+            size: Int64(size),
+            type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
+            sign: DateTime.now().millisecondsSinceEpoch.toString(),
           );
-      if (res) {
-        final size = await io.File(clonedFilePath).length();
-        await _updateFileInfoWithRealUuid(uploadKey, uploadKey, name);
-        return file_pb.File(
-          uuid: uploadKey,
-          name: name,
-          size: Int64(size),
-          type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
-          sign: DateTime.now().millisecondsSinceEpoch.toString(),
-        );
+        }
       }
+
       return null;
     } else {
       Response? value;
@@ -175,7 +207,9 @@ class FileRepo {
           localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
           await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid, name);
           _fileService.updateFileStatus(
-              uploadedFile.uuid, FileStatus.COMPLETED);
+            uploadedFile.uuid,
+            FileStatus.COMPLETED,
+          );
           return uploadedFile;
         } catch (e) {
           _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
@@ -199,8 +233,7 @@ class FileRepo {
   }
 
   Future<bool> isExist(
-    String uuid,
-    String filename, {
+    String uuid, {
     ThumbnailSize? thumbnailSize,
   }) async {
     final fileInfo = await _fileService.getFile(
@@ -226,8 +259,7 @@ class FileRepo {
       (isWeb || io.File(localUploadedFilePath[uuid]!).existsSync());
 
   Future<String?> getFileIfExist(
-    String uuid,
-    String filename, {
+    String uuid, {
     ThumbnailSize? thumbnailSize,
   }) async {
     if (thumbnailSize == null && fileExitInCache(uuid)) {
@@ -259,7 +291,7 @@ class FileRepo {
     bool showAlertOnError = false,
   }) async {
     final path =
-        await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
+        await getFileIfExist(uuid, thumbnailSize: thumbnailSize);
     if (path != null) {
       return path;
     }
@@ -327,7 +359,7 @@ class FileRepo {
   }
 
   void saveDownloadedFileInWeb(String uuid, String name) {
-    getFileIfExist(uuid, name).then((url) {
+    getFileIfExist(uuid).then((url) {
       if (url != null) {
         _fileService.saveDownloadedFile(url, name);
       }
@@ -355,7 +387,7 @@ class FileRepo {
     String name,
     String dir,
   ) {
-    getFileIfExist(uuid, name).then(
+    getFileIfExist(uuid).then(
       (path) => isDesktopNative
           ? _fileService.saveFileInDesktopDownloadFolder(name, path!)
           : _fileService.saveFileInMobileDownloadFolder(path!, name, dir),
@@ -372,7 +404,7 @@ class FileRepo {
     String address, {
     bool convertToJpg = true,
   }) {
-    getFileIfExist(uuid, name).then(
+    getFileIfExist(uuid).then(
       (path) => _fileService.saveFileToSpecifiedAddress(
         path!,
         address,

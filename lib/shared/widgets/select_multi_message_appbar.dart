@@ -149,7 +149,6 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                     for (final message in messages) {
                       final path = await _fileRepo.getFileIfExist(
                         message.json.toFile().uuid,
-                        message.json.toFile().name,
                       );
                       if (path != null) {
                         paths.add(path);

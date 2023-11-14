@@ -15,10 +15,20 @@ import 'package:hive/hive.dart';
 
 class MessageDaoImpl extends MessageDao {
   @override
-  Future<Message?> getMessage(Uid roomUid, int id) async {
+  Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessages(roomUid.asString());
 
     return box.get(id)?.fromHive();
+  }
+
+  @override
+  Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id) async {
+    final box = await _openMessages(roomUid.asString());
+
+    return box.values
+        .where((element) => element.localNetworkMessageId == id)
+        .firstOrNull
+        ?.fromHive();
   }
 
   @override

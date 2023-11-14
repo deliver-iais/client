@@ -17,6 +17,7 @@ _$RoomImpl _$$RoomImplFromJson(Map<String, dynamic> json) => _$RoomImpl(
           const [],
       lastUpdateTime: json['lastUpdateTime'] as int? ?? 0,
       lastMessageId: json['lastMessageId'] as int? ?? 0,
+      lastLocalNetworkMessageId: json['lastLocalNetworkMessageId'] as int? ?? 0,
       firstMessageId: json['firstMessageId'] as int? ?? 0,
       pinId: json['pinId'] as int? ?? 0,
       lastCurrentUserSentMessageId:
@@ -37,6 +38,7 @@ Map<String, dynamic> _$$RoomImplToJson(_$RoomImpl instance) =>
       'mentionsId': instance.mentionsId,
       'lastUpdateTime': instance.lastUpdateTime,
       'lastMessageId': instance.lastMessageId,
+      'lastLocalNetworkMessageId': instance.lastLocalNetworkMessageId,
       'firstMessageId': instance.firstMessageId,
       'pinId': instance.pinId,
       'lastCurrentUserSentMessageId': instance.lastCurrentUserSentMessageId,

@@ -10,5 +10,7 @@ abstract class LocalNetworkConnectionDao {
 
   Stream<LocalNetworkConnections?> watch(Uid uid);
 
+  Stream<void> watchAll();
+
   Future<void> deleteAll();
 }

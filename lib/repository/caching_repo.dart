@@ -55,7 +55,7 @@ class CachingRepo {
 
   void setMessages(Uid rooUid, List<Message> messages) {
     for (final msg in messages) {
-      setMessage(rooUid, msg.id!, msg);
+      setMessage(rooUid, msg.localNetworkMessageId!, msg);
     }
   }
 

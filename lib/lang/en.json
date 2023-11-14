@@ -627,6 +627,7 @@
   "use_custom_ip": "Use custom ip",
   "use_sms_broad_cast_title": "Using SMS for non-application recipients",
   "use_sms_broad_cast_desc": "By activating this option, you can select a list of your contacts who do not have the application installed, and messages will be sent to them via SMS",
+  "use_default_udp_address": "Use default upd address",
   "user_experience": "User Experience",
   "username": "Username",
   "username_already_exist": "This username already exist",

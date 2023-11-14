@@ -42,6 +42,7 @@ class PendingMessageDaoImpl extends PendingMessageDao {
     return box.pendingMessageIsars
         .filter()
         .messageIdLessThan(1)
+        .and()
         .roomUidEqualTo(roomUid)
         .findAllSync()
         .map((e) => e.fromIsar())

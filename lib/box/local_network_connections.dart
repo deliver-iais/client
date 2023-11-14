@@ -12,8 +12,8 @@ class LocalNetworkConnections with _$LocalNetworkConnections {
     @UidJsonKey required Uid uid,
     required String ip,
     required int lastUpdateTime,
-
   }) = _LocalNetworkConnections;
 
-  factory LocalNetworkConnections.fromJson(Map<String, Object?> json) => _$LocalNetworkConnectionsFromJson(json);
+  factory LocalNetworkConnections.fromJson(Map<String, Object?> json) =>
+      _$LocalNetworkConnectionsFromJson(json);
 }

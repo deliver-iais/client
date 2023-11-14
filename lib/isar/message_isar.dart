@@ -30,6 +30,10 @@ class MessageIsar {
 
   bool encrypted;
 
+  bool isLocalMessage;
+
+  int? localNetworkMessageId;
+
   @enumerated
   MessageType type;
 
@@ -44,6 +48,7 @@ class MessageIsar {
   MessageIsar({
     required this.roomUid,
     this.id,
+    this.localNetworkMessageId,
     required this.packetId,
     required this.time,
     required this.from,
@@ -51,6 +56,7 @@ class MessageIsar {
     this.replyToId = 0,
     this.forwardedFrom,
     this.edited = false,
+    this.isLocalMessage = false,
     this.encrypted = false,
     this.type = MessageType.NOT_SET,
     required this.json,
@@ -68,12 +74,14 @@ class MessageIsar {
         json: json,
         isHidden: isHidden,
         markup: markup,
+        isLocalMessage: isLocalMessage,
         edited: edited,
         encrypted: encrypted,
         forwardedFrom: forwardedFrom?.asUid(),
         replyToId: replyToId,
         type: type,
         id: id,
+        localNetworkMessageId: localNetworkMessageId,
         generatedBy: generatedBy?.asUid(),
       );
 }
@@ -87,6 +95,8 @@ extension MessageIsarMapper on Message {
         to: to.asString(),
         json: json,
         id: id,
+        localNetworkMessageId: localNetworkMessageId,
+        isLocalMessage: isLocalMessage,
         isHidden: isHidden,
         markup: markup,
         edited: edited,

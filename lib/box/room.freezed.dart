@@ -29,6 +29,7 @@ mixin _$Room {
   List<int> get mentionsId => throw _privateConstructorUsedError;
   int get lastUpdateTime => throw _privateConstructorUsedError;
   int get lastMessageId => throw _privateConstructorUsedError;
+  int get lastLocalNetworkMessageId => throw _privateConstructorUsedError;
   int get firstMessageId => throw _privateConstructorUsedError;
   int get pinId => throw _privateConstructorUsedError;
   int get lastCurrentUserSentMessageId => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $RoomCopyWith<$Res> {
       List<int> mentionsId,
       int lastUpdateTime,
       int lastMessageId,
+      int lastLocalNetworkMessageId,
       int firstMessageId,
       int pinId,
       int lastCurrentUserSentMessageId,
@@ -88,6 +90,7 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? mentionsId = null,
     Object? lastUpdateTime = null,
     Object? lastMessageId = null,
+    Object? lastLocalNetworkMessageId = null,
     Object? firstMessageId = null,
     Object? pinId = null,
     Object? lastCurrentUserSentMessageId = null,
@@ -125,6 +128,10 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
       lastMessageId: null == lastMessageId
           ? _value.lastMessageId
           : lastMessageId // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastLocalNetworkMessageId: null == lastLocalNetworkMessageId
+          ? _value.lastLocalNetworkMessageId
+          : lastLocalNetworkMessageId // ignore: cast_nullable_to_non_nullable
               as int,
       firstMessageId: null == firstMessageId
           ? _value.firstMessageId
@@ -189,6 +196,7 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       List<int> mentionsId,
       int lastUpdateTime,
       int lastMessageId,
+      int lastLocalNetworkMessageId,
       int firstMessageId,
       int pinId,
       int lastCurrentUserSentMessageId,
@@ -219,6 +227,7 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? mentionsId = null,
     Object? lastUpdateTime = null,
     Object? lastMessageId = null,
+    Object? lastLocalNetworkMessageId = null,
     Object? firstMessageId = null,
     Object? pinId = null,
     Object? lastCurrentUserSentMessageId = null,
@@ -256,6 +265,10 @@ class __$$RoomImplCopyWithImpl<$Res>
       lastMessageId: null == lastMessageId
           ? _value.lastMessageId
           : lastMessageId // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastLocalNetworkMessageId: null == lastLocalNetworkMessageId
+          ? _value.lastLocalNetworkMessageId
+          : lastLocalNetworkMessageId // ignore: cast_nullable_to_non_nullable
               as int,
       firstMessageId: null == firstMessageId
           ? _value.firstMessageId
@@ -304,6 +317,7 @@ class _$RoomImpl implements _Room {
       final List<int> mentionsId = const [],
       this.lastUpdateTime = 0,
       this.lastMessageId = 0,
+      this.lastLocalNetworkMessageId = 0,
       this.firstMessageId = 0,
       this.pinId = 0,
       this.lastCurrentUserSentMessageId = 0,
@@ -345,6 +359,9 @@ class _$RoomImpl implements _Room {
   final int lastMessageId;
   @override
   @JsonKey()
+  final int lastLocalNetworkMessageId;
+  @override
+  @JsonKey()
   final int firstMessageId;
   @override
   @JsonKey()
@@ -370,7 +387,7 @@ class _$RoomImpl implements _Room {
 
   @override
   String toString() {
-    return 'Room(uid: $uid, lastMessage: $lastMessage, replyKeyboardMarkup: $replyKeyboardMarkup, draft: $draft, mentionsId: $mentionsId, lastUpdateTime: $lastUpdateTime, lastMessageId: $lastMessageId, firstMessageId: $firstMessageId, pinId: $pinId, lastCurrentUserSentMessageId: $lastCurrentUserSentMessageId, deleted: $deleted, pinned: $pinned, synced: $synced, seenSynced: $seenSynced, shouldUpdateMediaCount: $shouldUpdateMediaCount)';
+    return 'Room(uid: $uid, lastMessage: $lastMessage, replyKeyboardMarkup: $replyKeyboardMarkup, draft: $draft, mentionsId: $mentionsId, lastUpdateTime: $lastUpdateTime, lastMessageId: $lastMessageId, lastLocalNetworkMessageId: $lastLocalNetworkMessageId, firstMessageId: $firstMessageId, pinId: $pinId, lastCurrentUserSentMessageId: $lastCurrentUserSentMessageId, deleted: $deleted, pinned: $pinned, synced: $synced, seenSynced: $seenSynced, shouldUpdateMediaCount: $shouldUpdateMediaCount)';
   }
 
   @override
@@ -390,6 +407,9 @@ class _$RoomImpl implements _Room {
                 other.lastUpdateTime == lastUpdateTime) &&
             (identical(other.lastMessageId, lastMessageId) ||
                 other.lastMessageId == lastMessageId) &&
+            (identical(other.lastLocalNetworkMessageId,
+                    lastLocalNetworkMessageId) ||
+                other.lastLocalNetworkMessageId == lastLocalNetworkMessageId) &&
             (identical(other.firstMessageId, firstMessageId) ||
                 other.firstMessageId == firstMessageId) &&
             (identical(other.pinId, pinId) || other.pinId == pinId) &&
@@ -417,6 +437,7 @@ class _$RoomImpl implements _Room {
       const DeepCollectionEquality().hash(_mentionsId),
       lastUpdateTime,
       lastMessageId,
+      lastLocalNetworkMessageId,
       firstMessageId,
       pinId,
       lastCurrentUserSentMessageId,
@@ -449,6 +470,7 @@ abstract class _Room implements Room {
       final List<int> mentionsId,
       final int lastUpdateTime,
       final int lastMessageId,
+      final int lastLocalNetworkMessageId,
       final int firstMessageId,
       final int pinId,
       final int lastCurrentUserSentMessageId,
@@ -476,6 +498,8 @@ abstract class _Room implements Room {
   int get lastUpdateTime;
   @override
   int get lastMessageId;
+  @override
+  int get lastLocalNetworkMessageId;
   @override
   int get firstMessageId;
   @override
