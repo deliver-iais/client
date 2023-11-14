@@ -461,7 +461,7 @@ class CoreServices {
   }) async {
     try {
       if (!forceToSendToServer && settings.localNetworkMessenger.value) {
-        await _serverLessMessageService.sendClientPacket(packet);
+         unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||
             _clientPacketStream == null ||

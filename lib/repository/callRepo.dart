@@ -97,7 +97,7 @@ class CallRepo {
   bool _isCaller = false;
   bool _isVideo = false;
   bool _isConnected = false;
-  bool _isAnswerRecivied = false;
+  bool _isAnswerReceived = false;
   bool _isMicMuted = false;
   bool _isDCReceived = false;
   bool _reconnectTry = false;
@@ -191,10 +191,10 @@ class CallRepo {
         case CallEventV2_Type.answer:
           if (from == to) {
             unawaited(_dispose());
-          } else if (!_isAnswerRecivied) {
+          } else if (!_isAnswerReceived) {
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
-            _isAnswerRecivied = true;
+            _isAnswerReceived = true;
           }
           // else if (callEvent.answer.candidates == "RenegotiationNeeded") {
           //   _handleRenegotiationAnswer(callEvent.answer.body);
@@ -269,6 +269,7 @@ class CallRepo {
 
   void listenBackgroundCall() {
     _callService.watchCurrentCall().listen((call) {
+      //check if there is call and user have mobile device
       if (call != null && !isDesktopNative) {
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NO_CALL) {
@@ -289,13 +290,13 @@ class CallRepo {
       }
     });
   }
-
+  // it is used to detect audio track (probably)
   Future<void> _audioLevelDetection() async {
     _timerStatReport =
         Timer.periodic(const Duration(milliseconds: 100), (timer) async {
       if (_isConnected) {
-        final audioTrack = _localStream!.getAudioTracks()[0];
-        final stats = await _peerConnection!.getStats(audioTrack);
+        //final audioTrack = _localStream!.getAudioTracks()[0];
+        final stats = await _peerConnection!.getStats();
         for (final stat in stats) {
           if (stat.type == "media-source") {
             final double audioLevel = stat.values["audioLevel"];
@@ -312,7 +313,7 @@ class CallRepo {
       }
     });
   }
-
+  // here we have function that is used to handle income call from another person and save it in DB (probably)
   void _handleIncomingCallOnReceiver(CallEventV2 callEvent) {
     _callEvents[callEvent.time.toInt()] = "IsRinging";
     callingStatus.add(CallStatus.IS_RINGING);
@@ -323,7 +324,7 @@ class CallRepo {
       ..setRoomUid = callEvent.from;
 
     _isVideo = callEvent.isVideo;
-
+    // this if statement is used to check if user peak up the phone (probably)
     if (_isAccepted) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
@@ -343,7 +344,7 @@ class CallRepo {
       );
     }
   }
-
+  // simple just save call info on DB
   void _saveCallInfoOnDB(CallEventV2 callEvent) {
     final from = callEvent.from.asString();
     final to = _authRepo.currentUserUid.asString();
@@ -386,10 +387,7 @@ class CallRepo {
   * initial Variable for Render Call Between 2 Client
   * */
   Future<void> initCall({bool isOffer = false}) async {
-    await _createPeerConnection(isOffer).then((pc) {
-      _peerConnection = pc;
-    });
-
+    _peerConnection =await _createPeerConnection(isOffer);
     if (isMobileNative && await requestPhoneStatePermission()) {
       startListenToPhoneCallState();
     }
@@ -439,6 +437,7 @@ class CallRepo {
     });
   }
 
+  // This function use for setting up and managing the real-time communication between two peers.
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
     final iceServers = <String, dynamic>{
       "sdpSemantics": "plan-b", // Add this line
@@ -474,7 +473,7 @@ class CallRepo {
       },
       "optional": [],
     };
-
+    // maybe this line is what i'm looking for (createPeerConnection)
     final pc = await createPeerConnection(iceServers, config);
 
     _localStream = await _getUserMedia();
@@ -672,6 +671,12 @@ class CallRepo {
 
     return pc;
   }
+
+
+
+
+
+
 
   Future<void> setConnectionQualityAndLimitationParamsForAudio() async {
     //when connection Connected Status we Set some limit on bitRate
@@ -1596,7 +1601,7 @@ class CallRepo {
   //
   //   return sortedByPriorities;
   // }
-
+  // this function use instead of RTCPeerConnection.createAnswer()
   Future<String> _createAnswer() async {
     //note the following should be called before before calling either RTCPeerConnection.createOffer() or createAnswer()
     //Still Not Supported
@@ -1618,9 +1623,9 @@ class CallRepo {
 
     return answerSdp;
   }
-
+  // this function use instead of RTCPeerConnection.createOffer()
   Future<String> _createOffer() async {
-    //note the following should be called before before calling either RTCPeerConnection.createOffer() or createAnswer()
+    //note the following should be called before calling either RTCPeerConnection.createOffer() or createAnswer()
     //Still Not Supported
     // if (_isVideo && isAndroidDevice) {
     //   final transceiver = await _peerConnection!.getTransceivers();
@@ -1706,7 +1711,7 @@ class CallRepo {
   }
 
   Future<void> _sendOffer() async {
-    //w8 till offer is Ready
+    //wait till offer is Ready
     await _waitUntilOfferReady();
     // Send Candidate to Receiver
     final jsonCandidates = jsonEncode(_candidate);
@@ -1972,7 +1977,7 @@ class CallRepo {
       _isCaller = false;
       _isOfferReady = false;
       _isDCReceived = false;
-      _isAnswerRecivied = false;
+      _isAnswerReceived = false;
       _callDuration = 0;
       _startCallTime = 0;
       _callDuration = 0;
@@ -2202,6 +2207,7 @@ class CallRepo {
       );
     } else {
       if (room == roomUid) {
+
         _routingService.openCallScreen(
           room,
           isCallInitialized: true,
