@@ -105,9 +105,10 @@ class ServerLessMessageService {
       case ClientPacket_Type.ping:
       case ClientPacket_Type.callOffer:
       case ClientPacket_Type.callAnswer:
+        break;
       case ClientPacket_Type.callEvent:
-          final callEvent = clientPacket.callEvent;
-          await _sendCallEvent(callEvent);
+        final callEvent = clientPacket.callEvent;
+        await _sendCallEvent(callEvent);
         break;
       case ClientPacket_Type.notSet:
         break;
@@ -115,10 +116,10 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendTextMessage(
-      MessageByClient messageByClient,
-      int id, {
-        bool edited = false,
-      }) async {
+    MessageByClient messageByClient,
+    int id, {
+    bool edited = false,
+  }) async {
     final message = Message()
       ..from = _authRepo.currentUserUid
       ..to = messageByClient.to
@@ -253,9 +254,10 @@ class ServerLessMessageService {
         unawaited(
           _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
         );
-      } else if(type == CALL_EVENT) {
+      } else if (type == CALL_EVENT) {
         unawaited(
-          _dataStreamService.handleCallEvent(call_pb.CallEventV2.fromBuffer(await request.first)),
+          _dataStreamService.handleCallEvent(
+              call_pb.CallEventV2.fromBuffer(await request.first)),
         );
       } else if (type == MESSAGE) {
         unawaited(
@@ -538,32 +540,35 @@ class ServerLessMessageService {
     }
   }
 
-  Future<void> _sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) async {
-    final ip = await _serverLessService.getIp(_authRepo.currentUserUid.asString());
-    final callEvent = CallEventV2()
-    ..id = callEventV2ByClient.id
-    ..to = callEventV2ByClient.to
-    ..isVideo = callEventV2ByClient.isVideo
-    ..from = _authRepo.currentUserUid
-    ..time = DateTime.now() as Int64;
-    if(callEventV2ByClient.hasRinging()) {
-      callEvent.ringing = callEventV2ByClient.ringing;
-    } else if(callEventV2ByClient.hasAnswer()) {
-      callEvent.offer = callEventV2ByClient.offer;
-    }
-    else if(callEventV2ByClient.hasBusy()) {
-      callEvent.end = callEventV2ByClient.end;
-    }
-    else if(callEventV2ByClient.hasDecline()) {
-      callEvent.answer = callEventV2ByClient.answer;
-    }
-    else if(callEventV2ByClient.hasDecline()) {
-      callEvent.decline = callEventV2ByClient.decline;
-    }
-    else if(callEventV2ByClient.hasDecline()) {
-      callEvent.busy = callEventV2ByClient.busy;
-    }
-    await _serverLessService.sendRequest(callEvent.writeToBuffer(), ip!);
+  Future<void> _sendCallEvent(
+      call_pb.CallEventV2ByClient callEventV2ByClient) async {
+    final ip =
+        await _serverLessService.getIp(callEventV2ByClient.to.asString());
+    if (ip != null) {
+      final callEvent = CallEventV2()
+        ..id = callEventV2ByClient.id
+        ..to = callEventV2ByClient.to
+        ..isVideo = callEventV2ByClient.isVideo
+        ..from = _authRepo.currentUserUid
+        ..time = Int64(DateTime.now().millisecondsSinceEpoch);
+      if (callEventV2ByClient.hasRinging()) {
+        callEvent.ringing = callEventV2ByClient.ringing;
+      } else if (callEventV2ByClient.hasOffer()) {
+        callEvent.offer = callEventV2ByClient.offer;
+      } else if (callEventV2ByClient.hasEnd()) {
+        callEvent.end = callEventV2ByClient.end;
+      } else if (callEventV2ByClient.hasAnswer()) {
+        callEvent.answer = callEventV2ByClient.answer;
+      } else if (callEventV2ByClient.hasDecline()) {
+        callEvent.decline = callEventV2ByClient.decline;
+      } else if (callEventV2ByClient.hasBusy()) {
+        callEvent.busy = callEventV2ByClient.busy;
+      }
+      await _serverLessService.sendRequest(callEvent.writeToBuffer(), ip,type:CALL_EVENT);
 
+      if (callEvent.hasRinging()) {
+        _callService.addCallEvent(CallEvents.callEvent(callEvent));
+      }
+    }
   }
 }

@@ -2275,19 +2275,7 @@ class FirstTaskHandler extends TaskHandler {
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     // You can use the getData function to get the data you saved.
     sPort = sendPort;
-  }
 
-  @override
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
-    // Send data to the main isolate.
-  }
-
-  @override
-  void onButtonPressed(String id) {
-    // Called when the notification button on the Android platform is pressed.
-    if (id == "endCall") {
-      sPort?.send("endCall");
-    }
   }
 
   @override
