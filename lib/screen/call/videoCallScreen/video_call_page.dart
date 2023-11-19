@@ -792,7 +792,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                 colors: [
                                   Colors.teal,
                                   Colors.cyan,
-                                  Colors.greenAccent
+                                  Colors.greenAccent,
                                 ],
                               ),
                               color: Theme.of(context)

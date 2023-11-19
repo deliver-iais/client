@@ -26,7 +26,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
-import 'package:deliver/shared/persistent_variable.dart';
+import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -166,7 +166,11 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
-    listenBackgroundCall();
+    _listenBackgroundCall();
+    _listenOnCallEvent();
+  }
+
+  void _listenOnCallEvent() {
     _callService.callEvents.listen((event) async {
       if (event.callEvent != null &&
           inComingAnswerForAnotherSessionCall(event)) {
@@ -186,25 +190,27 @@ class CallRepo {
         return;
       }
       final from = callEvent.from.asString();
-      final to = _authRepo.currentUserUid.asString();
+      final currentUserUid = _authRepo.currentUserUid.asString();
       switch (callEvent.whichType()) {
         case CallEventV2_Type.answer:
-          if (from == to) {
+          if (from == currentUserUid) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
             _isAnswerReceived = true;
           }
-          // else if (callEvent.answer.candidates == "RenegotiationNeeded") {
-          //   _handleRenegotiationAnswer(callEvent.answer.body);
-          // }
           break;
         case CallEventV2_Type.offer:
           _callEvents[callEvent.time.toInt()] = "Created";
-          if (from == to) {
+          if (from == currentUserUid) {
             unawaited(_dispose());
           } else {
+            if (settings.localNetworkMessenger.value) {
+              if (_callService.getCallId.isEmpty) {
+                _callService.setCallId = callEvent.id;
+              }
+            }
             if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
               _cancelTimerResendEvent();
               _callOfferBody = callEvent.offer.body;
@@ -218,14 +224,11 @@ class CallRepo {
             } else if (callEvent.id != _callService.getCallId) {
               unawaited(_busyCall(event));
             }
-            // else if (callEvent.offer.candidates == "RenegotiationNeeded") {
-            //   _handleRenegotiationOffer(callEvent.offer.body);
-            // }
           }
           break;
         case CallEventV2_Type.ringing:
-          if (from != to) {
-            if (_callService.getUserCallState == UserCallState.NO_CALL) {
+          if (from != currentUserUid) {
+            if (!_callService.hasCall) {
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
@@ -267,7 +270,7 @@ class CallRepo {
     });
   }
 
-  void listenBackgroundCall() {
+  void _listenBackgroundCall() {
     _callService.watchCurrentCall().listen((call) {
       //check if there is call and user have mobile device
       if (call != null && !isDesktopNative) {
@@ -290,6 +293,7 @@ class CallRepo {
       }
     });
   }
+
   // it is used to detect audio track (probably)
   Future<void> _audioLevelDetection() async {
     _timerStatReport =
@@ -299,24 +303,29 @@ class CallRepo {
         final stats = await _peerConnection!.getStats();
         for (final stat in stats) {
           if (stat.type == "media-source") {
-            final double audioLevel = stat.values["audioLevel"];
-            speakingAmplitude.add(audioLevel);
-            if (_isDCReceived) {
-              await _dataChannel!.send(
-                RTCDataChannelMessage(
-                  "$STATUS_SPEAKING_AUDIO_LEVEL:$audioLevel",
-                ),
-              );
+            if (stat.values["audioLevel"] != null) {
+              final double audioLevel = stat.values["audioLevel"];
+              speakingAmplitude.add(audioLevel);
+              if (_isDCReceived) {
+                await _dataChannel!.send(
+                  RTCDataChannelMessage(
+                    "$STATUS_SPEAKING_AUDIO_LEVEL:$audioLevel",
+                  ),
+                );
+              }
             }
           }
         }
       }
     });
   }
+
   // here we have function that is used to handle income call from another person and save it in DB (probably)
   void _handleIncomingCallOnReceiver(CallEventV2 callEvent) {
     _callEvents[callEvent.time.toInt()] = "IsRinging";
-    callingStatus.add(CallStatus.IS_RINGING);
+    if (callingStatus.value != CallStatus.CONNECTING) {
+      callingStatus.add(CallStatus.IS_RINGING);
+    }
     _roomUid = callEvent.from;
     _callService
       ..setCallId = callEvent.id
@@ -344,6 +353,7 @@ class CallRepo {
       );
     }
   }
+
   // simple just save call info on DB
   void _saveCallInfoOnDB(CallEventV2 callEvent) {
     final from = callEvent.from.asString();
@@ -387,9 +397,9 @@ class CallRepo {
   * initial Variable for Render Call Between 2 Client
   * */
   Future<void> initCall({bool isOffer = false}) async {
-    _peerConnection =await _createPeerConnection(isOffer);
+    _peerConnection = await _createPeerConnection(isOffer);
     if (isMobileNative && await requestPhoneStatePermission()) {
-      startListenToPhoneCallState();
+      _startListenToPhoneCallState();
     }
 
     if (isOffer) {
@@ -418,7 +428,7 @@ class CallRepo {
     return false;
   }
 
-  void startListenToPhoneCallState() {
+  void _startListenToPhoneCallState() {
     _phoneStateStream = PhoneState.stream.listen((event) {
       if (event.status == PhoneStateStatus.CALL_STARTED) {
         _analyticsService.sendLogEvent(
@@ -439,45 +449,13 @@ class CallRepo {
 
   // This function use for setting up and managing the real-time communication between two peers.
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final iceServers = <String, dynamic>{
-
-        // "sdpSemantics": "plan-b", // Add this line
-        // 'iceServers': [
-        //   {'url': STUN_SERVER_URL_1},
-        //   {
-        //     'url': TURN_SERVER_URL_1,
-        //     'username': TURN_SERVER_USERNAME_1,
-        //     'credential': TURN_SERVER_PASSWORD_1,
-        //   },
-        //   {'url': STUN_SERVER_URL_2},
-        //   {
-        //     'url': TURN_SERVER_URL_2,
-        //     'username': TURN_SERVER_USERNAME_2,
-        //     'credential': TURN_SERVER_PASSWORD_2,
-        //   },
-        //   {'url': STUN_SERVER_URL_3},
-        // ]
-      };
-
-    final config = <String, dynamic>{
-      'mandatory': {},
-      'optional': [
-        {'DtlsSrtpKeyAgreement': true},
-      ],
-    };
-
-    _sdpConstraints = {
-      "mandatory": {
-        "OfferToReceiveAudio": true,
-        "OfferToReceiveVideo": _isVideo,
-        "IceRestart": true,
-      },
-      "optional": [],
-    };
+    _sdpConstraints = CallUtils.getSdpConstraints(isVideo: _isVideo);
     // maybe this line is what i'm looking for (createPeerConnection)
-    final pc = await createPeerConnection(iceServers, config);
-
-    _localStream = await _getUserMedia();
+    final pc = await createPeerConnection(
+      CallUtils.getIceServers(),
+      CallUtils.getConfig(),
+    );
+    _localStream = await CallUtils.getUserMedia(isVideo: _isVideo);
     final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isDesktopNative) {
       _audioService.turnDownTheCallVolume();
@@ -541,11 +519,18 @@ class CallRepo {
       }
       ..onIceCandidate = (e) {
         if (e.candidate != null) {
-          _candidate.add({
-            'candidate': e.candidate.toString(),
-            'sdpMid': e.sdpMid.toString(),
-            'sdpMlineIndex': e.sdpMLineIndex!,
-          });
+          if (_candidate.isEmpty) {
+            _candidate.add({
+              'candidate':
+                  '192.168.1.100 1 udp 2122260223 192.168.1.100 1234 typ host generation 0',
+              'sdpMid': e.sdpMid.toString(),
+              'sdpMlineIndex': e.sdpMLineIndex!,
+            });
+
+            if (_isAccepted) {
+              _calculateCandidateAndSendAnswer();
+            }
+          }
         }
       }
       ..onIceGatheringState = (state) {
@@ -673,12 +658,6 @@ class CallRepo {
     return pc;
   }
 
-
-
-
-
-
-
   Future<void> setConnectionQualityAndLimitationParamsForAudio() async {
     //when connection Connected Status we Set some limit on bitRate
     try {
@@ -769,10 +748,7 @@ class CallRepo {
     try {
       await _startCallTimerAndChangeStatus();
       _logger.i("Call Connected");
-
-      if (timerConnectionFailed != null) {
-        timerConnectionFailed!.cancel();
-      }
+      timerConnectionFailed?.cancel();
       _cancelTimerResendEvent();
 
       final stats = await _peerConnection!.getStats();
@@ -790,8 +766,10 @@ class CallRepo {
       }
 
       if (!_reconnectTry) {
-        await _analyticsService.sendLogEvent(
-          "connectedCall",
+        unawaited(
+          _analyticsService.sendLogEvent(
+            "connectedCall",
+          ),
         );
         lightVibrate().ignore();
       }
@@ -878,7 +856,9 @@ class CallRepo {
     lightVibrate().ignore();
     _isConnected = true;
     isConnectedSubject.add(true);
-    await _ShareCameraStatusFromDataChannel();
+    if (isVideo) {
+      await _ShareCameraStatusFromDataChannel();
+    }
     if (hasSpeakerCapability) {
       _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
     }
@@ -990,92 +970,6 @@ class CallRepo {
 /*
   * get Access from User for Camera and Microphone
   * */
-  Future<MediaStream> _getUserMedia() async {
-    // Provide your own width, height and frame rate here
-    final VideoCallQualityDetails videoCallQualityDetails;
-    if (settings.lowNetworkUsageVideoCall.value) {
-      videoCallQualityDetails =
-          _callService.getVideoCallQualityDetails(VideoCallQuality.MEDIUM);
-    } else {
-      videoCallQualityDetails = _callService
-          .getVideoCallQualityDetails(settings.videoCallQuality.value);
-    }
-    Map<String, dynamic> mediaConstraints;
-
-    final Map<String, String> audioConstrains;
-    if (!_isVideo && settings.highQualityCall.value) {
-      audioConstrains = {
-        'sampleSize': '24',
-        'channelCount': '2',
-        'echoCancellation': 'true',
-        'latency': '0',
-        'noiseSuppression': 'ture',
-        'sampleRate': '96000',
-      };
-    } else if (settings.lowNetworkUsageVoiceCall.value) {
-      audioConstrains = {
-        'sampleSize': '12',
-        'channelCount': '2',
-        'sampleRate': '22400',
-      };
-    } else {
-      audioConstrains = {
-        'sampleSize': '16',
-        'channelCount': '2',
-        'echoCancellation': 'true',
-        'latency': '0',
-        'noiseSuppression': 'ture',
-      };
-    }
-    mediaConstraints = {
-      'video': _isVideo
-          ? {
-              'mandatory': {
-                'minWidth': videoCallQualityDetails.width.toString(),
-                'minHeight': videoCallQualityDetails.height.toString(),
-                'maxWidth': videoCallQualityDetails.width.toString(),
-                'maxHeight': videoCallQualityDetails.height.toString(),
-                'minFrameRate':
-                    videoCallQualityDetails.getFrameRate().toString(),
-                'maxFrameRate':
-                    videoCallQualityDetails.getFrameRate().toString(),
-              },
-              'facingMode': 'user',
-              'optional': [],
-            }
-          : false,
-      'audio': audioConstrains
-    };
-
-    final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    return stream;
-  }
-
-  Future<MediaStream> _getUserDisplay(DesktopCapturerSource? source) async {
-    if (isDesktopNative) {
-      final stream =
-          await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
-        'video': source == null
-            ? true
-            : {
-                'deviceId': {'exact': source.id},
-                'mandatory': {'frameRate': 30.0},
-              }
-      });
-      stream.getVideoTracks()[0].onEnded = () {
-        _logger.i(
-          'By adding a listener on onEnded you can: 1) catch stop video sharing on Web',
-        );
-      };
-
-      return stream;
-    } else {
-      final mediaConstraints = <String, dynamic>{'audio': false, 'video': true};
-      final stream =
-          await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
-      return stream;
-    }
-  }
 
 //https://github.com/flutter-webrtc/flutter-webrtc/issues/831 issue for Android
 //https://github.com/flutter-webrtc/flutter-webrtc/issues/799 issue for Windows
@@ -1088,7 +982,7 @@ class CallRepo {
         muteCamera();
       }
 
-      _localStreamShare = await _getUserDisplay(source);
+      _localStreamShare = await CallUtils.getUserDisplay(source);
       final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
@@ -1264,7 +1158,9 @@ class CallRepo {
       //     await _dispose();
       //   },
       // );
-      callingStatus.add(CallStatus.IS_RINGING);
+      if (callingStatus.value != CallStatus.CONNECTING) {
+        callingStatus.add(CallStatus.IS_RINGING);
+      }
 //      await _callService.initRenderer();
       _sendRinging();
       Timer(const Duration(milliseconds: 500), () async {
@@ -1289,15 +1185,7 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (_callService.getUserCallState == UserCallState.NO_CALL) {
-        if (isVideo) {
-          await _analyticsService.sendLogEvent(
-            "startVideoCall",
-          );
-        } else {
-          await _analyticsService.sendLogEvent(
-            "startAudioCall",
-          );
-        }
+        unawaited(_sendLog(isVideo));
         //can't call another ppl or received any call notification
         _callService
           ..setUserCallState = UserCallState.IN_USER_CALL
@@ -1308,7 +1196,6 @@ class CallRepo {
         _roomUid = roomId;
         _isCallInitiated = true;
         await initCall(isOffer: true);
-
         // change location of this line from mediaStream get to this line for prevent
         // exception on callScreen and increase call speed .
         onLocalStream?.call(_localStream!);
@@ -1324,7 +1211,7 @@ class CallRepo {
             endCall();
           }
         });
-        _callIdGenerator();
+        _generateNewCallId();
         _sendRinging();
         unawaited(_audioLevelDetection());
         if (hasForegroundServiceCapability) {
@@ -1358,7 +1245,19 @@ class CallRepo {
     }
   }
 
-  void _callIdGenerator() {
+  Future<void> _sendLog(bool isVideo) async {
+    if (isVideo) {
+      await _analyticsService.sendLogEvent(
+        "startVideoCall",
+      );
+    } else {
+      await _analyticsService.sendLogEvent(
+        "startAudioCall",
+      );
+    }
+  }
+
+  void _generateNewCallId() {
     final random = randomAlphaNumeric(10);
     final time = clock.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
@@ -1582,48 +1481,19 @@ class CallRepo {
     final sdp = write(session, null);
 
     final description = RTCSessionDescription(sdp, 'answer');
-
-    await _peerConnection!.setRemoteDescription(description);
+    unawaited(_peerConnection!.setRemoteDescription(description));
   }
 
-  // TODO(amirhossein): waiting for next webRtc update
-  // List<RTCRtpCodecCapability> _sortCodecByPriorities(
-  //   List<RTCRtpCodecCapability> rtcRtpCodecCapability,
-  // ) {
-  //   final priorities = ["video/H264", "video/VP8", "video/VP9"];
-  //   final sortedByPriorities = <RTCRtpCodecCapability>[];
-  //   for (final priCodec in priorities) {
-  //     for (final codec in rtcRtpCodecCapability) {
-  //       if (codec.mimeType == priCodec) {
-  //         sortedByPriorities.add(codec);
-  //       }
-  //     }
-  //   }
-  //
-  //   return sortedByPriorities;
-  // }
-  // this function use instead of RTCPeerConnection.createAnswer()
   Future<String> _createAnswer() async {
-    //note the following should be called before before calling either RTCPeerConnection.createOffer() or createAnswer()
-    //Still Not Supported
-    // if (_isVideo && isAndroidDevice) {
-    //   final transceiver = (await _peerConnection!.getTransceivers())[0];
-    //   final senderCapabilities =
-    //       await getRtpSenderCapabilities(_videoSender!.track!.kind!);
-    //   await transceiver.setCodecPreferences(
-    //     _sortCodecByPriorities(senderCapabilities.codecs!),
-    //   );
-    // }
     final description = await _peerConnection!.createAnswer(_sdpConstraints);
-
     final session = parse(description.sdp.toString());
     final answerSdp = json.encode(session);
     _logger.i("Answer: \n$answerSdp");
 
     unawaited(_peerConnection!.setLocalDescription(description));
-
     return answerSdp;
   }
+
   // this function use instead of RTCPeerConnection.createOffer()
   Future<String> _createOffer() async {
     //note the following should be called before calling either RTCPeerConnection.createOffer() or createAnswer()
@@ -1659,8 +1529,8 @@ class CallRepo {
       candidateTimeLimit = ICE_CANDIDATE_TIME_LIMIT;
     }
     _logger.i(
-      "candidateNumber:$candidateNumber", error:
-      "candidateTimeLimit:$candidateTimeLimit",
+      "candidateNumber:$candidateNumber",
+      error: "candidateTimeLimit:$candidateTimeLimit",
     );
     if (isAnswer) {
       candidateNumber = (candidateNumber / 2).floor();
@@ -2197,18 +2067,16 @@ class CallRepo {
   }
 
   void openCallScreen(
-    BuildContext context,
     Uid room, {
     bool isVideoCall = false,
   }) {
-    if (_callService.getUserCallState == UserCallState.NO_CALL) {
+    if (!_callService.hasCall) {
       _routingService.openCallScreen(
         room,
         isVideoCall: isVideoCall,
       );
     } else {
       if (room == roomUid) {
-
         _routingService.openCallScreen(
           room,
           isCallInitialized: true,
@@ -2216,7 +2084,7 @@ class CallRepo {
         );
       } else {
         showDialog(
-          context: context,
+          context: settings.appContext,
           builder: (context) => AlertDialog(
             content: Text(
               _i18n.get("you_already_in_call"),
@@ -2227,7 +2095,7 @@ class CallRepo {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-              )
+              ),
             ],
           ),
         );
@@ -2276,7 +2144,6 @@ class FirstTaskHandler extends TaskHandler {
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     // You can use the getData function to get the data you saved.
     sPort = sendPort;
-
   }
 
   @override

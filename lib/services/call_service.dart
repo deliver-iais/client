@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/call_status.dart';
@@ -145,6 +147,8 @@ class CallService {
   RTCVideoRenderer get getLocalRenderer => _localRenderer;
 
   RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
+
+  bool get hasCall => _callState != UserCallState.NO_CALL;
 
   set setUserCallState(UserCallState cs) => _callState = cs;
 

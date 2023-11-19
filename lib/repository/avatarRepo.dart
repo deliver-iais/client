@@ -85,7 +85,7 @@ class AvatarRepo {
       }
       return completer.complete();
     } on GrpcError catch (e) {
-      _logger.e("grpc error for $userUid",error: e);
+      _logger.e("grpc error for $userUid", error: e);
       if (e.code == StatusCode.notFound) {
         await _avatarDao.clearAllAvatars(userUid.asString());
         await _avatarDao.saveLastAvatarAsNull(userUid.asString());
@@ -147,8 +147,11 @@ class AvatarRepo {
   Future<Avatar?> getLastAvatar(
     Uid userUid, {
     bool forceToUpdate = false,
+    bool needToFetch = true,
   }) async {
-    await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
+    if (needToFetch) {
+      await fetchAvatar(userUid, forceToUpdate: forceToUpdate);
+    }
     final key = _getAvatarCacheKey(userUid);
 
     var ac = _avatarCache.get(key);

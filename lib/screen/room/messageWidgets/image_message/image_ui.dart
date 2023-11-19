@@ -17,7 +17,7 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/material.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:flutter_blurhash_plus/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 
 class ImageUi extends StatefulWidget {
