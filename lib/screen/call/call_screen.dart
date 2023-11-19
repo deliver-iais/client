@@ -75,7 +75,7 @@ class CallScreenState extends State<CallScreen> {
       _remoteRenderer = _callService.getRemoteRenderer;
 
       if (!widget.isCallInitialized) {
-        startCall();
+        _startCall();
         checkForSystemAlertWindowPermission();
         if (isAndroidNative) {
           _listenSensor();
@@ -201,7 +201,7 @@ class CallScreenState extends State<CallScreen> {
     );
   }
 
-  Future<void> startCall() async {
+  Future<void> _startCall() async {
     _callRepo
       ..onLocalStream = ((stream) {
         _localRenderer.srcObject = stream;

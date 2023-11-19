@@ -81,40 +81,40 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       // width: pointSize,
                       // height: pointSize,
                       point: currentLocation,
-                      child:Container(
-                          padding: const EdgeInsets.all(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          // borderRadius: BorderRadius.circular(48.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (theme.colorScheme.primary.withOpacity(0.7)),
+                              blurRadius: 20.0,
+                            )
+                          ],
+                        ),
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          // padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            // borderRadius: BorderRadius.circular(48.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: (theme.colorScheme.primary
-                                    .withOpacity(0.7)),
-                                blurRadius: 20.0,
-                              )
-                            ],
-                          ),
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            // padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white),
-                              color: theme.colorScheme.primary,
-                            ),
+                            border: Border.all(color: Colors.white),
+                            color: theme.colorScheme.primary,
                           ),
                         ),
+                      ),
                     ),
                     Marker(
                       point: pointerLocation,
                       child: GestureDetector(
-                          child: Icon(
-                            Icons.location_pin,
-                            color: Theme.of(context).colorScheme.error,
-                            size: 28,
-                          ),
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 28,
                         ),
+                      ),
                     )
                   ],
                 )
@@ -203,7 +203,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
       final newLocation =
           mapController.pointToLatLng(CustomPoint(pointX, pointY));
       pointerLocation = newLocation;
-        });
+    });
   }
 
   double _getPointX(BuildContext context) {
@@ -241,10 +241,10 @@ class AttachLocation {
             },
           );
         } else {
-          const defaultPosition = Position(
+          final defaultPosition = Position(
             longitude: 51.338113116657055,
             latitude: 35.699693143116974,
-            timestamp: null,
+            timestamp: DateTime.now(),
             accuracy: 0.0,
             altitudeAccuracy: 1.0,
             altitude: 0.0,

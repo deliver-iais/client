@@ -254,12 +254,7 @@ class ServerLessMessageService {
         unawaited(
           _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
         );
-      } else if (type == CALL_EVENT) {
-        unawaited(
-          _dataStreamService.handleCallEvent(
-              call_pb.CallEventV2.fromBuffer(await request.first)),
-        );
-      } else if (type == MESSAGE) {
+      }  else if (type == MESSAGE) {
         unawaited(
           _processMessage(request),
         );
@@ -317,7 +312,7 @@ class ServerLessMessageService {
         await sendClientPacket(
           ClientPacket()..message = _createMessageByClient(messages[j].msg),
         );
-        await Future.value(const Duration(milliseconds: 1500));
+        await Future.value(const Duration(milliseconds: 600));
       } catch (e) {
         _logger.e(e);
       }
@@ -401,7 +396,6 @@ class ServerLessMessageService {
           ip,
           type: SEND_FILE_REQ,
         );
-        print("send send file  request");
         return true;
       }
     } catch (e) {

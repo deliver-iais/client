@@ -91,7 +91,7 @@ const FAKE_USER_NAME = "John Doe";
 
 // Call Constants
 //Stun Servers
-const STUN_SERVER_URL_1 = 'stun:217.218.7.16:3478';
+const STUN_SERVER_URL_1 = 'stun:localhost:19302';
 const STUN_SERVER_URL_2 = 'stun:157.90.138.141:3478';
 const STUN_SERVER_URL_3 = 'stun:stun.l.google.com:19302';
 

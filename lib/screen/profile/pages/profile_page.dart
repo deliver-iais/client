@@ -471,14 +471,12 @@ class ProfilePageState extends State<ProfilePage>
                               } else if (selectedString ==
                                   "video_call_in_messenger") {
                                 _callRepo.openCallScreen(
-                                  context,
                                   widget.roomUid,
                                   isVideoCall: true,
                                 );
                               } else if (selectedString ==
                                   "audio_call_in_messenger") {
                                 _callRepo.openCallScreen(
-                                  context,
                                   widget.roomUid,
                                 );
                               } else if (selectedString == "copy") {

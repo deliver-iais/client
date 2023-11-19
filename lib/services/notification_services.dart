@@ -50,7 +50,7 @@ abstract class Notifier {
   static void onCallNotificationAction(
     String roomUid, {
     bool isVideoCall = false,
-    bool isCallAccepted = false,
+    bool isCallAccepted = true,
   }) {
     GetIt.I.get<RoutingService>().openCallScreen(
           roomUid.asUid(),
@@ -327,7 +327,7 @@ class WindowsNotifier implements Notifier {
       toastByRoomId[message.roomUid.node] = {};
     }
     try {
-      final lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid);
+      final lastAvatar = await _avatarRepo.getLastAvatar(message.roomUid,needToFetch: false);
       if (lastAvatar != null && !lastAvatar.avatarIsEmpty) {
         final file = await _fileRepo.getFile(
           lastAvatar.fileUuid,
@@ -380,7 +380,7 @@ class WindowsNotifier implements Notifier {
       toastByRoomId[roomUid.asUid().node] = {};
     }
     try {
-      final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
+      final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid(),needToFetch: false);
       final callEventV2 = callEventJson?.toCallEventV2();
       final isVideoCall = callEventV2!.isVideo;
       final subtitle = "Incoming ${isVideoCall ? "Video" : "Audio"} Call";
@@ -531,7 +531,7 @@ class LinuxNotifier implements Notifier {
       'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png',
     );
 
-    final la = await _avatarRepo.getLastAvatar(message.roomUid);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid,needToFetch: false);
 
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
@@ -939,7 +939,7 @@ class AndroidNotifier implements Notifier {
     var selectedNotificationSound =
         shouldBeQuiet ? "no_sound" : "that_was_quick";
     final selectedSound = await _roomRepo.getRoomCustomNotification(roomUid);
-    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid(),needToFetch: false);
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
         la.fileUuid,
@@ -990,7 +990,7 @@ class AndroidNotifier implements Notifier {
     String roomName,
     String? callEventJson,
   ) async {
-    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid(),needToFetch: false);
     String? path;
     if (la != null && !la.avatarIsEmpty) {
       path = await _fileRepo.getFileIfExist(
@@ -1125,7 +1125,7 @@ class IOSNotifier implements Notifier {
 
     final attachments = <DarwinNotificationAttachment>[];
 
-    final la = await _avatarRepo.getLastAvatar(message.roomUid);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid,needToFetch: false);
 
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(
@@ -1247,7 +1247,7 @@ class MacOSNotifier implements Notifier {
 
     final attachments = <DarwinNotificationAttachment>[];
 
-    final la = await _avatarRepo.getLastAvatar(message.roomUid);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid,needToFetch: false);
 
     if (la != null && !la.avatarIsEmpty) {
       final path = await _fileRepo.getFileIfExist(

@@ -331,7 +331,7 @@ class RoomPageState extends State<RoomPage>
                   );
                 },
               ),
-            if (!isLarge(context)) const HasCallRow(),
+            // if (!isLarge(context)) const HasCallRow(),
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -1469,7 +1469,6 @@ class RoomPageState extends State<RoomPage>
                         children: [
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
-                              context,
                               room.uid,
                               isVideoCall: true,
                             ),
@@ -1477,7 +1476,6 @@ class RoomPageState extends State<RoomPage>
                           ),
                           IconButton(
                             onPressed: () => _callRepo.openCallScreen(
-                              context,
                               room.uid,
                             ),
                             icon: const Icon(Icons.local_phone_rounded),

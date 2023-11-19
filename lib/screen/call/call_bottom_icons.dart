@@ -498,7 +498,9 @@ class CallBottomRowState extends State<CallBottomRow>
       case CallStatus.CREATED:
         return !_callRepo.isCaller;
       case CallStatus.IS_RINGING:
-        return widget.isIncomingCall;
+        return _callRepo.isCaller
+            ? widget.isIncomingCall
+            : !widget.isIncomingCall;
       case CallStatus.DECLINED:
       case CallStatus.BUSY:
       case CallStatus.ENDED:

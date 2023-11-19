@@ -257,7 +257,7 @@ class NavigationCenterState extends State<NavigationCenter>
                       }
                     },
                   ),
-                  const HasCallRow(),
+                //  const HasCallRow(),
                   if (!isLarge(context)) const AudioPlayerAppBar(),
                   Expanded(
                     child: TabBarView(
