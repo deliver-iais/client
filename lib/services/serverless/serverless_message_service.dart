@@ -243,7 +243,7 @@ class ServerLessMessageService {
   Future<void> processRequest(HttpRequest request) async {
     try {
       final type = request.headers.value(TYPE) ?? MESSAGE;
-      if (type == ACK) {
+      if (type == ACK ) {
         unawaited(
           _dataStreamService.handleAckMessage(
             MessageDeliveryAck.fromBuffer(await request.first),

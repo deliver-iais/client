@@ -440,23 +440,24 @@ class CallRepo {
   // This function use for setting up and managing the real-time communication between two peers.
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
     final iceServers = <String, dynamic>{
-      "sdpSemantics": "plan-b", // Add this line
-      'iceServers': [
-        {'url': STUN_SERVER_URL_1},
-        {
-          'url': TURN_SERVER_URL_1,
-          'username': TURN_SERVER_USERNAME_1,
-          'credential': TURN_SERVER_PASSWORD_1,
-        },
-        {'url': STUN_SERVER_URL_2},
-        {
-          'url': TURN_SERVER_URL_2,
-          'username': TURN_SERVER_USERNAME_2,
-          'credential': TURN_SERVER_PASSWORD_2,
-        },
-        {'url': STUN_SERVER_URL_3},
-      ]
-    };
+
+        // "sdpSemantics": "plan-b", // Add this line
+        // 'iceServers': [
+        //   {'url': STUN_SERVER_URL_1},
+        //   {
+        //     'url': TURN_SERVER_URL_1,
+        //     'username': TURN_SERVER_USERNAME_1,
+        //     'credential': TURN_SERVER_PASSWORD_1,
+        //   },
+        //   {'url': STUN_SERVER_URL_2},
+        //   {
+        //     'url': TURN_SERVER_URL_2,
+        //     'username': TURN_SERVER_USERNAME_2,
+        //     'credential': TURN_SERVER_PASSWORD_2,
+        //   },
+        //   {'url': STUN_SERVER_URL_3},
+        // ]
+      };
 
     final config = <String, dynamic>{
       'mandatory': {},
