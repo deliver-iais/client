@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
+import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -155,9 +157,10 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                 return GestureDetector(
                                   onTap: () => widget.selectAsAvatar
                                       ? {
-                                   Navigator.pop(context),
-                                    widget.pop(),
-                                    widget.onAvatarSelected!(imagePath),}
+                                          Navigator.pop(context),
+                                          widget.pop(),
+                                          widget.onAvatarSelected!(imagePath),
+                                        }
                                       : _routingService.openViewImagePage(
                                           imagePath: imagePath,
                                           onEditEnd: (path) => imagePath = path,
@@ -187,42 +190,63 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                       enabled: settings.showAnimations.value,
                                       child: Hero(
                                         tag: imagePath,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: secondaryBorder / 2,
-                                            image: DecorationImage(
-                                              image: Image.file(
-                                                File(imagePath),
-                                                height: 500,
-                                                cacheWidth: 200,
-                                                cacheHeight: 200,
-                                              ).image,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          child: widget.selectAsAvatar
-                                              ? const SizedBox.shrink()
-                                              : Align(
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  child: IconButton(
-                                                    splashColor:
-                                                        Colors.transparent,
-                                                    highlightColor:
-                                                        Colors.transparent,
-                                                    enableFeedback: false,
-                                                    onPressed: () {
-                                                      onTap(imagePath);
-                                                    },
-                                                    icon:
-                                                        CircularCheckMarkWidget(
-                                                      shouldShowCheckMark:
-                                                          isSelected,
-                                                    ),
-                                                    iconSize: 30,
+                                        child: isVideo(imagePath)
+                                            ? Container(
+                                                decoration: BoxDecoration(
+                                                  border:
+                                                      Border.all(width: 1.0),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                    Radius.circular(
+                                                      5.0,
+                                                    ), //
                                                   ),
                                                 ),
-                                        ),
+                                                width: 200,
+                                                height: 200,
+                                                child: Stack(
+                                                  children: [
+                                                    FileIcon(
+                                                      file: fileSnapshot.data!,
+                                                      width: 150,
+                                                      height: 150,
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.bottomLeft,
+                                                      child: Container(
+                                                        color: Theme.of(context)
+                                                            .highlightColor,
+                                                        child: const Icon(
+                                                          CupertinoIcons
+                                                              .video_camera,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    _buildSelecteButton(
+                                                        imagePath, isSelected)
+                                                  ],
+                                                ),
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      secondaryBorder / 2,
+                                                  image: DecorationImage(
+                                                    image: Image.file(
+                                                      File(imagePath),
+                                                      height: 500,
+                                                      cacheWidth: 200,
+                                                      cacheHeight: 200,
+                                                    ).image,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                child: widget.selectAsAvatar
+                                                    ? const SizedBox.shrink()
+                                                    : _buildSelecteButton(
+                                                        imagePath, isSelected),
+                                              ),
                                       ),
                                     ),
                                   ),
@@ -261,6 +285,24 @@ class _GalleryFolderState extends State<GalleryFolder> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Align _buildSelecteButton(String imagePath, bool isSelected) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: IconButton(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        enableFeedback: false,
+        onPressed: () {
+          onTap(imagePath);
+        },
+        icon: CircularCheckMarkWidget(
+          shouldShowCheckMark: isSelected,
+        ),
+        iconSize: 30,
       ),
     );
   }

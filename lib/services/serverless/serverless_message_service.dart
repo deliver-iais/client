@@ -5,19 +5,16 @@ import 'dart:math';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as model;
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -25,17 +22,10 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:deliver_public_protocol/pub/v1/models/local_network_file.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
-    as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -254,7 +244,7 @@ class ServerLessMessageService {
         unawaited(
           _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
         );
-      }  else if (type == MESSAGE) {
+      } else if (type == MESSAGE) {
         unawaited(
           _processMessage(request),
         );
@@ -310,7 +300,8 @@ class ServerLessMessageService {
     while (j < messages.length) {
       try {
         await sendClientPacket(
-          ClientPacket()..message = _createMessageByClient(messages[j].msg),
+          ClientPacket()
+            ..message = MessageUtils.createMessageByClient(messages[j].msg),
         );
         await Future.value(const Duration(milliseconds: 600));
       } catch (e) {
@@ -319,65 +310,6 @@ class ServerLessMessageService {
 
       j++;
     }
-  }
-
-  message_pb.MessageByClient _createMessageByClient(model.Message message) {
-    final byClient = message_pb.MessageByClient()
-      ..packetId = message.packetId
-      ..to = message.to
-      ..replyToId = Int64(message.replyToId);
-
-    if (message.forwardedFrom != null) {
-      byClient.forwardFrom = message.forwardedFrom!;
-    }
-    if (message.generatedBy != null) {
-      byClient.generatedBy = message.generatedBy!;
-    }
-
-    switch (message.type) {
-      case MessageType.TEXT:
-        byClient.text = message_pb.Text.fromJson(message.json);
-        break;
-      case MessageType.FILE:
-        byClient.file = file_pb.File.fromJson(message.json);
-        break;
-      case MessageType.LOCATION:
-        byClient.location = location_pb.Location.fromJson(message.json);
-        break;
-      case MessageType.STICKER:
-        // byClient.sticker = sticker_pb.Sticker.fromJson(message.json);
-        break;
-      case MessageType.FORM_RESULT:
-        byClient.formResult = form_pb.FormResult.fromJson(message.json);
-        break;
-      case MessageType.SHARE_UID:
-        byClient.shareUid = message_pb.ShareUid.fromJson(message.json);
-        break;
-      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-        byClient.sharePrivateDataAcceptance =
-            SharePrivateDataAcceptance.fromJson(message.json);
-        break;
-      case MessageType.FORM:
-        byClient.form = message.json.toForm();
-        break;
-      case MessageType.CALL:
-        byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
-        break;
-      case MessageType.TABLE:
-        byClient.table = form_pb.Table.fromJson(message.json);
-        break;
-      case MessageType.LIVE_LOCATION:
-      case MessageType.POLL:
-      case MessageType.PERSISTENT_EVENT:
-      case MessageType.NOT_SET:
-      case MessageType.BUTTONS:
-      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-      case MessageType.TRANSACTION:
-      case MessageType.PAYMENT_INFORMATION:
-      case MessageType.CALL_LOG:
-        break;
-    }
-    return byClient;
   }
 
   Future<bool> sendFileSendRequestMessage({
@@ -535,7 +467,8 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendCallEvent(
-      call_pb.CallEventV2ByClient callEventV2ByClient) async {
+    call_pb.CallEventV2ByClient callEventV2ByClient,
+  ) async {
     final ip =
         await _serverLessService.getIp(callEventV2ByClient.to.asString());
     if (ip != null) {
@@ -558,11 +491,19 @@ class ServerLessMessageService {
       } else if (callEventV2ByClient.hasBusy()) {
         callEvent.busy = callEventV2ByClient.busy;
       }
-      await _serverLessService.sendRequest(callEvent.writeToBuffer(), ip,type:CALL_EVENT);
+      await _serverLessService.sendRequest(
+        callEvent.writeToBuffer(),
+        ip,
+        type: CALL_EVENT,
+      );
 
       if (callEvent.hasRinging()) {
         _callService.addCallEvent(CallEvents.callEvent(callEvent));
+      } else if (callEvent.hasBusy()) {
+        unawaited(_sendCallLog(CallLog()..end = CallEventEnd()));
       }
     }
   }
+
+  Future<void> _sendCallLog(CallLog callLog) async {}
 }

@@ -219,11 +219,8 @@ class CallScreenState extends State<CallScreen> {
       if (widget.isCallAccepted) {
         await _callRepo.acceptCall(widget.roomUid);
       }
-    } else if (widget.isVideoCall) {
-      await _callRepo.startCall(widget.roomUid, isVideo: true);
     } else {
-
-      await _callRepo.startCall(widget.roomUid);
+      await (_callRepo.startCall(widget.roomUid, isVideo: widget.isVideoCall));
     }
   }
 
