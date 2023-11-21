@@ -397,6 +397,8 @@ class CallRepo {
   * initial Variable for Render Call Between 2 Client
   * */
   Future<void> initCall({bool isOffer = false}) async {
+    await _peerConnection?.dispose();
+    await _peerConnection?.close();
     _peerConnection = await _createPeerConnection(isOffer);
     if (isMobileNative && await requestPhoneStatePermission()) {
       _startListenToPhoneCallState();
@@ -489,6 +491,7 @@ class CallRepo {
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
           case RTCIceConnectionState.RTCIceConnectionStateCount:
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
+            _logger.e("");
             // this cases no matter and don't have impact on our Work
             break;
         }
@@ -521,8 +524,7 @@ class CallRepo {
         if (e.candidate != null) {
           if (_candidate.isEmpty) {
             _candidate.add({
-              'candidate':
-                  '192.168.1.100 1 udp 2122260223 192.168.1.100 1234 typ host generation 0',
+              'candidate': e.candidate.toString(),
               'sdpMid': e.sdpMid.toString(),
               'sdpMlineIndex': e.sdpMLineIndex!,
             });
@@ -802,8 +804,9 @@ class CallRepo {
     }
   }
 
-  void onRTCPeerConnectionStateFailed() {
+  void onRTCPeerConnectionStateFailed() async {
     try {
+      await _peerConnection?.restartIce();
       _callEvents[clock.now().millisecondsSinceEpoch] = "Failed";
       if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
         _reconnectTry = true;
@@ -1127,7 +1130,8 @@ class CallRepo {
           ),
         );
       } else if (!isDuplicated) {
-        if (_routingService.getCurrentRoomId() == _roomUid!.asString()) {
+        if (false &&
+            _routingService.getCurrentRoomId() == _roomUid!.asString()) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1163,17 +1167,17 @@ class CallRepo {
       }
 //      await _callService.initRenderer();
       _sendRinging();
-      Timer(const Duration(milliseconds: 500), () async {
+      Timer(const Duration(milliseconds: 1500), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
             if (await getDeviceVersion() >= 31) {
-              _isCallInitiated = true;
               await initCall();
+              _isCallInitiated = true;
             }
           }
         } else if (!_isVideo) {
-          _isCallInitiated = true;
           await initCall();
+          _isCallInitiated = true;
         }
       });
     } catch (e) {
@@ -1195,6 +1199,7 @@ class CallRepo {
         _isVideo = isVideo;
         _roomUid = roomId;
         _isCallInitiated = true;
+        await Future.delayed(const Duration(milliseconds: 1500));
         await initCall(isOffer: true);
         // change location of this line from mediaStream get to this line for prevent
         // exception on callScreen and increase call speed .
@@ -1281,32 +1286,16 @@ class CallRepo {
       }
 
       callingStatus.add(CallStatus.CONNECTING);
+      _audioService.stopCallAudioPlayer();
+      _timerRinging?.cancel();
 
-      try {
-        _audioService.stopCallAudioPlayer();
-      } catch (e) {
-        _logger.e(e);
-      }
-      if (_timerRinging != null) {
-        _timerRinging!.cancel();
-      }
       //after accept Call w8 for 30 sec if don't connecting force end Call
-      timerConnectionFailed = Timer(const Duration(seconds: 30), () {
-        if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
-          try {
-            _logger.i("Call Can't Connected !!");
-            callingStatus.add(CallStatus.NO_ANSWER);
-            unawaited(_increaseCandidateAndWaitingTime());
-          } catch (e) {
-            _logger.e(e);
-          }
-          endCall();
-        }
-      });
+      timerConnectionFailed = _startFailCallTimer();
       //if call come from backGround doesn't init and should be initialize
       if (!_isCallInitiated) {
         await initCall();
       }
+      _localStream ??= await CallUtils.getUserMedia(isVideo: _isVideo);
       // change location of this line from mediaStream get to this line for prevent
       // exception on callScreen and increase call speed .
       onLocalStream?.call(_localStream!);
@@ -1331,10 +1320,27 @@ class CallRepo {
           });
         }
       }
-    } catch (e) {
-      _logger.e(e);
+    } catch (e, es) {
+      _logger
+        ..e(es)
+        ..e(e);
       await _dispose();
     }
+  }
+
+  Timer _startFailCallTimer() {
+    return Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
+        try {
+          _logger.i("Call Can't Connected !!");
+          callingStatus.add(CallStatus.NO_ANSWER);
+          unawaited(_increaseCandidateAndWaitingTime());
+        } catch (e) {
+          _logger.e(e);
+        }
+        endCall();
+      }
+    });
   }
 
   Future<void> declineCall() async {

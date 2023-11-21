@@ -44,6 +44,7 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/random_vm.dart';
+import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -450,7 +451,7 @@ class MessageRepo {
         )
         .catchError((e) {
       _logger
-        ..wtf("roomUid: $roomUid")
+        ..f("roomUid: $roomUid")
         ..e(e);
     });
   }
@@ -500,7 +501,7 @@ class MessageRepo {
         );
       } on GrpcError catch (e) {
         _logger
-          ..wtf(roomUid)
+          ..w(roomUid)
           ..e(e);
         if (e.code == StatusCode.notFound) {
           unawaited(sendSeen(lastCurrentUserSentMessageId, roomUid.asUid()));
@@ -995,72 +996,13 @@ class MessageRepo {
   }
 
   void _sendMessageToServer(PendingMessage pm) {
-    final byClient = _createMessageByClient(pm.msg);
+    final byClient = MessageUtils.createMessageByClient(pm.msg);
     _coreServices.sendMessage(byClient);
   }
 
   void sendBroadcastMessageToServer(Message message) {
-    final byClient = _createMessageByClient(message);
+    final byClient = MessageUtils.createMessageByClient(message);
     _coreServices.sendMessage(byClient);
-  }
-
-  message_pb.MessageByClient _createMessageByClient(Message message) {
-    final byClient = message_pb.MessageByClient()
-      ..packetId = message.packetId
-      ..to = message.to
-      ..replyToId = Int64(message.replyToId);
-
-    if (message.forwardedFrom != null) {
-      byClient.forwardFrom = message.forwardedFrom!;
-    }
-    if (message.generatedBy != null) {
-      byClient.generatedBy = message.generatedBy!;
-    }
-
-    switch (message.type) {
-      case MessageType.TEXT:
-        byClient.text = message_pb.Text.fromJson(message.json);
-        break;
-      case MessageType.FILE:
-        byClient.file = file_pb.File.fromJson(message.json);
-        break;
-      case MessageType.LOCATION:
-        byClient.location = location_pb.Location.fromJson(message.json);
-        break;
-      case MessageType.STICKER:
-        byClient.sticker = sticker_pb.Sticker.fromJson(message.json);
-        break;
-      case MessageType.FORM_RESULT:
-        byClient.formResult = form_pb.FormResult.fromJson(message.json);
-        break;
-      case MessageType.SHARE_UID:
-        byClient.shareUid = message_pb.ShareUid.fromJson(message.json);
-        break;
-      case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-        byClient.sharePrivateDataAcceptance =
-            SharePrivateDataAcceptance.fromJson(message.json);
-        break;
-      case MessageType.FORM:
-        byClient.form = message.json.toForm();
-        break;
-      case MessageType.CALL:
-        byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
-        break;
-      case MessageType.TABLE:
-        byClient.table = form_pb.Table.fromJson(message.json);
-        break;
-      case MessageType.LIVE_LOCATION:
-      case MessageType.POLL:
-      case MessageType.PERSISTENT_EVENT:
-      case MessageType.NOT_SET:
-      case MessageType.BUTTONS:
-      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-      case MessageType.TRANSACTION:
-      case MessageType.PAYMENT_INFORMATION:
-      case MessageType.CALL_LOG:
-        break;
-    }
-    return byClient;
   }
 
   @visibleForTesting
@@ -1196,7 +1138,8 @@ class MessageRepo {
     PendingMessage pendingMessage,
   ) async {
     try {
-      final updatedMessage = _createMessageByClient(pendingMessage.msg);
+      final updatedMessage =
+          MessageUtils.createMessageByClient(pendingMessage.msg);
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1656,7 +1599,8 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            _cachingRepo.setMessage(msg.roomUid, msg.localNetworkMessageId!, msg);
+            _cachingRepo.setMessage(
+                msg.roomUid, msg.localNetworkMessageId!, msg);
 
             await _messageDao.updateMessage(msg);
             messageEventSubject.add(
@@ -1757,7 +1701,8 @@ class MessageRepo {
         await _roomDao.updateRoom(
           uid: roomUid,
           lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
-          lastMessage: editableMessage.copyWith(json:(message_pb.Text()..text = text).writeToJson()),
+          lastMessage: editableMessage.copyWith(
+              json: (message_pb.Text()..text = text).writeToJson()),
         );
       }
     } catch (e) {
@@ -1768,8 +1713,9 @@ class MessageRepo {
   Future<void> _edit(UpdateMessageReq updateMessageReq) async {
     if (settings.localNetworkMessenger.value) {
       _serverLessMessageService.editMessage(
-          messageByClient: updateMessageReq.message,
-          messageId: updateMessageReq.messageId.toInt(),);
+        messageByClient: updateMessageReq.message,
+        messageId: updateMessageReq.messageId.toInt(),
+      );
     } else {
       await _sdr.queryServiceClient.updateMessage(updateMessageReq);
     }

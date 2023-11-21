@@ -1,9 +1,13 @@
 import 'dart:io';
+
+import 'package:deliver/models/file.dart' as model;
+import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_folder.dart';
 import 'package:deliver/services/camera_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -67,8 +71,8 @@ class GalleryBoxState extends State<GalleryBox> {
           .initCamera()
           .then((value) => _canInitCamera.add(value));
       if (await checkAccessMediaLocationPermission()) {
-        final folders =
-            await PhotoManager.getAssetPathList(type: RequestType.image);
+        await PhotoManager.requestPermissionExtend();
+        final folders = await PhotoManager.getAssetPathList();
         final finalFolders = <AssetPathEntity>[];
 
         for (final f in folders) {
@@ -78,7 +82,9 @@ class GalleryBoxState extends State<GalleryBox> {
         }
         _folders.add(finalFolders);
       }
-    } catch (_) {}
+    } catch (_) {
+      print(_);
+    }
   }
 
   Future<bool> checkAccessMediaLocationPermission() async {
@@ -147,7 +153,7 @@ class GalleryBoxState extends State<GalleryBox> {
                               CupertinoIcons.camera,
                               size: 40,
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -162,7 +168,7 @@ class GalleryBoxState extends State<GalleryBox> {
                           builder: (c) {
                             return GalleryFolder(
                               folder,
-                              roomUid:widget.roomUid,
+                              roomUid: widget.roomUid,
                               () => Navigator.pop(context),
                               onAvatarSelected: widget.onAvatarSelected,
                               selectAsAvatar: widget.selectAsAvatar,
@@ -213,79 +219,125 @@ class GalleryBoxState extends State<GalleryBox> {
             future: assets[i].file,
             builder: (context, fileSnapshot) {
               if (fileSnapshot.hasData && fileSnapshot.data != null) {
-                return Container(
-                  width: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
-                  height: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    borderRadius: secondaryBorder,
-                    border: Border.all(
-                      color: theme.colorScheme.outline.withOpacity(0.7),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.shadow.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 3,
-                        offset:
-                            const Offset(0, 4), // changes position of shadow
+                if (!isVideo(fileSnapshot.data!.path)) {
+                  return Container(
+                    width:
+                        MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
+                    height:
+                        MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      borderRadius: secondaryBorder,
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withOpacity(0.7),
                       ),
-                    ],
-                    image: DecorationImage(
-                      image: Image.file(
-                        fileSnapshot.data!,
-                        cacheWidth: 100,
-                        cacheHeight: 100,
-                        height: ((2 - i) * 10) + 480,
-                      ).image,
-                      fit: BoxFit.cover,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset: const Offset(
+                            0,
+                            4,
+                          ), // changes position of shadow
+                        ),
+                      ],
+                      image: DecorationImage(
+                        image: Image.file(
+                          fileSnapshot.data!,
+                          cacheWidth: 100,
+                          cacheHeight: 100,
+                          height: ((2 - i) * 10) + 480,
+                        ).image,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: i == 0
+                        ? Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              padding: const EdgeInsetsDirectional.only(
+                                top: 6,
+                                bottom: 4,
+                                start: 6,
+                                end: 4,
+                              ),
+                              width: MediaQuery.of(context).size.width / 2 - 40,
+                              decoration: BoxDecoration(
+                                borderRadius: secondaryBorder.copyWith(
+                                  topLeft: Radius.zero,
+                                  topRight: Radius.zero,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.colorScheme.shadow
+                                        .withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 3,
+                                    offset: const Offset(
+                                      0,
+                                      3,
+                                    ), // changes position of shadow
+                                  ),
+                                ],
+                                color: theme.colorScheme.onSurfaceVariant,
+                                // borderRadius: mainBorder,
+                              ),
+                              child: Text(
+                                folderName,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.surfaceVariant,
+                                    ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  );
+                }
+
+                return Container(
+                  decoration: const BoxDecoration(
+                    // border: Border.all(width: 1.0),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        15.0,
+                      ), //
                     ),
                   ),
-                  child: i == 0
-                      ? Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            padding: const EdgeInsetsDirectional.only(
-                              top: 6,
-                              bottom: 4,
-                              start: 6,
-                              end: 4,
-                            ),
-                            width: MediaQuery.of(context).size.width / 2 - 40,
-                            decoration: BoxDecoration(
-                              borderRadius: secondaryBorder.copyWith(
-                                topLeft: Radius.zero,
-                                topRight: Radius.zero,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      theme.colorScheme.shadow.withOpacity(0.5),
-                                  spreadRadius: 2,
-                                  blurRadius: 3,
-                                  offset: const Offset(
-                                    0,
-                                    3,
-                                  ), // changes position of shadow
-                                ),
-                              ],
-                              color: theme.colorScheme.onSurfaceVariant,
-                              // borderRadius: mainBorder,
-                            ),
-                            child: Text(
-                              folderName,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.colorScheme.surfaceVariant,
-                                  ),
+                  width: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
+                  height: MediaQuery.of(context).size.width / 2 - 40 - (i * 12),
+                  child: Stack(
+                    children: [
+                      FileIcon(
+                        file: fileSnapshot.data!,
+                        width: 150,
+                        height: 150,
+                      ),
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).highlightColor,
+                            // border: Border.all(width: 1.0),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(
+                                6.0,
+                              ), //
                             ),
                           ),
-                        )
-                      : const SizedBox.shrink(),
+                          child: const Icon(
+                            CupertinoIcons.video_camera_solid,
+                            size: 35,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
               return const SizedBox.shrink();

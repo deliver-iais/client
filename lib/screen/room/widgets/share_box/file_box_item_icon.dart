@@ -4,14 +4,19 @@ import 'package:deliver/screen/room/widgets/share_box/video_thumbnail.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:path/path.dart';
 
 class FileIcon extends StatelessWidget {
   final File file;
+  int width;
+  int height;
 
-  const FileIcon({
+  FileIcon({
     Key? key,
     required this.file,
+    this.width = 50,
+    this.height = 50,
   }) : super(key: key);
 
   @override
@@ -45,15 +50,15 @@ class FileIcon extends StatelessWidget {
               },
               image: ResizeImage(
                 FileImage(File(file.path)),
-                width: 50,
-                height: 50,
+                width: width,
+                height: height,
               ),
             ),
           );
         case 'video':
           return SizedBox(
-            height: 50,
-            width: 50,
+            height: height.toDouble(),
+            width: width.toDouble(),
             child: VideoThumbnail(
               path: file.path,
             ),
@@ -63,28 +68,35 @@ class FileIcon extends StatelessWidget {
             Icons.music_note,
             theme,
             theme.colorScheme.onTertiaryContainer,
+            width: width.toDouble(),
+            height: height.toDouble(),
           );
         case 'text':
           return buildFileIcon(
             Icons.text_snippet,
             theme,
             theme.colorScheme.onErrorContainer,
+            width: width.toDouble(),
+            height: height.toDouble(),
           );
         default:
           return buildFileIcon(
             Icons.insert_drive_file_rounded,
             theme,
             theme.colorScheme.onErrorContainer,
+            width: width.toDouble(),
+            height: height.toDouble(),
           );
       }
     }
   }
 }
 
-Widget buildFileIcon(IconData icon, ThemeData theme, Color color) {
+Widget buildFileIcon(IconData icon, ThemeData theme, Color color,
+    {double width = 50, double height = 50}) {
   return Container(
-    width: 50,
-    height: 50,
+    width: width,
+    height: height,
     decoration: BoxDecoration(borderRadius: tertiaryBorder, color: color),
     child: Icon(
       icon,

@@ -87,8 +87,8 @@ String _detectFileMimeByFilePath(String? filePath) {
       fileMainType.mimeByName == "audio/mp4") {
     return fileMainType.mimeByName;
   }
-  if (fileMainType.hasSameMainType()) {
-    return fileMainType.mimeByContent;
+  if (true || fileMainType.hasSameMainType()) {
+    return fileMainType.mimeByName;
   } else {
     return DEFAULT_FILE_TYPE;
   }
@@ -258,6 +258,15 @@ bool isVideoFileType(String fileType) {
 
   return !isImageFileType(fileType) && lt.contains('video');
 }
+
+bool isVideo(String path) => isVideoFileType(
+      detectFileMimeByFileModel(
+        file_model.File(
+          path,
+          getFileName(path),
+        ),
+      ),
+    );
 
 bool isAudioFileType(String fileType) {
   final lt = fileType.toLowerCase();

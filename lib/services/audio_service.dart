@@ -298,8 +298,13 @@ class AudioService {
   }
 
   void stopCallAudioPlayer() {
-    _intermediatePlayer.stopCallAudioPlayer();
-    _temporaryReversiblePlay();
+    try{
+      _intermediatePlayer.stopCallAudioPlayer();
+      _temporaryReversiblePlay();
+    }catch(e){
+
+    }
+
   }
 
   void playEndCallSound() {

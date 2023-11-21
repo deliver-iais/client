@@ -362,8 +362,7 @@ class _AllMediaPageState extends State<AllMediaPage>
   }
 
   Widget _buildSingleMediaIfMessageExist({bool hasData = false}) {
-    if (widget.message == null ||
-        (!hasData && widget.message!.json.toFile().isVideoFileProto())) {
+    if (widget.message == null) {
       return _buildLoading();
     }
     final file = widget.message!.json.toFile();

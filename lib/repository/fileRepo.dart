@@ -163,7 +163,7 @@ class FileRepo {
             "unknownFileUpload",
             parameters: {
               "errorCode": e.response?.statusCode,
-              "error": e.response?.data
+              "error": e.response?.data,
             },
           );
         }
