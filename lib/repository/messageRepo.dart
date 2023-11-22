@@ -1011,7 +1011,7 @@ class MessageRepo {
     final pendingFailedByRoom = <String>{};
     for (final pendingMessage in pendingMessages) {
       if (pendingFailedByRoom.contains(pendingMessage.roomUid.asString())) {
-        await _savePendingMessage(pendingMessage.copyWith(failed: true));
+        break;
       } else {
         final status = await checkMessageRepeated(pendingMessage);
         switch (status) {
@@ -1037,7 +1037,6 @@ class MessageRepo {
             break;
           case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
             pendingFailedByRoom.add(pendingMessage.roomUid.asString());
-            await _savePendingMessage(pendingMessage.copyWith(failed: true));
             break;
         }
       }
