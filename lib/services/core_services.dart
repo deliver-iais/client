@@ -348,7 +348,7 @@ class CoreServices {
       if (_connectionStatus.value == ConnectionStatus.Connected) {
         Timer(
           const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => _checkPendingStatus(message.packetId),
+          () => _checkPendingStatus(message.packetId, message),
         );
       }
       _changeAppToDisconnectedAfterSendMessage();
@@ -365,14 +365,14 @@ class CoreServices {
     }
   }
 
-  Future<void> _checkPendingStatus(String packetId) async {
+  Future<void> _checkPendingStatus(String packetId, message) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
+    var hasBeenSent = false;
     if (pm != null) {
-      await _pendingMessageDao.savePendingMessage(
-        pm.copyWith(
-          failed: _connectionStatus.value == ConnectionStatus.Connected,
-        ),
-      );
+      if(!hasBeenSent) {
+        await sendMessage(message);
+        hasBeenSent = true;
+      }
     }
   }
 
