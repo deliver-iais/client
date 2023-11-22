@@ -167,6 +167,7 @@ import 'package:deliver/shared/firebase_options.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
 
