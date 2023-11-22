@@ -281,6 +281,7 @@ Future<void> setupDI() async {
   registerSingleton<ServerLessService>(ServerLessService());
   registerSingleton<ServerLessMucService>(ServerLessMucService());
   registerSingleton<ServerLessMessageService>(ServerLessMessageService());
+  registerSingleton<ServerLessPacket>(ServerLessPacket());
   registerSingleton<CoreServices>(CoreServices());
   registerSingleton<FireBaseServices>(FireBaseServices());
 

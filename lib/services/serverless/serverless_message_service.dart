@@ -218,18 +218,17 @@ class ServerLessMessageService {
     }
     Timer(
       const Duration(seconds: 5),
-      () => _checkPendingStatus(message.packetId),
+      () => _checkPendingStatus(message.packetId, to: to , message: message),
     );
   }
 
-  Future<void> _checkPendingStatus(String packetId) async {
+  Future<void> _checkPendingStatus(String packetId, {required Uid to, required Message message}) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
+    var hasBeenSent = false;
     if (pm != null) {
-      await _pendingMessageDao.savePendingMessage(
-        pm.copyWith(
-          failed: true,
-        ),
-      );
+      if(!hasBeenSent) {
+        hasBeenSent = true;
+      }
       _serverLessService.sendBroadCast(to: pm.roomUid);
     }
   }
@@ -396,7 +395,6 @@ class ServerLessMessageService {
         message.to.category == Categories.CHANNEL) {
       uid = message.to;
     }
-    //1700650336908-21-0-null-1354
     final room = await _roomDao.getRoom(uid);
     final ackId = message.id;
     if (!message.edited) {
