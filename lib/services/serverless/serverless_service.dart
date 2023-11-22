@@ -94,7 +94,7 @@ class ServerLessService {
   }) {
     try {
       _upSocket?.send(
-        LocalNetworkRegisterReq(
+        LocalNetworkInfo(
           from: _authRepo.currentUserUid,
           to: to,
           url: _ip,
@@ -109,7 +109,7 @@ class ServerLessService {
 
   Future<void> _handleBroadCastMessage(Uint8List data) async {
     try {
-      final registrationReq = LocalNetworkRegisterReq.fromBuffer(data);
+      final registrationReq = LocalNetworkInfo.fromBuffer(data);
       if (!registrationReq.from
           .isSameEntity(_authRepo.currentUserUid.asString())) {
         await saveIp(

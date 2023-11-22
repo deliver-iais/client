@@ -14,6 +14,8 @@ abstract class MessageDao {
 
   Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id);
 
+  Future<Message?> getMessageByPacketId(Uid roomUid, String packetId);
+
   Future<List<Message>> getMessagePage(
     Uid roomUid,
     int page, {

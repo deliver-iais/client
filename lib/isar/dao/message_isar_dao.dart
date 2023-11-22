@@ -37,11 +37,24 @@ class MessageDaoImpl extends MessageDao {
   }
 
   @override
-  Future<List<Message>> getMessagePage(
-    Uid roomUid,
-    int page, {
-    int pageSize = PAGE_SIZE,
-  }) async {
+  Future<Message?> getMessageByPacketId(Uid roomUid, String packetId) async {
+    final box = await _openMessageIsar();
+    return box.messageIsars
+        .filter()
+        .roomUidEqualTo(roomUid.asString())
+        .and()
+        .packetIdEqualTo(packetId)
+        .findFirstSync()
+        ?.fromIsar
+    (
+    );
+  }
+
+  @override
+  Future<List<Message>> getMessagePage(Uid roomUid,
+      int page, {
+        int pageSize = PAGE_SIZE,
+      }) async {
     final box = await _openMessageIsar();
     return box.messageIsars
         .filter()
@@ -87,7 +100,7 @@ class MessageDaoImpl extends MessageDao {
         .filter()
         .roomUidEqualTo(roomUid.asString())
         .group((q) =>
-            q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
+        q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
         .and()
         .jsonContains(keyword)
         .findAllSync()

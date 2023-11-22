@@ -32,6 +32,16 @@ class MessageDaoImpl extends MessageDao {
   }
 
   @override
+  Future<Message?> getMessageByPacketId(Uid roomUid, String packetId) async {
+    final box = await _openMessages(roomUid.asString());
+
+    return box.values
+        .where((element) => element.packetId == packetId)
+        .firstOrNull
+        ?.fromHive();
+  }
+
+  @override
   Future<List<Message>> getMessagePage(
     Uid roomUid,
     int page, {

@@ -32,6 +32,8 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import '../../box/dao/message_dao.dart';
+
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
   final Map<String, List<MessageDeliveryAck>> _pendingAck = {};
@@ -43,6 +45,7 @@ class ServerLessMessageService {
   final _callService = GetIt.I.get<CallService>();
   final _serverLessService = GetIt.I.get<ServerLessService>();
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
+  final _messageDao = GetIt.I.get<MessageDao>();
   final _logger = GetIt.I.get<Logger>();
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
@@ -123,7 +126,8 @@ class ServerLessMessageService {
         DateTime.now().millisecondsSinceEpoch,
       );
 
-    await _sendMessage(to: message.to, message: message);
+      await _sendMessage(to: message.to, message: message);
+
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
@@ -392,19 +396,23 @@ class ServerLessMessageService {
         message.to.category == Categories.CHANNEL) {
       uid = message.to;
     }
+    //1700650336908-21-0-null-1354
     final room = await _roomDao.getRoom(uid);
     final ackId = message.id;
     if (!message.edited) {
       message.id =
           Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
     }
-    unawaited(
-      _dataStreamService.handleIncomingMessage(
-        message,
-        isOnlineMessage: true,
-        isLocalNetworkMessage: true,
-      ),
-    );
+
+    if(null == await _messageDao.getMessageByPacketId(room!.uid,message.packetId)) {
+      unawaited(
+        _dataStreamService.handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+          isLocalNetworkMessage: true,
+        ),
+      );
+    }
     if (!message.edited) {
       unawaited(
         _sendAck(
