@@ -410,7 +410,12 @@ class ServerLessMessageService {
           isLocalNetworkMessage: true,
         ),
       );
-    }
+      await _roomDao.updateRoom(
+        uid: room.uid,
+        lastLocalNetworkMessageId: message.id.toInt(),
+        localNetworkMessageCount: room.localNetworkMessageCount + 1,
+      );
+        }
     if (!message.edited) {
       unawaited(
         _sendAck(
