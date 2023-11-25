@@ -208,9 +208,6 @@ class CallService {
     }
   }
 
-  String writeCallEventsToJson(CallEventV2 callEventV2) {
-    return callEventV2.writeToJson();
-  }
 
   CallEvents getCallEventsFromJson(String callEvent) {
     return CallEvents.callEvent(CallEventV2.fromJson(callEvent));

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
@@ -200,8 +199,9 @@ class DataStreamServices {
     final msg = (await saveMessageInMessagesDB(
       message,
       roomUid,
-      isLocalNetworkMessage: isLocalNetworkMessage,
+      needToUpdateId: !isLocalNetworkMessage,
     ))!;
+
     final isHidden = msg.isHidden ||
         (message.edited && settings.localNetworkMessenger.value);
     if (msg.edited && settings.localNetworkMessenger.value) {
@@ -220,7 +220,7 @@ class DataStreamServices {
         uid: roomUid,
         lastMessage: isHidden ? null : msg,
         lastMessageId: !(message.edited && settings.localNetworkMessenger.value)
-            ? msg.id
+            ? msg.localNetworkMessageId
             : null,
         lastUpdateTime: msg.time,
         deleted: false,
@@ -348,10 +348,8 @@ class DataStreamServices {
         final room = await _roomDao.getRoom(roomUid);
         if (room!.lastMessage != null && room.lastMessage!.id == id) {
           final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
-            roomUid,
-            room.lastMessageId,
-            room.firstMessageId,
-          );
+              roomUid, room.lastMessageId, room.firstMessageId,
+              localNetworkMessageCount: room.localNetworkMessageCount);
 
           await _roomDao.updateRoom(
             uid: roomUid,
@@ -574,7 +572,7 @@ class DataStreamServices {
           final room = await _roomDao.getRoom(pm.roomUid);
           if (room != null) {
             localNetworkMessageId = Int64(
-              max(messageDeliveryAck.id.toInt(), (room.lastMessageId + 1)),
+              messageDeliveryAck.id.toInt() + room.localNetworkMessageCount,
             );
           }
         }
@@ -603,6 +601,16 @@ class DataStreamServices {
             p0.id = localNetworkMessageId;
           }),
         );
+        if (isLocalNetworkMessage) {
+          final room = await _roomDao.getRoom(msg.roomUid);
+          if (room != null) {
+            await _roomDao.updateRoom(
+              uid: room.uid,
+              lastLocalNetworkMessageId: msg.id,
+              localNetworkMessageCount: room.localNetworkMessageCount + 1,
+            );
+          }
+        }
       } else {
         await _analyticsService.sendLogEvent(
           "nullPendingMessageOnAck",
@@ -763,22 +771,27 @@ class DataStreamServices {
   Future<message_model.Message?> saveMessageInMessagesDB(
     Message message,
     Uid roomUid, {
-    bool isLocalNetworkMessage = false,
+    bool needToUpdateId = false,
   }) async {
     try {
       var msg = _messageExtractorServices.extractMessage(message);
-      if (!isLocalNetworkMessage) {
+      if (needToUpdateId) {
         final room = await _roomDao.getRoom(roomUid);
-        if (room != null) {
-          msg = msg.copyWith.call(
-              localNetworkMessageId: max(room.lastMessageId + 1, msg.id!));
+
+        if (room != null && msg.id != null) {
+          if (msg.id! + room.localNetworkMessageCount >
+              room.lastLocalNetworkMessageId) {
+            msg = msg.copyWith.call(
+              localNetworkMessageId: msg.id! + room.localNetworkMessageCount,
+            );
+          }
         }
       }
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
       _logger.e("error in saving message", error: e);
-      return null;
+      return _messageExtractorServices.extractMessage(message);
     }
   }
 
@@ -787,6 +800,7 @@ class DataStreamServices {
     int lastMessageId,
     int firstMessageId, {
     bool appRunInForeground = false,
+    int localNetworkMessageCount = 0,
   }) async {
     var pointer = lastMessageId + 1;
     message_model.Message? lastNotHiddenMessage;
@@ -812,7 +826,7 @@ class DataStreamServices {
         } else {
           lastNotHiddenMessage = await _getLastNotHiddenMessageFromServer(
             roomUid,
-            lastMessageId,
+            lastMessageId - localNetworkMessageCount,
             firstMessageId,
             appRunInForeground: appRunInForeground,
           );

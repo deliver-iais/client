@@ -57,6 +57,9 @@ class RoomHive {
   bool shouldUpdateMediaCount;
 
   @HiveField(16)
+  int localNetworkMessageCount;
+
+  @HiveField(17)
   int lastLocalNetworkMessageId;
 
   RoomHive({
@@ -65,6 +68,7 @@ class RoomHive {
     this.draft,
     this.lastUpdateTime = 0,
     this.lastMessageId = 0,
+    this.localNetworkMessageCount = 0,
     this.lastLocalNetworkMessageId = 0,
     this.firstMessageId = 0,
     this.deleted = false,
@@ -90,6 +94,7 @@ class RoomHive {
     bool? pinned,
     int? pinId,
     bool? synced,
+    int? localNetworkMessageCount,
     int? lastLocalNetworkMessageId,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
@@ -103,6 +108,8 @@ class RoomHive {
         lastMessage: lastMessage ?? this.lastMessage,
         deleted: deleted ?? this.deleted,
         draft: draft ?? this.draft,
+        localNetworkMessageCount:
+            localNetworkMessageCount ?? this.localNetworkMessageCount,
         lastLocalNetworkMessageId:
             lastLocalNetworkMessageId ?? this.lastLocalNetworkMessageId,
         lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
@@ -147,7 +154,7 @@ class RoomHive {
           ) &&
           const DeepCollectionEquality().equals(other.synced, synced) &&
           const DeepCollectionEquality().equals(
-              other.lastLocalNetworkMessageId, lastLocalNetworkMessageId) &&
+              other.localNetworkMessageCount, localNetworkMessageCount) &&
           const DeepCollectionEquality().equals(other.seenSynced, seenSynced) &&
           const DeepCollectionEquality()
               .equals(other.replyKeyboardMarkup, replyKeyboardMarkup) &&
@@ -173,12 +180,13 @@ class RoomHive {
         const DeepCollectionEquality().hash(shouldUpdateMediaCount),
         const DeepCollectionEquality().hash(replyKeyboardMarkup),
         const DeepCollectionEquality().hash(mentionsId),
+        const DeepCollectionEquality().hash(localNetworkMessageCount),
         const DeepCollectionEquality().hash(lastLocalNetworkMessageId),
       );
 
   @override
   String toString() {
-    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced] [mentionsId:$mentionsId] [lastLocalNetworkMessageId:$lastLocalNetworkMessageId]";
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced] [mentionsId:$mentionsId] [lastLocalNetworkMessageId:$localNetworkMessageCount]";
   }
 
   Room fromHive() => Room(
@@ -195,6 +203,7 @@ class RoomHive {
         lastUpdateTime: lastUpdateTime,
         pinId: pinId,
         pinned: pinned,
+        localNetworkMessageCount: localNetworkMessageCount,
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         firstMessageId: firstMessageId,
         lastMessageId: lastMessageId,
@@ -213,9 +222,10 @@ extension RoomHiveMapper on Room {
         draft: draft,
         replyKeyboardMarkup: replyKeyboardMarkup,
         mentionsId: mentionsId,
+        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         lastUpdateTime: lastUpdateTime,
         pinId: pinId,
-        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
+        localNetworkMessageCount: localNetworkMessageCount,
         pinned: pinned,
         firstMessageId: firstMessageId,
         lastMessageId: lastMessageId,

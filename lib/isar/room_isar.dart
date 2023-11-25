@@ -1,3 +1,5 @@
+
+
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/isar/helpers.dart';
@@ -18,7 +20,7 @@ class RoomIsar {
 
   int lastMessageId;
 
-  int lastLocalNetworkMessageId;
+  int localNetworkMessageCount;
 
   String? draft;
 
@@ -33,6 +35,7 @@ class RoomIsar {
   bool synced;
 
   int lastCurrentUserSentMessageId;
+  int lastLocalNetworkMessageId;
 
   bool seenSynced;
 
@@ -47,6 +50,7 @@ class RoomIsar {
     this.lastMessage,
     this.deleted = false,
     this.lastMessageId = 0,
+    this.localNetworkMessageCount = 0,
     this.lastLocalNetworkMessageId = 0,
     this.draft,
     this.lastUpdateTime = 0,
@@ -66,6 +70,7 @@ class RoomIsar {
         lastMessage: getNullableMessageFromJson(lastMessage),
         deleted: deleted,
         lastMessageId: lastMessageId,
+        localNetworkMessageCount: localNetworkMessageCount,
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         firstMessageId: firstMessageId,
         draft: draft ?? "",
@@ -88,6 +93,7 @@ extension RoomIsarMapper on Room {
         deleted: deleted,
         draft: draft,
         seenSynced: seenSynced,
+        localNetworkMessageCount: localNetworkMessageCount,
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         shouldUpdateMediaCount: shouldUpdateMediaCount,
         synced: synced,

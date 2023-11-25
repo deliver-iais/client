@@ -55,15 +55,13 @@ class ServerLessService {
   }
 
   Future<void> _startServices() async {
+    // unawaited(GetIt.I.get<ServerLessMessageService>().updateRooms());
     if (await _getMyLocalIp()) {
       await _clearConnections();
     }
     _startUdpListener();
     await _initWifiBroadcast();
     await _startHttpService();
-    // unawaited(
-    //   _serverLessFileService.startFileServer(SendFileRequest(), getMyIp()),
-    // );
   }
 
   void _startUdpListener({bool retry = true}) {
@@ -142,8 +140,13 @@ class ServerLessService {
     }
   }
 
-  Future<void> sendRequest(Uint8List reqData, String url,
-      {String type = MESSAGE, String from = "", String name = "",}) async {
+  Future<void> sendRequest(
+    Uint8List reqData,
+    String url, {
+    String type = MESSAGE,
+    String from = "",
+    String name = "",
+  }) async {
     try {
       unawaited(
         _dio.post(

@@ -512,4 +512,13 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendCallLog(CallLog callLog) async {}
+
+  Future<void> updateRooms() async {
+    final rooms = await _roomDao.getAllRooms();
+    for (final element in rooms) {
+      if (element.localNetworkMessageCount > 0) {
+        await _roomDao.updateRoom(uid: element.uid, localNetworkMessageCount: 0);
+      }
+    }
+  }
 }

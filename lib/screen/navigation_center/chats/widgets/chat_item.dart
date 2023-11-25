@@ -113,6 +113,7 @@ class ChatItemState extends State<ChatItem> {
         widget.room.uid.asString(),
         widget.room.lastMessageId,
         widget.room.firstMessageId,
+        localNetworkMessageCount: widget.room.localNetworkMessageCount,
       );
 
   @override

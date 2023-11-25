@@ -17,6 +17,7 @@ class Room with _$Room {
     @Default([]) List<int> mentionsId,
     @Default(0) int lastUpdateTime,
     @Default(0) int lastMessageId,
+    @Default(0) int localNetworkMessageCount,
     @Default(0) int lastLocalNetworkMessageId,
     @Default(0) int firstMessageId,
     @Default(0) int pinId,
@@ -30,4 +31,3 @@ class Room with _$Room {
 
   factory Room.fromJson(Map<String, Object?> json) => Room.fromJson(json);
 }
-
