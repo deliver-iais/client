@@ -14,6 +14,7 @@ class CallUtils {
   static Map<String, dynamic> getIceServers() =>
       settings.localNetworkMessenger.value
           ? <String, dynamic>{
+              "sdpSemantics": "plan-b",
               // 'iceServers': [
               //   {'url': STUN_SERVER_URL_1}
               // ]

@@ -37,16 +37,22 @@ class PendingMessageDaoImpl extends PendingMessageDao {
   Future<List<PendingMessage>> getPendingMessages(
     String roomUid,
   ) async {
-    final box = await _openPendingMessageIsar();
+    try{
+      final box = await _openPendingMessageIsar();
 
-    return box.pendingMessageIsars
-        .filter()
-        .messageIdLessThan(1)
-        .and()
-        .roomUidEqualTo(roomUid)
-        .findAllSync()
-        .map((e) => e.fromIsar())
-        .toList();
+      return box.pendingMessageIsars
+          .filter()
+          .messageIdLessThan(1)
+          .and()
+          .roomUidEqualTo(roomUid)
+          .findAllSync()
+          .map((e) => e.fromIsar())
+          .toList();
+
+    } catch(e){
+      return [];
+    }
+
   }
 
   @override

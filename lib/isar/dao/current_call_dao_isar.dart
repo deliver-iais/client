@@ -64,15 +64,20 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
 
   @override
   Stream<CurrentCallInfo?> watchCurrentCall() async* {
-    final box = await _openPendingMessageIsar();
+    try{
+      final box = await _openPendingMessageIsar();
 
-    yield box.currentCallInfoIsars
-        .getSync(CurrentCallInfoIsar.CURRENT_CALL_ID)
-        ?.fromIsar();
+      yield box.currentCallInfoIsars
+          .getSync(CurrentCallInfoIsar.CURRENT_CALL_ID)
+          ?.fromIsar();
 
-    yield* box.currentCallInfoIsars
-        .watchObject(CurrentCallInfoIsar.CURRENT_CALL_ID, fireImmediately: true)
-        .map((event) => event?.fromIsar());
+      yield* box.currentCallInfoIsars
+          .watchObject(CurrentCallInfoIsar.CURRENT_CALL_ID, fireImmediately: true)
+          .map((event) => event?.fromIsar());
+    } catch(e){
+
+    }
+
   }
 
   @override

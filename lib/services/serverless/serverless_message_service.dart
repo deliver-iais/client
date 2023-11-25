@@ -398,13 +398,20 @@ class ServerLessMessageService {
       message.id =
           Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
     }
-    unawaited(
-      _dataStreamService.handleIncomingMessage(
-        message,
-        isOnlineMessage: true,
-        isLocalNetworkMessage: true,
-      ),
+    await _dataStreamService.handleIncomingMessage(
+      message,
+      isOnlineMessage: true,
+      isLocalNetworkMessage: true,
     );
+
+    if (room != null) {
+      await _roomDao.updateRoom(
+        uid: room.uid,
+        lastLocalNetworkMessageId: message.id.toInt(),
+        localNetworkMessageCount: room.localNetworkMessageCount + 1,
+      );
+    }
+
     if (!message.edited) {
       unawaited(
         _sendAck(
@@ -506,4 +513,13 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendCallLog(CallLog callLog) async {}
+
+  Future<void> updateRooms() async {
+    final rooms = await _roomDao.getAllRooms();
+    for (final element in rooms) {
+      if (element.localNetworkMessageCount > 0) {
+        await _roomDao.updateRoom(uid: element.uid, localNetworkMessageCount: 0);
+      }
+    }
+  }
 }

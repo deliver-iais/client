@@ -786,6 +786,7 @@ class RoomPageState extends State<RoomPage>
           event.uid.asString(),
           event.lastMessageId,
           event.firstMessageId,
+          localNetworkMessageCount: event.localNetworkMessageCount,
         );
       }
     });
@@ -1592,9 +1593,8 @@ class RoomPageState extends State<RoomPage>
           _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
-
-        //todo
-    initialScrollIndex = _itemCount;
+    //todo
+    // initialScrollIndex = _itemCount;
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
@@ -1743,12 +1743,8 @@ class RoomPageState extends State<RoomPage>
     int index,
   ) async {
     return Tuple2(
-      index > 1 && index < _itemCount + room.firstMessageId
-          ? await _messageAtIndex(index - 1)
-          : null,
-      (index + 1) > 1 && (index + 1) <= _itemCount + room.firstMessageId
-          ? await _messageAtIndex(index)
-          : null,
+      await _messageAtIndex(index - 1),
+      await _messageAtIndex(index),
     );
   }
 
@@ -1760,7 +1756,7 @@ class RoomPageState extends State<RoomPage>
               index + 1,
             ))
                 ?.msg ??
-            await _getMessage(index+1, useCache: useCache);
+            await _getMessage(index + 1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {

@@ -15,11 +15,13 @@ import 'package:rxdart/rxdart.dart';
 class CenterAvatarInCall extends StatefulWidget {
   final Uid roomUid;
   final double radius;
+  final bool isVideo;
 
   const CenterAvatarInCall({
     super.key,
     required this.roomUid,
     this.radius = 70,
+    this.isVideo = true,
   });
 
   @override
@@ -119,7 +121,7 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge!
-                    .copyWith(color: Colors.white),
+                    .copyWith(color: widget.isVideo ? Colors.white : null),
               );
             } else {
               return const Text("");

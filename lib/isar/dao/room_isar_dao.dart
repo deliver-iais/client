@@ -51,6 +51,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
     int? lastLocalNetworkMessageId,
+    int? localNetworkMessageCount,
   }) async {
     final box = await _openRoomIsar();
     box.writeTxnSync(() {
@@ -67,6 +68,8 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
           pinId: pinId ?? room.pinId,
           lastLocalNetworkMessageId:
               lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
+          localNetworkMessageCount:
+              localNetworkMessageCount ?? room.localNetworkMessageCount,
           lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
           lastMessage: lastMessage != null
               ? messageToJson(lastMessage)

@@ -22,6 +22,7 @@ abstract interface class RoomDao {
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
     int? lastLocalNetworkMessageId,
+    int? localNetworkMessageCount,
   });
 
   Future<List<Room>> getAllRooms();

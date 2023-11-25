@@ -6,6 +6,7 @@ import 'package:deliver/screen/call/center_avatar_image_in_call.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/widgets/aurora_gradient.dart';
+import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,8 +37,7 @@ class AudioCallScreen extends StatelessWidget {
         onTap: () => showButtonRow.add(!showButtonRow.value),
         child: Stack(
           children: [
-            const AuroraGradient(),
-            //AnimatedGradient(isConnected: _callRepo.isConnected),
+            Background(),
             Center(
               child: Padding(
                 padding: EdgeInsetsDirectional.only(
@@ -60,6 +60,7 @@ class AudioCallScreen extends StatelessWidget {
                     ),
                     CenterAvatarInCall(
                       roomUid: roomUid,
+                      isVideo: false,
                     ),
                   ],
                 ),

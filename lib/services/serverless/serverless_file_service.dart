@@ -113,7 +113,7 @@ class ServerLessFileService {
               .get<FileService>()
               .updateFileProgressbar(min((i / length), 1), uuid);
 
-          await Future.delayed(const Duration(milliseconds: 300));
+          await Future.delayed(const Duration(milliseconds: 700));
         }
       } else {
         _fileSenderSocket?.send(

@@ -268,8 +268,8 @@ class MessageRepo {
               synced: false,
               lastCurrentUserSentMessageId:
                   roomMetadata.lastCurrentUserSentMessageId.toInt(),
-              lastMessageId: max(
-                  roomMetadata.lastMessageId.toInt(), room?.lastMessageId ?? 0),
+              lastMessageId: roomMetadata.lastMessageId.toInt() +
+                  (room?.localNetworkMessageCount ?? 0),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             ),
@@ -391,11 +391,13 @@ class MessageRepo {
     int lastMessageId,
     int firstMessageId, {
     bool appRunInForeground = false,
+    int localNetworkMessageCount = 0,
   }) async {
     await _dataStreamServices.fetchLastNotHiddenMessage(
       roomUid.asUid(),
       lastMessageId,
       firstMessageId,
+      localNetworkMessageCount: localNetworkMessageCount,
       appRunInForeground: appRunInForeground,
     );
     if (roomUid.isGroup() || roomUid.isUser()) {

@@ -83,12 +83,10 @@ String detectFileMimeByFileModel(file_model.File file) => isWeb
 
 String _detectFileMimeByFilePath(String? filePath) {
   final fileMainType = _detectFileTypeByNameAndContent(filePath);
-  if (settings.localNetworkMessenger.value &&
-      fileMainType.mimeByName == "audio/mp4") {
+  if (settings.localNetworkMessenger.value) {
     return fileMainType.mimeByName;
-  }
-  if (true || fileMainType.hasSameMainType()) {
-    return fileMainType.mimeByName;
+  } else if (fileMainType.hasSameMainType()) {
+    return fileMainType.mimeByContent;
   } else {
     return DEFAULT_FILE_TYPE;
   }

@@ -55,8 +55,12 @@ class MessageDaoImpl extends MessageDao {
 
   @override
   Future<void> insertMessage(Message message) async {
-    final box = await _openMessageIsar();
-    box.writeTxnSync(() => box.messageIsars.putSync(message.toIsar()));
+    try{
+      final box = await _openMessageIsar();
+      await box.writeTxn(() => box.messageIsars.put(message.toIsar()));
+    } catch(e) {
+      print(e);
+    }
   }
 
   Future<Isar> _openMessageIsar() => IsarManager.open();
