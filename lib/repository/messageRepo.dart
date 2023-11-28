@@ -51,15 +51,15 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
-    as location_pb;
+as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
+as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart'
-    as sticker_pb;
+as sticker_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -71,6 +71,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:synchronized/synchronized.dart';
 
 enum TitleStatusConditions {
   Disconnected,
@@ -111,6 +112,7 @@ class MessageRepo {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _fileService = GetIt.I.get<FileService>();
   final _cachingRepo = GetIt.I.get<CachingRepo>();
+  final _sendPendingRequestLock = Lock();
 
   // migrate to room repo
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -122,7 +124,7 @@ class MessageRepo {
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
-      BehaviorSubject.seeded(TitleStatusConditions.Connected);
+  BehaviorSubject.seeded(TitleStatusConditions.Connected);
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
 
   Future<void> createConnectionStatusHandler() async {
@@ -178,7 +180,7 @@ class MessageRepo {
           while (!isFetchCorrectly && reTryFailedFetch > 0) {
             try {
               getAllUserRoomMetaRes =
-                  await _sdr.queryServiceClient.getAllUserRoomMeta(
+              await _sdr.queryServiceClient.getAllUserRoomMeta(
                 GetAllUserRoomMetaReq()
                   ..pointer = pointer
                   ..limit = FETCH_ROOM_METADATA_LIMIT,
@@ -203,7 +205,7 @@ class MessageRepo {
             if (await _updateRoom(
               roomMetadata,
               indexOfRoom:
-                  getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
+              getAllUserRoomMetaRes.roomsMeta.indexOf(roomMetadata),
             )) {
               if (allRoomFetched) {
                 updatingStatus.add(TitleStatusConditions.Updating);
@@ -234,8 +236,7 @@ class MessageRepo {
   }
 
   /// return true if have new room or new message
-  Future<bool> _updateRoom(
-    RoomMetadata roomMetadata, {
+  Future<bool> _updateRoom(RoomMetadata roomMetadata, {
     int indexOfRoom = 0,
   }) async {
     try {
@@ -246,15 +247,15 @@ class MessageRepo {
             hasFirebaseCapability) {
           _fireBaseServices
               .sendGlitchReportForFirebaseNotification(
-                roomMetadata.roomUid.asString(),
-              )
+            roomMetadata.roomUid.asString(),
+          )
               .ignore();
         }
         unawaited(
           processSeen(
             roomMetadata,
             needFetchHiddenMessageCountAndMentions:
-                room == null || roomMetadata.lastMessageId > room.lastMessageId,
+            room == null || roomMetadata.lastMessageId > room.lastMessageId,
           ),
         );
 
@@ -267,7 +268,7 @@ class MessageRepo {
               deleted: false,
               synced: false,
               lastCurrentUserSentMessageId:
-                  roomMetadata.lastCurrentUserSentMessageId.toInt(),
+              roomMetadata.lastCurrentUserSentMessageId.toInt(),
               lastMessageId: roomMetadata.lastMessageId.toInt() +
                   (room?.localNetworkMessageCount ?? 0),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
@@ -280,40 +281,37 @@ class MessageRepo {
       } else {
         _roomDao
             .updateRoom(
-              uid: roomMetadata.roomUid,
-              deleted: true,
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
-              firstMessageId: roomMetadata.firstMessageId.toInt(),
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-            )
+          uid: roomMetadata.roomUid,
+          deleted: true,
+          lastMessageId: roomMetadata.lastMessageId.toInt(),
+          firstMessageId: roomMetadata.firstMessageId.toInt(),
+          lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+        )
             .ignore();
         return false;
       }
     } catch (e, t) {
-      _logger
-        ..e(e)
-        ..e(t);
+      _logger..e(e)..e(t);
     }
     return false;
   }
 
-  Future<void> processSeen(
-    RoomMetadata roomMetadata, {
+  Future<void> processSeen(RoomMetadata roomMetadata, {
     bool needFetchHiddenMessageCountAndMentions = false,
   }) async {
     try {
       final seen = await _seenDao.getMySeen(roomMetadata.roomUid.asString());
       final roomSeen =
-          await _seenDao.getRoomSeen(roomMetadata.roomUid.asString());
+      await _seenDao.getRoomSeen(roomMetadata.roomUid.asString());
       final int lastSeenId =
-          max(seen.messageId, roomMetadata.lastSeenId.toInt());
+      max(seen.messageId, roomMetadata.lastSeenId.toInt());
       if (roomSeen == null &&
           roomMetadata.lastMessageId.toInt() != 0 &&
           roomMetadata.lastMessageId.toInt() -
-                  max(
-                    lastSeenId,
-                    roomMetadata.lastCurrentUserSentMessageId.toInt(),
-                  ) !=
+              max(
+                lastSeenId,
+                roomMetadata.lastCurrentUserSentMessageId.toInt(),
+              ) !=
               0) {
         await _seenDao.addRoomSeen(roomMetadata.roomUid.asString());
       }
@@ -344,12 +342,10 @@ class MessageRepo {
     }
   }
 
-  Future<void> _updateCurrentUserLastSeen(
-    int lastSeenMessageId,
-    String roomUid,
-    int lastMessageId,
-    bool needFetchHiddenMessageCountAndMentions,
-  ) async {
+  Future<void> _updateCurrentUserLastSeen(int lastSeenMessageId,
+      String roomUid,
+      int lastMessageId,
+      bool needFetchHiddenMessageCountAndMentions,) async {
     unawaited(
       (_seenDao.updateMySeen(
         uid: roomUid,
@@ -372,8 +368,7 @@ class MessageRepo {
   }
 
   Future<void> _notifyOfflineMessagesWhenAppInBackground(
-    RoomMetadata roomMetadata,
-  ) async {
+      RoomMetadata roomMetadata,) async {
     if (roomMetadata.lastMessageId > roomMetadata.lastSeenId) {
       unawaited(
         fetchRoomLastMessage(
@@ -386,13 +381,12 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchRoomLastMessage(
-    String roomUid,
-    int lastMessageId,
-    int firstMessageId, {
-    bool appRunInForeground = false,
-    int localNetworkMessageCount = 0,
-  }) async {
+  Future<void> fetchRoomLastMessage(String roomUid,
+      int lastMessageId,
+      int firstMessageId, {
+        bool appRunInForeground = false,
+        int localNetworkMessageCount = 0,
+      }) async {
     await _dataStreamServices.fetchLastNotHiddenMessage(
       roomUid.asUid(),
       lastMessageId,
@@ -440,17 +434,19 @@ class MessageRepo {
   void _fetchOtherLastSeen(String roomUid) {
     _sdr.queryServiceClient
         .fetchLastOtherUserSeenData(
-          FetchLastOtherUserSeenDataReq()..roomUid = roomUid.asUid(),
-        )
+      FetchLastOtherUserSeenDataReq()
+        ..roomUid = roomUid.asUid(),
+    )
         .then(
-          (fetchLastOtherUserSeenData) => _seenDao.saveOthersSeen(
+          (fetchLastOtherUserSeenData) =>
+          _seenDao.saveOthersSeen(
             Seen(
               uid: roomUid,
               messageId: fetchLastOtherUserSeenData.seen.id.toInt(),
               hiddenMessageCount: 0,
             ),
           ),
-        )
+    )
         .catchError((e) {
       _logger
         ..f("roomUid: $roomUid")
@@ -461,31 +457,31 @@ class MessageRepo {
   Future<void> fetchHiddenMessageCount(Uid roomUid, int id) =>
       _sdr.queryServiceClient
           .countIsHiddenMessages(
-            CountIsHiddenMessagesReq()
-              ..roomUid = roomUid
-              ..messageId = Int64(id + 1),
-          )
+        CountIsHiddenMessagesReq()
+          ..roomUid = roomUid
+          ..messageId = Int64(id + 1),
+      )
           .then(
-            (res) => _seenDao.updateMySeen(
+            (res) =>
+            _seenDao.updateMySeen(
               uid: roomUid.asString(),
               hiddenMessageCount: res.count,
             ),
-          )
+      )
           .catchError((e) => _logger.e(e));
 
-  Future<void> _fetchSeen(
-    String roomUid,
-    int lastCurrentUserSentMessageId,
-    int lastMessageId,
-  ) async {
+  Future<void> _fetchSeen(String roomUid,
+      int lastCurrentUserSentMessageId,
+      int lastMessageId,) async {
     var reTryFailedFetch = 3;
     while (reTryFailedFetch > 0) {
       try {
         reTryFailedFetch--;
 
         final fetchCurrentUserSeenData =
-            await _sdr.queryServiceClient.fetchCurrentUserSeenData(
-          FetchCurrentUserSeenDataReq()..roomUid = roomUid.asUid(),
+        await _sdr.queryServiceClient.fetchCurrentUserSeenData(
+          FetchCurrentUserSeenDataReq()
+            ..roomUid = roomUid.asUid(),
         );
 
         final newSeenMessageId = max(
@@ -534,10 +530,8 @@ class MessageRepo {
     }
   }
 
-  Future<void> _fetchMentions(
-    String roomUid,
-    int messageId,
-  ) async {
+  Future<void> _fetchMentions(String roomUid,
+      int messageId,) async {
     await _sdr.queryServiceClient
         .fetchMentionList(
       FetchMentionListReq()
@@ -556,14 +550,13 @@ class MessageRepo {
     });
   }
 
-  Future<void> sendTextMessage(
-    Uid room,
-    String text, {
-    int replyId = 0,
-    Uid? forwardedFrom,
-    String? packetId,
-    bool fromNotification = false,
-  }) async {
+  Future<void> sendTextMessage(Uid room,
+      String text, {
+        int replyId = 0,
+        Uid? forwardedFrom,
+        String? packetId,
+        bool fromNotification = false,
+      }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
     for (text in textsBlocks) {
@@ -591,9 +584,9 @@ class MessageRepo {
       await _sendTextMessage(
         result
             .sublist(
-              i * TEXT_MESSAGE_MAX_LINE,
-              min((i + 1) * TEXT_MESSAGE_MAX_LINE, result.length),
-            )
+          i * TEXT_MESSAGE_MAX_LINE,
+          min((i + 1) * TEXT_MESSAGE_MAX_LINE, result.length),
+        )
             .join(),
         room,
         replyId,
@@ -605,15 +598,15 @@ class MessageRepo {
     }
   }
 
-  Future<void> _sendTextMessage(
-    String text,
-    Uid room,
-    int replyId,
-    Uid? forwardedFrom,
-    String? packetId, {
-    bool fromNotification = false,
-  }) async {
-    final json = (message_pb.Text()..text = text).writeToJson();
+  Future<void> _sendTextMessage(String text,
+      Uid room,
+      int replyId,
+      Uid? forwardedFrom,
+      String? packetId, {
+        bool fromNotification = false,
+      }) async {
+    final json = (message_pb.Text()
+      ..text = text).writeToJson();
     final msg = (await _createMessage(
       room,
       replyId: replyId,
@@ -626,34 +619,35 @@ class MessageRepo {
     return _saveAndSend(pm, fromNotification: fromNotification);
   }
 
-  Future<void> _saveAndSend(
-    PendingMessage pm, {
+  Future<void> _saveAndSend(PendingMessage pm, {
     bool fromNotification = false,
   }) async {
     if (fromNotification) {
       await _savePendingMessage(pm)
           .then(
-            (value) => {
-              _analyticsService.sendLogEvent(
-                "replyToMessageFromNotificationSavePendingSuccess",
-                parameters: {
-                  "packetId": pm.packetId,
-                  "roomUid": pm.roomUid,
-                },
-              )
+            (value) =>
+        {
+          _analyticsService.sendLogEvent(
+            "replyToMessageFromNotificationSavePendingSuccess",
+            parameters: {
+              "packetId": pm.packetId,
+              "roomUid": pm.roomUid,
             },
           )
+        },
+      )
           .onError(
-            (error, stackTrace) => {
-              _analyticsService.sendLogEvent(
-                "replyToMessageFromNotificationSavePendingFailed",
-                parameters: {
-                  "packetId": pm.packetId,
-                  "roomUid": pm.roomUid,
-                },
-              )
+            (error, stackTrace) =>
+        {
+          _analyticsService.sendLogEvent(
+            "replyToMessageFromNotificationSavePendingFailed",
+            parameters: {
+              "packetId": pm.packetId,
+              "roomUid": pm.roomUid,
             },
-          );
+          )
+        },
+      );
     } else {
       unawaited(_savePendingMessage(pm));
     }
@@ -661,18 +655,16 @@ class MessageRepo {
     _sendMessageToServer(pm);
   }
 
-  Future<void> sendCallMessage(
-    call_pb.CallEvent_CallStatus callStatus,
-    Uid room,
-    String callId,
-    int callDuration,
-    call_pb.CallEvent_CallType callType,
-  ) async {
+  Future<void> sendCallMessage(call_pb.CallEvent_CallStatus callStatus,
+      Uid room,
+      String callId,
+      int callDuration,
+      call_pb.CallEvent_CallType callType,) async {
     final json = (call_pb.CallEvent()
-          ..callStatus = callStatus
-          ..callId = callId
-          ..callDuration = Int64(callDuration)
-          ..callType = callType)
+      ..callStatus = callStatus
+      ..callId = callId
+      ..callDuration = Int64(callDuration)
+      ..callType = callType)
         .writeToJson();
 
     final msg = (await _createMessage(room))
@@ -682,15 +674,14 @@ class MessageRepo {
     return _saveAndSend(pm);
   }
 
-  Future<void> sendLocationMessage(
-    LatLng locationData,
-    Uid room, {
-    Uid? forwardedFrom,
-    int replyId = 0,
-  }) async {
+  Future<void> sendLocationMessage(LatLng locationData,
+      Uid room, {
+        Uid? forwardedFrom,
+        int replyId = 0,
+      }) async {
     final json = (location_pb.Location()
-          ..longitude = locationData.longitude
-          ..latitude = locationData.latitude)
+      ..longitude = locationData.longitude
+      ..latitude = locationData.latitude)
         .writeToJson();
 
     final msg = (await _createMessage(
@@ -704,12 +695,11 @@ class MessageRepo {
     return _saveAndSend(pm);
   }
 
-  Future<void> sendMultipleFilesMessages(
-    Uid room,
-    List<model.File> files, {
-    String? caption,
-    int replyToId = 0,
-  }) async {
+  Future<void> sendMultipleFilesMessages(Uid room,
+      List<model.File> files, {
+        String? caption,
+        int replyToId = 0,
+      }) async {
     for (final file in files) {
       await sendFileMessage(
         room,
@@ -722,11 +712,10 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendFileToChats(
-    List<Uid> rooms,
-    model.File file, {
-    String? caption,
-  }) async {
+  Future<void> sendFileToChats(List<Uid> rooms,
+      model.File file, {
+        String? caption,
+      }) async {
     final fileUuid = _getPacketId();
     await _fileRepo.saveInFileInfo(
       dart_file.File(file.path),
@@ -737,9 +726,9 @@ class MessageRepo {
     final pendingMessagePacketId = <String>[];
     for (final room in rooms) {
       final msg =
-          await buildMessageFromFile(room, file, fileUuid, caption: caption);
+      await buildMessageFromFile(room, file, fileUuid, caption: caption);
       final pm =
-          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
+      _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
       pendingMessagePacketId.add(pm.packetId);
       await _savePendingMessage(pm);
       pendingMessages.add(pm);
@@ -768,12 +757,11 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendFileMessage(
-    Uid room,
-    model.File file, {
-    String? caption = "",
-    int replyToId = 0,
-  }) async {
+  Future<void> sendFileMessage(Uid room,
+      model.File file, {
+        String? caption = "",
+        int replyToId = 0,
+      }) async {
     final packetId = await _getPacketIdWithLastMessageId(room);
 
     //first we compress the file if possible
@@ -794,7 +782,7 @@ class MessageRepo {
     );
 
     final pm =
-        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
+    _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
     await _savePendingMessage(pm);
 
@@ -815,13 +803,12 @@ class MessageRepo {
     }
   }
 
-  Future<Message> buildMessageFromFile(
-    Uid room,
-    model.File file,
-    String fileUuid, {
-    String? caption,
-    int replyToId = 0,
-  }) async {
+  Future<Message> buildMessageFromFile(Uid room,
+      model.File file,
+      String fileUuid, {
+        String? caption,
+        int replyToId = 0,
+      }) async {
     final sendingFakeFile = await _createFakeSendFile(file, fileUuid, caption);
     final packetId = await _getPacketIdWithLastMessageId(room);
 
@@ -832,11 +819,9 @@ class MessageRepo {
     );
   }
 
-  Future<file_pb.File> _createFakeSendFile(
-    model.File file,
-    String fileUuid,
-    String? caption,
-  ) async {
+  Future<file_pb.File> _createFakeSendFile(model.File file,
+      String fileUuid,
+      String? caption,) async {
     var tempDimension = Size.zero;
     var tempFileSize = 0;
     var tempType = DEFAULT_FILE_TYPE;
@@ -864,11 +849,12 @@ class MessageRepo {
         tempDimension = getImageDimension(file.path);
 
         _logger.d(
-          "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
+          "File dimensions size fetched: ${tempDimension.width}x${tempDimension
+              .height}",
         );
         if (tempDimension == Size.zero) {
           tempDimension =
-              const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
+          const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
           _logger.d(
             "File dimensions set to default size because it was zero to zero, 200x200",
           );
@@ -883,7 +869,7 @@ class MessageRepo {
         length: 100,
         bits: 8,
         data:
-            (await _audioService.getAudioWave(file.path)).map((e) => e.toInt()),
+        (await _audioService.getAudioWave(file.path)).map((e) => e.toInt()),
       );
     } else {
       audioWaveForm = file_pb.AudioWaveform.getDefault();
@@ -923,8 +909,7 @@ class MessageRepo {
   }
 
   Future<file_pb.File?> _sendFileToServerOfPendingEditedMessage(
-    PendingMessage pm,
-  ) async {
+      PendingMessage pm,) async {
     file_pb.File? updatedFile;
     final file = file_pb.File.fromJson(pm.msg.json);
     await _savePendingMessage(
@@ -950,8 +935,7 @@ class MessageRepo {
   }
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
-    PendingMessage pm,
-  ) async {
+      PendingMessage pm,) async {
     _sendActivitySubject
         .throttleTime(const Duration(seconds: 10))
         .listen((value) {
@@ -997,9 +981,9 @@ class MessageRepo {
     }
   }
 
-  void _sendMessageToServer(PendingMessage pm) {
+  void _sendMessageToServer(PendingMessage pm, {bool resend = true}) {
     final byClient = MessageUtils.createMessageByClient(pm.msg);
-    _coreServices.sendMessage(byClient);
+    _coreServices.sendMessage(byClient, resend: resend);
   }
 
   void sendBroadcastMessageToServer(Message message) {
@@ -1009,40 +993,46 @@ class MessageRepo {
 
   @visibleForTesting
   Future<void> sendPendingMessages() async {
-    final pendingMessages = await _pendingMessageDao.getAllPendingMessages();
-    final pendingFailedByRoom = <String>{};
-    for (final pendingMessage in pendingMessages) {
-      if (pendingFailedByRoom.contains(pendingMessage.roomUid.asString())) {
-        await _savePendingMessage(pendingMessage.copyWith(failed: true));
-      } else {
-        final status = await checkMessageRepeated(pendingMessage);
-        switch (status) {
-          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_OK:
-            if (!pendingMessage.failed ||
-                pendingMessage.msg.type == MessageType.CALL ||
-                pendingMessage.msg.type == MessageType.CALL_LOG) {
-              switch (pendingMessage.status) {
-                case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
-                  break;
-                case SendingStatus.PENDING:
-                case SendingStatus.UPLOAD_FILE_COMPLETED:
-                  _sendMessageToServer(pendingMessage);
-                  break;
-                case SendingStatus.UPLOAD_FILE_FAIL:
-                  await resendFileMessage(pendingMessage);
-                  break;
-              }
+    if (!_sendPendingRequestLock.inLock) {
+      await _sendPendingRequestLock.synchronized(() async {
+        final pendingMessages =
+        ( await _pendingMessageDao.getAllPendingMessages()).reversed.toList();
+
+        final pendingFailedByRoom = <String>{};
+        for (final pendingMessage in pendingMessages) {
+          if (pendingFailedByRoom.contains(pendingMessage.roomUid.asString())) {
+            await deletePendingMessage(pendingMessage.packetId);
+          } else {
+            final status = await checkMessageRepeated(pendingMessage);
+            switch (status) {
+              case PendingMessageRepeatedStatus
+                  .REPEATED_DETECTION_MESSAGE_FAILED:
+              case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_OK:
+                if (!pendingMessage.failed ||
+                    pendingMessage.msg.type == MessageType.CALL ||
+                    pendingMessage.msg.type == MessageType.CALL_LOG) {
+                  switch (pendingMessage.status) {
+                    case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
+                      break;
+                    case SendingStatus.PENDING:
+                    case SendingStatus.UPLOAD_FILE_COMPLETED:
+                      _sendMessageToServer(pendingMessage, resend: false);
+                      break;
+                    case SendingStatus.UPLOAD_FILE_FAIL:
+                      await resendFileMessage(pendingMessage);
+                      break;
+                  }
+                }
+                break;
+              case PendingMessageRepeatedStatus
+                  .REPEATED_DETECTION_MESSAGE_REPEAT:
+                await deletePendingMessage(pendingMessage.packetId);
+                break;
             }
-            break;
-          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_REPEAT:
-            deletePendingMessage(pendingMessage.packetId);
-            break;
-          case PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED:
-            pendingFailedByRoom.add(pendingMessage.roomUid.asString());
-            await _savePendingMessage(pendingMessage.copyWith(failed: true));
-            break;
+          }
         }
-      }
+        await Future.value(const Duration(seconds: 7));
+      });
     }
   }
 
@@ -1057,7 +1047,7 @@ class MessageRepo {
 
   Future<void> sendPendingEditedMessages() async {
     final pendingMessages =
-        await _pendingMessageDao.getAllPendingEditedMessages();
+    await _pendingMessageDao.getAllPendingEditedMessages();
 
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
@@ -1088,8 +1078,7 @@ class MessageRepo {
   }
 
   Future<PendingMessageRepeatedStatus> checkMessageRepeated(
-    PendingMessage pm,
-  ) async {
+      PendingMessage pm,) async {
     try {
       final lastDeliveryAck = settings.lastMessageDeliveryAck.value;
       final msg = pm.msg;
@@ -1103,26 +1092,26 @@ class MessageRepo {
       } else if (lastDeliveryAckTo == msg.to &&
           lastDeliveryAckFrom == msg.from) {
         final timeLastMessageDeliveryAck =
-            int.parse(lastDeliveryAckPacketId.split("-")[0]);
+        int.parse(lastDeliveryAckPacketId.split("-")[0]);
         final lastMessageIdLastMessageDeliveryAck =
-            int.parse(lastDeliveryAckPacketId.split("-")[1]);
+        int.parse(lastDeliveryAckPacketId.split("-")[1]);
         final timeMessage = int.parse(msg.packetId.split("-")[0]);
         final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
         if ((timeLastMessageDeliveryAck - timeMessage) >
-                REPEATED_DETECTION_TIME ||
+            REPEATED_DETECTION_TIME ||
             (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
                 REPEATED_DETECTION_COUNT) {
           return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_REPEAT;
         }
       } else {
         final timeLastMessageDeliveryAck =
-            int.parse(lastDeliveryAckPacketId.split("-")[0]);
+        int.parse(lastDeliveryAckPacketId.split("-")[0]);
         final lastMessageIdLastMessageDeliveryAck =
-            await _roomRepo.getRoomLastMessageId(pm.roomUid);
+        await _roomRepo.getRoomLastMessageId(pm.roomUid);
         final timeMessage = int.parse(msg.packetId.split("-")[0]);
         final lastMessageIdMessage = int.parse(msg.packetId.split("-")[1]);
         if ((timeLastMessageDeliveryAck - timeMessage) >=
-                REPEATED_DETECTION_TIME ||
+            REPEATED_DETECTION_TIME ||
             (lastMessageIdLastMessageDeliveryAck - lastMessageIdMessage) >=
                 REPEATED_DETECTION_COUNT) {
           return PendingMessageRepeatedStatus.REPEATED_DETECTION_MESSAGE_FAILED;
@@ -1136,12 +1125,10 @@ class MessageRepo {
     }
   }
 
-  Future<void> updateMessageAtServer(
-    PendingMessage pendingMessage,
-  ) async {
+  Future<void> updateMessageAtServer(PendingMessage pendingMessage,) async {
     try {
       final updatedMessage =
-          MessageUtils.createMessageByClient(pendingMessage.msg);
+      MessageUtils.createMessageByClient(pendingMessage.msg);
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1163,7 +1150,7 @@ class MessageRepo {
 
   bool _fileOfMessageIsValid(file_pb.File file) =>
       settings.localNetworkMessenger.value ||
-      (file.sign.isNotEmpty && file.hash.isNotEmpty);
+          (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(
@@ -1176,11 +1163,10 @@ class MessageRepo {
   Future<void> _savePendingMessage(PendingMessage pm) async =>
       _pendingMessageDao.savePendingMessage(pm);
 
-  Future<void> sendSeen(
-    int messageId,
-    Uid to, {
-    bool useUnary = false,
-  }) async {
+  Future<void> sendSeen(int messageId,
+      Uid to, {
+        bool useUnary = false,
+      }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) {
       return;
@@ -1193,25 +1179,24 @@ class MessageRepo {
     );
   }
 
-  Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
+  Future<void> _updateRoomLastMessage(PendingMessage pm) =>
+      _roomDao.updateRoom(
         uid: pm.roomUid,
         lastMessage: pm.msg.isHidden ? null : pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
       );
 
-  Future<void> sendForwardedMessage(
-    Uid room,
-    List<Message> forwardedMessage,
-  ) async {
+  Future<void> sendForwardedMessage(Uid room,
+      List<Message> forwardedMessage,) async {
     for (var i = 0; i < forwardedMessage.length; i++) {
       final fm = forwardedMessage[i];
       final msg = (await _createMessage(
         room,
         forwardedFrom: fm.forwardedFrom?.node.isEmpty ?? true
             ? fm.roomUid.isChannel()
-                ? fm.roomUid
-                : fm.from
+            ? fm.roomUid
+            : fm.from
             : fm.forwardedFrom,
       ))
           .copyWith(
@@ -1228,10 +1213,8 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendForwardedMetaMessage(
-    Uid roomUid,
-    List<Meta> forwardedMetas,
-  ) async {
+  Future<void> sendForwardedMetaMessage(Uid roomUid,
+      List<Meta> forwardedMetas,) async {
     for (final meta in forwardedMetas) {
       final msg = (await _createMessage(
         roomUid,
@@ -1247,8 +1230,7 @@ class MessageRepo {
     }
   }
 
-  Future<Message> _createMessage(
-    Uid room, {
+  Future<Message> _createMessage(Uid room, {
     int replyId = 0,
     Uid? forwardedFrom,
     String? packetId,
@@ -1257,7 +1239,9 @@ class MessageRepo {
     return Message(
       roomUid: room,
       packetId: packetId,
-      time: clock.now().millisecondsSinceEpoch,
+      time: clock
+          .now()
+          .millisecondsSinceEpoch,
       from: _authRepo.currentUserUid,
       to: room,
       replyToId: replyId,
@@ -1268,10 +1252,11 @@ class MessageRepo {
   }
 
   String _getPacketId() =>
-      "${clock.now().millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
+      "${clock
+          .now()
+          .millisecondsSinceEpoch}${randomVM.nextInt(RANDOM_SIZE)}";
 
-  Future<String> _getPacketIdWithLastMessageId(
-    Uid roomUid, {
+  Future<String> _getPacketIdWithLastMessageId(Uid roomUid, {
     bool isBroadcastMessage = false,
     int? id,
   }) async {
@@ -1279,13 +1264,14 @@ class MessageRepo {
     final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid);
     //if message is broadcast set 1 and if is normal message set 0;
     final broadcast = isBroadcastMessage ? 1 : 0;
-    return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-$broadcast-$id-${randomVM.nextInt(RANDOM_SIZE)}";
+    return "${clock
+        .now()
+        .millisecondsSinceEpoch}-$lastMessageId-$broadcast-$id-${randomVM
+        .nextInt(RANDOM_SIZE)}";
   }
 
-  Future<String> createBroadcastMessagePackedId(
-    Uid broadcastRoomUid,
-    int broadcastMessageId,
-  ) {
+  Future<String> createBroadcastMessagePackedId(Uid broadcastRoomUid,
+      int broadcastMessageId,) {
     return _getPacketIdWithLastMessageId(
       broadcastRoomUid,
       isBroadcastMessage: true,
@@ -1325,12 +1311,11 @@ class MessageRepo {
     return null;
   }
 
-  Future<void> _getMessageFromDb(
-    int page,
-    Uid roomUid,
-    int containsId, {
-    int? lastMessageId,
-  }) async {
+  Future<void> _getMessageFromDb(int page,
+      Uid roomUid,
+      int containsId, {
+        int? lastMessageId,
+      }) async {
     final key = "$roomUid-$page-db";
     var completer = _completerMap[key];
     if (completer == null || completer.isCompleted) {
@@ -1346,12 +1331,11 @@ class MessageRepo {
     }
   }
 
-  Future<void> _getMessagesFromServer(
-    Uid roomUid,
-    int page,
-    int pageSize, {
-    bool retry = true,
-  }) async {
+  Future<void> _getMessagesFromServer(Uid roomUid,
+      int page,
+      int pageSize, {
+        bool retry = true,
+      }) async {
     if (!settings.localNetworkMessenger.value) {
       final key = "$roomUid-$page";
       var completer = _completerMap[key];
@@ -1367,7 +1351,7 @@ class MessageRepo {
               ..limit = pageSize,
           );
           final nonRepeatedMessage =
-              _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
+          _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
           await _dataStreamServices.handleFetchMessagesActions(
             roomUid,
             nonRepeatedMessage,
@@ -1393,8 +1377,7 @@ class MessageRepo {
   }
 
   List<message_pb.Message> _nonRepeatedMessageForApplyingActions(
-    List<message_pb.Message> fetchMessages,
-  ) {
+      List<message_pb.Message> fetchMessages,) {
     final messagesMap = <Int64, message_pb.Message>{};
     for (final message in fetchMessages) {
       if (message.whichType() == message_pb.Message_Type.persistEvent) {
@@ -1402,7 +1385,7 @@ class MessageRepo {
             PersistentEvent_Type.messageManipulationPersistentEvent) {
           messagesMap.putIfAbsent(
             message.persistEvent.messageManipulationPersistentEvent.messageId,
-            () => message,
+                () => message,
           );
         }
       } else {
@@ -1421,11 +1404,9 @@ class MessageRepo {
     }
   }
 
-  Future<void> sendFormResultMessage(
-    Uid botUid,
-    form_pb.FormResult formResult,
-    int formMessageId,
-  ) async {
+  Future<void> sendFormResultMessage(Uid botUid,
+      form_pb.FormResult formResult,
+      int formMessageId,) async {
     final jsonString = (formResult).writeToJson();
     final msg = (await _createMessage(
       botUid,
@@ -1438,10 +1419,8 @@ class MessageRepo {
     return _saveAndSend(pm);
   }
 
-  Future<void> sendShareUidMessage(
-    Uid uid,
-    message_pb.ShareUid shareUid,
-  ) async {
+  Future<void> sendShareUidMessage(Uid uid,
+      message_pb.ShareUid shareUid,) async {
     final json = shareUid.writeToJson();
 
     final msg = (await _createMessage(uid))
@@ -1451,11 +1430,9 @@ class MessageRepo {
     return _saveAndSend(pm);
   }
 
-  Future<void> sendPrivateDataAcceptanceMessage(
-    Uid to,
-    PrivateDataType privateDataType,
-    String token,
-  ) async {
+  Future<void> sendPrivateDataAcceptanceMessage(Uid to,
+      PrivateDataType privateDataType,
+      String token,) async {
     final sharePrivateDataAcceptance = SharePrivateDataAcceptance()
       ..data = privateDataType
       ..token = token;
@@ -1514,12 +1491,14 @@ class MessageRepo {
       );
     }
     if (message.type == MessageType.FILE) {
-      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+      _fileRepo.cancelUploadFile(message.json
+          .toFile()
+          .uuid);
     }
   }
 
-  void deletePendingMessage(String packetId) {
-    _pendingMessageDao.deletePendingMessage(packetId);
+  Future<void> deletePendingMessage(String packetId) async {
+    await _pendingMessageDao.deletePendingMessage(packetId);
   }
 
   void deletePendingEditedMessage(Uid roomUid, int? index) {
@@ -1527,7 +1506,9 @@ class MessageRepo {
     messageEventSubject.add(
       MessageEvent(
         roomUid,
-        clock.now().millisecondsSinceEpoch,
+        clock
+            .now()
+            .millisecondsSinceEpoch,
         index ?? 0,
         index ?? 0,
         MessageEventAction.PENDING_DELETE,
@@ -1540,24 +1521,23 @@ class MessageRepo {
   Future<void> unpinMessage(Message message) =>
       _mucServices.unpinMessage(message);
 
-  Future<void> sendLiveLocationMessage(
-    Uid roomUid,
-    int duration,
-    location.Position position, {
-    int replyId = 0,
-    Uid? forwardedFrom,
-  }) async {
+  Future<void> sendLiveLocationMessage(Uid roomUid,
+      int duration,
+      location.Position position, {
+        int replyId = 0,
+        Uid? forwardedFrom,
+      }) async {
     final res = await _liveLocationRepo.createLiveLocation(roomUid, duration);
     final location = location_pb.Location(
       longitude: position.longitude,
       latitude: position.latitude,
     );
     final json = (location_pb.LiveLocation()
-          ..location = location
-          ..from = _authRepo.currentUserUid
-          ..uuid = res.uuid
-          ..to = roomUid
-          ..time = Int64(duration))
+      ..location = location
+      ..from = _authRepo.currentUserUid
+      ..uuid = res.uuid
+      ..to = roomUid
+      ..time = Int64(duration))
         .writeToJson();
     final msg = (await _createMessage(
       roomUid,
@@ -1598,7 +1578,7 @@ class MessageRepo {
         final msg = message.copyDeleted();
 
         if (msg.id == null) {
-          deletePendingMessage(msg.packetId);
+          await deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
             _cachingRepo.setMessage(
@@ -1608,7 +1588,9 @@ class MessageRepo {
             messageEventSubject.add(
               MessageEvent(
                 message.roomUid,
-                clock.now().millisecondsSinceEpoch,
+                clock
+                    .now()
+                    .millisecondsSinceEpoch,
                 message.id!,
                 message.localNetworkMessageId!,
                 MessageEventAction.DELETE,
@@ -1620,7 +1602,7 @@ class MessageRepo {
             Message? lastNotHiddenMessage;
             if (msg.id == room.lastMessage?.id) {
               lastNotHiddenMessage =
-                  await _dataStreamServices.fetchLastNotHiddenMessage(
+              await _dataStreamServices.fetchLastNotHiddenMessage(
                 room.uid,
                 room.lastMessageId,
                 room.firstMessageId,
@@ -1629,7 +1611,9 @@ class MessageRepo {
             await _roomDao.updateRoom(
               uid: msg.roomUid,
               lastUpdateTime: settings.localNetworkMessenger.value
-                  ? DateTime.now().millisecondsSinceEpoch
+                  ? DateTime
+                  .now()
+                  .millisecondsSinceEpoch
                   : null,
               lastMessage: lastNotHiddenMessage,
             );
@@ -1641,13 +1625,13 @@ class MessageRepo {
     }
   }
 
-  Future<void> editTextMessage(
-    Uid roomUid,
-    Message editableMessage,
-    String text,
-  ) async {
+  Future<void> editTextMessage(Uid roomUid,
+      Message editableMessage,
+      String text,) async {
     try {
-      if (text == editableMessage.json.toText().text) {
+      if (text == editableMessage.json
+          .toText()
+          .text) {
         return;
       }
       final updatedMessage = message_pb.MessageByClient()
@@ -1656,7 +1640,8 @@ class MessageRepo {
         ..text = message_pb.Text(text: text);
       final pm = _createPendingMessage(
         editableMessage.copyWith(
-          json: (message_pb.Text()..text = text).writeToJson(),
+          json: (message_pb.Text()
+            ..text = text).writeToJson(),
           edited: true,
         ),
         SendingStatus.PENDING,
@@ -1665,7 +1650,9 @@ class MessageRepo {
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
-          clock.now().millisecondsSinceEpoch,
+          clock
+              .now()
+              .millisecondsSinceEpoch,
           editableMessage.id!,
           editableMessage.localNetworkMessageId!,
           MessageEventAction.PENDING_EDIT,
@@ -1684,14 +1671,17 @@ class MessageRepo {
       );
       await _messageDao.updateMessage(
         editableMessage.copyWith(
-          json: (message_pb.Text()..text = text).writeToJson(),
+          json: (message_pb.Text()
+            ..text = text).writeToJson(),
           edited: true,
         ),
       );
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
-          clock.now().millisecondsSinceEpoch,
+          clock
+              .now()
+              .millisecondsSinceEpoch,
           editableMessage.id!,
           editableMessage.localNetworkMessageId!,
           MessageEventAction.EDIT,
@@ -1702,9 +1692,12 @@ class MessageRepo {
       if (editableMessage.localNetworkMessageId == room.lastMessage?.id) {
         await _roomDao.updateRoom(
           uid: roomUid,
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+          lastUpdateTime: DateTime
+              .now()
+              .millisecondsSinceEpoch,
           lastMessage: editableMessage.copyWith(
-              json: (message_pb.Text()..text = text).writeToJson()),
+              json: (message_pb.Text()
+                ..text = text).writeToJson()),
         );
       }
     } catch (e) {
@@ -1723,12 +1716,11 @@ class MessageRepo {
     }
   }
 
-  Future<void> editFileMessage(
-    Uid roomUid,
-    Message editableMessage, {
-    String? caption,
-    model.File? file,
-  }) async {
+  Future<void> editFileMessage(Uid roomUid,
+      Message editableMessage, {
+        String? caption,
+        model.File? file,
+      }) async {
     try {
       file_pb.File? updatedFile;
       if (file != null) {
@@ -1741,7 +1733,9 @@ class MessageRepo {
         messageEventSubject.add(
           MessageEvent(
             editableMessage.roomUid,
-            clock.now().millisecondsSinceEpoch,
+            clock
+                .now()
+                .millisecondsSinceEpoch,
             editableMessage.id!,
             editableMessage.localNetworkMessageId!,
             MessageEventAction.PENDING_EDIT,
@@ -1789,7 +1783,9 @@ class MessageRepo {
         messageEventSubject.add(
           MessageEvent(
             editableMessage.roomUid,
-            clock.now().millisecondsSinceEpoch,
+            clock
+                .now()
+                .millisecondsSinceEpoch,
             editableMessage.id!,
             editableMessage.localNetworkMessageId!,
             MessageEventAction.PENDING_EDIT,
@@ -1813,7 +1809,9 @@ class MessageRepo {
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
-          clock.now().millisecondsSinceEpoch,
+          clock
+              .now()
+              .millisecondsSinceEpoch,
           editableMessage.id!,
           editableMessage.localNetworkMessageId!,
           MessageEventAction.EDIT,

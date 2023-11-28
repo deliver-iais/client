@@ -11,14 +11,22 @@ import 'package:isar/isar.dart';
 class UidIdNameDaoImpl extends UidIdNameDao {
   @override
   Future<UidIdName?> getByUid(Uid uid) async {
-    final box = await _openIsar();
-    return (await box.uidIdNameIsars.get(fastHash(uid.asString())))?.fromIsar();
+    try {
+      final box = await _openIsar();
+      return box.uidIdNameIsars.getSync(fastHash(uid.asString()))?.fromIsar();
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
   Future<String?> getUidById(String id) async {
-    final box = await _openIsar();
-    return box.uidIdNameIsars.filter().idEqualTo(id).findFirstSync()?.uid;
+    try {
+      final box = await _openIsar();
+      return (box.uidIdNameIsars.filter().idEqualTo(id).findFirstSync())?.uid;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
@@ -42,25 +50,29 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     String? realName,
     bool? isContact,
   }) async {
-    final lastUpdateTime = clock.now().millisecondsSinceEpoch;
-    final box = await _openIsar();
-    box.writeTxnSync(() {
-      final uidName = box.uidIdNameIsars
-              .filter()
-              .uidEqualTo(uid.asString())
-              .findFirstSync() ??
-          UidIdNameIsar(uid: uid.asString());
-      box.uidIdNameIsars.putSync(
-        UidIdNameIsar(
-          uid: uid.asString(),
-          realName: realName ?? uidName.realName,
-          name: name ?? uidName.name,
-          id: id ?? uidName.id,
-          isContact: isContact ?? uidName.isContact,
-          lastUpdateTime: lastUpdateTime,
-        ),
-      );
-    });
+    try {
+      final lastUpdateTime = clock.now().millisecondsSinceEpoch;
+      final box = await _openIsar();
+      box.writeTxnSync(() {
+        final uidName = box.uidIdNameIsars
+                .filter()
+                .uidEqualTo(uid.asString())
+                .findFirstSync() ??
+            UidIdNameIsar(uid: uid.asString());
+        box.uidIdNameIsars.putSync(
+          UidIdNameIsar(
+            uid: uid.asString(),
+            realName: realName ?? uidName.realName,
+            name: name ?? uidName.name,
+            id: id ?? uidName.id,
+            isContact: isContact ?? uidName.isContact,
+            lastUpdateTime: lastUpdateTime,
+          ),
+        );
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override

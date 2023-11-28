@@ -1,5 +1,3 @@
-// TODO(any): change file name
-// ignore_for_file: file_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -95,7 +93,6 @@ class CallRepo {
 
   Map<int, String> _callEvents = {};
   StatsReport _selectedCandidate = StatsReport("id", "type", 0, {});
-
   bool _isSharing = false;
   bool _isCaller = false;
   bool _isVideo = false;
@@ -168,13 +165,17 @@ class CallRepo {
 
   ReceivePort? _receivePort;
 
+  StreamSubscription? _callStreamSubscription;
+
   CallRepo() {
+    _callStreamSubscription?.cancel();
     _listenBackgroundCall();
     _listenOnCallEvent();
   }
 
   void _listenOnCallEvent() {
-    _callService.callEvents.listen((event) async {
+    _callStreamSubscription =
+        _callService.callEvents.distinct().listen((event) async {
       if (event.callEvent != null &&
           inComingAnswerForAnotherSessionCall(event)) {
         unawaited(_dispose());
@@ -193,11 +194,11 @@ class CallRepo {
         return;
       }
       final from = callEvent.from.asString();
-      final currentUserUid = _authRepo.currentUserUid.asString();
+      final currentUserUid = _authRepo.currentUserUid;
       switch (callEvent.whichType()) {
         case CallEventV2_Type.answer:
           _resendCallOfferTimer?.cancel();
-          if (from == currentUserUid) {
+          if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
             unawaited(_receivedCallAnswer(callEvent.answer));
@@ -207,7 +208,7 @@ class CallRepo {
           break;
         case CallEventV2_Type.offer:
           _callEvents[callEvent.time.toInt()] = "Created";
-          if (from == currentUserUid) {
+          if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else {
             if (settings.localNetworkMessenger.value) {
@@ -231,8 +232,8 @@ class CallRepo {
           }
           break;
         case CallEventV2_Type.ringing:
-          if (from != currentUserUid) {
-            if (!_callService.hasCall) {
+          if (!from.isSameEntity(currentUserUid)) {
+            if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
@@ -514,7 +515,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
-            onRTCPeerConnectionStateFailed();
+            await onRTCPeerConnectionStateFailed();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
             _logger.i("Call Peer Connection Closed Successfully");
@@ -809,14 +810,14 @@ class CallRepo {
     }
   }
 
-  void onRTCPeerConnectionStateFailed() async {
+  Future<void> onRTCPeerConnectionStateFailed() async {
     try {
       await _peerConnection?.restartIce();
       _callEvents[clock.now().millisecondsSinceEpoch] = "Failed";
       if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
         _reconnectTry = true;
         callingStatus.add(CallStatus.RECONNECTING);
-        _reconnectingAfterFailedConnection();
+        await _reconnectingAfterFailedConnection();
         timerDisconnected = Timer(const Duration(seconds: 15), () async {
           if (callingStatus.value != CallStatus.CONNECTED) {
             callingStatus.add(CallStatus.FAILED);
@@ -1135,7 +1136,8 @@ class CallRepo {
           ),
         );
       } else if (!isDuplicated) {
-        if (false && _routingService.getCurrentRoomId() == _roomUid!.asString()) {
+        if (false &&
+            _routingService.getCurrentRoomId() == _roomUid!.asString()) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1144,10 +1146,10 @@ class CallRepo {
             ),
           );
         } else {
-          unawaited(_notificationServices.notifyIncomingCall(
+          await _notificationServices.notifyIncomingCall(
             _roomUid!.asString(),
             callEventJson: callEventJson,
-          ));
+          );
           if (!isAndroidNative) {
             _audioService.playIncomingCallSound();
           }
@@ -1161,7 +1163,7 @@ class CallRepo {
         callingStatus.add(CallStatus.IS_RINGING);
       }
 
-       _sendRinging();
+      _sendRinging(fromAnswerSide: true);
       Timer(const Duration(milliseconds: 400), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
@@ -1183,7 +1185,7 @@ class CallRepo {
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
-      if (_callService.getUserCallState == UserCallState.NO_CALL) {
+      if (!_callService.hasCall) {
         unawaited(_sendLog(isVideo));
         //can't call another ppl or received any call notification
         _callService
@@ -1480,7 +1482,7 @@ class CallRepo {
 
       await _peerConnection!.setRemoteDescription(description);
     } catch (e) {
-      print(e);
+     _logger.e(e);
     }
   }
 
@@ -1493,7 +1495,7 @@ class CallRepo {
       final description = RTCSessionDescription(sdp, 'answer');
       await _peerConnection!.setRemoteDescription(description);
     } catch (e) {
-      print(e);
+      _logger.e(e);
     }
   }
 
@@ -1635,13 +1637,14 @@ class CallRepo {
 
   void _sendRinging({
     bool isRetry = true,
+    bool fromAnswerSide = false,
   }) {
     //Send Ringing means received Call Event With Offer
     final callEventV2ByClient = (CallEventV2ByClient()
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..ringing = CallEventRinging());
+      ..ringing = CallEventRinging(fromAnswerSide: fromAnswerSide));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send Ringing";
     _checkRetryCallEvent(callEventV2ByClient, isRetry: isRetry);

@@ -46,8 +46,8 @@ class RoomName extends StatelessWidget {
           children: [
             Flexible(
               child: TextLoader(
-                text: Text(
-                  name.replaceAll('', '\u200B'),
+                text: Text( String.fromCharCodes(
+                  name.replaceAll('', '\u200B').runes),
                   style: (style ?? theme.textTheme.titleSmall)!
                       .copyWith(height: 1.5),
                   maxLines: maxLines,

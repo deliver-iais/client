@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -24,6 +25,8 @@ class ServerLessService {
   final Map<String, String> _address = {};
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
+  final _notificationForegroundService =
+      GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   HttpServer? _httpServer;
 
@@ -33,6 +36,7 @@ class ServerLessService {
 
   void start() {
     _address.clear();
+    // _notificationForegroundService.localNetworkForegroundServiceStart();
     _startServices();
   }
 
@@ -54,6 +58,7 @@ class ServerLessService {
     await _localNetworkConnectionDao.deleteAll();
   }
 
+  @pragma('vm:entry-point')
   Future<void> _startServices() async {
     // unawaited(GetIt.I.get<ServerLessMessageService>().updateRooms());
     if (await _getMyLocalIp()) {
@@ -293,4 +298,5 @@ class ServerLessService {
     }
     return null;
   }
+
 }

@@ -424,7 +424,7 @@ class DataStreamServices {
 
     final msg = _messageExtractorServices.extractMessage(res.messages.first);
     await _messageDao.updateMessage(msg);
-    _cachingRepo.setMessage(roomUid, id, msg);
+    _cachingRepo.setMessage(roomUid, savedMsg.localNetworkMessageId!, msg);
     if (_metaRepo.isMessageContainMeta(msg)) {
       await _metaRepo.updateMeta(msg);
     }
@@ -539,7 +539,9 @@ class DataStreamServices {
     _callService
       ..addCallEvent(callEvents)
       ..shouldRemoveData = true;
-    await GetIt.I.get<CoreServices>().initStreamConnection();
+    if (!settings.localNetworkMessenger.value) {
+      await GetIt.I.get<CoreServices>().initStreamConnection();
+    }
   }
 
   void handleActivity(Activity activity) {
@@ -953,19 +955,25 @@ class DataStreamServices {
       } else if (_authRepo.isCurrentUser(message.from)) {
         await _pendingMessageDao.deletePendingMessage(message.packetId);
       }
+      msgList.add(_messageExtractorServices.extractMessage(message));
+    }
+    unawaited(_save(messages));
+    return msgList;
+  }
+
+  Future<void> _save(
+    List<Message> messages,
+  ) async {
+    for (final message in messages) {
       try {
-        unawaited(
-          handleIncomingMessage(
-            message,
-            isOnlineMessage: appRunInForeground,
-          ),
+        await handleIncomingMessage(
+          message,
+          isOnlineMessage: false,
         );
       } catch (e) {
         _logger.e(e);
       }
-      msgList.add(_messageExtractorServices.extractMessage(message));
     }
-    return msgList;
   }
 
   void _checkCallLogMessage(Message message) {

@@ -1,15 +1,20 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
+import 'package:deliver/shared/widgets/ws.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CallUtils {
   static final _logger = GetIt.I.get<Logger>();
   static final _callService = GetIt.I.get<CallService>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   static Map<String, dynamic> getIceServers() =>
       settings.localNetworkMessenger.value
@@ -140,5 +145,74 @@ class CallUtils {
           await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
       return stream;
     }
+  }
+
+  static void showPermissionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          title: const Ws.asset(
+            'assets/animations/call_permission.ws',
+            width: 150,
+            height: 150,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _i18n.get(
+                  "alert_window_permission",
+                ),
+                textDirection: _i18n.defaultTextDirection,
+                style: theme.textTheme.bodyLarge!
+                    .copyWith(color: theme.colorScheme.primary),
+              ),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(top: 10.0),
+                child: Text(
+                  _i18n.get(
+                    "alert_window_permission_attention",
+                  ),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: theme.textTheme.bodyLarge!
+                      .copyWith(color: theme.colorScheme.error),
+                ),
+              )
+            ],
+          ),
+          alignment: Alignment.center,
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(
+                _i18n.get(
+                  "cancel",
+                ),
+              ),
+            ),
+            TextButton(
+              child: Text(
+                _i18n.get("go_to_setting"),
+              ),
+              onPressed: () async {
+                if (await Permission.systemAlertWindow.request().isGranted) {
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

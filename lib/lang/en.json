@@ -383,6 +383,7 @@
   "notification_advanced_mode": "Advanced Notification Mode",
   "notification_foreground": "Notification Received On BackGround",
   "notification_foreground_call": "Call on BackGround",
+  "notification_foreground_local_network": "LocalNetwork on BackGround",
   "notification_foreground_broadcast": "Sending broadcast list...",
   "notification_foreground_not_received": "Can't Received Notification On Background",
   "notification_foreground_open_app": "Please Open App Again - Tap Notification",

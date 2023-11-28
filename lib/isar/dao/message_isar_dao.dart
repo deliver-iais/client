@@ -45,16 +45,15 @@ class MessageDaoImpl extends MessageDao {
         .and()
         .packetIdEqualTo(packetId)
         .findFirstSync()
-        ?.fromIsar
-    (
-    );
+        ?.fromIsar();
   }
 
   @override
-  Future<List<Message>> getMessagePage(Uid roomUid,
-      int page, {
-        int pageSize = PAGE_SIZE,
-      }) async {
+  Future<List<Message>> getMessagePage(
+    Uid roomUid,
+    int page, {
+    int pageSize = PAGE_SIZE,
+  }) async {
     final box = await _openMessageIsar();
     return box.messageIsars
         .filter()
@@ -68,10 +67,10 @@ class MessageDaoImpl extends MessageDao {
 
   @override
   Future<void> insertMessage(Message message) async {
-    try{
+    try {
       final box = await _openMessageIsar();
-      await box.writeTxn(() => box.messageIsars.put(message.toIsar()));
-    } catch(e) {
+      box.writeTxnSync(() => box.messageIsars.putSync(message.toIsar()));
+    } catch (e) {
       print(e);
     }
   }
@@ -104,7 +103,7 @@ class MessageDaoImpl extends MessageDao {
         .filter()
         .roomUidEqualTo(roomUid.asString())
         .group((q) =>
-        q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
+            q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
         .and()
         .jsonContains(keyword)
         .findAllSync()
@@ -114,5 +113,16 @@ class MessageDaoImpl extends MessageDao {
     }).toList();
 
     return messages.reversed.toList();
+  }
+
+  @override
+  Future<void> saveMessages(List<Message> messages) async {
+    try {
+      final box = await _openMessageIsar();
+      box.writeTxnSync(() => box.messageIsars
+          .putAllSync(messages.map((e) => e.toIsar()).toList()));
+    } catch (e) {
+      print(e);
+    }
   }
 }

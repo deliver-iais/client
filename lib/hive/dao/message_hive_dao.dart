@@ -106,4 +106,11 @@ class MessageDaoImpl extends MessageDao {
         .toList();
     return messages.reversed.toList();
   }
+
+  @override
+  Future<void> saveMessages(List<Message> messages) async {
+    for (final element in messages) {
+      await insertMessage(element);
+    }
+  }
 }

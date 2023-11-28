@@ -7,7 +7,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class PendingMessageDaoImpl extends PendingMessageDao {
+class PendingMessageDaoImpl with SortPending implements PendingMessageDao {
   String _keyPendingMessage() => "pending_message";
 
   @override

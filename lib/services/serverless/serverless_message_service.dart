@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/call_service.dart';
@@ -32,11 +34,8 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import '../../box/dao/message_dao.dart';
-
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
-  final Map<String, List<MessageDeliveryAck>> _pendingAck = {};
   final _roomDao = GetIt.I.get<RoomDao>();
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
@@ -126,8 +125,7 @@ class ServerLessMessageService {
         DateTime.now().millisecondsSinceEpoch,
       );
 
-      await _sendMessage(to: message.to, message: message);
-
+    await _sendMessage(to: message.to, message: message);
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
@@ -217,16 +215,17 @@ class ServerLessMessageService {
       }
     }
     Timer(
-      const Duration(seconds: 5),
-      () => _checkPendingStatus(message.packetId, to: to , message: message),
+      const Duration(seconds: 4),
+      () => _checkPendingStatus(message.packetId, to: to, message: message),
     );
   }
 
-  Future<void> _checkPendingStatus(String packetId, {required Uid to, required Message message}) async {
+  Future<void> _checkPendingStatus(String packetId,
+      {required Uid to, required Message message}) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
     var hasBeenSent = false;
     if (pm != null) {
-      if(!hasBeenSent) {
+      if (!hasBeenSent) {
         hasBeenSent = true;
       }
       _serverLessService.sendBroadCast(to: pm.roomUid);
@@ -236,7 +235,7 @@ class ServerLessMessageService {
   Future<void> processRequest(HttpRequest request) async {
     try {
       final type = request.headers.value(TYPE) ?? MESSAGE;
-      if (type == ACK ) {
+      if (type == ACK) {
         unawaited(
           _dataStreamService.handleAckMessage(
             MessageDeliveryAck.fromBuffer(await request.first),
@@ -301,16 +300,17 @@ class ServerLessMessageService {
     final messages = await _pendingMessageDao.getPendingMessages(uid);
     var j = 0;
     while (j < messages.length) {
-      try {
-        await sendClientPacket(
-          ClientPacket()
-            ..message = MessageUtils.createMessageByClient(messages[j].msg),
-        );
-        await Future.value(const Duration(milliseconds: 600));
-      } catch (e) {
-        _logger.e(e);
+      if (messages[j].msg.type != MessageType.CALL) {
+        try {
+          await sendClientPacket(
+            ClientPacket()
+              ..message = MessageUtils.createMessageByClient(messages[j].msg),
+          );
+          await Future.value(const Duration(milliseconds: 900));
+        } catch (e) {
+          _logger.e(e);
+        }
       }
-
       j++;
     }
   }
@@ -341,11 +341,6 @@ class ServerLessMessageService {
 
   Future<void> resendPendingPackets(Uid uid) async {
     await _sendPendingMessage(uid.asString());
-
-    _pendingAck[uid.asString()]?.forEach((element) {
-      _sendAck(element);
-    });
-    _pendingAck.clear();
 
     _pendingSeen[uid.asString()]?.forEach((element) {
       _sendSeen(element);
@@ -402,7 +397,8 @@ class ServerLessMessageService {
           Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
     }
 
-    if(null == await _messageDao.getMessageByPacketId(room!.uid,message.packetId)) {
+    if (null ==
+        await _messageDao.getMessageByPacketId(room!.uid, message.packetId)) {
       unawaited(
         _dataStreamService.handleIncomingMessage(
           message,
@@ -415,7 +411,7 @@ class ServerLessMessageService {
         lastLocalNetworkMessageId: message.id.toInt(),
         localNetworkMessageCount: room.localNetworkMessageCount + 1,
       );
-        }
+    }
     if (!message.edited) {
       unawaited(
         _sendAck(
@@ -469,11 +465,6 @@ class ServerLessMessageService {
         ip,
         type: ACK,
       );
-    } else {
-      if (_pendingAck[ack.to.asString()] == null) {
-        _pendingAck[ack.to.asString()] = [];
-      }
-      _pendingAck[ack.to.asString()]?.add(ack);
     }
   }
 
@@ -509,7 +500,7 @@ class ServerLessMessageService {
       );
 
       if (callEvent.hasRinging()) {
-        _callService.addCallEvent(CallEvents.callEvent(callEvent));
+        // _callService.addCallEvent(CallEvents.callEvent(callEvent));
       } else if (callEvent.hasBusy()) {
         unawaited(_sendCallLog(CallLog()..end = CallEventEnd()));
       }
@@ -522,7 +513,10 @@ class ServerLessMessageService {
     final rooms = await _roomDao.getAllRooms();
     for (final element in rooms) {
       if (element.localNetworkMessageCount > 0) {
-        await _roomDao.updateRoom(uid: element.uid, localNetworkMessageCount: 0);
+        await _roomDao.updateRoom(
+          uid: element.uid,
+          localNetworkMessageCount: 0,
+        );
       }
     }
   }

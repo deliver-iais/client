@@ -9,7 +9,12 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-enum NotificationForegroundServiceType { NOTIFICATION, BROADCAST, CALL }
+enum NotificationForegroundServiceType {
+  NOTIFICATION,
+  BROADCAST,
+  CALL,
+  LOCAL_NETWORK
+}
 
 class NotificationForegroundService {
   static final _i18n = GetIt.I.get<I18N>();
@@ -25,7 +30,6 @@ class NotificationForegroundService {
   ReceivePort? get getReceivePort => _receivePort;
 
   SendPort? get getSendPort => _sendPort;
-
 
   set setSendPort(SendPort? sp) => _sendPort = sp;
 
@@ -53,6 +57,14 @@ class NotificationForegroundService {
     return false;
   }
 
+  Future<bool> localNetworkForegroundServiceStart() async {
+    if (!settings.foregroundNotificationIsEnabled.value) {
+      foregroundServiceType = NotificationForegroundServiceType.LOCAL_NETWORK;
+      return foregroundTaskInitializing();
+    }
+    return false;
+  }
+
   Future<bool> broadcastForegroundServiceStart() async {
     if (!settings.foregroundNotificationIsEnabled.value) {
       foregroundServiceType = NotificationForegroundServiceType.BROADCAST;
@@ -63,13 +75,12 @@ class NotificationForegroundService {
 
   Future<void> foregroundServiceStop() async {
     if (!settings.foregroundNotificationIsEnabled.value) {
-      foregroundServiceType=NotificationForegroundServiceType.NOTIFICATION;
-      if(hasForegroundServiceCapability) {
+      foregroundServiceType = NotificationForegroundServiceType.NOTIFICATION;
+      if (hasForegroundServiceCapability) {
         await _stopForegroundTask();
       }
     }
   }
-
 
   Future<bool> _foregroundTaskInitializing() async {
     if (hasForegroundServiceCapability) {
@@ -109,6 +120,12 @@ class NotificationForegroundService {
             NotificationButton(
               id: 'stopForegroundNotification',
               text: _i18n.get("end_call"),
+            )
+          else if (foregroundServiceType ==
+              NotificationForegroundServiceType.CALL)
+            NotificationButton(
+              id: 'stopForegroundNotification',
+              text: _i18n.get("end_local_network"),
             ),
         ],
       ),
@@ -182,6 +199,8 @@ class NotificationForegroundService {
         return _i18n.get("notification_foreground_broadcast");
       case NotificationForegroundServiceType.CALL:
         return _i18n.get("notification_foreground_call");
+      case NotificationForegroundServiceType.LOCAL_NETWORK:
+        return _i18n.get("notification_foreground_local_network");
     }
   }
 
@@ -286,6 +305,7 @@ class NotificationHandler extends TaskHandler {
         await FlutterForegroundTask.stopService();
       }
     }
+    if (id == "") {}
   }
 
   @override

@@ -38,13 +38,12 @@ class ChatAvatar extends StatelessWidget {
           isHeroEnabled: false,
           showSavedMessageLogoIfNeeded: true,
         ),
-        if (
-        uid.category == Categories.USER &&
-            !_authRepo.isCurrentUser(uid))
+        if (uid.category == Categories.USER && !_authRepo.isCurrentUser(uid))
           StreamBuilder<LocalNetworkConnections?>(
             stream: _localNetworkDao.watch(uid),
             builder: (c, la) {
-              if (settings.localNetworkMessenger.value && la.hasData &&
+              if (settings.localNetworkMessenger.value &&
+                  la.hasData &&
                   (la.data != null)) {
                 return Positioned.directional(
                   bottom: 0.0,
@@ -76,12 +75,16 @@ class ChatAvatar extends StatelessWidget {
                   ),
                 );
               } else {
+                if (settings.localNetworkMessenger.value) {
+                  return const SizedBox.shrink();
+                }
                 if (uid.category == Categories.USER &&
                     !_authRepo.isCurrentUser(uid)) {
                   return StreamBuilder<LastActivity?>(
                     stream: _lastActivityRepo.watch(uid.asString()),
                     builder: (c, la) {
-                      if (la.hasData && la.data != null &&
+                      if (la.hasData &&
+                          la.data != null &&
                           isOnline(la.data!.time)) {
                         return Positioned.directional(
                           bottom: 0.0,
@@ -91,8 +94,8 @@ class ChatAvatar extends StatelessWidget {
                             width: 17.0,
                             height: 17.0,
                             decoration: BoxDecoration(
-                              color: borderColor ??
-                                  theme.scaffoldBackgroundColor,
+                              color:
+                                  borderColor ?? theme.scaffoldBackgroundColor,
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -118,7 +121,6 @@ class ChatAvatar extends StatelessWidget {
               }
             },
           ),
-
       ],
     );
   }

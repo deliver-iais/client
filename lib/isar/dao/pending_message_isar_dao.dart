@@ -8,36 +8,41 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
 
-class PendingMessageDaoImpl extends PendingMessageDao {
+class PendingMessageDaoImpl with SortPending implements PendingMessageDao {
   Future<Isar> _openPendingMessageIsar() => IsarManager.open();
 
   @override
   Future<void> deletePendingMessage(String packetId) async {
-    final box = await _openPendingMessageIsar();
-
-    return box.writeTxnSync(() {
-      box.pendingMessageIsars.deleteSync(fastHash(packetId));
-    });
+    try {
+      final box = await _openPendingMessageIsar();
+      return box.writeTxnSync(() {
+        box.pendingMessageIsars.deleteSync(fastHash(packetId));
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   Future<List<PendingMessage>> getAllPendingMessages() async {
     final box = await _openPendingMessageIsar();
 
-    return box.pendingMessageIsars
-        .filter()
-        .messageIdLessThan(1)
-        .build()
-        .findAllSync()
-        .map((e) => e.fromIsar())
-        .toList();
+    return sort(
+      box.pendingMessageIsars
+          .filter()
+          .messageIdLessThan(1)
+          .build()
+          .findAllSync()
+          .map((e) => e.fromIsar())
+          .toList(),
+    );
   }
 
   @override
   Future<List<PendingMessage>> getPendingMessages(
     String roomUid,
   ) async {
-    try{
+    try {
       final box = await _openPendingMessageIsar();
 
       return box.pendingMessageIsars
@@ -48,11 +53,9 @@ class PendingMessageDaoImpl extends PendingMessageDao {
           .findAllSync()
           .map((e) => e.fromIsar())
           .toList();
-
-    } catch(e){
+    } catch (e) {
       return [];
     }
-
   }
 
   @override
@@ -67,11 +70,11 @@ class PendingMessageDaoImpl extends PendingMessageDao {
         .roomUidEqualTo(roomUid.asString())
         .build();
 
-    yield query.findAllSync().map((e) => e.fromIsar()).toList();
+    yield sort(query.findAllSync().map((e) => e.fromIsar()).toList());
 
     yield* query
         .watch()
-        .map((event) => event.map((e) => e.fromIsar()).toList());
+        .map((event) => sort(event.map((e) => e.fromIsar()).toList()));
   }
 
   @override

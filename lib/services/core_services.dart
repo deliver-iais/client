@@ -339,18 +339,24 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
-  Future<void> sendMessage(MessageByClient message) async {
+  Future<void> sendMessage(
+    MessageByClient message, {
+    bool resend = true,
+  }) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendClientPacket(clientPacket);
-      if (_connectionStatus.value == ConnectionStatus.Connected) {
-        Timer(
-          const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => _checkPendingStatus(message.packetId, message),
-        );
+      if (resend) {
+        if (_connectionStatus.value == ConnectionStatus.Connected) {
+          Timer(
+            const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+            () => _checkPendingStatus(message.packetId, message),
+          );
+        }
       }
+
       _changeAppToDisconnectedAfterSendMessage();
     } catch (e) {
       _changeAppToDisconnectedAfterSendMessage();
@@ -369,7 +375,7 @@ class CoreServices {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
     var hasBeenSent = false;
     if (pm != null) {
-      if(!hasBeenSent) {
+      if (!hasBeenSent) {
         await sendMessage(message);
         hasBeenSent = true;
       }
@@ -461,7 +467,7 @@ class CoreServices {
   }) async {
     try {
       if (!forceToSendToServer && settings.localNetworkMessenger.value) {
-         unawaited(_serverLessMessageService.sendClientPacket(packet));
+        unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||
             _clientPacketStream == null ||

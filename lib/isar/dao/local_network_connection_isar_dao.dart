@@ -58,7 +58,9 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
           .watch()
           .where((event) => event.isNotEmpty)
           .map((event) => event.map((e) => e.fromIsar()).first);
-    } catch (_) {}
+    } catch (_) {
+      print(_);
+    }
   }
 
   @override

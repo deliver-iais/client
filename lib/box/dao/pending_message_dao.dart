@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
-abstract class PendingMessageDao {
+abstract interface class PendingMessageDao {
   Future<List<PendingMessage>> getPendingMessages(String roomUid);
 
   Stream<List<PendingMessage>> watchPendingMessages(Uid roomUid);
@@ -24,4 +24,9 @@ abstract class PendingMessageDao {
   Future<void> deletePendingEditedMessage(Uid roomUid, int? index);
 
   Stream<List<PendingMessage>> watchPendingEditedMessages(Uid roomUid);
+}
+
+mixin SortPending {
+  List<PendingMessage> sort(List<PendingMessage> messages) =>
+      messages..sort((a, b) => b.msg.time - a.msg.time);
 }

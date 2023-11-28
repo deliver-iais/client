@@ -384,6 +384,7 @@
   "notification_foreground": "وصول الاشعارات على الخلفية ",
   "notification_foreground_broadcast": "Sending broadcast list...",
   "notification_foreground_call": "الاتصال على الخلفية ",
+  "notification_foreground_local_network": "الشبكة الداخلية في الخلفية",
   "notification_foreground_not_received": "لا يمكن تمرير التنبيهات في الخلفية",
   "notification_foreground_open_app": "الرجاء فتح التطبيق مجددا. اضغط على الاشعارات",
   "notification_foreground_stop": "توقیف إشعارات الخلفیة",

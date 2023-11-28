@@ -53,43 +53,48 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     int? lastLocalNetworkMessageId,
     int? localNetworkMessageCount,
   }) async {
+    try{
     final box = await _openRoomIsar();
     box.writeTxnSync(() {
       final room =
           box.roomIsars.filter().uidEqualTo(uid.asString()).findFirstSync() ??
               RoomIsar(uid: uid.asString());
 
-      box.roomIsars.putSync(
-        RoomIsar(
-          uid: uid.asString(),
-          lastMessageId: lastMessageId ?? room.lastMessageId,
-          seenSynced: seenSynced ?? room.seenSynced,
-          pinned: pinned ?? room.pinned,
-          pinId: pinId ?? room.pinId,
-          lastLocalNetworkMessageId:
-              lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
-          localNetworkMessageCount:
-              localNetworkMessageCount ?? room.localNetworkMessageCount,
-          lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
-          lastMessage: lastMessage != null
-              ? messageToJson(lastMessage)
-              : room.lastMessage,
-          shouldUpdateMediaCount:
-              shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
-          mentionsId: mentionsId ?? room.mentionsId,
-          lastCurrentUserSentMessageId:
-              lastCurrentUserSentMessageId ?? room.lastCurrentUserSentMessageId,
-          firstMessageId: firstMessageId ?? room.firstMessageId,
-          deleted: deleted ?? room.deleted,
-          replyKeyboardMarkup: replyKeyboardMarkup ??
-              (forceToUpdateReplyKeyboardMarkup
-                  ? null
-                  : room.replyKeyboardMarkup),
-          draft: draft ?? room.draft,
-          synced: synced ?? room.synced,
-        ),
-      );
-    });
+         box.roomIsars.putSync(
+          RoomIsar(
+            uid: uid.asString(),
+            lastMessageId: lastMessageId ?? room.lastMessageId,
+            seenSynced: seenSynced ?? room.seenSynced,
+            pinned: pinned ?? room.pinned,
+            pinId: pinId ?? room.pinId,
+            lastLocalNetworkMessageId:
+            lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
+            localNetworkMessageCount:
+            localNetworkMessageCount ?? room.localNetworkMessageCount,
+            lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
+            lastMessage: lastMessage != null
+                ? messageToJson(lastMessage)
+                : room.lastMessage,
+            shouldUpdateMediaCount:
+            shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
+            mentionsId: mentionsId ?? room.mentionsId,
+            lastCurrentUserSentMessageId:
+            lastCurrentUserSentMessageId ?? room.lastCurrentUserSentMessageId,
+            firstMessageId: firstMessageId ?? room.firstMessageId,
+            deleted: deleted ?? room.deleted,
+            replyKeyboardMarkup: replyKeyboardMarkup ??
+                (forceToUpdateReplyKeyboardMarkup
+                    ? null
+                    : room.replyKeyboardMarkup),
+            draft: draft ?? room.draft,
+            synced: synced ?? room.synced,
+          ),
+        );
+      });
+    } catch(e){
+      print(e);
+    }
+
   }
 
   @override
