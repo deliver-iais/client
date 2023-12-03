@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -25,8 +24,6 @@ class ServerLessService {
   final Map<String, String> _address = {};
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
-  final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   HttpServer? _httpServer;
 
@@ -173,7 +170,7 @@ class ServerLessService {
     }
   }
 
-  Future<void> _startHttpService({bool retry = true}) async {
+  Future<void> _startHttpService() async {
     try {
       await _httpServer?.close(force: true);
       _httpServer = await HttpServer.bind(_ip, SERVER_PORT);
@@ -193,11 +190,11 @@ class ServerLessService {
             _logger.e(e);
           }
         });
+      } else {
+        await _startHttpService();
       }
     } catch (e) {
-      if (retry) {
-        unawaited(_startHttpService(retry: false));
-      }
+      await _startHttpService();
       _logger.e(e);
     }
     sendBroadCast();
@@ -298,5 +295,4 @@ class ServerLessService {
     }
     return null;
   }
-
 }

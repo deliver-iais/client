@@ -30,6 +30,9 @@ class HasCallRowState extends State<HasCallRow> {
       initialData: CallStatus.NO_CALL,
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
+        if(callRepo.isCallFromNotActiveState){
+          return const SizedBox.shrink();
+        }
         Widget renderer;
         if (snapshot.data != CallStatus.NO_CALL) {
           renderer = MouseRegion(

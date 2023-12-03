@@ -147,9 +147,9 @@ class CallUtils {
     }
   }
 
-  static void showPermissionDialog(BuildContext context) {
+  static void showPermissionDialog() {
     showDialog(
-      context: context,
+      context: settings.appContext,
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(

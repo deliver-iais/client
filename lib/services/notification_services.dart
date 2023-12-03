@@ -157,6 +157,10 @@ abstract class Notifier {
     String? callEventJson,
   );
 
+  Future<void> playRingtone();
+
+  Future<void> cancelRingtone();
+
   Future<void> cancel(String roomUid);
 
   Future<void> editById(int id, String roomUid, String text);
@@ -183,6 +187,10 @@ class NotificationServices {
       _playSoundOut();
     }
   }
+
+  void playRingtone() => _notifier.playRingtone();
+
+  void cancelRingtone() => _notifier.cancelRingtone();
 
   void notifyIncomingMessage(
     pro.Message message,
@@ -296,6 +304,12 @@ class FakeNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id, String roomUid) async {}
+
+  @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
 }
 
 //init on Home_Page init because can't load Deliver Icon and should be init inside initState() function
@@ -319,6 +333,12 @@ class WindowsNotifier implements Notifier {
       assert(ret);
     });
   }
+
+  @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
@@ -425,7 +445,6 @@ class WindowsNotifier implements Notifier {
             Notifier.onCallNotificationAction(
               roomUid,
               isVideoCall: isVideoCall,
-              isCallAccepted: true,
             );
           }
         }
@@ -472,6 +491,12 @@ class WebNotifier implements Notifier {
   Future<void> cancelAll() async {}
 
   @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
+
+  @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
     js.context.callMethod(
       "showNotification",
@@ -497,6 +522,12 @@ class LinuxNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id, String roomUid) async {}
+
+  @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
 
   LinuxNotifier() {
     const notificationSetting =
@@ -613,6 +644,18 @@ class AndroidNotifier implements Notifier {
 
   final _callService = GetIt.I.get<CallService>();
 
+  @override
+  Future<void> cancelRingtone() async {
+    unawaited(cancelVibration());
+    // await FlutterRingtonePlayer().stop();
+  }
+
+  @override
+  Future<void> playRingtone() async {
+    // await FlutterRingtonePlayer().playRingtone();
+    vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
+  }
+
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id
     'Notifications', // title
@@ -714,7 +757,6 @@ class AndroidNotifier implements Notifier {
     Notifier.onCallNotificationAction(
       callEvent.userInfo!["uid"]!,
       isVideoCall: isVideoCall,
-      isCallAccepted: true,
     );
     await _callService.saveIsSelectedOrAccepted(
       isAccepted: true,
@@ -1006,8 +1048,6 @@ class AndroidNotifier implements Notifier {
     final callEventV2 = callEventJson?.toCallEventV2();
     final isVideoCall = callEventV2!.isVideo;
     final ceJson = callEventJson ?? "";
-     final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
-
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
@@ -1021,7 +1061,7 @@ class AndroidNotifier implements Notifier {
         acceptActionText: _i18n.get("accept"),
       ),
     );
-    vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
+    //vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 
@@ -1061,6 +1101,12 @@ class IOSNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
 
   // final _i18n = GetIt.I.get<I18N>();
+
+  @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
 
   IOSNotifier() {
     final darwinNotificationCategories = <DarwinNotificationCategory>[
@@ -1200,6 +1246,12 @@ class MacOSNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _fileService = GetIt.I.get<FileService>();
   final _i18n = GetIt.I.get<I18N>();
+
+  @override
+  Future<void> cancelRingtone() async {}
+
+  @override
+  Future<void> playRingtone() async {}
 
   MacOSNotifier() {
     final darwinNotificationCategories = <DarwinNotificationCategory>[

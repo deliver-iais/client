@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
@@ -12,6 +11,7 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/analytics_service.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -67,6 +67,7 @@ class CallRepo {
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -106,6 +107,8 @@ class CallRepo {
   bool _isOfferReady = false;
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
+  bool _isCallFromNotActiveState = false;
+
   bool _isInitRenderer = false;
   bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
@@ -119,6 +122,8 @@ class CallRepo {
   bool get isSharing => _isSharing;
 
   bool get isVideo => _isVideo;
+
+  bool get isCallFromNotActiveState => _isCallFromNotActiveState;
 
   bool get isInitRenderer => _isInitRenderer;
 
@@ -234,7 +239,10 @@ class CallRepo {
         case CallEventV2_Type.ringing:
           if (!from.isSameEntity(currentUserUid)) {
             if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
+              _logger.i(
+                  "-----------------------------------${_callService.getUserCallState}");
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
+
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
               _cancelTimerResendEvent();
@@ -331,9 +339,9 @@ class CallRepo {
   // here we have function that is used to handle income call from another person and save it in DB (probably)
   void _handleIncomingCallOnReceiver(CallEventV2 callEvent) {
     _callEvents[callEvent.time.toInt()] = "IsRinging";
-    if (callingStatus.value != CallStatus.CONNECTING) {
-      callingStatus.add(CallStatus.IS_RINGING);
-    }
+    // if (callingStatus.value != CallStatus.CONNECTING) {
+    //   callingStatus.add(CallStatus.IS_RINGING);
+    // }
     _roomUid = callEvent.from;
     _callService
       ..setCallId = callEvent.id
@@ -1120,6 +1128,10 @@ class CallRepo {
     return false;
   }
 
+  Future<bool> _requiredPermissionIsGranted() async =>
+      (await getDeviceVersion() < 31 ||
+          await Permission.systemAlertWindow.status.isGranted);
+
   Future<void> _incomingCall(
     bool isDuplicated,
     String callEventJson,
@@ -1136,8 +1148,10 @@ class CallRepo {
           ),
         );
       } else if (!isDuplicated) {
-        if (false &&
-            _routingService.getCurrentRoomId() == _roomUid!.asString()) {
+        _isCallFromNotActiveState = _appLifecycleService.isActive;
+        if (_appLifecycleService.isActive &&
+                _routingService.isInRoom(_roomUid!.asString()) ||
+            (isAndroidNative && !(await _requiredPermissionIsGranted()))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1480,9 +1494,9 @@ class CallRepo {
 
       final description = RTCSessionDescription(sdp, 'offer');
 
-      await _peerConnection!.setRemoteDescription(description);
+       unawaited(_peerConnection!.setRemoteDescription(description));
     } catch (e) {
-     _logger.e(e);
+      _logger.e(e);
     }
   }
 
@@ -1624,7 +1638,7 @@ class CallRepo {
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
     if (settings.localNetworkMessenger.value) {
-      _resendCallOfferTimer = Timer(const Duration(milliseconds: 400), () {
+      _resendCallOfferTimer = Timer(const Duration(milliseconds: 700), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           _coreServices.sendCallEvent(callEventV2ByClient);
           _sendCallOffer(callEventV2ByClient);
@@ -1739,7 +1753,7 @@ class CallRepo {
   Future<void> _setCandidate(List<RTCIceCandidate> candidates) async {
     for (final candidate in candidates) {
       try {
-        await _peerConnection!.addCandidate(candidate);
+         unawaited(_peerConnection!.addCandidate(candidate));
       } catch (e) {
         _logger.e(e);
       }
@@ -1990,17 +2004,6 @@ class CallRepo {
     });
   }
 
-  // TODO(amirhossein): Remove if not needed!
-  // ignore: unused_element
-  Future<void> _cleanRtpSender() async {
-    if (_audioSender != null) {
-      await _audioSender!.dispose();
-    }
-    if (_videoSender != null) {
-      await _videoSender!.dispose();
-    }
-  }
-
   Future<void> _cleanLocalStream() async {
     await _stopSharingStream();
     if (_localStream != null) {
@@ -2164,14 +2167,6 @@ class FirstTaskHandler extends TaskHandler {
 
   @override
   void onNotificationPressed() {
-    // Called when the notification itself on the Android platform is pressed.
-    //
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // this function to be called.
-
-    // Note that the app will only route to "/resume-route" when it is exited so
-    // it will usually be necessary to send a message through the send port to
-    // signal it to restore state when the app is already started.
     FlutterForegroundTask.launchApp("/call-screen");
     sPort?.send('onNotificationPressed');
   }
