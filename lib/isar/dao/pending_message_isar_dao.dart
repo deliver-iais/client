@@ -45,14 +45,14 @@ class PendingMessageDaoImpl with SortPending implements PendingMessageDao {
     try {
       final box = await _openPendingMessageIsar();
 
-      return box.pendingMessageIsars
+      return sort(box.pendingMessageIsars
           .filter()
           .messageIdLessThan(1)
           .and()
           .roomUidEqualTo(roomUid)
           .findAllSync()
           .map((e) => e.fromIsar())
-          .toList();
+          .toList(),);
     } catch (e) {
       return [];
     }

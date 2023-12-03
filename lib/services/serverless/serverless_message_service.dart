@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:io';
 import 'dart:math';
 
@@ -7,6 +8,7 @@ import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/call_service.dart';
@@ -16,6 +18,7 @@ import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -46,6 +49,7 @@ class ServerLessMessageService {
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _logger = GetIt.I.get<Logger>();
+  final Map<String, List<PendingMessage>> _pendingMessageMap = {};
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -221,7 +225,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _checkPendingStatus(String packetId,
-      {required Uid to, required Message message}) async {
+      {required Uid to, required Message message,}) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
     var hasBeenSent = false;
     if (pm != null) {
@@ -296,22 +300,21 @@ class ServerLessMessageService {
     }
   }
 
-  Future<void> _sendPendingMessage(String uid) async {
-    final messages = await _pendingMessageDao.getPendingMessages(uid);
-    var j = 0;
-    while (j < messages.length) {
-      if (messages[j].msg.type != MessageType.CALL) {
+
+  Future<void> sendPendingMessage (String uid) async {
+    if (_pendingMessageMap.keys.contains(uid)) {
+      if (_pendingMessageMap[uid]!.isNotEmpty) {
         try {
           await sendClientPacket(
             ClientPacket()
-              ..message = MessageUtils.createMessageByClient(messages[j].msg),
+              ..message = MessageUtils.createMessageByClient(
+                  _pendingMessageMap[uid]!.last.msg),
           );
-          await Future.value(const Duration(milliseconds: 900));
+          _pendingMessageMap[uid]?.removeLast();
         } catch (e) {
           _logger.e(e);
         }
       }
-      j++;
     }
   }
 
@@ -340,7 +343,8 @@ class ServerLessMessageService {
   }
 
   Future<void> resendPendingPackets(Uid uid) async {
-    await _sendPendingMessage(uid.asString());
+    _pendingMessageMap[uid.asString()] = await _pendingMessageDao.getPendingMessages(uid.asString());
+    await sendPendingMessage(uid.asString());
 
     _pendingSeen[uid.asString()]?.forEach((element) {
       _sendSeen(element);
@@ -393,10 +397,22 @@ class ServerLessMessageService {
     final room = await _roomDao.getRoom(uid);
     final ackId = message.id;
     if (!message.edited) {
-      message.id =
-          Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
+      final id = Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
+      message.id = id;
+      unawaited(
+        _sendAck(
+          MessageDeliveryAck(
+            to: message.from,
+            packetId: message.packetId,
+            time: Int64(
+              DateTime.now().millisecondsSinceEpoch,
+            ),
+            id: ackId,
+            from: _authRepo.currentUserUid,
+          ),
+        ),
+      );
     }
-
     if (null ==
         await _messageDao.getMessageByPacketId(room!.uid, message.packetId)) {
       unawaited(
@@ -412,21 +428,6 @@ class ServerLessMessageService {
         localNetworkMessageCount: room.localNetworkMessageCount + 1,
       );
     }
-    if (!message.edited) {
-      unawaited(
-        _sendAck(
-          MessageDeliveryAck(
-            to: message.from,
-            packetId: message.packetId,
-            time: Int64(
-              DateTime.now().millisecondsSinceEpoch,
-            ),
-            id: ackId,
-            from: _authRepo.currentUserUid,
-          ),
-        ),
-      );
-    }
     if (message.hasFile()) {
       final uuid = message.file.uuid;
       if (!await _serverLessFileService.checkIfFileExit(
@@ -440,7 +441,7 @@ class ServerLessMessageService {
       }
     }
   }
-
+//
   void _sendResendFileRequest({
     required String uuid,
     required String name,

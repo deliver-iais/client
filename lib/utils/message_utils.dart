@@ -13,7 +13,7 @@ import 'package:fixnum/fixnum.dart';
 
 class MessageUtils {
   static message_pb.MessageByClient createMessageByClient(
-      model.Message message) {
+      model.Message message,) {
     final byClient = message_pb.MessageByClient()
       ..packetId = message.packetId
       ..to = message.to
