@@ -254,7 +254,7 @@ dev_dependencies:
       ref: 53b257a55915feec6c581356baf83babd497e340
 
   dependency_validator: ^3.2.3  # flutter pub run dependency_validator
-  flutter_lints: ^2.0.3
+  flutter_lints: 3.0.1
   flutter_test:
     sdk: flutter
   freezed: ^2.4.1

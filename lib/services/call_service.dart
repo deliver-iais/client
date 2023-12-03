@@ -48,7 +48,6 @@ class CallService {
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
-
   late RTCVideoRenderer _localRenderer;
   late RTCVideoRenderer _remoteRenderer;
 
@@ -207,7 +206,6 @@ class CallService {
         return CallEvent_CallType.GROUP_VIDEO;
     }
   }
-
 
   CallEvents getCallEventsFromJson(String callEvent) {
     return CallEvents.callEvent(CallEventV2.fromJson(callEvent));

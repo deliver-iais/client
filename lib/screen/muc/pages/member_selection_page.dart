@@ -64,7 +64,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        _onBackButtenClick();
+        _onBackButtonClick();
         return true;
       },
       child: Scaffold(
@@ -72,7 +72,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             leading: _routingService.backButtonLeading(
-              onBackButtonLeadingClick: _onBackButtenClick,
+              onBackButtonLeadingClick: _onBackButtonClick,
             ),
             title: Row(
               children: [
@@ -146,7 +146,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
     );
   }
 
-  void _onBackButtenClick() {
+  void _onBackButtonClick() {
     _createMucService.addContactList(
       _lastSelectedMembers,
       useBroadcastSmsContacts: widget.useSmsBroadcastList,

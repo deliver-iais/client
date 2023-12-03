@@ -104,6 +104,7 @@ class FileRepo {
           return file_pb.File(
             uuid: uploadKey,
             name: getFileName(name),
+            audioWaveform: file_pb.AudioWaveform(data: [0]),
             width: tempDimension.width,
             height: tempDimension.height,
             size: Int64(size),
@@ -290,8 +291,7 @@ class FileRepo {
     bool intiProgressbar = true,
     bool showAlertOnError = false,
   }) async {
-    final path =
-        await getFileIfExist(uuid, thumbnailSize: thumbnailSize);
+    final path = await getFileIfExist(uuid, thumbnailSize: thumbnailSize);
     if (path != null) {
       return path;
     }

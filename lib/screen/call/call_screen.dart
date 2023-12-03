@@ -3,15 +3,15 @@ import 'dart:core';
 
 import 'package:all_sensors/all_sensors.dart' as all_sensor;
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,9 +48,9 @@ class CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _remoteRenderer;
 
   final _callRepo = GetIt.I.get<CallRepo>();
+  final _notificationServices = GetIt.I.get<NotificationServices>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
-  final _i18n = GetIt.I.get<I18N>();
   final _callService = GetIt.I.get<CallService>();
   late final String random;
   Timer? endCallTimer;
@@ -64,6 +64,9 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
+    if (widget.isIncomingCall && !widget.isCallAccepted) {
+      _notificationServices.playRingtone();
+    }
     if (isDesktopNative) {
       setWindowMinSize(
         const Size(2 * FLUID_MAX_WIDTH, 1.5 * FLUID_MAX_HEIGHT),
@@ -85,80 +88,11 @@ class CallScreenState extends State<CallScreen> {
     super.initState();
   }
 
-  void showPermissionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final theme = Theme.of(context);
-        return AlertDialog(
-          title: const Ws.asset(
-            'assets/animations/call_permission.ws',
-            width: 150,
-            height: 150,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _i18n.get(
-                  "alert_window_permission",
-                ),
-                textDirection: _i18n.defaultTextDirection,
-                style: theme.textTheme.bodyLarge!
-                    .copyWith(color: theme.colorScheme.primary),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.only(top: 10.0),
-                child: Text(
-                  _i18n.get(
-                    "alert_window_permission_attention",
-                  ),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: theme.textTheme.bodyLarge!
-                      .copyWith(color: theme.colorScheme.error),
-                ),
-              )
-            ],
-          ),
-          alignment: Alignment.center,
-          actionsAlignment: MainAxisAlignment.spaceEvenly,
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              child: Text(
-                _i18n.get(
-                  "cancel",
-                ),
-              ),
-            ),
-            TextButton(
-              child: Text(
-                _i18n.get("go_to_setting"),
-              ),
-              onPressed: () async {
-                if (await Permission.systemAlertWindow.request().isGranted) {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> checkForSystemAlertWindowPermission() async {
     if (isAndroidNative &&
         await getDeviceVersion() >= 31 &&
         !await Permission.systemAlertWindow.status.isGranted) {
-      showPermissionDialog();
+      CallUtils.showPermissionDialog();
     }
   }
 
