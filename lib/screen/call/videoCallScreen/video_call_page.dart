@@ -11,7 +11,6 @@ import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -20,14 +19,10 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 class VideoCallScreen extends StatefulWidget {
-  final Uid roomUid;
-  final void Function() hangUp;
   final bool isIncomingCall;
 
   const VideoCallScreen({
     super.key,
-    required this.roomUid,
-    required this.hangUp,
     this.isIncomingCall = false,
   });
 
@@ -49,10 +44,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
       ? const Offset(20, 80)
       : const Offset(20, androidSmallCallWidgetVerticalMargin);
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Future<void> dispose() async {
@@ -70,7 +61,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            //const AnimatedGradient(),
             StreamBuilder<bool>(
               stream: MergeStream([
                 _callRepo.incomingSharing,
@@ -81,7 +71,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 _callRepo.incomingVideoSwitch,
               ]),
               builder: (c, s) {
-                return isDesktopDevice && _callRepo.desktopDualVideo.value
+                return _callRepo.roomUid!= null? isDesktopDevice && _callRepo.desktopDualVideo.value
                     ? OrientationBuilder(
                         builder: (context, orientation) {
                           return Padding(
@@ -238,7 +228,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                           boxShadow: DEFAULT_BOX_SHADOWS,
                                         ),
                                         child: CenterAvatarInCall(
-                                          roomUid: widget.roomUid,
+                                          roomUid: _callRepo.roomUid!,
                                         ),
                                       ),
                                     ),
@@ -505,7 +495,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
                                       child: CenterAvatarInCall(
-                                        roomUid: widget.roomUid,
+                                        roomUid: _callRepo.roomUid!,
                                       ),
                                     ),
                                   if ((!switching.value &&
@@ -544,7 +534,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                             },
                           );
                         },
-                      );
+                      ):const SizedBox.shrink();
               },
             ),
             SafeArea(
@@ -584,9 +574,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                         .isHiddenCallBottomRow(_callRepo.callingStatus.value) ||
                     showButtonRow.value) {
                   renderer = CallBottomRow(
-                    hangUp: widget.hangUp,
                     isIncomingCall: widget.isIncomingCall,
-                    callStatus: _callRepo.callingStatus.value,
                   );
                 } else {
                   renderer = const SizedBox.shrink();
@@ -804,7 +792,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                             ),
                             child: CenterAvatarInCall(
                               radius: 60,
-                              roomUid: widget.roomUid,
+                              roomUid: _callRepo.roomUid!,
                             ),
                           ),
                 onTap: () {

@@ -162,23 +162,11 @@ class CallScreenState extends State<CallScreen> {
   Widget build(BuildContext context) {
     return widget.isVideoCall
         ? VideoCallScreen(
-            roomUid: widget.roomUid,
-            hangUp: _hangUp,
             isIncomingCall: widget.isIncomingCall,
           )
         : AudioCallScreen(
-            roomUid: widget.roomUid,
-            hangUp: _hangUp,
             isIncomingCall: widget.isIncomingCall,
           );
   }
 
-  void _hangUp() {
-    _logger.i("Call hang Up ...!");
-    _audioService.stopCallAudioPlayer();
-    if (!_callService.isHangedUp) {
-      _callRepo.endCall();
-      _callService.setCallHangedUp = true;
-    }
-  }
 }

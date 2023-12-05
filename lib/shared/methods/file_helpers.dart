@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter_video_info/flutter_video_info.dart';
 
 import 'package:deliver/box/meta_type.dart' as meta;
 import 'package:deliver/models/file.dart' as file_model;
@@ -83,7 +84,7 @@ String detectFileMimeByFileModel(file_model.File file) => isWeb
 
 String _detectFileMimeByFilePath(String? filePath) {
   final fileMainType = _detectFileTypeByNameAndContent(filePath);
-  if (settings.localNetworkMessenger.value) {
+  if (true || settings.localNetworkMessenger.value) {
     return fileMainType.mimeByName;
   } else if (fileMainType.hasSameMainType()) {
     return fileMainType.mimeByContent;
@@ -352,6 +353,29 @@ void onShowInFolder(String path) {
   } else if (isMacOSNative) {
     shell.run('open $path');
   }
+}
+
+Future<VideoData?> getVideoInfo(String path) async {
+  try {
+    var width = 0;
+    var height = 0;
+
+    final videoInfo = FlutterVideoInfo();
+    final info = await videoInfo.getVideoInfo(path);
+    if (info != null) {
+      width = info.width!;
+      height = info.height!;
+
+      if (info.orientation != null &&
+          (info.orientation! == 90 || info.orientation! == 270)) {
+        info
+          ..height = width
+          ..width = height;
+      }
+      return info;
+    }
+  } catch (e) {}
+  return null;
 }
 
 // TODO(bitbeter): Use these for later

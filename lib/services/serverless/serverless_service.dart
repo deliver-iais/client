@@ -191,13 +191,18 @@ class ServerLessService {
           }
         });
       } else {
-        await _startHttpService();
+        await _reset();
       }
     } catch (e) {
-      await _startHttpService();
+      await _reset();
       _logger.e(e);
     }
     sendBroadCast();
+  }
+
+  Future<void> _reset() async {
+    await _httpServer?.close(force: true);
+    await _startHttpService();
   }
 
   Future<void> _processRegister(HttpRequest request) async {

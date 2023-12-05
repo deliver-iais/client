@@ -302,38 +302,38 @@ class SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ],
-            ),
-            Section(
-              title: _i18n.get("local_network"),
-              children: [
-                SettingsTile.switchTile(
-                  title: _i18n.get("local_network"),
-                  leading:
-                      const Icon(CupertinoIcons.antenna_radiowaves_left_right),
-                  switchValue: settings.localNetworkMessenger.value,
-                  onToggle: ({required newValue}) {
-                    setState(
-                      () => settings.localNetworkMessenger.toggleValue(),
-                    );
-                    _coreService.initStreamConnection();
-                  },
-                ),
-                if (settings.localNetworkMessenger.value)
-                  SettingsTile.switchTile(
-                    title: _i18n.get("use_default_udp_address"),
-                    leading: const Icon(
-                      CupertinoIcons.arrow_branch,
-                    ),
-                    switchValue: settings.useDefaultUdpAddress.value,
-                    onToggle: ({required newValue}) {
-                      setState(
-                        () => settings.useDefaultUdpAddress.toggleValue(),
-                      );
-                      _coreService.initStreamConnection();
-                    },
-                  ),
-              ],
-            ),
+             ),
+            // Section(
+            //   title: _i18n.get("local_network"),
+            //   children: [
+            //     SettingsTile.switchTile(
+            //       title: _i18n.get("local_network"),
+            //       leading:
+            //           const Icon(CupertinoIcons.antenna_radiowaves_left_right),
+            //       switchValue: settings.localNetworkMessenger.value,
+            //       onToggle: ({required newValue}) {
+            //         setState(
+            //           () => settings.localNetworkMessenger.toggleValue(),
+            //         );
+            //         _coreService.initStreamConnection();
+            //       },
+            //     ),
+            //     if (settings.localNetworkMessenger.value)
+            //       SettingsTile.switchTile(
+            //         title: _i18n.get("use_default_udp_address"),
+            //         leading: const Icon(
+            //           CupertinoIcons.arrow_branch,
+            //         ),
+            //         switchValue: settings.useDefaultUdpAddress.value,
+            //         onToggle: ({required newValue}) {
+            //           setState(
+            //             () => settings.useDefaultUdpAddress.toggleValue(),
+            //           );
+            //           _coreService.initStreamConnection();
+            //         },
+            //       ),
+            //   ],
+            // ),
             Section(
               title: _i18n.get("theme"),
               children: [

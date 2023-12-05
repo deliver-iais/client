@@ -1061,7 +1061,7 @@ class AndroidNotifier implements Notifier {
         acceptActionText: _i18n.get("accept"),
       ),
     );
-    //vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
+    vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 

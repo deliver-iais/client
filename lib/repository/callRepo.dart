@@ -242,7 +242,6 @@ class CallRepo {
               _logger.i(
                   "-----------------------------------${_callService.getUserCallState}");
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
-
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
               _cancelTimerResendEvent();
@@ -536,7 +535,7 @@ class CallRepo {
       }
       ..onIceCandidate = (e) {
         if (e.candidate != null) {
-          if (_candidate.isEmpty) {
+          if (!settings.localNetworkMessenger.value || _candidate.isEmpty) {
             _candidate.add({
               'candidate': e.candidate.toString(),
               'sdpMid': e.sdpMid.toString(),
@@ -1280,6 +1279,15 @@ class CallRepo {
     _callService.setCallId = callId;
   }
 
+  void hangUp() {
+    _logger.i("Call hang Up ...!");
+    _audioService.stopCallAudioPlayer();
+    if (!_callService.isHangedUp) {
+      endCall();
+      _callService.setCallHangedUp = true;
+    }
+  }
+
   Future<void> acceptCall(Uid roomId) async {
     try {
       _cancelTimerResendEvent();
@@ -1494,7 +1502,7 @@ class CallRepo {
 
       final description = RTCSessionDescription(sdp, 'offer');
 
-       unawaited(_peerConnection!.setRemoteDescription(description));
+      unawaited(_peerConnection!.setRemoteDescription(description));
     } catch (e) {
       _logger.e(e);
     }
@@ -1753,7 +1761,7 @@ class CallRepo {
   Future<void> _setCandidate(List<RTCIceCandidate> candidates) async {
     for (final candidate in candidates) {
       try {
-         unawaited(_peerConnection!.addCandidate(candidate));
+        unawaited(_peerConnection!.addCandidate(candidate));
       } catch (e) {
         _logger.e(e);
       }

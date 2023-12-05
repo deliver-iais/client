@@ -100,12 +100,12 @@ class CoreServices {
   }
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+  BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   BehaviorSubject<bool> proposeUseLocalNetwork = BehaviorSubject.seeded(false);
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
+  BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   void retryConnection({bool forced = false}) {
     if (!forced && _connectionStatus.value != ConnectionStatus.Disconnected) {
@@ -136,8 +136,10 @@ class CoreServices {
         !(_connectToLocalNetworkTimer?.isActive ?? false)) {
       _connectToLocalNetworkTimer =
           Timer(const Duration(seconds: CONNECT_TO_LOCAL_NETWORK_TIME), () {
-        proposeUseLocalNetwork.add(true);
-      });
+            if (!proposeUseLocalNetwork.value) {
+              proposeUseLocalNetwork.add(true);
+            }
+          });
     }
   }
 
@@ -227,7 +229,9 @@ class CoreServices {
     connectionError.add("");
     if (_uptimeStartTime.value == 0) {
       _reconnectCount.add(_reconnectCount.value + 1);
-      _uptimeStartTime.add(clock.now().millisecondsSinceEpoch);
+      _uptimeStartTime.add(clock
+          .now()
+          .millisecondsSinceEpoch);
     }
   }
 
@@ -237,22 +241,26 @@ class CoreServices {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
           ? _services.coreServiceClient.establishServerSideStream(
-              EstablishServerSideStreamReq(),
-            )
+        EstablishServerSideStreamReq(),
+      )
           : _services.coreServiceClient.establishStream(
-              _clientPacketStream!.stream.map((event) {
-                _analyticRepo.incCSF("client/${event.whichType().name}");
+        _clientPacketStream!.stream.map((event) {
+          _analyticRepo.incCSF("client/${event
+              .whichType()
+              .name}");
 
-                return event;
-              }),
-            );
+          return event;
+        }),
+      );
 
       _responseStream?.listen(
-        (serverPacket) {
+            (serverPacket) {
           try {
             _logger.d(serverPacket);
 
-            _analyticRepo.incCSF("server/${serverPacket.whichType().name}");
+            _analyticRepo.incCSF("server/${serverPacket
+                .whichType()
+                .name}");
 
             switch (serverPacket.whichType()) {
               case ServerPacket_Type.message:
@@ -276,12 +284,12 @@ class CoreServices {
                   serverPacket.roomPresenceTypeChanged,
                 );
                 break;
-              //both of this packet Types should be removed
+            //both of this packet Types should be removed
               case ServerPacket_Type.callOffer:
               // _dataStreamServices.handleCallOffer(serverPacket.callOffer);
               // break;
               case ServerPacket_Type.callAnswer:
-                // _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+              // _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
                 break;
               case ServerPacket_Type.callEvent:
                 final callEvents = CallEvents.callEvent(
@@ -302,7 +310,7 @@ class CoreServices {
                 break;
               case ServerPacket_Type.liveLocationStatusChanged:
               case ServerPacket_Type.error:
-                // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
+              // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
                 break;
               case ServerPacket_Type.notSet:
               case ServerPacket_Type.expletivePacket:
@@ -339,20 +347,22 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
-  Future<void> sendMessage(
-    MessageByClient message, {
+  Future<void> sendMessage(MessageByClient message, {
     bool resend = true,
   }) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
-        ..id = clock.now().microsecondsSinceEpoch.toString();
+        ..id = clock
+            .now()
+            .microsecondsSinceEpoch
+            .toString();
       await _sendClientPacket(clientPacket);
       if (resend) {
         if (_connectionStatus.value == ConnectionStatus.Connected) {
           Timer(
             const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-            () => _checkPendingStatus(message.packetId, message),
+                () => _checkPendingStatus(message.packetId, message),
           );
         }
       }
@@ -383,21 +393,30 @@ class CoreServices {
   }
 
   void sendPing() {
-    final ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    final ping = Ping()
+      ..lastPongTime = Int64(_lastPongTime);
     final clientPacket = ClientPacket()
       ..ping = ping
-      ..id = clock.now().microsecondsSinceEpoch.toString();
+      ..id = clock
+          .now()
+          .microsecondsSinceEpoch
+          .toString();
     _sendClientPacket(clientPacket,
         forceToSendEvenNotConnected: true, forceToSendToServer: true);
     FlutterForegroundTask.saveData(
       key: "BackgroundActivationTime",
-      value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
+      value: (clock
+          .now()
+          .millisecondsSinceEpoch + backoffTime * 3 * 1000)
           .toString(),
     );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
     FlutterForegroundTask.saveData(
       key: "Language",
-      value: GetIt.I.get<I18N>().locale.languageCode,
+      value: GetIt.I
+          .get<I18N>()
+          .locale
+          .languageCode,
     );
   }
 
@@ -410,20 +429,22 @@ class CoreServices {
       ..id = seen.id.toString();
     await _sendClientPacket(clientPacket)
         .onError(
-          (error, stackTrace) async => _analyticsService.sendLogEvent(
+          (error, stackTrace) async =>
+          _analyticsService.sendLogEvent(
             "failedSeen",
             parameters: {
               'error': error.toString(),
             },
           ),
-        )
+    )
         .then(
-          (value) async => {
-            await _analyticsService.sendLogEvent(
-              "successSeen",
-            ),
-          },
-        );
+          (value) async =>
+      {
+        await _analyticsService.sendLogEvent(
+          "successSeen",
+        ),
+      },
+    );
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -460,8 +481,7 @@ class CoreServices {
     }
   }
 
-  Future<void> _sendClientPacket(
-    ClientPacket packet, {
+  Future<void> _sendClientPacket(ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
     bool forceToSendToServer = false,
   }) async {

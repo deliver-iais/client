@@ -178,8 +178,21 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
-  SizedBox defaultImageUI() =>
-      SizedBox(width: width, height: height, child: getBlurHashWidget());
+  SizedBox defaultImageUI() => SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            left: 2,
+            top: 2,
+            child: buildLoadFileStatus(widgetSize: 30),
+          ),
+          getBlurHashWidget(),
+        ],
+      ));
 
   Widget buildDownloadImageWidget() {
     return MouseRegion(

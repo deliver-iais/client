@@ -47,11 +47,22 @@ class VideoMessageState extends State<VideoMessage> {
     super.initState();
   }
 
+  File recheck(File file) {
+      final info = file.audioWaveform.data;
+      if (info.length == 2) {
+        file
+          ..width = info[0]
+          ..height = info[1];
+        return file;
+      }
+    return file;
+  }
+
   @override
   Widget build(BuildContext context) {
     final background = widget.colorScheme.onPrimary;
     final foreground = widget.colorScheme.primary;
-    final video = widget.message.json.toFile();
+    final video = recheck(widget.message.json.toFile());
     return Container(
       constraints: BoxConstraints(
         minWidth: widget.minWidth,
@@ -109,7 +120,7 @@ class VideoMessageState extends State<VideoMessage> {
                               alignment: Alignment.topLeft,
                               child: Container(
                                 padding: const EdgeInsetsDirectional.only(
-                                  start: 7,
+                                  start: 10,
                                   end: 8,
                                   top: 5,
                                   bottom: 3,

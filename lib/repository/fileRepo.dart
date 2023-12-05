@@ -4,7 +4,6 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
-
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
@@ -64,6 +63,7 @@ class FileRepo {
     );
 
     if (settings.localNetworkMessenger.value) {
+      var _audioWaveform = file_pb.AudioWaveform();
       if (await GetIt.I
           .get<ServerLessMessageService>()
           .sendFileSendRequestMessage(
@@ -78,23 +78,29 @@ class FileRepo {
               to: uid,
             );
         if (res) {
+          if (isVoice) {
+            _audioWaveform = file_pb.AudioWaveform(data: [0]);
+          }
+          var duration = 0.0;
           var tempDimension = Size.zero;
           try {
             final tempType =
                 detectFileMimeByFileModel(model.File(clonedFilePath, name));
             if (isImageFileType(tempType)) {
               tempDimension = getImageDimension(clonedFilePath);
-
-              _logger.d(
-                "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
-              );
               if (tempDimension == Size.zero) {
                 tempDimension =
                     const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
-                _logger.d(
-                  "File dimensions set to default size because it was zero to zero, 200x200",
-                );
               }
+            } else if (isVideoFileType(tempType)) {
+              final info = await getVideoInfo(clonedFilePath);
+              if (info != null) {
+                tempDimension = Size(info.width!, info.height!);
+                duration = info.duration!/1000;
+              }
+              _audioWaveform = file_pb.AudioWaveform(
+                data: [tempDimension.width, tempDimension.height].map((e) => e),
+              );
             }
           } catch (e) {
             _logger.e("Error in fetching fake file dimensions", error: e);
@@ -104,9 +110,10 @@ class FileRepo {
           return file_pb.File(
             uuid: uploadKey,
             name: getFileName(name),
-            audioWaveform: file_pb.AudioWaveform(data: [0]),
+            audioWaveform: _audioWaveform,
             width: tempDimension.width,
             height: tempDimension.height,
+            duration: duration,
             size: Int64(size),
             type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
             sign: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -187,6 +194,14 @@ class FileRepo {
             ..blurHash = json["blurHash"] ?? ""
             ..hash = json["hash"] ?? ""
             ..sign = json["sign"] ?? "";
+          if (isAndroidNative && isVideoFileType(uploadedFile.type)) {
+            final info = await getVideoInfo(clonedFilePath!);
+            if (info != null) {
+              uploadedFile.audioWaveform = file_pb.AudioWaveform(
+                data: [info.width, info.height].map((e) => e!),
+              );
+            }
+          }
           if (json["audioWaveform"] != null) {
             final audioWaveform = json["audioWaveform"] as Map;
             if (audioWaveform.isNotEmpty) {

@@ -16,14 +16,10 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final void Function() hangUp;
   final bool isIncomingCall;
-  final CallStatus callStatus;
 
   const CallBottomRow({
     super.key,
-    required this.hangUp,
-    required this.callStatus,
     this.isIncomingCall = false,
   });
 
@@ -61,7 +57,8 @@ class CallBottomRowState extends State<CallBottomRow>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (callBottomStatus(widget.callStatus)) {
+    if (!_callRepo.isAccepted &&
+        callBottomStatus(_callRepo.callingStatus.value)) {
       return _buildIncomingCallWidget(theme);
     } else {
       return _callRepo.isVideo
@@ -136,7 +133,7 @@ class CallBottomRowState extends State<CallBottomRow>
                             ),
                             onTap: () => _selectAudioOutput(device),
                           );
-                        }).toList()
+                        }).toList() ,
                     ];
                   },
                 )
@@ -356,7 +353,7 @@ class CallBottomRowState extends State<CallBottomRow>
             size: 30,
             color: Colors.white,
           ),
-          onPressed: () => widget.hangUp(),
+          onPressed: () => _callRepo.hangUp(),
         ),
       ),
     );

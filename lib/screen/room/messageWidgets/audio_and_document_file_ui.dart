@@ -39,6 +39,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
           Padding(
             padding: const EdgeInsetsDirectional.all(4.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 CircularFileStatusIndicator(
                   message: widget.message,
@@ -58,7 +59,9 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        if (!file.isVoiceFileProto())
+                        if (!file.isVoiceFileProto() &&
+                            !(widget.message.id == null &&
+                                file.audioWaveform.data.isNotEmpty))
                           SizedBox(
                             width: widget.maxWidth * 0.5,
                             child: Text(
@@ -67,9 +70,8 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              maxLines: 1,
+                              overflow: TextOverflow.clip,
+                              // softWrap: false,
                             ),
                           ),
                         FileDetails(
