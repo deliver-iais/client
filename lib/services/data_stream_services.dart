@@ -28,6 +28,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -561,7 +562,7 @@ class DataStreamServices {
       return;
     }
     final packetId = messageDeliveryAck.packetId;
-
+    final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
     final time = messageDeliveryAck.time.toInt();
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
@@ -612,6 +613,8 @@ class DataStreamServices {
               localNetworkMessageCount: room.localNetworkMessageCount + 1,
             );
           }
+
+           await serverLessMessageService.sendPendingMessage(msg.roomUid.asString());
         }
       } else {
         await _analyticsService.sendLogEvent(
