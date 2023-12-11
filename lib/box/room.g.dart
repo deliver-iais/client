@@ -21,6 +21,7 @@ _$RoomImpl _$$RoomImplFromJson(Map<String, dynamic> json) => _$RoomImpl(
       lastLocalNetworkMessageId: json['lastLocalNetworkMessageId'] as int? ?? 0,
       firstMessageId: json['firstMessageId'] as int? ?? 0,
       pinId: json['pinId'] as int? ?? 0,
+      localChatId: json['localChatId'] as int? ?? 0,
       lastCurrentUserSentMessageId:
           json['lastCurrentUserSentMessageId'] as int? ?? 0,
       deleted: json['deleted'] as bool? ?? false,
@@ -43,6 +44,7 @@ Map<String, dynamic> _$$RoomImplToJson(_$RoomImpl instance) =>
       'lastLocalNetworkMessageId': instance.lastLocalNetworkMessageId,
       'firstMessageId': instance.firstMessageId,
       'pinId': instance.pinId,
+      'localChatId': instance.localChatId,
       'lastCurrentUserSentMessageId': instance.lastCurrentUserSentMessageId,
       'deleted': instance.deleted,
       'pinned': instance.pinned,

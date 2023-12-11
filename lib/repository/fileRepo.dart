@@ -96,7 +96,7 @@ class FileRepo {
               final info = await getVideoInfo(clonedFilePath);
               if (info != null) {
                 tempDimension = Size(info.width!, info.height!);
-                duration = info.duration!/1000;
+                duration = info.duration! / 1000;
               }
               _audioWaveform = file_pb.AudioWaveform(
                 data: [tempDimension.width, tempDimension.height].map((e) => e),
@@ -114,6 +114,7 @@ class FileRepo {
             width: tempDimension.width,
             height: tempDimension.height,
             duration: duration,
+            isLocal: true,
             size: Int64(size),
             type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
             sign: DateTime.now().millisecondsSinceEpoch.toString(),

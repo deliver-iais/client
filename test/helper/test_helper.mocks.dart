@@ -986,6 +986,33 @@ class MockMessageDao extends _i1.Mock implements _i32.MessageDao {
       ) as _i30.Future<_i33.Message?>);
 
   @override
+  _i30.Future<_i33.Message?> getMessageByPacketId(
+    _i5.Uid? roomUid,
+    String? packetId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getMessageByPacketId,
+          [
+            roomUid,
+            packetId,
+          ],
+        ),
+        returnValue: _i30.Future<_i33.Message?>.value(),
+      ) as _i30.Future<_i33.Message?>);
+
+  @override
+  _i30.Future<void> saveMessages(List<_i33.Message>? messages) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveMessages,
+          [messages],
+        ),
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
+
+  @override
   _i30.Future<List<_i33.Message>> getMessagePage(
     _i5.Uid? roomUid,
     int? page, {
@@ -1031,6 +1058,7 @@ class MockRoomDao extends _i1.Mock implements _i34.RoomDao {
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
     int? lastLocalNetworkMessageId,
+    int? localNetworkMessageCount,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1054,6 +1082,7 @@ class MockRoomDao extends _i1.Mock implements _i34.RoomDao {
             #mentionsId: mentionsId,
             #shouldUpdateMediaCount: shouldUpdateMediaCount,
             #lastLocalNetworkMessageId: lastLocalNetworkMessageId,
+            #localNetworkMessageCount: localNetworkMessageCount,
           },
         ),
         returnValue: _i30.Future<void>.value(),
@@ -3403,6 +3432,7 @@ class MockDataStreamServices extends _i1.Mock
     int? lastMessageId,
     int? firstMessageId, {
     bool? appRunInForeground = false,
+    int? localNetworkMessageCount = 0,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -3412,7 +3442,10 @@ class MockDataStreamServices extends _i1.Mock
             lastMessageId,
             firstMessageId,
           ],
-          {#appRunInForeground: appRunInForeground},
+          {
+            #appRunInForeground: appRunInForeground,
+            #localNetworkMessageCount: localNetworkMessageCount,
+          },
         ),
         returnValue: _i30.Future<_i33.Message?>.value(),
       ) as _i30.Future<_i33.Message?>);
@@ -3637,11 +3670,15 @@ class MockCoreServices extends _i1.Mock implements _i61.CoreServices {
       );
 
   @override
-  _i30.Future<void> sendMessage(_i58.MessageByClient? message) =>
+  _i30.Future<void> sendMessage(
+    _i58.MessageByClient? message, {
+    bool? resend = true,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #sendMessage,
           [message],
+          {#resend: resend},
         ),
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
@@ -4609,6 +4646,27 @@ class MockQueryServiceClient extends _i1.Mock
               ),
             ),
           ) as _i8.ResponseFuture<_i4.CheckCallAvailabilityStatusRes>);
+
+  @override
+  _i8.ResponseFuture<_i4.SaveLocalMessageRes> saveLocalMessages(
+    _i4.SaveLocalMessageReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveLocalMessages,
+          [request],
+          {#options: options},
+        ),
+        returnValue: _FakeResponseFuture_10<_i4.SaveLocalMessageRes>(
+          this,
+          Invocation.method(
+            #saveLocalMessages,
+            [request],
+            {#options: options},
+          ),
+        ),
+      ) as _i8.ResponseFuture<_i4.SaveLocalMessageRes>);
 
   @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
@@ -7442,22 +7500,6 @@ class MockCallService extends _i1.Mock implements _i18.CallService {
       ) as _i16.CallEvent_CallType);
 
   @override
-  String writeCallEventsToJson(_i16.CallEventV2? callEventV2) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #writeCallEventsToJson,
-          [callEventV2],
-        ),
-        returnValue: _i38.dummyValue<String>(
-          this,
-          Invocation.method(
-            #writeCallEventsToJson,
-            [callEventV2],
-          ),
-        ),
-      ) as String);
-
-  @override
   _i17.CallEvents getCallEventsFromJson(String? callEvent) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -7614,6 +7656,24 @@ class MockNotificationServices extends _i1.Mock
         Invocation.method(
           #notifyOutgoingMessage,
           [roomUid],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void playRingtone() => super.noSuchMethod(
+        Invocation.method(
+          #playRingtone,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void cancelRingtone() => super.noSuchMethod(
+        Invocation.method(
+          #cancelRingtone,
+          [],
         ),
         returnValueForMissingStub: null,
       );
@@ -9928,6 +9988,12 @@ class MockCallRepo extends _i1.Mock implements _i96.CallRepo {
       ) as bool);
 
   @override
+  bool get isCallFromNotActiveState => (super.noSuchMethod(
+        Invocation.getter(#isCallFromNotActiveState),
+        returnValue: false,
+      ) as bool);
+
+  @override
   bool get isInitRenderer => (super.noSuchMethod(
         Invocation.getter(#isInitRenderer),
         returnValue: false,
@@ -10058,13 +10124,14 @@ class MockCallRepo extends _i1.Mock implements _i96.CallRepo {
       ) as _i30.Future<void>);
 
   @override
-  void onRTCPeerConnectionStateFailed() => super.noSuchMethod(
+  _i30.Future<void> onRTCPeerConnectionStateFailed() => (super.noSuchMethod(
         Invocation.method(
           #onRTCPeerConnectionStateFailed,
           [],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
 
   @override
   _i30.Future<void> shareScreen({_i15.DesktopCapturerSource? source}) =>
@@ -10146,6 +10213,15 @@ class MockCallRepo extends _i1.Mock implements _i96.CallRepo {
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
+
+  @override
+  void hangUp() => super.noSuchMethod(
+        Invocation.method(
+          #hangUp,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i30.Future<void> acceptCall(_i5.Uid? roomId) => (super.noSuchMethod(

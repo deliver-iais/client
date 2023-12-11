@@ -57,48 +57,53 @@ const RoomIsarSchema = CollectionSchema(
       name: r'lastUpdateTime',
       type: IsarType.long,
     ),
-    r'localNetworkMessageCount': PropertySchema(
+    r'localChatId': PropertySchema(
       id: 8,
+      name: r'localChatId',
+      type: IsarType.long,
+    ),
+    r'localNetworkMessageCount': PropertySchema(
+      id: 9,
       name: r'localNetworkMessageCount',
       type: IsarType.long,
     ),
     r'mentionsId': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'mentionsId',
       type: IsarType.longList,
     ),
     r'pinId': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'pinId',
       type: IsarType.long,
     ),
     r'pinned': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'pinned',
       type: IsarType.bool,
     ),
     r'replyKeyboardMarkup': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'replyKeyboardMarkup',
       type: IsarType.string,
     ),
     r'seenSynced': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'seenSynced',
       type: IsarType.bool,
     ),
     r'shouldUpdateMediaCount': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'shouldUpdateMediaCount',
       type: IsarType.bool,
     ),
     r'synced': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'synced',
       type: IsarType.bool,
     ),
     r'uid': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'uid',
       type: IsarType.string,
     )
@@ -165,15 +170,16 @@ void _roomIsarSerialize(
   writer.writeString(offsets[5], object.lastMessage);
   writer.writeLong(offsets[6], object.lastMessageId);
   writer.writeLong(offsets[7], object.lastUpdateTime);
-  writer.writeLong(offsets[8], object.localNetworkMessageCount);
-  writer.writeLongList(offsets[9], object.mentionsId);
-  writer.writeLong(offsets[10], object.pinId);
-  writer.writeBool(offsets[11], object.pinned);
-  writer.writeString(offsets[12], object.replyKeyboardMarkup);
-  writer.writeBool(offsets[13], object.seenSynced);
-  writer.writeBool(offsets[14], object.shouldUpdateMediaCount);
-  writer.writeBool(offsets[15], object.synced);
-  writer.writeString(offsets[16], object.uid);
+  writer.writeLong(offsets[8], object.localChatId);
+  writer.writeLong(offsets[9], object.localNetworkMessageCount);
+  writer.writeLongList(offsets[10], object.mentionsId);
+  writer.writeLong(offsets[11], object.pinId);
+  writer.writeBool(offsets[12], object.pinned);
+  writer.writeString(offsets[13], object.replyKeyboardMarkup);
+  writer.writeBool(offsets[14], object.seenSynced);
+  writer.writeBool(offsets[15], object.shouldUpdateMediaCount);
+  writer.writeBool(offsets[16], object.synced);
+  writer.writeString(offsets[17], object.uid);
 }
 
 RoomIsar _roomIsarDeserialize(
@@ -191,15 +197,16 @@ RoomIsar _roomIsarDeserialize(
     lastMessage: reader.readStringOrNull(offsets[5]),
     lastMessageId: reader.readLongOrNull(offsets[6]) ?? 0,
     lastUpdateTime: reader.readLongOrNull(offsets[7]) ?? 0,
-    localNetworkMessageCount: reader.readLongOrNull(offsets[8]) ?? 0,
-    mentionsId: reader.readLongList(offsets[9]),
-    pinId: reader.readLongOrNull(offsets[10]) ?? 0,
-    pinned: reader.readBoolOrNull(offsets[11]) ?? false,
-    replyKeyboardMarkup: reader.readStringOrNull(offsets[12]),
-    seenSynced: reader.readBoolOrNull(offsets[13]) ?? false,
-    shouldUpdateMediaCount: reader.readBoolOrNull(offsets[14]) ?? false,
-    synced: reader.readBoolOrNull(offsets[15]) ?? false,
-    uid: reader.readString(offsets[16]),
+    localChatId: reader.readLongOrNull(offsets[8]) ?? 0,
+    localNetworkMessageCount: reader.readLongOrNull(offsets[9]) ?? 0,
+    mentionsId: reader.readLongList(offsets[10]),
+    pinId: reader.readLongOrNull(offsets[11]) ?? 0,
+    pinned: reader.readBoolOrNull(offsets[12]) ?? false,
+    replyKeyboardMarkup: reader.readStringOrNull(offsets[13]),
+    seenSynced: reader.readBoolOrNull(offsets[14]) ?? false,
+    shouldUpdateMediaCount: reader.readBoolOrNull(offsets[15]) ?? false,
+    synced: reader.readBoolOrNull(offsets[16]) ?? false,
+    uid: reader.readString(offsets[17]),
   );
   return object;
 }
@@ -230,20 +237,22 @@ P _roomIsarDeserializeProp<P>(
     case 8:
       return (reader.readLongOrNull(offset) ?? 0) as P;
     case 9:
-      return (reader.readLongList(offset)) as P;
-    case 10:
       return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 10:
+      return (reader.readLongList(offset)) as P;
     case 11:
-      return (reader.readBoolOrNull(offset) ?? false) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 12:
-      return (reader.readStringOrNull(offset)) as P;
-    case 13:
       return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 13:
+      return (reader.readStringOrNull(offset)) as P;
     case 14:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 15:
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 16:
+      return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 17:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -970,6 +979,60 @@ extension RoomIsarQueryFilter
     });
   }
 
+  QueryBuilder<RoomIsar, RoomIsar, QAfterFilterCondition> localChatIdEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'localChatId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomIsar, RoomIsar, QAfterFilterCondition>
+      localChatIdGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'localChatId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomIsar, RoomIsar, QAfterFilterCondition> localChatIdLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'localChatId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomIsar, RoomIsar, QAfterFilterCondition> localChatIdBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'localChatId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<RoomIsar, RoomIsar, QAfterFilterCondition>
       localNetworkMessageCountEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
@@ -1672,6 +1735,18 @@ extension RoomIsarQuerySortBy on QueryBuilder<RoomIsar, RoomIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy> sortByLocalChatId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localChatId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy> sortByLocalChatIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localChatId', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy>
       sortByLocalNetworkMessageCount() {
     return QueryBuilder.apply(this, (query) {
@@ -1888,6 +1963,18 @@ extension RoomIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy> thenByLocalChatId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localChatId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy> thenByLocalChatIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'localChatId', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomIsar, RoomIsar, QAfterSortBy>
       thenByLocalNetworkMessageCount() {
     return QueryBuilder.apply(this, (query) {
@@ -2044,6 +2131,12 @@ extension RoomIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RoomIsar, RoomIsar, QDistinct> distinctByLocalChatId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'localChatId');
+    });
+  }
+
   QueryBuilder<RoomIsar, RoomIsar, QDistinct>
       distinctByLocalNetworkMessageCount() {
     return QueryBuilder.apply(this, (query) {
@@ -2159,6 +2252,12 @@ extension RoomIsarQueryProperty
   QueryBuilder<RoomIsar, int, QQueryOperations> lastUpdateTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastUpdateTime');
+    });
+  }
+
+  QueryBuilder<RoomIsar, int, QQueryOperations> localChatIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'localChatId');
     });
   }
 

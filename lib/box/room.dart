@@ -21,6 +21,7 @@ class Room with _$Room {
     @Default(0) int lastLocalNetworkMessageId,
     @Default(0) int firstMessageId,
     @Default(0) int pinId,
+    @Default(0) int localChatId,
     @Default(0) int lastCurrentUserSentMessageId,
     @Default(false) bool deleted,
     @Default(false) bool pinned,

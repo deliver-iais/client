@@ -10,8 +10,11 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:isar/isar.dart';
+import 'package:logger/logger.dart';
 
 class MessageDaoImpl extends MessageDao {
+  final _logger = Logger();
+
   @override
   Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessageIsar();
@@ -71,7 +74,7 @@ class MessageDaoImpl extends MessageDao {
       final box = await _openMessageIsar();
       box.writeTxnSync(() => box.messageIsars.putSync(message.toIsar()));
     } catch (e) {
-      print(e);
+      _logger.e(e);
     }
   }
 
@@ -122,7 +125,25 @@ class MessageDaoImpl extends MessageDao {
       box.writeTxnSync(() => box.messageIsars
           .putAllSync(messages.map((e) => e.toIsar()).toList()));
     } catch (e) {
-      print(e);
+      _logger.e(e);
+    }
+  }
+
+  @override
+  Future<List<Message>> getLocalMessages(Uid roomUid) async {
+    try {
+      final box = await _openMessageIsar();
+      return box.messageIsars
+          .filter()
+          .roomUidEqualTo(roomUid.asString())
+          .and()
+          .isLocalMessageEqualTo(true)
+          .findAllSync()
+          .map((e) => e.fromIsar())
+          .toList();
+    } catch (e) {
+      _logger.e(e);
+      return [];
     }
   }
 }

@@ -22,25 +22,44 @@ Room _$RoomFromJson(Map<String, dynamic> json) {
 mixin _$Room {
   @UidJsonKey
   Uid get uid => throw _privateConstructorUsedError;
+
   @NullableMessageJsonKey
   Message? get lastMessage => throw _privateConstructorUsedError;
+
   String? get replyKeyboardMarkup => throw _privateConstructorUsedError;
+
   String get draft => throw _privateConstructorUsedError;
+
   List<int> get mentionsId => throw _privateConstructorUsedError;
+
   int get lastUpdateTime => throw _privateConstructorUsedError;
+
   int get lastMessageId => throw _privateConstructorUsedError;
+
   int get localNetworkMessageCount => throw _privateConstructorUsedError;
+
   int get lastLocalNetworkMessageId => throw _privateConstructorUsedError;
+
   int get firstMessageId => throw _privateConstructorUsedError;
+
   int get pinId => throw _privateConstructorUsedError;
+
+  int get localChatId => throw _privateConstructorUsedError;
+
   int get lastCurrentUserSentMessageId => throw _privateConstructorUsedError;
+
   bool get deleted => throw _privateConstructorUsedError;
+
   bool get pinned => throw _privateConstructorUsedError;
+
   bool get synced => throw _privateConstructorUsedError;
+
   bool get seenSynced => throw _privateConstructorUsedError;
+
   bool get shouldUpdateMediaCount => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
   @JsonKey(ignore: true)
   $RoomCopyWith<Room> get copyWith => throw _privateConstructorUsedError;
 }
@@ -49,6 +68,7 @@ mixin _$Room {
 abstract class $RoomCopyWith<$Res> {
   factory $RoomCopyWith(Room value, $Res Function(Room) then) =
       _$RoomCopyWithImpl<$Res, Room>;
+
   @useResult
   $Res call(
       {@UidJsonKey Uid uid,
@@ -62,6 +82,7 @@ abstract class $RoomCopyWith<$Res> {
       int lastLocalNetworkMessageId,
       int firstMessageId,
       int pinId,
+      int localChatId,
       int lastCurrentUserSentMessageId,
       bool deleted,
       bool pinned,
@@ -79,6 +100,7 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
 
   // ignore: unused_field
   final $Val _value;
+
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -96,6 +118,7 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? lastLocalNetworkMessageId = null,
     Object? firstMessageId = null,
     Object? pinId = null,
+    Object? localChatId = null,
     Object? lastCurrentUserSentMessageId = null,
     Object? deleted = null,
     Object? pinned = null,
@@ -148,6 +171,10 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
           ? _value.pinId
           : pinId // ignore: cast_nullable_to_non_nullable
               as int,
+      localChatId: null == localChatId
+          ? _value.localChatId
+          : localChatId // ignore: cast_nullable_to_non_nullable
+              as int,
       lastCurrentUserSentMessageId: null == lastCurrentUserSentMessageId
           ? _value.lastCurrentUserSentMessageId
           : lastCurrentUserSentMessageId // ignore: cast_nullable_to_non_nullable
@@ -193,6 +220,7 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
   factory _$$RoomImplCopyWith(
           _$RoomImpl value, $Res Function(_$RoomImpl) then) =
       __$$RoomImplCopyWithImpl<$Res>;
+
   @override
   @useResult
   $Res call(
@@ -207,6 +235,7 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       int lastLocalNetworkMessageId,
       int firstMessageId,
       int pinId,
+      int localChatId,
       int lastCurrentUserSentMessageId,
       bool deleted,
       bool pinned,
@@ -239,6 +268,7 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? lastLocalNetworkMessageId = null,
     Object? firstMessageId = null,
     Object? pinId = null,
+    Object? localChatId = null,
     Object? lastCurrentUserSentMessageId = null,
     Object? deleted = null,
     Object? pinned = null,
@@ -291,6 +321,10 @@ class __$$RoomImplCopyWithImpl<$Res>
           ? _value.pinId
           : pinId // ignore: cast_nullable_to_non_nullable
               as int,
+      localChatId: null == localChatId
+          ? _value.localChatId
+          : localChatId // ignore: cast_nullable_to_non_nullable
+              as int,
       lastCurrentUserSentMessageId: null == lastCurrentUserSentMessageId
           ? _value.lastCurrentUserSentMessageId
           : lastCurrentUserSentMessageId // ignore: cast_nullable_to_non_nullable
@@ -334,6 +368,7 @@ class _$RoomImpl implements _Room {
       this.lastLocalNetworkMessageId = 0,
       this.firstMessageId = 0,
       this.pinId = 0,
+      this.localChatId = 0,
       this.lastCurrentUserSentMessageId = 0,
       this.deleted = false,
       this.pinned = false,
@@ -357,6 +392,7 @@ class _$RoomImpl implements _Room {
   @JsonKey()
   final String draft;
   final List<int> _mentionsId;
+
   @override
   @JsonKey()
   List<int> get mentionsId {
@@ -385,6 +421,9 @@ class _$RoomImpl implements _Room {
   final int pinId;
   @override
   @JsonKey()
+  final int localChatId;
+  @override
+  @JsonKey()
   final int lastCurrentUserSentMessageId;
   @override
   @JsonKey()
@@ -404,7 +443,7 @@ class _$RoomImpl implements _Room {
 
   @override
   String toString() {
-    return 'Room(uid: $uid, lastMessage: $lastMessage, replyKeyboardMarkup: $replyKeyboardMarkup, draft: $draft, mentionsId: $mentionsId, lastUpdateTime: $lastUpdateTime, lastMessageId: $lastMessageId, localNetworkMessageCount: $localNetworkMessageCount, lastLocalNetworkMessageId: $lastLocalNetworkMessageId, firstMessageId: $firstMessageId, pinId: $pinId, lastCurrentUserSentMessageId: $lastCurrentUserSentMessageId, deleted: $deleted, pinned: $pinned, synced: $synced, seenSynced: $seenSynced, shouldUpdateMediaCount: $shouldUpdateMediaCount)';
+    return 'Room(uid: $uid, lastMessage: $lastMessage, replyKeyboardMarkup: $replyKeyboardMarkup, draft: $draft, mentionsId: $mentionsId, lastUpdateTime: $lastUpdateTime, lastMessageId: $lastMessageId, localNetworkMessageCount: $localNetworkMessageCount, lastLocalNetworkMessageId: $lastLocalNetworkMessageId, firstMessageId: $firstMessageId, pinId: $pinId, localChatId: $localChatId, lastCurrentUserSentMessageId: $lastCurrentUserSentMessageId, deleted: $deleted, pinned: $pinned, synced: $synced, seenSynced: $seenSynced, shouldUpdateMediaCount: $shouldUpdateMediaCount)';
   }
 
   @override
@@ -433,6 +472,8 @@ class _$RoomImpl implements _Room {
             (identical(other.firstMessageId, firstMessageId) ||
                 other.firstMessageId == firstMessageId) &&
             (identical(other.pinId, pinId) || other.pinId == pinId) &&
+            (identical(other.localChatId, localChatId) ||
+                other.localChatId == localChatId) &&
             (identical(other.lastCurrentUserSentMessageId,
                     lastCurrentUserSentMessageId) ||
                 other.lastCurrentUserSentMessageId ==
@@ -461,6 +502,7 @@ class _$RoomImpl implements _Room {
       lastLocalNetworkMessageId,
       firstMessageId,
       pinId,
+      localChatId,
       lastCurrentUserSentMessageId,
       deleted,
       pinned,
@@ -495,6 +537,7 @@ abstract class _Room implements Room {
       final int lastLocalNetworkMessageId,
       final int firstMessageId,
       final int pinId,
+      final int localChatId,
       final int lastCurrentUserSentMessageId,
       final bool deleted,
       final bool pinned,
@@ -507,39 +550,59 @@ abstract class _Room implements Room {
   @override
   @UidJsonKey
   Uid get uid;
+
   @override
   @NullableMessageJsonKey
   Message? get lastMessage;
+
   @override
   String? get replyKeyboardMarkup;
+
   @override
   String get draft;
+
   @override
   List<int> get mentionsId;
+
   @override
   int get lastUpdateTime;
+
   @override
   int get lastMessageId;
+
   @override
   int get localNetworkMessageCount;
+
   @override
   int get lastLocalNetworkMessageId;
+
   @override
   int get firstMessageId;
+
   @override
   int get pinId;
+
+  @override
+  int get localChatId;
+
   @override
   int get lastCurrentUserSentMessageId;
+
   @override
   bool get deleted;
+
   @override
   bool get pinned;
+
   @override
   bool get synced;
+
   @override
   bool get seenSynced;
+
   @override
   bool get shouldUpdateMediaCount;
+
   @override
   @JsonKey(ignore: true)
   _$$RoomImplCopyWith<_$RoomImpl> get copyWith =>

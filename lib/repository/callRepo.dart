@@ -1541,17 +1541,6 @@ class CallRepo {
 
   // this function use instead of RTCPeerConnection.createOffer()
   Future<String> _createOffer() async {
-    //note the following should be called before calling either RTCPeerConnection.createOffer() or createAnswer()
-    //Still Not Supported
-    // if (_isVideo && isAndroidDevice) {
-    //   final transceiver = await _peerConnection!.getTransceivers();
-    //   final senderCapabilities =
-    //       await getRtpSenderCapabilities(_videoSender!.track!.kind!);
-    //   final sortedCodec = _sortCodecByPriorities(senderCapabilities.codecs!);
-    //   await transceiver[1].setCodecPreferences(
-    //     sortedCodec,
-    //   );
-    // }
     final description = await _peerConnection!.createOffer(_sdpConstraints);
     //get SDP as String
     final session = parse(description.sdp.toString());

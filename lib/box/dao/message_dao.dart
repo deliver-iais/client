@@ -23,4 +23,7 @@ abstract class MessageDao {
     int page, {
     int pageSize = PAGE_SIZE,
   });
+
+  Future<List<Message>> getLocalMessages(Uid roomUid);
 }
+

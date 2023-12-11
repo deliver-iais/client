@@ -113,4 +113,10 @@ class MessageDaoImpl extends MessageDao {
       await insertMessage(element);
     }
   }
+
+  @override
+  Future<List<Message>> getLocalMessages(Uid roomUid) {
+    // TODO: implement getLocalMessages
+    throw UnimplementedError();
+  }
 }

@@ -13,7 +13,8 @@ import 'package:fixnum/fixnum.dart';
 
 class MessageUtils {
   static message_pb.MessageByClient createMessageByClient(
-      model.Message message,) {
+    model.Message message,
+  ) {
     final byClient = message_pb.MessageByClient()
       ..packetId = message.packetId
       ..to = message.to
@@ -70,5 +71,18 @@ class MessageUtils {
         break;
     }
     return byClient;
+  }
+
+  static List<message_pb.MessageByClient> createMessageByClientOfLocalMessages(
+      List<model.Message> messages) {
+    try {
+      final result = <message_pb.MessageByClient>[];
+      for (final msg in messages) {
+        result.add(createMessageByClient(msg));
+      }
+      return result;
+    } catch (e) {
+      return [];
+    }
   }
 }

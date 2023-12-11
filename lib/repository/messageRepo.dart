@@ -628,6 +628,21 @@ class MessageRepo {
     return _saveAndSend(pm, fromNotification: fromNotification);
   }
 
+  Future<void> _sendLocalMessageServer(Uid roomUid, int localCahtId) async {
+    try {
+      final localMessages = MessageUtils.createMessageByClientOfLocalMessages(
+          await _messageDao.getLocalMessages(roomUid));
+      final res = await _sdr.queryServiceClient.saveLocalMessages(
+        SaveLocalMessageReq(
+          messages: localMessages,
+          localChatId: Int64(localCahtId),
+        ),
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
   Future<void> _saveAndSend(
     PendingMessage pm, {
     bool fromNotification = false,

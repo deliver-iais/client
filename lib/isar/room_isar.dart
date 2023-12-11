@@ -1,5 +1,3 @@
-
-
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/isar/helpers.dart';
@@ -32,6 +30,8 @@ class RoomIsar {
 
   int pinId;
 
+  int localChatId;
+
   bool synced;
 
   int lastCurrentUserSentMessageId;
@@ -50,6 +50,7 @@ class RoomIsar {
     this.lastMessage,
     this.deleted = false,
     this.lastMessageId = 0,
+    this.localChatId = 0,
     this.localNetworkMessageCount = 0,
     this.lastLocalNetworkMessageId = 0,
     this.draft,
@@ -78,6 +79,7 @@ class RoomIsar {
         pinId: pinId,
         pinned: pinned,
         synced: synced,
+        localChatId: localChatId,
         seenSynced: seenSynced,
         shouldUpdateMediaCount: shouldUpdateMediaCount,
         mentionsId: mentionsId ?? [],
@@ -97,6 +99,7 @@ extension RoomIsarMapper on Room {
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         shouldUpdateMediaCount: shouldUpdateMediaCount,
         synced: synced,
+        localChatId: localChatId,
         lastUpdateTime: lastUpdateTime,
         lastMessageId: lastMessageId,
         lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
