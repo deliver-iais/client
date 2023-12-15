@@ -7,7 +7,6 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -18,7 +17,6 @@ import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -224,8 +222,11 @@ class ServerLessMessageService {
     );
   }
 
-  Future<void> _checkPendingStatus(String packetId,
-      {required Uid to, required Message message,}) async {
+  Future<void> _checkPendingStatus(
+    String packetId, {
+    required Uid to,
+    required Message message,
+  }) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
     var hasBeenSent = false;
     if (pm != null) {
@@ -273,10 +274,6 @@ class ServerLessMessageService {
       } else if (type == ACTIVITY) {
         _dataStreamService
             .handleActivity(Activity.fromBuffer(await request.first));
-      } else if (type == SEND_FILE_REQ) {
-        unawaited(
-          _serverLessFileService.startFileServer(),
-        );
       } else if (type == RESEND_FILE_REQ) {
         final resendFileRequest =
             ResendFileRequest.fromBuffer(await request.first);
@@ -300,8 +297,7 @@ class ServerLessMessageService {
     }
   }
 
-
-  Future<void> sendPendingMessage (String uid) async {
+  Future<void> sendPendingMessage(String uid) async {
     if (_pendingMessageMap.keys.contains(uid)) {
       if (_pendingMessageMap[uid]!.isNotEmpty) {
         try {
@@ -343,7 +339,8 @@ class ServerLessMessageService {
   }
 
   Future<void> resendPendingPackets(Uid uid) async {
-    _pendingMessageMap[uid.asString()] = await _pendingMessageDao.getPendingMessages(uid.asString());
+    _pendingMessageMap[uid.asString()] =
+        await _pendingMessageDao.getPendingMessages(uid.asString());
     await sendPendingMessage(uid.asString());
 
     _pendingSeen[uid.asString()]?.forEach((element) {
@@ -441,13 +438,13 @@ class ServerLessMessageService {
       }
     }
   }
+
 //
   void _sendResendFileRequest({
     required String uuid,
     required String name,
     required String senderIp,
   }) {
-    _serverLessFileService.startFileServer();
     _serverLessService.sendRequest(
       ResendFileRequest(
         uuid: uuid,

@@ -189,6 +189,7 @@
   "enable_notifications": "Enable notifications",
   "ended_broadcast": "Ended",
   "end_call": "End Call",
+  "end_local_network": "End local network",
   "enter_a_message": "Enter a message",
   "enter_bot_desc": "Bot description",
   "enter_broadcast_name": "Broadcast Name",

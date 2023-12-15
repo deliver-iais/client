@@ -72,9 +72,6 @@ class CallRepo {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
-  Timer? _checkOfferTimer;
-  Timer? _resendCallOfferTimer;
-
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
   MediaStream? _localStreamShare;
@@ -90,7 +87,6 @@ class CallRepo {
   int _candidateStartTime = 0;
 
   RTCPeerConnection? _peerConnection;
-  Map<String, dynamic> _sdpConstraints = {};
 
   Map<int, String> _callEvents = {};
   StatsReport _selectedCandidate = StatsReport("id", "type", 0, {});
@@ -202,7 +198,6 @@ class CallRepo {
       final currentUserUid = _authRepo.currentUserUid;
       switch (callEvent.whichType()) {
         case CallEventV2_Type.answer:
-          _resendCallOfferTimer?.cancel();
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
@@ -259,21 +254,18 @@ class CallRepo {
           }
           break;
         case CallEventV2_Type.busy:
-          _resendCallOfferTimer?.cancel();
           _callEvents[callEvent.time.toInt()] = "Busy";
           if (isCallIdEqualToCurrentCallId(event)) {
             unawaited(receivedBusyCall());
           }
           break;
         case CallEventV2_Type.decline:
-          _resendCallOfferTimer?.cancel();
           _callEvents[callEvent.time.toInt()] = "Declined";
           if (isCallIdEqualToCurrentCallId(event)) {
             unawaited(receivedDeclinedCall());
           }
           break;
         case CallEventV2_Type.end:
-          _resendCallOfferTimer?.cancel();
           _callEvents[callEvent.time.toInt()] = "Ended";
           if (isCallIdEqualToCurrentCallId(event)) {
             unawaited(receivedEndCall());
@@ -464,7 +456,6 @@ class CallRepo {
 
   // This function use for setting up and managing the real-time communication between two peers.
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    _sdpConstraints = CallUtils.getSdpConstraints(isVideo: _isVideo);
     // maybe this line is what i'm looking for (createPeerConnection)
     final pc = await createPeerConnection(
       CallUtils.getIceServers(),
@@ -1148,9 +1139,10 @@ class CallRepo {
         );
       } else if (!isDuplicated) {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
-        if (_appLifecycleService.isActive &&
-                _routingService.isInRoom(_roomUid!.asString()) ||
-            (isAndroidNative && !(await _requiredPermissionIsGranted()))) {
+        if ((await _checkForegroundStatus()) &&
+            (_appLifecycleService.isActive &&
+                    _routingService.isInRoom(_roomUid!.asString()) ||
+                (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1196,6 +1188,10 @@ class CallRepo {
     }
   }
 
+  Future<bool> _checkForegroundStatus() async =>
+      settings.localNetworkMessenger.value &&
+      (await FlutterForegroundTask.isAppOnForeground);
+
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (!_callService.hasCall) {
@@ -1234,7 +1230,7 @@ class CallRepo {
           if (foregroundStatus) {
             _receivePort = _notificationForegroundService.getReceivePort;
             _receivePort?.listen((message) {
-              if (message == "endCall") {
+              if (message == ForeGroundConstant.STOP_CALL) {
                 endCall();
               } else if (message == 'onNotificationPressed') {
                 _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
@@ -1328,7 +1324,7 @@ class CallRepo {
         if (foregroundStatus) {
           _receivePort = _notificationForegroundService.getReceivePort;
           _receivePort?.listen((message) {
-            if (message == "endCall") {
+            if (message == ForeGroundConstant.STOP_CALL) {
               endCall();
             } else if (message == 'onNotificationPressed') {
               _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
@@ -1392,9 +1388,7 @@ class CallRepo {
 
 //here we have accepted Call
   Future<void> _receivedCallOffer() async {
-    _checkOfferTimer?.cancel();
-    //w8 until callOffer received
-    _checkOfferTimer = Timer(const Duration(milliseconds: 500), () async {
+    Timer(const Duration(milliseconds: 500), () async {
       await _checkCallOfferIsReady();
     });
   }
@@ -1465,7 +1459,7 @@ class CallRepo {
     }
   }
 
-// TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
+
   void endCall() {
     if (!_isEnded) {
       try {
@@ -1523,7 +1517,8 @@ class CallRepo {
 
   Future<String> _createAnswer({bool retry = true}) async {
     try {
-      final description = await _peerConnection!.createAnswer(_sdpConstraints);
+      final description = await _peerConnection!
+          .createAnswer(CallUtils.getSdpConstraints(isVideo: _isVideo));
       final session = parse(description.sdp.toString());
       final answerSdp = json.encode(session);
       _logger.i("Answer: \n$answerSdp");
@@ -1541,7 +1536,8 @@ class CallRepo {
 
   // this function use instead of RTCPeerConnection.createOffer()
   Future<String> _createOffer() async {
-    final description = await _peerConnection!.createOffer(_sdpConstraints);
+    final description = await _peerConnection!
+        .createOffer(CallUtils.getSdpConstraints(isVideo: _isVideo));
     //get SDP as String
     final session = parse(description.sdp.toString());
     final offerSdp = json.encode(session);
@@ -1635,7 +1631,7 @@ class CallRepo {
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
     if (settings.localNetworkMessenger.value) {
-      _resendCallOfferTimer = Timer(const Duration(milliseconds: 700), () {
+      Timer(const Duration(milliseconds: 700), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           _coreServices.sendCallEvent(callEventV2ByClient);
           _sendCallOffer(callEventV2ByClient);
@@ -1761,8 +1757,6 @@ class CallRepo {
   Future<void> _dispose() async {
     _logger.i("!!!!Disposed!!!!");
     unawaited(_resetVariables());
-    _checkOfferTimer?.cancel();
-    _resendCallOfferTimer?.cancel();
     try {
       if (_timerStatReport != null) {
         _timerStatReport!.cancel();
@@ -1778,6 +1772,10 @@ class CallRepo {
       }
       if (hasForegroundServiceCapability) {
         await _notificationForegroundService.foregroundServiceStop();
+        if (settings.localNetworkMessenger.value) {
+          await _notificationForegroundService
+              .localNetworkForegroundServiceStart();
+        }
       }
       if (isAndroidNative) {
         _isNotificationSelected = false;

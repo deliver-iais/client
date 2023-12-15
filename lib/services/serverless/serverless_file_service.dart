@@ -1,74 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
-import 'package:deliver/services/serverless/serverless_service.dart';
-import 'package:deliver_public_protocol/pub/v1/models/local_network_file.pb.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ServerLessFileService {
-  RawDatagramSocket? _fileReceiverSocket;
-  RawDatagramSocket? _fileSenderSocket;
   final _logger = GetIt.I.get<Logger>();
-
-  final Map<String, Map<int, List<Int64>>> _files = {};
-
-  bool _isListenedAlready = false;
-
-  Future<void> startFileServer({
-    bool retry = true,
-  }) async {
-    try {
-      if (_fileReceiverSocket == null || !_isListenedAlready) {
-        _fileReceiverSocket?.close();
-        _fileReceiverSocket = await RawDatagramSocket.bind(
-          GetIt.I.get<ServerLessService>().getMyIp(),
-          FILE_SERVER_PORT,
-        );
-        _fileReceiverSocket?.listen((event) {
-          try {
-            _isListenedAlready = true;
-            final data = _fileReceiverSocket?.receive()?.data;
-            if (data != null) {
-              final localNetworkFile = LocalNetworkFile.fromBuffer(data);
-              _saveFile(localNetworkFile);
-            }
-            _isListenedAlready = false;
-          } catch (e) {
-            _isListenedAlready = false;
-            _logger.e(e);
-          }
-        });
-      } else {
-        _logger.i("can not start  file server already listen on ............");
-      }
-    } catch (e) {
-      _logger
-        ..i("start file server")
-        ..e(e.toString());
-      _isListenedAlready = false;
-      _fileReceiverSocket?.close();
-      if (retry) {
-        unawaited(
-          startFileServer(
-            retry: false,
-          ),
-        );
-      }
-      _logger.e(e);
-    }
-  }
-
-  void dispose() {
-    _fileReceiverSocket?.close();
-    _fileSenderSocket?.close();
-    _files.clear();
-  }
 
   Future<bool> sendFile({
     required String filePath,
@@ -78,58 +18,24 @@ class ServerLessFileService {
     bool isResend = false,
   }) async {
     try {
-      _fileSenderSocket?.close();
-      _fileSenderSocket = await RawDatagramSocket.bind(
-        GetIt.I.get<ServerLessService>().getBroadcastIp(),
-        FILE_SERVER_PORT,
+      final length = await File(filePath).length();
+      final multi = await http.MultipartFile.fromPath(
+        'file',
+        filePath,
       );
-      _fileSenderSocket?.broadcastEnabled = true;
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://$receiverIp:$SERVER_PORT'),
+      )
+        ..files.add(multi)
+        ..headers[TYPE] = FILE
+        ..headers[FILE_SIZE] = length.toString()
+        ..headers[FILE_UUID] = uuid
+        ..headers[FILE_NAME] = name;
 
-      final bytes = File(filePath).readAsBytesSync();
-
-      final length = bytes.length;
-      if (length > FILE_MAX_BUFFER_SIZE) {
-        var i = 0;
-        while (i <= length) {
-          final m = LocalNetworkFile(
-            uuid: uuid,
-            name: name,
-            isResend: isResend,
-            index: Int64(((i / FILE_MAX_BUFFER_SIZE).floor()) + 1),
-            finish: i + FILE_MAX_BUFFER_SIZE >= length,
-            data: bytes
-                .sublist(i, min(length, i + FILE_MAX_BUFFER_SIZE))
-                .map((e) => Int64(e))
-                .toList(),
-          );
-
-          _fileSenderSocket?.send(
-            m.writeToBuffer(),
-            InternetAddress(receiverIp),
-            FILE_SERVER_PORT,
-          );
-          i = i + FILE_MAX_BUFFER_SIZE;
-          GetIt.I
-              .get<FileService>()
-              .updateFileProgressbar(min((i / length), 1), uuid);
-
-          await Future.delayed(const Duration(milliseconds: 700));
-        }
-      } else {
-        _fileSenderSocket?.send(
-          LocalNetworkFile(
-            uuid: uuid,
-            name: name,
-            isResend: isResend,
-            index: Int64(1),
-            finish: true,
-            data: bytes.map((e) => Int64(e)).toList(),
-          ).writeToBuffer(),
-          InternetAddress(receiverIp),
-          FILE_SERVER_PORT,
-        );
-      }
-      _fileSenderSocket?.close();
+      await (await request.send()).stream.forEach((message) {
+        print("%%%%%%%%%%" + (message.length / length).toString());
+      });
       return true;
     } catch (e) {
       _logger.e(e);
@@ -137,34 +43,37 @@ class ServerLessFileService {
     return false;
   }
 
-  Future<void> _saveFile(LocalNetworkFile localNetworkFile) async {
+  Future<void> handleFileUpload(HttpRequest request) async {
     try {
-      if (_files[localNetworkFile.uuid] == null) {
-        _files[localNetworkFile.uuid] = {};
-      }
-      _files[localNetworkFile.uuid]![localNetworkFile.index.toInt()] =
-          localNetworkFile.data;
+      final fileSize = int.parse(request.headers.value(FILE_SIZE)!);
+      final data = <int>[];
+      await request.forEach((element) async {
+        data.addAll(element);
+      });
+      final diff = data.length - fileSize;
+      await _saveFile(
+        data.sublist(diff - 78, data.length - 78),
+        uuid: request.headers.value(FILE_UUID)!,
+        name: request.headers.value(FILE_NAME)!,
+      );
+      request.response.statusCode = HttpStatus.ok;
+    } catch (e) {
+      request.response.statusCode = HttpStatus.internalServerError;
+    }
+    await request.response.close();
+  }
 
-      if (localNetworkFile.finish) {
-        final sortedKeys = _files[localNetworkFile.uuid]!.keys.toList()..sort();
-        final bytes = <int>[];
-        for (final element in sortedKeys) {
-          bytes.addAll(
-            (_files[localNetworkFile.uuid]![element])!.map((e) => e.toInt()),
+  Future<void> _saveFile(
+    List<int> bytes, {
+    required String uuid,
+    required String name,
+  }) async {
+    try {
+      await GetIt.I.get<FileRepo>().saveLocalNetworkFile(
+            uuid: uuid,
+            filename: name,
+            data: bytes,
           );
-        }
-        _logger.i(
-          "${localNetworkFile.uuid}........\t............${bytes.length}",
-        );
-        unawaited(
-          GetIt.I.get<FileRepo>().saveLocalNetworkFile(
-                uuid: localNetworkFile.uuid,
-                filename: localNetworkFile.name,
-                data: bytes,
-              ),
-        );
-        _files.remove(localNetworkFile.uuid);
-      }
     } catch (e) {
       _logger.e(e);
     }

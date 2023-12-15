@@ -45,14 +45,16 @@ class PendingMessageDaoImpl with SortPending implements PendingMessageDao {
     try {
       final box = await _openPendingMessageIsar();
 
-      return sort(box.pendingMessageIsars
-          .filter()
-          .messageIdLessThan(1)
-          .and()
-          .roomUidEqualTo(roomUid)
-          .findAllSync()
-          .map((e) => e.fromIsar())
-          .toList(),);
+      return sort(
+        box.pendingMessageIsars
+            .filter()
+            .messageIdLessThan(1)
+            .and()
+            .roomUidEqualTo(roomUid)
+            .findAllSync()
+            .map((e) => e.fromIsar())
+            .toList(),
+      );
     } catch (e) {
       return [];
     }
@@ -79,16 +81,23 @@ class PendingMessageDaoImpl with SortPending implements PendingMessageDao {
 
   @override
   Future<PendingMessage?> getPendingMessage(String packetId) async {
-    final box = await _openPendingMessageIsar();
+    try {
+      final box = await _openPendingMessageIsar();
 
-    return box.pendingMessageIsars.getSync(fastHash(packetId))?.fromIsar();
+      return (await box.pendingMessageIsars.get(fastHash(packetId)))
+          ?.fromIsar();
+    } catch (e) {}
   }
 
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
     final box = await _openPendingMessageIsar();
     return box.writeTxnSync(() {
-      box.pendingMessageIsars.putSync(pm.toIsar());
+      try {
+        box.pendingMessageIsars.putSync(pm.toIsar());
+      } catch (e) {
+        // savePendingMessage(pm);
+      }
     });
   }
 

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -24,6 +25,8 @@ class ServerLessService {
   final Map<String, String> _address = {};
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
+  final _notificationForegroundService =
+      GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   HttpServer? _httpServer;
 
@@ -33,17 +36,34 @@ class ServerLessService {
 
   void start() {
     _address.clear();
-    // _notificationForegroundService.localNetworkForegroundServiceStart();
     _startServices();
+    _startForegroundService();
+  }
+
+  Future<void> _startForegroundService() async {
+    try {
+      await _notificationForegroundService.stopForegroundTask();
+      final foregroundStatus = await _notificationForegroundService
+          .localNetworkForegroundServiceStart();
+      if (foregroundStatus) {
+        _notificationForegroundService.getReceivePort?.listen((message) {
+          if (message == ForeGroundConstant.STOP_LOCAL_NETWORK) {
+            _notificationForegroundService.stopForegroundTask();
+          }
+        });
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> restart() async {
     await dispose();
-    _serverLessFileService.dispose();
     start();
   }
 
   Future<void> dispose() async {
+    await _notificationForegroundService.stopForegroundTask();
     await _httpServer?.close(force: true);
     _upSocket?.close();
   }
@@ -57,7 +77,6 @@ class ServerLessService {
 
   @pragma('vm:entry-point')
   Future<void> _startServices() async {
-    // unawaited(GetIt.I.get<ServerLessMessageService>().updateRooms());
     if (await _getMyLocalIp()) {
       await _clearConnections();
     }
@@ -173,7 +192,7 @@ class ServerLessService {
   Future<void> _startHttpService() async {
     try {
       await _httpServer?.close(force: true);
-      _httpServer = await HttpServer.bind(_ip, SERVER_PORT);
+      _httpServer = await HttpServer.bind('0.0.0.0', SERVER_PORT);
       _logger.i('Listening on $_ip:${_httpServer?.port}');
       if (_httpServer != null) {
         _httpServer?.listen((request) {
@@ -181,6 +200,8 @@ class ServerLessService {
             final type = request.headers.value(TYPE) ?? MESSAGE;
             if (type == REGISTER) {
               unawaited(_processRegister(request));
+            } else if (type == FILE) {
+              unawaited(_serverLessFileService.handleFileUpload(request));
             } else {
               unawaited(
                 GetIt.I.get<ServerLessMessageService>().processRequest(request),
@@ -201,6 +222,7 @@ class ServerLessService {
   }
 
   Future<void> _reset() async {
+    await Future.delayed(const Duration(milliseconds: 700));
     await _httpServer?.close(force: true);
     await _startHttpService();
   }

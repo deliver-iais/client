@@ -9,6 +9,12 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+class ForeGroundConstant {
+  static const String STOP_CALL = "stop_call";
+  static const String STOP_LOCAL_NETWORK = "stop_local_network";
+  static const String STOP_NOTIFICATION = "stop_notification";
+}
+
 enum NotificationForegroundServiceType {
   NOTIFICATION,
   BROADCAST,
@@ -44,7 +50,7 @@ class NotificationForegroundService {
       if (settings.foregroundNotificationIsEnabled.value) {
         await _foregroundTaskInitializing();
       } else {
-        await _stopForegroundTask();
+        await stopForegroundTask();
       }
     }
   }
@@ -60,7 +66,7 @@ class NotificationForegroundService {
   Future<bool> localNetworkForegroundServiceStart() async {
     if (!settings.foregroundNotificationIsEnabled.value) {
       foregroundServiceType = NotificationForegroundServiceType.LOCAL_NETWORK;
-      return foregroundTaskInitializing();
+      return foregroundTaskInitializing(startLocalNetwork: true);
     }
     return false;
   }
@@ -77,7 +83,7 @@ class NotificationForegroundService {
     if (!settings.foregroundNotificationIsEnabled.value) {
       foregroundServiceType = NotificationForegroundServiceType.NOTIFICATION;
       if (hasForegroundServiceCapability) {
-        await _stopForegroundTask();
+        await stopForegroundTask();
       }
     }
   }
@@ -94,7 +100,7 @@ class NotificationForegroundService {
     return false;
   }
 
-  Future<void> _initForegroundTask() async {
+  Future<void> _initForegroundTask({bool startLocalNetwork = false}) async {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id $foregroundServiceType',
@@ -104,27 +110,27 @@ class NotificationForegroundService {
         isSticky: false,
         channelImportance: NotificationChannelImportance.NONE,
         visibility: NotificationVisibility.VISIBILITY_SECRET,
-        iconData: const NotificationIconData(
+        iconData: NotificationIconData(
           resType: ResourceType.mipmap,
           resPrefix: ResourcePrefix.ic,
-          name: 'launcher',
+          name: startLocalNetwork ? 'local_network' : 'launcher',
         ),
         buttons: [
           if (settings.foregroundNotificationIsEnabled.value)
             NotificationButton(
-              id: 'stopForegroundNotification',
+              id: ForeGroundConstant.STOP_NOTIFICATION,
               text: _i18n.get("notification_foreground_stop"),
             )
           else if (foregroundServiceType ==
               NotificationForegroundServiceType.CALL)
             NotificationButton(
-              id: 'stopForegroundNotification',
+              id: ForeGroundConstant.STOP_NOTIFICATION,
               text: _i18n.get("end_call"),
             )
           else if (foregroundServiceType ==
-              NotificationForegroundServiceType.CALL)
+              NotificationForegroundServiceType.LOCAL_NETWORK)
             NotificationButton(
-              id: 'stopForegroundNotification',
+              id: ForeGroundConstant.STOP_LOCAL_NETWORK,
               text: _i18n.get("end_local_network"),
             ),
         ],
@@ -139,9 +145,11 @@ class NotificationForegroundService {
     );
   }
 
-  Future<bool> foregroundTaskInitializing() async {
+  Future<bool> foregroundTaskInitializing({
+    bool startLocalNetwork = false,
+  }) async {
     if (hasForegroundServiceCapability) {
-      await _initForegroundTask();
+      await _initForegroundTask(startLocalNetwork: startLocalNetwork);
       if (await _startForegroundTask()) {
         return true;
       } else {
@@ -177,9 +185,9 @@ class NotificationForegroundService {
       _receivePort = receivePort;
       if (foregroundNotification) {
         receivePort.listen((message) async {
-          if (message == "endForegroundNotification") {
+          if (message == ForeGroundConstant.STOP_NOTIFICATION) {
             settings.foregroundNotificationIsEnabled.toggleValue();
-            await _stopForegroundTask();
+            await stopForegroundTask();
           } else {
             _logger.i('receive callStatus: $message');
           }
@@ -204,7 +212,7 @@ class NotificationForegroundService {
     }
   }
 
-  Future<bool> _stopForegroundTask() async =>
+  Future<bool> stopForegroundTask() async =>
       FlutterForegroundTask.stopService();
 }
 
@@ -224,7 +232,6 @@ class NotificationHandler extends TaskHandler {
     sPort = sendPort;
   }
 
-  @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     final backgroundActivationTime =
         await FlutterForegroundTask.getData<String>(
@@ -294,13 +301,12 @@ class NotificationHandler extends TaskHandler {
     }
   }
 
-  @override
   Future<void> onButtonPressed(String id) async {
     // Called when the notification button on the Android platform is pressed.
     final isClosed =
         await FlutterForegroundTask.getData<String>(key: 'isClosed');
-    if (id == "stopForegroundNotification") {
-      sPort?.send("endForegroundNotification");
+    if (id == ForeGroundConstant.STOP_NOTIFICATION) {
+      sPort?.send(id);
       if (isClosed != null && isClosed == "True") {
         await FlutterForegroundTask.stopService();
       }
@@ -315,14 +321,6 @@ class NotificationHandler extends TaskHandler {
 
   @override
   void onNotificationPressed() {
-    // Called when the notification itself on the Android platform is pressed.
-    //
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // this function to be called.
-
-    // Note that the app will only route to "/resume-route" when it is exited so
-    // it will usually be necessary to send a message through the send port to
-    // signal it to restore state when the app is already started.
     FlutterForegroundTask.launchApp("/");
     sPort?.send('onNotificationPressed');
   }
@@ -356,10 +354,11 @@ class CallForegroundHandler extends TaskHandler {
   }
 
   @override
-  void onButtonPressed(String id) {
-    // Called when the notification button on the Android platform is pressed.
-    if (id == "stopForegroundNotification") {
-      sPort?.send("endCall");
+  void onNotificationButtonPressed(String id) {
+    if (id == ForeGroundConstant.STOP_NOTIFICATION) {
+      sPort?.send(ForeGroundConstant.STOP_CALL);
+    } else {
+      sPort?.send(ForeGroundConstant.STOP_LOCAL_NETWORK);
     }
   }
 

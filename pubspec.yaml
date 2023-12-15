@@ -142,7 +142,6 @@ dependencies:
   hive: 2.2.3
   hive_flutter: 1.1.0
   hovering: 1.0.4
-  http: ^1.0.0
   http_parser: 4.0.2
   idb_shim: 2.3.1
   image: ^4.1.3
@@ -214,6 +213,8 @@ dependencies:
       ref: 775e1a365637f4e625cf042be383e0d601ab13be
       url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
+  shelf: 1.4.1
+  http: 1.1.2
   sensors_plus: ^3.0.3
   service_worker: 0.3.0
   share: 2.0.4
@@ -285,6 +286,7 @@ flutter:
     - assets/backgrounds/
     - assets/emoji/
     - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
+    - assets/ic_launcher/res/mipmap-xxxhdpi/ic_local_network.png
     - assets/images/logo.webp
     - assets/images/no-profile-pic.png
     - assets/images/security.webp
