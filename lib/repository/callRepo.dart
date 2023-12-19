@@ -1459,7 +1459,6 @@ class CallRepo {
     }
   }
 
-
   void endCall() {
     if (!_isEnded) {
       try {

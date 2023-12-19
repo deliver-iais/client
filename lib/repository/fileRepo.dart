@@ -56,30 +56,23 @@ class FileRepo {
     bool isVoice = false,
     Uid? uid,
   }) async {
-    final clonedFilePath = await _fileCache.getFilePath(
-      "real",
-      uploadKey,
-      convertToDataByteInWeb: true,
-    );
+    try {
+      final clonedFilePath = await _fileCache.getFilePath(
+        "real",
+        uploadKey,
+        convertToDataByteInWeb: true,
+      );
 
-    if (settings.localNetworkMessenger.value) {
-      var _audioWaveform = file_pb.AudioWaveform();
-      if (await GetIt.I
-          .get<ServerLessMessageService>()
-          .sendFileSendRequestMessage(
-            to: uid!,
-            uuid: uploadKey,
-          )) {
-        await Future.delayed(const Duration(milliseconds: 700));
-        final res = await GetIt.I.get<ServerLessMessageService>().sendFile(
+      if (settings.localNetworkMessenger.value) {
+        var audioWaveform0 = file_pb.AudioWaveform();
+        if (await GetIt.I.get<ServerLessMessageService>().sendFile(
               filename: name,
               filePath: clonedFilePath!,
               uuid: uploadKey,
-              to: uid,
-            );
-        if (res) {
+              to: uid!,
+            )) {
           if (isVoice) {
-            _audioWaveform = file_pb.AudioWaveform(data: [0]);
+            audioWaveform0 = file_pb.AudioWaveform(data: [0]);
           }
           var duration = 0.0;
           var tempDimension = Size.zero;
@@ -98,7 +91,7 @@ class FileRepo {
                 tempDimension = Size(info.width!, info.height!);
                 duration = info.duration! / 1000;
               }
-              _audioWaveform = file_pb.AudioWaveform(
+              audioWaveform0 = file_pb.AudioWaveform(
                 data: [tempDimension.width, tempDimension.height].map((e) => e),
               );
             }
@@ -110,7 +103,7 @@ class FileRepo {
           return file_pb.File(
             uuid: uploadKey,
             name: getFileName(name),
-            audioWaveform: _audioWaveform,
+            audioWaveform: audioWaveform0,
             width: tempDimension.width,
             height: tempDimension.height,
             duration: duration,
@@ -120,125 +113,129 @@ class FileRepo {
             sign: DateTime.now().millisecondsSinceEpoch.toString(),
           );
         }
-      }
 
-      return null;
-    } else {
-      Response? value;
-      try {
-        value = await _fileService.uploadFile(
-          clonedFilePath!,
-          name,
-          uploadKey: uploadKey,
-          sendActivity: sendActivity,
-          isVoice: isVoice,
-        );
-        await _analyticsService.sendLogEvent(
-          "successFileUpload",
-        );
-      } on DioException catch (e) {
-        if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
-          ToastDisplay.showToast(
-            toastText: e.response!.data,
-            maxWidth: 500.0,
-            duration: AnimationSettings.actualSuperUltraSlow,
-          );
-          for (final packetId in packetIds) {
-            GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
-          }
-          cancelUploadFile(uploadKey);
-          await _analyticsService.sendLogEvent(
-            "unSuccessFileUpload",
-            parameters: {
-              "errorCode": e.response?.statusCode,
-              "error": e.response?.data
-            },
-          );
-        } else if (e.response == null && e.type != DioErrorType.cancel) {
-          ToastDisplay.showToast(
-            toastText: _i18N.get("connection_error"),
-            maxWidth: 500.0,
-            duration: AnimationSettings.actualSuperUltraSlow,
-          );
-          for (final packetId in packetIds) {
-            GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
-          }
-          cancelUploadFile(uploadKey);
-          await _analyticsService.sendLogEvent(
-            "failedFileUpload",
-          );
-        } else {
-          await _analyticsService.sendLogEvent(
-            "unknownFileUpload",
-            parameters: {
-              "errorCode": e.response?.statusCode,
-              "error": e.response?.data,
-            },
-          );
-        }
-        _logger.e(e);
-      }
-      if (value != null) {
-        final json = jsonDecode(value.toString()) as Map;
-        _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
-
+        return null;
+      } else {
+        Response? value;
         try {
-          var uploadedFile = file_pb.File();
-          uploadedFile = file_pb.File()
-            ..uuid = json["uuid"]
-            ..size = Int64.parseInt(json["size"])
-            ..type = json["type"]
-            ..name = json["name"]
-            ..width = json["width"] ?? 0
-            ..height = json["height"] ?? 0
-            ..duration = json["duration"] ?? 0
-            ..blurHash = json["blurHash"] ?? ""
-            ..hash = json["hash"] ?? ""
-            ..sign = json["sign"] ?? "";
-          if (isAndroidNative && isVideoFileType(uploadedFile.type)) {
-            final info = await getVideoInfo(clonedFilePath!);
-            if (info != null) {
-              uploadedFile.audioWaveform = file_pb.AudioWaveform(
-                data: [info.width, info.height].map((e) => e!),
-              );
-            }
-          }
-          if (json["audioWaveform"] != null) {
-            final audioWaveform = json["audioWaveform"] as Map;
-            if (audioWaveform.isNotEmpty) {
-              uploadedFile.audioWaveform = file_pb.AudioWaveform(
-                bits: audioWaveform["bits"] ?? 0,
-                channels: audioWaveform["channels"] ?? 0,
-                data: audioWaveform["data"] != null
-                    ? List<int>.from(audioWaveform["data"])
-                    : [],
-                length: audioWaveform["length"] ?? 0,
-                sampleRate: audioWaveform["sampleRate"] ?? 0,
-                samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
-                version: audioWaveform["version"] ?? 0,
-              );
-            }
-          }
-          _logger.v(uploadedFile);
-
-          localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
-          await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid, name);
-          _fileService.updateFileStatus(
-            uploadedFile.uuid,
-            FileStatus.COMPLETED,
+          value = await _fileService.uploadFile(
+            clonedFilePath!,
+            name,
+            uploadKey: uploadKey,
+            sendActivity: sendActivity,
+            isVoice: isVoice,
           );
-          return uploadedFile;
-        } catch (e) {
-          _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+          await _analyticsService.sendLogEvent(
+            "successFileUpload",
+          );
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 400 && packetIds.isNotEmpty) {
+            ToastDisplay.showToast(
+              toastText: e.response!.data,
+              maxWidth: 500.0,
+              duration: AnimationSettings.actualSuperUltraSlow,
+            );
+            for (final packetId in packetIds) {
+              GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+            }
+            cancelUploadFile(uploadKey);
+            await _analyticsService.sendLogEvent(
+              "unSuccessFileUpload",
+              parameters: {
+                "errorCode": e.response?.statusCode,
+                "error": e.response?.data
+              },
+            );
+          } else if (e.response == null && e.type != DioErrorType.cancel) {
+            ToastDisplay.showToast(
+              toastText: _i18N.get("connection_error"),
+              maxWidth: 500.0,
+              duration: AnimationSettings.actualSuperUltraSlow,
+            );
+            for (final packetId in packetIds) {
+              GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+            }
+            cancelUploadFile(uploadKey);
+            await _analyticsService.sendLogEvent(
+              "failedFileUpload",
+            );
+          } else {
+            await _analyticsService.sendLogEvent(
+              "unknownFileUpload",
+              parameters: {
+                "errorCode": e.response?.statusCode,
+                "error": e.response?.data,
+              },
+            );
+          }
           _logger.e(e);
+        }
+        if (value != null) {
+          final json = jsonDecode(value.toString()) as Map;
+          _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
+
+          try {
+            var uploadedFile = file_pb.File();
+            uploadedFile = file_pb.File()
+              ..uuid = json["uuid"]
+              ..size = Int64.parseInt(json["size"])
+              ..type = json["type"]
+              ..name = json["name"]
+              ..width = json["width"] ?? 0
+              ..height = json["height"] ?? 0
+              ..duration = json["duration"] ?? 0
+              ..blurHash = json["blurHash"] ?? ""
+              ..hash = json["hash"] ?? ""
+              ..sign = json["sign"] ?? "";
+            if (isAndroidNative && isVideoFileType(uploadedFile.type)) {
+              final info = await getVideoInfo(clonedFilePath!);
+              if (info != null) {
+                uploadedFile.audioWaveform = file_pb.AudioWaveform(
+                  data: [info.width, info.height].map((e) => e!),
+                );
+              }
+            }
+            if (json["audioWaveform"] != null) {
+              final audioWaveform = json["audioWaveform"] as Map;
+              if (audioWaveform.isNotEmpty) {
+                uploadedFile.audioWaveform = file_pb.AudioWaveform(
+                  bits: audioWaveform["bits"] ?? 0,
+                  channels: audioWaveform["channels"] ?? 0,
+                  data: audioWaveform["data"] != null
+                      ? List<int>.from(audioWaveform["data"])
+                      : [],
+                  length: audioWaveform["length"] ?? 0,
+                  sampleRate: audioWaveform["sampleRate"] ?? 0,
+                  samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
+                  version: audioWaveform["version"] ?? 0,
+                );
+              }
+            }
+            _logger.v(uploadedFile);
+
+            localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
+            await _updateFileInfoWithRealUuid(
+                uploadKey, uploadedFile.uuid, name);
+            _fileService.updateFileStatus(
+              uploadedFile.uuid,
+              FileStatus.COMPLETED,
+            );
+            return uploadedFile;
+          } catch (e) {
+            _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+            _logger.e(e);
+            return null;
+          }
+        } else {
+          _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+          _fileService.filesProgressBarStatus.add(
+              _fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
           return null;
         }
-      } else {
-        _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
-        _fileService.filesProgressBarStatus
-            .add(_fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
-        return null;
       }
+    } catch (e) {
+      _logger.e(e);
+      return null;
     }
   }
 

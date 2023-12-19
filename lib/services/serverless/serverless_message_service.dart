@@ -7,9 +7,13 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/message.dart' as model;
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
@@ -25,7 +29,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/local_network_file.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
@@ -54,19 +58,15 @@ class ServerLessMessageService {
       case ClientPacket_Type.message:
         final room = await _roomDao.getRoom(clientPacket.message.to);
         if (clientPacket.message.hasText()) {
-          unawaited(
-            _sendTextMessage(
-              clientPacket.message,
-              id ?? (room != null ? room.lastMessageId + 1 : 1),
-              edited: id != null,
-            ),
+          await _sendTextMessage(
+            clientPacket.message,
+            id ?? (room != null ? room.lastMessageId + 1 : 1),
+            edited: id != null,
           );
         } else if (clientPacket.message.hasFile()) {
-          unawaited(
-            _sendFileMessage(
-              clientPacket.message,
-              room != null ? room.lastMessageId + 1 : 1,
-            ),
+          await _sendFileMessage(
+            clientPacket.message,
+            room != null ? room.lastMessageId + 1 : 1,
           );
         }
         break;
@@ -236,6 +236,22 @@ class ServerLessMessageService {
       _serverLessService.sendBroadCast(to: pm.roomUid);
     }
   }
+  // // await _pendingMessageDao.savePendingMessage(
+  //         //   PendingMessage(
+  //         //     roomUid: callLog.to,
+  //         //     packetId: packetId,
+  //         //     msg: model.Message(
+  //         //       roomUid: roomUid,
+  //         //       from: callLog.from,
+  //         //       to: roomUid,
+  //         //       packetId: packetId,
+  //         //       time: DateTime.now().millisecondsSinceEpoch,
+  //         //       json: callLog.writeToJson(),
+  //         //       type: MessageType.CALL_LOG,
+  //         //     ),
+  //         //     status: SendingStatus.PENDING,
+  //         //   ),
+  //         // );
 
   Future<void> processRequest(HttpRequest request) async {
     try {
@@ -274,16 +290,6 @@ class ServerLessMessageService {
       } else if (type == ACTIVITY) {
         _dataStreamService
             .handleActivity(Activity.fromBuffer(await request.first));
-      } else if (type == RESEND_FILE_REQ) {
-        final resendFileRequest =
-            ResendFileRequest.fromBuffer(await request.first);
-        unawaited(
-          _serverLessFileService.resendFile(
-            ip: request.headers.value(IP)!,
-            uuid: resendFileRequest.uuid,
-            name: resendFileRequest.name,
-          ),
-        );
       } else if (type == CALL_EVENT) {
         final callEvents = CallEvents.callEvent(
           CallEventV2.fromBuffer(await request.first),
@@ -295,47 +301,41 @@ class ServerLessMessageService {
     } catch (e) {
       _logger.e(e);
     }
+    await request.response.close();
   }
 
   Future<void> sendPendingMessage(String uid) async {
     if (_pendingMessageMap.keys.contains(uid)) {
       if (_pendingMessageMap[uid]!.isNotEmpty) {
+        var pm = _pendingMessageMap[uid]!.last.msg;
         try {
-          await sendClientPacket(
-            ClientPacket()
-              ..message = MessageUtils.createMessageByClient(
-                  _pendingMessageMap[uid]!.last.msg),
-          );
+          if (pm.type == MessageType.CALL_LOG) {
+            unawaited(_sendCallLog(
+                CallLog.fromJson(pm.json), pm.packetId, pm.roomUid));
+          } else {
+            if (pm.type == MessageType.FILE) {
+              final file = file_pb.File.fromJson(pm.json);
+              final fileInfo = await GetIt.I.get<FileRepo>().uploadClonedFile(
+                  file.uuid, file.name,
+                  packetIds: [], uid: uid.asUid());
+              if (fileInfo != null) {
+                pm = pm.copyWith(json: fileInfo.writeToJson());
+              }
+            }
+            await sendClientPacket(
+              ClientPacket()
+                ..message = MessageUtils.createMessageByClient(
+                  pm,
+                ),
+            );
+          }
+
           _pendingMessageMap[uid]?.removeLast();
         } catch (e) {
           _logger.e(e);
         }
       }
     }
-  }
-
-  Future<bool> sendFileSendRequestMessage({
-    required Uid to,
-    required String uuid,
-  }) async {
-    try {
-      final ip = await _serverLessService.getIp(to.asString());
-      if (ip != null) {
-        await _serverLessService.sendRequest(
-          SendFileRequest(
-            from: _authRepo.currentUserUid,
-            to: to,
-            fileUuid: uuid,
-          ).writeToBuffer(),
-          ip,
-          type: SEND_FILE_REQ,
-        );
-        return true;
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-    return false;
   }
 
   Future<void> resendPendingPackets(Uid uid) async {
@@ -425,34 +425,6 @@ class ServerLessMessageService {
         localNetworkMessageCount: room.localNetworkMessageCount + 1,
       );
     }
-    if (message.hasFile()) {
-      final uuid = message.file.uuid;
-      if (!await _serverLessFileService.checkIfFileExit(
-        uuid: uuid,
-      )) {
-        _sendResendFileRequest(
-          uuid: uuid,
-          name: message.file.name,
-          senderIp: request.headers.value(IP)!,
-        );
-      }
-    }
-  }
-
-//
-  void _sendResendFileRequest({
-    required String uuid,
-    required String name,
-    required String senderIp,
-  }) {
-    _serverLessService.sendRequest(
-      ResendFileRequest(
-        uuid: uuid,
-        name: name,
-      ).writeToBuffer(),
-      senderIp,
-      type: RESEND_FILE_REQ,
-    );
   }
 
   Future<void> _sendAck(MessageDeliveryAck ack) async {
@@ -469,53 +441,99 @@ class ServerLessMessageService {
   Future<void> _sendCallEvent(
     call_pb.CallEventV2ByClient callEventV2ByClient,
   ) async {
+    final callEvent = CallEventV2()
+      ..id = callEventV2ByClient.id
+      ..to = callEventV2ByClient.to
+      ..isVideo = callEventV2ByClient.isVideo
+      ..from = _authRepo.currentUserUid
+      ..time = Int64(DateTime.now().millisecondsSinceEpoch);
+    if (callEventV2ByClient.hasRinging()) {
+      callEvent.ringing = callEventV2ByClient.ringing;
+    } else if (callEventV2ByClient.hasOffer()) {
+      callEvent.offer = callEventV2ByClient.offer;
+    } else if (callEventV2ByClient.hasEnd()) {
+      callEvent.end = callEventV2ByClient.end;
+    } else if (callEventV2ByClient.hasAnswer()) {
+      callEvent.answer = callEventV2ByClient.answer;
+    } else if (callEventV2ByClient.hasDecline()) {
+      callEvent.decline = callEventV2ByClient.decline;
+    } else if (callEventV2ByClient.hasBusy()) {
+      callEvent.busy = callEventV2ByClient.busy;
+    }
     final ip =
         await _serverLessService.getIp(callEventV2ByClient.to.asString());
     if (ip != null) {
-      final callEvent = CallEventV2()
-        ..id = callEventV2ByClient.id
-        ..to = callEventV2ByClient.to
-        ..isVideo = callEventV2ByClient.isVideo
-        ..from = _authRepo.currentUserUid
-        ..time = Int64(DateTime.now().millisecondsSinceEpoch);
-      if (callEventV2ByClient.hasRinging()) {
-        callEvent.ringing = callEventV2ByClient.ringing;
-      } else if (callEventV2ByClient.hasOffer()) {
-        callEvent.offer = callEventV2ByClient.offer;
-      } else if (callEventV2ByClient.hasEnd()) {
-        callEvent.end = callEventV2ByClient.end;
-      } else if (callEventV2ByClient.hasAnswer()) {
-        callEvent.answer = callEventV2ByClient.answer;
-      } else if (callEventV2ByClient.hasDecline()) {
-        callEvent.decline = callEventV2ByClient.decline;
-      } else if (callEventV2ByClient.hasBusy()) {
-        callEvent.busy = callEventV2ByClient.busy;
-      }
       await _serverLessService.sendRequest(
         callEvent.writeToBuffer(),
         ip,
         type: CALL_EVENT,
       );
+    }
+    unawaited(_processCallLog(callEvent));
+  }
 
-      if (callEvent.hasRinging()) {
-        // _callService.addCallEvent(CallEvents.callEvent(callEvent));
-      } else if (callEvent.hasBusy()) {
-        unawaited(_sendCallLog(CallLog()..end = CallEventEnd()));
-      }
+  Future<void> _processCallLog(CallEventV2 callEvent) async {
+    call_pb.CallLog? callLog;
+    switch (callEvent.whichType()) {
+      case call_pb.CallEventV2_Type.offer:
+      case call_pb.CallEventV2_Type.ringing:
+      case call_pb.CallEventV2_Type.answer:
+        break;
+      case call_pb.CallEventV2_Type.end:
+        callLog = CallLog(
+          from: callEvent.to,
+          to: callEvent.from,
+          id: callEvent.id,
+          isVideo: callEvent.isVideo,
+          end: callEvent.end,
+        );
+        break;
+      case call_pb.CallEventV2_Type.decline:
+        callLog = CallLog(
+          from: callEvent.from,
+          to: callEvent.to,
+          id: callEvent.id,
+          isVideo: callEvent.isVideo,
+          decline: callEvent.decline,
+        );
+        break;
+      case call_pb.CallEventV2_Type.busy:
+        callLog = CallLog(
+          from: callEvent.from,
+          to: callEvent.to,
+          id: callEvent.id,
+          isVideo: callEvent.isVideo,
+          busy: callEvent.busy,
+        );
+
+        break;
+
+      case call_pb.CallEventV2_Type.notSet:
+        break;
+    }
+    if (callLog != null) {
+      final roomUid = callLog.to;
+      final packetId =
+          DateTime.now().millisecondsSinceEpoch.toString() + roomUid.asString();
+      unawaited(_sendCallLog(callLog, packetId, roomUid));
     }
   }
 
-  Future<void> _sendCallLog(CallLog callLog) async {}
-
-  Future<void> updateRooms() async {
-    final rooms = await _roomDao.getAllRooms();
-    for (final element in rooms) {
-      if (element.localNetworkMessageCount > 0) {
-        await _roomDao.updateRoom(
-          uid: element.uid,
-          localNetworkMessageCount: 0,
-        );
-      }
-    }
+  Future<void> _sendCallLog(
+      CallLog callLog, String packetId, Uid roomUid) async {
+    final room = await _roomDao.getRoom(roomUid);
+    final message = Message()
+      ..from = callLog.from
+      ..to = callLog.to
+      ..packetId = packetId
+      ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
+      ..callLog = callLog
+      ..time = Int64(
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    await _sendMessage(
+      to: callLog.to,
+      message: message,
+    );
   }
 }

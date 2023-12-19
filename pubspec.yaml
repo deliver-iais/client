@@ -213,7 +213,6 @@ dependencies:
       ref: 775e1a365637f4e625cf042be383e0d601ab13be
       url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
-  shelf: 1.4.1
   http: 1.1.2
   sensors_plus: ^3.0.3
   service_worker: 0.3.0

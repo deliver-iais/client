@@ -161,7 +161,7 @@ class ServerLessService {
     }
   }
 
-  Future<void> sendRequest(
+  Future<Response?> sendRequest(
     Uint8List reqData,
     String url, {
     String type = MESSAGE,
@@ -169,24 +169,23 @@ class ServerLessService {
     String name = "",
   }) async {
     try {
-      unawaited(
-        _dio.post(
-          "http://$url:$SERVER_PORT",
-          data: reqData,
-          options: Options(
-            headers: {
-              TYPE: type,
-              IP: _ip,
-              MUC_ADD_MEMBER_REQUESTER: from,
-              MUC_NAME: name,
-            },
-            contentType: ContentType.binary.mimeType,
-          ),
+      return _dio.post(
+        "http://$url:$SERVER_PORT",
+        data: reqData,
+        options: Options(
+          headers: {
+            TYPE: type,
+            IP: _ip,
+            MUC_ADD_MEMBER_REQUESTER: from,
+            MUC_NAME: name,
+          },
+          contentType: ContentType.binary.mimeType,
         ),
       );
     } catch (e) {
       _logger.e(e);
     }
+    return null;
   }
 
   Future<void> _startHttpService() async {
@@ -201,7 +200,7 @@ class ServerLessService {
             if (type == REGISTER) {
               unawaited(_processRegister(request));
             } else if (type == FILE) {
-              unawaited(_serverLessFileService.handleFileUpload(request));
+              unawaited(_serverLessFileService.handleSaveFile(request));
             } else {
               unawaited(
                 GetIt.I.get<ServerLessMessageService>().processRequest(request),
@@ -231,12 +230,12 @@ class ServerLessService {
     final from = request.uri.queryParameters['from'];
     final address = request.uri.queryParameters['address'];
     _logger.i("new address....$address +??? $_ip");
-
     final uid = Uid()..node = from!;
     await saveIp(uid: uid.asString(), ip: address!);
     unawaited(
       GetIt.I.get<ServerLessMessageService>().resendPendingPackets(uid),
     );
+    await request.response.close();
   }
 
   Future<bool> _getMyLocalIp() async {

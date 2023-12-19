@@ -614,7 +614,8 @@ class DataStreamServices {
             );
           }
 
-           await serverLessMessageService.sendPendingMessage(msg.roomUid.asString());
+          await serverLessMessageService
+              .sendPendingMessage(msg.roomUid.asString());
         }
       } else {
         await _analyticsService.sendLogEvent(

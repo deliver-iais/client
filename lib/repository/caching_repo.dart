@@ -6,21 +6,21 @@ import 'package:flutter/material.dart';
 
 // TODO(bitbeter): add some dynamic storage size instead of 1000 based on devise available memory if it is possible
 class RoomCache {
-  final message = LruCache<int, Message>(storage: InMemoryStorage(1000));
+  final message = LruCache<int, Message>(storage: InMemoryStorage(0));
 
   // TODO(bitbeter): bug exists in here
   final widget = LruCache<int, Widget?>(storage: InMemoryStorage(0));
-  final size = LruCache<int, Size>(storage: InMemoryStorage(1000));
+  final size = LruCache<int, Size>(storage: InMemoryStorage(0));
 }
 
 class CachingRepo {
-  final _rooms = LruCache<Uid, RoomCache>(storage: InMemoryStorage(10));
+  final _rooms = LruCache<Uid, RoomCache>(storage: InMemoryStorage(0));
 
-  final _roomNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
+  final _roomNameCache = LruCache<String, String>(storage: InMemoryStorage(0));
 
-  final _userIdCache = LruCache<String, String>(storage: InMemoryStorage(100));
+  final _userIdCache = LruCache<String, String>(storage: InMemoryStorage(0));
 
-  final _realNameCache = LruCache<String, String>(storage: InMemoryStorage(100));
+  final _realNameCache = LruCache<String, String>(storage: InMemoryStorage(0));
 
   void clearNamesCache() => _roomNameCache.clear();
 
@@ -38,7 +38,7 @@ class CachingRepo {
 
   String? getRealName(Uid uid) => _realNameCache.get(uid.asString());
 
-  final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(200));
+  final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(0));
 
   // Room Page Caching
   void setMessage(Uid roomUid, int id, Message msg) {

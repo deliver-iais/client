@@ -232,6 +232,8 @@ class NotificationHandler extends TaskHandler {
     sPort = sendPort;
   }
 
+
+
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     final backgroundActivationTime =
         await FlutterForegroundTask.getData<String>(
