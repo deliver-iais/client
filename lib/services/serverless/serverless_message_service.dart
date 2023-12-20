@@ -236,6 +236,7 @@ class ServerLessMessageService {
       _serverLessService.sendBroadCast(to: pm.roomUid);
     }
   }
+
   // // await _pendingMessageDao.savePendingMessage(
   //         //   PendingMessage(
   //         //     roomUid: callLog.to,
@@ -505,14 +506,13 @@ class ServerLessMessageService {
           isVideo: callEvent.isVideo,
           busy: callEvent.busy,
         );
-
         break;
 
       case call_pb.CallEventV2_Type.notSet:
         break;
     }
     if (callLog != null) {
-      final roomUid = callLog.to;
+      final roomUid = callEvent.to;
       final packetId =
           DateTime.now().millisecondsSinceEpoch.toString() + roomUid.asString();
       unawaited(_sendCallLog(callLog, packetId, roomUid));
@@ -520,11 +520,14 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendCallLog(
-      CallLog callLog, String packetId, Uid roomUid) async {
+    CallLog callLog,
+    String packetId,
+    Uid roomUid,
+  ) async {
     final room = await _roomDao.getRoom(roomUid);
     final message = Message()
-      ..from = callLog.from
-      ..to = callLog.to
+      ..from = _authRepo.currentUserUid
+      ..to = roomUid
       ..packetId = packetId
       ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
       ..callLog = callLog
@@ -532,7 +535,7 @@ class ServerLessMessageService {
         DateTime.now().millisecondsSinceEpoch,
       );
     await _sendMessage(
-      to: callLog.to,
+      to: roomUid,
       message: message,
     );
   }

@@ -48,20 +48,23 @@ class ServerLessFileService {
   Future<void> handleSaveFile(HttpRequest request) async {
     try {
       final fileSize = int.parse(request.headers.value(FILE_SIZE)!);
-      final data = <int>[];
+      final data1 = <Uint8List>[];
+
       await request.forEach((element) async {
-        data.addAll(element);
+        data1.add(element);
       });
-      final diff = data.length - fileSize;
+      final data2 = Uint8List.fromList(data1.expand((list) => list).toList());
+
+      final diff = data2.length - fileSize;
       final name = String.fromCharCodes(
         request.headers.value(FILE_NAME)!.split(',').map((e) => int.parse(e)),
       );
       await _saveFile(
-        data.sublist(diff - 78, data.length - 78),
+        data2.sublist(diff - 78, data2.length - 78),
         uuid: request.headers.value(FILE_UUID)!,
         name: name,
       );
-      data.clear();
+
       request.response.statusCode = HttpStatus.ok;
     } catch (e) {
       request.response.statusCode = HttpStatus.internalServerError;
