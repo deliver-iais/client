@@ -41,20 +41,20 @@ class ServerLessService {
   }
 
   Future<void> _startForegroundService() async {
-    try {
-      await _notificationForegroundService.stopForegroundTask();
-      final foregroundStatus = await _notificationForegroundService
-          .localNetworkForegroundServiceStart();
-      if (foregroundStatus) {
-        _notificationForegroundService.getReceivePort?.listen((message) {
-          if (message == ForeGroundConstant.STOP_LOCAL_NETWORK) {
-            _notificationForegroundService.stopForegroundTask();
-          }
-        });
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
+    // try {
+    //   await _notificationForegroundService.stopForegroundTask();
+    //   final foregroundStatus = await _notificationForegroundService
+    //       .localNetworkForegroundServiceStart();
+    //   if (foregroundStatus) {
+    //     _notificationForegroundService.getReceivePort?.listen((message) {
+    //       if (message == ForeGroundConstant.STOP_LOCAL_NETWORK) {
+    //         _notificationForegroundService.stopForegroundTask();
+    //       }
+    //     });
+    //   }
+    // } catch (e) {
+    //   _logger.e(e);
+    // }
   }
 
   Future<void> restart() async {
@@ -191,7 +191,7 @@ class ServerLessService {
   Future<void> _startHttpService() async {
     try {
       await _httpServer?.close(force: true);
-      _httpServer = await HttpServer.bind('0.0.0.0', SERVER_PORT);
+      _httpServer = await HttpServer.bind(_ip, SERVER_PORT);
       _logger.i('Listening on $_ip:${_httpServer?.port}');
       if (_httpServer != null) {
         _httpServer?.listen((request) {

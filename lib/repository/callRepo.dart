@@ -38,6 +38,7 @@ import 'package:phone_state/phone_state.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:wakelock/wakelock.dart';
 
 enum CallStatus {
@@ -65,12 +66,13 @@ class CallRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
   final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
+  GetIt.I.get<NotificationForegroundService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _lock = Lock();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -80,6 +82,7 @@ class CallRepo {
   RTCDataChannel? _dataChannel;
   String _callOfferBody = "";
   String _callOfferCandidate = "";
+  String _uidOfRingingSender = "";
   List<Map<String, Object>> _candidate = [];
 
   String _offerSdp = "";
@@ -157,7 +160,7 @@ class CallRepo {
   Timer? videoMotivation;
   Timer? _timerStatReport;
   BehaviorSubject<CountTimer> callTimer =
-      BehaviorSubject.seeded(CountTimer(0, 0, 0));
+  BehaviorSubject.seeded(CountTimer(0, 0, 0));
   bool _isNotificationSelected = false;
   bool _isAccepted = false;
   bool _notifyIncomingCall = false;
@@ -177,104 +180,108 @@ class CallRepo {
   void _listenOnCallEvent() {
     _callStreamSubscription =
         _callService.callEvents.distinct().listen((event) async {
-      if (event.callEvent != null &&
-          inComingAnswerForAnotherSessionCall(event)) {
-        unawaited(_dispose());
-      }
-      if (event.callEvent == null ||
-          checkCallExpireTimeFailed(event) ||
-          checkSession(event)) {
-        return;
-      }
-      final callEvent = event.callEvent!;
-      final isRepeated = await _callService.checkIncomingCallIsRepeated(
-        callEvent.id,
-        callEvent.from.asString(),
-      );
-      if (isRepeated ?? false) {
-        return;
-      }
-      final from = callEvent.from.asString();
-      final currentUserUid = _authRepo.currentUserUid;
-      switch (callEvent.whichType()) {
-        case CallEventV2_Type.answer:
-          if (from.isSameEntity(currentUserUid)) {
+          if (event.callEvent != null &&
+              inComingAnswerForAnotherSessionCall(event)) {
             unawaited(_dispose());
-          } else if (!_isAnswerReceived) {
-            unawaited(_receivedCallAnswer(callEvent.answer));
-            _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
-            _isAnswerReceived = true;
           }
-          break;
-        case CallEventV2_Type.offer:
-          _callEvents[callEvent.time.toInt()] = "Created";
-          if (from.isSameEntity(currentUserUid)) {
-            unawaited(_dispose());
-          } else {
-            if (settings.localNetworkMessenger.value) {
-              if (_callService.getCallId.isEmpty) {
-                _callService.setCallId = callEvent.id;
+          if (event.callEvent == null ||
+              checkCallExpireTimeFailed(event) ||
+              checkSession(event)) {
+            return;
+          }
+          final callEvent = event.callEvent!;
+          final isRepeated = await _callService.checkIncomingCallIsRepeated(
+            callEvent.id,
+            callEvent.from.asString(),
+          );
+          if (isRepeated ?? false) {
+            return;
+          }
+          final from = callEvent.from.asString();
+          final currentUserUid = _authRepo.currentUserUid;
+          switch (callEvent.whichType()) {
+            case CallEventV2_Type.answer:
+              if (from.isSameEntity(currentUserUid)) {
+                unawaited(_dispose());
+              } else if (!_isAnswerReceived) {
+                unawaited(_receivedCallAnswer(callEvent.answer));
+                _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
+                _isAnswerReceived = true;
               }
-            }
-            if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
-              _cancelTimerResendEvent();
-              _callOfferBody = callEvent.offer.body;
-              _callOfferCandidate = callEvent.offer.candidates;
-              if (!isDesktopNative && !_isCallFromDb) {
-                _saveOfferOnDB(
-                  callEvent.offer.body,
-                  callEvent.offer.candidates,
-                );
+              break;
+            case CallEventV2_Type.offer:
+              _callEvents[callEvent.time.toInt()] = "Created";
+              if (from.isSameEntity(currentUserUid)) {
+                unawaited(_dispose());
+              } else {
+                if (settings.localNetworkMessenger.value) {
+                  if (_callService.getCallId.isEmpty) {
+                    _callService.setCallId = callEvent.id;
+                  }
+                }
+                if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
+                  _cancelTimerResendEvent();
+                  _uidOfRingingSender = callEvent.to.toString();
+                  _callOfferBody = callEvent.offer.body;
+                  _callOfferCandidate = callEvent.offer.candidates;
+                  if (!isDesktopNative && !_isCallFromDb) {
+                    _saveOfferOnDB(
+                      callEvent.offer.body,
+                      callEvent.offer.candidates,
+                    );
+                  }
+                } else if (callEvent.id != _callService.getCallId) {
+                  unawaited(_busyCall(event));
+                }
               }
-            } else if (callEvent.id != _callService.getCallId) {
-              unawaited(_busyCall(event));
-            }
-          }
-          break;
-        case CallEventV2_Type.ringing:
-          if (!from.isSameEntity(currentUserUid)) {
-            if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
-              _logger.i(
-                  "-----------------------------------${_callService.getUserCallState}");
-              _callService.setUserCallState = UserCallState.IN_USER_CALL;
-              _handleIncomingCallOnReceiver(callEvent);
-            } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
-              _cancelTimerResendEvent();
-              _callEvents[callEvent.time.toInt()] = "IsRinging";
-              unawaited(_sendOffer());
-              callingStatus.add(CallStatus.IS_RINGING);
-              try {
-                _audioService.playBeepSound();
-              } catch (e) {
-                _logger.e(e);
+              break;
+            case CallEventV2_Type.ringing:
+              if (!from.isSameEntity(currentUserUid)) {
+                if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
+                  _logger.i(
+                    "-----------------------------------${_callService.getUserCallState}",);
+                  _callService.setUserCallState = UserCallState.IN_USER_CALL;
+                  _uidOfRingingSender = callEvent.from.toString();
+                  await _handleIncomingCallOnReceiver(callEvent);
+                } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
+                  _cancelTimerResendEvent();
+                  _callEvents[callEvent.time.toInt()] = "IsRinging";
+                  unawaited(_sendOffer());
+                  callingStatus.add(CallStatus.IS_RINGING);
+                  try {
+                    _audioService.playBeepSound();
+                  } catch (e) {
+                    _logger.e(e);
+                  }
+                } else if (!isCallIdEqualToCurrentCallId(event)) {
+                  unawaited(_busyCall(event));
+                }
+              } else {
+                _logger.e(from);
               }
-            } else if (!isCallIdEqualToCurrentCallId(event)) {
-              unawaited(_busyCall(event));
-            }
+              break;
+            case CallEventV2_Type.busy:
+              _callEvents[callEvent.time.toInt()] = "Busy";
+              if (isCallIdEqualToCurrentCallId(event)) {
+                unawaited(receivedBusyCall());
+              }
+              break;
+            case CallEventV2_Type.decline:
+              _callEvents[callEvent.time.toInt()] = "Declined";
+              if (isCallIdEqualToCurrentCallId(event)) {
+                unawaited(receivedDeclinedCall());
+              }
+              break;
+            case CallEventV2_Type.end:
+              _callEvents[callEvent.time.toInt()] = "Ended";
+              if (isCallIdEqualToCurrentCallId(event)) {
+                unawaited(receivedEndCall());
+              }
+              break;
+            case CallEventV2_Type.notSet:
+              break;
           }
-          break;
-        case CallEventV2_Type.busy:
-          _callEvents[callEvent.time.toInt()] = "Busy";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedBusyCall());
-          }
-          break;
-        case CallEventV2_Type.decline:
-          _callEvents[callEvent.time.toInt()] = "Declined";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedDeclinedCall());
-          }
-          break;
-        case CallEventV2_Type.end:
-          _callEvents[callEvent.time.toInt()] = "Ended";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedEndCall());
-          }
-          break;
-        case CallEventV2_Type.notSet:
-          break;
-      }
-    });
+        });
   }
 
   void _listenBackgroundCall() {
@@ -305,30 +312,29 @@ class CallRepo {
   Future<void> _audioLevelDetection() async {
     _timerStatReport =
         Timer.periodic(const Duration(milliseconds: 100), (timer) async {
-      if (_isConnected) {
-        //final audioTrack = _localStream!.getAudioTracks()[0];
-        final stats = await _peerConnection!.getStats();
-        for (final stat in stats) {
-          if (stat.type == "media-source") {
-            if (stat.values["audioLevel"] != null) {
-              final double audioLevel = stat.values["audioLevel"];
-              speakingAmplitude.add(audioLevel);
-              if (_isDCReceived) {
-                await _dataChannel!.send(
-                  RTCDataChannelMessage(
-                    "$STATUS_SPEAKING_AUDIO_LEVEL:$audioLevel",
-                  ),
-                );
+          if (_isConnected) {
+            //final audioTrack = _localStream!.getAudioTracks()[0];
+            final stats = await _peerConnection!.getStats();
+            for (final stat in stats) {
+              if (stat.type == "media-source") {
+                if (stat.values["audioLevel"] != null) {
+                  final double audioLevel = stat.values["audioLevel"];
+                  speakingAmplitude.add(audioLevel);
+                  if (_isDCReceived) {
+                    await _dataChannel!.send(
+                      RTCDataChannelMessage(
+                        "$STATUS_SPEAKING_AUDIO_LEVEL:$audioLevel",
+                      ),
+                    );
+                  }
+                }
               }
             }
           }
-        }
-      }
-    });
+        });
   }
 
-  // here we have function that is used to handle income call from another person and save it in DB (probably)
-  void _handleIncomingCallOnReceiver(CallEventV2 callEvent) {
+  Future<void> _handleIncomingCallOnReceiver(CallEventV2 callEvent) async {
     _callEvents[callEvent.time.toInt()] = "IsRinging";
     // if (callingStatus.value != CallStatus.CONNECTING) {
     //   callingStatus.add(CallStatus.IS_RINGING);
@@ -340,7 +346,7 @@ class CallRepo {
       ..setRoomUid = callEvent.from;
 
     _isVideo = callEvent.isVideo;
-    // this if statement is used to check if user peak up the phone (probably)
+
     if (_isAccepted) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
@@ -354,7 +360,7 @@ class CallRepo {
         //get call Info and Save on DB
         _saveCallInfoOnDB(callEvent);
       }
-      _incomingCall(
+      await _incomingCall(
         _notifyIncomingCall,
         callEvent.writeToJson(),
       );
@@ -391,7 +397,7 @@ class CallRepo {
 
   bool checkCallExpireTimeFailed(CallEvents event) {
     return ((event.callEvent!.time.toInt() - clock.now().millisecondsSinceEpoch)
-            .abs()) >
+        .abs()) >
         60000;
   }
 
@@ -501,7 +507,7 @@ class CallRepo {
         }
       }
 
-      //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
+    //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
       ..onConnectionState = (state) async {
         _logger.i("onConnectionState $state");
         switch (state) {
@@ -512,7 +518,7 @@ class CallRepo {
             onRTCPeerConnectionDisconnected();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-            //Try reconnect
+          //Try reconnect
             await onRTCPeerConnectionStateFailed();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
@@ -520,7 +526,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateNew:
           case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-            // this cases no matter and don't have any impact on our work
+          // this cases no matter and don't have any impact on our work
             break;
         }
       }
@@ -578,11 +584,11 @@ class CallRepo {
       ..onRemoveStream = (stream) {
         //onRemoveRemoteStream?.call(stream);
       }
-      // ..onRenegotiationNeeded = () async {
-      //   _logger.i("onRenegotiationNeeded");
-      //   final offer = await _createOffer();
-      //   await _sendOfferRenegotiation(offer);
-      // }
+    // ..onRenegotiationNeeded = () async {
+    //   _logger.i("onRenegotiationNeeded");
+    //   final offer = await _createOffer();
+    //   await _sendOfferRenegotiation(offer);
+    // }
       ..onDataChannel = (channel) {
         _dataChannel = channel;
         _dataChannel!
@@ -650,7 +656,7 @@ class CallRepo {
                 callingStatus.add(CallStatus.CONNECTING);
                 break;
               case STATUS_CONNECTION_ENDED:
-                //received end
+              //received end
                 _isEndedReceived = true;
                 unawaited(receivedEndCall());
                 break;
@@ -965,7 +971,7 @@ class CallRepo {
             incomingSpeakingAmplitude.add(double.parse(status[1]));
             break;
           case STATUS_CONNECTION_ENDED:
-            // this case use for prevent from disconnected state
+          // this case use for prevent from disconnected state
             _isEndedReceived = true;
             unawaited(receivedEndCall());
             break;
@@ -1072,7 +1078,7 @@ class CallRepo {
   Future<bool> switchCamera() async {
     if (_localStream != null) {
       final isCameraSwitched =
-          await Helper.switchCamera(_localStream!.getVideoTracks()[0]);
+      await Helper.switchCamera(_localStream!.getVideoTracks()[0]);
       switching.add(!isCameraSwitched);
       if (_isConnected) {
         if (!isCameraSwitched) {
@@ -1123,9 +1129,9 @@ class CallRepo {
           await Permission.systemAlertWindow.status.isGranted);
 
   Future<void> _incomingCall(
-    bool isDuplicated,
-    String callEventJson,
-  ) async {
+      bool isDuplicated,
+      String callEventJson,
+      ) async {
     try {
       _audioToggleOnCall();
       _notifyIncomingCall = true;
@@ -1141,7 +1147,7 @@ class CallRepo {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
         if ((await _checkForegroundStatus()) &&
             (_appLifecycleService.isActive &&
-                    _routingService.isInRoom(_roomUid!.asString()) ||
+                _routingService.isInRoom(_roomUid!.asString()) ||
                 (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
@@ -1162,7 +1168,7 @@ class CallRepo {
       }
       _logger.i(
         "incoming Call and Created!!! "
-        "(isDuplicated:) $isDuplicated , (notificationSelected) : $_isNotificationSelected",
+            "(isDuplicated:) $isDuplicated , (notificationSelected) : $_isNotificationSelected",
       );
       if (callingStatus.value != CallStatus.CONNECTING) {
         callingStatus.add(CallStatus.IS_RINGING);
@@ -1190,7 +1196,7 @@ class CallRepo {
 
   Future<bool> _checkForegroundStatus() async =>
       settings.localNetworkMessenger.value &&
-      (await FlutterForegroundTask.isAppOnForeground);
+          (await FlutterForegroundTask.isAppOnForeground);
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
@@ -1226,7 +1232,7 @@ class CallRepo {
         unawaited(_audioLevelDetection());
         if (hasForegroundServiceCapability) {
           final foregroundStatus =
-              await _notificationForegroundService.callForegroundServiceStart();
+          await _notificationForegroundService.callForegroundServiceStart();
           if (foregroundStatus) {
             _receivePort = _notificationForegroundService.getReceivePort;
             _receivePort?.listen((message) {
@@ -1320,7 +1326,7 @@ class CallRepo {
       _callEvents[clock.now().millisecondsSinceEpoch] = "Accept Call";
       if (hasForegroundServiceCapability) {
         final foregroundStatus =
-            await _notificationForegroundService.callForegroundServiceStart();
+        await _notificationForegroundService.callForegroundServiceStart();
         if (foregroundStatus) {
           _receivePort = _notificationForegroundService.getReceivePort;
           _receivePort?.listen((message) {
@@ -1411,7 +1417,7 @@ class CallRepo {
 
   Future<void> _setCallCandidate(String candidatesJson) async {
     final candidates =
-        (jsonDecode(candidatesJson) as List<dynamic>).map((element) {
+    (jsonDecode(candidatesJson) as List<dynamic>).map((element) {
       final data = element as Map<String, dynamic>;
       return RTCIceCandidate(
         data['candidate'],
@@ -1551,7 +1557,7 @@ class CallRepo {
     try {
       candidateNumber = _reconnectTry ? 20 : settings.iceCandidateNumbers.value;
       candidateTimeLimit =
-          _reconnectTry ? 3000 : settings.iceCandidateTimeLimit.value;
+      _reconnectTry ? 3000 : settings.iceCandidateTimeLimit.value;
     } catch (e) {
       _logger.e(e);
       candidateNumber = ICE_CANDIDATE_NUMBER;
@@ -1573,9 +1579,9 @@ class CallRepo {
   }
 
   Future _WaitingTillCandidateExceed(
-    int candidateNumber,
-    int candidateTimeLimit,
-  ) async {
+      int candidateNumber,
+      int candidateTimeLimit,
+      ) async {
     final completer = Completer();
     _logger.i(
       "Time for w8:${clock.now().millisecondsSinceEpoch - _candidateStartTime}",
@@ -1612,20 +1618,46 @@ class CallRepo {
 
   Future<void> _sendOffer() async {
     //wait till offer is Ready
-    await _waitUntilOfferReady();
-    // Send Candidate to Receiver
-    final jsonCandidates = jsonEncode(_candidate);
-    //Send offer and Candidate as message to Receiver
-    final callEventV2ByClient = (CallEventV2ByClient()
-      ..id = _callService.getCallId
-      ..to = _roomUid!
-      ..isVideo = _isVideo
-      ..offer = (CallEventOffer()
-        ..body = _offerSdp
-        ..candidates = jsonCandidates));
-    _coreServices.sendCallEvent(callEventV2ByClient);
-    _sendCallOffer(callEventV2ByClient);
-    _callEvents[clock.now().millisecondsSinceEpoch] = "Created";
+    await Future.delayed(const Duration(milliseconds: 50));
+    if(await _sameTimeCall(_roomUid!.asString(), _uidOfRingingSender)) {
+      await _waitUntilOfferReady();
+      final jsonCandidates = jsonEncode(_candidate);
+      final callEventV2ByClient = (CallEventV2ByClient()
+        ..id = _callService.getCallId
+        ..to = _roomUid!
+        ..isVideo = _isVideo
+        ..offer = (CallEventOffer()
+          ..body = _offerSdp
+          ..candidates = jsonCandidates));
+
+      _coreServices.sendCallEvent(callEventV2ByClient);
+      _sendCallOffer(callEventV2ByClient);
+      _callEvents[clock
+          .now()
+          .millisecondsSinceEpoch] = "Created";
+    } else {
+      _isCaller = true;
+      _cancelTimerResendEvent();
+      _callEvents[clock.now().millisecondsSinceEpoch] = "IsRinging";
+      unawaited(_sendOffer());
+      callingStatus.add(CallStatus.IS_RINGING);
+      try {
+        _audioService.playBeepSound();
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+  }
+
+  Future<bool> _sameTimeCall(String targetUid, String uidOfRingingSender) async {
+    if( _uidOfRingingSender == "" || targetUid != uidOfRingingSender) {
+      return true;
+    } else {
+      if(targetUid.compareTo(uidOfRingingSender) > 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
@@ -1709,24 +1741,22 @@ class CallRepo {
     _logger.i(_candidate);
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send Answer";
-
     unawaited(_checkRetryCallEvent(callEventV2ByClient));
-
     if (_reconnectTry) {
       callingStatus.add(CallStatus.RECONNECTING);
     }
   }
 
   Future<void> _checkRetryCallEvent(
-    CallEventV2ByClient callEvent, {
-    bool isRetry = true,
-  }) async {
+      CallEventV2ByClient callEvent, {
+        bool isRetry = true,
+      }) async {
     _cancelTimerResendEvent();
 
     final isRepeated = await _callService.checkIncomingCallIsRepeated(
-          callEvent.id,
-          callEvent.to.asString(),
-        ) ??
+      callEvent.id,
+      callEvent.to.asString(),
+    ) ??
         false;
     if (isRepeated) {
       _logger.i("Repeated Call Event");
@@ -1772,8 +1802,8 @@ class CallRepo {
       if (hasForegroundServiceCapability) {
         await _notificationForegroundService.foregroundServiceStop();
         if (settings.localNetworkMessenger.value) {
-          await _notificationForegroundService
-              .localNetworkForegroundServiceStart();
+          // await _notificationForegroundService
+          //     .localNetworkForegroundServiceStart();
         }
       }
       if (isAndroidNative) {
@@ -1920,6 +1950,7 @@ class CallRepo {
     _notifyIncomingCall = false;
     _callOfferBody = "";
     _callOfferCandidate = "";
+    _uidOfRingingSender = "";
 
     //reset BehaviorSubject values
     switching.add(false);
@@ -2075,9 +2106,9 @@ class CallRepo {
   }
 
   void openCallScreen(
-    Uid room, {
-    bool isVideoCall = false,
-  }) {
+      Uid room, {
+        bool isVideoCall = false,
+      }) {
     if (!_callService.hasCall) {
       _routingService.openCallScreen(
         room,
@@ -2113,7 +2144,7 @@ class CallRepo {
 
   bool inComingAnswerForAnotherSessionCall(CallEvents event) {
     return (isEndingEvent(event.callEvent!) &&
-            isCallIdEqualToCurrentCallId(event)) ||
+        isCallIdEqualToCurrentCallId(event)) ||
         (event.callEvent!.hasAnswer() &&
             isCallIdEqualToCurrentCallId(event) &&
             event.callEvent!.to.sessionId !=
