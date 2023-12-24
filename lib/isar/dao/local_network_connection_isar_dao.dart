@@ -16,7 +16,10 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
   Future<void> delete(Uid uid) async {
     try {
       final box = await _openIsar();
-      await box.localNetworkConnectionsIsars.delete(fastHash(uid.asString()));
+      box.writeTxnSync(
+        () => box.localNetworkConnectionsIsars
+            .deleteSync(fastHash(uid.asString())),
+      );
     } catch (_) {}
   }
 
@@ -77,8 +80,7 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
   Stream<void> watchAll() async* {
     try {
       final box = await _openIsar();
-      yield* box.localNetworkConnectionsIsars.watchLazy() ;
-
+      yield* box.localNetworkConnectionsIsars.watchLazy();
     } catch (_) {}
   }
 }

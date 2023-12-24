@@ -197,12 +197,7 @@ class ServerLessMessageService {
     if (to.category == Categories.USER) {
       final ip = await _serverLessService.getIp(to.asString());
       if (ip != null) {
-        unawaited(
-          _serverLessService.sendRequest(
-            message.writeToBuffer(),
-            ip,
-          ),
-        );
+        await _send(ip: ip, message: message);
       }
     } else if (to.category == Categories.GROUP ||
         to.category == Categories.CHANNEL) {
@@ -210,9 +205,7 @@ class ServerLessMessageService {
       for (final element in members) {
         final ip = await _serverLessService.getIp(element.memberUid.asString());
         if (ip != null) {
-          unawaited(
-            _serverLessService.sendRequest(message.writeToBuffer(), ip),
-          );
+          await _send(ip: ip, message: message);
         }
       }
     }
@@ -220,6 +213,30 @@ class ServerLessMessageService {
       const Duration(seconds: 4),
       () => _checkPendingStatus(message.packetId, to: to, message: message),
     );
+  }
+
+  Future<void> _send({required String ip, required Message message}) async {
+    final res =
+        await _serverLessService.sendRequest(message.writeToBuffer(), ip);
+    if (res != null &&
+        res.statusCode == 200 &&
+        res.data != null &&
+        res.data == message.id.toString()) {
+      unawaited(
+        _dataStreamService.handleAckMessage(
+          MessageDeliveryAck(
+            to: message.from,
+            packetId: message.packetId,
+            time: Int64(
+              DateTime.now().millisecondsSinceEpoch,
+            ),
+            id: message.id,
+            from: message.to,
+          ),
+          isLocalNetworkMessage: true,
+        ),
+      );
+    }
   }
 
   Future<void> _checkPendingStatus(
@@ -256,6 +273,7 @@ class ServerLessMessageService {
 
   Future<void> processRequest(HttpRequest request) async {
     try {
+      request.response.headers.contentType == ContentType.binary;
       final type = request.headers.value(TYPE) ?? MESSAGE;
       if (type == ACK) {
         unawaited(
@@ -269,24 +287,18 @@ class ServerLessMessageService {
           _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
         );
       } else if (type == MESSAGE) {
-        unawaited(
-          _processMessage(request),
-        );
+        await _processMessage(request);
       } else if (type == CREATE_MUC) {
-        unawaited(
-          _serverLessMucService.handleCreateMuc(
-            CreateLocalMuc.fromBuffer(await request.first),
-          ),
+        await _serverLessMucService.handleCreateMuc(
+          CreateLocalMuc.fromBuffer(await request.first),
         );
       } else if (type == ADD_MEMBER_TO_MUC) {
-        unawaited(
-          _serverLessMucService.handleAddMember(
-            AddMembersReq.fromBuffer(
-              await request.first,
-            ),
-            from: request.headers.value(MUC_ADD_MEMBER_REQUESTER)!,
-            name: request.headers.value(MUC_NAME)!,
+        await _serverLessMucService.handleAddMember(
+          AddMembersReq.fromBuffer(
+            await request.first,
           ),
+          from: request.headers.value(MUC_ADD_MEMBER_REQUESTER)!,
+          name: request.headers.value(MUC_NAME)!,
         );
       } else if (type == ACTIVITY) {
         _dataStreamService
@@ -299,7 +311,9 @@ class ServerLessMessageService {
           ..addCallEvent(callEvents)
           ..shouldRemoveData = false;
       }
+      request.response.statusCode = HttpStatus.ok;
     } catch (e) {
+      request.response.statusCode = HttpStatus.internalServerError;
       _logger.e(e);
     }
     await request.response.close();
@@ -381,6 +395,7 @@ class ServerLessMessageService {
 
   Future<void> _processMessage(HttpRequest request) async {
     final message = Message.fromBuffer(await request.first);
+    request.response.write(message.id.toString());
     final ip = request.headers.value(IP);
     if (ip != null) {
       unawaited(
@@ -397,6 +412,11 @@ class ServerLessMessageService {
     if (!message.edited) {
       final id = Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
       message.id = id;
+      print(message.packetId +
+          "///" +
+          message.id.toString() +
+          "///" +
+          message.text.text);
       unawaited(
         _sendAck(
           MessageDeliveryAck(
@@ -413,18 +433,19 @@ class ServerLessMessageService {
     }
     if (null ==
         await _messageDao.getMessageByPacketId(room!.uid, message.packetId)) {
-      unawaited(
-        _dataStreamService.handleIncomingMessage(
-          message,
-          isOnlineMessage: true,
-          isLocalNetworkMessage: true,
-        ),
+      await _dataStreamService.handleIncomingMessage(
+        message,
+        isOnlineMessage: true,
+        isLocalNetworkMessage: true,
       );
+
       await _roomDao.updateRoom(
         uid: room.uid,
         lastLocalNetworkMessageId: message.id.toInt(),
         localNetworkMessageCount: room.localNetworkMessageCount + 1,
       );
+    } else {
+      print(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
     }
   }
 

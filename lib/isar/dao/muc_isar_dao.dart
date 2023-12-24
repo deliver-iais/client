@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/broadcast_member.dart';
 import 'package:deliver/box/broadcast_member_type.dart';
 import 'package:deliver/box/dao/isar_manager.dart';
@@ -18,7 +20,7 @@ class MucDaoImpl extends MucDao {
   @override
   Future<void> delete(Uid uid) async {
     final box = await _openIsar();
-    box.writeTxnSync(() => box.mucIsars.deleteSync(fastHash(uid.asString())));
+    await box.writeTxn(() => box.mucIsars.delete(fastHash(uid.asString())));
   }
 
   @override
@@ -31,11 +33,11 @@ class MucDaoImpl extends MucDao {
           .and()
           .typeEqualTo(BroadCastMemberType.MESSAGE)
           .build();
-      box.writeTxnSync(() => query.deleteAllSync());
+      await box.writeTxn(() => query.deleteAll());
     } else {
       final query =
           box.memberIsars.filter().mucUidEqualTo(mucUid.asString()).build();
-      box.writeTxnSync(() => query.deleteAllSync());
+      unawaited(box.writeTxn(() => query.deleteAll()));
     }
   }
 
@@ -49,33 +51,33 @@ class MucDaoImpl extends MucDao {
           .and()
           .memberUidEqualTo(member.memberUid.asString())
           .build();
-      box.writeTxnSync(() => query.deleteAllSync());
+      unawaited(box.writeTxn(() => query.deleteAll()));
     } else {
-      box.writeTxnSync(
-        () => box.memberIsars.deleteSync(
+      unawaited(box.writeTxn(
+        () => box.memberIsars.delete(
           fastHash("${member.mucUid.asString()}${member.memberUid.asString()}"),
         ),
-      );
+      ));
     }
   }
 
   @override
   Future<Muc?> get(Uid uid) async {
     final box = await _openIsar();
-    return box.mucIsars.getSync(fastHash(uid.asString()))?.fromIsar();
+    return (await box.mucIsars.get(fastHash(uid.asString())))?.fromIsar();
   }
 
   @override
   Future<List<BroadcastMember?>> getAllBroadcastSmsMembers(Uid mucUid) async {
     final box = await _openIsar();
-    return (box.broadcastMemberIsars
+    return (await box.broadcastMemberIsars
             .filter()
             .broadcastUidEqualTo(
               mucUid.asString(),
             )
             .and()
             .typeEqualTo(BroadCastMemberType.SMS)
-            .findAllSync())
+            .findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -84,21 +86,21 @@ class MucDaoImpl extends MucDao {
   Future<List<Member>> getAllMembers(Uid mucUid) async {
     final box = await _openIsar();
     if (mucUid.isBroadcast()) {
-      return (box.broadcastMemberIsars
+      return (await box.broadcastMemberIsars
               .filter()
               .broadcastUidEqualTo(
                 mucUid.asString(),
               )
               .and()
               .typeEqualTo(BroadCastMemberType.MESSAGE)
-              .findAllSync())
+              .findAll())
           .map((e) => Member(mucUid: mucUid, memberUid: e.memberUid!.asUid()))
           .toList();
     } else {
-      return box.memberIsars
-          .filter()
-          .mucUidEqualTo(mucUid.asString())
-          .findAllSync()
+      return (await box.memberIsars
+              .filter()
+              .mucUidEqualTo(mucUid.asString())
+              .findAll())
           .map((e) => e.fromIsar())
           .toList();
     }
@@ -107,10 +109,10 @@ class MucDaoImpl extends MucDao {
   @override
   Future<int> getBroadCastAllMemberCount(Uid mucUid) async {
     final box = await _openIsar();
-    return box.broadcastMemberIsars
-        .filter()
-        .broadcastUidEqualTo(mucUid.asString())
-        .findAllSync()
+    return (await box.broadcastMemberIsars
+            .filter()
+            .broadcastUidEqualTo(mucUid.asString())
+            .findAll())
         .length;
   }
 
@@ -118,16 +120,16 @@ class MucDaoImpl extends MucDao {
   Future<void> saveMember(Member member) async {
     final box = await _openIsar();
     if (member.mucUid.isBroadcast()) {
-      box.writeTxnSync(
-        () => box.broadcastMemberIsars.putSync(
+      unawaited(box.writeTxn(
+        () => box.broadcastMemberIsars.put(
           BroadcastMemberIsar(
             broadcastUid: member.mucUid.asString(),
             memberUid: member.memberUid.asString(),
           ),
         ),
-      );
+      ));
     } else {
-      box.writeTxnSync(() => box.memberIsars.putSync(member.toIsar()));
+      unawaited(box.writeTxn(() => box.memberIsars.put(member.toIsar())));
     }
   }
 
@@ -137,9 +139,9 @@ class MucDaoImpl extends MucDao {
     Uid uid,
   ) async {
     final box = await _openIsar();
-    box.writeTxnSync(
-      () => box.broadcastMemberIsars.putSync(broadcastMember.toIsar()),
-    );
+    unawaited(box.writeTxn(
+      () => box.broadcastMemberIsars.put(broadcastMember.toIsar()),
+    ));
   }
 
   @override
@@ -156,11 +158,13 @@ class MucDaoImpl extends MucDao {
     MucRole? currentUserRole,
   }) async {
     final box = await _openIsar();
-    box.writeTxnSync(() {
-      final muc =
-          box.mucIsars.filter().uidEqualTo(uid.asString()).findFirstSync() ??
-              MucIsar(uid: uid.asString());
-      box.mucIsars.putSync(
+    unawaited(box.writeTxn(() async {
+      final muc = (await box.mucIsars
+              .filter()
+              .uidEqualTo(uid.asString())
+              .findFirst()) ??
+          MucIsar(uid: uid.asString());
+      unawaited(box.mucIsars.put(
         MucIsar(
           uid: uid.asString(),
           population: population ?? muc.population,
@@ -174,8 +178,8 @@ class MucDaoImpl extends MucDao {
               lastCanceledPinMessageId ?? muc.lastCanceledPinMessageId,
           pinMessagesIdList: pinMessagesIdList ?? muc.pinMessagesIdList,
         ),
-      );
-    });
+      ));
+    }));
   }
 
   @override
@@ -184,7 +188,7 @@ class MucDaoImpl extends MucDao {
 
     final query = box.mucIsars.filter().uidEqualTo(uid.asString()).build();
 
-    yield query.findFirstSync()?.fromIsar() ?? Muc(uid: uid);
+    yield (await query.findFirst())?.fromIsar() ?? Muc(uid: uid);
 
     yield* query.watch().map(
           (event) =>
@@ -203,8 +207,7 @@ class MucDaoImpl extends MucDao {
           .typeEqualTo(BroadCastMemberType.MESSAGE)
           .build();
 
-      yield query
-          .findAllSync()
+      yield (await query.findAll())
           .map((e) => Member(mucUid: mucUid, memberUid: e.memberUid!.asUid()))
           .toList();
 
@@ -220,7 +223,7 @@ class MucDaoImpl extends MucDao {
       final query =
           box.memberIsars.filter().mucUidEqualTo(mucUid.asString()).build();
 
-      yield query.findAllSync().map((e) => e.fromIsar()).toList();
+      yield (await query.findAll()).map((e) => e.fromIsar()).toList();
 
       yield* query
           .watch()
@@ -234,7 +237,7 @@ class MucDaoImpl extends MucDao {
   Future<List<Member>> getMembersFirstPage(Uid mucUid, int pageSize) async {
     final box = await _openIsar();
     if (mucUid.isBroadcast()) {
-      return (box.broadcastMemberIsars
+      return (await (box.broadcastMemberIsars
               .filter()
               .broadcastUidEqualTo(
                 mucUid.asString(),
@@ -242,15 +245,15 @@ class MucDaoImpl extends MucDao {
               .and()
               .typeEqualTo(BroadCastMemberType.MESSAGE)
               .limit(pageSize)
-              .findAllSync())
+              .findAll()))
           .map((e) => Member(mucUid: mucUid, memberUid: e.memberUid!.asUid()))
           .toList();
     } else {
-      return box.memberIsars
-          .filter()
-          .mucUidEqualTo(mucUid.asString())
-          .limit(pageSize)
-          .findAllSync()
+      return (await box.memberIsars
+              .filter()
+              .mucUidEqualTo(mucUid.asString())
+              .limit(pageSize)
+              .findAll())
           .map((e) => e.fromIsar())
           .toList();
     }

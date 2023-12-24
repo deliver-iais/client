@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:dcache/dcache.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:metadata_fetch/metadata_fetch.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,15 +13,15 @@ import 'package:url_launcher/url_launcher.dart';
 const APARAT = "https://www.aparat.com";
 
 class LinkPreview extends StatelessWidget {
-  static final Cache<String, Metadata> cache =
-      LruCache<String, Metadata>(storage: InMemoryStorage(100));
   final String link;
   final double? maxWidth;
   final double maxHeight;
   final Color? backgroundColor;
   final Color? foregroundColor;
 
-  const LinkPreview({
+  final _cacheRepo = GetIt.I.get<CachingRepo>();
+
+  LinkPreview({
     super.key,
     required this.link,
     this.maxWidth,
@@ -41,7 +42,7 @@ class LinkPreview extends StatelessWidget {
   }
 
   Future<Metadata> _fetchMetadata(String url) async {
-    final metadata = cache.get(url);
+    final metadata = _cacheRepo.getUrl(url);
 
     if (metadata != null) {
       return metadata;
@@ -58,7 +59,7 @@ class LinkPreview extends StatelessWidget {
         m = await MetadataFetch.extract(link);
     }
 
-    cache.set(url, m ?? Metadata());
+    _cacheRepo.setUrl(url, m ?? Metadata());
 
     return m ?? Metadata();
   }
@@ -69,7 +70,7 @@ class LinkPreview extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return FutureBuilder<Metadata?>(
-      initialData: cache.get(link),
+      initialData: _cacheRepo.getUrl(link),
       future: _fetchMetadata(link),
       builder: (context, snapshot) {
         final show = (!snapshot.hasData || snapshot.data?.description == null);

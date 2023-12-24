@@ -1,32 +1,11 @@
 import 'package:deliver/box/current_call_info.dart';
+import 'package:deliver/box/dao/current_call_info_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/hive/current_call_info_hive.dart';
 import 'package:hive/hive.dart';
 
-abstract class CurrentCallInfoDao {
-  Future<CurrentCallInfo?> get();
 
-  Future<void> save(
-    CurrentCallInfo currentCallInfo,
-  );
-
-  Future<void> saveAcceptOrSelectNotification({
-    bool isAccepted = false,
-    bool isSelectNotification = false,
-  });
-
-  Future<void> saveCallOffer(
-    String callOfferBody,
-    String callOfferCandidate,
-  );
-
-  Future<void> remove();
-
-  Stream<CurrentCallInfo?> watchCurrentCall();
-
-  Future<void> clear();
-}
 
 class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   @override

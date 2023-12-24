@@ -573,14 +573,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.10"
-  dcache:
-    dependency: "direct main"
-    description:
-      name: dcache
-      sha256: "93118d20137b84a0ec8f0960ee3fdbc1f7173e56affc9656d2ede223ff48ebbe"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.0"
   deliver_public_protocol:
     dependency: "direct main"
     description:
@@ -671,6 +663,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.0.6"
+  ecache:
+    dependency: "direct main"
+    description:
+      name: ecache
+      sha256: "8f37ff6f8d749255f713ba0aa5c7574fa2fee4b5d3e0952c735ef2bf10f40c99"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.3"
   expandable:
     dependency: "direct main"
     description:
@@ -1246,6 +1246,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.1"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      sha256: e4e7335ede17452b391ed3b2ede016545706c01a02292a6c97619705e7d2a85e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.6.6"
   get_ip_address:
     dependency: "direct main"
     description:

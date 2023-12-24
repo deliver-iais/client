@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
-import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/is_verified_dao.dart';
@@ -27,7 +26,6 @@ import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -76,9 +74,6 @@ class RoomRepo {
   final BehaviorSubject<List<Categories>> _roomsCategories =
       BehaviorSubject.seeded([]);
 
-  // TODO(any): should refactor and move to cache repo!
-  final _isVerifiedCache =
-      LruCache<String, IsVerified>(storage: InMemoryStorage(100));
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
@@ -110,13 +105,13 @@ class RoomRepo {
 
   Future<IsVerified?> _getIsVerified(Uid uid) async {
     final roomId = uid.asString();
-    final cacheValue = _isVerifiedCache.get(roomId);
+    final cacheValue = _cachingRepo.isVerified(roomId);
     if (cacheValue != null) {
       return cacheValue;
     }
     final isVerified = await _isVerifiedDao.getIsVerified(uid);
     if (isVerified != null) {
-      _isVerifiedCache.set(uid.asString(), isVerified);
+      _cachingRepo.setVerified(uid.asString(), isVerified);
     }
     return isVerified;
   }
@@ -144,7 +139,7 @@ class RoomRepo {
     Uid uid,
     int expireTime,
   ) {
-    _isVerifiedCache.set(
+    _cachingRepo.setVerified(
       uid.asString(),
       IsVerified(
         uid: uid,

@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
-import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -27,6 +26,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:ecache/ecache.dart';
 
 class AvatarRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -35,16 +35,18 @@ class AvatarRepo {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
-  final Cache<String, Avatar?> _avatarCache =
-      LruCache<String, Avatar?>(storage: InMemoryStorage(50));
+  final _avatarCache = SimpleCache<String, Avatar?>(
+    storage: WeakReferenceStorage(),
+    capacity: 1,
+  );
 
-  final Cache<String, String> _avatarFilePathCache =
-      LruCache<String, String>(storage: InMemoryStorage(50));
+  final _avatarFilePathCache =
+      SimpleCache<String, String>(storage: WeakReferenceStorage(), capacity: 1);
 
-  final Cache<String, BehaviorSubject<String>> _avatarCacheBehaviorSubjects =
-      LruCache<String, BehaviorSubject<String>>(
-    storage: InMemoryStorage(50),
-    onEvict: (key, subject) => subject?.close(),
+  final _avatarCacheBehaviorSubjects =
+      SimpleCache<String, BehaviorSubject<String>>(
+    storage: WeakReferenceStorage(onEvict: (k, v) => v.close()),
+    capacity: 1,
   );
 
   Future<void> fetchAvatar(Uid userUid, {bool forceToUpdate = false}) async {
