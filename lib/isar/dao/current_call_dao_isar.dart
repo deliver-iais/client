@@ -1,31 +1,10 @@
+import 'dart:async';
+
 import 'package:deliver/box/current_call_info.dart';
+import 'package:deliver/box/dao/current_call_info_dao.dart';
 import 'package:deliver/box/dao/isar_manager.dart';
 import 'package:deliver/isar/current_call_info_isar.dart';
 import 'package:isar/isar.dart';
-
-abstract class CurrentCallInfoDao {
-  Future<CurrentCallInfo?> get();
-
-  Future<void> save(
-    CurrentCallInfo currentCallInfo,
-  );
-
-  Future<void> saveAcceptOrSelectNotification({
-    bool isAccepted = false,
-    bool isSelectNotification = false,
-  });
-
-  Future<void> saveCallOffer(
-    String callOfferBody,
-    String callOfferCandidate,
-  );
-
-  Future<void> remove();
-
-  Stream<CurrentCallInfo?> watchCurrentCall();
-
-  Future<void> clear();
-}
 
 class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   Isar? currentCallInfo;
@@ -64,7 +43,7 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
 
   @override
   Stream<CurrentCallInfo?> watchCurrentCall() async* {
-    try{
+    try {
       final box = await _openPendingMessageIsar();
 
       yield box.currentCallInfoIsars
@@ -72,12 +51,10 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
           ?.fromIsar();
 
       yield* box.currentCallInfoIsars
-          .watchObject(CurrentCallInfoIsar.CURRENT_CALL_ID, fireImmediately: true)
+          .watchObject(CurrentCallInfoIsar.CURRENT_CALL_ID,
+              fireImmediately: true)
           .map((event) => event?.fromIsar());
-    } catch(e){
-
-    }
-
+    } catch (_) {}
   }
 
   @override

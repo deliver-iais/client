@@ -87,6 +87,7 @@ class ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
+    _selectMediasForForward.close();
     _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true,needToFetchMembers: true);
     _setupRoomSettings();
     super.initState();

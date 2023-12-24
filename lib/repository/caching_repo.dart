@@ -1,28 +1,47 @@
-import 'package:dcache/dcache.dart';
+import 'package:deliver/box/is_verified.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:ecache/ecache.dart';
 import 'package:flutter/material.dart';
+import 'package:metadata_fetch/metadata_fetch.dart';
 
-// TODO(bitbeter): add some dynamic storage size instead of 1000 based on devise available memory if it is possible
 class RoomCache {
-  final message = LruCache<int, Message>(storage: InMemoryStorage(0));
+  final message =
+      SimpleCache<int, Message>(storage: WeakReferenceStorage(), capacity: 1000);
 
-  // TODO(bitbeter): bug exists in here
-  final widget = LruCache<int, Widget?>(storage: InMemoryStorage(0));
-  final size = LruCache<int, Size>(storage: InMemoryStorage(0));
+  final widget =
+      SimpleCache<int, Widget?>(storage: WeakReferenceStorage(), capacity: 1);
+  final size =
+      SimpleCache<int, Size>(storage: WeakReferenceStorage(), capacity: 1000);
 }
 
 class CachingRepo {
-  final _rooms = LruCache<Uid, RoomCache>(storage: InMemoryStorage(0));
+  final _urlCache = SimpleCache(storage: WeakReferenceStorage(), capacity: 10);
+  final _isVerifiedCache = SimpleCache<String, IsVerified>(
+      storage: WeakReferenceStorage(), capacity: 40);
+  final _rooms =
+      SimpleCache<Uid, RoomCache>(storage: WeakReferenceStorage(), capacity: 100);
 
-  final _roomNameCache = LruCache<String, String>(storage: InMemoryStorage(0));
+  final _roomNameCache =
+      SimpleCache<String, String>(storage: WeakReferenceStorage(), capacity: 100);
 
-  final _userIdCache = LruCache<String, String>(storage: InMemoryStorage(0));
+  final _userIdCache =
+      SimpleCache<String, String>(storage: WeakReferenceStorage(), capacity: 10);
 
-  final _realNameCache = LruCache<String, String>(storage: InMemoryStorage(0));
+  final _realNameCache =
+      SimpleCache<String, String>(storage: WeakReferenceStorage(), capacity: 10);
 
   void clearNamesCache() => _roomNameCache.clear();
+
+  Metadata? getUrl(String key) => _urlCache.get(key);
+
+  IsVerified? isVerified(String uid) => _isVerifiedCache.get(uid);
+
+  void setVerified(String uid, IsVerified value) =>
+      _isVerifiedCache.set(uid, value);
+
+  void setUrl(String key, Metadata m) => _urlCache.set(key, m);
 
   String? getName(Uid uid) => _roomNameCache.get(uid.asString());
 
@@ -38,7 +57,8 @@ class CachingRepo {
 
   String? getRealName(Uid uid) => _realNameCache.get(uid.asString());
 
-  final _lastSeenId = LruCache<String, int>(storage: InMemoryStorage(0));
+  final _lastSeenId =
+      SimpleCache<String, int>(storage: WeakReferenceStorage(), capacity: 1);
 
   // Room Page Caching
   void setMessage(Uid roomUid, int id, Message msg) {

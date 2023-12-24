@@ -67,7 +67,8 @@ dependencies:
   custom_image_crop: ^0.0.12
   dart_vlc: 0.4.0
   date_time_format: 2.0.1
-  dcache: 0.4.0
+  ecache: 2.0.3
+
   deliver_public_protocol:
     git:
       ref: tags/v1.15.46
@@ -122,6 +123,7 @@ dependencies:
   freezed_annotation: 2.2.0
   fuzzy: ^0.5.0
   geolocator: ^10.1.0
+  get: 4.6.6
   get_it: ^7.6.4
   google_api_availability_android:
     git:

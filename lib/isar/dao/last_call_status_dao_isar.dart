@@ -1,17 +1,10 @@
+import 'dart:async';
+
 import 'package:deliver/box/dao/isar_manager.dart';
+import 'package:deliver/box/dao/last_call_status_dao.dart';
 import 'package:deliver/box/last_call_status.dart';
 import 'package:deliver/isar/last_call_status_isar.dart';
 import 'package:isar/isar.dart';
-
-abstract class LastCallStatusDao {
-  Future<LastCallStatus?> get(int callSlot);
-
-  Future<bool?> isExist(String callId, String roomUid);
-
-  Future<void> save(
-    LastCallStatus lastCallStatus,
-  );
-}
 
 class LastCallStatusDaoImpl extends LastCallStatusDao {
   Isar? lastCallStatus;

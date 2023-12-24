@@ -68,15 +68,15 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
             pinned: pinned ?? room.pinned,
             pinId: pinId ?? room.pinId,
             lastLocalNetworkMessageId:
-            lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
+                lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
             localNetworkMessageCount:
-            localNetworkMessageCount ?? room.localNetworkMessageCount,
+                localNetworkMessageCount ?? room.localNetworkMessageCount,
             lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
             lastMessage: lastMessage != null
                 ? messageToJson(lastMessage)
                 : room.lastMessage,
             shouldUpdateMediaCount:
-            shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
+                shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
             mentionsId: mentionsId ?? room.mentionsId,
             lastCurrentUserSentMessageId:
             lastCurrentUserSentMessageId ?? room.lastCurrentUserSentMessageId,
@@ -91,10 +91,10 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
           ),
         );
       });
-    } catch(e){
-      print(e);
-    }
+    } catch (e) {
 
+      print("updateRomm"+e.toString());
+    }
   }
 
   @override

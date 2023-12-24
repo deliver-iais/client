@@ -23,9 +23,8 @@ class ServerLessFileService {
       final request = MultipartRequest(
         'POST',
         Uri.parse('http://$receiverIp:$SERVER_PORT'),
-        onProgress: (i, j) {
-          GetIt.I.get<FileService>().updateFileProgressbar((i / j), uuid);
-        },
+        onProgress: (i, j) =>
+            GetIt.I.get<FileService>().updateFileProgressbar((i / j), uuid),
       )
         ..files.add(
           await http.MultipartFile.fromPath(
@@ -37,8 +36,9 @@ class ServerLessFileService {
         ..headers[FILE_SIZE] = length.toString()
         ..headers[FILE_UUID] = uuid
         ..headers[FILE_NAME] = name.codeUnits.join(',');
-      final response = await http.Response.fromStream(await request.send());
-      return response.statusCode == HttpStatus.ok;
+      return (await http.Response.fromStream(await request.send()))
+              .statusCode ==
+          HttpStatus.ok;
     } catch (e) {
       _logger.e(e);
     }
@@ -48,22 +48,27 @@ class ServerLessFileService {
   Future<void> handleSaveFile(HttpRequest request) async {
     try {
       final fileSize = int.parse(request.headers.value(FILE_SIZE)!);
-      final data1 = <Uint8List>[];
-
+      var multiPartFileSize = 0;
+      final data = Uint8List(fileSize + 500);
       await request.forEach((element) async {
-        data1.add(element);
+        data.setRange(
+          multiPartFileSize,
+          multiPartFileSize + element.length,
+          element,
+        );
+        multiPartFileSize = multiPartFileSize + element.length;
       });
-      final data2 = Uint8List.fromList(data1.expand((list) => list).toList());
 
-      final diff = data2.length - fileSize;
-      final name = String.fromCharCodes(
-        request.headers.value(FILE_NAME)!.split(',').map((e) => int.parse(e)),
-      );
+      final diff = multiPartFileSize - fileSize;
+
       await _saveFile(
-        data2.sublist(diff - 78, data2.length - 78),
+        data.sublist(diff - 78, multiPartFileSize - 78),
         uuid: request.headers.value(FILE_UUID)!,
-        name: name,
+        name: String.fromCharCodes(
+          request.headers.value(FILE_NAME)!.split(',').map((e) => int.parse(e)),
+        ),
       );
+
 
       request.response.statusCode = HttpStatus.ok;
     } catch (e) {

@@ -6,11 +6,9 @@ import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/call_data_usage_dao.dart';
+import 'package:deliver/box/dao/current_call_info_dao.dart';
+import 'package:deliver/box/dao/last_call_status_dao.dart';
 import 'package:deliver/box/last_call_status.dart';
-import 'package:deliver/isar/dao/current_call_dao_isar.dart'
-    if (dart.library.html) 'package:deliver/hive/dao/current_call_dao_hive.dart';
-import 'package:deliver/isar/dao/last_call_status_dao_isar.dart'
-    if (dart.library.html) 'package:deliver/hive/dao/last_call_status_dao_hive.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/callRepo.dart' as call_status;

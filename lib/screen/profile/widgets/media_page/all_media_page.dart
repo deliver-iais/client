@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -35,6 +34,7 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/meta.pb.dart' as meta_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:ecache/ecache.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -91,8 +91,8 @@ class _AllMediaPageState extends State<AllMediaPage>
   final _mediaCache = <int, Meta>{};
   final List<int> _actualDeletedIndexList = [];
   final List<int> _showingDeletedIndexList = [];
-  final LruCache<int, String> _fileCache =
-      LruCache<int, String>(storage: InMemoryStorage(500));
+  final _fileCache =
+      SimpleCache<int, String>(storage: WeakReferenceStorage(), capacity: 200);
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   StreamSubscription<int>? _getIndexOfMediaStream;
   late List<Animation<double>> rotateAnimationList;

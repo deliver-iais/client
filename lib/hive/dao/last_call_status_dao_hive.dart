@@ -1,18 +1,9 @@
+import 'package:deliver/box/dao/last_call_status_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/last_call_status.dart';
 import 'package:deliver/hive/last_call_status_hive.dart';
 import 'package:hive/hive.dart';
-
-abstract class LastCallStatusDao {
-  Future<LastCallStatus?> get(int callSlot);
-
-  Future<bool?> isExist(String callId, String roomUid);
-
-  Future<void> save(
-    LastCallStatus lastCallStatus,
-  );
-}
 
 class LastCallStatusDaoImpl extends LastCallStatusDao {
   @override

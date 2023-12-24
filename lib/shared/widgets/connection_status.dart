@@ -11,20 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 
-class ConnectionStatus extends StatefulWidget {
+class ConnectionStatus extends StatelessWidget {
   final String normalTitle;
-
-  const ConnectionStatus({super.key, required this.normalTitle});
-
-  @override
-  State<ConnectionStatus> createState() => _ConnectionStatusState();
-}
-
-class _ConnectionStatusState extends State<ConnectionStatus> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _coreService = GetIt.I.get<CoreServices>();
   static final _routingService = GetIt.I.get<RoutingService>();
+
+  const ConnectionStatus({required this.normalTitle, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +41,11 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                   if (proposeUseLocalNetwork.data ?? false) {
                     return Row(
                       children: [
-                        const Icon(CupertinoIcons.antenna_radiowaves_left_right,
-                            color: Colors.indigo, size: 30,),
+                        const Icon(
+                          CupertinoIcons.antenna_radiowaves_left_right,
+                          color: Colors.indigo,
+                          size: 30,
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 9),
                           child: Text(_i18n.get("local_network_?")),
@@ -118,7 +115,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return widget.normalTitle.capitalCase;
+        return normalTitle.capitalCase;
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
       case TitleStatusConditions.LocalNetwork:

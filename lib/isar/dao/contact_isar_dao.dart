@@ -1,4 +1,3 @@
-
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/isar_manager.dart';
