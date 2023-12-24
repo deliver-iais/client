@@ -38,7 +38,6 @@ import 'package:phone_state/phone_state.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
-import 'package:synchronized/synchronized.dart';
 import 'package:wakelock/wakelock.dart';
 
 enum CallStatus {
@@ -72,7 +71,6 @@ class CallRepo {
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
-  final _lock = Lock();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -82,8 +80,9 @@ class CallRepo {
   RTCDataChannel? _dataChannel;
   String _callOfferBody = "";
   String _callOfferCandidate = "";
-  String _uidOfRingingSender = "";
   List<Map<String, Object>> _candidate = [];
+  CallEventV2 _LastRingingData = CallEventV2.create();
+
 
   String _offerSdp = "";
   String _answerSdp = "";
@@ -221,7 +220,6 @@ class CallRepo {
                 }
                 if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
                   _cancelTimerResendEvent();
-                  _uidOfRingingSender = callEvent.to.toString();
                   _callOfferBody = callEvent.offer.body;
                   _callOfferCandidate = callEvent.offer.candidates;
                   if (!isDesktopNative && !_isCallFromDb) {
@@ -238,16 +236,16 @@ class CallRepo {
             case CallEventV2_Type.ringing:
               if (!from.isSameEntity(currentUserUid)) {
                 if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
+                  _LastRingingData = callEvent;
                   _logger.i(
                     "-----------------------------------${_callService.getUserCallState}",);
                   _callService.setUserCallState = UserCallState.IN_USER_CALL;
-                  _uidOfRingingSender = callEvent.from.toString();
                   await _handleIncomingCallOnReceiver(callEvent);
                 } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
-                  _cancelTimerResendEvent();
-                  _callEvents[callEvent.time.toInt()] = "IsRinging";
-                  unawaited(_sendOffer());
-                  callingStatus.add(CallStatus.IS_RINGING);
+                    _cancelTimerResendEvent();
+                    _callEvents[callEvent.time.toInt()] = "IsRinging";
+                    unawaited(_sendOffer());
+                    callingStatus.add(CallStatus.IS_RINGING);
                   try {
                     _audioService.playBeepSound();
                   } catch (e) {
@@ -1618,47 +1616,36 @@ class CallRepo {
 
   Future<void> _sendOffer() async {
     //wait till offer is Ready
-    await Future.delayed(const Duration(milliseconds: 50));
-    if(await _sameTimeCall(_roomUid!.asString(), _uidOfRingingSender)) {
-      await _waitUntilOfferReady();
-      final jsonCandidates = jsonEncode(_candidate);
-      final callEventV2ByClient = (CallEventV2ByClient()
-        ..id = _callService.getCallId
-        ..to = _roomUid!
-        ..isVideo = _isVideo
-        ..offer = (CallEventOffer()
-          ..body = _offerSdp
-          ..candidates = jsonCandidates));
-
-      _coreServices.sendCallEvent(callEventV2ByClient);
-      _sendCallOffer(callEventV2ByClient);
-      _callEvents[clock
-          .now()
-          .millisecondsSinceEpoch] = "Created";
-    } else {
-      _isCaller = true;
-      _cancelTimerResendEvent();
-      _callEvents[clock.now().millisecondsSinceEpoch] = "IsRinging";
-      unawaited(_sendOffer());
-      callingStatus.add(CallStatus.IS_RINGING);
-      try {
-        _audioService.playBeepSound();
-      } catch (e) {
-        _logger.e(e);
+    if(_doseHaveRingingFromOfferTarget(_roomUid!.node, _LastRingingData.from.asString())) {
+      if(_handleSameTimeCall(_roomUid!.node, _authRepo.currentUserUid.asString())) {
+        await _Offer();  
+      } else {
+        _isCaller = false;
+        await _handleIncomingCallOnReceiver(_LastRingingData);
       }
+    } else {
+      await _Offer();
     }
+
+  } Future<void> _Offer() async {
+    //wait till offer is Ready
+    await _waitUntilOfferReady();
+    // Send Candidate to Receiver
+    final jsonCandidates = jsonEncode(_candidate);
+    //Send offer and Candidate as message to Receiver
+    final callEventV2ByClient = (CallEventV2ByClient()
+      ..id = _callService.getCallId
+      ..to = _roomUid!
+      ..isVideo = _isVideo
+      ..offer = (CallEventOffer()
+        ..body = _offerSdp
+        ..candidates = jsonCandidates));
+    _coreServices.sendCallEvent(callEventV2ByClient);
+    _sendCallOffer(callEventV2ByClient);
+    _callEvents[clock.now().millisecondsSinceEpoch] = "Created";
   }
 
-  Future<bool> _sameTimeCall(String targetUid, String uidOfRingingSender) async {
-    if( _uidOfRingingSender == "" || targetUid != uidOfRingingSender) {
-      return true;
-    } else {
-      if(targetUid.compareTo(uidOfRingingSender) > 0) {
-        return true;
-      }
-    }
-    return false;
-  }
+  
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
     if (settings.localNetworkMessenger.value) {
@@ -1933,7 +1920,7 @@ class CallRepo {
 
   Future<void> _resetVariables() async {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Dispose";
-    //reset variable valeus
+    //reset variable values
     _offerSdp = "";
     _answerSdp = "";
     _isAccepted = false;
@@ -1950,7 +1937,7 @@ class CallRepo {
     _notifyIncomingCall = false;
     _callOfferBody = "";
     _callOfferCandidate = "";
-    _uidOfRingingSender = "";
+    _LastRingingData.clear();
 
     //reset BehaviorSubject values
     switching.add(false);
@@ -1997,6 +1984,20 @@ class CallRepo {
     }
     _logger.i("timerResendEvent: ${timerResendEvent?.isActive}");
   }
+  bool _handleSameTimeCall(String targetUid, String uidOfRingingSender) {
+    return (targetUid.compareTo(uidOfRingingSender) > 0);
+  }
+  
+  bool _doseHaveRingingFromOfferTarget(String to , String uidOfRingingSender) {
+    if(uidOfRingingSender != "") {
+      if(uidOfRingingSender == to) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
 
   Future<void> reset() async {
     _callEvents = {};
@@ -2151,9 +2152,21 @@ class CallRepo {
                 _authRepo.currentUserUid.sessionId);
   }
 
-  bool isCallIdEqualToCurrentCallId(CallEvents event) =>
-      event.callEvent!.id == _callService.getCallId;
+  bool isCallIdEqualToCurrentCallId(CallEvents event) {
+    final boz = event.callEvent!.id;
+    final box = _callService.getCallId;
 
+    if(box != boz) {
+      if (event.callEvent!.from.asString() == _callService.getRoomUid.asString()) {
+        if (!(_handleSameTimeCall(event.callEvent!.to.asString(), event.callEvent!.from.asString(),))) {
+          _callService.setCallId = event.callEvent!.id;
+        }
+        return true;
+      }
+    }
+
+    return (box == boz);
+  }
   bool isEndingEvent(CallEventV2 callEventV2) =>
       callEventV2.hasEnd() || callEventV2.hasBusy() || callEventV2.hasDecline();
 }
