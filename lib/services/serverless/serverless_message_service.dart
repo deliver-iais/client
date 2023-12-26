@@ -37,7 +37,6 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:synchronized/synchronized.dart';
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -306,24 +305,6 @@ class ServerLessMessageService {
     await request.response.close();
   }
 
-  Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
-    var completer = _completerMap[messageDeliveryAck.from.asString()];
-    if (completer == null || completer.isCompleted) {
-      completer = Completer();
-      _completerMap[messageDeliveryAck.from.asString()] = completer;
-      completer.complete(
-        _dataStreamService.handleAckMessage(
-          messageDeliveryAck,
-          isLocalNetworkMessage: true,
-        ),
-      );
-    } else {
-      await completer.future;
-      _completerMap.remove(messageDeliveryAck.from.asString());
-      await _handleAck(messageDeliveryAck);
-    }
-  }
-
   void removePendingFromCache(String uid, String packetId) {
     _pendingMessageMap[uid]
         ?.removeWhere((element) => element.packetId == packetId);
@@ -335,11 +316,13 @@ class ServerLessMessageService {
         var pm = _pendingMessageMap[uid]!.last.msg;
         try {
           if (pm.type == MessageType.CALL_LOG) {
-            unawaited(_sendCallLog(
-              CallLog.fromJson(pm.json),
-              pm.packetId,
-              pm.roomUid,
-            ));
+            unawaited(
+              _sendCallLog(
+                CallLog.fromJson(pm.json),
+                pm.packetId,
+                pm.roomUid,
+              ),
+            );
           } else {
             if (pm.type == MessageType.FILE) {
               final file = file_pb.File.fromJson(pm.json);
@@ -358,7 +341,9 @@ class ServerLessMessageService {
             );
           }
 
-          _pendingMessageMap[uid]?.removeLast();
+          if (_pendingMessageMap[uid]?.isNotEmpty ?? false) {
+            _pendingMessageMap[uid]?.removeLast();
+          }
         } catch (e) {
           _logger.e(e);
         }
@@ -415,6 +400,24 @@ class ServerLessMessageService {
         _serverLessService.saveIp(uid: message.from.asString(), ip: ip),
       );
     }
+    unawaited(_handleMessage(message));
+  }
+
+  Future<void> _handleMessage(Message message) async {
+    final uid = message.from.asString();
+    var completer = _completerMap[uid];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[uid] = completer;
+      await _processIncomingMessage(message);
+      completer.complete();
+    } else {
+      await completer.future;
+      await _handleMessage(message);
+    }
+  }
+
+  Future<void> _processIncomingMessage(Message message) async {
     var uid = message.from;
     if (message.to.category == Categories.GROUP ||
         message.to.category == Categories.CHANNEL) {
@@ -452,12 +455,28 @@ class ServerLessMessageService {
     }
   }
 
+  Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
+    var completer = _completerMap[messageDeliveryAck.from.asString()];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[messageDeliveryAck.from.asString()] = completer;
+      await _dataStreamService.handleAckMessage(
+        messageDeliveryAck,
+        isLocalNetworkMessage: true,
+      );
+      completer.complete();
+    } else {
+      await completer.future;
+      await _handleAck(messageDeliveryAck);
+    }
+  }
+
   Future<void> updateRooms() async {
     for (final room in (await _roomDao.getLocalRooms())) {
       await _roomDao.updateRoom(
         uid: room.uid,
         localNetworkMessageCount: 0,
-        lastLocalNetworkMessageId: room.lastMessage?.id,
+        lastLocalNetworkMessageId: room.lastMessageId,
       );
     }
   }

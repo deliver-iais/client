@@ -16,12 +16,12 @@ class LastCallStatusDaoImpl extends LastCallStatusDao {
     final box = await _openPendingMessageIsar();
 
     //here we just have one index and one data
-    return box.lastCallStatusIsars
+    return (await box.lastCallStatusIsars
         .filter()
         .callIdEqualTo(callId)
         .roomUidEqualTo(roomUid)
         .build()
-        .isNotEmptySync();
+        .isNotEmpty());
   }
 
   @override
@@ -30,8 +30,8 @@ class LastCallStatusDaoImpl extends LastCallStatusDao {
   ) async {
     final box = await _openPendingMessageIsar();
 
-    return box.writeTxnSync(() {
-      box.lastCallStatusIsars.putSync(lastCallStatus.toIsar());
+    return box.writeTxn(() async {
+      await box.lastCallStatusIsars.put(lastCallStatus.toIsar());
     });
   }
 
@@ -39,6 +39,6 @@ class LastCallStatusDaoImpl extends LastCallStatusDao {
   Future<LastCallStatus?> get(int callSlot) async {
     final box = await _openPendingMessageIsar();
 
-    return box.lastCallStatusIsars.getSync(callSlot)?.fromIsar();
+    return (await box.lastCallStatusIsars.get(callSlot))?.fromIsar();
   }
 }

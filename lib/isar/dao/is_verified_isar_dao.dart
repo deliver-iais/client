@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/is_verified_dao.dart';
 import 'package:deliver/box/dao/isar_manager.dart';
@@ -11,10 +13,10 @@ class IsVerifiedDaoImpl extends IsVerifiedDao {
   @override
   Future<IsVerified?> getIsVerified(Uid uid) async {
     final box = await _openIsVerifiedIsar();
-    return box.isVerifiedIsars
-        .filter()
-        .uidEqualTo(uid.asString())
-        .findFirstSync()
+    return (await box.isVerifiedIsars
+            .filter()
+            .uidEqualTo(uid.asString())
+            .findFirst())
         ?.fromIsar();
   }
 
@@ -22,16 +24,16 @@ class IsVerifiedDaoImpl extends IsVerifiedDao {
   Future<void> update(Uid uid, int expireTime) async {
     final lastUpdateTime = clock.now().millisecondsSinceEpoch;
     final box = await _openIsVerifiedIsar();
-    box.writeTxnSync(() {
-      box.isVerifiedIsars.filter().uidEqualTo(uid.asString()).deleteAllSync();
-      box.isVerifiedIsars.putSync(
+    unawaited(box.writeTxn(() async {
+      await box.isVerifiedIsars.filter().uidEqualTo(uid.asString()).deleteAll();
+      await box.isVerifiedIsars.put(
         IsVerifiedIsar(
           uid: uid.asString(),
           lastUpdate: lastUpdateTime,
           expireTime: expireTime,
         ),
       );
-    });
+    }));
   }
 
   Future<Isar> _openIsVerifiedIsar() => IsarManager.open();

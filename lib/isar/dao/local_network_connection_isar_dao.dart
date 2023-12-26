@@ -16,9 +16,8 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
   Future<void> delete(Uid uid) async {
     try {
       final box = await _openIsar();
-      box.writeTxnSync(
-        () => box.localNetworkConnectionsIsars
-            .deleteSync(fastHash(uid.asString())),
+      await box.writeTxn(
+        () => box.localNetworkConnectionsIsars.delete(fastHash(uid.asString())),
       );
     } catch (_) {}
   }
@@ -39,10 +38,10 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
   Future<void> save(LocalNetworkConnections localNetworkConnections) async {
     try {
       final box = await _openIsar();
-      box.writeTxnSync(() {
-        box.localNetworkConnectionsIsars
-            .putSync(localNetworkConnections.toIsar());
-      });
+      unawaited(box.writeTxn(() async {
+        await box.localNetworkConnectionsIsars
+            .put(localNetworkConnections.toIsar());
+      }));
     } catch (_) {}
   }
 
@@ -55,7 +54,7 @@ class LocalNetworkConnectionDaoImpl extends LocalNetworkConnectionDao {
           .uidEqualTo(uid.asString())
           .build();
 
-      yield query.findFirstSync()?.fromIsar();
+      yield (await query.findFirst())?.fromIsar();
 
       yield* query
           .watch()
