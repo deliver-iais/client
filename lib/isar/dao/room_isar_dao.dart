@@ -12,11 +12,11 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   Future<List<Room>> getAllRooms() async {
     final box = await _openRoomIsar();
     return sortRooms(
-      box.roomIsars
-          .filter()
-          .deletedEqualTo(false)
-          .sortByLastUpdateTimeDesc()
-          .findAllSync()
+      (await box.roomIsars
+              .filter()
+              .deletedEqualTo(false)
+              .sortByLastUpdateTimeDesc()
+              .findAll())
           .map((e) => e.fromIsar())
           .toList(),
     );
@@ -25,10 +25,10 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   @override
   Future<Room?> getRoom(Uid roomUid) async {
     final box = await _openRoomIsar();
-    return box.roomIsars
-        .filter()
-        .uidEqualTo(roomUid.asString())
-        .findFirstSync()
+    return (await box.roomIsars
+            .filter()
+            .uidEqualTo(roomUid.asString())
+            .findFirst())
         ?.fromIsar();
   }
 
@@ -53,47 +53,45 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     int? lastLocalNetworkMessageId,
     int? localNetworkMessageCount,
   }) async {
-    try {
-      final box = await _openRoomIsar();
-      box.writeTxnSync(() {
-        final room =
-            box.roomIsars.filter().uidEqualTo(uid.asString()).findFirstSync() ??
-                RoomIsar(uid: uid.asString());
+    final box = await _openRoomIsar();
+    await box.writeTxn(() async {
+      final room = (await box.roomIsars
+              .filter()
+              .uidEqualTo(uid.asString())
+              .findFirst()) ??
+          RoomIsar(uid: uid.asString());
 
-        box.roomIsars.putSync(
-          RoomIsar(
-            uid: uid.asString(),
-            lastMessageId: lastMessageId ?? room.lastMessageId,
-            seenSynced: seenSynced ?? room.seenSynced,
-            pinned: pinned ?? room.pinned,
-            pinId: pinId ?? room.pinId,
-            lastLocalNetworkMessageId:
-                lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
-            localNetworkMessageCount:
-                localNetworkMessageCount ?? room.localNetworkMessageCount,
-            lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
-            lastMessage: lastMessage != null
-                ? messageToJson(lastMessage)
-                : room.lastMessage,
-            shouldUpdateMediaCount:
-                shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
-            mentionsId: mentionsId ?? room.mentionsId,
-            lastCurrentUserSentMessageId: lastCurrentUserSentMessageId ??
-                room.lastCurrentUserSentMessageId,
-            firstMessageId: firstMessageId ?? room.firstMessageId,
-            deleted: deleted ?? room.deleted,
-            replyKeyboardMarkup: replyKeyboardMarkup ??
-                (forceToUpdateReplyKeyboardMarkup
-                    ? null
-                    : room.replyKeyboardMarkup),
-            draft: draft ?? room.draft,
-            synced: synced ?? room.synced,
-          ),
-        );
-      });
-    } catch (e) {
-      print("updateRomm" + e.toString());
-    }
+      await box.roomIsars.put(
+        RoomIsar(
+          uid: uid.asString(),
+          lastMessageId: lastMessageId ?? room.lastMessageId,
+          seenSynced: seenSynced ?? room.seenSynced,
+          pinned: pinned ?? room.pinned,
+          pinId: pinId ?? room.pinId,
+          lastLocalNetworkMessageId:
+              lastLocalNetworkMessageId ?? room.lastLocalNetworkMessageId,
+          localNetworkMessageCount:
+              localNetworkMessageCount ?? room.localNetworkMessageCount,
+          lastUpdateTime: lastUpdateTime ?? room.lastUpdateTime,
+          lastMessage: lastMessage != null
+              ? messageToJson(lastMessage)
+              : room.lastMessage,
+          shouldUpdateMediaCount:
+              shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
+          mentionsId: mentionsId ?? room.mentionsId,
+          lastCurrentUserSentMessageId:
+              lastCurrentUserSentMessageId ?? room.lastCurrentUserSentMessageId,
+          firstMessageId: firstMessageId ?? room.firstMessageId,
+          deleted: deleted ?? room.deleted,
+          replyKeyboardMarkup: replyKeyboardMarkup ??
+              (forceToUpdateReplyKeyboardMarkup
+                  ? null
+                  : room.replyKeyboardMarkup),
+          draft: draft ?? room.draft,
+          synced: synced ?? room.synced,
+        ),
+      );
+    });
   }
 
   @override
@@ -106,7 +104,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
         .lastMessageIdGreaterThan(0)
         .build();
 
-    yield sortRooms(query.findAllSync().map((e) => e.fromIsar()).toList());
+    yield sortRooms((await query.findAll()).map((e) => e.fromIsar()).toList());
 
     yield* query
         .watch()
@@ -119,7 +117,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
 
     final query = box.roomIsars.filter().uidEqualTo(roomUid.asString()).build();
 
-    yield query.findFirstSync()?.fromIsar() ?? Room(uid: roomUid);
+    yield (await query.findFirst())?.fromIsar() ?? Room(uid: roomUid);
 
     yield* query.watch().map(
           (event) =>
@@ -133,10 +131,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   Future<List<Room>> getAllBots() async {
     final box = await _openRoomIsar();
 
-    return box.roomIsars
-        .filter()
-        .uidStartsWith("4")
-        .findAllSync()
+    return (await box.roomIsars.filter().uidStartsWith("4").findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -144,10 +139,10 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
   @override
   Future<List<Room>> getLocalRooms() async {
     final box = await _openRoomIsar();
-    return box.roomIsars
-        .filter()
-        .localNetworkMessageCountGreaterThan(0)
-        .findAllSync()
+    return (await box.roomIsars
+            .filter()
+            .localNetworkMessageCountGreaterThan(0)
+            .findAll())
         .map((e) => e.fromIsar())
         .toList();
   }

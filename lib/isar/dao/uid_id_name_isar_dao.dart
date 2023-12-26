@@ -15,7 +15,8 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   Future<UidIdName?> getByUid(Uid uid) async {
     try {
       final box = await _openIsar();
-      return box.uidIdNameIsars.getSync(fastHash(uid.asString()))?.fromIsar();
+      return (await box.uidIdNameIsars.get(fastHash(uid.asString())))
+          ?.fromIsar();
     } catch (e) {
       return null;
     }
@@ -25,7 +26,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   Future<String?> getUidById(String id) async {
     try {
       final box = await _openIsar();
-      return (box.uidIdNameIsars.filter().idEqualTo(id).findFirstSync())?.uid;
+      return (await box.uidIdNameIsars.filter().idEqualTo(id).findFirst())?.uid;
     } catch (e) {
       return null;
     }
@@ -34,12 +35,12 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   @override
   Future<List<UidIdName>> search(String term) async {
     final box = await _openIsar();
-    return box.uidIdNameIsars
-        .filter()
-        .nameContains(term, caseSensitive: false)
-        .or()
-        .idContains(term, caseSensitive: false)
-        .findAllSync()
+    return (await box.uidIdNameIsars
+            .filter()
+            .nameContains(term, caseSensitive: false)
+            .or()
+            .idContains(term, caseSensitive: false)
+            .findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -55,13 +56,13 @@ class UidIdNameDaoImpl extends UidIdNameDao {
     try {
       final lastUpdateTime = clock.now().millisecondsSinceEpoch;
       final box = await _openIsar();
-      box.writeTxnSync(() {
-        final uidName = box.uidIdNameIsars
+      await box.writeTxn(() async {
+        final uidName = (await box.uidIdNameIsars
                 .filter()
                 .uidEqualTo(uid.asString())
-                .findFirstSync() ??
+                .findFirst()) ??
             UidIdNameIsar(uid: uid.asString());
-        box.uidIdNameIsars.putSync(
+        await box.uidIdNameIsars.put(
           UidIdNameIsar(
             uid: uid.asString(),
             realName: realName ?? uidName.realName,
@@ -83,7 +84,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
 
     final query =
         box.uidIdNameIsars.filter().uidEqualTo(uid.asString()).build();
-    yield query.findFirstSync()?.fromIsar().id;
+    yield (await query.findFirst())?.fromIsar().id;
 
     yield* query.watch().map((event) => event.firstOrNull?.fromIsar().id);
   }
@@ -93,17 +94,17 @@ class UidIdNameDaoImpl extends UidIdNameDao {
   @override
   Future<List<UidIdName>> searchInContacts(String term) async {
     final box = await _openIsar();
-    return box.uidIdNameIsars
-        .filter()
-        .isContactEqualTo(true)
-        .and()
-        .group(
-          (q) => q
-              .nameContains(term, caseSensitive: false)
-              .or()
-              .idContains(term, caseSensitive: false),
-        )
-        .findAllSync()
+    return (await box.uidIdNameIsars
+            .filter()
+            .isContactEqualTo(true)
+            .and()
+            .group(
+              (q) => q
+                  .nameContains(term, caseSensitive: false)
+                  .or()
+                  .idContains(term, caseSensitive: false),
+            )
+            .findAll())
         .map((e) => e.fromIsar())
         .toList();
   }

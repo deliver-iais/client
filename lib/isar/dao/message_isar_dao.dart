@@ -18,36 +18,36 @@ class MessageDaoImpl extends MessageDao {
   @override
   Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessageIsar();
-    return box.messageIsars
-        .filter()
-        .roomUidEqualTo(roomUid.asString())
-        .and()
-        .idEqualTo(id)
-        .findFirstSync()
+    return (await box.messageIsars
+            .filter()
+            .roomUidEqualTo(roomUid.asString())
+            .and()
+            .idEqualTo(id)
+            .findFirst())
         ?.fromIsar();
   }
 
   @override
   Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id) async {
     final box = await _openMessageIsar();
-    return box.messageIsars
-        .filter()
-        .roomUidEqualTo(roomUid.asString())
-        .and()
-        .localNetworkMessageIdEqualTo(id)
-        .findFirstSync()
+    return (await box.messageIsars
+            .filter()
+            .roomUidEqualTo(roomUid.asString())
+            .and()
+            .localNetworkMessageIdEqualTo(id)
+            .findFirst())
         ?.fromIsar();
   }
 
   @override
   Future<Message?> getMessageByPacketId(Uid roomUid, String packetId) async {
     final box = await _openMessageIsar();
-    return box.messageIsars
-        .filter()
-        .roomUidEqualTo(roomUid.asString())
-        .and()
-        .packetIdEqualTo(packetId)
-        .findFirstSync()
+    return (await box.messageIsars
+            .filter()
+            .roomUidEqualTo(roomUid.asString())
+            .and()
+            .packetIdEqualTo(packetId)
+            .findFirst())
         ?.fromIsar();
   }
 
@@ -58,12 +58,15 @@ class MessageDaoImpl extends MessageDao {
     int pageSize = PAGE_SIZE,
   }) async {
     final box = await _openMessageIsar();
-    return box.messageIsars
-        .filter()
-        .roomUidEqualTo(roomUid.asString())
-        .and()
-        .localNetworkMessageIdBetween(page * pageSize, (page + 1) * pageSize)
-        .findAllSync()
+    return (await box.messageIsars
+            .filter()
+            .roomUidEqualTo(roomUid.asString())
+            .and()
+            .localNetworkMessageIdBetween(
+              page * pageSize,
+              (page + 1) * pageSize,
+            )
+            .findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -72,7 +75,7 @@ class MessageDaoImpl extends MessageDao {
   Future<void> insertMessage(Message message) async {
     try {
       final box = await _openMessageIsar();
-      box.writeTxnSync(() => box.messageIsars.putSync(message.toIsar()));
+      await box.writeTxn(() => box.messageIsars.put(message.toIsar()));
     } catch (e) {
       _logger.e(e);
     }
@@ -90,11 +93,11 @@ class MessageDaoImpl extends MessageDao {
         .roomUidEqualTo(message.roomUid.asString())
         .findFirst());
 
-    await box.writeTxnSync(() async {
+    await box.writeTxn(() async {
       if (msg != null) {
-        box.messageIsars.deleteSync(msg.dbId);
+        await box.messageIsars.delete(msg.dbId);
       }
-      box.messageIsars.putSync(message.toIsar());
+      await box.messageIsars.put(message.toIsar());
     });
   }
 
@@ -102,14 +105,18 @@ class MessageDaoImpl extends MessageDao {
   Future<List<Message>> searchMessages(Uid roomUid, String keyword) async {
     final box = await _openMessageIsar();
 
-    final messages = box.messageIsars
-        .filter()
-        .roomUidEqualTo(roomUid.asString())
-        .group((q) =>
-            q.typeEqualTo(MessageType.TEXT).or().typeEqualTo(MessageType.FILE))
-        .and()
-        .jsonContains(keyword)
-        .findAllSync()
+    final messages = (await box.messageIsars
+            .filter()
+            .roomUidEqualTo(roomUid.asString())
+            .group(
+              (q) => q
+                  .typeEqualTo(MessageType.TEXT)
+                  .or()
+                  .typeEqualTo(MessageType.FILE),
+            )
+            .and()
+            .jsonContains(keyword)
+            .findAll())
         .map((e) => e.fromIsar())
         .where((msg) {
       return isMessageContainKeyword(msg, keyword);
@@ -122,8 +129,9 @@ class MessageDaoImpl extends MessageDao {
   Future<void> saveMessages(List<Message> messages) async {
     try {
       final box = await _openMessageIsar();
-      box.writeTxnSync(() => box.messageIsars
-          .putAllSync(messages.map((e) => e.toIsar()).toList()));
+      await box.writeTxn(
+        () => box.messageIsars.putAll(messages.map((e) => e.toIsar()).toList()),
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -133,12 +141,12 @@ class MessageDaoImpl extends MessageDao {
   Future<List<Message>> getLocalMessages(Uid roomUid) async {
     try {
       final box = await _openMessageIsar();
-      return box.messageIsars
-          .filter()
-          .roomUidEqualTo(roomUid.asString())
-          .and()
-          .isLocalMessageEqualTo(true)
-          .findAllSync()
+      return (await box.messageIsars
+              .filter()
+              .roomUidEqualTo(roomUid.asString())
+              .and()
+              .isLocalMessageEqualTo(true)
+              .findAll())
           .map((e) => e.fromIsar())
           .toList();
     } catch (e) {
