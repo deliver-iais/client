@@ -40,7 +40,7 @@ class CallMessageWidget extends StatelessWidget {
     if (_callEvent != null) {
       callDuration = _callLog!.end.callDuration.toInt();
       isVideo = _callEvent!.callType == CallEvent_CallType.VIDEO;
-      isIncomingCall = _callLog!.end.isCaller;
+      isIncomingCall = !_callLog!.end.isCaller;
     } else {
       if (_callLog!.hasEnd()) {
         callDuration = _callLog!.end.callDuration.toInt();
@@ -48,8 +48,7 @@ class CallMessageWidget extends StatelessWidget {
         callDuration = 0;
       }
       isVideo = _callLog!.isVideo;
-      isIncomingCall = _callLog!.end.isCaller;
-
+      isIncomingCall = !_callLog!.end.isCaller;
     }
     return Container(
       width: 210,
@@ -63,7 +62,8 @@ class CallMessageWidget extends StatelessWidget {
               CallState(
                 callEvent: _callEvent,
                 callLog: _callLog,
-                isIncomingCall: _authRepo.isCurrentUser(message.from),
+                isIncomingCall : !_callLog!.end.isCaller
+                ,
               ),
               const SizedBox(
                 height: 5,

@@ -438,14 +438,12 @@ class ServerLessMessageService {
         ),
       );
     }
-    if (null ==
-        await _messageDao.getMessageByPacketId(room!.uid, message.packetId)) {
+    if (await _messageDao.getMessageByPacketId(room!.uid, message.packetId) == null) {
       await _dataStreamService.handleIncomingMessage(
         message,
         isOnlineMessage: true,
         isLocalNetworkMessage: true,
       );
-
       await _roomDao.updateRoom(
         uid: room.uid,
         lastLocalNetworkMessageId: message.id.toInt(),
@@ -518,8 +516,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.end:
         callLog = CallLog(
-          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
-          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
+          from: callEvent.from,
+          to: callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           end: callEvent.end,
@@ -527,8 +525,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.decline:
         callLog = CallLog(
-          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
-          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
+          from: callEvent.from,
+          to: callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           decline: callEvent.decline,
@@ -536,14 +534,13 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.busy:
         callLog = CallLog(
-          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
-          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
+          from: callEvent.from,
+          to: callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           busy: callEvent.busy,
         );
         break;
-
       case call_pb.CallEventV2_Type.notSet:
         break;
     }
