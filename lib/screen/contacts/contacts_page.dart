@@ -145,7 +145,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                         .openRoom(c.uid!.asString())
                                     : null,
                                 child: ContactWidget(
-                                  contact: c,
+                                  user: c.toUser(),
                                   // isSelected: true,
                                   circleIcon: CupertinoIcons.qrcode,
                                   onCircleIcon: () => showQrCode(
@@ -324,7 +324,7 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
             return GestureDetector(
               onTap: () => close(context, c),
               child: ContactWidget(
-                contact: c,
+                user: c.toUser(),
                 circleIcon: CupertinoIcons.qrcode,
                 onCircleIcon: () => showQrCode(
                   context,

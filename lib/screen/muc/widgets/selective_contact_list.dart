@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -18,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SelectiveContactsList extends StatefulWidget {
   final Uid? mucUid;
@@ -47,11 +49,11 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   late TextEditingController editingController;
 
-  List<Contact> selectedList = [];
+  List<User> selectedList = [];
 
-  List<Contact>? items;
+  final items = BehaviorSubject<List<User>>();
 
-  List<Contact> contacts = [];
+  List<User> contacts = [];
 
   List<Uid> members = [];
 
@@ -75,35 +77,43 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   void filterSearchResults(String query) {
+    if (query.startsWith("@")) {
+      query = query.substring(1);
+    }
     query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
-      final dummyListData = <Contact>[];
+      final dummyListData = <User>[];
       for (final item in contacts) {
-        final searchTerm = '${item.firstName}${item.lastName}'
+        final searchTerm = '${item.firstname}${item.lastname}'
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
-            item.firstName
+            item.firstname
                 .replaceAll(RegExp(r"\s\b|\b\s"), "")
                 .toLowerCase()
                 .contains(query) ||
-            (item.lastName.isNotEmpty &&
-                item.lastName
+            (item.lastname.isNotEmpty &&
+                item.lastname
                     .replaceAll(RegExp(r"\s\b|\b\s"), "")
                     .toLowerCase()
                     .contains(query))) {
           dummyListData.add(item);
         }
       }
-      setState(() {
-        items!.clear();
-        items!.addAll(dummyListData);
-      });
+      items.add(dummyListData);
+      searchById(query, dummyListData);
     } else {
-      setState(() {
-        items!.clear();
-        items!.addAll(contacts);
-      });
+      items.add(contacts);
+    }
+  }
+
+  Future<void> searchById(String id, List<User> filtered) async {
+    final fil = await _contactRepo.searchUser(id);
+    if (fil.isNotEmpty) {
+      filtered.addAll(
+        fil.map((e) => User(firstname: e.name ?? "", id: e.id, uid: e.uid)),
+      );
+      items.add(filtered);
     }
   }
 
@@ -139,6 +149,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                 element.phoneNumber.nationalNumber.toInt(),
                               ),
                             )
+                            .map((e) => e.toUser())
                             .toList()
                         : snapshot.data!
                             .whereNot((element) => element.uid == null)
@@ -147,48 +158,48 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                   !_authRepo.isCurrentUser(element.uid!) &&
                                   !(element.phoneNumber.countryCode == 0),
                             )
+                            .map((e) => e.toUser())
                             .toList();
 
-                    items ??= contacts;
+                    items.add(contacts);
 
-                    if (items!.isNotEmpty) {
-                      return StreamBuilder<int>(
-                        stream: _createMucService.selectedMembersLengthStream(
-                          useBroadcastSmsContacts: widget.useSmsBroadcastList,
-                        ),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const SizedBox.shrink();
+                    return StreamBuilder(
+                      stream: items,
+                      builder: (c, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          if (items.value.isNotEmpty) {
+                            return ListView.builder(
+                              itemCount: items.value.length,
+                              itemBuilder: (c, index) =>
+                                  _getListItemTile(context, index),
+                            );
+                          } else {
+                            return ListView(
+                              children: [
+                                const EmptyContacts(),
+                                Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.symmetric(
+                                    horizontal: 32,
+                                  ),
+                                  child: TextButton(
+                                    onPressed: _routingService.openContacts,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(_i18n.get("contacts")),
+                                        const Icon(Icons.chevron_right_rounded),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
                           }
-                          return ListView.builder(
-                            itemCount: items!.length,
-                            itemBuilder: (c, index) =>
-                                _getListItemTile(context, index),
-                          );
-                        },
-                      );
-                    } else {
-                      return ListView(
-                        children: [
-                          const EmptyContacts(),
-                          Padding(
-                            padding: const EdgeInsetsDirectional.symmetric(
-                              horizontal: 32,
-                            ),
-                            child: TextButton(
-                              onPressed: _routingService.openContacts,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(_i18n.get("contacts")),
-                                  const Icon(Icons.chevron_right_rounded),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      );
-                    }
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    );
                   } else {
                     return const SizedBox.shrink();
                   }
@@ -257,8 +268,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           end: 5,
                         ),
                         child: (widget.categories == MucCategories.BROADCAST &&
-                           ( !widget.useSmsBroadcastList &&   snapshot.data! < 2)
-                              )
+                                (!widget.useSmsBroadcastList &&
+                                    snapshot.data! < 2))
                             ? const SizedBox()
                             : FloatingActionButton.extended(
                                 heroTag: "select_contacts",
@@ -266,8 +277,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                   Icons.chevron_right_rounded,
                                 ),
                                 label: widget.useSmsBroadcastList
-                                    ? Text(_i18n["add"])
-                                    : Text(_i18n["next"]),
+                                    ? Text(_i18n.get("add"))
+                                    : Text(_i18n.get("next")),
                                 onPressed: () {
                                   if (widget.openMucInfoDeterminationPage) {
                                     _routingService
@@ -285,7 +296,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
               return const SizedBox.shrink();
             }
           },
-        )
+        ),
       ],
     );
   }
@@ -293,9 +304,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        if (!members.contains(items![index].uid)) {
+        if (!members.contains(items.value[index].uid)) {
           if (!_createMucService.isSelected(
-            items![index],
+            items.value[index],
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
           )) {
             if (_createMucService
@@ -306,7 +317,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                     members.length <
                 _createMucService.getMaxMemberLength(widget.categories)) {
               _createMucService.addContact(
-                items![index],
+                items.value[index],
                 useBroadcastSmsContacts: widget.useSmsBroadcastList,
               );
               editingController.clear();
@@ -318,7 +329,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             }
           } else {
             _createMucService.deleteContact(
-              items![index],
+              items.value[index],
               useBroadcastSmsContacts: widget.useSmsBroadcastList,
             );
             editingController.clear();
@@ -326,12 +337,12 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
         }
       },
       child: ContactWidget(
-        contact: items![index],
+        user: items.value[index],
         isSelected: _createMucService.isSelected(
-          items![index],
+          items.value[index],
           useBroadcastSmsContacts: widget.useSmsBroadcastList,
         ),
-        currentMember: members.contains(items![index].uid),
+        currentMember: members.contains(items.value[index].uid),
       ),
     );
   }

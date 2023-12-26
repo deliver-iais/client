@@ -1,8 +1,8 @@
-import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
-import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactWidget extends StatelessWidget {
-  final Contact contact;
+  final User user;
   final IconData? circleIcon;
   final Color? circleIconColor;
   final void Function()? onCircleIcon;
@@ -26,7 +26,7 @@ class ContactWidget extends StatelessWidget {
 
   const ContactWidget({
     super.key,
-    required this.contact,
+    required this.user,
     this.circleIcon,
     this.circleIconColor,
     this.isSelected = false,
@@ -36,7 +36,7 @@ class ContactWidget extends StatelessWidget {
 
   static final _localNetworkDao = GetIt.I.get<LocalNetworkConnectionDao>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _i18N = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +67,11 @@ class ContactWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      if (contact.uid != null)
+                      if (user.uid != null)
                         CircleAvatarWidget(
-                          contact.uid!,
+                          user.uid!,
                           37,
-                          key: Key(contact.uid!.asString()),
+                          key: Key(user.uid!.asString()),
                           borderRadius: secondaryBorder,
                           showSavedMessageLogoIfNeeded: true,
                         )
@@ -103,28 +103,41 @@ class ContactWidget extends StatelessWidget {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: p8),
-                            child: TextLoader(
-                              text: Text(
-                                buildName(contact.firstName, contact.lastName),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                softWrap: false,
-                                style: theme.textTheme.titleMedium,
-                              ),
-                              width: 50,
-                            ),
+                            child: user.firstname.isNotEmpty
+                                ? TextLoader(
+                                    text: Text(
+                                      buildName(user.firstname, user.lastname),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      style: theme.textTheme.titleMedium,
+                                    ),
+                                    width: 50,
+                                  )
+                                : FutureBuilder<String>(
+                                    future: _roomRepo.getName(user.uid!),
+                                    builder: (c, s) => TextLoader(
+                                      text: Text(
+                                        s.data ?? user.id ?? "",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        style: theme.textTheme.titleMedium,
+                                      ),
+                                      width: 50,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
-
                     ],
                   ),
                   if (settings.localNetworkMessenger.value)
-                    if (contact.uid != null &&
-                        contact.uid!.category == Categories.USER &&
-                        !_authRepo.isCurrentUser(contact.uid!))
+                    if (user.uid != null &&
+                        user.uid!.category == Categories.USER &&
+                        !_authRepo.isCurrentUser(user.uid!))
                       StreamBuilder<LocalNetworkConnections?>(
-                        stream: _localNetworkDao.watch(contact.uid!),
+                        stream: _localNetworkDao.watch(user.uid!),
                         builder: (c, la) {
                           if (la.hasData && (la.data != null)) {
                             return Row(

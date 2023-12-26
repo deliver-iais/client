@@ -69,7 +69,6 @@ class ServerLessFileService {
         ),
       );
 
-
       request.response.statusCode = HttpStatus.ok;
     } catch (e) {
       request.response.statusCode = HttpStatus.internalServerError;
@@ -101,10 +100,12 @@ class MultipartRequest extends http.MultipartRequest {
     required this.onProgress,
   });
 
+
   final void Function(int bytes, int totalBytes) onProgress;
 
   @override
   http.ByteStream finalize() {
+
     final byteStream = super.finalize();
 
     final total = contentLength;

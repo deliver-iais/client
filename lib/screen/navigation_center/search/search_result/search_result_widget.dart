@@ -13,8 +13,7 @@ import 'package:rxdart/rxdart.dart';
 class SearchResultWidget extends StatefulWidget {
   final SearchController searchBoxController;
 
-  const SearchResultWidget({Key? key, required this.searchBoxController})
-      : super(key: key);
+  const SearchResultWidget({super.key, required this.searchBoxController});
 
   @override
   State<SearchResultWidget> createState() => _SearchResultWidgetState();
@@ -46,7 +45,8 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
         StreamBuilder<List<UidIdName>>(
           stream: _roomRepo.searchInRooms(widget.searchBoxController.text),
           builder: (c, snaps) {
-            _localHasResult = snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
+            _localHasResult =
+                snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
             if (snaps.connectionState == ConnectionState.waiting &&
                 (!snaps.hasData || snaps.data!.isEmpty)) {
               return const Center(
@@ -73,7 +73,6 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                     buildTitle(_i18n.get("contacts")),
                     ...searchResultWidget(contacts),
                   ],
-
                 ],
               ),
             );
@@ -86,7 +85,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
             if (snapshot.hasData &&
                 snapshot.data != null &&
                 snapshot.data!.isNotEmpty) {
-              return FutureBuilder<List<Uid>>(
+              return FutureBuilder<List<UidIdName>>(
                 future: globalSearchUser(snapshot.data!),
                 builder: (c, snaps) {
                   if (!snaps.hasData) {
@@ -103,9 +102,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                     children: [
                       if (global.isNotEmpty) ...[
                         buildTitle(_i18n.get("global_search")),
-                        ...searchResultWidget(
-                          global.map((e) => UidIdName(uid: e)).toList(),
-                        )
+                        ...searchResultWidget(global)
                       ]
                     ],
                   );
@@ -135,11 +132,8 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     );
   }
 
-
-
-  Future<List<Uid>> globalSearchUser(String query) {
-    return _contactRepo.searchUser(query);
-  }
+  Future<List<UidIdName>> globalSearchUser(String query) =>
+      _contactRepo.searchUser(query);
 
   List<Widget> searchResultWidget(List<UidIdName> uidList) {
     return List.generate(
@@ -148,6 +142,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
         return RoomInformationWidget(
           uid: uidList[index].uid,
           name: uidList[index].name,
+          id: uidList[index].id,
         );
       },
     );

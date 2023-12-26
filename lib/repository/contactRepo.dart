@@ -4,7 +4,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:deliver/box/uid_id_name.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart' as contact_model;
 import 'package:deliver/box/dao/contact_dao.dart';
@@ -344,7 +344,7 @@ class ContactRepo {
     }
   }
 
-  Future<List<Uid>> searchUser(String query) async {
+  Future<List<UidIdName>> searchUser(String query) async {
     await _analyticsService.sendLogEvent(
       "globalSearchUser",
       parameters: {"term": query},
@@ -361,9 +361,10 @@ class ContactRepo {
           ..category = Categories.USER
           ..filterByCategory = false,
       );
-      final searchResult = <Uid>[];
+      final searchResult = <UidIdName>[];
       for (final room in result.itemList) {
-        searchResult.add(room.uid);
+        searchResult
+            .add(UidIdName(uid: room.uid, id: room.id, name: room.name));
       }
       return searchResult;
     } catch (e) {

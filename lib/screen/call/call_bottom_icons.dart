@@ -133,7 +133,7 @@ class CallBottomRowState extends State<CallBottomRow>
                             ),
                             onTap: () => _selectAudioOutput(device),
                           );
-                        }).toList() ,
+                        }).toList(),
                     ];
                   },
                 )
@@ -507,6 +507,7 @@ class CallBottomRowState extends State<CallBottomRow>
       case CallStatus.DISCONNECTED:
       case CallStatus.FAILED:
       case CallStatus.NO_ANSWER:
+      case CallStatus.WEAK_NETWORK:
         return false;
     }
   }

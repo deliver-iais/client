@@ -34,6 +34,8 @@ abstract interface class RoomDao {
   Stream<Room> watchRoom(Uid roomUid);
 
   Future<List<Room>> getAllBots();
+
+  Future<List<Room>> getLocalRooms();
 }
 
 mixin RoomSorter {

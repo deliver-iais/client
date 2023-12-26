@@ -8,6 +8,7 @@ import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/download_video_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
@@ -41,6 +42,7 @@ class VideoMessage extends StatefulWidget {
 class VideoMessageState extends State<VideoMessage> {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   @override
   void initState() {
@@ -48,13 +50,13 @@ class VideoMessageState extends State<VideoMessage> {
   }
 
   File recheck(File file) {
-      final info = file.audioWaveform.data;
-      if (info.length == 2) {
-        file
-          ..width = info[0]
-          ..height = info[1];
-        return file;
-      }
+    final info = file.audioWaveform.data;
+    if (info.length == 2) {
+      file
+        ..width = info[0]
+        ..height = info[1];
+      return file;
+    }
     return file;
   }
 
@@ -87,6 +89,7 @@ class VideoMessageState extends State<VideoMessage> {
                           return _buildVideoUploadUi(
                             video,
                             pendingMessage.data!,
+                            filePath: path.data,
                           );
                         } else {
                           return const SizedBox.shrink();
@@ -179,40 +182,78 @@ class VideoMessageState extends State<VideoMessage> {
     );
   }
 
-  Widget _buildVideoUploadUi(File video, PendingMessage pendingMessage) {
+  Widget _buildVideoUploadUi(
+    File video,
+    PendingMessage pendingMessage, {
+    String? filePath,
+  }) {
+    final background = widget.colorScheme.onPrimary;
+    final foreground = widget.colorScheme.primary;
     switch (pendingMessage.status) {
       case SendingStatus.UPLOAD_FILE_IN_PROGRESS:
       case SendingStatus.PENDING:
       case SendingStatus.UPLOAD_FILE_COMPLETED:
         return Stack(
           children: [
-            Center(
-              child: LoadFileStatus(
-                file: video,
-                isPendingForwarded: (widget.message.forwardedFrom != null),
-                isUploading: true,
-                onCanceled: () {
-                  if (widget.message.id == null) {
-                    _messageRepo.deletePendingMessage(
-                      widget.message.packetId,
-                    );
-                  } else {
-                    _messageRepo.deletePendingEditedMessage(
-                      widget.message.roomUid,
-                      widget.message.id,
-                    );
-                  }
-                },
-                background: widget.colorScheme.onPrimary.withOpacity(0.8),
-                foreground: widget.colorScheme.primary,
+            Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: LoadFileStatus(
+                      file: video,
+                      widgetSize: 26,
+                      isPendingForwarded:
+                          (widget.message.forwardedFrom != null),
+                      isUploading: true,
+                      onCanceled: () {
+                        if (widget.message.id == null) {
+                          _messageRepo.deletePendingMessage(
+                            widget.message.packetId,
+                          );
+                        } else {
+                          _messageRepo.deletePendingEditedMessage(
+                            widget.message.roomUid,
+                            widget.message.id,
+                          );
+                        }
+                      },
+                      background: widget.colorScheme.onPrimary.withOpacity(0.8),
+                      foreground: widget.colorScheme.primary,
+                    ),
+                  ),
+                ),
+                FileDetails(
+                  file: video,
+                  colorScheme: widget.colorScheme,
+                  maxWidth: widget.maxWidth * 0.55,
+                  withColor: true,
+                ),
+              ],
+            ),
+            if (filePath != null)
+              Align(
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: background,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsetsDirectional.zero,
+                    icon: Icon(Icons.play_arrow, color: foreground),
+                    iconSize: 42,
+                    onPressed: () => _routingService.openShowAllVideos(
+                      roomUid: widget.message.roomUid,
+                      filePath: filePath,
+                      messageId: widget.message.id ?? 0,
+                      message: widget.message,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            FileDetails(
-              file: video,
-              colorScheme: widget.colorScheme,
-              maxWidth: widget.maxWidth * 0.55,
-              withColor: true,
-            ),
           ],
         );
       case SendingStatus.UPLOAD_FILE_FAIL:

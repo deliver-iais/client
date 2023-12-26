@@ -1,6 +1,7 @@
-import 'package:deliver/box/contact.dart';
+import 'package:deliver/models/user.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CreateMucService {
@@ -9,8 +10,8 @@ class CreateMucService {
   final BehaviorSubject<int> _membersLength = BehaviorSubject.seeded(0);
   final BehaviorSubject<int> _broadcastSmsContactsLength =
       BehaviorSubject.seeded(0);
-  final List<Contact> _contacts = [];
-  final List<Contact> _broadcastSmsContacts = [];
+  final List<User> _contacts = [];
+  final List<User> _broadcastSmsContacts = [];
 
   void reset() {
     _contacts.clear();
@@ -33,10 +34,10 @@ class CreateMucService {
 
   BehaviorSubject<bool> isSmsBroadcastEnableStream() => _enableSmsBroadcast;
 
-  List<Contact> getContacts({bool useBroadcastSmsContacts = false}) =>
+  List<User> getContacts({bool useBroadcastSmsContacts = false}) =>
       useBroadcastSmsContacts ? _broadcastSmsContacts : _contacts;
 
-  void addContact(Contact contact, {bool useBroadcastSmsContacts = false}) {
+  void addContact(User contact, {bool useBroadcastSmsContacts = false}) {
     getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).add(contact);
     selectedMembersLengthStream(
       useBroadcastSmsContacts: useBroadcastSmsContacts,
@@ -46,7 +47,7 @@ class CreateMucService {
   }
 
   void addContactList(
-    List<Contact> contact, {
+    List<User> contact, {
     bool useBroadcastSmsContacts = false,
   }) {
     getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).clear();
@@ -59,11 +60,12 @@ class CreateMucService {
     );
   }
 
-  void deleteContact(Contact contact, {bool useBroadcastSmsContacts = false}) {
+  void deleteContact(User contact, {bool useBroadcastSmsContacts = false}) {
     getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).removeWhere(
       (c) =>
-          c.phoneNumber.nationalNumber == contact.phoneNumber.nationalNumber &&
-          c.phoneNumber.countryCode == contact.phoneNumber.countryCode,
+          c.phoneNumber!.nationalNumber ==
+              contact.phoneNumber!.nationalNumber &&
+          c.phoneNumber!.countryCode == contact.phoneNumber!.countryCode,
     );
     selectedMembersLengthStream(
       useBroadcastSmsContacts: useBroadcastSmsContacts,
@@ -84,11 +86,11 @@ class CreateMucService {
   }) =>
       useBroadcastSmsContacts ? _broadcastSmsContactsLength : _membersLength;
 
-  bool isSelected(Contact contact, {bool useBroadcastSmsContacts = false}) =>
-      getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).any(
-        (c) =>
-            c.phoneNumber.nationalNumber ==
-                contact.phoneNumber.nationalNumber &&
-            c.phoneNumber.countryCode == contact.phoneNumber.countryCode,
-      );
+  bool isSelected(User contact, {bool useBroadcastSmsContacts = false}) =>
+      getContacts(useBroadcastSmsContacts: useBroadcastSmsContacts).any((c) =>
+          c.phoneNumber != null
+              ? c.phoneNumber!.nationalNumber ==
+                      contact.phoneNumber!.nationalNumber &&
+                  c.phoneNumber!.countryCode == contact.phoneNumber!.countryCode
+              : c.uid!.isSameEntity(contact.uid!.asString()),);
 }

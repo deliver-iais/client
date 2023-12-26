@@ -155,4 +155,17 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
         .map((e) => e.fromHive())
         .toList();
   }
+
+  @override
+  Future<List<Room>> getLocalRooms() async {
+    try {
+      final box = await _openRoom();
+      return box.values
+          .where((element) => element.localNetworkMessageCount > 0)
+          .map((e) => e.fromHive())
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

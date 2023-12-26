@@ -705,6 +705,14 @@ class RoomPageState extends State<RoomPage>
             label: "room.lastMessageId",
           ),
           Debug(
+            room.localNetworkMessageCount,
+            label: "room.localNetworkMessageCount",
+          ),
+          Debug(
+            room.lastLocalNetworkMessageId,
+            label: "room.lastLocalNetworkMessageId",
+          ),
+          Debug(
             _lastSeenMessageId,
             label: "_lastSeenMessageId",
           ),
