@@ -16,8 +16,8 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
     final box = await _openPendingMessageIsar();
 
     //here we just have one index and one data
-    return box.currentCallInfoIsars
-        .getSync(CurrentCallInfoIsar.CURRENT_CALL_ID)
+    return (await box.currentCallInfoIsars
+            .get(CurrentCallInfoIsar.CURRENT_CALL_ID))
         ?.fromIsar();
   }
 
@@ -27,8 +27,8 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   ) async {
     final box = await _openPendingMessageIsar();
 
-    return box.writeTxnSync(() {
-      box.currentCallInfoIsars.putSync(currentCallInfo.toIsar());
+    return box.writeTxn(() async {
+      await box.currentCallInfoIsars.put(currentCallInfo.toIsar());
     });
   }
 
@@ -36,9 +36,10 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   Future<void> remove() async {
     final box = await _openPendingMessageIsar();
 
-    return box.writeTxnSync(() {
-      box.currentCallInfoIsars.deleteSync(CurrentCallInfoIsar.CURRENT_CALL_ID);
-    });
+    return box.writeTxn(
+      () =>
+          box.currentCallInfoIsars.delete(CurrentCallInfoIsar.CURRENT_CALL_ID),
+    );
   }
 
   @override
@@ -46,13 +47,15 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
     try {
       final box = await _openPendingMessageIsar();
 
-      yield box.currentCallInfoIsars
-          .getSync(CurrentCallInfoIsar.CURRENT_CALL_ID)
+      yield (await box.currentCallInfoIsars
+              .get(CurrentCallInfoIsar.CURRENT_CALL_ID))
           ?.fromIsar();
 
       yield* box.currentCallInfoIsars
-          .watchObject(CurrentCallInfoIsar.CURRENT_CALL_ID,
-              fireImmediately: true)
+          .watchObject(
+            CurrentCallInfoIsar.CURRENT_CALL_ID,
+            fireImmediately: true,
+          )
           .map((event) => event?.fromIsar());
     } catch (_) {}
   }
@@ -74,8 +77,8 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
         await box.currentCallInfoIsars.get(CurrentCallInfoIsar.CURRENT_CALL_ID);
     callInfo!.offerBody = callOfferBody;
     callInfo.offerCandidate = callOfferCandidate;
-    return box.writeTxnSync(() async {
-      box.currentCallInfoIsars.putSync(callInfo);
+    return box.writeTxn(() async {
+      await box.currentCallInfoIsars.put(callInfo);
     });
   }
 
@@ -89,8 +92,8 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
         await box.currentCallInfoIsars.get(CurrentCallInfoIsar.CURRENT_CALL_ID);
     callInfo!.isAccepted = isAccepted;
     callInfo.notificationSelected = isSelectNotification;
-    return box.writeTxnSync(() async {
-      box.currentCallInfoIsars.putSync(callInfo);
+    return box.writeTxn(() async {
+      await box.currentCallInfoIsars.put(callInfo);
     });
   }
 }

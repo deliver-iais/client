@@ -13,21 +13,23 @@ class FileInfoDaoImpl extends FileDao {
       return null;
     }
     final box = await _openFileInfoIsar();
-    return box.fileInfoIsars
-        .filter()
-        .sizeTypeEqualTo(sizeType)
-        .uuidEqualTo(uuid)
-        .build()
-        .findFirstSync()
+    return (await box.fileInfoIsars
+            .filter()
+            .sizeTypeEqualTo(sizeType)
+            .uuidEqualTo(uuid)
+            .build()
+            .findFirst())
         ?.fromIsar();
   }
 
   @override
   Future<void> save(FileInfo fileInfo) async {
     final box = await _openFileInfoIsar();
-    box.writeTxnSync(() {
-      box.fileInfoIsars.putSync(fileInfo.toIsar());
-    });
+    unawaited(
+      box.writeTxn(() async {
+        await box.fileInfoIsars.put(fileInfo.toIsar());
+      }),
+    );
   }
 
   @override
@@ -38,8 +40,8 @@ class FileInfoDaoImpl extends FileDao {
         .sizeTypeEqualTo(size)
         .uuidEqualTo(uuid)
         .build();
-    return box.writeTxnSync(() {
-      query.deleteAllSync();
+    return box.writeTxn(()async {
+      await query.deleteAll();
     });
   }
 

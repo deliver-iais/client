@@ -20,7 +20,7 @@ class AvatarDaoImpl extends AvatarDao {
         .sortByCreatedOnDesc()
         .build();
 
-    yield query.findAllSync().map((e) => e.fromIsar()).toList();
+    yield (await query.findAll()).map((e) => e.fromIsar()).toList();
 
     yield* query
         .watch()
@@ -36,8 +36,8 @@ class AvatarDaoImpl extends AvatarDao {
     final box = await _openAvatarIsar();
 
     for (final avatar in avatars) {
-      box.writeTxnSync(() {
-        box.avatarIsars.putSync(avatar.toIsar());
+      await box.writeTxn(() async {
+        await box.avatarIsars.put(avatar.toIsar());
       });
     }
   }
@@ -51,20 +51,20 @@ class AvatarDaoImpl extends AvatarDao {
         .fileUuidEqualTo(avatar.fileUuid)
         .fileNameEqualTo(avatar.fileName)
         .build();
-    return box.writeTxnSync(() {
-      query.deleteAllSync();
+    return box.writeTxn(() async {
+      unawaited(query.deleteAll());
     });
   }
 
   @override
   Future<Avatar?> getLastAvatar(String uid) async {
     final box = await _openAvatarIsar();
-    return box.avatarIsars
-        .filter()
-        .uidEqualTo(uid)
-        .sortByCreatedOnDesc()
-        .build()
-        .findFirstSync()
+    return (await box.avatarIsars
+            .filter()
+            .uidEqualTo(uid)
+            .sortByCreatedOnDesc()
+            .build()
+            .findFirst())
         ?.fromIsar();
   }
 
@@ -75,7 +75,7 @@ class AvatarDaoImpl extends AvatarDao {
     final query =
         box.avatarIsars.filter().uidEqualTo(uid).sortByCreatedOnDesc().build();
 
-    yield query.findFirstSync()?.fromIsar();
+    yield (await query.findFirst())?.fromIsar();
 
     yield* query
         .watch()
@@ -89,8 +89,8 @@ class AvatarDaoImpl extends AvatarDao {
   Future<void> clearAllAvatars(String uid) async {
     final box = await _openAvatarIsar();
     final query = box.avatarIsars.filter().uidEqualTo(uid).build();
-    return box.writeTxnSync(() {
-      query.deleteAllSync();
+    return box.writeTxn(() async {
+      unawaited(query.deleteAll());
     });
   }
 
@@ -99,16 +99,18 @@ class AvatarDaoImpl extends AvatarDao {
     final box = await _openAvatarIsar();
     final lastAvatar = await getLastAvatar(uid);
     if (lastAvatar == null) {
-      return box.writeTxnSync(() {
-        box.avatarIsars.putSync(
-          Avatar(
-            uid: uid.asUid(),
-            fileName: "",
-            fileUuid: "",
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
-            createdOn: 0,
-            avatarIsEmpty: true,
-          ).toIsar(),
+      return box.writeTxn(() async {
+        unawaited(
+          box.avatarIsars.put(
+            Avatar(
+              uid: uid.asUid(),
+              fileName: "",
+              fileUuid: "",
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              createdOn: 0,
+              avatarIsEmpty: true,
+            ).toIsar(),
+          ),
         );
       });
     }

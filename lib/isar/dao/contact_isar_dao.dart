@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/isar_manager.dart';
@@ -13,17 +15,14 @@ class ContactDaoImpl extends ContactDao {
   @override
   Future<Contact?> get(PhoneNumber phoneNumber) async {
     final box = await _openIsar();
-    return box.contactIsars
-        .getSync(fastHash(phoneNumber.asString()))
+    return (await box.contactIsars.get(fastHash(phoneNumber.asString())))
         ?.fromIsar();
   }
 
   @override
   Future<List<Contact>> getAllContacts() async {
     final box = await _openIsar();
-    return box.contactIsars
-        .where()
-        .findAllSync()
+    return (await box.contactIsars.where().findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -31,10 +30,7 @@ class ContactDaoImpl extends ContactDao {
   @override
   Future<List<Contact>> getAllMessengerContacts() async {
     final box = await _openIsar();
-    return box.contactIsars
-        .filter()
-        .uidIsNotNull()
-        .findAllSync()
+    return (await box.contactIsars.filter().uidIsNotNull().findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -42,20 +38,17 @@ class ContactDaoImpl extends ContactDao {
   @override
   Future<Contact?> getByUid(Uid uid) async {
     final box = await _openIsar();
-    return box.contactIsars
-        .filter()
-        .uidEqualTo(uid.asString())
-        .findFirstSync()
+    return (await box.contactIsars
+            .filter()
+            .uidEqualTo(uid.asString())
+            .findFirst())
         ?.fromIsar();
   }
 
   @override
   Future<List<Contact>> getNotMessengerContacts() async {
     final box = await _openIsar();
-    return box.contactIsars
-        .filter()
-        .uidIsNull()
-        .findAllSync()
+    return (await box.contactIsars.filter().uidIsNull().findAll())
         .map((e) => e.fromIsar())
         .toList();
   }
@@ -74,8 +67,8 @@ class ContactDaoImpl extends ContactDao {
     final c = (await box.contactIsars.get(fastHash(phoneNumber.asString()))) ??
         ContactIsar(phoneNumber: phoneNumber.asString());
 
-    box.writeTxnSync(
-      () => box.contactIsars.putSync(
+    unawaited(box.writeTxn(
+      () async => box.contactIsars.put(
         ContactIsar(
           phoneNumber: phoneNumber.asString(),
           firstName: firstName ?? c.firstName,
@@ -86,16 +79,14 @@ class ContactDaoImpl extends ContactDao {
           updateTime: updateTime ?? c.updateTime,
         ),
       ),
-    );
+    ));
   }
 
   @override
   Stream<List<Contact>> watchAll() async* {
     final box = await _openIsar();
 
-    yield box.contactIsars
-        .where()
-        .findAllSync()
+    yield (await box.contactIsars.where().findAll())
         .map((e) => e.fromIsar())
         .toList();
 
@@ -110,7 +101,7 @@ class ContactDaoImpl extends ContactDao {
     final box = await _openIsar();
     final query = box.contactIsars.filter().uidIsNotNull().build();
 
-    yield query.findAllSync().map((e) => e.fromIsar()).toList();
+    yield (await query.findAll()).map((e) => e.fromIsar()).toList();
 
     yield* query.watch().map(
           (event) => event.map((e) => e.fromIsar()).toList(),
@@ -122,7 +113,7 @@ class ContactDaoImpl extends ContactDao {
     final box = await _openIsar();
     final query = box.contactIsars.filter().uidIsNull().build();
 
-    yield query.findAllSync().map((e) => e.fromIsar()).toList();
+    yield (await query.findAll()).map((e) => e.fromIsar()).toList();
 
     yield* query.watch().map(
           (event) => event.map((e) => e.fromIsar()).toList(),
