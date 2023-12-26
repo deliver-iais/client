@@ -30,7 +30,7 @@ class HasCallRowState extends State<HasCallRow> {
       initialData: CallStatus.NO_CALL,
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
-        if(callRepo.isCallFromNotActiveState){
+        if (callRepo.isCallFromNotActiveState) {
           return const SizedBox.shrink();
         }
         Widget renderer;
@@ -156,6 +156,7 @@ class HasCallRowState extends State<HasCallRow> {
       case CallStatus.CONNECTING:
       case CallStatus.DISCONNECTED:
       case CallStatus.RECONNECTING:
+      case CallStatus.WEAK_NETWORK:
         return Colors.orange;
 
       case CallStatus.FAILED:

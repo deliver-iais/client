@@ -115,7 +115,7 @@ class _AttachContactState extends State<AttachContact> {
   Widget buildIndex(Contact contact, BuildContext context) {
     return GestureDetector(
       child: ContactWidget(
-        contact: contact,
+        user: contact.toUser(),
       ),
       onTap: () {
         showFloatingModalBottomSheet(

@@ -64,10 +64,10 @@ class NotificationForegroundService {
   }
 
   Future<bool> localNetworkForegroundServiceStart() async {
-    // if (!settings.foregroundNotificationIsEnabled.value) {
-    //   foregroundServiceType = NotificationForegroundServiceType.LOCAL_NETWORK;
-    //   return foregroundTaskInitializing(startLocalNetwork: true);
-    // }
+    if (!settings.foregroundNotificationIsEnabled.value) {
+      foregroundServiceType = NotificationForegroundServiceType.LOCAL_NETWORK;
+      return foregroundTaskInitializing(startLocalNetwork: true);
+    }
     return false;
   }
 

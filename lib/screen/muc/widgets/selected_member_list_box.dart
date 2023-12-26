@@ -17,12 +17,12 @@ class SelectedMemberListBox extends StatelessWidget {
   final MucCategories categories;
 
   const SelectedMemberListBox({
-    Key? key,
+    super.key,
     required this.title,
     this.useSmsBroadcastList = false,
     required this.onAddMemberClick,
     this.categories = MucCategories.NONE,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class SelectedMemberListBox extends StatelessWidget {
                 IconButton(
                   onPressed: () => onAddMemberClick(),
                   icon: const Icon(Icons.add_circle_outline),
-                )
+                ),
               ],
             ),
           ),
@@ -114,7 +114,7 @@ class SelectedMemberListBox extends StatelessWidget {
                   shrinkWrap: true,
                   itemCount: snapshot.data,
                   itemBuilder: (context, index) => ContactWidget(
-                    contact: _createMucService.getContacts(
+                    user: _createMucService.getContacts(
                       useBroadcastSmsContacts: useSmsBroadcastList,
                     )[index],
                     circleIcon: !((categories == MucCategories.BROADCAST &&

@@ -1,6 +1,7 @@
-import 'package:deliver/box/contact.dart';
+
 import 'package:deliver/box/member.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -46,7 +47,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
 
   final _i18n = GetIt.I.get<I18N>();
 
-  final List<Contact> _lastSelectedMembers = [];
+  final List<User> _lastSelectedMembers = [];
 
   @override
   void initState() {

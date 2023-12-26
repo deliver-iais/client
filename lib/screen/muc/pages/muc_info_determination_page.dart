@@ -16,7 +16,6 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/validate.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -403,12 +402,12 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         _mucRepo.saveSmsBroadcastContact(
           BroadcastMember(
             broadcastUid: broadcastUid,
-            name: buildName(smsMember.firstName, smsMember.lastName),
+            name: smsMember.firstname,
             type: BroadCastMemberType.SMS,
             phoneNumber: PhoneNumber()
               ..nationalNumber =
-                  Int64(smsMember.phoneNumber.nationalNumber.toInt())
-              ..countryCode = smsMember.phoneNumber.countryCode,
+                  Int64(smsMember.phoneNumber!.nationalNumber.toInt())
+              ..countryCode = smsMember.phoneNumber!.countryCode,
           ),
           broadcastUid,
         ),

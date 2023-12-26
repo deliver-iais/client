@@ -53,7 +53,8 @@ enum CallStatus {
   CONNECTED,
   DISCONNECTED,
   FAILED,
-  NO_ANSWER
+  NO_ANSWER,
+  WEAK_NETWORK
 }
 
 class CallRepo {
@@ -1139,10 +1140,9 @@ class CallRepo {
         );
       } else if (!isDuplicated) {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
-        if ((await _checkForegroundStatus()) &&
-            (_appLifecycleService.isActive &&
-                    _routingService.isInRoom(_roomUid!.asString()) ||
-                (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
+        if ((_appLifecycleService.isActive &&
+                _routingService.isInRoom(_roomUid!.asString()) ||
+            (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1343,16 +1343,18 @@ class CallRepo {
   }
 
   Timer _startFailCallTimer() {
-    return Timer(const Duration(seconds: 30), () {
-      if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
-        try {
-          _logger.i("Call Can't Connected !!");
-          callingStatus.add(CallStatus.NO_ANSWER);
-          unawaited(_increaseCandidateAndWaitingTime());
-        } catch (e) {
-          _logger.e(e);
+    return Timer.periodic(const Duration(seconds: 30), (sec) {
+      if (sec.tick == 30) {
+        if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
+          try {
+            _logger.i("Call Can't Connected !!");
+            callingStatus.add(CallStatus.NO_ANSWER);
+            unawaited(_increaseCandidateAndWaitingTime());
+          } catch (e) {
+            _logger.e(e);
+          }
+          endCall();
         }
-        endCall();
       }
     });
   }

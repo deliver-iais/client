@@ -35,6 +35,11 @@ class ServerLessService {
   var _wifiBroadcast = "255.255.255.255";
 
   void start() {
+    GetIt.I.get<ServerLessMessageService>().updateRooms();
+    _start();
+  }
+
+  void _start() {
     _address.clear();
     _startServices();
     _startForegroundService();
@@ -59,7 +64,7 @@ class ServerLessService {
 
   Future<void> restart() async {
     await dispose();
-    start();
+    _start();
   }
 
   Future<void> dispose() async {

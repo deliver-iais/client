@@ -126,6 +126,7 @@ class BoxContentState extends State<BoxContent> {
                     label: "message details",
                     children: [
                       Debug(widget.message.id, label: "id"),
+                      Debug(widget.message.localNetworkMessageId, label: "localNetworkMessageId"),
                       Debug(widget.message.packetId, label: "packetId"),
                       Debug(widget.message.json, label: "json"),
                     ],

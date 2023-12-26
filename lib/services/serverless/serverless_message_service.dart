@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
@@ -38,6 +37,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:synchronized/synchronized.dart';
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -52,22 +52,19 @@ class ServerLessMessageService {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _logger = GetIt.I.get<Logger>();
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
+  final _completerMap = <String, Completer>{};
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
       case ClientPacket_Type.message:
-        final room = await _roomDao.getRoom(clientPacket.message.to);
         if (clientPacket.message.hasText()) {
           await _sendTextMessage(
             clientPacket.message,
-            id ?? (room != null ? room.lastMessageId + 1 : 1),
+            id ?? 1,
             edited: id != null,
           );
         } else if (clientPacket.message.hasFile()) {
-          await _sendFileMessage(
-            clientPacket.message,
-            room != null ? room.lastMessageId + 1 : 1,
-          );
+          await _sendFileMessage(clientPacket.message, 1);
         }
         break;
       case ClientPacket_Type.seen:
@@ -218,12 +215,9 @@ class ServerLessMessageService {
   Future<void> _send({required String ip, required Message message}) async {
     final res =
         await _serverLessService.sendRequest(message.writeToBuffer(), ip);
-    if (res != null &&
-        res.statusCode == 200 &&
-        res.data != null &&
-        res.data == message.id.toString()) {
+    if (res != null && res.statusCode == HttpStatus.ok) {
       unawaited(
-        _dataStreamService.handleAckMessage(
+        _handleAck(
           MessageDeliveryAck(
             to: message.from,
             packetId: message.packetId,
@@ -233,7 +227,6 @@ class ServerLessMessageService {
             id: message.id,
             from: message.to,
           ),
-          isLocalNetworkMessage: true,
         ),
       );
     }
@@ -273,19 +266,13 @@ class ServerLessMessageService {
 
   Future<void> processRequest(HttpRequest request) async {
     try {
-      request.response.headers.contentType == ContentType.binary;
       final type = request.headers.value(TYPE) ?? MESSAGE;
       if (type == ACK) {
         unawaited(
-          _dataStreamService.handleAckMessage(
-            MessageDeliveryAck.fromBuffer(await request.first),
-            isLocalNetworkMessage: true,
-          ),
-        );
+            _handleAck(MessageDeliveryAck.fromBuffer(await request.first)));
       } else if (type == SEEN) {
-        unawaited(
-          _dataStreamService.handleSeen(Seen.fromBuffer(await request.first)),
-        );
+        await _dataStreamService
+            .handleSeen(Seen.fromBuffer(await request.first));
       } else if (type == MESSAGE) {
         await _processMessage(request);
       } else if (type == CREATE_MUC) {
@@ -319,6 +306,29 @@ class ServerLessMessageService {
     await request.response.close();
   }
 
+  Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
+    var completer = _completerMap[messageDeliveryAck.from.asString()];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[messageDeliveryAck.from.asString()] = completer;
+      completer.complete(
+        _dataStreamService.handleAckMessage(
+          messageDeliveryAck,
+          isLocalNetworkMessage: true,
+        ),
+      );
+    } else {
+      await completer.future;
+      _completerMap.remove(messageDeliveryAck.from.asString());
+      await _handleAck(messageDeliveryAck);
+    }
+  }
+
+  void removePendingFromCache(String uid, String packetId) {
+    _pendingMessageMap[uid]
+        ?.removeWhere((element) => element.packetId == packetId);
+  }
+
   Future<void> sendPendingMessage(String uid) async {
     if (_pendingMessageMap.keys.contains(uid)) {
       if (_pendingMessageMap[uid]!.isNotEmpty) {
@@ -326,7 +336,10 @@ class ServerLessMessageService {
         try {
           if (pm.type == MessageType.CALL_LOG) {
             unawaited(_sendCallLog(
-                CallLog.fromJson(pm.json), pm.packetId, pm.roomUid));
+              CallLog.fromJson(pm.json),
+              pm.packetId,
+              pm.roomUid,
+            ));
           } else {
             if (pm.type == MessageType.FILE) {
               final file = file_pb.File.fromJson(pm.json);
@@ -395,7 +408,7 @@ class ServerLessMessageService {
 
   Future<void> _processMessage(HttpRequest request) async {
     final message = Message.fromBuffer(await request.first);
-    request.response.write(message.id.toString());
+
     final ip = request.headers.value(IP);
     if (ip != null) {
       unawaited(
@@ -410,13 +423,7 @@ class ServerLessMessageService {
     final room = await _roomDao.getRoom(uid);
     final ackId = message.id;
     if (!message.edited) {
-      final id = Int64(max((room?.lastMessageId ?? 0) + 1, message.id.toInt()));
-      message.id = id;
-      print(message.packetId +
-          "///" +
-          message.id.toString() +
-          "///" +
-          message.text.text);
+      message.id = Int64(room?.lastMessageId ?? 0) + 1;
       unawaited(
         _sendAck(
           MessageDeliveryAck(
@@ -444,8 +451,16 @@ class ServerLessMessageService {
         lastLocalNetworkMessageId: message.id.toInt(),
         localNetworkMessageCount: room.localNetworkMessageCount + 1,
       );
-    } else {
-      print(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
+    }
+  }
+
+  Future<void> updateRooms() async {
+    for (final room in (await _roomDao.getLocalRooms())) {
+      await _roomDao.updateRoom(
+        uid: room.uid,
+        localNetworkMessageCount: 0,
+        lastLocalNetworkMessageId: room.lastMessage?.id,
+      );
     }
   }
 

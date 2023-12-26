@@ -1,3 +1,4 @@
+import 'package:deliver/models/user.dart';
 import 'package:deliver/shared/extensions/phone_number_extention.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -5,6 +6,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'contact.freezed.dart';
+
 part 'contact.g.dart';
 
 @freezed
@@ -21,4 +23,13 @@ class Contact with _$Contact {
 
   factory Contact.fromJson(Map<String, Object?> json) =>
       _$ContactFromJson(json);
+}
+
+extension UserMapper on Contact {
+  User toUser() => User(
+        firstname: firstName,
+        lastname: lastName,
+        uid: uid,
+        phoneNumber: phoneNumber,
+      );
 }

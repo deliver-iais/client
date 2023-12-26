@@ -18,17 +18,17 @@ class MessageDaoImpl extends MessageDao {
   Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessages(roomUid.asString());
 
-    return box.get(id)?.fromHive();
+    return box.values
+        .where((element) => element.id == id)
+        .firstOrNull
+        ?.fromHive();
   }
 
   @override
   Future<Message?> getMessageByLocalNetworkId(Uid roomUid, int id) async {
     final box = await _openMessages(roomUid.asString());
 
-    return box.values
-        .where((element) => element.localNetworkMessageId == id)
-        .firstOrNull
-        ?.fromHive();
+    return box.get(id)?.fromHive();
   }
 
   @override
@@ -62,7 +62,7 @@ class MessageDaoImpl extends MessageDao {
   Future<void> insertMessage(Message message) async {
     final box = await _openMessages(message.roomUid.asString());
 
-    return box.put(message.id, message.toHive());
+    return box.put(message.localNetworkMessageId, message.toHive());
   }
 
   static String _keyMessages(String uid) =>

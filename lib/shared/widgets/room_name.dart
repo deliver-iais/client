@@ -13,6 +13,7 @@ class RoomName extends StatelessWidget {
 
   final Uid uid;
   final String? name;
+  final String? id;
   final TextStyle? style;
   final String? status;
   final int maxLines;
@@ -24,6 +25,7 @@ class RoomName extends StatelessWidget {
     super.key,
     required this.uid,
     this.name,
+    this.id,
     this.style,
     this.maxLines = 1,
     this.overflow = TextOverflow.ellipsis,
@@ -36,7 +38,7 @@ class RoomName extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FutureBuilder<String>(
-      initialData: fastForwardGetName(),
+      initialData: id ?? fastForwardGetName(),
       future: getName(),
       builder: (context, snapshot) {
         final name = (snapshot.data ?? "");
@@ -46,8 +48,8 @@ class RoomName extends StatelessWidget {
           children: [
             Flexible(
               child: TextLoader(
-                text: Text( String.fromCharCodes(
-                  name.replaceAll('', '\u200B').runes),
+                text: Text(
+                  String.fromCharCodes(name.replaceAll('', '\u200B').runes),
                   style: (style ?? theme.textTheme.titleSmall)!
                       .copyWith(height: 1.5),
                   maxLines: maxLines,

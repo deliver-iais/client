@@ -53,14 +53,14 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     int? lastLocalNetworkMessageId,
     int? localNetworkMessageCount,
   }) async {
-    try{
-    final box = await _openRoomIsar();
-    box.writeTxnSync(() {
-      final room =
-          box.roomIsars.filter().uidEqualTo(uid.asString()).findFirstSync() ??
-              RoomIsar(uid: uid.asString());
+    try {
+      final box = await _openRoomIsar();
+      box.writeTxnSync(() {
+        final room =
+            box.roomIsars.filter().uidEqualTo(uid.asString()).findFirstSync() ??
+                RoomIsar(uid: uid.asString());
 
-         box.roomIsars.putSync(
+        box.roomIsars.putSync(
           RoomIsar(
             uid: uid.asString(),
             lastMessageId: lastMessageId ?? room.lastMessageId,
@@ -78,8 +78,8 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
             shouldUpdateMediaCount:
                 shouldUpdateMediaCount ?? room.shouldUpdateMediaCount,
             mentionsId: mentionsId ?? room.mentionsId,
-            lastCurrentUserSentMessageId:
-            lastCurrentUserSentMessageId ?? room.lastCurrentUserSentMessageId,
+            lastCurrentUserSentMessageId: lastCurrentUserSentMessageId ??
+                room.lastCurrentUserSentMessageId,
             firstMessageId: firstMessageId ?? room.firstMessageId,
             deleted: deleted ?? room.deleted,
             replyKeyboardMarkup: replyKeyboardMarkup ??
@@ -92,8 +92,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
         );
       });
     } catch (e) {
-
-      print("updateRomm"+e.toString());
+      print("updateRomm" + e.toString());
     }
   }
 
@@ -137,6 +136,17 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     return box.roomIsars
         .filter()
         .uidStartsWith("4")
+        .findAllSync()
+        .map((e) => e.fromIsar())
+        .toList();
+  }
+
+  @override
+  Future<List<Room>> getLocalRooms() async {
+    final box = await _openRoomIsar();
+    return box.roomIsars
+        .filter()
+        .localNetworkMessageCountGreaterThan(0)
         .findAllSync()
         .map((e) => e.fromIsar())
         .toList();

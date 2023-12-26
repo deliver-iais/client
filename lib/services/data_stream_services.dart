@@ -558,11 +558,12 @@ class DataStreamServices {
     MessageDeliveryAck messageDeliveryAck, {
     bool isLocalNetworkMessage = false,
   }) async {
+    final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
     final packetId = messageDeliveryAck.packetId;
-    final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
+
     final time = messageDeliveryAck.time.toInt();
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
@@ -570,9 +571,18 @@ class DataStreamServices {
     } else {
       final pm = await _pendingMessageDao.getPendingMessage(packetId);
       if (pm != null) {
+        if (isLocalNetworkMessage) {
+          serverLessMessageService.removePendingFromCache(
+            pm.roomUid.asString(),
+            packetId,
+          );
+        }
+        final room = await _roomDao.getRoom(pm.roomUid);
+        if (isLocalNetworkMessage) {
+          messageDeliveryAck.id = Int64((room?.lastMessageId ?? 0) + 1);
+        }
         var localNetworkMessageId = messageDeliveryAck.id;
         if (!isLocalNetworkMessage) {
-          final room = await _roomDao.getRoom(pm.roomUid);
           if (room != null) {
             localNetworkMessageId = Int64(
               messageDeliveryAck.id.toInt() + room.localNetworkMessageCount,

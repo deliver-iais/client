@@ -188,6 +188,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
       case CallStatus.CONNECTING:
       case CallStatus.DISCONNECTED:
       case CallStatus.RECONNECTING:
+      case CallStatus.WEAK_NETWORK:
         return Colors.orange;
 
       case CallStatus.FAILED:
@@ -222,6 +223,8 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
         return _i18n.get("call_ringing");
       case CallStatus.NO_ANSWER:
         return _i18n.get("call_user_not_answer");
+      case CallStatus.WEAK_NETWORK:
+        return _i18n.get("call_weak_network");
       case CallStatus.CREATED:
         return widget.isIncomingCall
             ? _i18n.get("call_incoming")
