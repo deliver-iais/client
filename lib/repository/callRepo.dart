@@ -67,7 +67,7 @@ class CallRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
   final _notificationForegroundService =
-  GetIt.I.get<NotificationForegroundService>();
+      GetIt.I.get<NotificationForegroundService>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
@@ -83,8 +83,6 @@ class CallRepo {
   String _callOfferBody = "";
   String _callOfferCandidate = "";
   List<Map<String, Object>> _candidate = [];
-  CallEventV2 _LastRingingData = CallEventV2.create();
-
 
   String _offerSdp = "";
   String _answerSdp = "";
@@ -1143,9 +1141,10 @@ class CallRepo {
         );
       } else if (!isDuplicated) {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
-        if ((_appLifecycleService.isActive &&
-                _routingService.isInRoom(_roomUid!.asString()) ||
-            (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
+        if ((await _checkForegroundStatus()) &&
+            (_appLifecycleService.isActive &&
+                    _routingService.isInRoom(_roomUid!.asString()) ||
+                (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1346,18 +1345,16 @@ class CallRepo {
   }
 
   Timer _startFailCallTimer() {
-    return Timer.periodic(const Duration(seconds: 30), (sec) {
-      if (sec.tick == 30) {
-        if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
-          try {
-            _logger.i("Call Can't Connected !!");
-            callingStatus.add(CallStatus.NO_ANSWER);
-            unawaited(_increaseCandidateAndWaitingTime());
-          } catch (e) {
-            _logger.e(e);
-          }
-          endCall();
+    return Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
+        try {
+          _logger.i("Call Can't Connected !!");
+          callingStatus.add(CallStatus.NO_ANSWER);
+          unawaited(_increaseCandidateAndWaitingTime());
+        } catch (e) {
+          _logger.e(e);
         }
+        endCall();
       }
     });
   }
