@@ -326,7 +326,7 @@ class ServerLessMessageService {
         try {
           if (pm.type == MessageType.CALL_LOG) {
             unawaited(_sendCallLog(
-                CallLog.fromJson(pm.json), pm.packetId, pm.roomUid));
+                CallLog.fromJson(pm.json), pm.packetId, pm.roomUid,),);
           } else {
             if (pm.type == MessageType.FILE) {
               final file = file_pb.File.fromJson(pm.json);
@@ -503,8 +503,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.end:
         callLog = CallLog(
-          from: callEvent.to,
-          to: callEvent.from,
+          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
+          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           end: callEvent.end,
@@ -512,8 +512,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.decline:
         callLog = CallLog(
-          from: callEvent.from,
-          to: callEvent.to,
+          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
+          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           decline: callEvent.decline,
@@ -521,8 +521,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.busy:
         callLog = CallLog(
-          from: callEvent.from,
-          to: callEvent.to,
+          to: callEvent.end.isCaller ? callEvent.to : callEvent.from,
+          from: callEvent.end.isCaller ? callEvent.from : callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           busy: callEvent.busy,

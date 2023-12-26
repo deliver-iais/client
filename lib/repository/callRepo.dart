@@ -1705,7 +1705,7 @@ class CallRepo {
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..end = CallEventEnd(callDuration: Int64(callDuration)));
+      ..end = CallEventEnd(callDuration: Int64(callDuration) , isCaller: _isCaller));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
     _checkRetryCallEvent(callEventV2ByClient);

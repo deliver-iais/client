@@ -38,13 +38,9 @@ class CallMessageWidget extends StatelessWidget {
     final bool isVideo;
     final bool isIncomingCall;
     if (_callEvent != null) {
-      callDuration = _callEvent!.callDuration.toInt();
+      callDuration = _callLog!.end.callDuration.toInt();
       isVideo = _callEvent!.callType == CallEvent_CallType.VIDEO;
-      isIncomingCall =
-          (_callEvent!.callStatus == CallEvent_CallStatus.DECLINED ||
-                  _callEvent!.callStatus == CallEvent_CallStatus.BUSY)
-              ? _authRepo.isCurrentUser(message.to)
-              : _authRepo.isCurrentUser(message.from);
+      isIncomingCall = _callLog!.end.isCaller;
     } else {
       if (_callLog!.hasEnd()) {
         callDuration = _callLog!.end.callDuration.toInt();
@@ -52,9 +48,8 @@ class CallMessageWidget extends StatelessWidget {
         callDuration = 0;
       }
       isVideo = _callLog!.isVideo;
-      isIncomingCall = (_callLog!.hasBusy() || _callLog!.hasDecline())
-          ? _authRepo.isCurrentUser(message.to)
-          : _authRepo.isCurrentUser(message.from);
+      isIncomingCall = _callLog!.end.isCaller;
+
     }
     return Container(
       width: 210,
