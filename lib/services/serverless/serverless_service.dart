@@ -46,20 +46,20 @@ class ServerLessService {
   }
 
   Future<void> _startForegroundService() async {
-    // try {
-    //   await _notificationForegroundService.stopForegroundTask();
-    //   final foregroundStatus = await _notificationForegroundService
-    //       .localNetworkForegroundServiceStart();
-    //   if (foregroundStatus) {
-    //     _notificationForegroundService.getReceivePort?.listen((message) {
-    //       if (message == ForeGroundConstant.STOP_LOCAL_NETWORK) {
-    //         _notificationForegroundService.stopForegroundTask();
-    //       }
-    //     });
-    //   }
-    // } catch (e) {
-    //   _logger.e(e);
-    // }
+    try {
+      await _notificationForegroundService.stopForegroundTask();
+      final foregroundStatus = await _notificationForegroundService
+          .localNetworkForegroundServiceStart();
+      if (foregroundStatus) {
+        _notificationForegroundService.getReceivePort?.listen((message) {
+          if (message == ForeGroundConstant.STOP_LOCAL_NETWORK) {
+            _notificationForegroundService.stopForegroundTask();
+          }
+        });
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> restart() async {
