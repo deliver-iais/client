@@ -196,7 +196,7 @@ class ServerLessService {
   Future<void> _startHttpService() async {
     try {
       await _httpServer?.close(force: true);
-      _httpServer = await HttpServer.bind('0.0.0.0', SERVER_PORT);
+      _httpServer = await HttpServer.bind(_ip, SERVER_PORT);
       _logger.i('Listening on $_ip:${_httpServer?.port}');
       if (_httpServer != null) {
         _httpServer?.listen((request) {

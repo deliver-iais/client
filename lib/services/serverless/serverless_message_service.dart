@@ -441,14 +441,12 @@ class ServerLessMessageService {
         ),
       );
     }
-    if (null ==
-        await _messageDao.getMessageByPacketId(room!.uid, message.packetId)) {
+    if (await _messageDao.getMessageByPacketId(room!.uid, message.packetId) == null) {
       await _dataStreamService.handleIncomingMessage(
         message,
         isOnlineMessage: true,
         isLocalNetworkMessage: true,
       );
-
       await _roomDao.updateRoom(
         uid: room.uid,
         lastLocalNetworkMessageId: message.id.toInt(),
@@ -537,8 +535,8 @@ class ServerLessMessageService {
         break;
       case call_pb.CallEventV2_Type.end:
         callLog = CallLog(
-          from: callEvent.to,
-          to: callEvent.from,
+          from: callEvent.from,
+          to: callEvent.to,
           id: callEvent.id,
           isVideo: callEvent.isVideo,
           end: callEvent.end,
@@ -562,7 +560,6 @@ class ServerLessMessageService {
           busy: callEvent.busy,
         );
         break;
-
       case call_pb.CallEventV2_Type.notSet:
         break;
     }

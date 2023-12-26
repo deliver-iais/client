@@ -82,7 +82,7 @@ extension StringUidExtension on String {
     if (list.length != 2) {
       return false;
     } else {
-      return uid.category.value == int.parse(list[0]) && uid.node == list[1];
+      return (uid.category.value == int.parse(list[0]))  && (uid.node == list[1]);
     }
   }
 

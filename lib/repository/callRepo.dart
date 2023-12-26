@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
@@ -141,9 +142,9 @@ class CallRepo {
   Function(MediaStream stream)? onAddRemoteStream;
   Function(MediaStream stream)? onRemoveRemoteStream;
 
-  int? _startCallTime = 0;
-  int? _callDuration = 0;
-  int? _endCallTime = 0;
+  int _startCallTime = 0;
+  int _callDuration = 0;
+  int _endCallTime = 0;
   int _shareDelay = 1;
 
   int? get callDuration => _callDuration;
@@ -847,7 +848,8 @@ class CallRepo {
     await setConnectionQualityAndLimitationParamsForAudio();
     unawaited(lightVibrate());
     startCallTimer();
-    if (_startCallTime == 0) {
+    _isConnected = true;
+    if (_startCallTime == 0 && _isConnected) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
     if (_isDCReceived &&
@@ -862,7 +864,6 @@ class CallRepo {
     _logger.i("Start Call $_startCallTime");
     callingStatus.add(CallStatus.CONNECTED);
     lightVibrate().ignore();
-    _isConnected = true;
     isConnectedSubject.add(true);
     if (isVideo) {
       await _ShareCameraStatusFromDataChannel();
@@ -1140,9 +1141,10 @@ class CallRepo {
         );
       } else if (!isDuplicated) {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
-        if ((_appLifecycleService.isActive &&
-                _routingService.isInRoom(_roomUid!.asString()) ||
-            (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
+        if ((await _checkForegroundStatus()) &&
+            (_appLifecycleService.isActive &&
+                    _routingService.isInRoom(_roomUid!.asString()) ||
+                (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1343,18 +1345,16 @@ class CallRepo {
   }
 
   Timer _startFailCallTimer() {
-    return Timer.periodic(const Duration(seconds: 30), (sec) {
-      if (sec.tick == 30) {
-        if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
-          try {
-            _logger.i("Call Can't Connected !!");
-            callingStatus.add(CallStatus.NO_ANSWER);
-            unawaited(_increaseCandidateAndWaitingTime());
-          } catch (e) {
-            _logger.e(e);
-          }
-          endCall();
+    return Timer(const Duration(seconds: 30), () {
+      if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
+        try {
+          _logger.i("Call Can't Connected !!");
+          callingStatus.add(CallStatus.NO_ANSWER);
+          unawaited(_increaseCandidateAndWaitingTime());
+        } catch (e) {
+          _logger.e(e);
         }
+        endCall();
       }
     });
   }
@@ -1445,7 +1445,7 @@ class CallRepo {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       _callDuration = calculateCallEndTime();
-      _sendEndCall(_callDuration!);
+      _sendEndCall(_callDuration);
       _logger.i("Call Duration : $_callDuration");
       await _dispose();
     }
@@ -1482,11 +1482,11 @@ class CallRepo {
 
   int calculateCallEndTime() {
     var time = 0;
-    if (_startCallTime != null && _isConnected) {
+    if (_startCallTime != 0 && _isConnected) {
       _endCallTime = clock.now().millisecondsSinceEpoch;
-      time = _endCallTime! - _startCallTime!;
+      time = _endCallTime - _startCallTime;
     }
-    return time;
+    return max(time, 0);
   }
 
   Future<void> _setRemoteDescriptionOffer(String remoteSdp) async {
@@ -1688,7 +1688,7 @@ class CallRepo {
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..end = CallEventEnd(callDuration: Int64(callDuration)));
+      ..end = CallEventEnd(callDuration: Int64(callDuration) , isCaller: _isCaller));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
     _checkRetryCallEvent(callEventV2ByClient);
