@@ -24,12 +24,17 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
 
   @override
   Future<Room?> getRoom(Uid roomUid) async {
-    final box = await _openRoomIsar();
-    return (await box.roomIsars
-            .filter()
-            .uidEqualTo(roomUid.asString())
-            .findFirst())
-        ?.fromIsar();
+    try{
+      final box = await _openRoomIsar();
+      return (await box.roomIsars
+          .filter()
+          .uidEqualTo(roomUid.asString())
+          .findFirst())
+          ?.fromIsar();
+    }catch(e){
+      print(e);
+    }
+
   }
 
   @override
