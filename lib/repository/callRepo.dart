@@ -83,6 +83,7 @@ class CallRepo {
   String _callOfferBody = "";
   String _callOfferCandidate = "";
   List<Map<String, Object>> _candidate = [];
+  CallEvents _lastCallEvent = CallEvents.none;
 
   String _offerSdp = "";
   String _answerSdp = "";
@@ -236,16 +237,27 @@ class CallRepo {
         case CallEventV2_Type.ringing:
           if (!from.isSameEntity(currentUserUid)) {
             if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
+              _lastCallEvent = event;
               _logger.i(
-                  "-----------------------------------${_callService.getUserCallState}");
+                  "-----------------------------------${_callService.getUserCallState}",);
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
               _cancelTimerResendEvent();
-              _callEvents[callEvent.time.toInt()] = "IsRinging";
-              unawaited(_sendOffer());
-              callingStatus.add(CallStatus.IS_RINGING);
-              try {
+              if (_handleSynchronousCall()) {
+                if (_synchronousCallSelect(event.callEvent!.from.toString(),
+                    event.callEvent!.to.toString(),)) {
+                  _callEvents[callEvent.time.toInt()] = "IsRinging";
+                  unawaited(_sendOffer());
+                  callingStatus.add(CallStatus.IS_RINGING);
+                } else {
+                  _handleOnSelectedInSynchronous();
+                }
+              } else {
+                _callEvents[callEvent.time.toInt()] = "IsRinging";
+                unawaited(_sendOffer());
+                callingStatus.add(CallStatus.IS_RINGING);
+              } try {
                 _audioService.playBeepSound();
               } catch (e) {
                 _logger.e(e);
@@ -302,7 +314,28 @@ class CallRepo {
       }
     });
   }
+  bool _handleSynchronousCall() {
+    if(_lastCallEvent != CallEvents.none && !_lastCallEvent.callEvent!.ringing.fromAnswerSide) {
+      if(_authRepo.currentUserUid.toString() == _lastCallEvent.callEvent?.to.toString()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
+  bool _synchronousCallSelect(String from, String to) {
+    if(from.compareTo(to) < 0) {
+      return false;
+    }
+    return true;
+  }
+
+  void _handleOnSelectedInSynchronous() {
+    _isCaller = false;
+    _callService..setCallId = _lastCallEvent.callEvent!.id
+    ..setUserCallState = UserCallState.IN_USER_CALL;
+    _handleIncomingCallOnReceiver(_lastCallEvent.callEvent!);
+  }
   // it is used to detect audio track (probably)
   Future<void> _audioLevelDetection() async {
     _timerStatReport =
@@ -1613,6 +1646,18 @@ class CallRepo {
   }
 
   Future<void> _sendOffer() async {
+    if(_handleSynchronousCall()) {
+      if(_synchronousCallSelect(_authRepo.currentUserUid.asString(), _roomUid!.asString())) {
+        await _createSendOffer();
+      } else {
+        _handleOnSelectedInSynchronous();
+      }
+    } else {
+      await _createSendOffer();
+    }
+  }
+
+  Future<void> _createSendOffer() async {
     //wait till offer is Ready
     await _waitUntilOfferReady();
     // Send Candidate to Receiver
@@ -2122,8 +2167,15 @@ class CallRepo {
                 _authRepo.currentUserUid.sessionId);
   }
 
-  bool isCallIdEqualToCurrentCallId(CallEvents event) =>
-      event.callEvent!.id == _callService.getCallId;
+  bool isCallIdEqualToCurrentCallId(CallEvents event) {
+    if(event.callEvent!.id == _callService.getCallId) {
+      return true;
+    }
+    if(_handleSynchronousCall())  {
+      return true;
+    }
+    return false;
+  }
 
   bool isEndingEvent(CallEventV2 callEventV2) =>
       callEventV2.hasEnd() || callEventV2.hasBusy() || callEventV2.hasDecline();
