@@ -22,44 +22,26 @@ Room _$RoomFromJson(Map<String, dynamic> json) {
 mixin _$Room {
   @UidJsonKey
   Uid get uid => throw _privateConstructorUsedError;
-
   @NullableMessageJsonKey
   Message? get lastMessage => throw _privateConstructorUsedError;
-
   String? get replyKeyboardMarkup => throw _privateConstructorUsedError;
-
   String get draft => throw _privateConstructorUsedError;
-
   List<int> get mentionsId => throw _privateConstructorUsedError;
-
   int get lastUpdateTime => throw _privateConstructorUsedError;
-
   int get lastMessageId => throw _privateConstructorUsedError;
-
   int get localNetworkMessageCount => throw _privateConstructorUsedError;
-
   int get lastLocalNetworkMessageId => throw _privateConstructorUsedError;
-
   int get firstMessageId => throw _privateConstructorUsedError;
-
   int get pinId => throw _privateConstructorUsedError;
-
   int get localChatId => throw _privateConstructorUsedError;
-
   int get lastCurrentUserSentMessageId => throw _privateConstructorUsedError;
-
   bool get deleted => throw _privateConstructorUsedError;
-
   bool get pinned => throw _privateConstructorUsedError;
-
   bool get synced => throw _privateConstructorUsedError;
-
   bool get seenSynced => throw _privateConstructorUsedError;
-
   bool get shouldUpdateMediaCount => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $RoomCopyWith<Room> get copyWith => throw _privateConstructorUsedError;
 }
@@ -68,7 +50,6 @@ mixin _$Room {
 abstract class $RoomCopyWith<$Res> {
   factory $RoomCopyWith(Room value, $Res Function(Room) then) =
       _$RoomCopyWithImpl<$Res, Room>;
-
   @useResult
   $Res call(
       {@UidJsonKey Uid uid,
@@ -100,7 +81,6 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -220,7 +200,6 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
   factory _$$RoomImplCopyWith(
           _$RoomImpl value, $Res Function(_$RoomImpl) then) =
       __$$RoomImplCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -392,7 +371,6 @@ class _$RoomImpl implements _Room {
   @JsonKey()
   final String draft;
   final List<int> _mentionsId;
-
   @override
   @JsonKey()
   List<int> get mentionsId {
@@ -447,7 +425,7 @@ class _$RoomImpl implements _Room {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RoomImpl &&
@@ -550,59 +528,41 @@ abstract class _Room implements Room {
   @override
   @UidJsonKey
   Uid get uid;
-
   @override
   @NullableMessageJsonKey
   Message? get lastMessage;
-
   @override
   String? get replyKeyboardMarkup;
-
   @override
   String get draft;
-
   @override
   List<int> get mentionsId;
-
   @override
   int get lastUpdateTime;
-
   @override
   int get lastMessageId;
-
   @override
   int get localNetworkMessageCount;
-
   @override
   int get lastLocalNetworkMessageId;
-
   @override
   int get firstMessageId;
-
   @override
   int get pinId;
-
   @override
   int get localChatId;
-
   @override
   int get lastCurrentUserSentMessageId;
-
   @override
   bool get deleted;
-
   @override
   bool get pinned;
-
   @override
   bool get synced;
-
   @override
   bool get seenSynced;
-
   @override
   bool get shouldUpdateMediaCount;
-
   @override
   @JsonKey(ignore: true)
   _$$RoomImplCopyWith<_$RoomImpl> get copyWith =>

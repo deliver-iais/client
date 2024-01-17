@@ -35,7 +35,9 @@ class ServerLessService {
   var _wifiBroadcast = "255.255.255.255";
 
   void start() {
-    GetIt.I.get<ServerLessMessageService>().updateRooms();
+    GetIt.I.get<ServerLessMessageService>()
+      ..reset()
+      ..updateRooms();
     _start();
   }
 

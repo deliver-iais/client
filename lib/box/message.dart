@@ -41,6 +41,7 @@ class Message with _$Message {
     @Default(false) bool encrypted,
     @Default(false) bool isHidden,
     @Default(false) bool isLocalMessage,
+    @Default(false) bool needToBackup,
     String? markup,
     int? id,
     int? localNetworkMessageId,

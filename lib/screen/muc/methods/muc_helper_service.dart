@@ -208,7 +208,7 @@ class MucHelperService {
           info,
         );
       case MucCategories.CHANNEL:
-        if (settings.localNetworkMessenger.value ||
+        if (settings.inLocalNetwork.value ||
             (await checkChannelId?.call(channelId!) ?? false)) {
           return _mucRepo.createNewChannel(
             channelId!,

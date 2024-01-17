@@ -34,13 +34,14 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
       replyKeyboardMarkup: fields[13] as String?,
       mentionsId: (fields[14] as List?)?.cast<int>(),
       shouldUpdateMediaCount: fields[15] as bool,
+      localChatId: fields[18] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoomHive obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -74,7 +75,9 @@ class RoomHiveAdapter extends TypeAdapter<RoomHive> {
       ..writeByte(16)
       ..write(obj.localNetworkMessageCount)
       ..writeByte(17)
-      ..write(obj.lastLocalNetworkMessageId);
+      ..write(obj.lastLocalNetworkMessageId)
+      ..writeByte(18)
+      ..write(obj.localChatId);
   }
 
   @override

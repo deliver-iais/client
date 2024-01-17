@@ -28,7 +28,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
-import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -79,7 +78,8 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
-  LocalNetwork
+  LocalNetwork,
+  SaveLocalMessage
 }
 
 enum PendingMessageRepeatedStatus {
@@ -124,8 +124,7 @@ class MessageRepo {
   final _metaRepo = GetIt.I.get<MetaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus =
-      BehaviorSubject.seeded(TitleStatusConditions.Connected);
-  final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
+      BehaviorSubject.seeded(TitleStatusConditions.Connecting);
 
   Future<void> createConnectionStatusHandler() async {
     _coreServices.connectionStatus.listen((mode) async {
@@ -161,6 +160,7 @@ class MessageRepo {
 
   // @visibleForTesting
   Future<void> updatingRooms() async {
+    await _updateLocalChats();
     if (settings.lastRoomMetadataUpdateTime.value == 0 ||
         settings.lastRoomMetadataUpdateTime.value <
             _coreServices.lastRoomMetadataUpdateTime) {
@@ -268,13 +268,10 @@ class MessageRepo {
               uid: roomMetadata.roomUid,
               deleted: false,
               synced: false,
+              lastLocalNetworkMessageId: roomMetadata.lastLocalId.toInt(),
               lastCurrentUserSentMessageId:
                   roomMetadata.lastCurrentUserSentMessageId.toInt(),
-              lastMessageId: max(
-                roomMetadata.lastMessageId.toInt() +
-                    (room?.localNetworkMessageCount ?? 0),
-                room?.lastLocalNetworkMessageId ?? 0,
-              ),
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             ),
@@ -629,21 +626,6 @@ class MessageRepo {
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     return _saveAndSend(pm, fromNotification: fromNotification);
-  }
-
-  Future<void> _sendLocalMessageServer(Uid roomUid, int localCahtId) async {
-    try {
-      final localMessages = MessageUtils.createMessageByClientOfLocalMessages(
-          await _messageDao.getLocalMessages(roomUid));
-      final res = await _sdr.queryServiceClient.saveLocalMessages(
-        SaveLocalMessageReq(
-          messages: localMessages,
-          localChatId: Int64(localCahtId),
-        ),
-      );
-    } catch (e) {
-      _logger.e(e);
-    }
   }
 
   Future<void> _saveAndSend(
@@ -1197,14 +1179,17 @@ class MessageRepo {
   }
 
   bool _fileOfMessageIsValid(file_pb.File file) =>
-      settings.localNetworkMessenger.value ||
+      settings.inLocalNetwork.value ||
       (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(
         roomUid: msg.roomUid,
         packetId: msg.packetId,
-        msg: msg.copyWith(isHidden: isHiddenMessage(msg)),
+        msg: msg.copyWith(
+          isHidden: isHiddenMessage(msg),
+          isLocalMessage: settings.inLocalNetwork.value,
+        ),
         status: status,
       );
 
@@ -1387,7 +1372,7 @@ class MessageRepo {
     int pageSize, {
     bool retry = true,
   }) async {
-    if (!settings.localNetworkMessenger.value) {
+    if (!settings.inLocalNetwork.value) {
       final key = "$roomUid-$page";
       var completer = _completerMap[key];
       if (completer == null || completer.isCompleted) {
@@ -1611,7 +1596,7 @@ class MessageRepo {
       final request = DeleteMessageReq()
         ..messageId = Int64(message.id!)
         ..roomUid = message.roomUid;
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         _serverLessMessageService.deleteMessage(request);
       } else {
         await _sdr.queryServiceClient.deleteMessage(request);
@@ -1663,7 +1648,7 @@ class MessageRepo {
             }
             await _roomDao.updateRoom(
               uid: msg.roomUid,
-              lastUpdateTime: settings.localNetworkMessenger.value
+              lastUpdateTime: settings.inLocalNetwork.value
                   ? DateTime.now().millisecondsSinceEpoch
                   : null,
               lastMessage: lastNotHiddenMessage,
@@ -1739,7 +1724,8 @@ class MessageRepo {
           uid: roomUid,
           lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
           lastMessage: editableMessage.copyWith(
-              json: (message_pb.Text()..text = text).writeToJson()),
+            json: (message_pb.Text()..text = text).writeToJson(),
+          ),
         );
       }
     } catch (e) {
@@ -1748,7 +1734,7 @@ class MessageRepo {
   }
 
   Future<void> _edit(UpdateMessageReq updateMessageReq) async {
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       _serverLessMessageService.editMessage(
         messageByClient: updateMessageReq.message,
         messageId: updateMessageReq.messageId.toInt(),
@@ -1861,6 +1847,112 @@ class MessageRepo {
         await _roomDao.updateRoom(
           uid: roomUid,
           lastMessage: editableMessage,
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> _updateLocalChats() async {
+    const key = "save_local_chats";
+    var completer = _completerMap[key];
+    if (completer == null || completer.isCompleted) {
+      completer = Completer();
+      _completerMap[key] = completer;
+      try {
+        for (final r in (await (_roomDao.getLocalRooms()))) {
+          await _sendLocalMessage(
+            (await _messageDao.getLocalMessages(r.uid)),
+            r.lastLocalNetworkMessageId,
+            r.uid,
+          );
+        }
+        updatingStatus.add(TitleStatusConditions.Connected);
+      } catch (e) {
+        _logger.e(e);
+      }
+
+      completer.complete([]);
+    } else {
+      await completer.future;
+    }
+  }
+
+  Future<void> _sendLocalMessage(
+    List<Message> localMessages,
+    int localLocalMessageId,
+    Uid roomUid, {
+    bool retry = true,
+  }) async {
+    try {
+      if (localMessages.isNotEmpty) {
+        updatingStatus.add(TitleStatusConditions.SaveLocalMessage);
+        final res = await _sdr.queryServiceClient.saveLocalMessages(
+          SaveLocalMessageReq(
+            messages: MessageUtils.createMessageByClientOfLocalMessages(
+              localMessages,
+              localLocalMessageId,
+            ),
+            localChatId: Int64(localLocalMessageId),
+            roomUid: roomUid,
+          ),
+        );
+        if (res.messagesSize > 0) {
+          unawaited(
+            _fileRepo.uploadLocalNetworkFile(
+              localMessages
+                  .where((e) => e.type == MessageType.FILE)
+                  .map((e) => e.json.toFile())
+                  .toList(),
+            ),
+          );
+        }
+
+        await _updateLocalMessages(
+          localMessages,
+          res.lastMessageId.toInt(),
+        );
+        await _roomDao.updateRoom(
+          uid: roomUid,
+          // lastMessageId: res.lastMessageId.toInt(),
+          localNetworkMessageCount: 2,
+        );
+      }
+    } catch (e) {
+      if (retry) {
+        await _sendLocalMessage(
+          localMessages,
+          localLocalMessageId,
+          roomUid,
+          retry: false,
+        );
+      }
+      _logger.e(e);
+    }
+  }
+
+  Future<void> _updateLocalMessages(
+    List<Message> messages,
+    int lastMessageId,
+  ) async {
+    try {
+      final updatedMessages = <Message>[];
+      for (var i = 0; i < messages.length; i++) {
+        updatedMessages.add(
+          messages[i].copyWith(
+            needToBackup: false,
+            isLocalMessage: false,
+            id: lastMessageId - (messages.length - (i + 1)),
+          ),
+        );
+      }
+      await _messageDao.saveMessages(updatedMessages);
+      for (final element in updatedMessages) {
+        _cachingRepo.setMessage(
+          element.roomUid,
+          element.localNetworkMessageId!,
+          element,
         );
       }
     } catch (e) {

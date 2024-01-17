@@ -24,40 +24,39 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
 
   @override
   Future<Room?> getRoom(Uid roomUid) async {
-    try{
+    try {
       final box = await _openRoomIsar();
       return (await box.roomIsars
-          .filter()
-          .uidEqualTo(roomUid.asString())
-          .findFirst())
+              .filter()
+              .uidEqualTo(roomUid.asString())
+              .findFirst())
           ?.fromIsar();
-    }catch(e){
+    } catch (e) {
       print(e);
     }
-
   }
 
   @override
-  Future<void> updateRoom({
-    required Uid uid,
-    Message? lastMessage,
-    int? lastMessageId,
-    bool? deleted,
-    String? draft,
-    int? lastUpdateTime,
-    int? firstMessageId,
-    bool? pinned,
-    int? pinId,
-    bool? synced,
-    int? lastCurrentUserSentMessageId,
-    bool? seenSynced,
-    String? replyKeyboardMarkup,
-    bool forceToUpdateReplyKeyboardMarkup = false,
-    List<int>? mentionsId,
-    bool? shouldUpdateMediaCount,
-    int? lastLocalNetworkMessageId,
-    int? localNetworkMessageCount,
-  }) async {
+  Future<void> updateRoom(
+      {required Uid uid,
+      Message? lastMessage,
+      int? lastMessageId,
+      bool? deleted,
+      String? draft,
+      int? lastUpdateTime,
+      int? firstMessageId,
+      bool? pinned,
+      int? pinId,
+      bool? synced,
+      int? lastCurrentUserSentMessageId,
+      bool? seenSynced,
+      String? replyKeyboardMarkup,
+      bool forceToUpdateReplyKeyboardMarkup = false,
+      List<int>? mentionsId,
+      bool? shouldUpdateMediaCount,
+      int? lastLocalNetworkMessageId,
+      int? localNetworkMessageCount,
+      int? localChatId}) async {
     final box = await _openRoomIsar();
     await box.writeTxn(() async {
       final room = (await box.roomIsars
@@ -94,6 +93,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
                   : room.replyKeyboardMarkup),
           draft: draft ?? room.draft,
           synced: synced ?? room.synced,
+          localChatId: localChatId ?? room.localChatId,
         ),
       );
     });

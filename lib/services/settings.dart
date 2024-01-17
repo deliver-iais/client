@@ -100,8 +100,8 @@ class Settings {
     defaultValue: isDesktopDevice,
   );
 
-  final localNetworkMessenger = BooleanPersistent(
-    SharedKeys.SHARED_DAO_LOCAL_NETWORK_MESSENGER.inSharedDaoStorage(),
+  final inLocalNetwork = BooleanPersistent(
+    SharedKeys.SHARED_DAO_IN_LOCAL_NETWORK.inSharedDaoStorage(),
     defaultValue: false,
   );
 

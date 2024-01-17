@@ -30,6 +30,8 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
       replyToId: fields[6] as int,
       edited: fields[8] as bool,
       encrypted: fields[9] as bool,
+      isLocalNetworkMessage: fields[16] as bool,
+      needToBackup: fields[17] as bool,
       forwardedFrom: fields[7] as String?,
       markup: fields[13] as String?,
       generatedBy: fields[14] as String?,
@@ -39,7 +41,7 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
   @override
   void write(BinaryWriter writer, MessageHive obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.roomUid)
       ..writeByte(1)
@@ -71,7 +73,11 @@ class MessageHiveAdapter extends TypeAdapter<MessageHive> {
       ..writeByte(14)
       ..write(obj.generatedBy)
       ..writeByte(15)
-      ..write(obj.localNetworkMessageId);
+      ..write(obj.localNetworkMessageId)
+      ..writeByte(16)
+      ..write(obj.isLocalNetworkMessage)
+      ..writeByte(17)
+      ..write(obj.needToBackup);
   }
 
   @override
@@ -104,6 +110,8 @@ MessageHive _$MessageHiveFromJson(Map<String, dynamic> json) => MessageHive(
       replyToId: json['replyToId'] as int? ?? 0,
       edited: json['edited'] as bool? ?? false,
       encrypted: json['encrypted'] as bool? ?? false,
+      isLocalNetworkMessage: json['isLocalNetworkMessage'] as bool? ?? false,
+      needToBackup: json['needToBackup'] as bool? ?? false,
       forwardedFrom: json['forwardedFrom'] as String?,
       markup: json['markup'] as String?,
       generatedBy: json['generatedBy'] as String?,
@@ -127,6 +135,8 @@ Map<String, dynamic> _$MessageHiveToJson(MessageHive instance) =>
       'markup': instance.markup,
       'generatedBy': instance.generatedBy,
       'localNetworkMessageId': instance.localNetworkMessageId,
+      'isLocalNetworkMessage': instance.isLocalNetworkMessage,
+      'needToBackup': instance.needToBackup,
     };
 
 const _$MessageTypeEnumMap = {

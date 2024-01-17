@@ -27,3 +27,9 @@ abstract class MessageDao {
   Future<List<Message>> getLocalMessages(Uid roomUid);
 }
 
+mixin SortLocalNetworkMessages {
+  List<Message> sortLocalMessages(List<Message> messages) => messages
+    ..sort(
+      (a, b) => (a.localNetworkMessageId ?? 0) - (b.localNetworkMessageId ?? 0),
+    );
+}

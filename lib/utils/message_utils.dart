@@ -73,16 +73,49 @@ class MessageUtils {
     return byClient;
   }
 
-  static List<message_pb.MessageByClient> createMessageByClientOfLocalMessages(
-      List<model.Message> messages) {
+  static List<message_pb.LocalChatMessage> createMessageByClientOfLocalMessages(
+    List<model.Message> messages,
+    int lastLocalMessageId,
+  ) {
     try {
-      final result = <message_pb.MessageByClient>[];
-      for (final msg in messages) {
-        result.add(createMessageByClient(msg));
+      final result = <message_pb.LocalChatMessage>[];
+      for (var j = 0; j < messages.length; j++) {
+        final msg = messages[j];
+        final packet = message_pb.LocalChatMessage()
+          ..localNetworkId =
+              Int64((lastLocalMessageId + 1) - (messages.length - j))
+          ..from = msg.from
+          ..time = Int64(msg.time);
+        if (msg.type == MessageType.CALL_LOG) {
+          packet.callEvent =
+              _convertCallLogToCallEvent(msg.json.toCallLog(), msg.time);
+        } else {
+          packet.messageByClient = createMessageByClient(msg);
+        }
+        result.add(packet);
       }
       return result;
     } catch (e) {
       return [];
     }
+  }
+
+  static call_pb.CallEventV2 _convertCallLogToCallEvent(
+      call_pb.CallLog callLog, int time) {
+    final callEventV2 = call_pb.CallEventV2()
+      ..id = callLog.id
+      ..to = callLog.to
+      ..from = callLog.from
+      ..time = Int64(time);
+    if (callLog.hasEnd()) {
+      callEventV2.end = call_pb.CallEventEnd()
+        ..callDuration = callLog.end.callDuration
+        ..isCaller = callLog.end.isCaller;
+    } else if (callLog.hasBusy()) {
+      callEventV2.busy = call_pb.CallEventBusy();
+    } else if (callLog.hasDecline()) {
+      callEventV2.decline = call_pb.CallEventDecline();
+    }
+    return callEventV2;
   }
 }

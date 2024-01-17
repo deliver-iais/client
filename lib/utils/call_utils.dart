@@ -6,6 +6,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -16,32 +17,31 @@ class CallUtils {
   static final _callService = GetIt.I.get<CallService>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  static Map<String, dynamic> getIceServers() =>
-      settings.localNetworkMessenger.value
-          ? <String, dynamic>{
-              "sdpSemantics": "plan-b",
-              // 'iceServers': [
-              //   {'url': STUN_SERVER_URL_1}
-              // ]
-            }
-          : <String, dynamic>{
-              "sdpSemantics": "plan-b", // Add this line
-              'iceServers': [
-                {'url': STUN_SERVER_URL_1},
-                {
-                  'url': TURN_SERVER_URL_1,
-                  'username': TURN_SERVER_USERNAME_1,
-                  'credential': TURN_SERVER_PASSWORD_1,
-                },
-                {'url': STUN_SERVER_URL_2},
-                {
-                  'url': TURN_SERVER_URL_2,
-                  'username': TURN_SERVER_USERNAME_2,
-                  'credential': TURN_SERVER_PASSWORD_2,
-                },
-                {'url': STUN_SERVER_URL_3},
-              ],
-            };
+  static Map<String, dynamic> getIceServers() => settings.inLocalNetwork.value
+      ? <String, dynamic>{
+          "sdpSemantics": "plan-b",
+          // 'iceServers': [
+          //   {'url': STUN_SERVER_URL_1}
+          // ]
+        }
+      : <String, dynamic>{
+          "sdpSemantics": "plan-b", // Add this line
+          'iceServers': [
+            {'url': STUN_SERVER_URL_1},
+            {
+              'url': TURN_SERVER_URL_1,
+              'username': TURN_SERVER_USERNAME_1,
+              'credential': TURN_SERVER_PASSWORD_1,
+            },
+            {'url': STUN_SERVER_URL_2},
+            {
+              'url': TURN_SERVER_URL_2,
+              'username': TURN_SERVER_USERNAME_2,
+              'credential': TURN_SERVER_PASSWORD_2,
+            },
+            {'url': STUN_SERVER_URL_3},
+          ],
+        };
 
   static Map<String, dynamic> getConfig() => <String, dynamic>{
         'mandatory': {},
@@ -147,7 +147,24 @@ class CallUtils {
     }
   }
 
-  static void showPermissionDialog() {
+  static Future<void> checkForSystemAlertWindowPermission(
+      {bool showCallAlarm = false}) async {
+    if (isAndroidNative &&
+        await getDeviceVersion() >= 31 &&
+        !await Permission.systemAlertWindow.status.isGranted) {
+      _showPermissionDialog(showCallAlarm: showCallAlarm);
+    }
+  }
+
+  static Future<bool> hasSystemAlertWindowPermission() async {
+    if (!isAndroidNative || await getDeviceVersion() < 31) {
+      return true;
+    }
+
+    return Permission.systemAlertWindow.status.isGranted;
+  }
+
+  static void _showPermissionDialog({bool showCallAlarm = false}) {
     showDialog(
       context: settings.appContext,
       builder: (context) {
@@ -172,9 +189,13 @@ class CallUtils {
               Padding(
                 padding: const EdgeInsetsDirectional.only(top: 10.0),
                 child: Text(
-                  _i18n.get(
-                    "alert_window_permission_attention",
-                  ),
+                  showCallAlarm
+                      ? _i18n.get(
+                          "alert_window_permission_attention_2",
+                        )
+                      : _i18n.get(
+                          "alert_window_permission_attention",
+                        ),
                   textDirection: _i18n.defaultTextDirection,
                   style: theme.textTheme.bodyLarge!
                       .copyWith(color: theme.colorScheme.error),
@@ -188,6 +209,9 @@ class CallUtils {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                if (showCallAlarm) {
+                  FlutterForegroundTask.minimizeApp();
+                }
               },
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,

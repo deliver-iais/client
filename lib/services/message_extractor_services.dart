@@ -492,7 +492,8 @@ class MessageExtractorServices {
     return msg;
   }
 
-  Message extractMessage(message_pb.Message message) {
+  Message extractMessage(message_pb.Message message,
+      {bool needToBackup = false,}) {
     var body = EMPTY_MESSAGE;
     var isHidden = false;
 
@@ -518,6 +519,8 @@ class MessageExtractorServices {
       markup: message.hasMessageMarkup()
           ? message.messageMarkup.writeToJson()
           : null,
+      isLocalMessage: needToBackup,
+      needToBackup: needToBackup,
     );
   }
 

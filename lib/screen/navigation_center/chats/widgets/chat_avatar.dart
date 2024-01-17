@@ -42,7 +42,7 @@ class ChatAvatar extends StatelessWidget {
           StreamBuilder<LocalNetworkConnections?>(
             stream: _localNetworkDao.watch(uid),
             builder: (c, la) {
-              if (settings.localNetworkMessenger.value &&
+              if (settings.inLocalNetwork.value &&
                   la.hasData &&
                   (la.data != null)) {
                 return Positioned.directional(
@@ -75,7 +75,7 @@ class ChatAvatar extends StatelessWidget {
                   ),
                 );
               } else {
-                if (settings.localNetworkMessenger.value) {
+                if (settings.inLocalNetwork.value) {
                   return const SizedBox.shrink();
                 }
                 if (uid.category == Categories.USER &&

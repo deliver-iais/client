@@ -119,11 +119,11 @@ class CoreServices {
       } else {
         _onConnectionError();
       }
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         _serverLessService.restart();
       }
     });
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       unawaited(_serverLessService.restart());
       _connectionStatus.add(ConnectionStatus.LocalNetwork);
     }
@@ -131,7 +131,7 @@ class CoreServices {
   }
 
   void _startConnectToLocalNetworkTimer() {
-    if (!settings.localNetworkMessenger.value &&
+    if (!settings.inLocalNetwork.value &&
         !(_connectToLocalNetworkTimer?.isActive ?? false)) {
       _connectToLocalNetworkTimer =
           Timer(const Duration(seconds: CONNECT_TO_LOCAL_NETWORK_TIME), () {
@@ -146,8 +146,8 @@ class CoreServices {
     if (_connectionStatus.value == ConnectionStatus.LocalNetwork) {
       if (status == ConnectionStatus.Connected) {
         _connectionStatus.add(status);
-        if (settings.localNetworkMessenger.value) {
-          settings.localNetworkMessenger.set(false);
+        if (settings.inLocalNetwork.value) {
+          settings.inLocalNetwork.set(false);
         }
         _serverLessService.dispose();
         _connectToLocalNetworkTimer?.cancel();
@@ -249,7 +249,7 @@ class CoreServices {
             );
 
       _responseStream?.listen(
-        (serverPacket) {
+        (serverPacket) async {
           try {
             _logger.d(serverPacket);
 
@@ -257,17 +257,17 @@ class CoreServices {
 
             switch (serverPacket.whichType()) {
               case ServerPacket_Type.message:
-                _dataStreamServices.handleIncomingMessage(
+                unawaited(_dataStreamServices.handleIncomingMessage(
                   serverPacket.message,
                   isOnlineMessage: true,
-                );
+                ));
                 break;
               case ServerPacket_Type.messageDeliveryAck:
-                _dataStreamServices
+                await _dataStreamServices
                     .handleAckMessage(serverPacket.messageDeliveryAck);
                 break;
               case ServerPacket_Type.seen:
-                _dataStreamServices.handleSeen(serverPacket.seen);
+                unawaited(_dataStreamServices.handleSeen(serverPacket.seen));
                 break;
               case ServerPacket_Type.activity:
                 _dataStreamServices.handleActivity(serverPacket.activity);
@@ -299,6 +299,8 @@ class CoreServices {
                 //update last message delivery ack on sharedPref
                 final latMessageDeliveryAck =
                     serverPacket.pong.lastMessageDeliveryAck;
+                await _dataStreamServices
+                    .handleAckMessage(serverPacket.pong.lastMessageDeliveryAck);
                 settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
                 break;
               case ServerPacket_Type.liveLocationStatusChanged:
@@ -374,12 +376,8 @@ class CoreServices {
 
   Future<void> _checkPendingStatus(String packetId, message) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
-    var hasBeenSent = false;
     if (pm != null) {
-      if (!hasBeenSent) {
-        await sendMessage(message);
-        hasBeenSent = true;
-      }
+      await sendMessage(message, resend: false);
     }
   }
 
@@ -467,7 +465,7 @@ class CoreServices {
     bool forceToSendToServer = false,
   }) async {
     try {
-      if (!forceToSendToServer && settings.localNetworkMessenger.value) {
+      if (!forceToSendToServer && settings.inLocalNetwork.value) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||

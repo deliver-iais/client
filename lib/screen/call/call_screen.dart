@@ -18,7 +18,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:window_size/window_size.dart';
@@ -79,21 +78,13 @@ class CallScreenState extends State<CallScreen> {
 
       if (!widget.isCallInitialized) {
         _startCall();
-        checkForSystemAlertWindowPermission();
+        CallUtils.checkForSystemAlertWindowPermission();
         if (isAndroidNative) {
           _listenSensor();
         }
       }
     });
     super.initState();
-  }
-
-  Future<void> checkForSystemAlertWindowPermission() async {
-    if (isAndroidNative &&
-        await getDeviceVersion() >= 31 &&
-        !await Permission.systemAlertWindow.status.isGranted) {
-      CallUtils.showPermissionDialog();
-    }
   }
 
   @override
@@ -168,5 +159,4 @@ class CallScreenState extends State<CallScreen> {
             isIncomingCall: widget.isIncomingCall,
           );
   }
-
 }

@@ -6,6 +6,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
+import 'package:deliver/utils/call_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -53,8 +54,9 @@ class ConnectionStatus extends StatelessWidget {
                         Switch(
                           value: !(proposeUseLocalNetwork.data ?? false),
                           onChanged: (c) {
-                            settings.localNetworkMessenger.set(true);
+                            settings.inLocalNetwork.set(true);
                             _coreService.useLocalNetwork();
+                            // CallUtils.checkForSystemAlertWindowPermission();
                           },
                         ),
                       ],
@@ -120,6 +122,8 @@ class ConnectionStatus extends StatelessWidget {
         return _i18n.get("syncing").capitalCase;
       case TitleStatusConditions.LocalNetwork:
         return _i18n.get("local_network").capitalCase;
+      case TitleStatusConditions.SaveLocalMessage:
+        return _i18n.get("save_local_message").capitalCase;
     }
   }
 }

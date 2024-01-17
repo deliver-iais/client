@@ -497,6 +497,32 @@ class FileService {
     return null;
   }
 
+  Future<void> uploadLocalNetworkFile({
+    required String filePath,
+    required String uuid,
+    required String filename,
+    required bool isVoice,
+  }) async {
+    try {
+      final formData = FormData.fromMap(
+        {
+          "file": MultipartFile.fromFileSync(
+            filePath,
+            contentType: filePath.getMediaType(),
+            filename: filename,
+          ),
+        },
+      );
+
+      await _dio.post(
+        "/uploadLocalNetworkFile?isVoice=$isVoice&uuid=$uuid",
+        data: formData,
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
   /// file path is path of file in native device and data byte in web
   Future<Response<dynamic>?> uploadFile(
     String filePath,

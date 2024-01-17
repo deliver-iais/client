@@ -15,27 +15,28 @@ class BackgroundService {
   final _telephony = Telephony.instance;
 
   Future<void> startBackgroundService() async {
-    await Workmanager().initialize(
-      backgroundHandler, // The top level function, aka callbackDispatcher
-    );
-
-    await Workmanager().registerPeriodicTask(
-      "update",
-      "update",
-      tag: "update",
-      initialDelay: const Duration(
-        minutes: 5,
-      ),
-      frequency: const Duration(hours: 1),
-    );
-    _setBackgroundService();
+    // await Workmanager().initialize(
+    //   backgroundHandler, // The top level function, aka callbackDispatcher
+    // );
+    //
+    // await Workmanager().registerPeriodicTask(
+    //   "update",
+    //   "update",
+    //   tag: "update",
+    //   initialDelay: const Duration(
+    //     minutes: 5,
+    //   ),
+    //   frequency: const Duration(hours: 1),
+    // );
+    // _setBackgroundService();
   }
 
   Future<bool> enableListenOnSmsAnCall() async {
-    final callGranted = await _telephony.requestPhonePermissions ?? false;
-    final smsGranted = await _telephony.requestSmsPermissions ?? false;
-    _setBackgroundService(listenOnSms: smsGranted, listenOnCall: callGranted);
-    return callGranted || smsGranted;
+    return false;
+    // final callGranted = await _telephony.requestPhonePermissions ?? false;
+    // final smsGranted = await _telephony.requestSmsPermissions ?? false;
+    // _setBackgroundService(listenOnSms: smsGranted, listenOnCall: callGranted);
+    // return callGranted || smsGranted;
   }
 
   void _setBackgroundService({
@@ -59,7 +60,7 @@ Future<void> backgroundMessageHandler(SmsMessage message) => update();
 
 @pragma('vm:entry-point')
 void backgroundHandler() {
-  Workmanager().executeTask((task, inputData) => update());
+  // Workmanager().executeTask((task, inputData) => update());
 }
 
 Future<bool> update() async {

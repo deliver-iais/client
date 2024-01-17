@@ -59,6 +59,12 @@ class MessageHive {
   @HiveField(15)
   int? localNetworkMessageId;
 
+  @HiveField(16)
+  bool isLocalNetworkMessage;
+
+  @HiveField(17)
+  bool needToBackup;
+
   MessageHive({
     required this.roomUid,
     required this.packetId,
@@ -73,6 +79,8 @@ class MessageHive {
     this.replyToId = 0,
     this.edited = false,
     this.encrypted = false,
+    this.isLocalNetworkMessage = false,
+    this.needToBackup = false,
     this.forwardedFrom,
     this.markup,
     this.generatedBy,
@@ -95,6 +103,8 @@ class MessageHive {
     String? markup,
     int? localNetworkMessageId,
     String? generatedBy,
+    bool? isLocalNetworkMessage,
+    bool? needToBackup,
   }) =>
       MessageHive(
         roomUid: roomUid ?? this.roomUid,
@@ -114,6 +124,9 @@ class MessageHive {
         json: json ?? this.json,
         markup: markup ?? this.markup,
         generatedBy: generatedBy ?? this.generatedBy,
+        isLocalNetworkMessage:
+            isLocalNetworkMessage ?? this.isLocalNetworkMessage,
+        needToBackup: needToBackup ?? this.needToBackup,
       );
 
   @override
@@ -140,7 +153,11 @@ class MessageHive {
           const DeepCollectionEquality()
               .equals(other.generatedBy, generatedBy) &&
           const DeepCollectionEquality()
-              .equals(other.localNetworkMessageId, localNetworkMessageId);
+              .equals(other.localNetworkMessageId, localNetworkMessageId) &&
+          const DeepCollectionEquality()
+              .equals(other.isLocalNetworkMessage, isLocalNetworkMessage) &&
+          const DeepCollectionEquality()
+              .equals(other.needToBackup, needToBackup);
 
   @override
   int get hashCode => Object.hash(
@@ -160,11 +177,13 @@ class MessageHive {
         const DeepCollectionEquality().hash(type),
         const DeepCollectionEquality().hash(json),
         const DeepCollectionEquality().hash(generatedBy),
+        const DeepCollectionEquality().hash(isLocalNetworkMessage),
+        const DeepCollectionEquality().hash(needToBackup),
       );
 
   @override
   String toString() {
-    return "Message([roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json] [markup:$markup] [generatedBy:$generatedBy] [localNetworkMessageId:$localNetworkMessageId]}";
+    return "Message([roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json] [markup:$markup] [generatedBy:$generatedBy] [localNetworkMessageId:$localNetworkMessageId] [needToBackup:$needToBackup [isLocalNetworkMessage:$isLocalNetworkMessage}";
   }
 
   Message fromHive() => Message(
@@ -179,10 +198,12 @@ class MessageHive {
         edited: edited,
         isHidden: isHidden,
         id: id,
+        isLocalMessage: isLocalNetworkMessage,
         localNetworkMessageId: localNetworkMessageId,
         type: type,
         forwardedFrom: forwardedFrom?.asUid(),
         markup: markup,
+        needToBackup: needToBackup,
         generatedBy: generatedBy?.asUid(),
       );
 }
@@ -202,8 +223,10 @@ extension MessageHiveMapper on Message {
         id: id,
         localNetworkMessageId: localNetworkMessageId,
         type: type,
+        isLocalNetworkMessage: isLocalMessage,
         forwardedFrom: forwardedFrom?.asString(),
         markup: markup,
         generatedBy: generatedBy?.asString(),
+        needToBackup: needToBackup,
       );
 }

@@ -196,7 +196,7 @@ class _$UidIdNameImpl implements _UidIdName {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UidIdNameImpl &&

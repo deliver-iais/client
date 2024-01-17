@@ -9,8 +9,10 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message.dart' as model;
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/room.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/models/local_chat_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
@@ -51,7 +53,7 @@ class ServerLessMessageService {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _logger = GetIt.I.get<Logger>();
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
-  final _completerMap = <String, Completer>{};
+  final _rooms = <String, LocalChatRoom>{};
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -201,7 +203,7 @@ class ServerLessMessageService {
       for (final element in members) {
         final ip = await _serverLessService.getIp(element.memberUid.asString());
         if (ip != null) {
-          await _send(ip: ip, message: message);
+          await _send(ip: ip, message: message..isLocalMessage = true);
         }
       }
     }
@@ -215,19 +217,21 @@ class ServerLessMessageService {
     final res =
         await _serverLessService.sendRequest(message.writeToBuffer(), ip);
     if (res != null && res.statusCode == HttpStatus.ok) {
-      unawaited(
-        _handleAck(
-          MessageDeliveryAck(
-            to: message.from,
-            packetId: message.packetId,
-            time: Int64(
-              DateTime.now().millisecondsSinceEpoch,
+      if (!message.edited && !message.hasCallLog()) {
+        unawaited(
+          _handleAck(
+            MessageDeliveryAck(
+              to: message.from,
+              packetId: message.packetId,
+              time: Int64(
+                DateTime.now().millisecondsSinceEpoch,
+              ),
+              id: message.id,
+              from: message.to,
             ),
-            id: message.id,
-            from: message.to,
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -311,7 +315,8 @@ class ServerLessMessageService {
   }
 
   Future<void> sendPendingMessage(String uid) async {
-    if (_pendingMessageMap.keys.contains(uid)) {
+    if (_pendingMessageMap.keys.contains(uid) &&
+        _pendingMessageMap[uid] != null) {
       if (_pendingMessageMap[uid]!.isNotEmpty) {
         var pm = _pendingMessageMap[uid]!.last.msg;
         try {
@@ -404,29 +409,35 @@ class ServerLessMessageService {
   }
 
   Future<void> _handleMessage(Message message) async {
-    final uid = message.from.asString();
-    var completer = _completerMap[uid];
-    if (completer == null || completer.isCompleted) {
-      completer = Completer();
-      _completerMap[uid] = completer;
-      await _processIncomingMessage(message);
-      completer.complete();
-    } else {
-      await completer.future;
-      await _handleMessage(message);
-    }
-  }
-
-  Future<void> _processIncomingMessage(Message message) async {
-    var uid = message.from;
+    var uid = message.from.asString();
     if (message.to.category == Categories.GROUP ||
         message.to.category == Categories.CHANNEL) {
-      uid = message.to;
+      uid = message.to.asString();
     }
-    final room = await _roomDao.getRoom(uid);
-    final ackId = message.id;
-    if (!message.edited) {
-      message.id = Int64(room?.lastMessageId ?? 0) + 1;
+    final room = _rooms[uid] ??
+        (((await _roomDao.getRoom(uid.asUid())) ?? Room(uid: uid.asUid()))
+            .getLocalChat());
+
+    final messageId = room.lastMessageId + 1;
+    final lastLocalNetworkMessageId = room.lastLocalNetworkId + 1;
+    unawaited(
+      _processIncomingMessage(
+        roomUid: uid.asUid(),
+        message..id = Int64(messageId),
+        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
+      ),
+    );
+    _rooms[uid] = (_rooms[uid] ?? (Room(uid: uid.asUid()).getLocalChat()))
+      ..lastMessageId = messageId
+      ..lastLocalNetworkId = lastLocalNetworkMessageId;
+  }
+
+  Future<void> _processIncomingMessage(
+    Message message, {
+    required Uid roomUid,
+    required int lastLocalNetworkMessageId,
+  }) async {
+    if (!message.edited && !message.hasCallLog()) {
       unawaited(
         _sendAck(
           MessageDeliveryAck(
@@ -435,47 +446,63 @@ class ServerLessMessageService {
             time: Int64(
               DateTime.now().millisecondsSinceEpoch,
             ),
-            id: ackId,
+            id: Int64(1),
             from: _authRepo.currentUserUid,
           ),
         ),
       );
     }
-    if (await _messageDao.getMessageByPacketId(room!.uid, message.packetId) == null) {
+    if (await _messageDao.getMessageByPacketId(roomUid, message.packetId) ==
+        null) {
       await _dataStreamService.handleIncomingMessage(
         message,
         isOnlineMessage: true,
         isLocalNetworkMessage: true,
       );
       await _roomDao.updateRoom(
-        uid: room.uid,
-        lastLocalNetworkMessageId: message.id.toInt(),
-        localNetworkMessageCount: room.localNetworkMessageCount + 1,
+        uid: roomUid,
+        localNetworkMessageCount: 1,
+        lastLocalNetworkMessageId: lastLocalNetworkMessageId,
       );
     }
   }
 
   Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
-    var completer = _completerMap[messageDeliveryAck.from.asString()];
-    if (completer == null || completer.isCompleted) {
-      completer = Completer();
-      _completerMap[messageDeliveryAck.from.asString()] = completer;
-      await _dataStreamService.handleAckMessage(
-        messageDeliveryAck,
-        isLocalNetworkMessage: true,
-      );
-      completer.complete();
-    } else {
-      await completer.future;
-      await _handleAck(messageDeliveryAck);
+    try {
+      final uid = messageDeliveryAck.from;
+      final room = _rooms[uid.asString()] ??
+          (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
+      if (room.lastPacketId != messageDeliveryAck.packetId) {
+        final messageId = room.lastMessageId + 1;
+        final localNetworkMessageId = room.lastLocalNetworkId+1;
+        unawaited(
+          _dataStreamService.handleAckMessage(
+            messageDeliveryAck..id = Int64(messageId),
+            isLocalNetworkMessage: true,
+            localNetworkMessageId: localNetworkMessageId,
+          ),
+        );
+        _rooms[uid.asString()] =
+            (_rooms[uid.asString()] ?? (Room(uid: uid).getLocalChat()))
+              ..lastMessageId = messageId
+              ..lastLocalNetworkId = localNetworkMessageId
+              ..lastPacketId = messageDeliveryAck.packetId;
+      }
+    } catch (e) {
+      _logger.e(e);
     }
+  }
+
+  void reset() {
+    _rooms.clear();
+    _pendingMessageMap.clear();
   }
 
   Future<void> updateRooms() async {
     for (final room in (await _roomDao.getLocalRooms())) {
       await _roomDao.updateRoom(
         uid: room.uid,
-        localNetworkMessageCount: 0,
+        // localNetworkMessageCount: 0,
         lastLocalNetworkMessageId: room.lastMessageId,
       );
     }

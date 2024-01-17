@@ -749,7 +749,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (!showSendButton &&
                 !widget.waitingForForward &&
-                !(settings.localNetworkMessenger.value &&
+                !(settings.inLocalNetwork.value &&
                     widget.currentRoom.uid.isMuc()))
               IconButton(
                 icon: const Icon(

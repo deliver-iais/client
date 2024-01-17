@@ -4,6 +4,7 @@ import 'package:deliver/screen/room/widgets/msg_time.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,19 +29,13 @@ class TimeAndSeenStatus extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final widget = buildWidget(context);
-
-    if (needsPositioned) {
-      return Positioned(
-        right: 0,
-        bottom: 0,
-        child: widget,
-      );
-    } else {
-      return widget;
-    }
-  }
+  Widget build(BuildContext context) => needsPositioned
+      ? Positioned(
+          right: 0,
+          bottom: 0,
+          child: buildWidget(context),
+        )
+      : buildWidget(context);
 
   Widget buildWidget(BuildContext context) {
     final theme = Theme.of(context);
@@ -70,7 +65,8 @@ class TimeAndSeenStatus extends StatelessWidget {
               if (isSender)
                 Container(
                   transform: Matrix4.translationValues(0, -1, 0),
-                  padding: const EdgeInsetsDirectional.only(start: 3.0, bottom: 1.0),
+                  padding:
+                      const EdgeInsetsDirectional.only(start: 3.0, bottom: 1.0),
                   child: SeenStatus(
                     message.roomUid,
                     message.packetId,
@@ -78,7 +74,16 @@ class TimeAndSeenStatus extends StatelessWidget {
                     isSeen: isSeen,
                     iconColor: iconColor,
                   ),
-                )
+                ),
+
+              if (message.isLocalMessage)
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Icon(
+                    CupertinoIcons.antenna_radiowaves_left_right,
+                    size: 15,
+                  ),
+                ),
             ],
           ),
         ),
