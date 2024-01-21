@@ -2146,14 +2146,13 @@ class CallRepo {
   }
 
   bool inComingAnswerForAnotherSessionCall(CallEvents event) {
-    final a =(isCallIdEqualToCurrentCallId(event));
-    final b = isEndingEvent(event.callEvent!);
-    final c = (event.callEvent!.to.sessionId != _authRepo.currentUserUid.sessionId);
-    final d = event.callEvent!.hasAnswer();
-    final e = isCallIdEqualToCurrentCallId(event);
+    final a = isEndingEvent(event.callEvent!);
+    final b =(isCallIdEqualToCurrentCallId(event));
+    final c = event.callEvent!.hasAnswer();
+    final d = isCallIdEqualToCurrentCallId(event);
+    final e = (event.callEvent!.to.sessionId != _authRepo.currentUserUid.sessionId);
 
-
-    return false;
+    return (a && b) || (c && d && e);
   }
 
   bool isCallIdEqualToCurrentCallId(CallEvents event) =>
