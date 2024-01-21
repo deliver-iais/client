@@ -83,7 +83,6 @@ class CallRepo {
   String _callOfferBody = "";
   String _callOfferCandidate = "";
   List<Map<String, Object>> _candidate = [];
-  CallEvents _lastCallEvent = CallEvents.none;
 
   String _offerSdp = "";
   String _answerSdp = "";
@@ -107,7 +106,8 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isCallFromNotActiveState = false;
-
+  bool _sendRingingAnswerOnSynchronousCalls = true;
+  bool _sendRingingOnSynchronousCalls = false;
   bool _isInitRenderer = false;
   bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
@@ -235,29 +235,32 @@ class CallRepo {
           }
           break;
         case CallEventV2_Type.ringing:
+
           if (!from.isSameEntity(currentUserUid)) {
+            var callState = 0;
+
+            if(_checkSynchronousCalls(event)) {
+              _sendRingingOnSynchronousCalls = true;
+              if(_isGreaterRoomUidOnSynchronousCalls(event.callEvent!.from.node, event.callEvent!.to.node)) {
+                callState = 1;
+                _sendRingingAnswerOnSynchronousCalls = false;
+              } else {
+                callState = 2;
+                _isCaller = false;
+              }
+            }
+
             if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
-              _lastCallEvent = event;
               _logger.i(
-                  "-----------------------------------${_callService.getUserCallState}",);
+                  "-----------------------------------${_callService.getUserCallState}");
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
               _cancelTimerResendEvent();
-              if (_handleSynchronousCall()) {
-                if (_synchronousCallSelect(event.callEvent!.from.toString(),
-                    event.callEvent!.to.toString(),)) {
-                  _callEvents[callEvent.time.toInt()] = "IsRinging";
-                  unawaited(_sendOffer());
-                  callingStatus.add(CallStatus.IS_RINGING);
-                } else {
-                  _handleOnSelectedInSynchronous();
-                }
-              } else {
-                _callEvents[callEvent.time.toInt()] = "IsRinging";
-                unawaited(_sendOffer());
-                callingStatus.add(CallStatus.IS_RINGING);
-              } try {
+              _callEvents[callEvent.time.toInt()] = "IsRinging";
+              unawaited(_sendOffer());
+              callingStatus.add(CallStatus.IS_RINGING);
+              try {
                 _audioService.playBeepSound();
               } catch (e) {
                 _logger.e(e);
@@ -290,7 +293,21 @@ class CallRepo {
       }
     });
   }
+  bool _checkSynchronousCalls(CallEvents event) {
+    if (_roomUid != null && !event.callEvent!.ringing.fromAnswerSide) {
+      if (event.callEvent!.to.node == _authRepo.currentUserUid.node
+          && event.callEvent!.from.node == _roomUid?.node) {
+            return true;
+      }
+      return false;
+    }
 
+    return false;
+  }
+
+  bool _isGreaterRoomUidOnSynchronousCalls(String from, String to) {
+    return from.compareTo(to) > 0;
+  }
   void _listenBackgroundCall() {
     _callService.watchCurrentCall().listen((call) {
       //check if there is call and user have mobile device
@@ -314,28 +331,7 @@ class CallRepo {
       }
     });
   }
-  bool _handleSynchronousCall() {
-    if(_lastCallEvent != CallEvents.none && !_lastCallEvent.callEvent!.ringing.fromAnswerSide) {
-      if(_authRepo.currentUserUid.toString() == _lastCallEvent.callEvent?.to.toString()) {
-        return true;
-      }
-    }
-    return false;
-  }
 
-  bool _synchronousCallSelect(String from, String to) {
-    if(from.compareTo(to) < 0) {
-      return false;
-    }
-    return true;
-  }
-
-  void _handleOnSelectedInSynchronous() {
-    _isCaller = false;
-    _callService..setCallId = _lastCallEvent.callEvent!.id
-    ..setUserCallState = UserCallState.IN_USER_CALL;
-    _handleIncomingCallOnReceiver(_lastCallEvent.callEvent!);
-  }
   // it is used to detect audio track (probably)
   Future<void> _audioLevelDetection() async {
     _timerStatReport =
@@ -1202,8 +1198,9 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTING) {
         callingStatus.add(CallStatus.IS_RINGING);
       }
-
-      _sendRinging(fromAnswerSide: true);
+      if(_sendRingingAnswerOnSynchronousCalls) {
+        _sendRinging(fromAnswerSide: true);
+      }
       Timer(const Duration(milliseconds: 400), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
@@ -1646,18 +1643,6 @@ class CallRepo {
   }
 
   Future<void> _sendOffer() async {
-    if(_handleSynchronousCall()) {
-      if(_synchronousCallSelect(_authRepo.currentUserUid.asString(), _roomUid!.asString())) {
-        await _createSendOffer();
-      } else {
-        _handleOnSelectedInSynchronous();
-      }
-    } else {
-      await _createSendOffer();
-    }
-  }
-
-  Future<void> _createSendOffer() async {
     //wait till offer is Ready
     await _waitUntilOfferReady();
     // Send Candidate to Receiver
@@ -1768,14 +1753,14 @@ class CallRepo {
     CallEventV2ByClient callEvent, {
     bool isRetry = true,
   }) async {
-    _cancelTimerResendEvent();
 
+    _cancelTimerResendEvent();
     final isRepeated = await _callService.checkIncomingCallIsRepeated(
           callEvent.id,
           callEvent.to.asString(),
         ) ??
         false;
-    if (isRepeated) {
+    if (isRepeated || _sendRingingOnSynchronousCalls) {
       _logger.i("Repeated Call Event");
     } else {
       timerResendEvent = Timer(const Duration(seconds: 5), () {
@@ -1965,6 +1950,8 @@ class CallRepo {
     _callDuration = 0;
     _isCallFromDb = false;
     _notifyIncomingCall = false;
+    _sendRingingAnswerOnSynchronousCalls = true;
+    _sendRingingOnSynchronousCalls = false;
     _callOfferBody = "";
     _callOfferCandidate = "";
 
@@ -2159,23 +2146,18 @@ class CallRepo {
   }
 
   bool inComingAnswerForAnotherSessionCall(CallEvents event) {
-    return (isEndingEvent(event.callEvent!) &&
-            isCallIdEqualToCurrentCallId(event)) ||
-        (event.callEvent!.hasAnswer() &&
-            isCallIdEqualToCurrentCallId(event) &&
-            event.callEvent!.to.sessionId !=
-                _authRepo.currentUserUid.sessionId);
-  }
+    final a =(isCallIdEqualToCurrentCallId(event));
+    final b = isEndingEvent(event.callEvent!);
+    final c = (event.callEvent!.to.sessionId != _authRepo.currentUserUid.sessionId);
+    final d = event.callEvent!.hasAnswer();
+    final e = isCallIdEqualToCurrentCallId(event);
 
-  bool isCallIdEqualToCurrentCallId(CallEvents event) {
-    if(event.callEvent!.id == _callService.getCallId) {
-      return true;
-    }
-    if(_handleSynchronousCall())  {
-      return true;
-    }
+
     return false;
   }
+
+  bool isCallIdEqualToCurrentCallId(CallEvents event) =>
+      event.callEvent!.id == _callService.getCallId;
 
   bool isEndingEvent(CallEventV2 callEventV2) =>
       callEventV2.hasEnd() || callEventV2.hasBusy() || callEventV2.hasDecline();
