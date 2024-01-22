@@ -203,7 +203,7 @@ dependencies:
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
   record: 4.4.4
-  rive: 0.11.7
+  rive: 0.12.4
   rxdart: 0.27.7
   screenshot:
     git:
