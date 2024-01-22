@@ -114,7 +114,7 @@ class CoreServices {
   }
 
   Future<void> initStreamConnection() async {
-    // _serverLessService.start();
+    _serverLessService.start();
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
@@ -344,12 +344,8 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
-  Future<void> sendLocalMessageToServer(MessageByClient messageByClient)async {
-    if(connectionStatus.value == ConnectionStatus.Connected) {
-
-
-    }
-
+  Future<void> sendLocalMessageToServer(MessageByClient messageByClient) async {
+    if (connectionStatus.value == ConnectionStatus.Connected) {}
   }
 
   Future<void> sendMessage(
@@ -478,7 +474,7 @@ class CoreServices {
     required Uid to,
   }) async {
     try {
-      if (false && !forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
+      if (!forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||
