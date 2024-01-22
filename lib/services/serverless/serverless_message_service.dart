@@ -474,7 +474,7 @@ class ServerLessMessageService {
           (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
       if (room.lastPacketId != messageDeliveryAck.packetId) {
         final messageId = room.lastMessageId + 1;
-        final localNetworkMessageId = room.lastLocalNetworkId+1;
+        final localNetworkMessageId = room.lastLocalNetworkId + 1;
         unawaited(
           _dataStreamService.handleAckMessage(
             messageDeliveryAck..id = Int64(messageId),
@@ -496,16 +496,6 @@ class ServerLessMessageService {
   void reset() {
     _rooms.clear();
     _pendingMessageMap.clear();
-  }
-
-  Future<void> updateRooms() async {
-    for (final room in (await _roomDao.getLocalRooms())) {
-      await _roomDao.updateRoom(
-        uid: room.uid,
-        // localNetworkMessageCount: 0,
-        lastLocalNetworkMessageId: room.lastMessageId,
-      );
-    }
   }
 
   Future<void> _sendAck(MessageDeliveryAck ack) async {

@@ -26,7 +26,7 @@ class ServerLessService {
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
+  GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   HttpServer? _httpServer;
 
@@ -35,9 +35,7 @@ class ServerLessService {
   var _wifiBroadcast = "255.255.255.255";
 
   void start() {
-    GetIt.I.get<ServerLessMessageService>()
-      ..reset()
-      ..updateRooms();
+    GetIt.I.get<ServerLessMessageService>().reset();
     _start();
   }
 
@@ -46,6 +44,8 @@ class ServerLessService {
     _startServices();
     _startForegroundService();
   }
+
+  bool inLocalNetwork(Uid uid) => _address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -88,7 +88,9 @@ class ServerLessService {
       await _clearConnections();
     }
     _startUdpListener();
-    await _initWifiBroadcast();
+    if (!Platform.isWindows) {
+      await _initWifiBroadcast();
+    }
     await _startHttpService();
   }
 
@@ -101,7 +103,9 @@ class ServerLessService {
         udpSocket
           ..broadcastEnabled = true
           ..listen((_) {
-            final data = udpSocket.receive()?.data;
+            final data = udpSocket
+                .receive()
+                ?.data;
             if (data != null) {
               _handleBroadCastMessage(data);
             }
@@ -115,9 +119,7 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({
-    Uid? to,
-  }) {
+  void sendBroadCast({Uid? to, bool superNode = false}) {
     try {
       _upSocket?.send(
         LocalNetworkInfo(
@@ -155,12 +157,16 @@ class ServerLessService {
     }
   }
 
-  Future<void> _sendMyAddress(String url) async {
+  Future<void> _sendMyAddress(String url, {bool isSuperNode = false}) async {
     try {
-      await _dio.get(
-        "http://$url:$SERVER_PORT?from=${_authRepo.currentUserUid.node}&address=$_ip",
-        options: Options(
-          headers: {TYPE: REGISTER},
+      unawaited(
+        sendRequest(
+          LocalNetworkInfo(
+            from: _authRepo.currentUserUid,
+            url: _ip,
+          ).writeToBuffer(),
+          url,
+          type: REGISTER,
         ),
       );
     } catch (e) {
@@ -168,13 +174,12 @@ class ServerLessService {
     }
   }
 
-  Future<Response?> sendRequest(
-    Uint8List reqData,
-    String url, {
-    String type = MESSAGE,
-    String from = "",
-    String name = "",
-  }) async {
+  Future<Response?> sendRequest(Uint8List reqData,
+      String url, {
+        String type = MESSAGE,
+        String from = "",
+        String name = "",
+      }) async {
     try {
       return _dio.post(
         "http://$url:$SERVER_PORT",
@@ -234,13 +239,10 @@ class ServerLessService {
   }
 
   Future<void> _processRegister(HttpRequest request) async {
-    final from = request.uri.queryParameters['from'];
-    final address = request.uri.queryParameters['address'];
-    _logger.i("new address....$address +??? $_ip");
-    final uid = Uid()..node = from!;
-    await saveIp(uid: uid.asString(), ip: address!);
+    final info = LocalNetworkInfo.fromBuffer(await request.first);
+    await saveIp(uid: info.from.asString(), ip: info.url);
     unawaited(
-      GetIt.I.get<ServerLessMessageService>().resendPendingPackets(uid),
+      GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
     await request.response.close();
   }
@@ -280,7 +282,9 @@ class ServerLessService {
           LocalNetworkConnections(
             uid: uid.asUid(),
             ip: ip,
-            lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+            lastUpdateTime: DateTime
+                .now()
+                .millisecondsSinceEpoch,
           ),
         ),
       );
@@ -296,7 +300,8 @@ class ServerLessService {
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          final s = _ip.split(".")..last = "255";
+          final s = _ip.split(".")
+            ..last = "255";
           _wifiBroadcast = s.join(".");
         }
         _logger.i(_wifiBroadcast);

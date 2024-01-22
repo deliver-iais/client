@@ -34,6 +34,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -554,9 +555,11 @@ class DataStreamServices {
     );
   }
 
-  Future<void> handleAckMessage(MessageDeliveryAck messageDeliveryAck,
-      {bool isLocalNetworkMessage = false,
-      int localNetworkMessageId = 0,}) async {
+  Future<void> handleAckMessage(
+    MessageDeliveryAck messageDeliveryAck, {
+    bool isLocalNetworkMessage = false,
+    int localNetworkMessageId = 0,
+  }) async {
     final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
@@ -567,6 +570,16 @@ class DataStreamServices {
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
       await _saveAndCreateBroadcastMessage(messageDeliveryAck);
+    } else if (messageDeliveryAck.ackOnLocalMessage) {
+      final mes = await _messageDao.getMessageByPacketId(
+        messageDeliveryAck.from,
+        packetId,
+      );
+      if (mes != null) {
+        unawaited(
+          _messageDao.insertMessage(mes.copyWith(needToBackup: false)),
+        );
+      }
     } else {
       final pm = await _pendingMessageDao.getPendingMessage(packetId);
       if (pm != null) {
@@ -610,8 +623,16 @@ class DataStreamServices {
             );
           }
 
-          await serverLessMessageService
-              .sendPendingMessage(msg.roomUid.asString());
+          unawaited(
+            serverLessMessageService.sendPendingMessage(msg.roomUid.asString()),
+          );
+
+          unawaited(
+            GetIt.I.get<CoreServices>().sendLocalMessageToServer(
+                  MessageUtils.createMessageByClient(pm.msg)
+                    ..isLocalMessage = true,
+                ),
+          );
         }
       } else {
         await _analyticsService.sendLogEvent(

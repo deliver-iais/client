@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -83,9 +84,9 @@ class CoreServices {
   int get lastRoomMetadataUpdateTime => _lastRoomMetadataUpdateTime;
 
   void useLocalNetwork() {
-    _serverLessService.start();
-    proposeUseLocalNetwork.add(false);
-    _connectionStatus.add(ConnectionStatus.LocalNetwork);
+    // _serverLessService.start();
+    // proposeUseLocalNetwork.add(false);
+    // _connectionStatus.add(ConnectionStatus.LocalNetwork);
   }
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
@@ -113,6 +114,7 @@ class CoreServices {
   }
 
   Future<void> initStreamConnection() async {
+    // _serverLessService.start();
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
@@ -342,6 +344,14 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
+  Future<void> sendLocalMessageToServer(MessageByClient messageByClient)async {
+    if(connectionStatus.value == ConnectionStatus.Connected) {
+
+
+    }
+
+  }
+
   Future<void> sendMessage(
     MessageByClient message, {
     bool resend = true,
@@ -350,7 +360,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendClientPacket(clientPacket);
+      await _sendClientPacket(clientPacket, to: message.to);
       if (resend) {
         if (_connectionStatus.value == ConnectionStatus.Connected) {
           Timer(
@@ -387,7 +397,9 @@ class CoreServices {
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendClientPacket(clientPacket,
-        forceToSendEvenNotConnected: true, forceToSendToServer: true);
+        forceToSendEvenNotConnected: true,
+        forceToSendToServer: true,
+        to: Uid());
     FlutterForegroundTask.saveData(
       key: "BackgroundActivationTime",
       value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
@@ -407,7 +419,7 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    await _sendClientPacket(clientPacket)
+    await _sendClientPacket(clientPacket, to: seen.to)
         .onError(
           (error, stackTrace) async => _analyticsService.sendLogEvent(
             "failedSeen",
@@ -429,14 +441,14 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id;
-    _sendClientPacket(clientPacket);
+    _sendClientPacket(clientPacket, to: callAnswerByClient.to);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id;
-    _sendClientPacket(clientPacket);
+    _sendClientPacket(clientPacket, to: callOfferByClient.to);
   }
 
   void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
@@ -444,7 +456,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..callEvent = callEventV2ByClient
         ..id = callEventV2ByClient.id;
-      _sendClientPacket(clientPacket);
+      _sendClientPacket(clientPacket, to: callEventV2ByClient.to);
     }
   }
 
@@ -454,7 +466,7 @@ class CoreServices {
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to)) {
-        _sendClientPacket(clientPacket);
+        _sendClientPacket(clientPacket, to: activity.to);
       }
     }
   }
@@ -463,9 +475,10 @@ class CoreServices {
     ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
     bool forceToSendToServer = false,
+    required Uid to,
   }) async {
     try {
-      if (!forceToSendToServer && settings.inLocalNetwork.value) {
+      if (false && !forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||

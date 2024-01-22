@@ -52,7 +52,7 @@ dependencies:
     git:
       ref: 6805a29e07d95fab29392654afddfc225020a5e5
       url: https://github.com/deliveriais/browser_image_compression.git
-  camera: ^0.10.5+5
+  camera: ^0.10.5+9
   card_swiper: ^3.0.1
   chewie: ^1.7.1
   circular_countdown_timer: 0.2.3
@@ -71,7 +71,7 @@ dependencies:
 
   deliver_public_protocol:
     git:
-      ref: tags/v1.15.58
+      ref: tags/v1.15.61
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.4.1
   desktop_lifecycle: ^0.1.1

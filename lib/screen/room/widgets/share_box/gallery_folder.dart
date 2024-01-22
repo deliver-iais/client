@@ -42,7 +42,7 @@ class GalleryFolder extends StatefulWidget {
   State<GalleryFolder> createState() => _GalleryFolderState();
 }
 
-const int FETCH_IMAGE_PAGE_SIZE = 40;
+const int FETCH_IMAGE_PAGE_SIZE = 20;
 
 class _GalleryFolderState extends State<GalleryFolder> {
   static final _logger = GetIt.I.get<Logger>();
@@ -52,10 +52,6 @@ class _GalleryFolderState extends State<GalleryFolder> {
   final List<String> _selectedImage = [];
   final Map<String, AssetEntity> _imageFiles = {};
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   Future<List<AssetEntity>?> _fetchImage(int index) async {
     var completer =
@@ -235,7 +231,6 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                                   image: DecorationImage(
                                                     image: Image.file(
                                                       File(imagePath),
-                                                      height: 500,
                                                       cacheWidth: 200,
                                                       cacheHeight: 200,
                                                     ).image,
@@ -245,7 +240,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                                 child: widget.selectAsAvatar
                                                     ? const SizedBox.shrink()
                                                     : _buildSelecteButton(
-                                                        imagePath, isSelected),
+                                                        imagePath, isSelected,),
                                               ),
                                       ),
                                     ),

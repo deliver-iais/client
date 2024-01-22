@@ -248,6 +248,14 @@ class Settings {
     SharedKeys.USE_BAD_CERTIFICATE_CONNECTION.inSharedDaoStorage(),
     defaultValue: false,
   );
+  final superNode = BooleanPersistent(
+    SharedKeys.SUPER_NODE.inSharedDaoStorage(),
+    defaultValue: false,
+  );
+  final backupLocalNetworkMessages = BooleanPersistent(
+    SharedKeys.BACKUP_LOCAL_NETWORK_MESSAGES.inSharedDaoStorage(),
+    defaultValue: true,
+  );
   final hostSetByUser = StringPersistent(
     SharedKeys.SHARE_DAO_HOST_SET_BY_USER.inSharedDaoStorage(),
     defaultValue: "",

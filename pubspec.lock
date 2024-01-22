@@ -577,11 +577,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.15.58"
-      resolved-ref: "35784fac58f301a952b4ebcd7020e5dfdb133bbc"
+      ref: "tags/v1.15.61"
+      resolved-ref: "58fee40ff35d34597e69a3ff5d3a34c822bc79ff"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.15.58"
+    version: "1.15.61"
   dependency_validator:
     dependency: "direct dev"
     description:

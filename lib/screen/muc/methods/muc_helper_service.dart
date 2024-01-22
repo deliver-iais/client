@@ -267,9 +267,9 @@ class MucHelperService {
   Future<bool> leaveMuc(Uid mucUid) {
     switch (mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
-        return _mucRepo.leaveGroup(mucUid);
-      case MucCategories.GROUP:
         return _mucRepo.leaveChannel(mucUid);
+      case MucCategories.GROUP:
+        return _mucRepo.leaveGroup(mucUid);
       case MucCategories.BROADCAST:
       case MucCategories.NONE:
         return Future.value(false);

@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'dart:math';
 
-import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery_folder.dart';
 import 'package:deliver/services/camera_service.dart';
@@ -66,13 +66,10 @@ class GalleryBoxState extends State<GalleryBox> {
 
   Future<void> _initFolders() async {
     try {
-      await _checkPermissionServices.checkCameraRecorderPermission();
-      await _cameraService
-          .initCamera()
-          .then((value) => _canInitCamera.add(value));
       if (await checkAccessMediaLocationPermission()) {
         await PhotoManager.requestPermissionExtend();
-        final folders = await PhotoManager.getAssetPathList();
+        final folders =
+            await PhotoManager.getAssetPathList(type: RequestType.image);
         final finalFolders = <AssetPathEntity>[];
 
         for (final f in folders) {
@@ -82,6 +79,10 @@ class GalleryBoxState extends State<GalleryBox> {
         }
         _folders.add(finalFolders);
       }
+      await _checkPermissionServices.checkCameraRecorderPermission();
+      await _cameraService
+          .initCamera()
+          .then((value) => _canInitCamera.add(value));
     } catch (_) {
       print(_);
     }
@@ -113,13 +114,12 @@ class GalleryBoxState extends State<GalleryBox> {
           if (snap.hasData && snap.data != null) {
             return GridView.builder(
               controller: widget.scrollController,
-              itemCount:
-                  hasCamera ? _folders.value.length + 1 : _folders.value.length,
+              itemCount: _folders.value.length + 1,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
               itemBuilder: (co, index) {
-                if (hasCamera && index == 0) {
+                if (index == 0) {
                   return Container(
                     clipBehavior: Clip.hardEdge,
                     margin: const EdgeInsets.all(20.0),
@@ -137,7 +137,9 @@ class GalleryBoxState extends State<GalleryBox> {
                     ),
                     child: GestureDetector(
                       onTap: () async {
-                        await _cameraService.enableRecordAudio();
+                        if (hasCamera) {
+                          await _cameraService.enableRecordAudio();
+                        }
                         _routingService.openCameraBox(
                           selectAsAvatar: widget.selectAsAvatar,
                           roomUid: widget.roomUid,
@@ -147,7 +149,7 @@ class GalleryBoxState extends State<GalleryBox> {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          _cameraService.buildPreview(),
+                          if (hasCamera) _cameraService.buildPreview(),
                           const Center(
                             child: Icon(
                               CupertinoIcons.camera,
@@ -159,7 +161,7 @@ class GalleryBoxState extends State<GalleryBox> {
                     ),
                   );
                 } else {
-                  final folder = _folders.value[hasCamera ? index - 1 : index];
+                  final folder = _folders.value[index - 1];
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -211,7 +213,7 @@ class GalleryBoxState extends State<GalleryBox> {
     final theme = Theme.of(context);
 
     return <Widget>[
-      for (var i = 0; i < assets.length; i++)
+      for (var i = 0; i < min(assets.length, 2); i++)
         Positioned(
           right: i * 6 + 10,
           top: (1 - i) * 7 + 6,
@@ -245,9 +247,8 @@ class GalleryBoxState extends State<GalleryBox> {
                       image: DecorationImage(
                         image: Image.file(
                           fileSnapshot.data!,
-                          cacheWidth: 100,
-                          cacheHeight: 100,
-                          height: ((2 - i) * 10) + 480,
+                          cacheWidth: 200,
+                          cacheHeight: ((2 - i) * 10) + 480,
                         ).image,
                         fit: BoxFit.cover,
                       ),
