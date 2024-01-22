@@ -3,7 +3,6 @@ import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -145,7 +144,6 @@ class ContactWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (settings.inLocalNetwork.value)
                     if (user.uid != null &&
                         user.uid!.category == Categories.USER &&
                         !_authRepo.isCurrentUser(user.uid!))
