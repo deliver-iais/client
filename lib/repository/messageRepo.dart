@@ -1179,7 +1179,6 @@ class MessageRepo {
   }
 
   bool _fileOfMessageIsValid(file_pb.File file) =>
-      settings.inLocalNetwork.value ||
       (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>

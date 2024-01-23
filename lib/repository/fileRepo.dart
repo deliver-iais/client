@@ -37,7 +37,6 @@ class FileRepo {
   final _fileService = GetIt.I.get<FileService>();
   final _fileCache = GetIt.I.get<FileInfoCache>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
-  final _serverLessService = GetIt.I.get<ServerLessService>();
 
   final _i18N = GetIt.I.get<I18N>();
 
@@ -66,7 +65,7 @@ class FileRepo {
         convertToDataByteInWeb: true,
       );
 
-      if (uid != null && _serverLessService.inLocalNetwork(uid)) {
+      if (uid != null &&  GetIt.I.get<ServerLessService>().inLocalNetwork(uid)) {
         var audioWaveform0 = file_pb.AudioWaveform();
         if (await GetIt.I.get<ServerLessMessageService>().sendFile(
               filename: name,
@@ -112,6 +111,7 @@ class FileRepo {
             duration: duration,
             isLocal: true,
             size: Int64(size),
+            hash: "hash",
             type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
             sign: DateTime.now().millisecondsSinceEpoch.toString(),
           );
