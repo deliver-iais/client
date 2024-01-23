@@ -26,7 +26,7 @@ class ServerLessService {
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
-  GetIt.I.get<NotificationForegroundService>();
+      GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   HttpServer? _httpServer;
 
@@ -82,13 +82,12 @@ class ServerLessService {
     await _localNetworkConnectionDao.deleteAll();
   }
 
-  @pragma('vm:entry-point')
   Future<void> _startServices() async {
     if (await _getMyLocalIp()) {
       await _clearConnections();
     }
     _startUdpListener();
-    if (!Platform.isWindows) {
+    if (true || !Platform.isWindows) {
       await _initWifiBroadcast();
     }
     await _startHttpService();
@@ -103,9 +102,7 @@ class ServerLessService {
         udpSocket
           ..broadcastEnabled = true
           ..listen((_) {
-            final data = udpSocket
-                .receive()
-                ?.data;
+            final data = udpSocket.receive()?.data;
             if (data != null) {
               _handleBroadCastMessage(data);
             }
@@ -174,12 +171,13 @@ class ServerLessService {
     }
   }
 
-  Future<Response?> sendRequest(Uint8List reqData,
-      String url, {
-        String type = MESSAGE,
-        String from = "",
-        String name = "",
-      }) async {
+  Future<Response?> sendRequest(
+    Uint8List reqData,
+    String url, {
+    String type = MESSAGE,
+    String from = "",
+    String name = "",
+  }) async {
     try {
       return _dio.post(
         "http://$url:$SERVER_PORT",
@@ -282,9 +280,7 @@ class ServerLessService {
           LocalNetworkConnections(
             uid: uid.asUid(),
             ip: ip,
-            lastUpdateTime: DateTime
-                .now()
-                .millisecondsSinceEpoch,
+            lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
           ),
         ),
       );
@@ -300,8 +296,7 @@ class ServerLessService {
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          final s = _ip.split(".")
-            ..last = "255";
+          final s = _ip.split(".")..last = "255";
           _wifiBroadcast = s.join(".");
         }
         _logger.i(_wifiBroadcast);

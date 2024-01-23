@@ -151,7 +151,7 @@ class CoreServices {
         if (settings.inLocalNetwork.value) {
           settings.inLocalNetwork.set(false);
         }
-        _serverLessService.dispose();
+        // _serverLessService.dispose();
         _connectToLocalNetworkTimer?.cancel();
         proposeUseLocalNetwork.add(false);
       }
