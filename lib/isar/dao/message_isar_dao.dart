@@ -145,7 +145,7 @@ class MessageDaoImpl extends MessageDao {
               .filter()
               .roomUidEqualTo(roomUid.asString())
               .and()
-              .isLocalMessageEqualTo(true)
+              .needToBackupEqualTo(true)
               .findAll())
           .map((e) => e.fromIsar())
           .toList();

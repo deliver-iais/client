@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -83,9 +84,9 @@ class CoreServices {
   int get lastRoomMetadataUpdateTime => _lastRoomMetadataUpdateTime;
 
   void useLocalNetwork() {
-    _serverLessService.start();
-    proposeUseLocalNetwork.add(false);
-    _connectionStatus.add(ConnectionStatus.LocalNetwork);
+    // _serverLessService.start();
+    // proposeUseLocalNetwork.add(false);
+    // _connectionStatus.add(ConnectionStatus.LocalNetwork);
   }
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
@@ -113,17 +114,18 @@ class CoreServices {
   }
 
   Future<void> initStreamConnection() async {
+    _serverLessService.start();
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
       } else {
         _onConnectionError();
       }
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         _serverLessService.restart();
       }
     });
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       unawaited(_serverLessService.restart());
       _connectionStatus.add(ConnectionStatus.LocalNetwork);
     }
@@ -131,7 +133,7 @@ class CoreServices {
   }
 
   void _startConnectToLocalNetworkTimer() {
-    if (!settings.localNetworkMessenger.value &&
+    if (!settings.inLocalNetwork.value &&
         !(_connectToLocalNetworkTimer?.isActive ?? false)) {
       _connectToLocalNetworkTimer =
           Timer(const Duration(seconds: CONNECT_TO_LOCAL_NETWORK_TIME), () {
@@ -146,10 +148,10 @@ class CoreServices {
     if (_connectionStatus.value == ConnectionStatus.LocalNetwork) {
       if (status == ConnectionStatus.Connected) {
         _connectionStatus.add(status);
-        if (settings.localNetworkMessenger.value) {
-          settings.localNetworkMessenger.set(false);
+        if (settings.inLocalNetwork.value) {
+          settings.inLocalNetwork.set(false);
         }
-        _serverLessService.dispose();
+        // _serverLessService.dispose();
         _connectToLocalNetworkTimer?.cancel();
         proposeUseLocalNetwork.add(false);
       }
@@ -249,7 +251,7 @@ class CoreServices {
             );
 
       _responseStream?.listen(
-        (serverPacket) {
+        (serverPacket) async {
           try {
             _logger.d(serverPacket);
 
@@ -257,17 +259,17 @@ class CoreServices {
 
             switch (serverPacket.whichType()) {
               case ServerPacket_Type.message:
-                _dataStreamServices.handleIncomingMessage(
+                unawaited(_dataStreamServices.handleIncomingMessage(
                   serverPacket.message,
                   isOnlineMessage: true,
-                );
+                ));
                 break;
               case ServerPacket_Type.messageDeliveryAck:
-                _dataStreamServices
+                await _dataStreamServices
                     .handleAckMessage(serverPacket.messageDeliveryAck);
                 break;
               case ServerPacket_Type.seen:
-                _dataStreamServices.handleSeen(serverPacket.seen);
+                unawaited(_dataStreamServices.handleSeen(serverPacket.seen));
                 break;
               case ServerPacket_Type.activity:
                 _dataStreamServices.handleActivity(serverPacket.activity);
@@ -299,6 +301,8 @@ class CoreServices {
                 //update last message delivery ack on sharedPref
                 final latMessageDeliveryAck =
                     serverPacket.pong.lastMessageDeliveryAck;
+                await _dataStreamServices
+                    .handleAckMessage(serverPacket.pong.lastMessageDeliveryAck);
                 settings.lastMessageDeliveryAck.set(latMessageDeliveryAck);
                 break;
               case ServerPacket_Type.liveLocationStatusChanged:
@@ -340,6 +344,10 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
+  Future<void> sendLocalMessageToServer(MessageByClient messageByClient) async {
+    if (connectionStatus.value == ConnectionStatus.Connected) {}
+  }
+
   Future<void> sendMessage(
     MessageByClient message, {
     bool resend = true,
@@ -348,7 +356,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendClientPacket(clientPacket);
+      await _sendClientPacket(clientPacket, to: message.to);
       if (resend) {
         if (_connectionStatus.value == ConnectionStatus.Connected) {
           Timer(
@@ -374,12 +382,8 @@ class CoreServices {
 
   Future<void> _checkPendingStatus(String packetId, message) async {
     final pm = await _pendingMessageDao.getPendingMessage(packetId);
-    var hasBeenSent = false;
     if (pm != null) {
-      if (!hasBeenSent) {
-        await sendMessage(message);
-        hasBeenSent = true;
-      }
+      await sendMessage(message, resend: false);
     }
   }
 
@@ -389,7 +393,9 @@ class CoreServices {
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendClientPacket(clientPacket,
-        forceToSendEvenNotConnected: true, forceToSendToServer: true);
+        forceToSendEvenNotConnected: true,
+        forceToSendToServer: true,
+        to: Uid());
     FlutterForegroundTask.saveData(
       key: "BackgroundActivationTime",
       value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
@@ -409,7 +415,7 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    await _sendClientPacket(clientPacket)
+    await _sendClientPacket(clientPacket, to: seen.to)
         .onError(
           (error, stackTrace) async => _analyticsService.sendLogEvent(
             "failedSeen",
@@ -431,14 +437,14 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id;
-    _sendClientPacket(clientPacket);
+    _sendClientPacket(clientPacket, to: callAnswerByClient.to);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id;
-    _sendClientPacket(clientPacket);
+    _sendClientPacket(clientPacket, to: callOfferByClient.to);
   }
 
   void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
@@ -446,7 +452,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..callEvent = callEventV2ByClient
         ..id = callEventV2ByClient.id;
-      _sendClientPacket(clientPacket);
+      _sendClientPacket(clientPacket, to: callEventV2ByClient.to);
     }
   }
 
@@ -456,7 +462,7 @@ class CoreServices {
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to)) {
-        _sendClientPacket(clientPacket);
+        _sendClientPacket(clientPacket, to: activity.to);
       }
     }
   }
@@ -465,9 +471,10 @@ class CoreServices {
     ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
     bool forceToSendToServer = false,
+    required Uid to,
   }) async {
     try {
-      if (!forceToSendToServer && settings.localNetworkMessenger.value) {
+      if (!forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
       } else {
         if (isWeb ||

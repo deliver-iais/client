@@ -35,6 +35,7 @@ mixin _$Message {
   bool get encrypted => throw _privateConstructorUsedError;
   bool get isHidden => throw _privateConstructorUsedError;
   bool get isLocalMessage => throw _privateConstructorUsedError;
+  bool get needToBackup => throw _privateConstructorUsedError;
   String? get markup => throw _privateConstructorUsedError;
   int? get id => throw _privateConstructorUsedError;
   int? get localNetworkMessageId => throw _privateConstructorUsedError;
@@ -66,6 +67,7 @@ abstract class $MessageCopyWith<$Res> {
       bool encrypted,
       bool isHidden,
       bool isLocalMessage,
+      bool needToBackup,
       String? markup,
       int? id,
       int? localNetworkMessageId,
@@ -98,6 +100,7 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
     Object? encrypted = null,
     Object? isHidden = null,
     Object? isLocalMessage = null,
+    Object? needToBackup = null,
     Object? markup = freezed,
     Object? id = freezed,
     Object? localNetworkMessageId = freezed,
@@ -153,6 +156,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
           ? _value.isLocalMessage
           : isLocalMessage // ignore: cast_nullable_to_non_nullable
               as bool,
+      needToBackup: null == needToBackup
+          ? _value.needToBackup
+          : needToBackup // ignore: cast_nullable_to_non_nullable
+              as bool,
       markup: freezed == markup
           ? _value.markup
           : markup // ignore: cast_nullable_to_non_nullable
@@ -197,6 +204,7 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
       bool encrypted,
       bool isHidden,
       bool isLocalMessage,
+      bool needToBackup,
       String? markup,
       int? id,
       int? localNetworkMessageId,
@@ -227,6 +235,7 @@ class __$$MessageImplCopyWithImpl<$Res>
     Object? encrypted = null,
     Object? isHidden = null,
     Object? isLocalMessage = null,
+    Object? needToBackup = null,
     Object? markup = freezed,
     Object? id = freezed,
     Object? localNetworkMessageId = freezed,
@@ -282,6 +291,10 @@ class __$$MessageImplCopyWithImpl<$Res>
           ? _value.isLocalMessage
           : isLocalMessage // ignore: cast_nullable_to_non_nullable
               as bool,
+      needToBackup: null == needToBackup
+          ? _value.needToBackup
+          : needToBackup // ignore: cast_nullable_to_non_nullable
+              as bool,
       markup: freezed == markup
           ? _value.markup
           : markup // ignore: cast_nullable_to_non_nullable
@@ -322,6 +335,7 @@ class _$MessageImpl implements _Message {
       this.encrypted = false,
       this.isHidden = false,
       this.isLocalMessage = false,
+      this.needToBackup = false,
       this.markup,
       this.id,
       this.localNetworkMessageId,
@@ -365,6 +379,9 @@ class _$MessageImpl implements _Message {
   @JsonKey()
   final bool isLocalMessage;
   @override
+  @JsonKey()
+  final bool needToBackup;
+  @override
   final String? markup;
   @override
   final int? id;
@@ -379,11 +396,11 @@ class _$MessageImpl implements _Message {
 
   @override
   String toString() {
-    return 'Message(roomUid: $roomUid, from: $from, to: $to, packetId: $packetId, time: $time, json: $json, replyToId: $replyToId, type: $type, edited: $edited, encrypted: $encrypted, isHidden: $isHidden, isLocalMessage: $isLocalMessage, markup: $markup, id: $id, localNetworkMessageId: $localNetworkMessageId, forwardedFrom: $forwardedFrom, generatedBy: $generatedBy)';
+    return 'Message(roomUid: $roomUid, from: $from, to: $to, packetId: $packetId, time: $time, json: $json, replyToId: $replyToId, type: $type, edited: $edited, encrypted: $encrypted, isHidden: $isHidden, isLocalMessage: $isLocalMessage, needToBackup: $needToBackup, markup: $markup, id: $id, localNetworkMessageId: $localNetworkMessageId, forwardedFrom: $forwardedFrom, generatedBy: $generatedBy)';
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MessageImpl &&
@@ -404,6 +421,8 @@ class _$MessageImpl implements _Message {
                 other.isHidden == isHidden) &&
             (identical(other.isLocalMessage, isLocalMessage) ||
                 other.isLocalMessage == isLocalMessage) &&
+            (identical(other.needToBackup, needToBackup) ||
+                other.needToBackup == needToBackup) &&
             (identical(other.markup, markup) || other.markup == markup) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.localNetworkMessageId, localNetworkMessageId) ||
@@ -430,6 +449,7 @@ class _$MessageImpl implements _Message {
       encrypted,
       isHidden,
       isLocalMessage,
+      needToBackup,
       markup,
       id,
       localNetworkMessageId,
@@ -464,6 +484,7 @@ abstract class _Message implements Message {
       final bool encrypted,
       final bool isHidden,
       final bool isLocalMessage,
+      final bool needToBackup,
       final String? markup,
       final int? id,
       final int? localNetworkMessageId,
@@ -499,6 +520,8 @@ abstract class _Message implements Message {
   bool get isHidden;
   @override
   bool get isLocalMessage;
+  @override
+  bool get needToBackup;
   @override
   String? get markup;
   @override

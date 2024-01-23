@@ -213,7 +213,7 @@ class CallRepo {
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else {
-            if (settings.localNetworkMessenger.value) {
+            if (settings.inLocalNetwork.value) {
               if (_callService.getCallId.isEmpty) {
                 _callService.setCallId = callEvent.id;
               }
@@ -528,7 +528,7 @@ class CallRepo {
       }
       ..onIceCandidate = (e) {
         if (e.candidate != null) {
-          if (!settings.localNetworkMessenger.value || _candidate.isEmpty) {
+          if (!settings.inLocalNetwork.value || _candidate.isEmpty) {
             _candidate.add({
               'candidate': e.candidate.toString(),
               'sdpMid': e.sdpMid.toString(),
@@ -1141,9 +1141,8 @@ class CallRepo {
         );
       } else if (!isDuplicated) {
         _isCallFromNotActiveState = _appLifecycleService.isActive;
-        if ((await _checkForegroundStatus()) &&
-            (_appLifecycleService.isActive &&
-                    _routingService.isInRoom(_roomUid!.asString()) ||
+        if (_appLifecycleService.isActive &&
+            (_routingService.isInRoom(_roomUid!.asString()) ||
                 (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
@@ -1191,7 +1190,7 @@ class CallRepo {
   }
 
   Future<bool> _checkForegroundStatus() async =>
-      settings.localNetworkMessenger.value &&
+      settings.inLocalNetwork.value &&
       (await FlutterForegroundTask.isAppOnForeground);
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
@@ -1631,7 +1630,7 @@ class CallRepo {
   }
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       Timer(const Duration(milliseconds: 700), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           _coreServices.sendCallEvent(callEventV2ByClient);
@@ -1688,7 +1687,8 @@ class CallRepo {
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..end = CallEventEnd(callDuration: Int64(callDuration) , isCaller: _isCaller));
+      ..end =
+          CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
     _checkRetryCallEvent(callEventV2ByClient);
@@ -1773,7 +1773,7 @@ class CallRepo {
       }
       if (hasForegroundServiceCapability) {
         await _notificationForegroundService.foregroundServiceStop();
-        if (settings.localNetworkMessenger.value) {
+        if (settings.inLocalNetwork.value) {
           await _notificationForegroundService
               .localNetworkForegroundServiceStart();
         }

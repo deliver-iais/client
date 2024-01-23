@@ -19,6 +19,7 @@ import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -63,7 +64,7 @@ class FileRepo {
         convertToDataByteInWeb: true,
       );
 
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         var audioWaveform0 = file_pb.AudioWaveform();
         if (await GetIt.I.get<ServerLessMessageService>().sendFile(
               filename: name,
@@ -447,5 +448,22 @@ class FileRepo {
     String path,
   ) {
     Pasteboard.writeFiles([path]);
+  }
+
+  Future<void> uploadLocalNetworkFile(List<File> files) async {
+    for (final file in files) {
+      try {
+        final path = await _fileCache.getFilePath('real', file.uuid);
+        if (path != null) {
+          await _fileService.uploadLocalNetworkFile(
+              filePath: path,
+              uuid: file.uuid,
+              filename: file.name,
+              isVoice: false,);
+        }
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
   }
 }

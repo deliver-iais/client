@@ -71,9 +71,10 @@ class ServerLessFileService {
 
       request.response.statusCode = HttpStatus.ok;
     } catch (e) {
+      print(e);
       request.response.statusCode = HttpStatus.internalServerError;
     }
-    await request.response.close();
+    return request.response.close();
   }
 
   Future<void> _saveFile(

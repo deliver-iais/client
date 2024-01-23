@@ -100,8 +100,8 @@ class Settings {
     defaultValue: isDesktopDevice,
   );
 
-  final localNetworkMessenger = BooleanPersistent(
-    SharedKeys.SHARED_DAO_LOCAL_NETWORK_MESSENGER.inSharedDaoStorage(),
+  final inLocalNetwork = BooleanPersistent(
+    SharedKeys.SHARED_DAO_IN_LOCAL_NETWORK.inSharedDaoStorage(),
     defaultValue: false,
   );
 
@@ -247,6 +247,14 @@ class Settings {
   final useBadCertificateConnection = BooleanPersistent(
     SharedKeys.USE_BAD_CERTIFICATE_CONNECTION.inSharedDaoStorage(),
     defaultValue: false,
+  );
+  final superNode = BooleanPersistent(
+    SharedKeys.SUPER_NODE.inSharedDaoStorage(),
+    defaultValue: false,
+  );
+  final backupLocalNetworkMessages = BooleanPersistent(
+    SharedKeys.BACKUP_LOCAL_NETWORK_MESSAGES.inSharedDaoStorage(),
+    defaultValue: true,
   );
   final hostSetByUser = StringPersistent(
     SharedKeys.SHARE_DAO_HOST_SET_BY_USER.inSharedDaoStorage(),

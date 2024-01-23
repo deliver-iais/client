@@ -86,6 +86,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
+    int? localChatId,
   }) async {
     final box = await _openRoom();
 
@@ -112,6 +113,7 @@ class RoomDaoImpl with RoomSorter implements RoomDao {
       forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
       mentionsId: mentionsId,
       shouldUpdateMediaCount: shouldUpdateMediaCount,
+      localChatId: localChatId,
     );
 
     if (clone != r) {

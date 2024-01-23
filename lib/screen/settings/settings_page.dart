@@ -46,7 +46,6 @@ class SettingsPageState extends State<SettingsPage> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _backgroundService = GetIt.I.get<BackgroundService>();
   static final _analyticsService = GetIt.I.get<AnalyticsService>();
-  static final _coreService = GetIt.I.get<CoreServices>();
   StreamSubscription<dynamic>? subscription;
 
   final _account = BehaviorSubject<Account?>.seeded(null);
@@ -149,10 +148,10 @@ class SettingsPageState extends State<SettingsPage> {
                       Container(
                         padding: const EdgeInsetsDirectional.only(start: 4.0),
                         child: const Icon(Icons.navigate_next),
-                      )
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
             StreamBuilder<bool>(
@@ -302,7 +301,7 @@ class SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ],
-             ),
+            ),
             // Section(
             //   title: _i18n.get("local_network"),
             //   children: [
@@ -361,6 +360,13 @@ class SettingsPageState extends State<SettingsPage> {
             Section(
               title: _i18n.get("network"),
               children: [
+                SettingsTile(
+                  title: _i18n.get("local_network_settings"),
+                  leading:
+                      const Icon(CupertinoIcons.antenna_radiowaves_left_right),
+                  onPressed: (context) =>
+                      _routingService.openLocalNetworkSettingsPage(),
+                ),
                 SettingsTile(
                   title: _i18n.get("automatic_download"),
                   leading: const Icon(CupertinoIcons.cloud_download),

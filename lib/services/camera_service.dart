@@ -66,6 +66,7 @@ class MobileCameraService extends CameraService {
           _resolutionPreset,
           enableAudio: microphonePermissionIsGranted,
         );
+        await Future.delayed(const Duration(milliseconds: 1300));
         await _controller.initialize();
         return true;
       }

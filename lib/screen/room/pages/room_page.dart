@@ -701,6 +701,10 @@ class RoomPageState extends State<RoomPage>
             label: "room.firstMessageId",
           ),
           Debug(
+            room.localChatId,
+            label: "room.localChatId",
+          ),
+          Debug(
             room.lastMessageId,
             label: "room.lastMessageId",
           ),

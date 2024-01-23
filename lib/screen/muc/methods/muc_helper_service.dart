@@ -208,7 +208,7 @@ class MucHelperService {
           info,
         );
       case MucCategories.CHANNEL:
-        if (settings.localNetworkMessenger.value ||
+        if (settings.inLocalNetwork.value ||
             (await checkChannelId?.call(channelId!) ?? false)) {
           return _mucRepo.createNewChannel(
             channelId!,
@@ -267,9 +267,9 @@ class MucHelperService {
   Future<bool> leaveMuc(Uid mucUid) {
     switch (mucUid.asMucCategories()) {
       case MucCategories.CHANNEL:
-        return _mucRepo.leaveGroup(mucUid);
-      case MucCategories.GROUP:
         return _mucRepo.leaveChannel(mucUid);
+      case MucCategories.GROUP:
+        return _mucRepo.leaveGroup(mucUid);
       case MucCategories.BROADCAST:
       case MucCategories.NONE:
         return Future.value(false);

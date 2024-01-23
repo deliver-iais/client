@@ -32,6 +32,8 @@ class MessageIsar {
 
   bool isLocalMessage;
 
+  bool needToBackup;
+
   int? localNetworkMessageId;
 
   @enumerated
@@ -57,6 +59,7 @@ class MessageIsar {
     this.forwardedFrom,
     this.edited = false,
     this.isLocalMessage = false,
+    this.needToBackup = false,
     this.encrypted = false,
     this.type = MessageType.NOT_SET,
     required this.json,
@@ -75,6 +78,7 @@ class MessageIsar {
         isHidden: isHidden,
         markup: markup,
         isLocalMessage: isLocalMessage,
+        needToBackup: needToBackup,
         edited: edited,
         encrypted: encrypted,
         forwardedFrom: forwardedFrom?.asUid(),
@@ -101,6 +105,7 @@ extension MessageIsarMapper on Message {
         markup: markup,
         edited: edited,
         encrypted: encrypted,
+        needToBackup: needToBackup,
         type: type,
         replyToId: replyToId,
         generatedBy: generatedBy?.asString(),

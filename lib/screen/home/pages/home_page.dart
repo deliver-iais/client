@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -19,6 +20,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
+import 'package:deliver/utils/call_utils.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:flutter/material.dart';
@@ -112,7 +114,7 @@ class HomePageState extends State<HomePage> {
 
     _contactRepo.sendNotSyncedContactInStartTime();
     if (isAndroidNative) {
-      _backgroundService.startBackgroundService();
+      // _backgroundService.startBackgroundService();
     }
     _fireBaseServices.sendFireBaseToken().ignore();
     super.initState();
@@ -177,8 +179,13 @@ class HomePageState extends State<HomePage> {
       onWillPop: () async {
         if (!_routingService.canPop()) {
           if (await FlutterForegroundTask.isRunningService) {
-            FlutterForegroundTask.minimizeApp();
-            return false;
+            if (settings.inLocalNetwork.value &&
+                !(await CallUtils.hasSystemAlertWindowPermission())) {
+              await CallUtils.checkForSystemAlertWindowPermission(showCallAlarm: true);
+            } else {
+              FlutterForegroundTask.minimizeApp();
+              return false;
+            }
           } else {
             return _routingService.maybePop();
           }

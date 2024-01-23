@@ -34,6 +34,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -200,12 +201,12 @@ class DataStreamServices {
     final msg = (await saveMessageInMessagesDB(
       message,
       roomUid,
-      needToUpdateId: !isLocalNetworkMessage,
+      needToBackup: isLocalNetworkMessage,
     ))!;
 
-    final isHidden = msg.isHidden ||
-        (message.edited && settings.localNetworkMessenger.value);
-    if (msg.edited && settings.localNetworkMessenger.value) {
+    final isHidden =
+        msg.isHidden || (message.edited && settings.inLocalNetwork.value);
+    if (msg.edited && settings.inLocalNetwork.value) {
       unawaited(_editServerLessMessage(roomUid, message));
     }
 
@@ -220,14 +221,14 @@ class DataStreamServices {
       await _roomDao.updateRoom(
         uid: roomUid,
         lastMessage: isHidden ? null : msg,
-        lastMessageId: !(message.edited && settings.localNetworkMessenger.value)
+        lastMessageId: !(message.edited && settings.inLocalNetwork.value)
             ? msg.localNetworkMessageId
             : null,
         lastUpdateTime: msg.time,
         deleted: false,
       );
 
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         final room = await _roomDao.getRoom(roomUid);
         if (room != null && room.lastMessage?.id! == message.id.toInt()) {
           await _roomDao.updateRoom(uid: roomUid, lastMessage: msg);
@@ -540,7 +541,7 @@ class DataStreamServices {
     _callService
       ..addCallEvent(callEvents)
       ..shouldRemoveData = true;
-    if (!settings.localNetworkMessenger.value) {
+    if (!settings.inLocalNetwork.value) {
       await GetIt.I.get<CoreServices>().initStreamConnection();
     }
   }
@@ -557,6 +558,7 @@ class DataStreamServices {
   Future<void> handleAckMessage(
     MessageDeliveryAck messageDeliveryAck, {
     bool isLocalNetworkMessage = false,
+    int localNetworkMessageId = 0,
   }) async {
     final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
     if (messageDeliveryAck.id.toInt() == 0) {
@@ -568,6 +570,16 @@ class DataStreamServices {
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
       await _saveAndCreateBroadcastMessage(messageDeliveryAck);
+    } else if (messageDeliveryAck.ackOnLocalMessage) {
+      final mes = await _messageDao.getMessageByPacketId(
+        messageDeliveryAck.from,
+        packetId,
+      );
+      if (mes != null) {
+        unawaited(
+          _messageDao.insertMessage(mes.copyWith(needToBackup: false)),
+        );
+      }
     } else {
       final pm = await _pendingMessageDao.getPendingMessage(packetId);
       if (pm != null) {
@@ -577,24 +589,13 @@ class DataStreamServices {
             packetId,
           );
         }
-        final room = await _roomDao.getRoom(pm.roomUid);
-        if (isLocalNetworkMessage) {
-          messageDeliveryAck.id = Int64((room?.lastMessageId ?? 0) + 1);
-        }
-        var localNetworkMessageId = messageDeliveryAck.id;
-        if (!isLocalNetworkMessage) {
-          if (room != null) {
-            localNetworkMessageId = Int64(
-              messageDeliveryAck.id.toInt() + room.localNetworkMessageCount,
-            );
-          }
-        }
 
         final msg = pm.msg.copyWith(
           id: messageDeliveryAck.id.toInt(),
-          localNetworkMessageId: localNetworkMessageId.toInt(),
+          localNetworkMessageId: messageDeliveryAck.id.toInt(),
           time: time,
           isLocalMessage: isLocalNetworkMessage,
+          needToBackup: isLocalNetworkMessage,
         );
         if (msg.type == MessageType.FILE) {
           final file = msg.json.toFile();
@@ -610,22 +611,28 @@ class DataStreamServices {
         }
         await _saveMessageAndUpdateRoomAndSeen(
           msg,
-          messageDeliveryAck.copyWith((p0) {
-            p0.id = localNetworkMessageId;
-          }),
+          messageDeliveryAck,
         );
         if (isLocalNetworkMessage) {
           final room = await _roomDao.getRoom(msg.roomUid);
           if (room != null) {
             await _roomDao.updateRoom(
               uid: room.uid,
-              lastLocalNetworkMessageId: msg.id,
-              localNetworkMessageCount: room.localNetworkMessageCount + 1,
+              localNetworkMessageCount: 1,
+              lastLocalNetworkMessageId: localNetworkMessageId,
             );
           }
 
-          await serverLessMessageService
-              .sendPendingMessage(msg.roomUid.asString());
+          unawaited(
+            serverLessMessageService.sendPendingMessage(msg.roomUid.asString()),
+          );
+
+          unawaited(
+            GetIt.I.get<CoreServices>().sendLocalMessageToServer(
+                  MessageUtils.createMessageByClient(pm.msg)
+                    ..isLocalMessage = true,
+                ),
+          );
         }
       } else {
         await _analyticsService.sendLogEvent(
@@ -787,22 +794,14 @@ class DataStreamServices {
   Future<message_model.Message?> saveMessageInMessagesDB(
     Message message,
     Uid roomUid, {
-    bool needToUpdateId = false,
+    bool needToBackup = false,
   }) async {
     try {
-      var msg = _messageExtractorServices.extractMessage(message);
-      if (needToUpdateId) {
-        final room = await _roomDao.getRoom(roomUid);
+      final msg = _messageExtractorServices.extractMessage(
+        message,
+        needToBackup: needToBackup,
+      );
 
-        if (room != null && msg.id != null) {
-          if (msg.id! + room.localNetworkMessageCount >
-              room.lastLocalNetworkMessageId) {
-            msg = msg.copyWith.call(
-              localNetworkMessageId: msg.id! + room.localNetworkMessageCount,
-            );
-          }
-        }
-      }
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
@@ -832,8 +831,10 @@ class DataStreamServices {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
             // _roomDao
             //     .updateRoom(uid: roomUid, deleted: true)
+            //
             //     .ignore();
-            await _roomRepo.deleteRoom(roomUid);
+            // await _roomRepo.deleteRoom(roomUid);
+            //todo check  !!!!!!!!!!!!!!!!!!!!!!!!!!!!
             break;
           } else if (!msg.isHidden) {
             lastNotHiddenMessage = msg;
@@ -895,7 +896,8 @@ class DataStreamServices {
           if (msg.id! <= firstMessageId) {
             // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
             // await _roomDao.updateRoom(uid: roomUid, deleted: true);
-            await _roomRepo.deleteRoom(roomUid);
+            // await _roomRepo.deleteRoom(roomUid);
+            //todo check ...............
             return null;
           } else if (!msg.isHidden) {
             return msg;

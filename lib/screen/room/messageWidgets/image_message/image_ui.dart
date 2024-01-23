@@ -46,7 +46,7 @@ class ImageUi extends StatefulWidget {
   ImageUiState createState() => ImageUiState();
 }
 
-class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
+class ImageUiState extends State<ImageUi>  {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
@@ -67,10 +67,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     maxHeight: widget.maxWidth,
   );
 
-  @override
-  void initState() {
-    super.initState();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +192,9 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
       ));
 
   Widget buildDownloadImageWidget() {
+    // if(widget.image.isLocal){
+    //      return const Text("send in local network");
+    // }
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

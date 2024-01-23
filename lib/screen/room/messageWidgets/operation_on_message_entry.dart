@@ -355,7 +355,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
       pendingMessage.msg.type == MessageType.FILE
-          ? (settings.localNetworkMessenger.value ||
+          ? (settings.inLocalNetwork.value ||
               pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPLETED)
           : pendingMessage.failed;
 

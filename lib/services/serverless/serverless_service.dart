@@ -35,15 +35,17 @@ class ServerLessService {
   var _wifiBroadcast = "255.255.255.255";
 
   void start() {
-    GetIt.I.get<ServerLessMessageService>().updateRooms();
+    GetIt.I.get<ServerLessMessageService>().reset();
     _start();
   }
 
   void _start() {
     _address.clear();
     _startServices();
-    _startForegroundService();
+    // _startForegroundService();
   }
+
+  bool inLocalNetwork(Uid uid) => _address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -86,7 +88,9 @@ class ServerLessService {
       await _clearConnections();
     }
     _startUdpListener();
-    await _initWifiBroadcast();
+    if (true || !Platform.isWindows) {
+      await _initWifiBroadcast();
+    }
     await _startHttpService();
   }
 
@@ -113,9 +117,7 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({
-    Uid? to,
-  }) {
+  void sendBroadCast({Uid? to, bool superNode = false}) {
     try {
       _upSocket?.send(
         LocalNetworkInfo(
@@ -153,12 +155,16 @@ class ServerLessService {
     }
   }
 
-  Future<void> _sendMyAddress(String url) async {
+  Future<void> _sendMyAddress(String url, {bool isSuperNode = false}) async {
     try {
-      await _dio.get(
-        "http://$url:$SERVER_PORT?from=${_authRepo.currentUserUid.node}&address=$_ip",
-        options: Options(
-          headers: {TYPE: REGISTER},
+      unawaited(
+        sendRequest(
+          LocalNetworkInfo(
+            from: _authRepo.currentUserUid,
+            url: _ip,
+          ).writeToBuffer(),
+          url,
+          type: REGISTER,
         ),
       );
     } catch (e) {
@@ -232,13 +238,10 @@ class ServerLessService {
   }
 
   Future<void> _processRegister(HttpRequest request) async {
-    final from = request.uri.queryParameters['from'];
-    final address = request.uri.queryParameters['address'];
-    _logger.i("new address....$address +??? $_ip");
-    final uid = Uid()..node = from!;
-    await saveIp(uid: uid.asString(), ip: address!);
+    final info = LocalNetworkInfo.fromBuffer(await request.first);
+    await saveIp(uid: info.from.asString(), ip: info.url);
     unawaited(
-      GetIt.I.get<ServerLessMessageService>().resendPendingPackets(uid),
+      GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
     await request.response.close();
   }
@@ -253,13 +256,22 @@ class ServerLessService {
 
     if (Platform.isAndroid) {
       newIp = interfaces.last.addresses.first.address;
-    } else {
-      newIp = interfaces
-          .where((e) => e.name.contains("Wi"))
-          .first
-          .addresses
-          .first
-          .address;
+    } else if (Platform.isWindows) {
+      try {
+        newIp = interfaces
+            .where((e) => e.name.contains("Wi"))
+            .first
+            .addresses
+            .first
+            .address;
+      } catch (e) {
+        newIp = interfaces
+            .where((e) => e.name.contains("Ethernet"))
+            .first
+            .addresses
+            .first
+            .address;
+      }
     }
     if (_ip != newIp) {
       needToClearConnections = true;
@@ -288,19 +300,20 @@ class ServerLessService {
   }
 
   Future<void> _initWifiBroadcast() async {
-    if (!settings.useDefaultUdpAddress.value) {
-      try {
+    try {
+      if (Platform.isAndroid) {
         final wifi = await _networkInfo.getWifiBroadcast();
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          final s = _ip.split(".")..last = "255";
-          _wifiBroadcast = s.join(".");
+          _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
         }
-        _logger.i(_wifiBroadcast);
-      } catch (e) {
-        _logger.e(e);
+      } else if (Platform.isWindows) {
+        _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
       }
+      _logger.i(_wifiBroadcast);
+    } catch (e) {
+      _logger.e(e);
     }
   }
 

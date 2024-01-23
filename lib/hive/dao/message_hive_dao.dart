@@ -13,7 +13,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:hive/hive.dart';
 
-class MessageDaoImpl extends MessageDao {
+class MessageDaoImpl with SortLocalNetworkMessages implements MessageDao {
   @override
   Future<Message?> getMessageById(Uid roomUid, int id) async {
     final box = await _openMessages(roomUid.asString());
@@ -115,8 +115,17 @@ class MessageDaoImpl extends MessageDao {
   }
 
   @override
-  Future<List<Message>> getLocalMessages(Uid roomUid) {
-    // TODO: implement getLocalMessages
-    throw UnimplementedError();
+  Future<List<Message>> getLocalMessages(Uid roomUid) async {
+    try {
+      final box = await _openMessages(roomUid.asString());
+      return sortLocalMessages(
+        box.values
+            .where((element) => element.needToBackup)
+            .map((e) => e.fromHive())
+            .toList(),
+      );
+    } catch (e) {
+      return [];
+    }
   }
 }

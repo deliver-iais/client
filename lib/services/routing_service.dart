@@ -43,6 +43,7 @@ import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
+import 'package:deliver/screen/settings/pages/local_network_settings_page.dart';
 import 'package:deliver/screen/settings/pages/power_saver_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
@@ -113,10 +114,6 @@ const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 const _showcase = ShowcasePage(key: ValueKey("/showcase"));
 
 const _announcement = AnnouncementPage(key: ValueKey("/announcement"));
-
-const _connectionSettingsPage = ConnectionSettingPage(
-  key: ValueKey("/connection_setting_page"),
-);
 
 const _emptyRoute = "/";
 
@@ -262,7 +259,20 @@ class RoutingService {
     _analyticsService.sendLogEvent(
       "connectionSettingPage_open",
     );
-    _push(_connectionSettingsPage, popAllBeforePush: popAllBeforePush);
+    _push(
+        const ConnectionSettingPage(
+          key: ValueKey("/connection_setting_page"),
+        ),
+        popAllBeforePush: popAllBeforePush);
+  }
+
+  void openLocalNetworkSettingsPage() {
+    _analyticsService.sendLogEvent(
+      "localNetworkSettingsPage_open",
+    );
+    _push(LocalNetworkSettingsPage(
+      key: const ValueKey("/local_network_settings_page"),
+    ),);
   }
 
   String getCurrentRoomId() => _currentRoom;
@@ -737,10 +747,10 @@ class RoutingService {
           color: color,
           onPressed: () {
             if (_searchMessageService.inSearchMessageMode.hasValue &&
-                _searchMessageService.inSearchMessageMode.value != null){
+                _searchMessageService.inSearchMessageMode.value != null) {
               _searchMessageService.inSearchMessageMode.add(null);
             }
-              onBackButtonLeadingClick?.call();
+            onBackButtonLeadingClick?.call();
             pop();
           },
         ),

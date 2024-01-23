@@ -229,6 +229,7 @@ class _ViewImagePageState extends State<ViewImagePage> {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
+
                         image: imagePath.imageProvider(),
                       ),
                     ),

@@ -84,7 +84,7 @@ String detectFileMimeByFileModel(file_model.File file) => isWeb
 
 String _detectFileMimeByFilePath(String? filePath) {
   final fileMainType = _detectFileTypeByNameAndContent(filePath);
-  if (true || settings.localNetworkMessenger.value) {
+  if (true || settings.inLocalNetwork.value) {
     return fileMainType.mimeByName;
   } else if (fileMainType.hasSameMainType()) {
     return fileMainType.mimeByContent;

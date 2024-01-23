@@ -62,6 +62,9 @@ class RoomHive {
   @HiveField(17)
   int lastLocalNetworkMessageId;
 
+  @HiveField(18)
+  int localChatId;
+
   RoomHive({
     required this.uid,
     this.lastMessage,
@@ -80,6 +83,7 @@ class RoomHive {
     this.replyKeyboardMarkup,
     this.mentionsId,
     this.shouldUpdateMediaCount = true,
+    this.localChatId = 0,
   });
 
   RoomHive copyWith({
@@ -102,6 +106,7 @@ class RoomHive {
     bool forceToUpdateReplyKeyboardMarkup = false,
     List<int>? mentionsId,
     bool? shouldUpdateMediaCount,
+    int? localChatId,
   }) =>
       RoomHive(
         uid: uid ?? this.uid,
@@ -128,6 +133,7 @@ class RoomHive {
         mentionsId: mentionsId ?? this.mentionsId,
         shouldUpdateMediaCount:
             shouldUpdateMediaCount ?? this.shouldUpdateMediaCount,
+        localChatId: localChatId ?? this.localChatId,
       );
 
   @override
@@ -154,13 +160,19 @@ class RoomHive {
           ) &&
           const DeepCollectionEquality().equals(other.synced, synced) &&
           const DeepCollectionEquality().equals(
-              other.localNetworkMessageCount, localNetworkMessageCount) &&
+            other.localNetworkMessageCount,
+            localNetworkMessageCount,
+          ) &&
           const DeepCollectionEquality().equals(other.seenSynced, seenSynced) &&
           const DeepCollectionEquality()
               .equals(other.replyKeyboardMarkup, replyKeyboardMarkup) &&
           const DeepCollectionEquality()
               .equals(other.shouldUpdateMediaCount, shouldUpdateMediaCount) &&
-          const DeepCollectionEquality().equals(other.mentionsId, mentionsId));
+          const DeepCollectionEquality().equals(other.mentionsId, mentionsId) &&
+          const DeepCollectionEquality()
+              .equals(other.lastLocalNetworkMessageId, lastLocalNetworkMessageId) &&
+          const DeepCollectionEquality()
+              .equals(other.localChatId, localChatId));
 
   @override
   int get hashCode => Object.hash(
@@ -182,11 +194,12 @@ class RoomHive {
         const DeepCollectionEquality().hash(mentionsId),
         const DeepCollectionEquality().hash(localNetworkMessageCount),
         const DeepCollectionEquality().hash(lastLocalNetworkMessageId),
+        const DeepCollectionEquality().hash(localChatId),
       );
 
   @override
   String toString() {
-    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced] [mentionsId:$mentionsId] [lastLocalNetworkMessageId:$localNetworkMessageCount]";
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced] [mentionsId:$mentionsId] [lastLocalNetworkMessageId:$localNetworkMessageCount] [lastLocalNetworkMessageId:$localNetworkMessageCount] [localChatId:$localChatId] ";
   }
 
   Room fromHive() => Room(
@@ -207,6 +220,7 @@ class RoomHive {
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
         firstMessageId: firstMessageId,
         lastMessageId: lastMessageId,
+        localChatId: localChatId,
       );
 }
 
@@ -229,5 +243,6 @@ extension RoomHiveMapper on Room {
         pinned: pinned,
         firstMessageId: firstMessageId,
         lastMessageId: lastMessageId,
+        localChatId: localChatId,
       );
 }

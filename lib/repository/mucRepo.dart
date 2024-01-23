@@ -46,7 +46,7 @@ class MucRepo {
     String groupName,
     String info,
   ) async {
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       return GetIt.I
           .get<ServerLessMucService>()
           .createGroup(name: groupName, members: memberUidList);
@@ -72,7 +72,7 @@ class MucRepo {
     ChannelType channelType,
     String info,
   ) async {
-    if (settings.localNetworkMessenger.value) {
+    if (settings.inLocalNetwork.value) {
       return GetIt.I
           .get<ServerLessMucService>()
           .createChannel(name: channelName, members: memberUidList);
@@ -746,7 +746,7 @@ class MucRepo {
         );
       }
 
-      if (settings.localNetworkMessenger.value) {
+      if (settings.inLocalNetwork.value) {
         await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
         return StatusCode.ok;
       } else {

@@ -3,7 +3,6 @@ import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -101,38 +100,50 @@ class ContactWidget extends StatelessWidget {
                                     ? MediaQuery.of(context).size.width / 2.3
                                     : MediaQuery.of(context).size.width / 1.7,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: p8),
-                            child: user.firstname.isNotEmpty
-                                ? TextLoader(
-                                    text: Text(
-                                      buildName(user.firstname, user.lastname),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      softWrap: false,
-                                      style: theme.textTheme.titleMedium,
-                                    ),
-                                    width: 50,
-                                  )
-                                : FutureBuilder<String>(
-                                    future: _roomRepo.getName(user.uid!),
-                                    builder: (c, s) => TextLoader(
-                                      text: Text(
-                                        s.data ?? user.id ?? "",
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        style: theme.textTheme.titleMedium,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: p8),
+                                child: user.firstname.isNotEmpty
+                                    ? TextLoader(
+                                        text: Text(
+                                          buildName(
+                                              user.firstname, user.lastname),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          softWrap: false,
+                                          style: theme.textTheme.titleMedium,
+                                        ),
+                                        width: 50,
+                                      )
+                                    : FutureBuilder<String>(
+                                        future: _roomRepo.getName(user.uid!),
+                                        builder: (c, s) => TextLoader(
+                                          text: Text(
+                                            s.data ?? user.id ?? "",
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            softWrap: false,
+                                            style: theme.textTheme.titleMedium,
+                                          ),
+                                          width: 50,
+                                        ),
                                       ),
-                                      width: 50,
-                                    ),
+                              ),
+                              if (user.id != null)
+                                Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Text(
+                                    "@${user.id}",
                                   ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  if (settings.localNetworkMessenger.value)
                     if (user.uid != null &&
                         user.uid!.category == Categories.USER &&
                         !_authRepo.isCurrentUser(user.uid!))

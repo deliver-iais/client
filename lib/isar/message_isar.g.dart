@@ -72,33 +72,38 @@ const MessageIsarSchema = CollectionSchema(
       name: r'markup',
       type: IsarType.string,
     ),
-    r'packetId': PropertySchema(
+    r'needToBackup': PropertySchema(
       id: 11,
+      name: r'needToBackup',
+      type: IsarType.bool,
+    ),
+    r'packetId': PropertySchema(
+      id: 12,
       name: r'packetId',
       type: IsarType.string,
     ),
     r'replyToId': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'replyToId',
       type: IsarType.long,
     ),
     r'roomUid': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'roomUid',
       type: IsarType.string,
     ),
     r'time': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'time',
       type: IsarType.long,
     ),
     r'to': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'to',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'type',
       type: IsarType.byte,
       enumMap: _MessageIsartypeEnumValueMap,
@@ -181,12 +186,13 @@ void _messageIsarSerialize(
   writer.writeString(offsets[8], object.json);
   writer.writeLong(offsets[9], object.localNetworkMessageId);
   writer.writeString(offsets[10], object.markup);
-  writer.writeString(offsets[11], object.packetId);
-  writer.writeLong(offsets[12], object.replyToId);
-  writer.writeString(offsets[13], object.roomUid);
-  writer.writeLong(offsets[14], object.time);
-  writer.writeString(offsets[15], object.to);
-  writer.writeByte(offsets[16], object.type.index);
+  writer.writeBool(offsets[11], object.needToBackup);
+  writer.writeString(offsets[12], object.packetId);
+  writer.writeLong(offsets[13], object.replyToId);
+  writer.writeString(offsets[14], object.roomUid);
+  writer.writeLong(offsets[15], object.time);
+  writer.writeString(offsets[16], object.to);
+  writer.writeByte(offsets[17], object.type.index);
 }
 
 MessageIsar _messageIsarDeserialize(
@@ -207,12 +213,13 @@ MessageIsar _messageIsarDeserialize(
     json: reader.readString(offsets[8]),
     localNetworkMessageId: reader.readLongOrNull(offsets[9]),
     markup: reader.readStringOrNull(offsets[10]),
-    packetId: reader.readString(offsets[11]),
-    replyToId: reader.readLongOrNull(offsets[12]) ?? 0,
-    roomUid: reader.readString(offsets[13]),
-    time: reader.readLong(offsets[14]),
-    to: reader.readString(offsets[15]),
-    type: _MessageIsartypeValueEnumMap[reader.readByteOrNull(offsets[16])] ??
+    needToBackup: reader.readBoolOrNull(offsets[11]) ?? false,
+    packetId: reader.readString(offsets[12]),
+    replyToId: reader.readLongOrNull(offsets[13]) ?? 0,
+    roomUid: reader.readString(offsets[14]),
+    time: reader.readLong(offsets[15]),
+    to: reader.readString(offsets[16]),
+    type: _MessageIsartypeValueEnumMap[reader.readByteOrNull(offsets[17])] ??
         MessageType.NOT_SET,
   );
   object.dbId = id;
@@ -249,16 +256,18 @@ P _messageIsarDeserializeProp<P>(
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 12:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readString(offset)) as P;
     case 13:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 14:
-      return (reader.readLong(offset)) as P;
-    case 15:
       return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readLong(offset)) as P;
     case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
       return (_MessageIsartypeValueEnumMap[reader.readByteOrNull(offset)] ??
           MessageType.NOT_SET) as P;
     default:
@@ -1407,6 +1416,16 @@ extension MessageIsarQueryFilter
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition>
+      needToBackupEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'needToBackup',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterFilterCondition> packetIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2113,6 +2132,19 @@ extension MessageIsarQuerySortBy
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> sortByNeedToBackup() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'needToBackup', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      sortByNeedToBackupDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'needToBackup', Sort.desc);
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> sortByPacketId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'packetId', Sort.asc);
@@ -2336,6 +2368,19 @@ extension MessageIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> thenByNeedToBackup() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'needToBackup', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy>
+      thenByNeedToBackupDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'needToBackup', Sort.desc);
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QAfterSortBy> thenByPacketId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'packetId', Sort.asc);
@@ -2484,6 +2529,12 @@ extension MessageIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<MessageIsar, MessageIsar, QDistinct> distinctByNeedToBackup() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'needToBackup');
+    });
+  }
+
   QueryBuilder<MessageIsar, MessageIsar, QDistinct> distinctByPacketId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2596,6 +2647,12 @@ extension MessageIsarQueryProperty
   QueryBuilder<MessageIsar, String?, QQueryOperations> markupProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'markup');
+    });
+  }
+
+  QueryBuilder<MessageIsar, bool, QQueryOperations> needToBackupProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'needToBackup');
     });
   }
 
