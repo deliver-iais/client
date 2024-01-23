@@ -61,7 +61,9 @@ class ConnectionStatus extends StatelessWidget {
                               state,
                               overflow: TextOverflow.fade,
                               maxLines: 1,
-                              style: _serverLessService.address.isNotEmpty
+                              style: _serverLessService.address.isNotEmpty &&
+                                      status.data !=
+                                          TitleStatusConditions.Connected
                                   ? const TextStyle(fontSize: 16)
                                   : null,
                               softWrap: true,
