@@ -42,7 +42,7 @@ class ServerLessService {
   void _start() {
     _address.clear();
     _startServices();
-    _startForegroundService();
+    // _startForegroundService();
   }
 
   bool inLocalNetwork(Uid uid) => _address.containsKey(uid.asString());
@@ -255,13 +255,22 @@ class ServerLessService {
 
     if (Platform.isAndroid) {
       newIp = interfaces.last.addresses.first.address;
-    } else {
-      newIp = interfaces
-          .where((e) => e.name.contains("Wi"))
-          .first
-          .addresses
-          .first
-          .address;
+    } else if (Platform.isWindows) {
+      try {
+        newIp = interfaces
+            .where((e) => e.name.contains("Wi"))
+            .first
+            .addresses
+            .first
+            .address;
+      } catch (e) {
+        newIp = interfaces
+            .where((e) => e.name.contains("Ethernet"))
+            .first
+            .addresses
+            .first
+            .address;
+      }
     }
     if (_ip != newIp) {
       needToClearConnections = true;
@@ -290,19 +299,20 @@ class ServerLessService {
   }
 
   Future<void> _initWifiBroadcast() async {
-    if (!settings.useDefaultUdpAddress.value) {
-      try {
+    try {
+      if (Platform.isAndroid) {
         final wifi = await _networkInfo.getWifiBroadcast();
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          final s = _ip.split(".")..last = "255";
-          _wifiBroadcast = s.join(".");
+          _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
         }
-        _logger.i(_wifiBroadcast);
-      } catch (e) {
-        _logger.e(e);
+      } else if (Platform.isWindows) {
+        _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
       }
+      _logger.i(_wifiBroadcast);
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
