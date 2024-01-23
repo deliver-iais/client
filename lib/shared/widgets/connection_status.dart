@@ -38,7 +38,9 @@ class ConnectionStatus extends StatelessWidget {
 
         return Column(
           children: [
-            const SizedBox(height: 5,),
+            const SizedBox(
+              height: 5,
+            ),
             AnimatedSwitchWidget(
               child: StreamBuilder<dynamic>(
                 key: Key(state),
@@ -60,7 +62,7 @@ class ConnectionStatus extends StatelessWidget {
                               overflow: TextOverflow.fade,
                               maxLines: 1,
                               style: _serverLessService.address.isNotEmpty
-                                  ? const TextStyle(fontSize: 20)
+                                  ? const TextStyle(fontSize: 16)
                                   : null,
                               softWrap: true,
                               key: ValueKey(randomString(10)),
@@ -75,14 +77,17 @@ class ConnectionStatus extends StatelessWidget {
                         ),
                       if (status.data == TitleStatusConditions.Disconnected)
                         Obx(
-                          () => IconButton(
-                            padding: EdgeInsets.zero,
-                            iconSize:
-                                _serverLessService.address.isNotEmpty ? 12 : 23,
-                            onPressed: _coreService.fasterRetryConnection,
-                            icon: Icon(
-                              CupertinoIcons.refresh,
-                              color: theme.colorScheme.primary,
+                          () => MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: _coreService.fasterRetryConnection,
+                              child: Icon(
+                                CupertinoIcons.refresh,
+                                size: _serverLessService.address.isNotEmpty
+                                    ? 18
+                                    : 23,
+                                color: theme.colorScheme.primary,
+                              ),
                             ),
                           ),
                         ),
