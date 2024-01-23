@@ -1,6 +1,7 @@
 // TODO(any): change file name
 // ignore_for_file: file_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
@@ -12,7 +13,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
-import 'package:deliver/services/settings.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
@@ -36,6 +37,7 @@ class FileRepo {
   final _fileService = GetIt.I.get<FileService>();
   final _fileCache = GetIt.I.get<FileInfoCache>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
 
   final _i18N = GetIt.I.get<I18N>();
 
@@ -64,13 +66,13 @@ class FileRepo {
         convertToDataByteInWeb: true,
       );
 
-      if (settings.inLocalNetwork.value) {
+      if (uid != null && _serverLessService.inLocalNetwork(uid)) {
         var audioWaveform0 = file_pb.AudioWaveform();
         if (await GetIt.I.get<ServerLessMessageService>().sendFile(
               filename: name,
               filePath: clonedFilePath!,
               uuid: uploadKey,
-              to: uid!,
+              to: uid,
             )) {
           if (isVoice) {
             audioWaveform0 = file_pb.AudioWaveform(data: [0]);
@@ -137,24 +139,28 @@ class FileRepo {
               duration: AnimationSettings.actualSuperUltraSlow,
             );
             for (final packetId in packetIds) {
-              GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+              unawaited(
+                GetIt.I.get<MessageRepo>().deletePendingMessage(packetId),
+              );
             }
             cancelUploadFile(uploadKey);
             await _analyticsService.sendLogEvent(
               "unSuccessFileUpload",
               parameters: {
                 "errorCode": e.response?.statusCode,
-                "error": e.response?.data
+                "error": e.response?.data,
               },
             );
-          } else if (e.response == null && e.type != DioErrorType.cancel) {
+          } else if (e.response == null && e.type != DioExceptionType.cancel) {
             ToastDisplay.showToast(
               toastText: _i18N.get("connection_error"),
               maxWidth: 500.0,
               duration: AnimationSettings.actualSuperUltraSlow,
             );
             for (final packetId in packetIds) {
-              GetIt.I.get<MessageRepo>().deletePendingMessage(packetId);
+              unawaited(
+                GetIt.I.get<MessageRepo>().deletePendingMessage(packetId),
+              );
             }
             cancelUploadFile(uploadKey);
             await _analyticsService.sendLogEvent(
@@ -212,11 +218,13 @@ class FileRepo {
                 );
               }
             }
-            _logger.v(uploadedFile);
 
             localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!;
             await _updateFileInfoWithRealUuid(
-                uploadKey, uploadedFile.uuid, name);
+              uploadKey,
+              uploadedFile.uuid,
+              name,
+            );
             _fileService.updateFileStatus(
               uploadedFile.uuid,
               FileStatus.COMPLETED,
@@ -230,7 +238,8 @@ class FileRepo {
         } else {
           _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
           _fileService.filesProgressBarStatus.add(
-              _fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
+            _fileService.filesProgressBarStatus.value..[uploadKey] = 0.0,
+          );
           return null;
         }
       }
@@ -456,10 +465,11 @@ class FileRepo {
         final path = await _fileCache.getFilePath('real', file.uuid);
         if (path != null) {
           await _fileService.uploadLocalNetworkFile(
-              filePath: path,
-              uuid: file.uuid,
-              filename: file.name,
-              isVoice: false,);
+            filePath: path,
+            uuid: file.uuid,
+            filename: file.name,
+            isVoice: false,
+          );
         }
       } catch (e) {
         _logger.e(e);

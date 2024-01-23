@@ -8,7 +8,6 @@ import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
