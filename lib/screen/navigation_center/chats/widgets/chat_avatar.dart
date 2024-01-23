@@ -42,9 +42,7 @@ class ChatAvatar extends StatelessWidget {
           StreamBuilder<LocalNetworkConnections?>(
             stream: _localNetworkDao.watch(uid),
             builder: (c, la) {
-              if (settings.inLocalNetwork.value &&
-                  la.hasData &&
-                  (la.data != null)) {
+              if (la.hasData && (la.data != null)) {
                 return Positioned.directional(
                   bottom: 0.0,
                   end: 0.0,
