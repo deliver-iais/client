@@ -12,6 +12,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' as g;
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -21,7 +22,7 @@ class ServerLessService {
   final _networkInfo = NetworkInfo();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
-  final Map<String, String> _address = {};
+  final address = <String, String>{}.obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
@@ -39,12 +40,12 @@ class ServerLessService {
   }
 
   void _start() {
-    _address.clear();
+    address.clear();
     _startServices();
     // _startForegroundService();
   }
 
-  bool inLocalNetwork(Uid uid) => _address.containsKey(uid.asString());
+  bool inLocalNetwork(Uid uid) => address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -77,7 +78,7 @@ class ServerLessService {
   String getBroadcastIp() => _wifiBroadcast;
 
   Future<void> _clearConnections() async {
-    _address.clear();
+    address.clear();
     await _localNetworkConnectionDao.deleteAll();
   }
 
@@ -282,7 +283,7 @@ class ServerLessService {
 
   Future<void> saveIp({required String uid, required String ip}) async {
     try {
-      _address[uid] = ip;
+      address[uid] = ip;
       unawaited(
         _localNetworkConnectionDao.save(
           LocalNetworkConnections(
@@ -322,12 +323,12 @@ class ServerLessService {
       return _ip;
     }
     try {
-      if (_address[uid] != null) {
-        return _address[uid];
+      if (address[uid] != null) {
+        return address[uid];
       }
       final ip = (await _localNetworkConnectionDao.get(uid.asUid()))?.ip;
       if (ip != null) {
-        _address[uid] = ip;
+        address[uid] = ip;
         return ip;
       } else {
         sendBroadCast(to: uid.asUid());

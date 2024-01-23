@@ -11,7 +11,6 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -30,7 +29,7 @@ import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-enum ConnectionStatus { Connected, Disconnected, Connecting, LocalNetwork }
+enum ConnectionStatus { Connected, Disconnected, Connecting }
 
 final disconnectedTime = BehaviorSubject.seeded(0);
 final connectionError = BehaviorSubject.seeded("");
@@ -75,25 +74,14 @@ class CoreServices {
 
   Timer? _disconnectedTimer;
 
-  Timer? _connectToLocalNetworkTimer;
-
   var _lastPongTime = 0;
 
   var _lastRoomMetadataUpdateTime = settings.lastRoomMetadataUpdateTime.value;
 
   int get lastRoomMetadataUpdateTime => _lastRoomMetadataUpdateTime;
 
-  void useLocalNetwork() {
-    // _serverLessService.start();
-    // proposeUseLocalNetwork.add(false);
-    // _connectionStatus.add(ConnectionStatus.LocalNetwork);
-  }
-
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
-
-  BehaviorSubject<bool> proposeUseLocalNetwork = BehaviorSubject.seeded(false);
-
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
@@ -121,51 +109,13 @@ class CoreServices {
       } else {
         _onConnectionError();
       }
-      if (settings.inLocalNetwork.value) {
-        _serverLessService.restart();
-      }
+      _serverLessService.restart();
     });
-    if (settings.inLocalNetwork.value) {
-      unawaited(_serverLessService.restart());
-      _connectionStatus.add(ConnectionStatus.LocalNetwork);
-    }
     retryConnection(forced: true);
   }
 
-  void _startConnectToLocalNetworkTimer() {
-    if (!settings.inLocalNetwork.value &&
-        !(_connectToLocalNetworkTimer?.isActive ?? false)) {
-      _connectToLocalNetworkTimer =
-          Timer(const Duration(seconds: CONNECT_TO_LOCAL_NETWORK_TIME), () {
-        if (!proposeUseLocalNetwork.value) {
-          proposeUseLocalNetwork.add(true);
-        }
-      });
-    }
-  }
-
-  void _updateConnectionStatus(ConnectionStatus status) {
-    if (_connectionStatus.value == ConnectionStatus.LocalNetwork) {
-      if (status == ConnectionStatus.Connected) {
-        _connectionStatus.add(status);
-        if (settings.inLocalNetwork.value) {
-          settings.inLocalNetwork.set(false);
-        }
-        // _serverLessService.dispose();
-        _connectToLocalNetworkTimer?.cancel();
-        proposeUseLocalNetwork.add(false);
-      }
-    } else {
+  void _updateConnectionStatus(ConnectionStatus status) =>
       _connectionStatus.add(status);
-    }
-    if (status == ConnectionStatus.Connected) {
-      _connectToLocalNetworkTimer?.cancel();
-      proposeUseLocalNetwork.add(false);
-    }
-    if (status == ConnectionStatus.Disconnected) {
-      _startConnectToLocalNetworkTimer();
-    }
-  }
 
   void closeConnection() {
     try {

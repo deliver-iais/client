@@ -48,25 +48,27 @@ class ChatAvatar extends StatelessWidget {
                   end: 0.0,
                   textDirection: _i18N.defaultTextDirection,
                   child: Container(
-                    width: 18.0,
-                    height: 18.0,
+                    width: 17.0,
+                    height: 17.0,
                     decoration: BoxDecoration(
+
                       color: borderColor ?? theme.scaffoldBackgroundColor,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Container(
-                        width: 17.0,
-                        height: 17.0,
+                        width: 14.0,
+                        height: 14.0,
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
                           color: ACTIVE_COLOR,
                           shape: BoxShape.circle,
+
                         ),
                         child: const Icon(
                           CupertinoIcons.antenna_radiowaves_left_right,
                           color: Colors.white,
-                          size: 13,
+                          size: 12,
                         ),
                       ),
                     ),
@@ -89,8 +91,8 @@ class ChatAvatar extends StatelessWidget {
                           end: 0.0,
                           textDirection: _i18N.defaultTextDirection,
                           child: Container(
-                            width: 17.0,
-                            height: 17.0,
+                            width: 16.0,
+                            height: 16.0,
                             decoration: BoxDecoration(
                               color:
                                   borderColor ?? theme.scaffoldBackgroundColor,
@@ -98,8 +100,8 @@ class ChatAvatar extends StatelessWidget {
                             ),
                             child: Center(
                               child: Container(
-                                width: 12.0,
-                                height: 12.0,
+                                width: 13.0,
+                                height: 13.0,
                                 clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
                                   color: ACTIVE_COLOR,

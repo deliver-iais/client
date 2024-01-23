@@ -160,6 +160,7 @@ class ContactWidget extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: theme.scaffoldBackgroundColor,
                                     shape: BoxShape.circle,
+                                    // borderRadius: BorderRadius.circular()
                                   ),
                                   child: Center(
                                     child: Container(

@@ -20,6 +20,7 @@ import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -138,9 +139,8 @@ class NavigationCenterState extends State<NavigationCenter>
         body: StreamBuilder<List<Categories>>(
           stream: _roomRepo.watchRoomsCategories(),
           builder: (context, roomsCategoriesSnapshot) {
-            final allChatsCategory = <Categories?>[null];
             final roomsCategories =
-                allChatsCategory + (roomsCategoriesSnapshot.data ?? []);
+                <Categories?>[null] + (roomsCategoriesSnapshot.data ?? []);
             _tabController = TabController(
               length: roomsCategories.length,
               vsync: this,
@@ -169,7 +169,7 @@ class NavigationCenterState extends State<NavigationCenter>
                       1.3,
                     ),
                     titleSpacing: 8.0,
-                    toolbarHeight: APPBAR_HEIGHT,
+                    toolbarHeight: 50,
                     title: ConnectionStatus(
                       normalTitle: _i18n.get("chats"),
                     ),
@@ -181,8 +181,9 @@ class NavigationCenterState extends State<NavigationCenter>
                     bottom: PreferredSize(
                       preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
                       child: TabBar(
+                        tabAlignment: TabAlignment.start,
                         controller: _tabController,
-                        isScrollable: true,
+                         isScrollable: true,
                         labelPadding: const EdgeInsets.all(10),
                         onTap: (index) {
                           final category =
@@ -257,7 +258,7 @@ class NavigationCenterState extends State<NavigationCenter>
                       }
                     },
                   ),
-                   const HasCallRow(),
+                  const HasCallRow(),
                   if (!isLarge(context)) const AudioPlayerAppBar(),
                   Expanded(
                     child: TabBarView(

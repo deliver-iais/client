@@ -35,6 +35,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -78,7 +79,6 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
-  LocalNetwork,
   SaveLocalMessage
 }
 
@@ -138,8 +138,6 @@ class MessageRepo {
         case ConnectionStatus.Connecting:
           updatingStatus.add(TitleStatusConditions.Connecting);
           break;
-        case ConnectionStatus.LocalNetwork:
-          updatingStatus.add(TitleStatusConditions.LocalNetwork);
       }
     });
   }
@@ -1187,7 +1185,8 @@ class MessageRepo {
         packetId: msg.packetId,
         msg: msg.copyWith(
           isHidden: isHiddenMessage(msg),
-          isLocalMessage: settings.inLocalNetwork.value,
+          isLocalMessage:
+              GetIt.I.get<ServerLessService>().inLocalNetwork(msg.roomUid),
         ),
         status: status,
       );
