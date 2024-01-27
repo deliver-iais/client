@@ -8,6 +8,7 @@ import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,6 +24,7 @@ class ServerLessService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
   final address = <String, String>{}.obs;
+  final superNodes = <String>{}.obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
@@ -42,7 +44,9 @@ class ServerLessService {
   void _start() {
     address.clear();
     _startServices();
-    // _startForegroundService();
+    if (Platform.isAndroid) {
+      _startForegroundService();
+    }
   }
 
   bool inLocalNetwork(Uid uid) => address.containsKey(uid.asString());
@@ -87,9 +91,8 @@ class ServerLessService {
       await _clearConnections();
     }
     _startUdpListener();
-    if (true || !Platform.isWindows) {
-      await _initWifiBroadcast();
-    }
+
+    await _initWifiBroadcast();
     await _startHttpService();
   }
 
@@ -116,12 +119,13 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({Uid? to, bool superNode = false}) {
+  void sendBroadCast({Uid? to, bool isSuperNode = false}) {
     try {
       _upSocket?.send(
         LocalNetworkInfo(
           from: _authRepo.currentUserUid,
           to: to,
+          isSuperNode: isSuperNode,
           url: _ip,
         ).writeToBuffer(),
         InternetAddress(_wifiBroadcast),
@@ -132,35 +136,16 @@ class ServerLessService {
     }
   }
 
-  Future<void> _handleBroadCastMessage(Uint8List data) async {
-    try {
-      final registrationReq = LocalNetworkInfo.fromBuffer(data);
-      if (!registrationReq.from
-          .isSameEntity(_authRepo.currentUserUid.asString())) {
-        await saveIp(
-          uid: registrationReq.from.asString(),
-          ip: registrationReq.url,
-        );
-        _logger.i("new address....${registrationReq.url} +??? $_ip");
-        unawaited(
-          GetIt.I
-              .get<ServerLessMessageService>()
-              .resendPendingPackets(registrationReq.from),
-        );
-        await _sendMyAddress(registrationReq.url);
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
-  Future<void> _sendMyAddress(String url, {bool isSuperNode = false}) async {
+  Future<void> _sendMyAddress(
+    String url,
+  ) async {
     try {
       unawaited(
         sendRequest(
           LocalNetworkInfo(
             from: _authRepo.currentUserUid,
             url: _ip,
+            isSuperNode: settings.isSuperNode.value,
           ).writeToBuffer(),
           url,
           type: REGISTER,
@@ -230,19 +215,51 @@ class ServerLessService {
     sendBroadCast();
   }
 
-  Future<void> _reset() async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    await _httpServer?.close(force: true);
-    await _startHttpService();
-  }
-
   Future<void> _processRegister(HttpRequest request) async {
     final info = LocalNetworkInfo.fromBuffer(await request.first);
+    if (info.isSuperNode) {
+      superNodes.add(info.from.asString());
+    } else {
+      superNodes.remove(info.from.asString());
+    }
     await saveIp(uid: info.from.asString(), ip: info.url);
     unawaited(
       GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
     await request.response.close();
+  }
+
+  Future<void> _handleBroadCastMessage(Uint8List data) async {
+    try {
+      final registrationReq = LocalNetworkInfo.fromBuffer(data);
+      if (registrationReq.isSuperNode) {
+        superNodes.add(registrationReq.from.asString());
+      } else {
+        superNodes.remove(registrationReq.from.asString());
+      }
+      if (!registrationReq.from
+          .isSameEntity(_authRepo.currentUserUid.asString())) {
+        await saveIp(
+          uid: registrationReq.from.asString(),
+          ip: registrationReq.url,
+        );
+        _logger.i("new address....${registrationReq.url} +??? $_ip");
+        unawaited(
+          GetIt.I
+              .get<ServerLessMessageService>()
+              .resendPendingPackets(registrationReq.from),
+        );
+        await _sendMyAddress(registrationReq.url);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> _reset() async {
+    await Future.delayed(const Duration(milliseconds: 700));
+    await _httpServer?.close(force: true);
+    await _startHttpService();
   }
 
   Future<bool> _getMyLocalIp() async {
@@ -337,5 +354,10 @@ class ServerLessService {
       _logger.e(e);
     }
     return null;
+  }
+
+  void removeIp(String uid) {
+    address.remove(uid);
+    _localNetworkConnectionDao.delete(uid.asUid());
   }
 }

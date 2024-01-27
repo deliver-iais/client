@@ -1620,7 +1620,7 @@ class MessageRepo {
         } else {
           if (await _deleteMessage(msg)) {
             _cachingRepo.setMessage(
-                msg.roomUid, msg.localNetworkMessageId!, msg);
+                msg.roomUid, msg.localNetworkMessageId!, msg,);
 
             await _messageDao.updateMessage(msg);
             messageEventSubject.add(

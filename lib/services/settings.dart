@@ -248,7 +248,7 @@ class Settings {
     SharedKeys.USE_BAD_CERTIFICATE_CONNECTION.inSharedDaoStorage(),
     defaultValue: false,
   );
-  final superNode = BooleanPersistent(
+  final isSuperNode = BooleanPersistent(
     SharedKeys.SUPER_NODE.inSharedDaoStorage(),
     defaultValue: false,
   );

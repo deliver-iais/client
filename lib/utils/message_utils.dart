@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart' as model;
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -86,12 +87,18 @@ class MessageUtils {
               Int64((lastLocalMessageId + 1) - (messages.length - j))
           ..from = msg.from
           ..time = Int64(msg.time);
-        if (msg.type == MessageType.CALL_LOG) {
-          packet.callEvent =
-              _convertCallLogToCallEvent(msg.json.toCallLog(), msg.time);
+        if (!settings.backupLocalNetworkMessages.value) {
+          packet.messageByClient =
+              message_pb.MessageByClient(isLocalMessage: true);
         } else {
-          packet.messageByClient = createMessageByClient(msg);
+          if (msg.type == MessageType.CALL_LOG) {
+            packet.callEvent =
+                _convertCallLogToCallEvent(msg.json.toCallLog(), msg.time);
+          } else {
+            packet.messageByClient = createMessageByClient(msg);
+          }
         }
+
         result.add(packet);
       }
       return result;

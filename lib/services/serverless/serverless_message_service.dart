@@ -54,6 +54,7 @@ class ServerLessMessageService {
   final _logger = GetIt.I.get<Logger>();
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
   final _rooms = <String, LocalChatRoom>{};
+  final _messagePacketIdes = Set();
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -192,6 +193,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendMessage({required Uid to, required Message message}) async {
+    _messagePacketIdes.add(message.packetId);
     if (to.category == Categories.USER) {
       final ip = await _serverLessService.getIp(to.asString());
       if (ip != null) {
@@ -209,44 +211,47 @@ class ServerLessMessageService {
     }
     Timer(
       const Duration(seconds: 4),
-      () => _checkPendingStatus(message.packetId, to: to, message: message),
+      () => _checkPendingStatus(
+        message.packetId,
+        to: to,
+      ),
     );
   }
 
   Future<void> _send({required String ip, required Message message}) async {
-    final res =
-        await _serverLessService.sendRequest(message.writeToBuffer(), ip);
-    if (res != null && res.statusCode == HttpStatus.ok) {
-      if (!message.edited && !message.hasCallLog()) {
-        unawaited(
-          _handleAck(
-            MessageDeliveryAck(
-              to: message.from,
-              packetId: message.packetId,
-              time: Int64(
-                DateTime.now().millisecondsSinceEpoch,
+    try {
+      final res =
+          await _serverLessService.sendRequest(message.writeToBuffer(), ip);
+      if (res != null && res.statusCode == HttpStatus.ok) {
+        if (!message.edited && !message.hasCallLog()) {
+          unawaited(
+            _handleAck(
+              MessageDeliveryAck(
+                to: message.from,
+                packetId: message.packetId,
+                time: Int64(
+                  DateTime.now().millisecondsSinceEpoch,
+                ),
+                id: message.id,
+                from: message.to,
               ),
-              id: message.id,
-              from: message.to,
             ),
-          ),
-        );
+          );
+        }
       }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
   Future<void> _checkPendingStatus(
     String packetId, {
     required Uid to,
-    required Message message,
   }) async {
-    final pm = await _pendingMessageDao.getPendingMessage(packetId);
-    var hasBeenSent = false;
-    if (pm != null) {
-      if (!hasBeenSent) {
-        hasBeenSent = true;
-      }
-      _serverLessService.sendBroadCast(to: pm.roomUid);
+    if (_messagePacketIdes.contains(packetId)) {
+      _serverLessService
+        ..removeIp(to.asString())
+        ..sendBroadCast(to: to);
     }
   }
 
@@ -469,6 +474,7 @@ class ServerLessMessageService {
 
   Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
     try {
+      _messagePacketIdes.remove(messageDeliveryAck.packetId);
       final uid = messageDeliveryAck.from;
       final room = _rooms[uid.asString()] ??
           (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());

@@ -1,11 +1,11 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:get_it/get_it.dart';
 
 class LocalNetworkSettingsPage extends StatelessWidget {
@@ -13,8 +13,9 @@ class LocalNetworkSettingsPage extends StatelessWidget {
 
   LocalNetworkSettingsPage({super.key});
 
-  final _superNode = (settings.superNode.value).obs;
+  final _superNode = (settings.isSuperNode.value).obs;
   final _backUp = (settings.backupLocalNetworkMessages.value).obs;
+  final _serverLessService = GetIt.I.get<ServerLessService>();
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,9 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                           switchValue: _superNode.value,
                           onToggle: ({required newValue}) {
                             _superNode.value = newValue;
-                            settings.superNode.set(newValue);
+                            settings.isSuperNode.set(newValue);
+                            _serverLessService.sendBroadCast(
+                                isSuperNode: newValue);
                           },
                         ),
                         const Divider(),
@@ -52,6 +55,17 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                             settings.backupLocalNetworkMessages.set(newValue);
                           },
                         ),
+                        // const Divider(),
+                        // SettingsTile.switchTile(
+                        //   title: _i18n.get(
+                        //       "send_to_server_after_one_try_on_internal_network"),
+                        //   leading: const Icon(Cupert),
+                        //   switchValue: _backUp.value,
+                        //   onToggle: ({required newValue}) {
+                        //     _backUp.value = newValue;
+                        //     settings.backupLocalNetworkMessages.set(newValue);
+                        //   },
+                        // ),
                       ],
                     ),
                   ],

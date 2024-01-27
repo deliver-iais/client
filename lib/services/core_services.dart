@@ -29,6 +29,8 @@ import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
+enum SendingPanel { SERVER, LOCAL }
+
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
 final disconnectedTime = BehaviorSubject.seeded(0);
@@ -295,22 +297,28 @@ class CoreServices {
   }
 
   Future<void> sendLocalMessageToServer(MessageByClient messageByClient) async {
-    if (connectionStatus.value == ConnectionStatus.Connected) {}
+    if (connectionStatus.value == ConnectionStatus.Connected) {
+      unawaited(sendMessage(messageByClient, forceToSendToServer: true));
+    }
   }
 
   Future<void> sendMessage(
     MessageByClient message, {
     bool resend = true,
+    bool forceToSendToServer = false,
   }) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendClientPacket(clientPacket, to: message.to);
+      final panel = await _sendClientPacket(clientPacket,
+          to: message.to, forceToSendToServer: forceToSendToServer);
       if (resend) {
         if (_connectionStatus.value == ConnectionStatus.Connected) {
           Timer(
-            const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+            Duration(
+              seconds: panel == SendingPanel.LOCAL ? 10 : MIN_BACKOFF_TIME ~/ 2,
+            ),
             () => _checkPendingStatus(message.packetId, message),
           );
         }
@@ -365,22 +373,13 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    await _sendClientPacket(clientPacket, to: seen.to)
-        .onError(
-          (error, stackTrace) async => _analyticsService.sendLogEvent(
-            "failedSeen",
-            parameters: {
-              'error': error.toString(),
-            },
-          ),
-        )
-        .then(
-          (value) async => {
-            await _analyticsService.sendLogEvent(
-              "successSeen",
-            ),
-          },
-        );
+    await _sendClientPacket(clientPacket, to: seen.to).then(
+      (value) async => {
+        await _analyticsService.sendLogEvent(
+          "successSeen",
+        ),
+      },
+    );
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -417,7 +416,7 @@ class CoreServices {
     }
   }
 
-  Future<void> _sendClientPacket(
+  Future<SendingPanel> _sendClientPacket(
     ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
     bool forceToSendToServer = false,
@@ -426,18 +425,21 @@ class CoreServices {
     try {
       if (!forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
+        return SendingPanel.LOCAL;
       } else {
         if (isWeb ||
             _clientPacketStream == null ||
             _clientPacketStream!.isClosed) {
-          await _services.coreServiceClient.sendClientPacket(packet);
+          unawaited(_services.coreServiceClient.sendClientPacket(packet));
         } else if (forceToSendEvenNotConnected ||
             _connectionStatus.value == ConnectionStatus.Connected) {
-          _clientPacketStream!.add(packet);
+          _clientPacketStream?.add(packet);
         }
+        return SendingPanel.SERVER;
       }
     } catch (e) {
       _logger.e(e);
+      return SendingPanel.SERVER;
     }
   }
 }

@@ -15,7 +15,7 @@ const ENGLISH_FEATURE_LIST = [
 ];
 
 const ARABIC_FEATURE_LIST = [
-  "Local network Caht",
+  "Local network Chat",
   "1. Sending text and file messages",
   "2. Voice and video call",
   "3. Show people in  same lan",
