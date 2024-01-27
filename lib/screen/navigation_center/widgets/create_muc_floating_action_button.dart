@@ -22,6 +22,7 @@ class _CreateMucFloatingActionButtonState
     extends State<CreateMucFloatingActionButton> with CustomPopupMenu {
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  static final _serverLessService = GetIt.I.get<ServerLessService>();
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +55,14 @@ class _CreateMucFloatingActionButtonState
                     "new_channel",
                     const Icon(Icons.campaign_outlined),
                   ),
+                  if (_serverLessService.superNodes.isNotEmpty)
+                    _buildMenuItems("new_local_group",
+                        const Icon(CupertinoIcons.group_solid),
+                        showServerLessIcon: true),
+                  if (_serverLessService.superNodes.isNotEmpty)
+                    _buildMenuItems("new_local_channel",
+                        const Icon(Icons.campaign_outlined),
+                        showServerLessIcon: true),
                 ],
               ).then((value) => selectChatMenu(value ?? ""));
             },
@@ -87,7 +96,8 @@ class _CreateMucFloatingActionButtonState
     }
   }
 
-  PopupMenuItem _buildMenuItems(String value, Widget icon) {
+  PopupMenuItem _buildMenuItems(String value, Widget icon,
+      {bool showServerLessIcon = false}) {
     final theme = Theme.of(context);
     return PopupMenuItem<String>(
       key: Key(value),
@@ -99,7 +109,12 @@ class _CreateMucFloatingActionButtonState
           Text(
             _i18n.get(value),
             style: theme.textTheme.bodyMedium,
-          )
+          ),
+          if (showServerLessIcon)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6),
+              child: Icon(CupertinoIcons.antenna_radiowaves_left_right),
+            )
         ],
       ),
     );

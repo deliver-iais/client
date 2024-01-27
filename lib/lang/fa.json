@@ -372,6 +372,8 @@
   "new_group": "گروه جدید",
   "new_messages": "پیام جدید",
   "new_password": "رمز عبور جدید",
+  "new_local_group": "گروه جدید در شبکه داخلی",
+  "new_local_channel": "کانال جدید در شبکه داخلی",
   "new_sms_recipient": "لیست انتشار دریافت‌کنندگان پیامک",
   "next": "بعدی",
   "no_last_broadcast": "هیچ لیست انتشاری یافت نشد!",

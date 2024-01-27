@@ -119,13 +119,13 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({Uid? to, bool isSuperNode = false}) {
+  void sendBroadCast({Uid? to,}) {
     try {
       _upSocket?.send(
         LocalNetworkInfo(
           from: _authRepo.currentUserUid,
           to: to,
-          isSuperNode: isSuperNode,
+          isSuperNode: settings.isSuperNode.value,
           url: _ip,
         ).writeToBuffer(),
         InternetAddress(_wifiBroadcast),

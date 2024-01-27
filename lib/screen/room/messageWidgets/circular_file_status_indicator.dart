@@ -17,9 +17,10 @@ import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-class CircularFileStatusIndicator extends StatelessWidget {
+class CircularFileStatusIndicator extends StatefulWidget {
   final Message message;
   final Color backgroundColor;
   final Color foregroundColor;
@@ -34,22 +35,32 @@ class CircularFileStatusIndicator extends StatelessWidget {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _audioPlayerService = GetIt.I.get<AudioService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+
+  @override
+  State<CircularFileStatusIndicator> createState() =>
+      _CircularFileStatusIndicatorState();
+}
+
+class _CircularFileStatusIndicatorState
+    extends State<CircularFileStatusIndicator> {
   final _audioAutoPlayService = GetIt.I.get<AudioAutoPlayService>();
 
   @override
   Widget build(BuildContext context) {
-    final file = message.json.toFile();
-    if (message.id == null) {
+    final file = widget.message.json.toFile();
+    if (widget.message.id == null) {
       return FutureBuilder<PendingMessage?>(
-        future: _messageRepo.getPendingMessage(message.packetId),
+        future: CircularFileStatusIndicator._messageRepo
+            .getPendingMessage(widget.message.packetId),
         builder: (c, pendingMessage) {
           if (pendingMessage.hasData &&
               pendingMessage.data != null &&
               (pendingMessage.data!.status ==
                       SendingStatus.UPLOAD_FILE_COMPLETED ||
-                  !(message.forwardedFrom == null))) {
+                  !(widget.message.forwardedFrom == null))) {
             return FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(file.uuid),
+              future: CircularFileStatusIndicator._fileRepo
+                  .getFileIfExist(file.uuid),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
                   return _showExistedFile(file, path.data!);
@@ -62,29 +73,32 @@ class CircularFileStatusIndicator extends StatelessWidget {
 
           return buildLoadFileStatus(
             file: file,
-            onCancel: () => _messageRepo.deletePendingMessage(
-              message.packetId,
+            onCancel: () =>
+                CircularFileStatusIndicator._messageRepo.deletePendingMessage(
+              widget.message.packetId,
             ),
             sendingFileFailed: pendingMessage.data != null &&
                 pendingMessage.data!.status == SendingStatus.UPLOAD_FILE_FAIL,
-            onResendFileMessage: () =>
-                _messageRepo.resendFileMessage(pendingMessage.data!),
+            onResendFileMessage: () => CircularFileStatusIndicator._messageRepo
+                .resendFileMessage(pendingMessage.data!),
           );
         },
       );
     } else {
       return FutureBuilder<String?>(
-        initialData: _fileRepo.localUploadedFilePath[file.uuid],
-        future: _fileRepo.getFileIfExist(file.uuid),
+        initialData: CircularFileStatusIndicator
+            ._fileRepo.localUploadedFilePath[file.uuid],
+        future: CircularFileStatusIndicator._fileRepo.getFileIfExist(file.uuid),
         builder: (c, fileSnapShot) {
           Widget child = const SizedBox();
           if (fileSnapShot.hasData && fileSnapShot.data != null) {
             child = _showExistedFile(file, fileSnapShot.data!);
           } else {
             child = FutureBuilder<PendingMessage?>(
-              future: _messageRepo.getPendingEditedMessage(
-                message.roomUid,
-                message.id,
+              future: CircularFileStatusIndicator._messageRepo
+                  .getPendingEditedMessage(
+                widget.message.roomUid,
+                widget.message.id,
               ),
               builder: (context, pendingEditedMessage) {
                 if (pendingEditedMessage.data?.status !=
@@ -92,11 +106,13 @@ class CircularFileStatusIndicator extends StatelessWidget {
                     pendingEditedMessage.data != null) {
                   return buildLoadFileStatus(
                     file: file,
-                    onCancel: () => _messageRepo.deletePendingEditedMessage(
-                      message.roomUid,
-                      message.id,
+                    onCancel: () => CircularFileStatusIndicator._messageRepo
+                        .deletePendingEditedMessage(
+                      widget.message.roomUid,
+                      widget.message.id,
                     ),
-                    onResendFileMessage: () => _messageRepo
+                    onResendFileMessage: () => CircularFileStatusIndicator
+                        ._messageRepo
                         .resendFileMessage(pendingEditedMessage.data!),
                     sendingFileFailed: pendingEditedMessage.data != null &&
                         pendingEditedMessage.data!.status ==
@@ -127,15 +143,15 @@ class CircularFileStatusIndicator extends StatelessWidget {
             filePath: filePath,
             name: file.name,
             duration: file.duration,
-            backgroundColor: backgroundColor,
-            foregroundColor: foregroundColor,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
             onAudioPlay: () => initMediaAutoPlay(),
           )
         : OpenFileStatus(
             filePath: filePath,
             file: file,
-            backgroundColor: backgroundColor,
-            foregroundColor: foregroundColor,
+            backgroundColor: widget.backgroundColor,
+            foregroundColor: widget.foregroundColor,
           );
   }
 
@@ -147,21 +163,21 @@ class CircularFileStatusIndicator extends StatelessWidget {
   }) {
     return LoadFileStatus(
       file: file,
-      isUploading: message.id == null,
+      isUploading: widget.message.id == null,
       onCanceled: () => onCancel?.call(),
       sendingFileFailed: sendingFileFailed,
-      isPendingForwarded: !(message.forwardedFrom == null),
+      isPendingForwarded: !(widget.message.forwardedFrom == null),
       onResendFile: () => onResendFileMessage?.call(),
       // TODO(any): change this line and refactor
       onFileStatusCompleted: () {
-        // Future.delayed(Duration.zero, () async {
-        //   setState(() {});
-        // });
+        Future.delayed(Duration.zero, () {
+          setState(() {});
+        });
       },
       onDownloadCompleted: (audioPath) async {
         if (audioPath != null &&
             (file.type == "audio/mp4" || file.type == "audio/ogg")) {
-          _audioPlayerService.playAudioMessage(
+          CircularFileStatusIndicator._audioPlayerService.playAudioMessage(
             audioPath,
             file.uuid,
             file.name,
@@ -170,17 +186,17 @@ class CircularFileStatusIndicator extends StatelessWidget {
           await initMediaAutoPlay();
         }
       },
-      background: backgroundColor,
-      foreground: foregroundColor,
+      background: widget.backgroundColor,
+      foreground: widget.foregroundColor,
     );
   }
 
   Future<void> initMediaAutoPlay() async {
     {
       await _audioAutoPlayService.fetchAndSaveNextAudioListPageWithMessage(
-        messageId: message.id ?? 0,
-        roomUid: message.roomUid.asString(),
-        type: message.json.toFile().audioWaveform.data.isNotEmpty
+        messageId: widget.message.id ?? 0,
+        roomUid: widget.message.roomUid.asString(),
+        type: widget.message.json.toFile().audioWaveform.data.isNotEmpty
             ? MetaType.AUDIO
             : MetaType.MUSIC,
       );
