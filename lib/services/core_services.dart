@@ -317,7 +317,7 @@ class CoreServices {
         if (_connectionStatus.value == ConnectionStatus.Connected) {
           Timer(
             Duration(
-              seconds: panel == SendingPanel.LOCAL ? 10 : MIN_BACKOFF_TIME ~/ 2,
+              seconds: panel == SendingPanel.LOCAL ? 9 : MIN_BACKOFF_TIME ~/ 2,
             ),
             () => _checkPendingStatus(message.packetId, message),
           );

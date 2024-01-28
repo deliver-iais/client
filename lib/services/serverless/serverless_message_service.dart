@@ -210,7 +210,7 @@ class ServerLessMessageService {
       }
     }
     Timer(
-      const Duration(seconds: 4),
+      const Duration(seconds: 2),
       () => _checkPendingStatus(
         message.packetId,
         to: to,
