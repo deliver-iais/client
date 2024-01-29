@@ -10,6 +10,7 @@ const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
 const APPLICATION = Applications.we;
+const LOCAL_MESSAGE_KEY="Local_Message_Key";
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";

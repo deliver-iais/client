@@ -75,7 +75,6 @@ class TimeAndSeenStatus extends StatelessWidget {
                     iconColor: iconColor,
                   ),
                 ),
-
               if (message.isLocalMessage)
                 const Padding(
                   padding: EdgeInsets.only(left: 10),

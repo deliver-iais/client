@@ -30,6 +30,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
@@ -570,14 +571,18 @@ class DataStreamServices {
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
       await _saveAndCreateBroadcastMessage(messageDeliveryAck);
-    } else if (messageDeliveryAck.packetId.contains("Local_Message")) {
+    } else if (messageDeliveryAck.packetId.contains(LOCAL_MESSAGE_KEY)) {
       final mes = await _messageDao.getMessageByPacketId(
-        messageDeliveryAck.from,
-        packetId,
+        messageDeliveryAck.to,
+        packetId.replaceFirst(LOCAL_MESSAGE_KEY, ""),
       );
       if (mes != null) {
         unawaited(
-          _messageDao.insertMessage(mes.copyWith(needToBackup: false)),
+          _messageDao.insertMessage(
+            mes.copyWith(
+              needToBackup: false,
+            ),
+          ),
         );
       }
     } else {
@@ -631,7 +636,7 @@ class DataStreamServices {
             GetIt.I.get<CoreServices>().sendLocalMessageToServer(
                   MessageUtils.createMessageByClient(pm.msg)
                     ..isLocalMessage = true
-                    ..packetId = "Local_Message${pm.packetId}",
+                    ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
                 ),
           );
         }

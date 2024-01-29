@@ -77,6 +77,7 @@ class ServerLessService {
     await _notificationForegroundService.stopForegroundTask();
     await _httpServer?.close(force: true);
     _upSocket?.close();
+    GetIt.I.get<ServerLessMessageService>().reset();
   }
 
   String getBroadcastIp() => _wifiBroadcast;
