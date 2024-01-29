@@ -101,8 +101,9 @@ class CallRepo {
   bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
+  bool _isBusy = false;
   bool _sendOfferInSynchronousCalls = false;
-  bool _inSynchronousCalls = false;
+  bool inSynchronousCalls = false;
 
   bool _isEndedReceived = false;
   bool _isOfferReady = false;
@@ -247,6 +248,12 @@ class CallRepo {
             }
           }
           break;
+        case CallEventV2_Type.busy:
+          _callEvents[callEvent.time.toInt()] = "Busy";
+          if (isCallIdEqualToCurrentCallId(event)) {
+            unawaited(receivedBusyCall(event));
+          }
+          break;
         case CallEventV2_Type.ringing:
           if (!from.isSameEntity(currentUserUid)) {
             if (_checkSynchronousCalls(event)) {
@@ -282,14 +289,8 @@ class CallRepo {
                 _logger.e(e);
               }
             } else if (!isCallIdEqualToCurrentCallId(event)) {
-              unawaited(_busyCall(event));
+                unawaited(_busyCall(event));
             }
-          }
-          break;
-        case CallEventV2_Type.busy:
-          _callEvents[callEvent.time.toInt()] = "Busy";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedBusyCall());
           }
           break;
         case CallEventV2_Type.decline:
@@ -311,7 +312,7 @@ class CallRepo {
   }
 
   bool _checkSynchronousCalls(CallEvents event) {
-    if (_inSynchronousCalls) {
+    if (inSynchronousCalls) {
       return true;
     }
     if (_roomUid != null &&
@@ -319,7 +320,7 @@ class CallRepo {
         _isCaller) {
       if (event.callEvent!.to.node == _authRepo.currentUserUid.node &&
           event.callEvent!.from.node == _roomUid?.node) {
-        _inSynchronousCalls = true;
+        inSynchronousCalls = true;
         return true;
       }
       return false;
@@ -396,7 +397,7 @@ class CallRepo {
 
     _isVideo = callEvent.isVideo;
     // this if statement is used to check if user peak up the phone (probably)
-    if (_isAccepted) {
+    if (_isAccepted ) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
           roomId: _roomUid!.asString(),
@@ -1268,6 +1269,7 @@ class CallRepo {
         _logger.i("Start Call and Created !!!");
         callingStatus.add(CallStatus.CREATED);
         _callService.setCallStart(callStart: true);
+
         //Set Timer 50 sec for end call
         timerDeclined = Timer(const Duration(seconds: 50), () {
           if (callingStatus.value == CallStatus.IS_RINGING ||
@@ -1341,6 +1343,7 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
     try {
       _cancelTimerResendEvent();
       if (hasVibrationCapability) {
@@ -1487,10 +1490,13 @@ class CallRepo {
     await _setCandidate(candidates);
   }
 
-  Future<void> receivedBusyCall() async {
+  Future<void> receivedBusyCall(CallEvents event) async {
+    _isBusy = true;
     callingStatus.add(CallStatus.BUSY);
     await _callService.saveCallStatusData();
-    await _dispose();
+    if(event.callEvent!.from == _authRepo.currentUserUid) {
+      await _dispose();
+    }
   }
 
   Future<void> receivedDeclinedCall() async {
@@ -1721,13 +1727,16 @@ class CallRepo {
     _checkRetryCallEvent(callEventV2ByClient, isRetry: isRetry);
   }
 
-  void _sendBusy(CallEvents event) {
+  void _sendBusy(CallEvents? event) {
     //Send Busy
+    final callEventBusy = (CallEventBusy()
+      ..isCaller = _isCaller);
+
     final callEventV2ByClient = (CallEventV2ByClient()
-      ..id = event.callEvent!.id
-      ..to = event.callEvent!.from
-      ..isVideo = event.callEvent!.isVideo
-      ..busy = CallEventBusy());
+      ..id = _callService.getCallId
+      ..to = _roomUid!
+      ..isVideo = _isVideo
+      ..busy = callEventBusy);
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send Busy";
     _checkRetryCallEvent(callEventV2ByClient);
@@ -1735,11 +1744,14 @@ class CallRepo {
 
   void _sendDeclined() {
     //Send Declined
+    final callEventDecline = (CallEventDecline()
+      ..isCaller = _isCaller);
+
     final callEventV2ByClient = (CallEventV2ByClient()
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..decline = CallEventDecline());
+      ..decline = callEventDecline);
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send Decline";
     _checkRetryCallEvent(callEventV2ByClient);
@@ -1934,6 +1946,7 @@ class CallRepo {
         }
 
         _isEnded = false;
+        _isBusy = false;
         _isEndedReceived = false;
         _reconnectTry = false;
         _isConnected = false;
@@ -1973,7 +1986,7 @@ class CallRepo {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Dispose";
     //reset variable values
     _sendOfferInSynchronousCalls = false;
-    _inSynchronousCalls = false;
+    inSynchronousCalls = false;
     _offerSdp = "";
     _answerSdp = "";
     _isAccepted = false;
@@ -2146,13 +2159,10 @@ class CallRepo {
   }
 
   void openCallScreen(
-    Uid room, {
-    bool isVideoCall = false,
-  }) {
+      Uid room, {
+        bool isVideoCall = false,
+      }) {
     if (!_callService.hasCall) {
-      if(_inSynchronousCalls && !_isCaller) {
-        acceptCall(_roomUid!);
-      }
       _routingService.openCallScreen(
         room,
         isVideoCall: isVideoCall,
@@ -2169,7 +2179,7 @@ class CallRepo {
           context: settings.appContext,
           builder: (context) => AlertDialog(
             content: Text(
-                                       _i18n.get("you_already_in_call"),
+              _i18n.get("you_already_in_call"),
             ),
             actions: <Widget>[
               TextButton(
