@@ -17,7 +17,7 @@ class CallUtils {
   static final _callService = GetIt.I.get<CallService>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  static Map<String, dynamic> getIceServers() => settings.inLocalNetwork.value
+  static Map<String, dynamic> getIceServers(bool isLocalNetwork) => isLocalNetwork
       ? <String, dynamic>{
           "sdpSemantics": "plan-b",
           // 'iceServers': [

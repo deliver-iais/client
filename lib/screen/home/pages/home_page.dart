@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:deliver/box/call_data_usage.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -179,9 +178,9 @@ class HomePageState extends State<HomePage> {
       onWillPop: () async {
         if (!_routingService.canPop()) {
           if (await FlutterForegroundTask.isRunningService) {
-            if (settings.inLocalNetwork.value &&
-                !(await CallUtils.hasSystemAlertWindowPermission())) {
-              await CallUtils.checkForSystemAlertWindowPermission(showCallAlarm: true);
+            if (false && !(await CallUtils.hasSystemAlertWindowPermission())) {
+              await CallUtils.checkForSystemAlertWindowPermission(
+                  showCallAlarm: true);
             } else {
               FlutterForegroundTask.minimizeApp();
               return false;

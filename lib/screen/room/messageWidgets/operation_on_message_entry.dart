@@ -8,7 +8,6 @@ import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -355,7 +354,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
       pendingMessage.msg.type == MessageType.FILE
-          ? (settings.inLocalNetwork.value ||
+          ? (pendingMessage.isLocalMessage ||
               pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPLETED)
           : pendingMessage.failed;
 

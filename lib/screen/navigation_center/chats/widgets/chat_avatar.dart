@@ -4,7 +4,6 @@ import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
@@ -51,7 +50,6 @@ class ChatAvatar extends StatelessWidget {
                     width: 17.0,
                     height: 17.0,
                     decoration: BoxDecoration(
-
                       color: borderColor ?? theme.scaffoldBackgroundColor,
                       shape: BoxShape.circle,
                     ),
@@ -63,7 +61,6 @@ class ChatAvatar extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: ACTIVE_COLOR,
                           shape: BoxShape.circle,
-
                         ),
                         child: const Icon(
                           CupertinoIcons.antenna_radiowaves_left_right,
@@ -75,9 +72,6 @@ class ChatAvatar extends StatelessWidget {
                   ),
                 );
               } else {
-                if (settings.inLocalNetwork.value) {
-                  return const SizedBox.shrink();
-                }
                 if (uid.category == Categories.USER &&
                     !_authRepo.isCurrentUser(uid)) {
                   return StreamBuilder<LastActivity?>(

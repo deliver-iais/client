@@ -205,9 +205,8 @@ class DataStreamServices {
       needToBackup: isLocalNetworkMessage,
     ))!;
 
-    final isHidden =
-        msg.isHidden || (message.edited && settings.inLocalNetwork.value);
-    if (msg.edited && settings.inLocalNetwork.value) {
+    final isHidden = msg.isHidden || (message.edited && message.isLocalMessage);
+    if (msg.edited && message.isLocalMessage) {
       unawaited(_editServerLessMessage(roomUid, message));
     }
 
@@ -222,19 +221,19 @@ class DataStreamServices {
       await _roomDao.updateRoom(
         uid: roomUid,
         lastMessage: isHidden ? null : msg,
-        lastMessageId: !(message.edited && settings.inLocalNetwork.value)
-            ? msg.localNetworkMessageId
-            : null,
+        lastMessageId: !(message.edited) ? msg.localNetworkMessageId : null,
         lastUpdateTime: msg.time,
         deleted: false,
       );
 
-      if (settings.inLocalNetwork.value) {
-        final room = await _roomDao.getRoom(roomUid);
-        if (room != null && room.lastMessage?.id! == message.id.toInt()) {
-          await _roomDao.updateRoom(uid: roomUid, lastMessage: msg);
-        }
-      }
+      ///todo  update last message on  edit
+
+      // if (settings.inLocalNetwork.value) {
+      //   final room = await _roomDao.getRoom(roomUid);
+      //   if (room != null && room.lastMessage?.id! == message.id.toInt()) {
+      //     await _roomDao.updateRoom(uid: roomUid, lastMessage: msg);
+      //   }
+      // }
 
       if (roomUid.category == Categories.GROUP) {
         if (await isMentioned(message)) {
@@ -542,9 +541,8 @@ class DataStreamServices {
     _callService
       ..addCallEvent(callEvents)
       ..shouldRemoveData = true;
-    if (!settings.inLocalNetwork.value) {
-      await GetIt.I.get<CoreServices>().initStreamConnection();
-    }
+
+    await GetIt.I.get<CoreServices>().initStreamConnection();
   }
 
   void handleActivity(Activity activity) {
@@ -631,14 +629,15 @@ class DataStreamServices {
           unawaited(
             serverLessMessageService.sendPendingMessage(msg.roomUid.asString()),
           );
-
-          unawaited(
-            GetIt.I.get<CoreServices>().sendLocalMessageToServer(
-                  MessageUtils.createMessageByClient(pm.msg)
-                    ..isLocalMessage = true
-                    ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
-                ),
-          );
+          if (settings.backupLocalNetworkMessages.value) {
+            unawaited(
+              GetIt.I.get<CoreServices>().sendLocalMessageToServer(
+                    MessageUtils.createMessageByClient(pm.msg)
+                      ..isLocalMessage = true
+                      ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
+                  ),
+            );
+          }
         }
       } else {
         await _analyticsService.sendLogEvent(

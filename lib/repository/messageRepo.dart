@@ -1370,7 +1370,7 @@ class MessageRepo {
     int pageSize, {
     bool retry = true,
   }) async {
-    if (!settings.inLocalNetwork.value) {
+    if (_coreServices.connectionStatus.value == ConnectionStatus.Connected) {
       final key = "$roomUid-$page";
       var completer = _completerMap[key];
       if (completer == null || completer.isCompleted) {
@@ -1594,7 +1594,7 @@ class MessageRepo {
       final request = DeleteMessageReq()
         ..messageId = Int64(message.id!)
         ..roomUid = message.roomUid;
-      if (settings.inLocalNetwork.value) {
+      if (GetIt.I.get<ServerLessService>().inLocalNetwork(message.to)) {
         _serverLessMessageService.deleteMessage(request);
       } else {
         await _sdr.queryServiceClient.deleteMessage(request);
@@ -1620,7 +1620,10 @@ class MessageRepo {
         } else {
           if (await _deleteMessage(msg)) {
             _cachingRepo.setMessage(
-                msg.roomUid, msg.localNetworkMessageId!, msg,);
+              msg.roomUid,
+              msg.localNetworkMessageId!,
+              msg,
+            );
 
             await _messageDao.updateMessage(msg);
             messageEventSubject.add(
@@ -1646,9 +1649,9 @@ class MessageRepo {
             }
             await _roomDao.updateRoom(
               uid: msg.roomUid,
-              lastUpdateTime: settings.inLocalNetwork.value
-                  ? DateTime.now().millisecondsSinceEpoch
-                  : null,
+              // lastUpdateTime:
+              //     ? DateTime.now().millisecondsSinceEpoch
+              //     : null,
               lastMessage: lastNotHiddenMessage,
             );
           }
@@ -1732,7 +1735,9 @@ class MessageRepo {
   }
 
   Future<void> _edit(UpdateMessageReq updateMessageReq) async {
-    if (settings.inLocalNetwork.value) {
+    if (GetIt.I
+        .get<ServerLessService>()
+        .inLocalNetwork(updateMessageReq.message.to)) {
       _serverLessMessageService.editMessage(
         messageByClient: updateMessageReq.message,
         messageId: updateMessageReq.messageId.toInt(),

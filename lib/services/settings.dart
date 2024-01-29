@@ -100,10 +100,10 @@ class Settings {
     defaultValue: isDesktopDevice,
   );
 
-  final inLocalNetwork = BooleanPersistent(
-    SharedKeys.SHARED_DAO_IN_LOCAL_NETWORK.inSharedDaoStorage(),
-    defaultValue: false,
-  );
+  // final inLocalNetwork = BooleanPersistent(
+  //   SharedKeys.SHARED_DAO_IN_LOCAL_NETWORK.inSharedDaoStorage(),
+  //   defaultValue: false,
+  // );
 
   final useDefaultUdpAddress = BooleanPersistent(
     SharedKeys.SHARED_DAO_USE_DEFAULT_UDP_ADDRESS.inSharedDaoStorage(),

@@ -19,6 +19,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -213,11 +214,10 @@ class CallRepo {
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else {
-            if (settings.inLocalNetwork.value) {
-              if (_callService.getCallId.isEmpty) {
-                _callService.setCallId = callEvent.id;
-              }
+            if (_callService.getCallId.isEmpty) {
+              _callService.setCallId = callEvent.id;
             }
+
             if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
               _cancelTimerResendEvent();
               _callOfferBody = callEvent.offer.body;
@@ -460,7 +460,9 @@ class CallRepo {
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
     // maybe this line is what i'm looking for (createPeerConnection)
     final pc = await createPeerConnection(
-      CallUtils.getIceServers(),
+      CallUtils.getIceServers(
+        GetIt.I.get<ServerLessService>().inLocalNetwork(roomUid!),
+      ),
       CallUtils.getConfig(),
     );
     _localStream = await CallUtils.getUserMedia(isVideo: _isVideo);
@@ -528,16 +530,14 @@ class CallRepo {
       }
       ..onIceCandidate = (e) {
         if (e.candidate != null) {
-          if (!settings.inLocalNetwork.value || _candidate.isEmpty) {
-            _candidate.add({
-              'candidate': e.candidate.toString(),
-              'sdpMid': e.sdpMid.toString(),
-              'sdpMlineIndex': e.sdpMLineIndex!,
-            });
+          _candidate.add({
+            'candidate': e.candidate.toString(),
+            'sdpMid': e.sdpMid.toString(),
+            'sdpMlineIndex': e.sdpMLineIndex!,
+          });
 
-            if (_isAccepted) {
-              _calculateCandidateAndSendAnswer();
-            }
+          if (_isAccepted) {
+            _calculateCandidateAndSendAnswer();
           }
         }
       }
@@ -1189,10 +1189,6 @@ class CallRepo {
     }
   }
 
-  Future<bool> _checkForegroundStatus() async =>
-      settings.inLocalNetwork.value &&
-      (await FlutterForegroundTask.isAppOnForeground);
-
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
       if (!_callService.hasCall) {
@@ -1630,8 +1626,10 @@ class CallRepo {
   }
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
-    if (settings.inLocalNetwork.value) {
-      Timer(const Duration(milliseconds: 700), () {
+    if (GetIt.I
+        .get<ServerLessService>()
+        .inLocalNetwork(callEventV2ByClient.to)) {
+      Timer(const Duration(milliseconds: 1000), () {
         if (callingStatus.value == CallStatus.IS_RINGING) {
           _coreServices.sendCallEvent(callEventV2ByClient);
           _sendCallOffer(callEventV2ByClient);
@@ -1773,10 +1771,12 @@ class CallRepo {
       }
       if (hasForegroundServiceCapability) {
         await _notificationForegroundService.foregroundServiceStop();
-        if (settings.inLocalNetwork.value) {
-          await _notificationForegroundService
-              .localNetworkForegroundServiceStart();
-        }
+        // if (GetIt.I
+        //     .get<ServerLessService>()
+        //     .inLocalNetwork(callEventV2ByClient.to)) {
+        //   await _notificationForegroundService
+        //       .localNetworkForegroundServiceStart();
+        // }
       }
       if (isAndroidNative) {
         _isNotificationSelected = false;

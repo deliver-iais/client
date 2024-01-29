@@ -30,7 +30,6 @@ import 'package:fuzzy/fuzzy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:deliver/services/settings.dart';
 
 import '../services/serverless/serverless_muc_service.dart';
 
@@ -44,9 +43,10 @@ class MucRepo {
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
     String groupName,
-    String info,
-  ) async {
-    if (settings.inLocalNetwork.value) {
+    String info, {
+    bool isLocalGroup = false,
+  }) async {
+    if (isLocalGroup) {
       return GetIt.I
           .get<ServerLessMucService>()
           .createGroup(name: groupName, members: memberUidList);
@@ -70,9 +70,10 @@ class MucRepo {
     List<Uid> memberUidList,
     String channelName,
     ChannelType channelType,
-    String info,
-  ) async {
-    if (settings.inLocalNetwork.value) {
+    String info, {
+    bool isLocalChannel = false,
+  }) async {
+    if (isLocalChannel) {
       return GetIt.I
           .get<ServerLessMucService>()
           .createChannel(name: channelName, members: memberUidList);
@@ -746,7 +747,7 @@ class MucRepo {
         );
       }
 
-      if (settings.inLocalNetwork.value) {
+      if (false) {
         await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
         return StatusCode.ok;
       } else {

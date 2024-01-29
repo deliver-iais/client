@@ -6,7 +6,6 @@ import 'package:flutter_video_info/flutter_video_info.dart';
 
 import 'package:deliver/box/meta_type.dart' as meta;
 import 'package:deliver/models/file.dart' as file_model;
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart'
@@ -84,13 +83,14 @@ String detectFileMimeByFileModel(file_model.File file) => isWeb
 
 String _detectFileMimeByFilePath(String? filePath) {
   final fileMainType = _detectFileTypeByNameAndContent(filePath);
-  if (true || settings.inLocalNetwork.value) {
-    return fileMainType.mimeByName;
-  } else if (fileMainType.hasSameMainType()) {
-    return fileMainType.mimeByContent;
-  } else {
-    return DEFAULT_FILE_TYPE;
-  }
+  return fileMainType.mimeByName;
+  // if (true || settings.inLocalNetwork.va) {
+  //   return fileMainType.mimeByName;
+  // } else if (fileMainType.hasSameMainType()) {
+  //   return fileMainType.mimeByContent;
+  // } else {
+  //   return DEFAULT_FILE_TYPE;
+  // }
 }
 
 String _detectFileMimeByFilePathForWeb(String? fileName, String? filePath) {
@@ -137,7 +137,6 @@ Uint8List _getWebFileData(String fileByte) => Uint8List.fromList(
     );
 
 String byteFormat(int bytes, {int decimals = 1}) {
-
   if (bytes == 0) {
     return '0.0 KB';
   }
