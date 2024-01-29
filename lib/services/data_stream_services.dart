@@ -570,7 +570,7 @@ class DataStreamServices {
     final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
     if (isMessageSendByBroadcastMuc) {
       await _saveAndCreateBroadcastMessage(messageDeliveryAck);
-    } else if (messageDeliveryAck.ackOnLocalMessage) {
+    } else if (messageDeliveryAck.packetId.contains("Local_Message")) {
       final mes = await _messageDao.getMessageByPacketId(
         messageDeliveryAck.from,
         packetId,
@@ -630,7 +630,8 @@ class DataStreamServices {
           unawaited(
             GetIt.I.get<CoreServices>().sendLocalMessageToServer(
                   MessageUtils.createMessageByClient(pm.msg)
-                    ..isLocalMessage = true,
+                    ..isLocalMessage = true
+                    ..packetId = "Local_Message${pm.packetId}",
                 ),
           );
         }
