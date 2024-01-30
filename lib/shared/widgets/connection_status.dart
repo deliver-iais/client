@@ -93,6 +93,14 @@ class ConnectionStatus extends StatelessWidget {
                             ),
                           ),
                         ),
+                      Obx(
+                        () => _messageRepo.backupLocalMessage.value
+                            ? const Padding(
+                                padding: EdgeInsets.only(right: 70),
+                                child: Icon(Icons.backup_outlined),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                     ],
                   );
                 },
@@ -166,8 +174,6 @@ class ConnectionStatus extends StatelessWidget {
         return normalTitle.capitalCase;
       case TitleStatusConditions.Syncing:
         return _i18n.get("syncing").capitalCase;
-      case TitleStatusConditions.SaveLocalMessage:
-        return _i18n.get("save_local_message").capitalCase;
     }
   }
 }

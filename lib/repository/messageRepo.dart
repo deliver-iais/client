@@ -6,6 +6,7 @@ import 'dart:io' as dart_file;
 import 'dart:math';
 
 import 'package:clock/clock.dart';
+
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -65,6 +66,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart' as location;
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/image_size_getter.dart';
@@ -79,7 +81,6 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
-  SaveLocalMessage
 }
 
 enum PendingMessageRepeatedStatus {
@@ -97,6 +98,8 @@ final messageEventSubject = BehaviorSubject<MessageEvent?>.seeded(null);
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
   final _i18n = GetIt.I.get<I18N>();
+
+  final backupLocalMessage = false.obs;
 
   final _messageDao = GetIt.I.get<MessageDao>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
@@ -158,7 +161,7 @@ class MessageRepo {
 
   // @visibleForTesting
   Future<void> updatingRooms() async {
-    await _updateLocalChats();
+    await updateLocalChats();
     if (settings.lastRoomMetadataUpdateTime.value == 0 ||
         settings.lastRoomMetadataUpdateTime.value <
             _coreServices.lastRoomMetadataUpdateTime) {
@@ -1857,7 +1860,7 @@ class MessageRepo {
     }
   }
 
-  Future<void> _updateLocalChats() async {
+  Future<void> updateLocalChats() async {
     const key = "save_local_chats";
     var completer = _completerMap[key];
     if (completer == null || completer.isCompleted) {
@@ -1871,10 +1874,11 @@ class MessageRepo {
             r.uid,
           );
         }
-        updatingStatus.add(TitleStatusConditions.Connected);
       } catch (e) {
         _logger.e(e);
       }
+      await Future.delayed(const Duration(seconds: 4));
+      backupLocalMessage.value = false;
 
       completer.complete([]);
     } else {
@@ -1890,7 +1894,7 @@ class MessageRepo {
   }) async {
     try {
       if (localMessages.isNotEmpty) {
-        updatingStatus.add(TitleStatusConditions.SaveLocalMessage);
+        backupLocalMessage.value = true;
         final res = await _sdr.queryServiceClient.saveLocalMessages(
           SaveLocalMessageReq(
             messages: MessageUtils.createMessageByClientOfLocalMessages(
