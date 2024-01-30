@@ -315,6 +315,7 @@
   "local_network_?": "اقفال التطبيق ؟",
   "local_network_settings": "إعدادات الشبكة الداخلية",
   "backup_local_network_messages": "تخزين الرسائل داخل الشبكة",
+  "backup_local_messages": "تخزين الرسائل",
   "super_node": "العقدة الفائقة",
   "login": "تسجيل الدخول",
   "login_page_confirm_login": "لتأکید الدخول حرّک هاتفک بهذا الاتجاه",

@@ -102,7 +102,6 @@ class CallRepo {
   bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
-  bool _isBusy = false;
   bool _sendOfferInSynchronousCalls = false;
   bool inSynchronousCalls = false;
 
@@ -1484,7 +1483,6 @@ class CallRepo {
   }
 
   Future<void> receivedBusyCall(CallEvents event) async {
-    _isBusy = true;
     callingStatus.add(CallStatus.BUSY);
     await _callService.saveCallStatusData();
     if(event.callEvent!.from == _authRepo.currentUserUid) {
@@ -1942,7 +1940,6 @@ class CallRepo {
         }
 
         _isEnded = false;
-        _isBusy = false;
         _isEndedReceived = false;
         _reconnectTry = false;
         _isConnected = false;

@@ -66,7 +66,7 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                               : SettingsTile(
                                   trailing: const Icon(Icons.arrow_circle_up),
                                   title: _i18n
-                                      .get("backup_local_network_messages"),
+                                      .get("backup_local_messages"),
                                   leading: const Icon(Icons.backup_sharp),
                                   onPressed: (c) {
                                     _messageRepo.updateLocalChats();
