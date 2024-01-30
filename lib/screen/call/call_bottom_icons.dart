@@ -59,6 +59,12 @@ class CallBottomRowState extends State<CallBottomRow>
     final theme = Theme.of(context);
     if (!_callRepo.isAccepted &&
         callBottomStatus(_callRepo.callingStatus.value)) {
+      if(_callRepo.inSynchronousCalls) {
+        _acceptCall();
+        return _callRepo.isVideo
+            ? _buildVideoCallWidget(theme, context)
+            : _buildVoiceCallWidget(theme);
+      }
       return _buildIncomingCallWidget(theme);
     } else {
       return _callRepo.isVideo
