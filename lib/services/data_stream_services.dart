@@ -629,15 +629,15 @@ class DataStreamServices {
           unawaited(
             serverLessMessageService.sendPendingMessage(msg.roomUid.asString()),
           );
-          if (settings.backupLocalNetworkMessages.value) {
-            unawaited(
-              GetIt.I.get<CoreServices>().sendLocalMessageToServer(
-                    MessageUtils.createMessageByClient(pm.msg)
-                      ..isLocalMessage = true
-                      ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
-                  ),
-            );
-          }
+          // if (settings.backupLocalNetworkMessages.value) {
+          //   unawaited(
+          //     GetIt.I.get<CoreServices>().sendLocalMessageToServer(
+          //           MessageUtils.createMessageByClient(pm.msg)
+          //             ..isLocalMessage = true
+          //             ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
+          //         ),
+          //   );
+          // }
         }
       } else {
         await _analyticsService.sendLogEvent(

@@ -501,6 +501,7 @@ class RoutingService {
     Uid? mucUid,
     bool useSmsBroadcastList = false,
     bool openMucInfoDeterminationPage = true,
+    bool  createLocal = false,
   }) {
     _analyticsService.sendLogEvent(
       "new $categories open",

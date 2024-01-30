@@ -79,11 +79,13 @@ class _CreateMucFloatingActionButtonState
         _routingService.openContacts();
         break;
       case "new_group":
+      case "new_local_group":
         _routingService.openMemberSelection(
           categories: MucCategories.GROUP,
         );
         break;
       case "new_channel":
+      case "new_local_channel":
         _routingService.openMemberSelection(
           categories: MucCategories.CHANNEL,
         );
