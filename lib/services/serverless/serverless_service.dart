@@ -45,7 +45,7 @@ class ServerLessService {
     address.clear();
     _startServices();
     if (Platform.isAndroid) {
-      _startForegroundService();
+      // _startForegroundService();
     }
   }
 
@@ -69,11 +69,11 @@ class ServerLessService {
   }
 
   Future<void> restart() async {
-    await dispose();
+    await _dispose();
     _start();
   }
 
-  Future<void> dispose() async {
+  Future<void> _dispose() async {
     await _notificationForegroundService.stopForegroundTask();
     await _httpServer?.close(force: true);
     _upSocket?.close();

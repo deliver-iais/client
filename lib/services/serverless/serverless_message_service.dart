@@ -209,13 +209,15 @@ class ServerLessMessageService {
         }
       }
     }
-    Timer(
-      const Duration(seconds: 2),
-      () => _checkPendingStatus(
-        message.packetId,
-        to: to,
-      ),
-    );
+    if (message.whichType() != Message_Type.callLog) {
+      Timer(
+        const Duration(seconds: 3),
+        () => _checkPendingStatus(
+          message.packetId,
+          to: to,
+        ),
+      );
+    }
   }
 
   Future<void> _send({required String ip, required Message message}) async {
@@ -405,7 +407,7 @@ class ServerLessMessageService {
     final message = Message.fromBuffer(await request.first);
 
     final ip = request.headers.value(IP);
-    if (ip != null) {
+    if (ip != null && message.whichType() == Message_Type.text) {
       unawaited(
         _serverLessService.saveIp(uid: message.from.asString(), ip: ip),
       );
@@ -470,29 +472,28 @@ class ServerLessMessageService {
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
       );
     }
-    if(message.whichType() == Message_Type.callLog) {
+    if (message.whichType() == Message_Type.callLog) {
       final callLog = CallLog(
-        from: message.to,
-        to: message.from,
+        from: _authRepo.currentUserUid,
+        to: roomUid,
         id: message.callLog.id,
         isVideo: message.callLog.isVideo,
       );
-      final packetId = DateTime.now().millisecondsSinceEpoch.toString() + message.to.asString();
+      final packetId = DateTime.now().millisecondsSinceEpoch.toString() +
+          message.to.asString();
 
-      if(message.callLog.hasDecline() && !message.callLog.decline.isCaller) {
+      if (message.callLog.hasDecline() && !message.callLog.decline.isCaller) {
         callLog.decline = message.callLog.decline;
         callLog.decline.isCaller = true;
-        await(_sendCallLog(callLog, packetId, callLog.to));
-      }
-       else if(message.callLog.hasBusy() && !message.callLog.busy.isCaller) {
+        await (_reSendCallLog(callLog, packetId, callLog.to));
+      } else if (message.callLog.hasBusy() && !message.callLog.busy.isCaller) {
         callLog.busy = message.callLog.busy;
         callLog.busy.isCaller = true;
-        await(_sendCallLog(callLog, packetId, callLog.to));
-      }
-      else if(message.callLog.hasEnd() && message.callLog.end.isCaller) {
-        callLog.end = message.callLog.end;
-        callLog.end.isCaller = false;
-        await(_sendCallLog(callLog, packetId, callLog.to));
+        await (_reSendCallLog(callLog, packetId, callLog.to));
+      } else if (message.callLog.hasEnd() && message.callLog.end.isCaller) {
+        // callLog.end = message.callLog.end;
+        // callLog.end.isCaller = false;
+        // await (_reSendCallLog(callLog, packetId, callLog.to));
       }
     }
   }
@@ -619,7 +620,7 @@ class ServerLessMessageService {
     }
   }
 
-  Future<void> _sendCallLog(
+  Future<void> _reSendCallLog(
     CallLog callLog,
     String packetId,
     Uid roomUid,
@@ -628,6 +629,27 @@ class ServerLessMessageService {
     final message = Message()
       ..from = callLog.from
       ..to = callLog.to
+      ..packetId = packetId
+      ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
+      ..callLog = callLog
+      ..time = Int64(
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    await _sendMessage(
+      to: roomUid,
+      message: message,
+    );
+  }
+
+  Future<void> _sendCallLog(
+    CallLog callLog,
+    String packetId,
+    Uid roomUid,
+  ) async {
+    final room = await _roomDao.getRoom(roomUid);
+    final message = Message()
+      ..from = _authRepo.currentUserUid
+      ..to = roomUid
       ..packetId = packetId
       ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
       ..callLog = callLog

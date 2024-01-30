@@ -1759,7 +1759,7 @@ class CallRepo {
       ..end = CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
-    _checkRetryCallEvent(callEventV2ByClient);
+    // _checkRetryCallEvent(callEventV2ByClient);
   }
 
   Future<void> _calculateCandidateAndSendAnswer() async {
