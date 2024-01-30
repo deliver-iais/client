@@ -470,6 +470,31 @@ class ServerLessMessageService {
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
       );
     }
+    if(message.whichType() == Message_Type.callLog) {
+      final callLog = CallLog(
+        from: message.to,
+        to: message.from,
+        id: message.callLog.id,
+        isVideo: message.callLog.isVideo,
+      );
+      final packetId = DateTime.now().millisecondsSinceEpoch.toString() + message.to.asString();
+
+      if(message.callLog.hasDecline() && !message.callLog.decline.isCaller) {
+        callLog.decline = message.callLog.decline;
+        callLog.decline.isCaller = true;
+        await(_sendCallLog(callLog, packetId, callLog.to));
+      }
+       else if(message.callLog.hasBusy() && !message.callLog.busy.isCaller) {
+        callLog.busy = message.callLog.busy;
+        callLog.busy.isCaller = true;
+        await(_sendCallLog(callLog, packetId, callLog.to));
+      }
+      else if(message.callLog.hasEnd() && message.callLog.end.isCaller) {
+        callLog.end = message.callLog.end;
+        callLog.end.isCaller = false;
+        await(_sendCallLog(callLog, packetId, callLog.to));
+      }
+    }
   }
 
   Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
@@ -601,8 +626,8 @@ class ServerLessMessageService {
   ) async {
     final room = await _roomDao.getRoom(roomUid);
     final message = Message()
-      ..from = _authRepo.currentUserUid
-      ..to = roomUid
+      ..from = callLog.from
+      ..to = callLog.to
       ..packetId = packetId
       ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
       ..callLog = callLog
