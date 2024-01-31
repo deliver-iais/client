@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
@@ -9,6 +11,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +34,7 @@ class ConnectionStatus extends StatelessWidget {
     final theme = Theme.of(context);
 
     return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Connected,
+      initialData: TitleStatusConditions.Connecting,
       stream: _messageRepo.updatingStatus.stream,
       builder: (c, status) {
         final state = title(status.data!);
@@ -46,119 +49,187 @@ class ConnectionStatus extends StatelessWidget {
                 key: Key(state),
                 stream: _i18n.localeStream,
                 builder: (context, snapshot) {
-                  return Row(
-                    children: [
-                      Flexible(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (status.data ==
-                                TitleStatusConditions.Disconnected) {
-                              _routingService.openConnectionSettingPage();
-                            }
-                          },
-                          child: Obx(
-                            () => Text(
-                              state,
-                              overflow: TextOverflow.fade,
-                              maxLines: 1,
-                              style: _serverLessService.address.isNotEmpty &&
-                                      status.data !=
-                                          TitleStatusConditions.Connected
-                                  ? const TextStyle(fontSize: 16)
-                                  : null,
-                              softWrap: true,
-                              key: ValueKey(randomString(10)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (status.data != TitleStatusConditions.Connected)
-                        LoadingDotAnimation(
-                          dotsColor: theme.textTheme.titleLarge?.color ??
-                              theme.colorScheme.primary,
-                        ),
-                      if (status.data == TitleStatusConditions.Disconnected)
-                        Obx(
-                          () => MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: _coreService.fasterRetryConnection,
-                              child: Icon(
-                                CupertinoIcons.refresh,
-                                size: _serverLessService.address.isNotEmpty
-                                    ? 18
-                                    : 23,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      Obx(
-                        () => _messageRepo.backupLocalMessage.value
-                            ? const Padding(
-                                padding: EdgeInsets.only(right: 70),
-                                child: Icon(Icons.backup_outlined),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            Obx(
-              () => _serverLessService.address.isNotEmpty &&
-                      status.data != TitleStatusConditions.Connected
-                  ? SizedBox(
-                      height: 24,
-                      child: Row(
-                        children: [
-                          Icon(
-                            CupertinoIcons.antenna_radiowaves_left_right,
-                            color: ACTIVE_COLOR,
-                            size: 12,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            _i18n.get("local_network"),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          SizedBox(
-                            height: 28,
-                            width: 60,
-                            child: Stack(
-                              alignment: Alignment.center,
+                  if (status.data == TitleStatusConditions.Connected) {
+                    return Text(
+                      state,
+                      overflow: TextOverflow.fade,
+                      maxLines: 1,
+                      softWrap: true,
+                      key: ValueKey(randomString(10)),
+                    );
+                  } else {
+                    return Obx(
+                      () => _serverLessService.address.isNotEmpty
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                for (var i = 0;
-                                    i < _serverLessService.address.length;
-                                    i++)
-                                  Positioned(
-                                    left: (14 * i).toDouble(),
-                                    top: 1,
-                                    bottom: 1,
-                                    child: CircleAvatarWidget(
-                                      _serverLessService.address.keys
-                                          .elementAt(i)
-                                          .asUid(),
-                                      14,
+                                GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (c) => AboutDialog(
+                                              children: [
+                                                Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListView.separated(
+                                                      shrinkWrap: true,
+                                                      itemCount:
+                                                          _serverLessService
+                                                              .address.length,
+                                                      itemBuilder: (c, i) {
+                                                        final uid =
+                                                            _serverLessService
+                                                                .address[i]!
+                                                                .asUid();
+                                                        return Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Row(
+                                                            children: [
+                                                              CircleAvatarWidget(
+                                                                uid,
+                                                                20,
+                                                              ),
+                                                              RoomName(
+                                                                uid: uid,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                      separatorBuilder:
+                                                          (context, index) =>
+                                                              const Divider(),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ));
+                                  },
+                                  child: SizedBox(
+                                    height: 24,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons
+                                              .antenna_radiowaves_left_right,
+                                          color: ACTIVE_COLOR,
+                                          size: 12,
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          _i18n.get("local_network"),
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        SizedBox(
+                                          height: 28,
+                                          width: 60,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              for (var i = 0;
+                                                  i <
+                                                      min(
+                                                        4,
+                                                        _serverLessService
+                                                            .address.length,
+                                                      );
+                                                  i++)
+                                                Positioned(
+                                                  left: (14 * i).toDouble(),
+                                                  top: 1,
+                                                  bottom: 1,
+                                                  child: CircleAvatarWidget(
+                                                    _serverLessService
+                                                        .address.keys
+                                                        .elementAt(i)
+                                                        .asUid(),
+                                                    14,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 22),
+                                  child: buildRowStatus(
+                                    status.data!,
+                                    state,
+                                    theme,
+                                    minSize: true,
+                                  ),
+                                ),
                               ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+                            )
+                          : buildRowStatus(status.data!, state, theme),
+                    );
+                  }
+                },
+              ),
             ),
           ],
         );
       },
+    );
+  }
+
+  Row buildRowStatus(
+    TitleStatusConditions status,
+    String state,
+    ThemeData theme, {
+    bool minSize = false,
+  }) {
+    return Row(
+      children: [
+        Flexible(
+          child: GestureDetector(
+            onTap: () {
+              if (status == TitleStatusConditions.Disconnected) {
+                _routingService.openConnectionSettingPage();
+              }
+            },
+            child: Text(
+              state,
+              overflow: TextOverflow.fade,
+              maxLines: 1,
+              softWrap: true,
+              style: minSize
+                  ? TextStyle(fontSize: 12, color: theme.hintColor)
+                  : null,
+              key: ValueKey(randomString(10)),
+            ),
+          ),
+        ),
+        LoadingDotAnimation(
+          dotsColor:
+              theme.textTheme.titleLarge?.color ?? theme.colorScheme.primary,
+        ),
+        if (status == TitleStatusConditions.Disconnected)
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: _coreService.fasterRetryConnection,
+              child: Icon(
+                CupertinoIcons.refresh,
+                size: minSize ? 12 : 20,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+      ],
     );
   }
 

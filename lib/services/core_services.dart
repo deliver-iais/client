@@ -56,6 +56,7 @@ class CoreServices {
 
   CoreServices() {
     _connectionStatus.distinct().listen((event) {
+      _serverLessService.restart();
       connectionStatus.add(event);
     });
   }
@@ -104,14 +105,13 @@ class CoreServices {
   }
 
   Future<void> initStreamConnection() async {
-    // _serverLessService.start();
+    _serverLessService.start();
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
       } else {
         _onConnectionError();
       }
-      _serverLessService.restart();
     });
     retryConnection(forced: true);
   }
