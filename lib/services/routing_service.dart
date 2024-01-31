@@ -280,7 +280,7 @@ class RoutingService {
   void resetCurrentRoom() => _currentRoom = "";
 
   void openRoom(
-    String roomId, {
+    Uid roomUid, {
     int? initialIndex,
     List<Message> forwardedMessages = const [],
     List<Meta> forwardedMeta = const [],
@@ -288,19 +288,19 @@ class RoutingService {
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
   }) {
-    // TODO(any): forwardMedia
-    _currentRoom = roomId;
-    if (!isInRoom(roomId) || forceToOpenRoom) {
-      _recentRoomsDao.addRecentRoom(roomId);
-      if (roomId == _authRepo.currentUserUid.asString()) {
+
+    _currentRoom = roomUid.asString();
+    if (!isInRoom(roomUid.asString()) || forceToOpenRoom) {
+      _recentRoomsDao.addRecentRoom(roomUid.asString());
+      if (roomUid == _authRepo.currentUserUid.asString()) {
         _analyticsService.sendLogEvent(
           "openSavedMessageRoom",
         );
       }
       _push(
         RoomPage(
-          key: ValueKey("/room/$roomId"),
-          roomUid: roomId.asUid(),
+          key: ValueKey("/room/$roomUid"),
+          roomUid: roomUid,
           forwardedMessages: forwardedMessages,
           forwardedMeta: forwardedMeta,
           shareUid: shareUid,
@@ -310,7 +310,7 @@ class RoutingService {
       );
       shouldScrollToLastMessageInRoom.add(false);
       _searchMessageService.clearCache();
-    } else if (isInRoom(roomId)) {
+    } else if (isInRoom(roomUid.asString())) {
       shouldScrollToLastMessageInRoom.add(true);
     }
   }

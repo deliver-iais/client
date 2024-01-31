@@ -296,7 +296,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                           if (isRecording &&
                                               !_isRecordingInCurrentRoom) {
                                             _routingService.openRoom(
-                                              _audioService.recordingRoom,
+                                              _audioService.recordingRoom.asUid(),
                                             );
                                           } else if (showSendButtonInsteadOfMicrophone) {
                                             endRecording(context);

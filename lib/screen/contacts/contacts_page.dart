@@ -10,7 +10,6 @@ import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -101,7 +100,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
                   if (c != null && c.uid != null) {
-                    _routingService.openRoom(c.uid!.asString());
+                    _routingService.openRoom(c.uid!);
                   }
                 });
               },
@@ -142,7 +141,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                               return GestureDetector(
                                 onTap: () => c.uid != null
                                     ? _routingService
-                                        .openRoom(c.uid!.asString())
+                                        .openRoom(c.uid!)
                                     : null,
                                 child: ContactWidget(
                                   user: c.toUser(),

@@ -26,7 +26,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/circular_counter_widget.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
@@ -2020,11 +2019,10 @@ class RoomPageState extends State<RoomPage>
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
-      final roomId = "4:${username.substring(1)}";
-      _routingService.openRoom(roomId);
+      _routingService
+          .openRoom(Uid(category: Categories.BOT, node: username.substring(1)));
     } else {
-      final roomId = await _roomRepo.getUidById(username);
-      _routingService.openRoom(roomId);
+      _routingService.openRoom(await _roomRepo.getUidById(username));
     }
   }
 

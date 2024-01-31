@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/forward_widgets/chat_item_to_
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_appbar.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,7 @@ class SelectionToForwardPageState extends State<SelectionToForwardPage> {
 
   void _send(Uid uid) {
     _routingService.openRoom(
-      uid.asString(),
+      uid,
       forwardedMessages: widget.forwardedMessages ?? [],
       popAllBeforePush: true,
       forwardedMeta: widget.metas ?? [],

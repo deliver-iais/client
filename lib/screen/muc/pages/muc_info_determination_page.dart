@@ -368,7 +368,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       _saveSmsBroadcastList(mucUid);
                     }
                     _routingService.openRoom(
-                      mucUid.asString(),
+                      mucUid,
                       popAllBeforePush: true,
                     );
                   } else {

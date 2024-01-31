@@ -168,8 +168,7 @@ class PersistentEventMessage extends StatelessWidget {
             onTap: () {
               if (tuple.item2) {
                 _routingServices.openRoom(
-                  persistentEventMessage.mucSpecificPersistentEvent.issuer
-                      .asString(),
+                  persistentEventMessage.mucSpecificPersistentEvent.issuer,
                 );
               }
             },
@@ -199,8 +198,7 @@ class PersistentEventMessage extends StatelessWidget {
                 ),
               ),
               onTap: () => _routingServices.openRoom(
-                persistentEventMessage.mucSpecificPersistentEvent.assignee
-                    .asString(),
+                persistentEventMessage.mucSpecificPersistentEvent.assignee,
               ),
             ),
           );

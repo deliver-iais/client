@@ -7,7 +7,6 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -32,7 +31,7 @@ class GroupedBannerItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: p8),
       child: GestureDetector(
-        onTap: () => _routingService.openRoom(uid.asString()),
+        onTap: () => _routingService.openRoom(uid),
         child: Column(
           children: [
             const SizedBox(height: p4),
@@ -98,7 +97,7 @@ class GroupedBannerItem extends StatelessWidget {
                   if (snapshot.data != null && !snapshot.data!.deleted) {
                     return OutlinedButton(
                       onPressed: () {
-                        _routingService.openRoom(uid.asString());
+                        _routingService.openRoom(uid);
                       },
                       child: Text(_i18n.get("open")),
                     );
@@ -111,7 +110,7 @@ class GroupedBannerItem extends StatelessWidget {
                           "",
                         );
                         if (res != null) {
-                          _routingService.openRoom(uid.asString());
+                          _routingService.openRoom(uid);
                         }
                       } else if (uid.category == Categories.CHANNEL) {
                         final res = await _mucRepo.joinChannel(
@@ -119,11 +118,11 @@ class GroupedBannerItem extends StatelessWidget {
                           "",
                         );
                         if (res != null) {
-                          _routingService.openRoom(uid.asString());
+                          _routingService.openRoom(uid);
                         }
                       } else if (uid.category == Categories.BOT) {
                         unawaited(_messageRepo.sendTextMessage(uid, "/start"));
-                        _routingService.openRoom(uid.asString());
+                        _routingService.openRoom(uid);
                       }
                     },
                     child: uid.category == Categories.BOT

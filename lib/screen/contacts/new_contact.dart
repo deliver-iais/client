@@ -4,6 +4,7 @@ import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart';
@@ -98,7 +99,7 @@ class NewContactState extends State<NewContact> {
                             ..lastName = _lastName,
                         );
                         if (contactUid != null) {
-                          _routingServices.openRoom(contactUid);
+                          _routingServices.openRoom(contactUid.asUid());
                         } else {
                           showContactNotExistToast();
                         }

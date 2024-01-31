@@ -3,7 +3,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +120,7 @@ class OperationOnImageState extends State<OperationOnMedia> {
           () async {
             final message = await (widget.getMessage());
             if (message != null) {
-              _routingService.openRoom(message.roomUid.asString(),
+              _routingService.openRoom(message.roomUid,
                   initialIndex: message.id,);
             }
           },

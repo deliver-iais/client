@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -92,7 +91,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                   shareUid.uid.category == Categories.CHANNEL)) {
                 final room = await _roomRepo.getRoom(shareUid.uid);
                 if (room != null && !room.deleted) {
-                  _routingServices.openRoom(shareUid.uid.asString());
+                  _routingServices.openRoom(shareUid.uid);
                 } else {
                   await _urlHandlerService.handleJoin(
                     shareUid.uid,
@@ -101,7 +100,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                   );
                 }
               } else {
-                _routingServices.openRoom(shareUid.uid.asString());
+                _routingServices.openRoom(shareUid.uid);
               }
             },
           ),

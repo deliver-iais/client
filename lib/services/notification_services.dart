@@ -125,7 +125,7 @@ abstract class Notifier {
       // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
       modifyRoutingByNotificationTapInBackgroundInAndroid.add(payload.item1);
     } else {
-      GetIt.I.get<RoutingService>().openRoom(payload.item1);
+      GetIt.I.get<RoutingService>().openRoom(payload.item1.asUid());
     }
   }
 
@@ -376,7 +376,7 @@ class WindowsNotifier implements Notifier {
       roomIdToast![message.id!] = toast!;
       toast.eventStream.listen((event) {
         if (event is ActivatedEvent) {
-          _routingService.openRoom(message.roomUid.asString());
+          _routingService.openRoom(message.roomUid);
           DesktopWindow.focus();
         }
         final roomIdToast = toastByRoomId[message.roomUid.node];

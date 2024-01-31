@@ -44,7 +44,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
               widget.uid.asString(),
               clock.now().millisecondsSinceEpoch,
             );
-            _routingService.openRoom(widget.uid.asString());
+            _routingService.openRoom(widget.uid);
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),

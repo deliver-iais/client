@@ -145,7 +145,7 @@ class ChatsPageState extends State<ChatsPage>
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
         _routingService.openRoom(
-          rw.room.uid.asString(),
+          rw.room.uid,
           popAllBeforePush: true,
         );
       },

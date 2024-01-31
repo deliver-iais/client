@@ -13,7 +13,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -241,7 +240,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           );
                           if (usersAddCode == StatusCode.ok) {
                             _routingService.openRoom(
-                              widget.mucUid!.asString(),
+                              widget.mucUid!,
                               popAllBeforePush: true,
                             );
                             // _createMucService.reset();

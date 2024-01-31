@@ -1,11 +1,9 @@
 import 'dart:math';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
-
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -26,6 +24,8 @@ class ConnectionStatus extends StatelessWidget {
   static final _coreService = GetIt.I.get<CoreServices>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _serverLessService = GetIt.I.get<ServerLessService>();
+
+
 
   const ConnectionStatus({required this.normalTitle, super.key});
 
@@ -70,48 +70,81 @@ class ConnectionStatus extends StatelessWidget {
                                   behavior: HitTestBehavior.translucent,
                                   onTap: () {
                                     showDialog(
-                                        context: context,
-                                        builder: (c) => AboutDialog(
-                                              children: [
-                                                Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    ListView.separated(
-                                                      shrinkWrap: true,
-                                                      itemCount:
-                                                          _serverLessService
-                                                              .address.length,
-                                                      itemBuilder: (c, i) {
-                                                        final uid =
-                                                            _serverLessService
-                                                                .address[i]!
-                                                                .asUid();
-                                                        return Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Row(
-                                                            children: [
-                                                              CircleAvatarWidget(
-                                                                uid,
-                                                                20,
-                                                              ),
-                                                              RoomName(
-                                                                uid: uid,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        );
-                                                      },
-                                                      separatorBuilder:
-                                                          (context, index) =>
-                                                              const Divider(),
-                                                    )
-                                                  ],
-                                                )
-                                              ],
-                                            ));
+                                      context: context,
+                                      builder: (c) => AlertDialog(
+                                        title: const Center(
+                                          child: Icon(CupertinoIcons
+                                              .antenna_radiowaves_left_right),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("close"),
+                                          )
+                                        ],
+                                        content: SizedBox(
+                                          height: _serverLessService
+                                                      .address.length <
+                                                  4
+                                              ? _serverLessService
+                                                      .address.length *
+                                                  62
+                                              : 400,
+                                          width: 200,
+                                          child: Directionality(
+                                            textDirection: TextDirection.ltr,
+                                            child: ListView.builder(
+                                              itemCount: _serverLessService
+                                                  .address.length,
+                                              itemBuilder: (c, i) {
+                                                final uid = _serverLessService
+                                                    .address.keys
+                                                    .toList()[i]
+                                                    .asUid();
+                                                return GestureDetector(
+                                                  onTap: (){
+                                                    _routingService.openRoom(uid);
+
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsetsDirectional
+                                                            .all(4),
+                                                    padding:
+                                                        const EdgeInsets.all(5),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                        15,
+                                                      ),
+                                                      border: Border.all(
+                                                        color: theme.focusColor,
+                                                      ),
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        CircleAvatarWidget(
+                                                          uid,
+                                                          20,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 20,
+                                                        ),
+                                                        RoomName(
+                                                          uid: uid,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
                                   },
                                   child: SizedBox(
                                     height: 24,

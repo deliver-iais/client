@@ -9,12 +9,10 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/background_service.dart';
-import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
@@ -201,7 +199,7 @@ class SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(CupertinoIcons.bookmark),
                       onPressed: (context) async {
                         _routingService.openRoom(
-                          _authRepo.currentUserUid.asString(),
+                          _authRepo.currentUserUid,
                           popAllBeforePush: true,
                         );
                       },

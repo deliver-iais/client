@@ -121,7 +121,7 @@ class RoomRepo {
   Future<void> _checkIsVerifiedIfNeeded(
     Uid uid,
   ) async {
-    try{
+    try {
       final nowTime = clock.now().millisecondsSinceEpoch;
       final info = await _getIsVerified(uid);
       if (info?.lastUpdate == null ||
@@ -129,10 +129,10 @@ class RoomRepo {
         final isVerifiedRes = await _fetchIsVerified(uid);
         final expireTime = isVerifiedRes.expireTime.toInt();
         return _updateIsVerified(uid, expireTime);
-    }} catch(_){
+      }
+    } catch (_) {
       _logger.e(_);
     }
-
   }
 
   Future<void> _updateIsVerified(
@@ -171,10 +171,9 @@ class RoomRepo {
     if (uid.isSameEntity(FAKE_USER_UID.asString())) {
       return FAKE_USER_NAME;
     }
-    if(false){
+    if (false) {
       await _checkIsVerifiedIfNeeded(uid);
     }
-
 
     // Is System Id
     if (uid.category == Categories.SYSTEM &&
@@ -587,12 +586,12 @@ class RoomRepo {
     yield searchRooms;
   }
 
-  Future<String> getUidById(String id) async {
+  Future<Uid> getUidById(String id) async {
     final synthesizeId = _extractId(id);
 
     final uid = await _uidIdNameDao.getUidById(synthesizeId);
     if (uid != null) {
-      return uid;
+      return uid.asUid();
     } else {
       final info = await fetchUidById(synthesizeId);
       unawaited(
@@ -601,7 +600,7 @@ class RoomRepo {
           id: synthesizeId,
         ),
       );
-      return info.uid.asString();
+      return info.uid;
     }
   }
 

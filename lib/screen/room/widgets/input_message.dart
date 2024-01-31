@@ -405,7 +405,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                         child: TextButton(
                                           onPressed: () =>
                                               _routingService.openRoom(
-                                            _audioService.recordingRoom,
+                                            _audioService.recordingRoom.asUid(),
                                           ),
                                           // color: theme.colorScheme.primary,
                                           child: Text(

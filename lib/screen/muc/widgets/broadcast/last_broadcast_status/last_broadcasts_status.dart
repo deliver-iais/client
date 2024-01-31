@@ -4,7 +4,6 @@ import 'package:deliver/screen/navigation_center/search/not_result_widget.dart';
 import 'package:deliver/services/broadcast_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/gradiant_circle_progress_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +97,7 @@ class LastBroadcastsStatus extends StatelessWidget {
                             const Spacer(),
                             TextButton(
                               onPressed: () => _routingService.openRoom(
-                                broadcastRoomId.asString(),
+                                broadcastRoomId,
                                 initialIndex:
                                     lastBroadcastStatus.broadcastMessageId,
                               ),

@@ -68,7 +68,7 @@ class _SingleBannerWidgetState extends State<SingleBannerWidget> {
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () => SingleBannerWidget._routingService
-                    .openRoom(widget.bannerCase.uid.asString()),
+                    .openRoom(widget.bannerCase.uid),
                 child: Card(
                   shape: RoundedRectangleBorder(
                     side: BorderSide(

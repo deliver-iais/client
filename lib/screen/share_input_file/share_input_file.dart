@@ -4,7 +4,6 @@ import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/share_box_input_caption.dart';
 import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +79,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
   void pop() {
     if (_selectedRooms.length == 1) {
       _routingServices.openRoom(
-        _selectedRooms.first.asString(),
+        _selectedRooms.first,
         popAllBeforePush: true,
       );
     } else {

@@ -507,11 +507,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
-      final roomId = "4:${username.substring(1)}";
-      _routingServices.openRoom(roomId);
+      final roomUid = "4:${username.substring(1)}";
+      _routingServices.openRoom(roomUid.asUid());
     } else {
-      final roomId = await _roomRepo.getUidById(username);
-      _routingServices.openRoom(roomId);
+      _routingServices.openRoom(await _roomRepo.getUidById(username));
     }
   }
 }

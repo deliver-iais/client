@@ -126,7 +126,8 @@ class BoxContentState extends State<BoxContent> {
                     label: "message details",
                     children: [
                       Debug(widget.message.id, label: "id"),
-                      Debug(widget.message.localNetworkMessageId, label: "localNetworkMessageId"),
+                      Debug(widget.message.localNetworkMessageId,
+                          label: "localNetworkMessageId"),
                       Debug(widget.message.packetId, label: "packetId"),
                       Debug(widget.message.json, label: "json"),
                     ],
@@ -136,7 +137,7 @@ class BoxContentState extends State<BoxContent> {
                 if (!isOnlyEmojiMessage(widget.message) && hasReply())
                   replyToIdBox(showTopPadding: !shouldShowSenderName()),
                 if (isForwarded()) forwardedFromBox(),
-                Container(key: _messageBoxKey, child: messageBox())
+                Container(key: _messageBoxKey, child: messageBox()),
               ],
             ),
           ),
@@ -257,8 +258,7 @@ class BoxContentState extends State<BoxContent> {
                 ],
               ),
               onTap: () {
-                _routingServices
-                    .openRoom(widget.message.forwardedFrom!.asString());
+                _routingServices.openRoom(widget.message.forwardedFrom!);
               },
             ),
           );
@@ -412,7 +412,7 @@ class BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: colorScheme,
         );
-        case MessageType.CALL_LOG:
+      case MessageType.CALL_LOG:
         return CallMessageWidget(
           message: widget.message,
           colorScheme: colorScheme,

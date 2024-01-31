@@ -20,7 +20,6 @@ import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -84,7 +83,7 @@ class NavigationCenterState extends State<NavigationCenter>
     });
     modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
-        _routingService.openRoom(event);
+        _routingService.openRoom(event.asUid());
       }
     });
     _sliverScrollController.addListener(() {

@@ -11,7 +11,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/name.dart';
@@ -132,9 +131,8 @@ class UrlHandlerService {
         if (uri.queryParameters["id"] != null) {
           _routingService.openRoom(
             (Uid.create()
-                  ..node = uri.queryParameters["id"]!
-                  ..category = Categories.USER)
-                .asString(),
+              ..node = uri.queryParameters["id"]!
+              ..category = Categories.USER),
           );
         }
       } else if (segments.first == GROUP_URL) {
@@ -168,10 +166,9 @@ class UrlHandlerService {
   ) async {
     if (node != null) {
       final roomUid = (Uid.create()
-            ..node = node
-            ..category = category)
-          .asString();
-      final muc = await _mucDao.get(roomUid.asUid());
+        ..node = node
+        ..category = category);
+      final muc = await _mucDao.get(roomUid);
       if (muc != null) {
         _routingService.openRoom(
           roomUid,
@@ -184,7 +181,7 @@ class UrlHandlerService {
   }
 
   Future<void> handleLogin(String token) async {
-    _logger.wtf(token);
+    _logger.w(token);
     final verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
@@ -366,9 +363,8 @@ class UrlHandlerService {
     );
     _routingService.openRoom(
       (Uid.create()
-            ..node = botId
-            ..category = Categories.BOT)
-          .asString(),
+        ..node = botId
+        ..category = Categories.BOT),
     );
   }
 
@@ -436,9 +432,8 @@ class UrlHandlerService {
                     navigatorState.pop();
                     _routingService.openRoom(
                       (Uid.create()
-                            ..node = botId
-                            ..category = Categories.BOT)
-                          .asString(),
+                        ..node = botId
+                        ..category = Categories.BOT),
                     );
                   },
                   child: Text(_i18n.get("ok")),
@@ -458,7 +453,7 @@ class UrlHandlerService {
   }) async {
     final room = await _roomRepo.getRoom(roomUid);
     if (room != null && !room.deleted) {
-      _routingService.openRoom(roomUid.asString());
+      _routingService.openRoom(roomUid);
     } else {
       Future.delayed(Duration.zero, () {
         showFloatingModalBottomSheet(
@@ -502,7 +497,7 @@ class UrlHandlerService {
                           );
                           if (res != null) {
                             navigatorState.pop();
-                            _routingService.openRoom(roomUid.asString());
+                            _routingService.openRoom(roomUid);
                           }
                         } else {
                           final res = await _mucRepo.joinChannel(
@@ -511,7 +506,7 @@ class UrlHandlerService {
                           );
                           if (res != null) {
                             navigatorState.pop();
-                            _routingService.openRoom(roomUid.asString());
+                            _routingService.openRoom(roomUid);
                           }
                         }
                       },

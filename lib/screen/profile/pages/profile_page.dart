@@ -506,7 +506,7 @@ class ProfilePageState extends State<ProfilePage>
                   title: _i18n.get("send_message"),
                   leading: const Icon(Icons.message),
                   onPressed: (_) => _routingService.openRoom(
-                    widget.roomUid.asString(),
+                    widget.roomUid,
                     forceToOpenRoom: true,
                   ),
                 ),
@@ -762,7 +762,7 @@ class ProfilePageState extends State<ProfilePage>
                             );
                             if (message != null) {
                               _routingService.openRoom(
-                                widget.roomUid.asString(),
+                                widget.roomUid,
                                 forceToOpenRoom: true,
                                 initialIndex: id,
                               );

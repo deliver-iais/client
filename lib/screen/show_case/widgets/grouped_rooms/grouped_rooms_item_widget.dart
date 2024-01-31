@@ -1,7 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -19,7 +18,7 @@ class GroupedRoomsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _routingService.openRoom(uid.asString()),
+      onTap: () => _routingService.openRoom(uid),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

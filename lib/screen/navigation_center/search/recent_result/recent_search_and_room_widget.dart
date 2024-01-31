@@ -53,7 +53,7 @@ class RecentSearchAndRoomWidget extends StatelessWidget {
                         behavior: HitTestBehavior.translucent,
                         onTap: () {
                           _routingService.openRoom(
-                            recentRooms.data![i].roomId,
+                            recentRooms.data![i].roomId.asUid(),
                           );
                         },
                         child: Stack(

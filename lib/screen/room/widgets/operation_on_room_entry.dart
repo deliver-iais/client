@@ -417,7 +417,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();
                   _routingService.openRoom(
-                    widget.roomUid.asString(),
+                    widget.roomUid,
                   );
                 } else {
                   var message = _i18n.get("error_occurred");
