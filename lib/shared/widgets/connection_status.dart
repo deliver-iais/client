@@ -38,7 +38,6 @@ class ConnectionStatus extends StatelessWidget {
       stream: _messageRepo.updatingStatus.stream,
       builder: (c, status) {
         final state = title(status.data!);
-
         return Column(
           children: [
             const SizedBox(
@@ -50,12 +49,16 @@ class ConnectionStatus extends StatelessWidget {
                 stream: _i18n.localeStream,
                 builder: (context, snapshot) {
                   if (status.data == TitleStatusConditions.Connected) {
-                    return Text(
-                      state,
-                      overflow: TextOverflow.fade,
-                      maxLines: 1,
-                      softWrap: true,
+                    return Row(
                       key: ValueKey(randomString(10)),
+                      children: [
+                        Text(
+                          state,
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: true,
+                        ),
+                      ],
                     );
                   } else {
                     return Obx(
