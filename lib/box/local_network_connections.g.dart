@@ -12,6 +12,7 @@ _$LocalNetworkConnectionsImpl _$$LocalNetworkConnectionsImplFromJson(
       uid: uidFromJson(json['uid'] as String),
       ip: json['ip'] as String,
       lastUpdateTime: json['lastUpdateTime'] as int,
+      backupLocalMessages: json['backupLocalMessages'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$LocalNetworkConnectionsImplToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$$LocalNetworkConnectionsImplToJson(
       'uid': uidToJson(instance.uid),
       'ip': instance.ip,
       'lastUpdateTime': instance.lastUpdateTime,
+      'backupLocalMessages': instance.backupLocalMessages,
     };

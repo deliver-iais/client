@@ -408,9 +408,7 @@ class ServerLessMessageService {
 
     final ip = request.headers.value(IP);
     if (ip != null && message.whichType() == Message_Type.text) {
-      unawaited(
-        _serverLessService.saveIp(uid: message.from.asString(), ip: ip),
-      );
+      _serverLessService.address[message.from.asString()] = ip;
     }
     unawaited(_handleMessage(message));
   }

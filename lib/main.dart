@@ -93,7 +93,7 @@ import 'package:deliver/hive/muc_hive.dart';
 import 'package:deliver/hive/pending_message_hive.dart';
 import 'package:deliver/hive/room_hive.dart';
 import 'package:deliver/hive/uid_id_name_hive.dart';
-import 'package:deliver/isar/dao/local_network_connection_isar_dao.dart';
+import 'package:deliver/hive/dao/local_network_connection_hive_dao.dart';
 import 'package:deliver/isar/dao/pending_message_isar_dao.dart'
     if (dart.library.html) 'package:deliver/hive/dao/pending_message_hive_dao.dart';
 import 'package:deliver/localization/i18n.dart';

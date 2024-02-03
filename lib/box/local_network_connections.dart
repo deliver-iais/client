@@ -12,6 +12,7 @@ class LocalNetworkConnections with _$LocalNetworkConnections {
     @UidJsonKey required Uid uid,
     required String ip,
     required int lastUpdateTime,
+    @Default(true) bool backupLocalMessages,
   }) = _LocalNetworkConnections;
 
   factory LocalNetworkConnections.fromJson(Map<String, Object?> json) =>

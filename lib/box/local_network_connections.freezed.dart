@@ -25,6 +25,7 @@ mixin _$LocalNetworkConnections {
   Uid get uid => throw _privateConstructorUsedError;
   String get ip => throw _privateConstructorUsedError;
   int get lastUpdateTime => throw _privateConstructorUsedError;
+  bool get backupLocalMessages => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -38,7 +39,11 @@ abstract class $LocalNetworkConnectionsCopyWith<$Res> {
           $Res Function(LocalNetworkConnections) then) =
       _$LocalNetworkConnectionsCopyWithImpl<$Res, LocalNetworkConnections>;
   @useResult
-  $Res call({@UidJsonKey Uid uid, String ip, int lastUpdateTime});
+  $Res call(
+      {@UidJsonKey Uid uid,
+      String ip,
+      int lastUpdateTime,
+      bool backupLocalMessages});
 }
 
 /// @nodoc
@@ -58,6 +63,7 @@ class _$LocalNetworkConnectionsCopyWithImpl<$Res,
     Object? uid = null,
     Object? ip = null,
     Object? lastUpdateTime = null,
+    Object? backupLocalMessages = null,
   }) {
     return _then(_value.copyWith(
       uid: null == uid
@@ -72,6 +78,10 @@ class _$LocalNetworkConnectionsCopyWithImpl<$Res,
           ? _value.lastUpdateTime
           : lastUpdateTime // ignore: cast_nullable_to_non_nullable
               as int,
+      backupLocalMessages: null == backupLocalMessages
+          ? _value.backupLocalMessages
+          : backupLocalMessages // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -85,7 +95,11 @@ abstract class _$$LocalNetworkConnectionsImplCopyWith<$Res>
       __$$LocalNetworkConnectionsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@UidJsonKey Uid uid, String ip, int lastUpdateTime});
+  $Res call(
+      {@UidJsonKey Uid uid,
+      String ip,
+      int lastUpdateTime,
+      bool backupLocalMessages});
 }
 
 /// @nodoc
@@ -104,6 +118,7 @@ class __$$LocalNetworkConnectionsImplCopyWithImpl<$Res>
     Object? uid = null,
     Object? ip = null,
     Object? lastUpdateTime = null,
+    Object? backupLocalMessages = null,
   }) {
     return _then(_$LocalNetworkConnectionsImpl(
       uid: null == uid
@@ -118,6 +133,10 @@ class __$$LocalNetworkConnectionsImplCopyWithImpl<$Res>
           ? _value.lastUpdateTime
           : lastUpdateTime // ignore: cast_nullable_to_non_nullable
               as int,
+      backupLocalMessages: null == backupLocalMessages
+          ? _value.backupLocalMessages
+          : backupLocalMessages // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -128,7 +147,8 @@ class _$LocalNetworkConnectionsImpl implements _LocalNetworkConnections {
   const _$LocalNetworkConnectionsImpl(
       {@UidJsonKey required this.uid,
       required this.ip,
-      required this.lastUpdateTime});
+      required this.lastUpdateTime,
+      this.backupLocalMessages = true});
 
   factory _$LocalNetworkConnectionsImpl.fromJson(Map<String, dynamic> json) =>
       _$$LocalNetworkConnectionsImplFromJson(json);
@@ -140,10 +160,13 @@ class _$LocalNetworkConnectionsImpl implements _LocalNetworkConnections {
   final String ip;
   @override
   final int lastUpdateTime;
+  @override
+  @JsonKey()
+  final bool backupLocalMessages;
 
   @override
   String toString() {
-    return 'LocalNetworkConnections(uid: $uid, ip: $ip, lastUpdateTime: $lastUpdateTime)';
+    return 'LocalNetworkConnections(uid: $uid, ip: $ip, lastUpdateTime: $lastUpdateTime, backupLocalMessages: $backupLocalMessages)';
   }
 
   @override
@@ -154,12 +177,15 @@ class _$LocalNetworkConnectionsImpl implements _LocalNetworkConnections {
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.ip, ip) || other.ip == ip) &&
             (identical(other.lastUpdateTime, lastUpdateTime) ||
-                other.lastUpdateTime == lastUpdateTime));
+                other.lastUpdateTime == lastUpdateTime) &&
+            (identical(other.backupLocalMessages, backupLocalMessages) ||
+                other.backupLocalMessages == backupLocalMessages));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, uid, ip, lastUpdateTime);
+  int get hashCode =>
+      Object.hash(runtimeType, uid, ip, lastUpdateTime, backupLocalMessages);
 
   @JsonKey(ignore: true)
   @override
@@ -180,7 +206,8 @@ abstract class _LocalNetworkConnections implements LocalNetworkConnections {
   const factory _LocalNetworkConnections(
       {@UidJsonKey required final Uid uid,
       required final String ip,
-      required final int lastUpdateTime}) = _$LocalNetworkConnectionsImpl;
+      required final int lastUpdateTime,
+      final bool backupLocalMessages}) = _$LocalNetworkConnectionsImpl;
 
   factory _LocalNetworkConnections.fromJson(Map<String, dynamic> json) =
       _$LocalNetworkConnectionsImpl.fromJson;
@@ -192,6 +219,8 @@ abstract class _LocalNetworkConnections implements LocalNetworkConnections {
   String get ip;
   @override
   int get lastUpdateTime;
+  @override
+  bool get backupLocalMessages;
   @override
   @JsonKey(ignore: true)
   _$$LocalNetworkConnectionsImplCopyWith<_$LocalNetworkConnectionsImpl>

@@ -120,12 +120,15 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({Uid? to,}) {
+  void sendBroadCast({
+    Uid? to,
+  }) {
     try {
       _upSocket?.send(
         LocalNetworkInfo(
           from: _authRepo.currentUserUid,
           to: to,
+          backupLocalMessage: settings.backupLocalNetworkMessages.value,
           isSuperNode: settings.isSuperNode.value,
           url: _ip,
         ).writeToBuffer(),
@@ -146,6 +149,7 @@ class ServerLessService {
           LocalNetworkInfo(
             from: _authRepo.currentUserUid,
             url: _ip,
+            backupLocalMessage: settings.backupLocalNetworkMessages.value,
             isSuperNode: settings.isSuperNode.value,
           ).writeToBuffer(),
           url,
@@ -223,7 +227,11 @@ class ServerLessService {
     } else {
       superNodes.remove(info.from.asString());
     }
-    await saveIp(uid: info.from.asString(), ip: info.url);
+    await saveIp(
+      uid: info.from.asString(),
+      ip: info.url,
+      backupLocalMessages: info.backupLocalMessage,
+    );
     unawaited(
       GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
@@ -241,9 +249,9 @@ class ServerLessService {
       if (!registrationReq.from
           .isSameEntity(_authRepo.currentUserUid.asString())) {
         await saveIp(
-          uid: registrationReq.from.asString(),
-          ip: registrationReq.url,
-        );
+            uid: registrationReq.from.asString(),
+            ip: registrationReq.url,
+            backupLocalMessages: registrationReq.backupLocalMessage);
         _logger.i("new address....${registrationReq.url} +??? $_ip");
         unawaited(
           GetIt.I
@@ -299,7 +307,10 @@ class ServerLessService {
     return needToClearConnections;
   }
 
-  Future<void> saveIp({required String uid, required String ip}) async {
+  Future<void> saveIp(
+      {required String uid,
+      required String ip,
+      required bool backupLocalMessages}) async {
     try {
       address[uid] = ip;
       unawaited(
@@ -307,6 +318,7 @@ class ServerLessService {
           LocalNetworkConnections(
             uid: uid.asUid(),
             ip: ip,
+            backupLocalMessages: backupLocalMessages,
             lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
           ),
         ),
