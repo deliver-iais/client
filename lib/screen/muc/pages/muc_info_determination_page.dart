@@ -340,7 +340,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   });
                   final memberUidList = <Uid>[];
                   Uid? mucUid;
-                  final contacts = _createMucService.getContacts();
+                  final contacts = _createMucService.getSelected();
                   for (var i = 0; i < contacts.length; i++) {
                     if (contacts[i].uid != null) {
                       memberUidList.add(
@@ -396,7 +396,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   void _saveSmsBroadcastList(Uid broadcastUid) {
     final smsList =
-        _createMucService.getContacts(useBroadcastSmsContacts: true);
+        _createMucService.getSelected(useBroadcastSmsContacts: true);
     for (final smsMember in smsList) {
       unawaited(
         _mucRepo.saveSmsBroadcastContact(

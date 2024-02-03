@@ -74,19 +74,20 @@ import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/hive/avatar_hive.dart';
 import 'package:deliver/hive/contact_hive.dart';
 import 'package:deliver/hive/current_call_info_hive.dart';
-import  'package:deliver/hive/dao/avatar_hive_dao.dart';
+import 'package:deliver/hive/dao/avatar_hive_dao.dart';
 import 'package:deliver/hive/dao/contact_hive_dao.dart';
 import 'package:deliver/hive/dao/current_call_dao_hive.dart';
-import  'package:deliver/hive/dao/file_info_hive_dao.dart';
+import 'package:deliver/hive/dao/file_info_hive_dao.dart';
 import 'package:deliver/hive/dao/is_verified_hive_dao.dart';
 import 'package:deliver/hive/dao/last_call_status_dao_hive.dart';
-import  'package:deliver/hive/dao/message_hive_dao.dart';
+import 'package:deliver/hive/dao/message_hive_dao.dart';
 import 'package:deliver/hive/dao/muc_hive_dao.dart';
 import 'package:deliver/hive/dao/room_hive_dao.dart';
 import 'package:deliver/hive/dao/uid_id_name_hive_dao.dart';
 import 'package:deliver/hive/file_info_hive.dart';
 import 'package:deliver/hive/is_verified_hive.dart';
 import 'package:deliver/hive/last_call_status_hive.dart';
+import 'package:deliver/hive/local_network_connections_hive.dart';
 import 'package:deliver/hive/member_hive.dart';
 import 'package:deliver/hive/message_hive.dart';
 import 'package:deliver/hive/muc_hive.dart';
@@ -161,6 +162,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -313,6 +315,7 @@ Future<void> dbSetupDI() async {
 
   Hive
     ..registerAdapter(LastActivityAdapter())
+    ..registerAdapter(LocalNetworkConnectionsHiveAdapter())
     ..registerAdapter(ContactHiveAdapter())
     ..registerAdapter(UidIdNameHiveAdapter())
     ..registerAdapter(SeenAdapter())

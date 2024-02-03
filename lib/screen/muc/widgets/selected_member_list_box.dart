@@ -5,6 +5,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
@@ -44,19 +45,11 @@ class SelectedMemberListBox extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                StreamBuilder<int>(
-                  stream: _createMucService.selectedMembersLengthStream(
-                    useBroadcastSmsContacts: useSmsBroadcastList,
+                Obx(
+                  () => buildText(
+                    _createMucService.selected.length,
+                    theme,
                   ),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox.shrink();
-                    }
-                    return Text(
-                      '$title: ${snapshot.data != 0 ? "${snapshot.data} ${_i18n.get("members")}" : ""}',
-                      style: theme.primaryTextTheme.titleSmall,
-                    );
-                  },
                 ),
                 IconButton(
                   onPressed: () => onAddMemberClick(),
@@ -73,15 +66,32 @@ class SelectedMemberListBox extends StatelessWidget {
           ),
           Container(
             constraints: const BoxConstraints(maxHeight: 250),
-            child: StreamBuilder<int>(
-              stream: _createMucService.selectedMembersLengthStream(
-                useBroadcastSmsContacts: useSmsBroadcastList,
-              ),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox.shrink();
-                } else if (snapshot.data == 0) {
-                  return InkWell(
+            child: Obx(() => _createMucService.selected.isNotEmpty
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _createMucService.selected.length,
+                    itemBuilder: (context, index) => ContactWidget(
+                      user: _createMucService.getSelected(
+                        useBroadcastSmsContacts: useSmsBroadcastList,
+                      )[index],
+                      circleIcon: !((categories == MucCategories.BROADCAST &&
+                                  _createMucService.selected.length < 3) ||
+                              (categories == MucCategories.GROUP &&
+                                  _createMucService.selected.length < 2) ||
+                              (categories == MucCategories.CHANNEL &&
+                                  _createMucService.selected.length < 2))
+                          ? Icons.remove_circle_outline
+                          : null,
+                      circleIconColor: Colors.red,
+                      onCircleIcon: () => _createMucService.deleteFromSelected(
+                        _createMucService.getSelected(
+                          useBroadcastSmsContacts: useSmsBroadcastList,
+                        )[index],
+                        useBroadcastSmsContacts: useSmsBroadcastList,
+                      ),
+                    ),
+                  )
+                : InkWell(
                     onTap: () => onAddMemberClick(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -108,40 +118,17 @@ class SelectedMemberListBox extends StatelessWidget {
                         ),
                       ],
                     ),
-                  );
-                }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data,
-                  itemBuilder: (context, index) => ContactWidget(
-                    user: _createMucService.getContacts(
-                      useBroadcastSmsContacts: useSmsBroadcastList,
-                    )[index],
-                    circleIcon: !((categories == MucCategories.BROADCAST &&
-                                snapshot.hasData &&
-                                snapshot.data! < 3) ||
-                            (categories == MucCategories.GROUP &&
-                                snapshot.hasData &&
-                                snapshot.data! < 2) ||
-                            (categories == MucCategories.CHANNEL &&
-                                snapshot.hasData &&
-                                snapshot.data! < 2))
-                        ? Icons.remove_circle_outline
-                        : null,
-                    circleIconColor: Colors.red,
-                    onCircleIcon: () => _createMucService.deleteContact(
-                      _createMucService.getContacts(
-                        useBroadcastSmsContacts: useSmsBroadcastList,
-                      )[index],
-                      useBroadcastSmsContacts: useSmsBroadcastList,
-                    ),
-                  ),
-                );
-              },
-            ),
+                  )),
           ),
         ],
       ),
+    );
+  }
+
+  Text buildText(int size, ThemeData theme) {
+    return Text(
+      '$title: ${"$size ${_i18n.get("members")}"}',
+      style: theme.primaryTextTheme.titleSmall,
     );
   }
 }

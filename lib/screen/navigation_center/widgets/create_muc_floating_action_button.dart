@@ -55,14 +55,6 @@ class _CreateMucFloatingActionButtonState
                     "new_channel",
                     const Icon(Icons.campaign_outlined),
                   ),
-                  if (_serverLessService.superNodes.isNotEmpty)
-                    _buildMenuItems("new_local_group",
-                        const Icon(CupertinoIcons.group_solid),
-                        showServerLessIcon: true),
-                  if (_serverLessService.superNodes.isNotEmpty)
-                    _buildMenuItems("new_local_channel",
-                        const Icon(Icons.campaign_outlined),
-                        showServerLessIcon: true),
                 ],
               ).then((value) => selectChatMenu(value ?? ""));
             },
@@ -79,13 +71,11 @@ class _CreateMucFloatingActionButtonState
         _routingService.openContacts();
         break;
       case "new_group":
-      case "new_local_group":
         _routingService.openMemberSelection(
           categories: MucCategories.GROUP,
         );
         break;
       case "new_channel":
-      case "new_local_channel":
         _routingService.openMemberSelection(
           categories: MucCategories.CHANNEL,
         );

@@ -108,23 +108,18 @@ class ChatsPageState extends State<ChatsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return StreamBuilder<void>(
-      stream: _localNetworkConnectionDao.watchAll(),
-      builder: (context, snapshot) {
-        return AnimatedListView(
-          scrollController: _scrollController,
-          listController: _controller,
-          initialItemCount: _dispatcher.currentList.length,
-          itemBuilder: (context, index, data) =>
-              itemBuilder(context, _dispatcher.currentList[index], data),
-          animator: const DefaultAnimatedListAnimator(
-            dismissIncomingDuration: kDismissOrIncomingAnimationDuration,
-            reorderDuration: kReorderAnimationDuration,
-            resizeDuration: kResizeAnimationDuration,
-            movingDuration: kMovingAnimationDuration,
-          ),
-        );
-      },
+    return AnimatedListView(
+      scrollController: _scrollController,
+      listController: _controller,
+      initialItemCount: _dispatcher.currentList.length,
+      itemBuilder: (context, index, data) =>
+          itemBuilder(context, _dispatcher.currentList[index], data),
+      animator: const DefaultAnimatedListAnimator(
+        dismissIncomingDuration: kDismissOrIncomingAnimationDuration,
+        reorderDuration: kReorderAnimationDuration,
+        resizeDuration: kResizeAnimationDuration,
+        movingDuration: kMovingAnimationDuration,
+      ),
     );
   }
 

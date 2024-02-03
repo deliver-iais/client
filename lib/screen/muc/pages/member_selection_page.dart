@@ -1,4 +1,3 @@
-
 import 'package:deliver/box/member.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/user.dart';
@@ -12,6 +11,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 class MemberSelectionPage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
   @override
   void initState() {
     _lastSelectedMembers.addAll(
-      _createMucService.getContacts(
+      _createMucService.getSelected(
         useBroadcastSmsContacts: widget.useSmsBroadcastList,
       ),
     );
@@ -101,32 +101,12 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
                                 ),
                           style: theme.primaryTextTheme.bodyMedium,
                         ),
-                      StreamBuilder<int>(
-                        stream: _createMucService.selectedMembersLengthStream(
-                          useBroadcastSmsContacts: widget.useSmsBroadcastList,
+                      Obx(
+                        () => _createSelectedMembersSize(
+                          _createMucService.selected.length,
+                          theme,
                         ),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const SizedBox.shrink();
-                          }
-
-                          return FutureBuilder<List<Member>>(
-                            future: widget.mucUid != null
-                                ? _mucRepo.getAllMembers(widget.mucUid!)
-                                : null,
-                            builder: (context, currentMember) {
-                              final members = snapshot.data! +
-                                  (currentMember.data?.length ?? 0);
-                              return Text(
-                                members >= 1
-                                    ? '$members ${_i18n["of"]} ${_createMucService.getMaxMemberLength(widget.categories)}'
-                                    : '${_i18n["up_to"]} ${_createMucService.getMaxMemberLength(widget.categories)} ${_i18n["members"]}',
-                                style: theme.textTheme.labelSmall,
-                              );
-                            },
-                          );
-                        },
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -144,6 +124,23 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
           ),
         ),
       ),
+    );
+  }
+
+  FutureBuilder<List<Member>> _createSelectedMembersSize(
+      int size, ThemeData theme) {
+    return FutureBuilder<List<Member>>(
+      future:
+          widget.mucUid != null ? _mucRepo.getAllMembers(widget.mucUid!) : null,
+      builder: (context, currentMember) {
+        final members = size + (currentMember.data?.length ?? 0);
+        return Text(
+          members >= 1
+              ? '$members ${_i18n["of"]} ${_createMucService.getMaxMemberLength(widget.categories)}'
+              : '${_i18n["up_to"]} ${_createMucService.getMaxMemberLength(widget.categories)} ${_i18n["members"]}',
+          style: theme.textTheme.labelSmall,
+        );
+      },
     );
   }
 
