@@ -110,7 +110,6 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isCallFromNotActiveState = false;
-  bool _sendRingingAnswerOnSynchronousCalls = true;
   bool _isInitRenderer = false;
   bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
@@ -220,6 +219,8 @@ class CallRepo {
             )) {
               _callService.setCallId = event.callEvent!.id;
               _isCaller = false;
+              _sendOfferInSynchronousCalls = true;
+
             }
           }
           _callEvents[callEvent.time.toInt()] = "Created";
@@ -231,26 +232,24 @@ class CallRepo {
             }
 
             if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
-              _cancelTimerResendEvent();
-              _callOfferBody = callEvent.offer.body;
-              _callOfferCandidate = callEvent.offer.candidates;
               if (!isDesktopNative && !_isCallFromDb) {
+                _cancelTimerResendEvent();
+                _callOfferBody = callEvent.offer.body;
+                _callOfferCandidate = callEvent.offer.candidates;
                 _saveOfferOnDB(
                   callEvent.offer.body,
                   callEvent.offer.candidates,
                 );
+                if(inSynchronousCalls) {
+                  await _checkCallOfferIsReady();
+                }
               }
             } else if (callEvent.id != _callService.getCallId) {
               unawaited(_busyCall(event));
             }
           }
           break;
-        case CallEventV2_Type.busy:
-          _callEvents[callEvent.time.toInt()] = "Busy";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedBusyCall(event));
-          }
-          break;
+
         case CallEventV2_Type.ringing:
           if (!from.isSameEntity(currentUserUid)) {
             if (_checkSynchronousCalls(event)) {
@@ -259,13 +258,11 @@ class CallRepo {
                 event.callEvent!.to.node,
               )) {
                 callEvent.id = _callService.getCallId;
-                _sendRingingAnswerOnSynchronousCalls = false;
               } else {
                 _callService.setCallId = event.callEvent!.id;
                 _sendOfferInSynchronousCalls = true;
                 _isCaller = false;
                 _callService.setUserCallState = UserCallState.IN_USER_CALL;
-                _sendOfferInSynchronousCalls = true;
               }
             }  if (!_callService.hasCall &&
                 !callEvent.ringing.fromAnswerSide) {
@@ -288,6 +285,12 @@ class CallRepo {
             } else if (!isCallIdEqualToCurrentCallId(event)) {
                 unawaited(_busyCall(event));
             }
+          }
+          break;
+        case CallEventV2_Type.busy:
+          _callEvents[callEvent.time.toInt()] = "Busy";
+          if (isCallIdEqualToCurrentCallId(event)) {
+            unawaited(receivedBusyCall(event));
           }
           break;
         case CallEventV2_Type.decline:
@@ -1219,9 +1222,8 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTING) {
         callingStatus.add(CallStatus.IS_RINGING);
       }
-      if (_sendRingingAnswerOnSynchronousCalls) {
+
         _sendRinging(fromAnswerSide: true);
-      }
       Timer(const Duration(milliseconds: 400), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
@@ -1305,6 +1307,7 @@ class CallRepo {
     }
   }
 
+
   Future<void> _sendLog(bool isVideo) async {
     if (isVideo) {
       await _analyticsService.sendLogEvent(
@@ -1335,7 +1338,7 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+   // await Future.delayed(const Duration(milliseconds: 500));
     try {
       _cancelTimerResendEvent();
       if (hasVibrationCapability) {
@@ -1437,7 +1440,6 @@ class CallRepo {
     await _setCallCandidate(callAnswer.candidates);
   }
 
-//here we have accepted Call
   Future<void> _receivedCallOffer() async {
     Timer(const Duration(milliseconds: 500), () async {
       await _checkCallOfferIsReady();
@@ -1457,7 +1459,6 @@ class CallRepo {
       await _setCallCandidate(_callOfferCandidate);
       //And Create Answer for Callee
       if (!_reconnectTry) {
-        _answerSdp = await _createAnswer();
         if (_sendOfferInSynchronousCalls) {
           await _calculateCandidateAndSendAnswer();
         }
@@ -1994,7 +1995,6 @@ class CallRepo {
     _callDuration = 0;
     _isCallFromDb = false;
     _notifyIncomingCall = false;
-    _sendRingingAnswerOnSynchronousCalls = true;
     _callOfferBody = "";
     _callOfferCandidate = "";
 

@@ -96,63 +96,63 @@ class CallBottomRowState extends State<CallBottomRow>
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
           child: !isEnable
               ? PopupMenuButton<MediaDevice>(
-                  icon: getEnableIconWithSize(
-                    isEnable: isEnable,
-                    enableIcon: CupertinoIcons.speaker_3,
-                    disableIcon: CupertinoIcons.speaker_1,
+            icon: getEnableIconWithSize(
+              isEnable: isEnable,
+              enableIcon: CupertinoIcons.speaker_3,
+              disableIcon: CupertinoIcons.speaker_1,
+            ),
+            itemBuilder: (context) {
+              return [
+                if (!isDesktopNative)
+                  PopupMenuItem<MediaDevice>(
+                    child: ListTile(
+                      leading: Icon(
+                        CupertinoIcons.speaker_3,
+                        color: isEnable
+                            ? theme.colorScheme.secondary
+                            : theme.colorScheme.primary,
+                      ),
+                      title: Text(
+                        _i18n.get("speaker"),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                    ),
+                    onTap: () => _enableSpeaker(theme),
                   ),
-                  itemBuilder: (context) {
-                    return [
-                      if (!isDesktopNative)
-                        PopupMenuItem<MediaDevice>(
-                          child: ListTile(
-                            leading: Icon(
-                              CupertinoIcons.speaker_3,
-                              color: isEnable
-                                  ? theme.colorScheme.secondary
-                                  : theme.colorScheme.primary,
-                            ),
-                            title: Text(
-                              _i18n.get("speaker"),
-                              style: theme.textTheme.titleSmall,
-                            ),
-                          ),
-                          onTap: () => _enableSpeaker(theme),
+                if (_audioOutputs != null)
+                  ..._audioOutputs!.map((device) {
+                    return PopupMenuItem<MediaDevice>(
+                      value: device,
+                      child: ListTile(
+                        leading: (device.deviceId ==
+                            Hardware.instance.selectedAudioOutput
+                                ?.deviceId)
+                            ? Icon(
+                          CupertinoIcons.check_mark_circled_solid,
+                          color: theme.colorScheme.secondary,
+                        )
+                            : Icon(
+                          CupertinoIcons.circle,
+                          color: theme.colorScheme.primary,
                         ),
-                      if (_audioOutputs != null)
-                        ..._audioOutputs!.map((device) {
-                          return PopupMenuItem<MediaDevice>(
-                            value: device,
-                            child: ListTile(
-                              leading: (device.deviceId ==
-                                      Hardware.instance.selectedAudioOutput
-                                          ?.deviceId)
-                                  ? Icon(
-                                      CupertinoIcons.check_mark_circled_solid,
-                                      color: theme.colorScheme.secondary,
-                                    )
-                                  : Icon(
-                                      CupertinoIcons.circle,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                              title: Text(device.label),
-                            ),
-                            onTap: () => _selectAudioOutput(device),
-                          );
-                        }).toList(),
-                    ];
-                  },
-                )
+                        title: Text(device.label),
+                      ),
+                      onTap: () => _selectAudioOutput(device),
+                    );
+                  }).toList(),
+              ];
+            },
+          )
               : IconButton(
-                  onPressed: () => _enableSpeaker(theme),
-                  hoverColor: theme.colorScheme.primary.withOpacity(0.6),
-                  tooltip: _i18n.get("speaker"),
-                  icon: getEnableIconWithSize(
-                    isEnable: isEnable,
-                    enableIcon: CupertinoIcons.speaker_3,
-                    disableIcon: CupertinoIcons.speaker_1,
-                  ),
-                ),
+            onPressed: () => _enableSpeaker(theme),
+            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
+            tooltip: _i18n.get("speaker"),
+            icon: getEnableIconWithSize(
+              isEnable: isEnable,
+              enableIcon: CupertinoIcons.speaker_3,
+              disableIcon: CupertinoIcons.speaker_1,
+            ),
+          ),
         );
       },
     );
@@ -239,62 +239,62 @@ class CallBottomRowState extends State<CallBottomRow>
           backgroundColor: getEnableBackgroundColor(isEnable: isEnable),
           child: isEnable
               ? PopupMenuButton<MediaDevice>(
-                  icon: getEnableIconWithSize(
-                    isEnable: isEnable,
-                    enableIcon: CupertinoIcons.mic,
-                    disableIcon: CupertinoIcons.mic_off,
+            icon: getEnableIconWithSize(
+              isEnable: isEnable,
+              enableIcon: CupertinoIcons.mic,
+              disableIcon: CupertinoIcons.mic_off,
+            ),
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem<MediaDevice>(
+                  child: ListTile(
+                    leading: Icon(
+                      CupertinoIcons.mic_off,
+                      color: isEnable
+                          ? theme.colorScheme.secondary
+                          : theme.colorScheme.primary,
+                    ),
+                    title: Text(
+                      _i18n.get("mute_call"),
+                      style: theme.textTheme.titleSmall,
+                    ),
                   ),
-                  itemBuilder: (context) {
-                    return [
-                      PopupMenuItem<MediaDevice>(
-                        child: ListTile(
-                          leading: Icon(
-                            CupertinoIcons.mic_off,
-                            color: isEnable
-                                ? theme.colorScheme.secondary
-                                : theme.colorScheme.primary,
-                          ),
-                          title: Text(
-                            _i18n.get("mute_call"),
-                            style: theme.textTheme.titleSmall,
-                          ),
-                        ),
-                        onTap: () => _muteMic(theme),
-                      ),
-                      if (_audioInputs != null)
-                        ..._audioInputs!.map((device) {
-                          return PopupMenuItem<MediaDevice>(
-                            value: device,
-                            child: ListTile(
-                              leading: (device.deviceId ==
-                                      Hardware.instance.selectedAudioInput
-                                          ?.deviceId)
-                                  ? Icon(
-                                      CupertinoIcons.check_mark_circled_solid,
-                                      color: theme.colorScheme.secondary,
-                                    )
-                                  : Icon(
-                                      CupertinoIcons.circle,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                              title: Text(device.label),
-                            ),
-                            onTap: () => _selectAudioInput(device),
-                          );
-                        }).toList()
-                    ];
-                  },
-                )
-              : IconButton(
-                  onPressed: () => _muteMic(theme),
-                  hoverColor: theme.colorScheme.primary.withOpacity(0.6),
-                  tooltip: _i18n.get("mute_call"),
-                  icon: getEnableIconWithSize(
-                    isEnable: isEnable,
-                    enableIcon: CupertinoIcons.mic,
-                    disableIcon: CupertinoIcons.mic_off,
-                  ),
+                  onTap: () => _muteMic(theme),
                 ),
+                if (_audioInputs != null)
+                  ..._audioInputs!.map((device) {
+                    return PopupMenuItem<MediaDevice>(
+                      value: device,
+                      child: ListTile(
+                        leading: (device.deviceId ==
+                            Hardware.instance.selectedAudioInput
+                                ?.deviceId)
+                            ? Icon(
+                          CupertinoIcons.check_mark_circled_solid,
+                          color: theme.colorScheme.secondary,
+                        )
+                            : Icon(
+                          CupertinoIcons.circle,
+                          color: theme.colorScheme.primary,
+                        ),
+                        title: Text(device.label),
+                      ),
+                      onTap: () => _selectAudioInput(device),
+                    );
+                  }).toList()
+              ];
+            },
+          )
+              : IconButton(
+            onPressed: () => _muteMic(theme),
+            hoverColor: theme.colorScheme.primary.withOpacity(0.6),
+            tooltip: _i18n.get("mute_call"),
+            icon: getEnableIconWithSize(
+              isEnable: isEnable,
+              enableIcon: CupertinoIcons.mic,
+              disableIcon: CupertinoIcons.mic_off,
+            ),
+          ),
         ),
       ],
     );
@@ -333,9 +333,9 @@ class CallBottomRowState extends State<CallBottomRow>
       backgroundColor: getEnableBackgroundColor(isEnable: false),
       child: IconButton(
         onPressed: () =>
-            isDesktopDevice ? _desktopDualVideo() : _switchCamera(theme),
+        isDesktopDevice ? _desktopDualVideo() : _switchCamera(theme),
         tooltip:
-            isDesktopDevice ? _i18n.get("screen") : _i18n.get("camera_switch"),
+        isDesktopDevice ? _i18n.get("screen") : _i18n.get("camera_switch"),
         hoverColor: theme.colorScheme.primary.withOpacity(0.6),
         icon: Icon(
           isDesktopDevice ? desktopDualVideoIcon : CupertinoIcons.switch_camera,
