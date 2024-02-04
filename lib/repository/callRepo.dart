@@ -220,7 +220,6 @@ class CallRepo {
               _callService.setCallId = event.callEvent!.id;
               _isCaller = false;
               _sendOfferInSynchronousCalls = true;
-
             }
           }
           _callEvents[callEvent.time.toInt()] = "Created";
