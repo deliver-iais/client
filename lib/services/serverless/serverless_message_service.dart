@@ -38,6 +38,7 @@ import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -495,6 +496,10 @@ class ServerLessMessageService {
         // callLog.end = message.callLog.end;
         // callLog.end.isCaller = false;
         // await (_reSendCallLog(callLog, packetId, callLog.to));
+      } else {
+        if (kDebugMode) {
+          print("received");
+        }
       }
     }
   }
@@ -566,10 +571,16 @@ class ServerLessMessageService {
     final ip =
         await _serverLessService.getIp(callEventV2ByClient.to.asString());
     if (ip != null) {
-      await _serverLessService.sendRequest(
+      final res = await _serverLessService.sendRequest(
         ServerLessPacket(callEvent: callEvent),
         ip,
       );
+      if (res == null || res.statusCode! != HttpStatus.ok) {
+        await _serverLessService.sendRequest(
+          ServerLessPacket(callEvent: callEvent),
+          ip,
+        );
+      }
     }
     unawaited(_processCallLog(callEvent));
   }

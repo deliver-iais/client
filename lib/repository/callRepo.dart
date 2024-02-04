@@ -30,6 +30,7 @@ import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -166,6 +167,7 @@ class CallRepo {
   bool _isNotificationSelected = false;
   bool _isAccepted = false;
   bool _notifyIncomingCall = false;
+  bool _missedCall = true;
   Timer? timer;
   StreamSubscription<PhoneState?>? _phoneStateStream;
 
@@ -202,10 +204,14 @@ class CallRepo {
       final from = callEvent.from.asString();
       final currentUserUid = _authRepo.currentUserUid;
       switch (callEvent.whichType()) {
+
         case CallEventV2_Type.answer:
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
+            if (kDebugMode) {
+              print("BAAAAAAAAAAZ");
+            }
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
             _isAnswerReceived = true;
@@ -289,12 +295,14 @@ class CallRepo {
         case CallEventV2_Type.busy:
           _callEvents[callEvent.time.toInt()] = "Busy";
           if (isCallIdEqualToCurrentCallId(event)) {
+            _missedCall = false;
             unawaited(receivedBusyCall(event));
           }
           break;
         case CallEventV2_Type.decline:
           _callEvents[callEvent.time.toInt()] = "Declined";
           if (isCallIdEqualToCurrentCallId(event)) {
+            _missedCall = false;
             unawaited(receivedDeclinedCall());
           }
           break;
@@ -1437,6 +1445,9 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
+    if (kDebugMode) {
+      print("BOOOOOOOOOOOOZ");
+    }
   }
 
   Future<void> _receivedCallOffer() async {
