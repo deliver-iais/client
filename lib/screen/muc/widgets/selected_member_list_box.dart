@@ -66,59 +66,62 @@ class SelectedMemberListBox extends StatelessWidget {
           ),
           Container(
             constraints: const BoxConstraints(maxHeight: 250),
-            child: Obx(() => _createMucService.selected.isNotEmpty
-                ? ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _createMucService.selected.length,
-                    itemBuilder: (context, index) => ContactWidget(
-                      user: _createMucService.getSelected(
-                        useBroadcastSmsContacts: useSmsBroadcastList,
-                      )[index],
-                      circleIcon: !((categories == MucCategories.BROADCAST &&
-                                  _createMucService.selected.length < 3) ||
-                              (categories == MucCategories.GROUP &&
-                                  _createMucService.selected.length < 2) ||
-                              (categories == MucCategories.CHANNEL &&
-                                  _createMucService.selected.length < 2))
-                          ? Icons.remove_circle_outline
-                          : null,
-                      circleIconColor: Colors.red,
-                      onCircleIcon: () => _createMucService.deleteFromSelected(
-                        _createMucService.getSelected(
+            child: Obx(
+              () => _createMucService.selected.isNotEmpty
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _createMucService.selected.length,
+                      itemBuilder: (context, index) => ContactWidget(
+                        user: _createMucService.getSelected(
                           useBroadcastSmsContacts: useSmsBroadcastList,
                         )[index],
-                        useBroadcastSmsContacts: useSmsBroadcastList,
+                        circleIcon: !((categories == MucCategories.BROADCAST &&
+                                    _createMucService.selected.length < 3) ||
+                                (categories == MucCategories.GROUP &&
+                                    _createMucService.selected.length < 2) ||
+                                (categories == MucCategories.CHANNEL &&
+                                    _createMucService.selected.length < 2))
+                            ? Icons.remove_circle_outline
+                            : null,
+                        circleIconColor: Colors.red,
+                        onCircleIcon: () =>
+                            _createMucService.deleteFromSelected(
+                          _createMucService.getSelected(
+                            useBroadcastSmsContacts: useSmsBroadcastList,
+                          )[index],
+                          useBroadcastSmsContacts: useSmsBroadcastList,
+                        ),
                       ),
-                    ),
-                  )
-                : InkWell(
-                    onTap: () => onAddMemberClick(),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(_i18n.get("add_member")),
-                        SizedBox(
-                          height: 70,
-                          width: 50,
-                          child: Ws.asset(
-                            "assets/animations/touch.ws",
-                            delegates: LottieDelegates(
-                              values: [
-                                ValueDelegate.color(
-                                  const ['**'],
-                                  value: theme.colorScheme.primary,
-                                ),
-                                ValueDelegate.strokeColor(
-                                  const ['**'],
-                                  value: theme.colorScheme.primary,
-                                ),
-                              ],
+                    )
+                  : InkWell(
+                      onTap: () => onAddMemberClick(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(_i18n.get("add_member")),
+                          SizedBox(
+                            height: 70,
+                            width: 50,
+                            child: Ws.asset(
+                              "assets/animations/touch.ws",
+                              delegates: LottieDelegates(
+                                values: [
+                                  ValueDelegate.color(
+                                    const ['**'],
+                                    value: theme.colorScheme.primary,
+                                  ),
+                                  ValueDelegate.strokeColor(
+                                    const ['**'],
+                                    value: theme.colorScheme.primary,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  )),
+            ),
           ),
         ],
       ),

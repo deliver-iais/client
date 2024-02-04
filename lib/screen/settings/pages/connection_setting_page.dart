@@ -12,6 +12,7 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -28,7 +29,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _servicesDiscoveryRepo = GetIt.I.get<ServicesDiscoveryRepo>();
   final TextEditingController _textEditingController = TextEditingController();
-  final BehaviorSubject<bool> _useCustomIp = BehaviorSubject.seeded(false);
+  final _useCustomIp = false.obs;
   final _routingServices = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _webUrlTextController =
@@ -42,7 +43,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
 
   Future<void> _initConnectionData() async {
     final ip = settings.hostSetByUser.value;
-    _useCustomIp.add((ip.isNotEmpty));
+    _useCustomIp.value = ((ip.isNotEmpty));
     _textEditingController.text = ip;
   }
 
@@ -122,7 +123,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               _textEditingController.text = "";
                               _servicesDiscoveryRepo.initClientChannels();
                             }
-                            _useCustomIp.add(newValue);
+                            _useCustomIp.value = newValue;
                             _coreServices.retryConnection(forced: true);
                           },
                         ),
