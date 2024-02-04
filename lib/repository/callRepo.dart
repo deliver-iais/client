@@ -1459,8 +1459,10 @@ class CallRepo {
       await _setCallCandidate(_callOfferCandidate);
       //And Create Answer for Callee
       if (!_reconnectTry) {
-        if (_sendOfferInSynchronousCalls) {
+        if(inSynchronousCalls) {
           await _calculateCandidateAndSendAnswer();
+        } else {
+          _answerSdp = await _createAnswer();
         }
       }
     } else {
