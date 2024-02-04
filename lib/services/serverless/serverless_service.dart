@@ -11,6 +11,7 @@ import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' as g;
@@ -146,14 +147,15 @@ class ServerLessService {
     try {
       unawaited(
         sendRequest(
-          LocalNetworkInfo(
-            from: _authRepo.currentUserUid,
-            url: _ip,
-            backupLocalMessage: settings.backupLocalNetworkMessages.value,
-            isSuperNode: settings.isSuperNode.value,
-          ).writeToBuffer(),
+          ServerLessPacket(
+            localNetworkInfo: LocalNetworkInfo(
+              from: _authRepo.currentUserUid,
+              url: _ip,
+              backupLocalMessage: settings.backupLocalNetworkMessages.value,
+              isSuperNode: settings.isSuperNode.value,
+            ),
+          ),
           url,
-          type: REGISTER,
         ),
       );
     } catch (e) {
@@ -162,22 +164,16 @@ class ServerLessService {
   }
 
   Future<Response?> sendRequest(
-    Uint8List reqData,
-    String url, {
-    String type = MESSAGE,
-    String from = "",
-    String name = "",
-  }) async {
+    ServerLessPacket serverLessPacket,
+    String url,
+  ) async {
     try {
       return _dio.post(
         "http://$url:$SERVER_PORT",
-        data: reqData,
+        data: serverLessPacket.writeToBuffer(),
         options: Options(
           headers: {
-            TYPE: type,
             IP: _ip,
-            MUC_ADD_MEMBER_REQUESTER: from,
-            MUC_NAME: name,
           },
           contentType: ContentType.binary.mimeType,
         ),
@@ -197,14 +193,10 @@ class ServerLessService {
         _httpServer?.listen((request) {
           try {
             final type = request.headers.value(TYPE) ?? MESSAGE;
-            if (type == REGISTER) {
-              unawaited(_processRegister(request));
-            } else if (type == FILE) {
+            if (type == FILE) {
               unawaited(_serverLessFileService.handleSaveFile(request));
             } else {
-              unawaited(
-                GetIt.I.get<ServerLessMessageService>().processRequest(request),
-              );
+              unawaited(_processIncomingReq(request));
             }
           } catch (e) {
             _logger.e(e);
@@ -220,8 +212,29 @@ class ServerLessService {
     sendBroadCast();
   }
 
-  Future<void> _processRegister(HttpRequest request) async {
-    final info = LocalNetworkInfo.fromBuffer(await request.first);
+  Future<void> _processIncomingReq(HttpRequest request) async {
+    try {
+      final serverLessPacket = ServerLessPacket.fromBuffer(await request.first);
+      if (serverLessPacket.hasLocalNetworkInfo()) {
+        await _processRegister(serverLessPacket.localNetworkInfo);
+        await request.response.close();
+      } else {
+        unawaited(
+          GetIt.I
+              .get<ServerLessMessageService>()
+              .processIncomingPacket(serverLessPacket),
+        );
+        request.response.statusCode = HttpStatus.ok;
+        await request.response.close();
+      }
+    } catch (e) {
+      request.response.statusCode = HttpStatus.internalServerError;
+      _logger.e(e);
+      await request.response.close();
+    }
+  }
+
+  Future<void> _processRegister(LocalNetworkInfo info) async {
     if (info.isSuperNode) {
       superNodes.add(info.from.asString());
     } else {
@@ -235,7 +248,6 @@ class ServerLessService {
     unawaited(
       GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
-    await request.response.close();
   }
 
   Future<void> _handleBroadCastMessage(Uint8List data) async {

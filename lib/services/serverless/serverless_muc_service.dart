@@ -7,7 +7,6 @@ import 'package:deliver/box/member.dart' as model;
 import 'package:deliver/box/role.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
@@ -16,6 +15,7 @@ import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
@@ -43,21 +43,22 @@ class ServerLessMucService {
         final ip = await _serverLessService.getIp(member.asString());
         if (ip != null) {
           await _serverLessService.sendRequest(
-            CreateLocalMuc(
-              creator: _authRepo.currentUserUid,
-              uid: groupUid,
-              name: name,
-              members: members.map(
-                (e) => Member(
-                  uid: e,
-                  role: e.asString().isSameEntity(_authRepo.currentUserUid)
-                      ? Role.OWNER
-                      : Role.MEMBER,
+            ServerLessPacket(
+              createLocalMuc: CreateLocalMuc(
+                creator: _authRepo.currentUserUid,
+                uid: groupUid,
+                name: name,
+                members: members.map(
+                  (e) => Member(
+                    uid: e,
+                    role: e.asString().isSameEntity(_authRepo.currentUserUid)
+                        ? Role.OWNER
+                        : Role.MEMBER,
+                  ),
                 ),
               ),
-            ).writeToBuffer(),
+            ),
             ip,
-            type: CREATE_MUC,
           );
         }
       }
@@ -81,18 +82,22 @@ class ServerLessMucService {
         final ip = await _serverLessService.getIp(member.asString());
         if (ip != null) {
           await _serverLessService.sendRequest(
-            CreateLocalMuc(
-              creator: _authRepo.currentUserUid,
-              uid: channelUid,
-              name: name,
-              members: members.map((e) => Member(
-                  uid: e,
-                  role: e.isSameEntity(_authRepo.currentUserUid.asString())
-                      ? Role.OWNER
-                      : Role.MEMBER)),
-            ).writeToBuffer(),
+            ServerLessPacket(
+              createLocalMuc: CreateLocalMuc(
+                creator: _authRepo.currentUserUid,
+                uid: channelUid,
+                name: name,
+                members: members.map(
+                  (e) => Member(
+                    uid: e,
+                    role: e.isSameEntity(_authRepo.currentUserUid.asString())
+                        ? Role.OWNER
+                        : Role.MEMBER,
+                  ),
+                ),
+              ),
+            ),
             ip,
-            type: CREATE_MUC,
           );
         }
       }
@@ -113,11 +118,12 @@ class ServerLessMucService {
       final ip = await _serverLessService.getIp(member.uid.asString());
       if (ip != null) {
         await _serverLessService.sendRequest(
-          addMembersReq.writeToBuffer(),
+          ServerLessPacket(
+            addMembersReq: addMembersReq,
+            name: (await _mucDao.get(mucUid))?.name ?? "",
+            uid: _authRepo.currentUserUid,
+          ),
           ip,
-          type: ADD_MEMBER_TO_MUC,
-          from: _authRepo.currentUserUid.node,
-          name: (await _mucDao.get(mucUid))?.name ?? "",
         );
       }
     }
