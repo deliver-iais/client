@@ -25,8 +25,6 @@ class ConnectionStatus extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _serverLessService = GetIt.I.get<ServerLessService>();
 
-
-
   const ConnectionStatus({required this.normalTitle, super.key});
 
   @override
@@ -104,9 +102,10 @@ class ConnectionStatus extends StatelessWidget {
                                                     .toList()[i]
                                                     .asUid();
                                                 return GestureDetector(
-                                                  onTap: (){
-                                                    _routingService.openRoom(uid);
-
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                    _routingService
+                                                        .openRoom(uid);
                                                   },
                                                   child: Container(
                                                     margin:

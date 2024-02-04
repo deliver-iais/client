@@ -34,6 +34,7 @@ import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -54,7 +55,7 @@ class ServerLessMessageService {
   final _logger = GetIt.I.get<Logger>();
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
   final _rooms = <String, LocalChatRoom>{};
-  final _messagePacketIdes = Set();
+  final _messagePacketIdes = <String>{};
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -134,13 +135,14 @@ class ServerLessMessageService {
     if (ip != null) {
       unawaited(
         _serverLessService.sendRequest(
-          Activity(
-            from: _authRepo.currentUserUid,
-            to: activity.to,
-            typeOfActivity: activity.typeOfActivity,
-          ).writeToBuffer(),
+          ServerLessPacket(
+            activity: Activity(
+              from: _authRepo.currentUserUid,
+              to: activity.to,
+              typeOfActivity: activity.typeOfActivity,
+            ),
+          ),
           ip,
-          type: ACTIVITY,
         ),
       );
     }
@@ -222,8 +224,8 @@ class ServerLessMessageService {
 
   Future<void> _send({required String ip, required Message message}) async {
     try {
-      final res =
-          await _serverLessService.sendRequest(message.writeToBuffer(), ip);
+      final res = await _serverLessService.sendRequest(
+          ServerLessPacket(message: message), ip);
       if (res != null && res.statusCode == HttpStatus.ok) {
         if (!message.edited && !message.hasCallLog()) {
           unawaited(
@@ -274,46 +276,50 @@ class ServerLessMessageService {
   //         //   ),
   //         // );
 
-  Future<void> processRequest(HttpRequest request) async {
+  Future<void> processIncomingPacket(ServerLessPacket serverLessPacket) async {
     try {
-      final type = request.headers.value(TYPE) ?? MESSAGE;
-      if (type == ACK) {
-        unawaited(
-            _handleAck(MessageDeliveryAck.fromBuffer(await request.first)));
-      } else if (type == SEEN) {
-        await _dataStreamService
-            .handleSeen(Seen.fromBuffer(await request.first));
-      } else if (type == MESSAGE) {
-        await _processMessage(request);
-      } else if (type == CREATE_MUC) {
-        await _serverLessMucService.handleCreateMuc(
-          CreateLocalMuc.fromBuffer(await request.first),
-        );
-      } else if (type == ADD_MEMBER_TO_MUC) {
-        await _serverLessMucService.handleAddMember(
-          AddMembersReq.fromBuffer(
-            await request.first,
-          ),
-          from: request.headers.value(MUC_ADD_MEMBER_REQUESTER)!,
-          name: request.headers.value(MUC_NAME)!,
-        );
-      } else if (type == ACTIVITY) {
-        _dataStreamService
-            .handleActivity(Activity.fromBuffer(await request.first));
-      } else if (type == CALL_EVENT) {
-        final callEvents = CallEvents.callEvent(
-          CallEventV2.fromBuffer(await request.first),
-        );
-        _callService
-          ..addCallEvent(callEvents)
-          ..shouldRemoveData = false;
+      switch (serverLessPacket.whichType()) {
+        case ServerLessPacket_Type.messageDeliveryAck:
+          unawaited(
+            _handleAck(serverLessPacket.messageDeliveryAck),
+          );
+          break;
+        case ServerLessPacket_Type.seen:
+          unawaited(_dataStreamService.handleSeen(serverLessPacket.seen));
+          break;
+        case ServerLessPacket_Type.callEvent:
+          final callEvents = CallEvents.callEvent(
+            serverLessPacket.callEvent,
+          );
+          _callService
+            ..addCallEvent(callEvents)
+            ..shouldRemoveData = false;
+          break;
+        case ServerLessPacket_Type.message:
+          await _processMessage(serverLessPacket.message);
+          break;
+        case ServerLessPacket_Type.createLocalMuc:
+          await _serverLessMucService.handleCreateMuc(
+            serverLessPacket.createLocalMuc,
+          );
+          break;
+        case ServerLessPacket_Type.addMembersReq:
+          await _serverLessMucService.handleAddMember(
+            serverLessPacket.addMembersReq,
+            from: serverLessPacket.uid.asString(),
+            name: serverLessPacket.name,
+          );
+          break;
+        case ServerLessPacket_Type.activity:
+          _dataStreamService.handleActivity(serverLessPacket.activity);
+          break;
+        case ServerLessPacket_Type.localNetworkInfo:
+        case ServerLessPacket_Type.notSet:
+          break;
       }
-      request.response.statusCode = HttpStatus.ok;
     } catch (e) {
-      request.response.statusCode = HttpStatus.internalServerError;
       _logger.e(e);
     }
-    await request.response.close();
   }
 
   void removePendingFromCache(String uid, String packetId) {
@@ -377,11 +383,10 @@ class ServerLessMessageService {
   Future<void> _sendSeen(Seen seen) async {
     final ip = await _serverLessService.getIp(seen.to.asString());
     if (ip != null) {
-      await _serverLessService.sendRequest(
-        seen.writeToBuffer(),
+      unawaited(_serverLessService.sendRequest(
+        ServerLessPacket(seen: seen),
         ip,
-        type: SEEN,
-      );
+      ));
     }
   }
 
@@ -403,13 +408,11 @@ class ServerLessMessageService {
     return false;
   }
 
-  Future<void> _processMessage(HttpRequest request) async {
-    final message = Message.fromBuffer(await request.first);
-
-    final ip = request.headers.value(IP);
-    if (ip != null && message.whichType() == Message_Type.text) {
-      _serverLessService.address[message.from.asString()] = ip;
-    }
+  Future<void> _processMessage(Message message) async {
+    // final ip = request.headers.value(IP);
+    // if (ip != null && message.whichType() == Message_Type.text) {
+    //   _serverLessService.address[message.from.asString()] = ip;
+    // }
     unawaited(_handleMessage(message));
   }
 
@@ -531,11 +534,10 @@ class ServerLessMessageService {
   Future<void> _sendAck(MessageDeliveryAck ack) async {
     final ip = await _serverLessService.getIp(ack.to.asString());
     if (ip != null) {
-      await _serverLessService.sendRequest(
-        ack.writeToBuffer(),
+      unawaited(_serverLessService.sendRequest(
+        ServerLessPacket(messageDeliveryAck: ack),
         ip,
-        type: ACK,
-      );
+      ));
     }
   }
 
@@ -565,9 +567,8 @@ class ServerLessMessageService {
         await _serverLessService.getIp(callEventV2ByClient.to.asString());
     if (ip != null) {
       await _serverLessService.sendRequest(
-        callEvent.writeToBuffer(),
+        ServerLessPacket(callEvent: callEvent),
         ip,
-        type: CALL_EVENT,
       );
     }
     unawaited(_processCallLog(callEvent));
