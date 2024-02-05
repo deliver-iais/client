@@ -1,16 +1,110 @@
 import 'dart:async';
+import 'dart:io' as io;
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:deliver/cache/file_cache.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:logger/logger.dart';
 
 class ServerLessFileService {
   final _logger = GetIt.I.get<Logger>();
+  final _fileService = GetIt.I.get<FileService>();
+  final _fileCache = GetIt.I.get<FileInfoCache>();
+
+  Future<file_pb.File?> buildMessageFile({
+    required Uid uid,
+    required String name,
+    required String path,
+    required String uploadKey,
+    bool isVoice = false,
+  }) async {
+    var audioWaveform0 = file_pb.AudioWaveform();
+    if (await GetIt.I.get<ServerLessFileService>().sendFile(
+          name: name,
+          filePath: path,
+          uuid: uploadKey,
+          receiverIp: GetIt.I.get<ServerLessService>().address[uid.asString()]!,
+        )) {
+      if (isVoice) {
+        audioWaveform0 = file_pb.AudioWaveform(data: [0]);
+      }
+      var duration = 0.0;
+      var tempDimension = Size.zero;
+      try {
+        final tempType = detectFileMimeByFileModel(model.File(path, name));
+        if (isImageFileType(tempType)) {
+          tempDimension = getImageDimension(path);
+          if (tempDimension == Size.zero) {
+            tempDimension =
+                const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
+          }
+        } else if (isVideoFileType(tempType)) {
+          final info = await getVideoInfo(path);
+          if (info != null) {
+            tempDimension = Size(info.width!, info.height!);
+            duration = info.duration! / 1000;
+          }
+          audioWaveform0 = file_pb.AudioWaveform(
+            data: [tempDimension.width, tempDimension.height].map((e) => e),
+          );
+        }
+      } catch (e) {
+        _logger.e("Error in fetching fake file dimensions", error: e);
+      }
+      final size = await io.File(path).length();
+      await _updateFileInfoWithRealUuid(uploadKey, uploadKey, name);
+      return file_pb.File(
+        uuid: uploadKey,
+        name: getFileName(name),
+        audioWaveform: audioWaveform0,
+        width: tempDimension.width,
+        height: tempDimension.height,
+        duration: duration,
+        isLocal: true,
+        size: Int64(size),
+        hash: "hash",
+        type: detectFileMimeByFileModel(model.File(path, name)),
+        sign: DateTime.now().millisecondsSinceEpoch.toString(),
+      );
+    }
+    return null;
+  }
+
+  Future<void> _updateFileInfoWithRealUuid(
+    String uploadKey,
+    String uuid,
+    String name,
+  ) async {
+    final real = await _fileCache.getFilePath("real", uploadKey);
+
+    if (real != null) {
+      await _fileCache.updateFileInfoUuid(uploadKey, uuid, name, "real", real);
+    }
+    final medium = await _fileCache.getFilePath("medium", uploadKey);
+    if (medium != null) {
+      await _fileCache.updateFileInfoUuid(
+        uploadKey,
+        uuid,
+        name,
+        "medium",
+        medium,
+      );
+    }
+  }
 
   Future<bool> sendFile({
     required String filePath,
@@ -92,6 +186,24 @@ class ServerLessFileService {
       _logger.e(e);
     }
   }
+
+  Future<void> uploadLocalNetworkFile(List<file_pb.File> files) async {
+    for (final file in files) {
+      try {
+        final path = await _fileCache.getFilePath('real', file.uuid);
+        if (path != null) {
+          await _fileService.uploadLocalNetworkFile(
+            filePath: path,
+            uuid: file.uuid,
+            filename: file.name,
+            isVoice: false,
+          );
+        }
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+  }
 }
 
 class MultipartRequest extends http.MultipartRequest {
@@ -101,12 +213,10 @@ class MultipartRequest extends http.MultipartRequest {
     required this.onProgress,
   });
 
-
   final void Function(int bytes, int totalBytes) onProgress;
 
   @override
   http.ByteStream finalize() {
-
     final byteStream = super.finalize();
 
     final total = contentLength;

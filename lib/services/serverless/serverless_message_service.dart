@@ -400,23 +400,6 @@ class ServerLessMessageService {
     }
   }
 
-  Future<bool> sendFile({
-    required String filePath,
-    required Uid to,
-    required String filename,
-    required String uuid,
-  }) async {
-    final ip = await _serverLessService.getIp(to.asString());
-    if (ip != null) {
-      return _serverLessFileService.sendFile(
-        filePath: filePath,
-        receiverIp: ip,
-        uuid: uuid,
-        name: filename,
-      );
-    }
-    return false;
-  }
 
   Future<void> processMessage(Message message) async {
     unawaited(_handleMessage(message));

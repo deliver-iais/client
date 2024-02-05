@@ -35,6 +35,8 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/serverless/serverless_constance.dart';
+import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -121,6 +123,7 @@ class MessageRepo {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _severLessFileService = GetIt.I.get<ServerLessFileService>();
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
@@ -801,23 +804,29 @@ class MessageRepo {
 
     await _savePendingMessage(pm);
 
-    final m = await _sendFileToServerOfPendingMessage(
-      pm,
-      isVoice: file.isVoice ?? false,
-    );
-    if (m != null &&
-        m.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
-        _fileOfMessageIsValid(m.msg.json.toFile())) {
-      _sendMessageToServer(m);
-    } else if (m != null) {
-      try {
-        ToastDisplay.showToast(
-          toastText: _i18n.get("error_occurred"),
-        );
-      } catch (e) {
-        _logger.e(e);
+    if (pm.roomUid.asString().contains(LOCAL_MUC_ID)) {
+      _sendMessageToServer(
+        pm.copyWith.call(status: SendingStatus.UPLOAD_FILE_COMPLETED),
+      );
+    } else {
+      final m = await _sendFileToServerOfPendingMessage(
+        pm,
+        isVoice: file.isVoice ?? false,
+      );
+      if (m != null &&
+          m.status == SendingStatus.UPLOAD_FILE_COMPLETED &&
+          _fileOfMessageIsValid(m.msg.json.toFile())) {
+        _sendMessageToServer(m);
+      } else if (m != null) {
+        try {
+          ToastDisplay.showToast(
+            toastText: _i18n.get("error_occurred"),
+          );
+        } catch (e) {
+          _logger.e(e);
+        }
+        return _pendingMessageDao.savePendingMessage(m);
       }
-      return _pendingMessageDao.savePendingMessage(m);
     }
   }
 
@@ -1909,7 +1918,7 @@ class MessageRepo {
         );
         if (res.messagesSize > 0) {
           unawaited(
-            _fileRepo.uploadLocalNetworkFile(
+            _severLessFileService.uploadLocalNetworkFile(
               localMessages
                   .where((e) => e.type == MessageType.FILE)
                   .map((e) => e.json.toFile())

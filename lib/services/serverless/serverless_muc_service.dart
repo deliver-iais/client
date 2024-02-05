@@ -6,6 +6,7 @@ import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart' as model;
 import 'package:deliver/box/role.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -15,6 +16,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -32,6 +34,7 @@ class ServerLessMucService {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   Future<Uid?> createGroup({
     required String name,
@@ -71,11 +74,7 @@ class ServerLessMucService {
               ),
               proxyMessage: true,
             ),
-            _serverLessService.address[_serverLessService.superNodes
-                .where(
-                  (element) => element != _authRepo.currentUserUid.asString(),
-                )
-                .first]!,
+            _serverLessService.getSuperNodeIp()!,
           ),
         );
       }
@@ -125,10 +124,7 @@ class ServerLessMucService {
               ),
               proxyMessage: true,
             ),
-            _serverLessService.address[_serverLessService.superNodes
-                .where(
-                    (element) => element != _authRepo.currentUserUid.asString())
-                .first]!,
+            _serverLessService.getSuperNodeIp()!,
           ),
         );
       }
@@ -325,15 +321,21 @@ class ServerLessMucService {
       if (settings.isSuperNode.value) {
         unawaited(sendMessageToMucUsers(message));
       } else {
-        final ip = _serverLessService.getSuperNodeIp();
-        if (ip != null) {
+        final uid = _serverLessService.getSuperNode();
+        if (uid != null) {
+          if (message.hasFile()) {
+            final fileInfo = await _sendFileToMucMember(message, uid);
+            if (fileInfo != null) {
+              message.file = fileInfo;
+            }
+          }
           unawaited(
             _serverLessService.sendRequest(
               ServerLessPacket(
                 proxyMessage: true,
                 message: message,
               ),
-              ip,
+              _serverLessService.address[uid.asString()]!,
             ),
           );
         }
@@ -346,26 +348,52 @@ class ServerLessMucService {
   Future<void> sendMessageToMucUsers(Message message) async {
     try {
       for (final member in await _mucDao.getAllMembers(message.to)) {
-        if (member.memberUid
-                .isSameEntity(_authRepo.currentUserUid.asString()) &&
-            !message.from.isSameEntity(_authRepo.currentUserUid.asString())) {
-          unawaited(
-            GetIt.I.get<ServerLessMessageService>().processMessage(message),
-          );
-        } else {
-          final ip = _serverLessService.address[member.memberUid.asString()];
-          if (ip != null) {
+        if (!member.memberUid.isSameEntity(message.from.asString())) {
+          if (member.memberUid
+              .isSameEntity(_authRepo.currentUserUid.asString())) {
             unawaited(
-              _serverLessService.sendRequest(
-                ServerLessPacket(message: message),
-                ip,
-              ),
+              GetIt.I.get<ServerLessMessageService>().processMessage(message),
             );
+          } else {
+            if (message.hasFile()) {
+              final fileInfo =
+                  await _sendFileToMucMember(message, member.memberUid);
+              if (fileInfo != null) {
+                _sendMessageToMember(member, message..file = fileInfo);
+              }
+            }
+            if (message.hasText()) {
+              _sendMessageToMember(member, message);
+            }
           }
         }
       }
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  Future<File?> _sendFileToMucMember(Message message, Uid uid) async {
+    final info = message.file;
+    final fileInfo = await _fileRepo.uploadClonedFile(
+      info.uuid,
+      info.name,
+      uid: uid,
+      isVoice: info.isVoice,
+      packetIds: [message.packetId],
+    );
+    return fileInfo;
+  }
+
+  void _sendMessageToMember(model.Member member, Message message) {
+    final ip = _serverLessService.address[member.memberUid.asString()];
+    if (ip != null) {
+      unawaited(
+        _serverLessService.sendRequest(
+          ServerLessPacket(message: message),
+          ip,
+        ),
+      );
     }
   }
 }

@@ -85,6 +85,20 @@ class ServerLessService {
     }
   }
 
+  Uid? getSuperNode() {
+    try {
+      if (superNodes.isEmpty) {
+        return null;
+      }
+      return superNodes
+          .where((element) => element != _authRepo.currentUserUid.asString())
+          .first
+          .asUid();
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> restart() async {
     await _dispose();
     _start();

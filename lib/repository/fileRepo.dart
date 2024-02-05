@@ -7,26 +7,22 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/services/serverless/serverless_message_service.dart';
+import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:logger/logger.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -64,60 +60,14 @@ class FileRepo {
         uploadKey,
         convertToDataByteInWeb: true,
       );
-
-      if (uid != null &&  GetIt.I.get<ServerLessService>().inLocalNetwork(uid)) {
-        var audioWaveform0 = file_pb.AudioWaveform();
-        if (await GetIt.I.get<ServerLessMessageService>().sendFile(
-              filename: name,
-              filePath: clonedFilePath!,
-              uuid: uploadKey,
-              to: uid,
-            )) {
-          if (isVoice) {
-            audioWaveform0 = file_pb.AudioWaveform(data: [0]);
-          }
-          var duration = 0.0;
-          var tempDimension = Size.zero;
-          try {
-            final tempType =
-                detectFileMimeByFileModel(model.File(clonedFilePath, name));
-            if (isImageFileType(tempType)) {
-              tempDimension = getImageDimension(clonedFilePath);
-              if (tempDimension == Size.zero) {
-                tempDimension =
-                    const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
-              }
-            } else if (isVideoFileType(tempType)) {
-              final info = await getVideoInfo(clonedFilePath);
-              if (info != null) {
-                tempDimension = Size(info.width!, info.height!);
-                duration = info.duration! / 1000;
-              }
-              audioWaveform0 = file_pb.AudioWaveform(
-                data: [tempDimension.width, tempDimension.height].map((e) => e),
-              );
-            }
-          } catch (e) {
-            _logger.e("Error in fetching fake file dimensions", error: e);
-          }
-          final size = await io.File(clonedFilePath).length();
-          await _updateFileInfoWithRealUuid(uploadKey, uploadKey, name);
-          return file_pb.File(
-            uuid: uploadKey,
-            name: getFileName(name),
-            audioWaveform: audioWaveform0,
-            width: tempDimension.width,
-            height: tempDimension.height,
-            duration: duration,
-            isLocal: true,
-            size: Int64(size),
-            hash: "hash",
-            type: detectFileMimeByFileModel(model.File(clonedFilePath, name)),
-            sign: DateTime.now().millisecondsSinceEpoch.toString(),
-          );
-        }
-
-        return null;
+      if (uid != null && GetIt.I.get<ServerLessService>().inLocalNetwork(uid)) {
+        return GetIt.I.get<ServerLessFileService>().buildMessageFile(
+              name: name,
+              path: clonedFilePath!,
+              uid: uid,
+              uploadKey: uploadKey,
+              isVoice: isVoice,
+            );
       } else {
         Response? value;
         try {
@@ -459,21 +409,4 @@ class FileRepo {
     Pasteboard.writeFiles([path]);
   }
 
-  Future<void> uploadLocalNetworkFile(List<File> files) async {
-    for (final file in files) {
-      try {
-        final path = await _fileCache.getFilePath('real', file.uuid);
-        if (path != null) {
-          await _fileService.uploadLocalNetworkFile(
-            filePath: path,
-            uuid: file.uuid,
-            filename: file.name,
-            isVoice: false,
-          );
-        }
-      } catch (e) {
-        _logger.e(e);
-      }
-    }
-  }
 }
