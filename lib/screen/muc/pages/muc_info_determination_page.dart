@@ -132,7 +132,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     const SizedBox(
                       height: 5,
                     ),
-                    if (true || _serverLessService.superNodes.isNotEmpty)
+                    if (_serverLessService.superNodes.isNotEmpty)
                       Container(
                           decoration: BoxDecoration(
                             border: Border.all(

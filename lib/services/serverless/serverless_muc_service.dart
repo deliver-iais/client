@@ -45,7 +45,7 @@ class ServerLessMucService {
       final node =
           "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
       final groupUid = Uid(node: node, category: Categories.GROUP);
-      if (settings.isSuperNode.value) {
+      if (true || settings.isSuperNode.value) {
         for (final member in members) {
           final ip = await _serverLessService.getIp(member.asString());
           if (ip != null) {
