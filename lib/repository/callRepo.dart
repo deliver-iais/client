@@ -30,7 +30,6 @@ import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -204,14 +203,10 @@ class CallRepo {
       final from = callEvent.from.asString();
       final currentUserUid = _authRepo.currentUserUid;
       switch (callEvent.whichType()) {
-
         case CallEventV2_Type.answer:
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
-            if (kDebugMode) {
-              print("BAAAAAAAAAAZ");
-            }
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
             _isAnswerReceived = true;
@@ -245,7 +240,7 @@ class CallRepo {
                   callEvent.offer.body,
                   callEvent.offer.candidates,
                 );
-                if(inSynchronousCalls) {
+                if (inSynchronousCalls) {
                   await _checkCallOfferIsReady();
                 }
               }
@@ -269,8 +264,8 @@ class CallRepo {
                 _isCaller = false;
                 _callService.setUserCallState = UserCallState.IN_USER_CALL;
               }
-            }  if (!_callService.hasCall &&
-                !callEvent.ringing.fromAnswerSide) {
+            }
+            if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
               _logger.i(
                 "-----------------------------------${_callService.getUserCallState}",
               );
@@ -288,7 +283,7 @@ class CallRepo {
                 _logger.e(e);
               }
             } else if (!isCallIdEqualToCurrentCallId(event)) {
-                unawaited(_busyCall(event));
+              unawaited(_busyCall(event));
             }
           }
           break;
@@ -404,7 +399,7 @@ class CallRepo {
 
     _isVideo = callEvent.isVideo;
     // this if statement is used to check if user peak up the phone (probably)
-    if (_isAccepted ) {
+    if (_isAccepted) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
           roomId: _roomUid!.asString(),
@@ -1230,7 +1225,7 @@ class CallRepo {
         callingStatus.add(CallStatus.IS_RINGING);
       }
 
-        _sendRinging(fromAnswerSide: true);
+      _sendRinging(fromAnswerSide: true);
       Timer(const Duration(milliseconds: 400), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
@@ -1314,7 +1309,6 @@ class CallRepo {
     }
   }
 
-
   Future<void> _sendLog(bool isVideo) async {
     if (isVideo) {
       await _analyticsService.sendLogEvent(
@@ -1345,7 +1339,7 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
-   // await Future.delayed(const Duration(milliseconds: 500));
+    // await Future.delayed(const Duration(milliseconds: 500));
     try {
       _cancelTimerResendEvent();
       if (hasVibrationCapability) {
@@ -1445,9 +1439,6 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
-    if (kDebugMode) {
-      print("BOOOOOOOOOOOOZ");
-    }
   }
 
   Future<void> _receivedCallOffer() async {
@@ -1459,7 +1450,7 @@ class CallRepo {
   Future<void> _checkCallOfferIsReady() async {
     if (_callOfferIsReady()) {
       //set Remote Descriptions and Candidate
-      if(_sendOfferInSynchronousCalls) {
+      if (_sendOfferInSynchronousCalls) {
         await _peerConnection?.close();
         await _peerConnection?.dispose();
         _peerConnection = null;
@@ -1469,7 +1460,7 @@ class CallRepo {
       await _setCallCandidate(_callOfferCandidate);
       //And Create Answer for Callee
       if (!_reconnectTry) {
-        if(inSynchronousCalls) {
+        if (inSynchronousCalls) {
           await _calculateCandidateAndSendAnswer();
         } else {
           _answerSdp = await _createAnswer();
@@ -1498,7 +1489,7 @@ class CallRepo {
   Future<void> receivedBusyCall(CallEvents event) async {
     callingStatus.add(CallStatus.BUSY);
     await _callService.saveCallStatusData();
-    if(event.callEvent!.from == _authRepo.currentUserUid) {
+    if (event.callEvent!.from == _authRepo.currentUserUid) {
       await _dispose();
     }
   }
@@ -1609,7 +1600,6 @@ class CallRepo {
 
   // this function use instead of RTCPeerConnection.createOffer()
   Future<String> _createOffer() async {
-
     final description = await _peerConnection!
         .createOffer(CallUtils.getSdpConstraints(isVideo: _isVideo));
     //get SDP as String
@@ -1704,18 +1694,7 @@ class CallRepo {
   }
 
   void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
-    if (GetIt.I
-        .get<ServerLessService>()
-        .inLocalNetwork(callEventV2ByClient.to)) {
-      Timer(const Duration(milliseconds: 1000), () {
-        if (callingStatus.value == CallStatus.IS_RINGING) {
-          _coreServices.sendCallEvent(callEventV2ByClient);
-          _sendCallOffer(callEventV2ByClient);
-        }
-      });
-    } else {
-      _coreServices.sendCallEvent(callEventV2ByClient);
-    }
+    _coreServices.sendCallEvent(callEventV2ByClient);
   }
 
   void _sendRinging({
@@ -1735,8 +1714,7 @@ class CallRepo {
 
   void _sendBusy(CallEvents? event) {
     //Send Busy
-    final callEventBusy = (CallEventBusy()
-      ..isCaller = _isCaller);
+    final callEventBusy = (CallEventBusy()..isCaller = _isCaller);
 
     final callEventV2ByClient = (CallEventV2ByClient()
       ..id = _callService.getCallId
@@ -1750,8 +1728,7 @@ class CallRepo {
 
   void _sendDeclined() {
     //Send Declined
-    final callEventDecline = (CallEventDecline()
-      ..isCaller = _isCaller);
+    final callEventDecline = (CallEventDecline()..isCaller = _isCaller);
 
     final callEventV2ByClient = (CallEventV2ByClient()
       ..id = _callService.getCallId
@@ -1769,7 +1746,8 @@ class CallRepo {
       ..id = _callService.getCallId
       ..to = _roomUid!
       ..isVideo = _isVideo
-      ..end = CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
+      ..end =
+          CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
     // _checkRetryCallEvent(callEventV2ByClient);
@@ -2164,9 +2142,9 @@ class CallRepo {
   }
 
   void openCallScreen(
-      Uid room, {
-        bool isVideoCall = false,
-      }) {
+    Uid room, {
+    bool isVideoCall = false,
+  }) {
     if (!_callService.hasCall) {
       _routingService.openCallScreen(
         room,

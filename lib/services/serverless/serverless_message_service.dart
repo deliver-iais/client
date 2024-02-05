@@ -298,7 +298,8 @@ class ServerLessMessageService {
           break;
         case ServerLessPacket_Type.message:
           if (serverLessPacket.proxyMessage) {
-            await _serverLessMucService.sendMessageToMucUsers(serverLessPacket.message);
+            await _serverLessMucService
+                .sendMessageToMucUsers(serverLessPacket.message);
           } else {
             await _processMessage(serverLessPacket.message);
           }
@@ -577,18 +578,27 @@ class ServerLessMessageService {
     final ip =
         await _serverLessService.getIp(callEventV2ByClient.to.asString());
     if (ip != null) {
-      final res = await _serverLessService.sendRequest(
-        ServerLessPacket(callEvent: callEvent),
-        ip,
-      );
-      if (res == null || res.statusCode! != HttpStatus.ok) {
-        await _serverLessService.sendRequest(
-          ServerLessPacket(callEvent: callEvent),
-          ip,
-        );
-      }
+      unawaited(_sendCallEventReq(callEvent, ip));
     }
     unawaited(_processCallLog(callEvent));
+  }
+
+  Future<void> _sendCallEventReq(
+    call_pb.CallEventV2 callEvent,
+    String ip, {
+    int maxTry = 3,
+  }) async {
+    final res = await _serverLessService.sendRequest(
+      ServerLessPacket(callEvent: callEvent),
+      ip,
+    );
+    if (maxTry > 0 && (res == null || res.statusCode! != HttpStatus.ok)) {
+      if (maxTry > 0) {
+        Timer(const Duration(milliseconds: 400), () {
+          _sendCallEventReq(callEvent, ip, maxTry: maxTry - 1);
+        });
+      }
+    }
   }
 
   Future<void> _processCallLog(CallEventV2 callEvent) async {
