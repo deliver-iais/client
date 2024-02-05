@@ -3,7 +3,6 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:deliver/box/dao/message_dao.dart';
-import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/message_type.dart';
@@ -304,7 +303,7 @@ class ServerLessMessageService {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);
           } else {
-            await _processMessage(serverLessPacket.message);
+            await processMessage(serverLessPacket.message);
           }
 
           break;
@@ -419,11 +418,7 @@ class ServerLessMessageService {
     return false;
   }
 
-  Future<void> _processMessage(Message message) async {
-    // final ip = request.headers.value(IP);
-    // if (ip != null && message.whichType() == Message_Type.text) {
-    //   _serverLessService.address[message.from.asString()] = ip;
-    // }
+  Future<void> processMessage(Message message) async {
     unawaited(_handleMessage(message));
   }
 

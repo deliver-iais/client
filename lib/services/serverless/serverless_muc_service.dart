@@ -8,6 +8,7 @@ import 'package:deliver/box/role.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
+import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -345,12 +346,23 @@ class ServerLessMucService {
   Future<void> sendMessageToMucUsers(Message message) async {
     try {
       for (final member in await _mucDao.getAllMembers(message.to)) {
-        unawaited(
-          _serverLessService.sendRequest(
-            ServerLessPacket(message: message),
-            _serverLessService.address[member.memberUid.asString()]!,
-          ),
-        );
+        if (member.memberUid
+                .isSameEntity(_authRepo.currentUserUid.asString()) &&
+            !message.from.isSameEntity(_authRepo.currentUserUid.asString())) {
+          unawaited(
+            GetIt.I.get<ServerLessMessageService>().processMessage(message),
+          );
+        } else {
+          final ip = _serverLessService.address[member.memberUid.asString()];
+          if (ip != null) {
+            unawaited(
+              _serverLessService.sendRequest(
+                ServerLessPacket(message: message),
+                ip,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       _logger.e(e);
