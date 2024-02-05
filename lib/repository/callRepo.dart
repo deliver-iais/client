@@ -30,6 +30,7 @@ import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -110,7 +111,6 @@ class CallRepo {
   bool _isCallInitiated = false;
   bool _isCallFromDb = false;
   bool _isCallFromNotActiveState = false;
-  bool _sendRingingAnswerOnSynchronousCalls = true;
   bool _isInitRenderer = false;
   bool _isAudioToggleOnCall = false;
   Uid? _roomUid;
@@ -167,6 +167,7 @@ class CallRepo {
   bool _isNotificationSelected = false;
   bool _isAccepted = false;
   bool _notifyIncomingCall = false;
+  bool _missedCall = true;
   Timer? timer;
   StreamSubscription<PhoneState?>? _phoneStateStream;
 
@@ -203,10 +204,14 @@ class CallRepo {
       final from = callEvent.from.asString();
       final currentUserUid = _authRepo.currentUserUid;
       switch (callEvent.whichType()) {
+
         case CallEventV2_Type.answer:
           if (from.isSameEntity(currentUserUid)) {
             unawaited(_dispose());
           } else if (!_isAnswerReceived) {
+            if (kDebugMode) {
+              print("BAAAAAAAAAAZ");
+            }
             unawaited(_receivedCallAnswer(callEvent.answer));
             _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
             _isAnswerReceived = true;
@@ -220,6 +225,7 @@ class CallRepo {
             )) {
               _callService.setCallId = event.callEvent!.id;
               _isCaller = false;
+              _sendOfferInSynchronousCalls = true;
             }
           }
           _callEvents[callEvent.time.toInt()] = "Created";
@@ -231,26 +237,24 @@ class CallRepo {
             }
 
             if (isCallIdEqualToCurrentCallId(event) && !_callOfferIsReady()) {
-              _cancelTimerResendEvent();
-              _callOfferBody = callEvent.offer.body;
-              _callOfferCandidate = callEvent.offer.candidates;
               if (!isDesktopNative && !_isCallFromDb) {
+                _cancelTimerResendEvent();
+                _callOfferBody = callEvent.offer.body;
+                _callOfferCandidate = callEvent.offer.candidates;
                 _saveOfferOnDB(
                   callEvent.offer.body,
                   callEvent.offer.candidates,
                 );
+                if(inSynchronousCalls) {
+                  await _checkCallOfferIsReady();
+                }
               }
             } else if (callEvent.id != _callService.getCallId) {
               unawaited(_busyCall(event));
             }
           }
           break;
-        case CallEventV2_Type.busy:
-          _callEvents[callEvent.time.toInt()] = "Busy";
-          if (isCallIdEqualToCurrentCallId(event)) {
-            unawaited(receivedBusyCall(event));
-          }
-          break;
+
         case CallEventV2_Type.ringing:
           if (!from.isSameEntity(currentUserUid)) {
             if (_checkSynchronousCalls(event)) {
@@ -259,13 +263,11 @@ class CallRepo {
                 event.callEvent!.to.node,
               )) {
                 callEvent.id = _callService.getCallId;
-                _sendRingingAnswerOnSynchronousCalls = false;
               } else {
                 _callService.setCallId = event.callEvent!.id;
                 _sendOfferInSynchronousCalls = true;
                 _isCaller = false;
                 _callService.setUserCallState = UserCallState.IN_USER_CALL;
-                _sendOfferInSynchronousCalls = true;
               }
             }  if (!_callService.hasCall &&
                 !callEvent.ringing.fromAnswerSide) {
@@ -290,9 +292,17 @@ class CallRepo {
             }
           }
           break;
+        case CallEventV2_Type.busy:
+          _callEvents[callEvent.time.toInt()] = "Busy";
+          if (isCallIdEqualToCurrentCallId(event)) {
+            _missedCall = false;
+            unawaited(receivedBusyCall(event));
+          }
+          break;
         case CallEventV2_Type.decline:
           _callEvents[callEvent.time.toInt()] = "Declined";
           if (isCallIdEqualToCurrentCallId(event)) {
+            _missedCall = false;
             unawaited(receivedDeclinedCall());
           }
           break;
@@ -1219,9 +1229,8 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTING) {
         callingStatus.add(CallStatus.IS_RINGING);
       }
-      if (_sendRingingAnswerOnSynchronousCalls) {
+
         _sendRinging(fromAnswerSide: true);
-      }
       Timer(const Duration(milliseconds: 400), () async {
         if (isAndroidNative) {
           if (!_isVideo && await Permission.microphone.status.isGranted) {
@@ -1305,6 +1314,7 @@ class CallRepo {
     }
   }
 
+
   Future<void> _sendLog(bool isVideo) async {
     if (isVideo) {
       await _analyticsService.sendLogEvent(
@@ -1335,7 +1345,7 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+   // await Future.delayed(const Duration(milliseconds: 500));
     try {
       _cancelTimerResendEvent();
       if (hasVibrationCapability) {
@@ -1435,9 +1445,11 @@ class CallRepo {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
+    if (kDebugMode) {
+      print("BOOOOOOOOOOOOZ");
+    }
   }
 
-//here we have accepted Call
   Future<void> _receivedCallOffer() async {
     Timer(const Duration(milliseconds: 500), () async {
       await _checkCallOfferIsReady();
@@ -1457,9 +1469,10 @@ class CallRepo {
       await _setCallCandidate(_callOfferCandidate);
       //And Create Answer for Callee
       if (!_reconnectTry) {
-        _answerSdp = await _createAnswer();
-        if (_sendOfferInSynchronousCalls) {
+        if(inSynchronousCalls) {
           await _calculateCandidateAndSendAnswer();
+        } else {
+          _answerSdp = await _createAnswer();
         }
       }
     } else {
@@ -1994,7 +2007,6 @@ class CallRepo {
     _callDuration = 0;
     _isCallFromDb = false;
     _notifyIncomingCall = false;
-    _sendRingingAnswerOnSynchronousCalls = true;
     _callOfferBody = "";
     _callOfferCandidate = "";
 
