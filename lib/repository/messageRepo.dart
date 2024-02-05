@@ -1868,11 +1868,13 @@ class MessageRepo {
       _completerMap[key] = completer;
       try {
         for (final r in (await (_roomDao.getLocalRooms()))) {
-          await _sendLocalMessage(
-            (await _messageDao.getLocalMessages(r.uid)),
-            r.lastLocalNetworkMessageId,
-            r.uid,
-          );
+          if (r.uid.isUser()) {
+            await _sendLocalMessage(
+              (await _messageDao.getLocalMessages(r.uid)),
+              r.lastLocalNetworkMessageId,
+              r.uid,
+            );
+          }
         }
       } catch (e) {
         _logger.e(e);

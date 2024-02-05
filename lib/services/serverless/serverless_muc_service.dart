@@ -7,6 +7,7 @@ import 'package:deliver/box/member.dart' as model;
 import 'package:deliver/box/role.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -38,7 +39,7 @@ class ServerLessMucService {
     try {
       members.add(_authRepo.currentUserUid);
       final node =
-          "LOCAL${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
+          "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
       final groupUid = Uid(node: node, category: Categories.GROUP);
       if (settings.isSuperNode.value) {
         for (final member in members) {
@@ -92,7 +93,7 @@ class ServerLessMucService {
     try {
       members.add(_authRepo.currentUserUid);
       final node =
-          "LOCAL${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
+          "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
       final channelUid = Uid(node: node, category: Categories.CHANNEL);
       if (settings.isSuperNode.value) {
         for (final member in members) {
@@ -316,6 +317,29 @@ class ServerLessMucService {
         return MucRole.NONE;
     }
     throw Exception("Not Valid Role! $role");
+  }
+
+  Future<void> sendMessage(Message message) async {
+    try {
+      if (settings.isSuperNode.value) {
+        unawaited(sendMessageToMucUsers(message));
+      } else {
+        final ip = _serverLessService.getSuperNodeIp();
+        if (ip != null) {
+          unawaited(
+            _serverLessService.sendRequest(
+              ServerLessPacket(
+                proxyMessage: true,
+                message: message,
+              ),
+              ip,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> sendMessageToMucUsers(Message message) async {

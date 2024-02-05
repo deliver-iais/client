@@ -6,30 +6,25 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/pending_message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/message.dart' as model;
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/local_chat_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/utils/message_utils.dart';
-import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/create_muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -204,15 +199,23 @@ class ServerLessMessageService {
       }
     } else if (to.category == Categories.GROUP ||
         to.category == Categories.CHANNEL) {
-      final members = await GetIt.I.get<MucDao>().getAllMembers(to);
-      for (final element in members) {
-        final ip = await _serverLessService.getIp(element.memberUid.asString());
-        if (ip != null) {
-          await _send(ip: ip, message: message..isLocalMessage = true);
-        }
-      }
+      unawaited(_serverLessMucService.sendMessage(message));
+      unawaited(
+        _handleAck(
+          MessageDeliveryAck(
+            to: message.from,
+            packetId: message.packetId,
+            time: Int64(
+              DateTime.now().millisecondsSinceEpoch,
+            ),
+            id: message.id,
+            from: message.to,
+          ),
+        ),
+      );
     }
-    if (message.whichType() != Message_Type.callLog) {
+    if (message.whichType() != Message_Type.callLog &&
+        message.to.category == Categories.USER) {
       Timer(
         const Duration(seconds: 3),
         () => _checkPendingStatus(
@@ -453,7 +456,9 @@ class ServerLessMessageService {
     required Uid roomUid,
     required int lastLocalNetworkMessageId,
   }) async {
-    if (!message.edited && !message.hasCallLog()) {
+    if (!message.edited &&
+        !message.hasCallLog() &&
+        message.to.category == Categories.USER) {
       unawaited(
         _sendAck(
           MessageDeliveryAck(

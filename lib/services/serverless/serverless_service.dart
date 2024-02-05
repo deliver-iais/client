@@ -50,7 +50,9 @@ class ServerLessService {
     }
   }
 
-  bool inLocalNetwork(Uid uid) => address.containsKey(uid.asString());
+  bool inLocalNetwork(Uid uid) =>
+      uid.asString().contains(LOCAL_MUC_ID) ||
+      address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -66,6 +68,20 @@ class ServerLessService {
       }
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  String? getSuperNodeIp() {
+    try {
+      if (superNodes.isEmpty) {
+        return null;
+      }
+      final uid = superNodes
+          .where((element) => element != _authRepo.currentUserUid.asString())
+          .first;
+      return address[uid];
+    } catch (e) {
+      return null;
     }
   }
 
@@ -192,7 +208,7 @@ class ServerLessService {
       if (_httpServer != null) {
         _httpServer?.listen((request) {
           try {
-            final type = request.headers.value(TYPE) ?? MESSAGE;
+            final type = request.headers.value(TYPE) ?? "";
             if (type == FILE) {
               unawaited(_serverLessFileService.handleSaveFile(request));
             } else {
