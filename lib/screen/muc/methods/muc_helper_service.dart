@@ -1,7 +1,6 @@
 import 'package:deliver/box/member.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -190,10 +189,10 @@ class MucHelperService {
     MucCategories mucCategories,
     String name,
     String info, {
-    String? channelId,
+    String channelId = "",
     bool isLocalNetworkMuc = false,
     Future<bool> Function(String)? checkChannelId,
-    ChannelType? channelType,
+    ChannelType channelType = ChannelType.PUBLIC,
   }) async {
     switch (mucCategories) {
       case MucCategories.GROUP:
@@ -201,6 +200,7 @@ class MucHelperService {
           memberUidList,
           name,
           info,
+          isLocalGroup: isLocalNetworkMuc,
         );
       case MucCategories.BROADCAST:
         return _mucRepo.createNewBroadcast(
@@ -210,12 +210,13 @@ class MucHelperService {
         );
       case MucCategories.CHANNEL:
         if (isLocalNetworkMuc ||
-            (await checkChannelId?.call(channelId!) ?? false)) {
+            (await checkChannelId?.call(channelId) ?? false)) {
           return _mucRepo.createNewChannel(
-            channelId!,
+            channelId,
             memberUidList,
             name,
-            channelType!,
+            channelType,
+            isLocalChannel: isLocalNetworkMuc,
             info,
           );
         }

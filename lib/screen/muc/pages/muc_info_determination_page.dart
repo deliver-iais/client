@@ -14,8 +14,8 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/validate.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -25,8 +25,8 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
   final MucCategories categories;
@@ -43,23 +43,25 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   late TextEditingController _mucIdController;
   late TextEditingController _mucInfoController;
 
-  bool autofocus = false;
-  bool _showIcon = true;
+  final _showIcon = true.obs;
   ChannelType _channelType = ChannelType.PUBLIC;
   final _routingService = GetIt.I.get<RoutingService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _createMucService = GetIt.I.get<CreateMucService>();
-  final MucRepo _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   final _mucHelper = GetIt.I.get<MucHelperService>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
   bool idIsAvailable = false;
   final I18N _i18n = GetIt.I.get<I18N>();
   final mucNameKey = GlobalKey<FormState>();
   final _channelIdKey = GlobalKey<FormState>();
-  BehaviorSubject<bool> showChannelIdError = BehaviorSubject.seeded(false);
-  final BehaviorSubject<String?> _mucAvatarPath = BehaviorSubject.seeded(null);
+  final showChannelIdError = false.obs;
+  final _mucAvatarPath = "".obs;
+  final _useLocalNetwork = true.obs;
 
   @override
   void initState() {
+    _useLocalNetwork.value = _serverLessService.superNodes.isNotEmpty;
     _mucNameController = TextEditingController();
     _mucIdController = TextEditingController();
     _mucInfoController = TextEditingController();
@@ -68,9 +70,8 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   Future<bool> _checkChannelD(String id) async {
     if (_channelIdKey.currentState?.validate() ?? false) {
-      final res = await _mucRepo.channelIdIsAvailable(id);
-      showChannelIdError.add(res);
-      return res;
+      showChannelIdError.value = await _mucRepo.channelIdIsAvailable(id);
+      return showChannelIdError.value;
     }
     return false;
   }
@@ -111,20 +112,15 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     const SizedBox(height: 10),
                     if (widget.categories == MucCategories.CHANNEL)
                       _buildChannelIdForm(),
-                    StreamBuilder<bool>(
-                      stream: showChannelIdError,
-                      builder: (c, e) {
-                        if (e.hasData && e.data!) {
-                          return Text(
-                            _i18n.get("channel_id_is_exist"),
-                            style: theme.textTheme.labelSmall!.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
+                    Obx(
+                      () => showChannelIdError.value
+                          ? Text(
+                              _i18n.get("channel_id_is_exist"),
+                              style: theme.textTheme.labelSmall!.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ),
                     const SizedBox(
                       height: 10,
@@ -133,6 +129,42 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     const SizedBox(
                       height: 10,
                     ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    if (true || _serverLessService.superNodes.isNotEmpty)
+                      Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary, // Set border color
+                            ),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(
+                                15,
+                              ) //
+                              ,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Text(_i18n.get("local_network")),
+                                const SizedBox(
+                                  width: 40,
+                                ),
+                                Obx(
+                                  () => Switch(
+                                    value: _useLocalNetwork.value,
+                                    onChanged: (_) =>
+                                        _useLocalNetwork.value = _,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )),
                     if (widget.categories == MucCategories.CHANNEL) ...[
                       _buildChannelTypeSelection(),
                       const SizedBox(
@@ -176,7 +208,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             key: _channelIdKey,
             child: AutoDirectionTextForm(
               minLines: 1,
-              autofocus: autofocus,
               textInputAction: TextInputAction.send,
               controller: _mucIdController,
               validator: Validate.validateChannelId,
@@ -232,7 +263,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         key: mucNameKey,
         child: AutoDirectionTextForm(
           minLines: 1,
-          autofocus: autofocus,
           validator: checkMucNameIsSet,
           textInputAction: TextInputAction.send,
           controller: _mucNameController,
@@ -286,7 +316,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             child: AutoDirectionTextForm(
               minLines: 1,
               maxLines: 4,
-              autofocus: autofocus,
               textInputAction: TextInputAction.newline,
               controller: _mucInfoController,
               decoration: buildInputDecoration(
@@ -321,75 +350,73 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
             },
           ),
         ),
-        if (_showIcon)
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              end: 5,
-            ),
-            child: FloatingActionButton.extended(
-              heroTag: "create",
-              icon: const Icon(
-                Icons.check,
-              ),
-              label: Text(_i18n["create"]),
-              onPressed: () async {
-                final res = mucNameKey.currentState?.validate() ?? false;
-                if (res) {
-                  setState(() {
-                    _showIcon = false;
-                  });
-                  final memberUidList = <Uid>[];
-                  Uid? mucUid;
-                  final contacts = _createMucService.getSelected();
-                  for (var i = 0; i < contacts.length; i++) {
-                    if (contacts[i].uid != null) {
-                      memberUidList.add(
-                        contacts[i].uid!,
-                      );
-                    }
-                  }
-                  mucUid = await _mucHelper.createNewMuc(
-                    memberUidList,
-                    widget.categories,
-                    _mucNameController.text,
-                    _mucInfoController.text,
-                    channelType: _channelType,
-                    channelId: _mucIdController.text.trim(),
-                    checkChannelId: _checkChannelD,
-                  );
-                  if (mucUid != null) {
-                    if (_mucAvatarPath.value != null) {
-                      await _avatarRepo.setMucAvatar(
-                        mucUid,
-                        _mucAvatarPath.value!,
-                      );
-                    }
-                    if (widget.categories == MucCategories.BROADCAST) {
-                      _saveSmsBroadcastList(mucUid);
-                    }
-                    _routingService.openRoom(
-                      mucUid,
-                      popAllBeforePush: true,
-                    );
-                  } else {
-                    if (context.mounted) {
-                      ToastDisplay.showToast(
-                        toastText: _i18n.get("error_occurred"),
-                        toastContext: context,
-                      );
-                    }
-                    setState(() {
-                      _showIcon = true;
-                    });
-                  }
-                }
-              },
-            ),
-          )
-        else
-          CircularProgressIndicator(
-            color: Theme.of(context).primaryColor,
-          ),
+        Obx(
+          () => _showIcon.value
+              ? Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    end: 5,
+                  ),
+                  child: FloatingActionButton.extended(
+                    heroTag: "create",
+                    icon: const Icon(
+                      Icons.check,
+                    ),
+                    label: Text(_i18n["create"]),
+                    onPressed: () async {
+                      final res = mucNameKey.currentState?.validate() ?? false;
+                      if (res) {
+                        _showIcon.value = false;
+                        final memberUidList = <Uid>[];
+                        Uid? mucUid;
+                        final contacts = _createMucService.getSelected();
+                        for (var i = 0; i < contacts.length; i++) {
+                          if (contacts[i].uid != null) {
+                            memberUidList.add(
+                              contacts[i].uid!,
+                            );
+                          }
+                        }
+                        mucUid = await _mucHelper.createNewMuc(
+                          memberUidList,
+                          widget.categories,
+                          _mucNameController.text,
+                          _mucInfoController.text,
+                          channelType: _channelType,
+                          isLocalNetworkMuc: _useLocalNetwork.value,
+                          channelId: _mucIdController.text.trim(),
+                          checkChannelId: _checkChannelD,
+                        );
+                        if (mucUid != null) {
+                          if (_mucAvatarPath.value.isNotEmpty) {
+                            await _avatarRepo.setMucAvatar(
+                              mucUid,
+                              _mucAvatarPath.value,
+                            );
+                          }
+                          if (widget.categories == MucCategories.BROADCAST) {
+                            _saveSmsBroadcastList(mucUid);
+                          }
+                          _routingService.openRoom(
+                            mucUid,
+                            popAllBeforePush: true,
+                          );
+                        } else {
+                          if (context.mounted) {
+                            ToastDisplay.showToast(
+                              toastText: _i18n.get("error_occurred"),
+                              toastContext: context,
+                            );
+                          }
+                          _showIcon.value = true;
+                        }
+                      }
+                    },
+                  ),
+                )
+              : CircularProgressIndicator(
+                  color: Theme.of(context).primaryColor,
+                ),
+        ),
       ],
     );
   }

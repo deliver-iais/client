@@ -262,10 +262,10 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           padding: const EdgeInsetsDirectional.only(
                             end: 5,
                           ),
-                          child: (widget.categories ==
+                          child: widget.categories ==
                                       MucCategories.BROADCAST &&
-                                  (!widget.useSmsBroadcastList &&
-                                      _createMucService.selected.length < 2))
+                                  !widget.useSmsBroadcastList &&
+                                      _createMucService.selected.length < 2
                               ? const SizedBox()
                               : FloatingActionButton.extended(
                                   heroTag: "select_contacts",

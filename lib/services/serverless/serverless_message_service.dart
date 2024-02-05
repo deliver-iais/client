@@ -296,11 +296,17 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          await _processMessage(serverLessPacket.message);
+          if (serverLessPacket.proxyMessage) {
+            await _serverLessMucService.sendMessageToMucUsers(serverLessPacket.message);
+          } else {
+            await _processMessage(serverLessPacket.message);
+          }
+
           break;
         case ServerLessPacket_Type.createLocalMuc:
           await _serverLessMucService.handleCreateMuc(
             serverLessPacket.createLocalMuc,
+            serverLessPacket.proxyMessage,
           );
           break;
         case ServerLessPacket_Type.addMembersReq:
