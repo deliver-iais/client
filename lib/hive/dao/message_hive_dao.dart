@@ -93,13 +93,11 @@ class MessageDaoImpl with SortLocalNetworkMessages implements MessageDao {
     final box = await _openMessages(roomUid.asString());
     final messages = box.values
         .where((msgHive) {
-          if (msgHive.roomUid == roomUid.asString()) {
             if (msgHive.type == MessageType.TEXT) {
               return msgHive.json.toText().text.toLowerCase().contains(keyword.toLowerCase());
             } else if (msgHive.type == MessageType.FILE) {
               return msgHive.json.toFile().caption.toLowerCase().contains(keyword.toLowerCase());
             }
-          }
           return false;
         })
         .map((msgHive) => msgHive.fromHive())
