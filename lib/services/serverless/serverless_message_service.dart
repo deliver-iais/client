@@ -54,7 +54,7 @@ class ServerLessMessageService {
 
   final iv = enc.IV.fromLength(16);
   final _encrypter =
-      enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
+      enc.Encrypter(enc.AES(enc.Key.fromUtf8('my 32 length key................')));
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -303,11 +303,11 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          if (serverLessPacket.message.hasText()) {
-            final encrypted = serverLessPacket.message.text.text;
-            serverLessPacket.message.text.text =
-                _encrypter.decrypt64(encrypted, iv: iv);
-          }
+          // if (serverLessPacket.message.hasText()) {
+          //   final encrypted = serverLessPacket.message.text.text;
+          //   serverLessPacket.message.text.text =
+          //       _encrypter.decrypt64(encrypted, iv: iv);
+          // }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);

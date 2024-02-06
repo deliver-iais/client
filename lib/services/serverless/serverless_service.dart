@@ -205,18 +205,18 @@ class ServerLessService {
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      final iv = enc.IV.fromLength(16);
-      final encrypter =
-          enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
-      final encrypted = encrypter
-          .encrypt(
-            serverLessPacket.message.text.text,
-            iv: iv,
-          )
-          .base64;
-      serverLessPacket.message.text.text = encrypted;
-    }
+    // if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
+    //   final iv = enc.IV.fromLength(16);
+    //   final encrypter =
+    //       enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
+    //   final encrypted = encrypter
+    //       .encrypt(
+    //         serverLessPacket.message.text.text,
+    //         iv: iv,
+    //       )
+    //       .base64;
+    //   serverLessPacket.message.text.text = encrypted;
+    // }
 
     try {
       return _dio.post(
