@@ -34,6 +34,7 @@ dependency_overrides:
       path: wakelock_windows/ # folder
 
 dependencies:
+  encrypt: ^5.0.1
   all_sensors: 0.4.2
   android_intent_plus: ^4.0.2
   animate_do: ^3.1.2

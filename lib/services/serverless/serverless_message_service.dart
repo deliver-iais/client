@@ -35,6 +35,9 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:encrypt/encrypt.dart' as enc;
+
+
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -51,6 +54,9 @@ class ServerLessMessageService {
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
+
+  final key = enc.Key.fromUtf8('my 32 length key................');
+  final iv = enc.IV.fromLength(16);
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -299,6 +305,12 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
+          if(serverLessPacket.message.hasText()) {
+            final encrypted = serverLessPacket.message.text.text;
+            final encrypter = enc.Encrypter(enc.AES(key));
+            final decrypted = encrypter.decrypt64(encrypted, iv: iv);
+            serverLessPacket.message.text.text = decrypted;
+          }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);
