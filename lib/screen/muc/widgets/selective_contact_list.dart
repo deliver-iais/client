@@ -12,6 +12,7 @@ import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -25,11 +26,13 @@ class SelectiveContactsList extends StatefulWidget {
   final bool useSmsBroadcastList;
   final MucCategories categories;
   final bool openMucInfoDeterminationPage;
+  final bool isLocalNetwork;
 
   const SelectiveContactsList({
     super.key,
     required this.categories,
     this.mucUid,
+    this.isLocalNetwork = false,
     this.useSmsBroadcastList = false,
     this.openMucInfoDeterminationPage = false,
   });
@@ -45,6 +48,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
 
   late TextEditingController editingController;
 
@@ -107,12 +111,12 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       }
       _items
         ..clear()
-        ..addAll(dummyListData);
+        ..addAll(_sortItems(dummyListData));
       searchById(query, dummyListData);
     } else {
       _items
         ..clear()
-        ..addAll(contacts);
+        ..addAll(_sortItems(contacts));
     }
   }
 
@@ -124,7 +128,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       );
       _items
         ..clear()
-        ..addAll(filtered);
+        ..addAll(_sortItems(filtered));
     }
   }
 
@@ -174,7 +178,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
                     _items
                       ..clear()
-                      ..addAll(contacts);
+                      ..addAll(_sortItems(contacts));
 
                     return Obx(() => _items.isNotEmpty
                         ? ListView.builder(
@@ -262,10 +266,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           padding: const EdgeInsetsDirectional.only(
                             end: 5,
                           ),
-                          child: widget.categories ==
-                                      MucCategories.BROADCAST &&
+                          child: widget.categories == MucCategories.BROADCAST &&
                                   !widget.useSmsBroadcastList &&
-                                      _createMucService.selected.length < 2
+                                  _createMucService.selected.length < 2
                               ? const SizedBox()
                               : FloatingActionButton.extended(
                                   heroTag: "select_contacts",
@@ -341,5 +344,20 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     final regex =
         RegExp(r'^(0|0098|98)9(0[1-5]|[1 3]\d|2[0-2]|9[0-4]|98)\d{7}$');
     return regex.hasMatch("$countryCode$phoneNumber");
+  }
+
+  List<User> _sortItems(List<User> items) {
+    if (_serverLessService.superNodes.isEmpty) {
+      return items;
+    } else {
+      return items
+        ..sort((a, b) {
+          if (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
+    }
   }
 }

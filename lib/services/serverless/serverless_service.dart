@@ -52,8 +52,12 @@ class ServerLessService {
   void _start() {
     address.clear();
     _startServices();
-    if (Platform.isAndroid) {
-      // _startForegroundService();
+    _startForeground();
+  }
+
+  void _startForeground() {
+    if (address.isNotEmpty && Platform.isAndroid) {
+      _startForegroundService();
     }
   }
 
@@ -297,6 +301,7 @@ class ServerLessService {
     unawaited(
       GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
     );
+    _startForeground();
   }
 
   Future<void> _handleBroadCastMessage(Uint8List data) async {
@@ -321,6 +326,7 @@ class ServerLessService {
         );
         await _sendMyAddress(registrationReq.url);
       }
+      _startForeground();
     } catch (e) {
       _logger.e(e);
     }

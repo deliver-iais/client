@@ -32,20 +32,20 @@ class SearchMessageService {
     if (keyword.isEmpty) {
       return [];
     }
-    final cacheResult = _searchCache[keyword];
+    // final cacheResult = _searchCache[keyword];
+    //
+    // if (cacheResult != null) {
+    //   return cacheResult;
+    // }
 
-    if (cacheResult != null) {
-      return cacheResult;
-    }
-
-    final subString =
-        findSubstringInSearchResults(_searchCache.keys.toList(), keyword);
-    if (subString.isNotEmpty) {
-      return _searchCache[subString]
-              ?.where((msg) => isMessageContainKeyword(msg, keyword))
-              .toList() ??
-          [];
-    }
+    // final subString =
+    //     findSubstringInSearchResults(_searchCache.keys.toList(), keyword);
+    // if (subString.isNotEmpty) {
+    //   return _searchCache[subString]
+    //           ?.where((msg) => isMessageContainKeyword(msg, keyword))
+    //           .toList() ??
+    //       [];
+    // }
 
     final messages = await _messageDao.searchMessages(roomUid, keyword);
     _searchCache[keyword] = messages;

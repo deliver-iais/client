@@ -74,6 +74,7 @@ class CallRepo {
   final _analyticsService = GetIt.I.get<AnalyticsService>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
 
   bool get isMicMuted => _isMicMuted;
   MediaStream? _localStream;
@@ -586,14 +587,21 @@ class CallRepo {
       }
       ..onIceCandidate = (e) {
         if (e.candidate != null) {
-          _candidate.add({
-            'candidate': e.candidate.toString(),
-            'sdpMid': e.sdpMid.toString(),
-            'sdpMlineIndex': e.sdpMLineIndex!,
-          });
-
-          if (_isAccepted) {
-            _calculateCandidateAndSendAnswer();
+          if (roomUid != null &&
+              _serverLessService.address.keys.contains(roomUid!.asString())) {
+            if (_candidate.isEmpty) {
+              _candidate.add({
+                'candidate': e.candidate.toString(),
+                'sdpMid': e.sdpMid.toString(),
+                'sdpMlineIndex': e.sdpMLineIndex!,
+              });
+            }
+          } else {
+            _candidate.add({
+              'candidate': e.candidate.toString(),
+              'sdpMid': e.sdpMid.toString(),
+              'sdpMlineIndex': e.sdpMLineIndex!,
+            });
           }
         }
       }

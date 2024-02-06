@@ -13,6 +13,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart';
@@ -744,7 +745,7 @@ class MucRepo {
         );
       }
 
-      if (false) {
+      if (mucUid.asString().contains(LOCAL_MUC_ID)) {
         await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
         return StatusCode.ok;
       } else {
