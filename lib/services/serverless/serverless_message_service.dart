@@ -37,15 +37,12 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:encrypt/encrypt.dart' as enc;
 
-
-
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
   final _roomDao = GetIt.I.get<RoomDao>();
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _callService = GetIt.I.get<CallService>();
   final _serverLessService = GetIt.I.get<ServerLessService>();
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
@@ -55,8 +52,9 @@ class ServerLessMessageService {
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
 
-  final key = enc.Key.fromUtf8('my 32 length key................');
   final iv = enc.IV.fromLength(16);
+  final _encrypter =
+      enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -305,11 +303,10 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          if(serverLessPacket.message.hasText()) {
+          if (serverLessPacket.message.hasText()) {
             final encrypted = serverLessPacket.message.text.text;
-            final encrypter = enc.Encrypter(enc.AES(key));
-            final decrypted = encrypter.decrypt64(encrypted, iv: iv);
-            serverLessPacket.message.text.text = decrypted;
+            serverLessPacket.message.text.text =
+                _encrypter.decrypt64(encrypted, iv: iv);
           }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
@@ -411,7 +408,6 @@ class ServerLessMessageService {
       ));
     }
   }
-
 
   Future<void> processMessage(Message message) async {
     unawaited(_handleMessage(message));

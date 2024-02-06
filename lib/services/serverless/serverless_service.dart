@@ -11,7 +11,6 @@ import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -20,7 +19,8 @@ import 'package:get/get.dart' as g;
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:encrypt/encrypt.dart';
+
+import 'package:encrypt/encrypt.dart' as enc;
 
 class ServerLessService {
   final Dio _dio = Dio();
@@ -34,9 +34,6 @@ class ServerLessService {
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
-
-  final key = Key.fromUtf8('my 32 length key................');
-  final iv = IV.fromLength(16);
 
   HttpServer? _httpServer;
 
@@ -209,15 +206,16 @@ class ServerLessService {
     String url,
   ) async {
     if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      final encrypter = Encrypter(AES(key));
+      final iv = enc.IV.fromLength(16);
+      final encrypter =
+          enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
       final encrypted = encrypter
           .encrypt(
             serverLessPacket.message.text.text,
             iv: iv,
           )
           .base64;
-      serverLessPacket.message.text.text =
-          String.fromCharCodes(encrypted.codeUnits);
+      serverLessPacket.message.text.text = encrypted;
     }
 
     try {
