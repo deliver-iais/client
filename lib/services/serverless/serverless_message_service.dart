@@ -305,10 +305,12 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          final encrypted = serverLessPacket.message.text.text;
-          final encrypter = enc.Encrypter(enc.AES(key));
-          final decrypted = encrypter.decrypt64(encrypted, iv: iv);
-          serverLessPacket.message.text.text = decrypted;
+          if(serverLessPacket.message.hasText()) {
+            final encrypted = serverLessPacket.message.text.text;
+            final encrypter = enc.Encrypter(enc.AES(key));
+            final decrypted = encrypter.decrypt64(encrypted, iv: iv);
+            serverLessPacket.message.text.text = decrypted;
+          }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);

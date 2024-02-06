@@ -208,7 +208,7 @@ class ServerLessService {
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    if (serverLessPacket.hasMessage()) {
+    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
       final encrypter = Encrypter(AES(key));
       final encrypted = encrypter
           .encrypt(
