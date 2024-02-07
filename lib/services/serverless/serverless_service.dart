@@ -216,8 +216,8 @@ class ServerLessService {
             iv: iv,
           )
           .base64;
-      serverLessPacket.message.text.text =
-          String.fromCharCodes(encrypted.codeUnits);
+      serverLessPacket.message.text.text = encrypted;
+
     }
 
     try {
