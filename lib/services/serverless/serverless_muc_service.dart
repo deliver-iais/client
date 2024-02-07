@@ -148,24 +148,24 @@ class ServerLessMucService {
   }
 
   Future<void> addMember(Uid mucUid, List<Member> members) async {
-    final olbMembers = await _mucDao.getAllMembers(mucUid);
-    members.addAll(
-      olbMembers.map((e) => Member(uid: e.memberUid, role: getRole(e.role))),
-    );
-    final addMembersReq = AddMembersReq(members: members)..channel = mucUid;
-    for (final member in members) {
-      final ip = await _serverLessService.getIp(member.uid.asString());
-      if (ip != null) {
-        await _serverLessService.sendRequest(
-          ServerLessPacket(
-            addMembersReq: addMembersReq,
-            name: (await _mucDao.get(mucUid))?.name ?? "",
-            uid: _authRepo.currentUserUid,
-          ),
-          ip,
-        );
-      }
-    }
+    // final olbMembers = await _mucDao.getAllMembers(mucUid);
+    // members.addAll(
+    //   olbMembers.map((e) => Member(uid: e.memberUid, role: getRole(e.role))),
+    // );
+    // final addMembersReq = AddMembersReq(members: members)..channel = mucUid;
+    // for (final member in members) {
+    //   final ip = await _serverLessService.getIp(member.uid.asString());
+    //   if (ip != null) {
+    //     await _serverLessService.sendRequest(
+    //       ServerLessPacket(
+    //         addMembersReq: addMembersReq,
+    //         name: (await _mucDao.get(mucUid))?.name ?? "",
+    //         uid: _authRepo.currentUserUid,
+    //       ),
+    //       ip,
+    //     );
+    //   }
+    // }
   }
 
   Future<void> kickMember() async {}

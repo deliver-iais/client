@@ -1308,7 +1308,7 @@ class MessageRepo {
     //get roomUid LastMessageId
     final lastMessageId = await _roomRepo.getRoomLastMessageId(roomUid);
     //if message is broadcast set 1 and if is normal message set 0;
-    final broadcast = isBroadcastMessage ? 1 : 0;
+    final broadcast = isBroadcastMessage ? BROADCAST_KEY : "";
     return "${clock.now().millisecondsSinceEpoch}-$lastMessageId-$broadcast-$id-${randomVM.nextInt(RANDOM_SIZE)}";
   }
 

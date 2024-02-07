@@ -56,7 +56,6 @@ class CoreServices {
 
   CoreServices() {
     _connectionStatus.distinct().listen((event) {
-      _serverLessService.restart();
       connectionStatus.add(event);
     });
   }
@@ -109,6 +108,7 @@ class CoreServices {
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
+         _serverLessService.restart();
       } else {
         _onConnectionError();
       }

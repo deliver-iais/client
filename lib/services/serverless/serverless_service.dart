@@ -20,8 +20,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
-import 'package:encrypt/encrypt.dart' as enc;
-
 class ServerLessService {
   final Dio _dio = Dio();
   final _networkInfo = NetworkInfo();
@@ -113,7 +111,9 @@ class ServerLessService {
   }
 
   Future<void> _dispose() async {
-    await _notificationForegroundService.stopForegroundTask();
+    if(Platform.isAndroid){
+      await _notificationForegroundService.stopForegroundTask();
+    }
     await _httpServer?.close(force: true);
     _upSocket?.close();
     GetIt.I.get<ServerLessMessageService>().reset();

@@ -35,7 +35,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:encrypt/encrypt.dart' as enc;
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -52,9 +51,6 @@ class ServerLessMessageService {
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
 
-  final iv = enc.IV.fromLength(16);
-  final _encrypter =
-      enc.Encrypter(enc.AES(enc.Key.fromUtf8('my 32 length key................')));
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
