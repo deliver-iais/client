@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
+// import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -35,8 +37,7 @@ class ServerLessService {
       GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
 
-  final key = Key.fromUtf8('my 32 length key................');
-  final iv = IV.fromLength(16);
+  final String keyStoreId = 'mySecureKeyStore';
 
   HttpServer? _httpServer;
 
@@ -204,21 +205,14 @@ class ServerLessService {
     }
   }
 
+
   Future<Response?> sendRequest(
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      final encrypter = Encrypter(AES(key));
-      final encrypted = encrypter
-          .encrypt(
-            serverLessPacket.message.text.text,
-            iv: iv,
-          )
-          .base64;
-      serverLessPacket.message.text.text = encrypted;
-
-    }
+    // if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
+    //   serverLessPacket.message.text.text = Encryption().encryptText(serverLessPacket.message.text.text);
+    // }
 
     try {
       return _dio.post(

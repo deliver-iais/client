@@ -1,4 +1,7 @@
+// ignore_for_file: avoid_single_cascade_in_expression_statements
+
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
@@ -35,7 +38,10 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:encrypt/encrypt.dart' as enc;
+// import 'package:deliver/services/serverless/encryption.dart';
+
+
+
 
 
 
@@ -55,8 +61,6 @@ class ServerLessMessageService {
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
 
-  final key = enc.Key.fromUtf8('my 32 length key................');
-  final iv = enc.IV.fromLength(16);
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -305,12 +309,13 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          if(serverLessPacket.message.hasText()) {
-            final encrypted = serverLessPacket.message.text.text;
-            final encrypter = enc.Encrypter(enc.AES(key));
-            final decrypted = encrypter.decrypt64(encrypted, iv: iv);
-            serverLessPacket.message.text.text = decrypted;
-          }
+          // if(serverLessPacket.message.hasText()) {
+          //   try {
+          //     serverLessPacket.message.text.text = Encryption().decryptText(serverLessPacket.message.text.text);
+          //   } catch (e) {
+          //     _logger.e(e);
+          //   }
+          // }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);
