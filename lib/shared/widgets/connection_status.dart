@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -82,10 +83,18 @@ class ConnectionStatus extends StatelessWidget {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        Text(
-                                          _i18n.get("local_network"),
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
+                                        if (settings.isSuperNode.value)
+                                          Text(
+                                            _i18n.get("local_network"),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          )
+                                        else
+                                          Text(
+                                            _i18n.get("local_network_server"),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
                                         const SizedBox(
                                           width: 5,
                                         ),
@@ -122,13 +131,17 @@ class ConnectionStatus extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                const Row(
+                                Row(
                                   children: [
-                                    Text("Internet"),
-                                    Icon(
+                                    const Icon(
                                       Icons.clear,
+                                      size: 14,
                                       color: Colors.redAccent,
-                                    )
+                                    ),
+                                    Text(
+                                      _i18n.get("internet"),
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
                                   ],
                                 ),
                               ],
