@@ -190,7 +190,6 @@ class MucHelperService {
     String name,
     String info, {
     String channelId = "",
-    bool isLocalNetworkMuc = false,
     Future<bool> Function(String)? checkChannelId,
     ChannelType channelType = ChannelType.PUBLIC,
   }) async {
@@ -200,7 +199,6 @@ class MucHelperService {
           memberUidList,
           name,
           info,
-          isLocalGroup: isLocalNetworkMuc,
         );
       case MucCategories.BROADCAST:
         return _mucRepo.createNewBroadcast(
@@ -209,14 +207,13 @@ class MucHelperService {
           info,
         );
       case MucCategories.CHANNEL:
-        if (isLocalNetworkMuc ||
-            (await checkChannelId?.call(channelId) ?? false)) {
+        if ((await checkChannelId?.call(channelId) ?? false)) {
           return _mucRepo.createNewChannel(
             channelId,
             memberUidList,
             name,
             channelType,
-            isLocalChannel: isLocalNetworkMuc,
+            isLocalChannel: false,
             info,
           );
         }

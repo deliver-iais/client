@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/broadcast_member.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
@@ -8,6 +9,7 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/role.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
@@ -15,10 +17,12 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as group_pb;
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as muc_pb;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -29,25 +33,34 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 
-
-
 class MucRepo {
   final _logger = GetIt.I.get<Logger>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _serverLessService = GetIt.I.get<ServerLessService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
     String groupName,
-    String info, {
-    bool isLocalGroup = false,
-  }) async {
-    if (isLocalGroup) {
-      return GetIt.I
-          .get<ServerLessMucService>()
-          .createGroup(name: groupName, members: memberUidList);
+    String info,
+  ) async {
+    if (_serverLessService.superNodeExit()) {
+      final node =
+          "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
+      await GetIt.I.get<ServerLessMucService>().createGroup(
+            name: groupName,
+            members: memberUidList,
+            groupNode: node,
+          );
+      try {
+        await _mucServices.createNewLocalGroup(groupName, info, node);
+      } catch (e) {
+        _logger.e(e);
+      }
+      return Uid(category: Categories.GROUP, node: node);
     } else {
       final groupUid = await _mucServices.createNewGroup(groupName, info);
       if (groupUid != null) {

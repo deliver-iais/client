@@ -36,54 +36,37 @@ class ServerLessMucService {
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
-  Future<Uid?> createGroup({
+  Future<bool> createGroup({
     required String name,
+    required String groupNode,
     required List<Uid> members,
   }) async {
     try {
       members.add(_authRepo.currentUserUid);
-      final node =
-          "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
-      final groupUid = Uid(node: node, category: Categories.GROUP);
-      if (true || settings.isSuperNode.value) {
+      final serverLessPacket = ServerLessPacket(
+        createLocalMuc: CreateLocalMuc(
+          creator: _authRepo.currentUserUid,
+          uid: Uid(category: Categories.GROUP, node: groupNode),
+          name: name,
+          members: mapMembers(members),
+        ),
+      );
+
+      if (settings.isSuperNode.value) {
         for (final member in members) {
-          final ip = await _serverLessService.getIp(member.asString());
-          if (ip != null) {
-            await _serverLessService.sendRequest(
-              ServerLessPacket(
-                createLocalMuc: CreateLocalMuc(
-                  creator: _authRepo.currentUserUid,
-                  uid: groupUid,
-                  name: name,
-                  members: mapMembers(members),
-                ),
-              ),
-              ip,
-            );
-          }
+          _sendClientPacket(member.node, serverLessPacket);
         }
       } else {
-        unawaited(
-          _serverLessService.sendRequest(
-            ServerLessPacket(
-              createLocalMuc: CreateLocalMuc(
-                creator: _authRepo.currentUserUid,
-                uid: groupUid,
-                name: name,
-                members: mapMembers(members),
-              ),
-              proxyMessage: true,
-            ),
-            _serverLessService.getSuperNodeIp()!,
-          ),
-        );
+        final uid = _serverLessService.getSuperNode();
+        if (uid != null) {
+          _sendClientPacket(uid.node, serverLessPacket..proxyMessage = true);
+        }
       }
-
-      return groupUid;
+      return true;
     } catch (_) {
       _logger.e(_);
+      return false;
     }
-    return null;
   }
 
   Future<Uid?> createChannel({
@@ -97,7 +80,7 @@ class ServerLessMucService {
       final channelUid = Uid(node: node, category: Categories.CHANNEL);
       if (settings.isSuperNode.value) {
         for (final member in members) {
-          final ip = await _serverLessService.getIp(member.asString());
+          final ip = await _serverLessService.getIpAsync(member.asString());
           if (ip != null) {
             await _serverLessService.sendRequest(
               ServerLessPacket(
@@ -234,59 +217,76 @@ class ServerLessMucService {
   }
 
   Future<void> handleCreateMuc(
-      CreateLocalMuc createLocalMuc, bool proxyMessage) async {
+    CreateLocalMuc createLocalMuc, {
+    bool proxyMessage = false,
+  }) async {
     try {
       if (proxyMessage) {
-        //todo
-      } else {
-        await _uidIdNameDao.update(createLocalMuc.uid,
-            name: createLocalMuc.name);
-        await _mucDao.updateMuc(
-          uid: createLocalMuc.uid,
-          name: createLocalMuc.name,
-          currentUserRole: getLocalRole(
-            createLocalMuc.members
-                .where(
-                  (element) => element.uid
-                      .isSameEntity(_authRepo.currentUserUid.asString()),
-                )
-                .first
-                .role,
-          ),
-          population: createLocalMuc.members.length,
-        );
-        for (final element in createLocalMuc.members) {
-          await _mucDao.saveMember(
-            model.Member(
-              memberUid: element.uid,
-              mucUid: createLocalMuc.uid,
-              role: getLocalRole(element.role),
-            ),
-          );
+        for (final member in createLocalMuc.members) {
+          if (_authRepo.currentUserUid.isSameEntity(member.uid.asString())) {
+            await _saveLocalMuc(createLocalMuc);
+          } else {
+            _sendClientPacket(
+              member.uid.asString(),
+              ServerLessPacket(createLocalMuc: createLocalMuc),
+            );
+          }
         }
-
-        await _dataStreamService.handleIncomingMessage(
-          Message()
-            ..id = Int64(1)
-            ..from = createLocalMuc.uid
-            ..to = _authRepo.currentUserUid
-            ..time = Int64(
-              DateTime.now().millisecondsSinceEpoch,
-            )
-            ..persistEvent = PersistentEvent(
-              mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-                issue: MucSpecificPersistentEvent_Issue.MUC_CREATED,
-                issuer: createLocalMuc.creator,
-                assignee: createLocalMuc.uid,
-                name: createLocalMuc.name,
-              ),
-            ),
-          isOnlineMessage: true,
-        );
+      } else {
+        await _saveLocalMuc(createLocalMuc);
       }
     } catch (_) {
       _logger.e(_);
     }
+  }
+
+  Future<void> _saveLocalMuc(CreateLocalMuc createLocalMuc) async {
+    await _uidIdNameDao.update(
+      createLocalMuc.uid,
+      name: createLocalMuc.name,
+    );
+    await _mucDao.updateMuc(
+      uid: createLocalMuc.uid,
+      name: createLocalMuc.name,
+      currentUserRole: getLocalRole(
+        createLocalMuc.members
+            .where(
+              (element) =>
+                  element.uid.isSameEntity(_authRepo.currentUserUid.asString()),
+            )
+            .first
+            .role,
+      ),
+      population: createLocalMuc.members.length,
+    );
+    for (final element in createLocalMuc.members) {
+      await _mucDao.saveMember(
+        model.Member(
+          memberUid: element.uid,
+          mucUid: createLocalMuc.uid,
+          role: getLocalRole(element.role),
+        ),
+      );
+    }
+
+    await _dataStreamService.handleIncomingMessage(
+      Message()
+        ..id = Int64(1)
+        ..from = createLocalMuc.uid
+        ..to = _authRepo.currentUserUid
+        ..time = Int64(
+          DateTime.now().millisecondsSinceEpoch,
+        )
+        ..persistEvent = PersistentEvent(
+          mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+            issue: MucSpecificPersistentEvent_Issue.MUC_CREATED,
+            issuer: createLocalMuc.creator,
+            assignee: createLocalMuc.uid,
+            name: createLocalMuc.name,
+          ),
+        ),
+      isOnlineMessage: true,
+    );
   }
 
   Role getRole(MucRole role) {
@@ -359,11 +359,12 @@ class ServerLessMucService {
               final fileInfo =
                   await _sendFileToMucMember(message, member.memberUid);
               if (fileInfo != null) {
-                _sendMessageToMember(member, message..file = fileInfo);
+                _sendClientPacket(member.memberUid.asString(),
+                    ServerLessPacket(message: message..file = fileInfo));
               }
-            }
-            if (message.hasText()) {
-              _sendMessageToMember(member, message);
+            } else if (message.hasText()) {
+              _sendClientPacket(member.memberUid.asString(),
+                  ServerLessPacket(message: message));
             }
           }
         }
@@ -385,15 +386,19 @@ class ServerLessMucService {
     return fileInfo;
   }
 
-  void _sendMessageToMember(model.Member member, Message message) {
-    final ip = _serverLessService.address[member.memberUid.asString()];
-    if (ip != null) {
-      unawaited(
-        _serverLessService.sendRequest(
-          ServerLessPacket(message: message),
-          ip,
-        ),
-      );
+  void _sendClientPacket(String memberUid, ServerLessPacket packet) {
+    try {
+      final ip = _serverLessService.getIp(memberUid);
+      if (ip != null) {
+        unawaited(
+          _serverLessService.sendRequest(
+            packet,
+            ip,
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 }

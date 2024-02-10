@@ -26,7 +26,7 @@ class ServerLessService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
   final address = <String, String>{}.obs;
-  final superNodes = <String>{}.obs;
+  final superNodes = <String>[].obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
@@ -77,6 +77,8 @@ class ServerLessService {
     }
   }
 
+  bool superNodeExit() => superNodes.isNotEmpty;
+
   String? getSuperNodeIp() {
     try {
       if (superNodes.isEmpty) {
@@ -111,7 +113,7 @@ class ServerLessService {
   }
 
   Future<void> _dispose() async {
-    if(Platform.isAndroid){
+    if (Platform.isAndroid) {
       await _notificationForegroundService.stopForegroundTask();
     }
     await _httpServer?.close(force: true);
@@ -413,7 +415,7 @@ class ServerLessService {
 
   String getMyIp() => _ip;
 
-  Future<String?> getIp(String uid) async {
+  Future<String?> getIpAsync(String uid) async {
     if (uid == _authRepo.currentUserUid.asString()) {
       return _ip;
     }
@@ -433,6 +435,8 @@ class ServerLessService {
     }
     return null;
   }
+
+  String? getIp(String uid) => address[uid];
 
   void removeIp(String uid) {
     address.remove(uid);

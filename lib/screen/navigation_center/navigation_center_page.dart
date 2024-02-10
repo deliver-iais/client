@@ -169,8 +169,8 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                     titleSpacing: 8.0,
                     toolbarHeight: 50,
-                    title: ConnectionStatus(
-                      normalTitle: _i18n.get("chats"),
+                    title: const ConnectionStatus(
+                      normalTitle: APPLICATION_NAME,
                     ),
                     actions: [
                       NavigationCenterAppbarActionsWidget(

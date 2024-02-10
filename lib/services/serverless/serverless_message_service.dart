@@ -14,7 +14,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -51,7 +50,6 @@ class ServerLessMessageService {
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
 
-
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
       case ClientPacket_Type.message:
@@ -67,7 +65,7 @@ class ServerLessMessageService {
         break;
       case ClientPacket_Type.seen:
         final uid = clientPacket.seen.to;
-        if (await _serverLessService.getIp(uid.asString()) != null) {
+        if (await _serverLessService.getIpAsync(uid.asString()) != null) {
           unawaited(
             _sendSeen(
               Seen()
@@ -126,7 +124,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
-    final ip = await _serverLessService.getIp(activity.to.asString());
+    final ip = await _serverLessService.getIpAsync(activity.to.asString());
     if (ip != null) {
       unawaited(
         _serverLessService.sendRequest(
@@ -192,7 +190,7 @@ class ServerLessMessageService {
   Future<void> _sendMessage({required Uid to, required Message message}) async {
     _messagePacketIdes.add(message.packetId);
     if (to.category == Categories.USER) {
-      final ip = await _serverLessService.getIp(to.asString());
+      final ip = await _serverLessService.getIpAsync(to.asString());
       if (ip != null) {
         await _send(ip: ip, message: message);
       }
@@ -315,7 +313,7 @@ class ServerLessMessageService {
         case ServerLessPacket_Type.createLocalMuc:
           await _serverLessMucService.handleCreateMuc(
             serverLessPacket.createLocalMuc,
-            serverLessPacket.proxyMessage,
+            proxyMessage: serverLessPacket.proxyMessage,
           );
           break;
         case ServerLessPacket_Type.addMembersReq:
@@ -396,7 +394,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendSeen(Seen seen) async {
-    final ip = await _serverLessService.getIp(seen.to.asString());
+    final ip = await _serverLessService.getIpAsync(seen.to.asString());
     if (ip != null) {
       unawaited(_serverLessService.sendRequest(
         ServerLessPacket(seen: seen),
@@ -531,7 +529,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendAck(MessageDeliveryAck ack) async {
-    final ip = await _serverLessService.getIp(ack.to.asString());
+    final ip = await _serverLessService.getIpAsync(ack.to.asString());
     if (ip != null) {
       unawaited(_serverLessService.sendRequest(
         ServerLessPacket(messageDeliveryAck: ack),
@@ -563,7 +561,7 @@ class ServerLessMessageService {
       callEvent.busy = callEventV2ByClient.busy;
     }
     final ip =
-        await _serverLessService.getIp(callEventV2ByClient.to.asString());
+        await _serverLessService.getIpAsync(callEventV2ByClient.to.asString());
     if (ip != null) {
       unawaited(_sendCallEventReq(callEvent, ip));
     }

@@ -32,6 +32,22 @@ class MucServices {
     }
   }
 
+  Future<bool> createNewLocalGroup(
+      String groupName, String info, String node) async {
+    try {
+      await _serVices.groupServiceClient.createLocalGroup(
+        group_pb.CreateLocalGroupReq()
+          ..name = groupName
+          ..groupNode = node
+          ..info = info,
+      );
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
   Future<int> addGroupMembers(
     List<Member> members,
     Uid groupUid, {
@@ -150,7 +166,6 @@ class MucServices {
     int pointer, {
     String query = "*",
   }) async {
-
     final request = await _serVices.groupServiceClient.getMembers(
       group_pb.GetMembersReq()
         ..uid = groupUid

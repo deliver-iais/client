@@ -57,11 +57,9 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   final _channelIdKey = GlobalKey<FormState>();
   final showChannelIdError = false.obs;
   final _mucAvatarPath = "".obs;
-  final _useLocalNetwork = true.obs;
 
   @override
   void initState() {
-    _useLocalNetwork.value = _serverLessService.superNodes.isNotEmpty;
     _mucNameController = TextEditingController();
     _mucIdController = TextEditingController();
     _mucInfoController = TextEditingController();
@@ -155,13 +153,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 const SizedBox(
                                   width: 40,
                                 ),
-                                Obx(
-                                  () => Switch(
-                                    value: _useLocalNetwork.value,
-                                    onChanged: (_) =>
-                                        _useLocalNetwork.value = _,
-                                  ),
-                                )
                               ],
                             ),
                           )),
@@ -382,7 +373,6 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           _mucNameController.text,
                           _mucInfoController.text,
                           channelType: _channelType,
-                          isLocalNetworkMuc: _useLocalNetwork.value,
                           channelId: _mucIdController.text.trim(),
                           checkChannelId: _checkChannelD,
                         );
