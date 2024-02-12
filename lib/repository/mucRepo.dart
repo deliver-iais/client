@@ -54,12 +54,20 @@ class MucRepo {
             members: memberUidList,
             groupNode: node,
           );
+      final groupUid = Uid(category: Categories.GROUP, node: node);
       try {
-        await _mucServices.createNewLocalGroup(groupName, info, node);
+        if (await _mucServices.createNewLocalGroup(groupName, info, node)) {
+          await _sendAndSaveMucMembers(
+            groupUid,
+            memberUidList,
+            groupName,
+            info,
+          );
+        }
       } catch (e) {
         _logger.e(e);
       }
-      return Uid(category: Categories.GROUP, node: node);
+      return groupUid;
     } else {
       final groupUid = await _mucServices.createNewGroup(groupName, info);
       if (groupUid != null) {
@@ -757,30 +765,36 @@ class MucRepo {
         );
       }
 
-      if (mucUid.asString().contains(LOCAL_MUC_ID)) {
+      if (GetIt.I.get<ServerLessService>().superNodeExit()) {
         await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
+        unawaited(_sendMembersToServer(usersAddCode, mucUid, members));
         return StatusCode.ok;
       } else {
-        usersAddCode = await _addMucMember(
-          mucUid,
-          members,
-        );
-
-        if (usersAddCode == StatusCode.ok) {
-          for (final element in members) {
-            unawaited(_mucDao.saveMember(Member(
-              mucUid: mucUid,
-              memberUid: element.uid,
-              role: getLocalRole(element.role),
-            )));
-          }
-        }
-        return usersAddCode;
+        return await _sendMembersToServer(usersAddCode, mucUid, members);
       }
     } catch (e) {
       _logger.e(e);
       return StatusCode.unknown;
     }
+  }
+
+  Future<int> _sendMembersToServer(
+      int usersAddCode, Uid mucUid, List<muc_pb.Member> members) async {
+    usersAddCode = await _addMucMember(
+      mucUid,
+      members,
+    );
+
+    if (usersAddCode == StatusCode.ok) {
+      for (final element in members) {
+        unawaited(_mucDao.saveMember(Member(
+          mucUid: mucUid,
+          memberUid: element.uid,
+          role: getLocalRole(element.role),
+        )));
+      }
+    }
+    return usersAddCode;
   }
 
   Future<int> _addMucMember(Uid mucUid, List<muc_pb.Member> members) {
@@ -801,9 +815,9 @@ class MucRepo {
     Uid mucUid,
     List<Member> members,
   ) async {
-    if (members.isNotEmpty) {
-      await _mucDao.deleteAllMembers(mucUid);
-    }
+    // if (members.isNotEmpty) {
+    //   await _mucDao.deleteAllMembers(mucUid);
+    // }
     for (final member in members) {
       {
         unawaited(_mucDao.saveMember(member));

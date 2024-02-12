@@ -43,25 +43,30 @@ class ServerLessMucService {
   }) async {
     try {
       members.add(_authRepo.currentUserUid);
+      final createGroup = CreateLocalMuc(
+        creator: _authRepo.currentUserUid,
+        uid: Uid(category: Categories.GROUP, node: groupNode),
+        name: name,
+        members: mapMembers(members),
+      );
+
       final serverLessPacket = ServerLessPacket(
-        createLocalMuc: CreateLocalMuc(
-          creator: _authRepo.currentUserUid,
-          uid: Uid(category: Categories.GROUP, node: groupNode),
-          name: name,
-          members: mapMembers(members),
-        ),
+        createLocalMuc: createGroup,
       );
 
       if (settings.isSuperNode.value) {
         for (final member in members) {
-          _sendClientPacket(member.node, serverLessPacket);
+          _sendClientPacket(member.asString(), serverLessPacket);
         }
       } else {
         final uid = _serverLessService.getSuperNode();
         if (uid != null) {
-          _sendClientPacket(uid.node, serverLessPacket..proxyMessage = true);
+          _sendClientPacket(
+              uid.asString(), serverLessPacket..proxyMessage = true);
         }
       }
+      unawaited(_saveLocalMuc(createGroup));
+
       return true;
     } catch (_) {
       _logger.e(_);
@@ -363,8 +368,10 @@ class ServerLessMucService {
                     ServerLessPacket(message: message..file = fileInfo));
               }
             } else if (message.hasText()) {
-              _sendClientPacket(member.memberUid.asString(),
-                  ServerLessPacket(message: message));
+              _sendClientPacket(
+                member.memberUid.asString(),
+                ServerLessPacket(message: message),
+              );
             }
           }
         }

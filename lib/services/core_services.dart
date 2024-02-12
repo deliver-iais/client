@@ -14,6 +14,7 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
@@ -108,7 +109,7 @@ class CoreServices {
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection(forced: true);
-         _serverLessService.restart();
+        _serverLessService.restart();
       } else {
         _onConnectionError();
       }
@@ -296,6 +297,7 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
+  //todo use
   Future<void> sendLocalMessageToServer(MessageByClient messageByClient) async {
     if (connectionStatus.value == ConnectionStatus.Connected) {
       unawaited(sendMessage(messageByClient, forceToSendToServer: true));
@@ -423,23 +425,35 @@ class CoreServices {
     required Uid to,
   }) async {
     try {
-      if (!forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
+      if (!forceToSendToServer &&
+          to.isGroup() &&
+          _serverLessService.superNodeExit()) {
         unawaited(_serverLessMessageService.sendClientPacket(packet));
+        await Future.delayed(const Duration(seconds: 1));
+        _sendClientPacketToServer(packet, forceToSendEvenNotConnected);
         return SendingPanel.LOCAL;
       } else {
-        if (isWeb ||
-            _clientPacketStream == null ||
-            _clientPacketStream!.isClosed) {
-          unawaited(_services.coreServiceClient.sendClientPacket(packet));
-        } else if (forceToSendEvenNotConnected ||
-            _connectionStatus.value == ConnectionStatus.Connected) {
-          _clientPacketStream?.add(packet);
+        if (!forceToSendToServer && _serverLessService.inLocalNetwork(to)) {
+          unawaited(_serverLessMessageService.sendClientPacket(packet));
+          return SendingPanel.LOCAL;
+        } else {
+          _sendClientPacketToServer(packet, forceToSendEvenNotConnected);
+          return SendingPanel.SERVER;
         }
-        return SendingPanel.SERVER;
       }
     } catch (e) {
       _logger.e(e);
       return SendingPanel.SERVER;
+    }
+  }
+
+  void _sendClientPacketToServer(
+      ClientPacket packet, bool forceToSendEvenNotConnected) {
+    if (isWeb || _clientPacketStream == null || _clientPacketStream!.isClosed) {
+      unawaited(_services.coreServiceClient.sendClientPacket(packet));
+    } else if (forceToSendEvenNotConnected ||
+        _connectionStatus.value == ConnectionStatus.Connected) {
+      _clientPacketStream?.add(packet);
     }
   }
 }
