@@ -17,6 +17,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
@@ -309,13 +310,14 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          // if(serverLessPacket.message.hasText()) {
-          //   try {
-          //     serverLessPacket.message.text.text = Encryption().decryptText(serverLessPacket.message.text.text);
-          //   } catch (e) {
-          //     _logger.e(e);
-          //   }
-          // }
+          if(serverLessPacket.message.hasText()) {
+            try {
+              serverLessPacket.callEvent.from;
+              serverLessPacket.message.text.text = (Encryption().decryptText(serverLessPacket.message.text.text,  serverLessPacket.callEvent.from.toString()));
+            } catch (e) {
+              _logger.e(e);
+            }
+          }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService
                 .sendMessageToMucUsers(serverLessPacket.message);

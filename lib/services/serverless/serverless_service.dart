@@ -7,6 +7,7 @@ import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
+import 'package:deliver/services/serverless/encryption.dart';
 // import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
@@ -210,9 +211,9 @@ class ServerLessService {
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    // if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-    //   serverLessPacket.message.text.text = Encryption().encryptText(serverLessPacket.message.text.text);
-    // }
+    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
+      serverLessPacket.message.text.text = Encryption().encryptText(serverLessPacket.message.text.text);
+    }
 
     try {
       return _dio.post(
@@ -265,7 +266,7 @@ class ServerLessService {
       if (serverLessPacket.hasLocalNetworkInfo()) {
         await _processRegister(serverLessPacket.localNetworkInfo);
         await request.response.close();
-      } else {
+      }
         unawaited(
           GetIt.I
               .get<ServerLessMessageService>()
@@ -273,7 +274,7 @@ class ServerLessService {
         );
         request.response.statusCode = HttpStatus.ok;
         await request.response.close();
-      }
+
     } catch (e) {
       request.response.statusCode = HttpStatus.internalServerError;
       _logger.e(e);

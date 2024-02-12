@@ -191,7 +191,7 @@ dependencies:
       url: https://github.com/deliveriais/persian-datetime-picker
   persian_number_utility: 1.1.3
   phone_state: ^1.0.3
-  photo_manager: 3.0.0-dev.2
+  photo_manager: ^3.0.0-dev.5
   protobuf: 3.0.0
   photo_view: 0.14.0
   dropdown_search: 5.0.6
