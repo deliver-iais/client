@@ -297,14 +297,11 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          // if (serverLessPacket.message.hasText()) {
-          //   final encrypted = serverLessPacket.message.text.text;
-          //   serverLessPacket.message.text.text =
-          //       _encrypter.decrypt64(encrypted, iv: iv);
-          // }
           if (serverLessPacket.proxyMessage) {
-            await _serverLessMucService
-                .sendMessageToMucUsers(serverLessPacket.message);
+            await _serverLessMucService.sendMessageToMucUsers(
+              serverLessPacket.message,
+              serverLessPacket.members,
+            );
           } else {
             await processMessage(serverLessPacket.message);
           }
@@ -316,12 +313,9 @@ class ServerLessMessageService {
             proxyMessage: serverLessPacket.proxyMessage,
           );
           break;
-        case ServerLessPacket_Type.addMembersReq:
-          await _serverLessMucService.handleAddMember(
-            serverLessPacket.addMembersReq,
-            from: serverLessPacket.uid.asString(),
-            name: serverLessPacket.name,
-          );
+        case ServerLessPacket_Type.addMembers:
+          await _serverLessMucService
+              .handleAddMember(serverLessPacket.addMembers);
           break;
         case ServerLessPacket_Type.activity:
           _dataStreamService.handleActivity(serverLessPacket.activity);

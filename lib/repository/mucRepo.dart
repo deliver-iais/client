@@ -744,7 +744,7 @@ class MucRepo {
 
   Future<int> addMucMember(Uid mucUid, List<Uid> memberUids) async {
     try {
-      var usersAddCode = 0;
+      const usersAddCode = 0;
       final members = <muc_pb.Member>[];
       var role = muc_pb.Role.MEMBER;
       if (mucUid.isChannel()) {
