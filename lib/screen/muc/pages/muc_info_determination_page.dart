@@ -14,7 +14,6 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/validate.dart';
@@ -50,7 +49,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   final _createMucService = GetIt.I.get<CreateMucService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _mucHelper = GetIt.I.get<MucHelperService>();
-  final _serverLessService = GetIt.I.get<ServerLessService>();
+
   bool idIsAvailable = false;
   final I18N _i18n = GetIt.I.get<I18N>();
   final mucNameKey = GlobalKey<FormState>();
@@ -130,32 +129,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     const SizedBox(
                       height: 5,
                     ),
-                    if (_serverLessService.superNodes.isNotEmpty)
-                      Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary, // Set border color
-                            ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(
-                                15,
-                              ) //
-                              ,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Text(_i18n.get("local_network")),
-                                const SizedBox(
-                                  width: 40,
-                                ),
-                              ],
-                            ),
-                          )),
+
                     if (widget.categories == MucCategories.CHANNEL) ...[
                       _buildChannelTypeSelection(),
                       const SizedBox(

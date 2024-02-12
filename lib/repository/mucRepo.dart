@@ -39,7 +39,6 @@ class MucRepo {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
-  final _serverLessService = GetIt.I.get<ServerLessService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<Uid?> createNewGroup(
@@ -47,7 +46,7 @@ class MucRepo {
     String groupName,
     String info,
   ) async {
-    if (_serverLessService.superNodeExit()) {
+    if (GetIt.I.get<ServerLessService>().superNodeExit()) {
       final node =
           "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
       await GetIt.I.get<ServerLessMucService>().createGroup(
