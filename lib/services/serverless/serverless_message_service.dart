@@ -14,6 +14,8 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/serverless/encryption.dart';
+import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -34,6 +36,12 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+// import 'package:deliver/services/serverless/encryption.dart';
+
+
+
+
+
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -49,6 +57,7 @@ class ServerLessMessageService {
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
+
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -297,6 +306,15 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
+          if(serverLessPacket.message.hasText()) {
+            try {
+              final text = serverLessPacket.message.text.text;
+              final uid = serverLessPacket.message.from.node;
+              serverLessPacket.message.text.text = (Encryption.decryptText(text,  uid));
+            } catch (e) {
+              _logger.e(e);
+            }
+          }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService.sendMessageToMucUsers(
               serverLessPacket.message,
