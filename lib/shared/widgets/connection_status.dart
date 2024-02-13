@@ -167,11 +167,16 @@ class ConnectionStatus extends StatelessWidget {
           child: Icon(CupertinoIcons.antenna_radiowaves_left_right),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(c);
-            },
-            child: const Text("close"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(c);
+                },
+                child: const Text("close"),
+              ),
+            ],
           )
         ],
         content: SizedBox(

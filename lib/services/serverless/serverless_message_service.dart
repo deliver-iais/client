@@ -306,15 +306,6 @@ class ServerLessMessageService {
             ..shouldRemoveData = false;
           break;
         case ServerLessPacket_Type.message:
-          if(serverLessPacket.message.hasText()) {
-            try {
-              final text = serverLessPacket.message.text.text;
-              final uid = serverLessPacket.message.to.node;
-              serverLessPacket.message.text.text = (Encryption.decryptText(text,  uid));
-            } catch (e) {
-              _logger.e(e);
-            }
-          }
           if (serverLessPacket.proxyMessage) {
             await _serverLessMucService.sendMessageToMucUsers(
               serverLessPacket.message,
@@ -416,6 +407,16 @@ class ServerLessMessageService {
   }
 
   Future<void> processMessage(Message message) async {
+    if(serverLessPacket.message.hasText()) {
+      try {
+        final text = serverLessPacket.message.text.text;
+        final uid = serverLessPacket.message.to.node;
+        serverLessPacket.message.text.text = (Encryption.decryptText(text,  uid));
+      } catch (e) {
+        _logger.e(e);
+      }
+    }
+
     unawaited(_handleMessage(message));
   }
 
