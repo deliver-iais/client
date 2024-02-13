@@ -3,8 +3,7 @@ import 'package:encrypt/encrypt.dart';
 class Encryption {
   String key = "";
   static String setKey(String uid) {
-    uid.length;
-    return uid.replaceAll("-", "");
+    return uid.substring(0 , 32);
   }
 
   static String encryptText(String text, String uid) {
