@@ -351,12 +351,14 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     if (_serverLessService.superNodes.isEmpty) {
       return items;
     } else {
-     //  final l1 = items.where(
-     //      (a) => (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)));
-     // items..removeWhere(
-     //      (a) => (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)))
-     //  ..addAll(l1);
+      items.sort(
+        (a, b) => _isInLocalNetwork(a.uid!) - _isInLocalNetwork(b.uid!),
+      );
+
       return items;
     }
   }
+
+  int _isInLocalNetwork(Uid uid) =>
+      _serverLessService.inLocalNetwork(uid) ? 0 : 1;
 }
