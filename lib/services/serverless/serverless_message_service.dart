@@ -38,11 +38,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 // import 'package:deliver/services/serverless/encryption.dart';
 
-
-
-
-
-
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -57,7 +52,6 @@ class ServerLessMessageService {
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
   final _rooms = <String, LocalChatRoom>{};
   final _messagePacketIdes = <String>{};
-
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
     switch (clientPacket.whichType()) {
@@ -96,7 +90,9 @@ class ServerLessMessageService {
         }
         break;
       case ClientPacket_Type.activity:
-        unawaited(_sendActivity(clientPacket.activity));
+        if (clientPacket.activity.to.isUser()) {
+          unawaited(_sendActivity(clientPacket.activity));
+        }
         break;
       case ClientPacket_Type.ping:
       case ClientPacket_Type.callOffer:
@@ -123,7 +119,9 @@ class ServerLessMessageService {
       ..replyToId = messageByClient.replyToId
       ..id = Int64(id)
       ..edited = edited
-      ..text = messageByClient.text
+      ..text = Text(
+          text: Encryption.encryptText(
+              messageByClient.text.text, messageByClient.to.node,),)
       ..forwardFrom = messageByClient.forwardFrom
       ..time = Int64(
         DateTime.now().millisecondsSinceEpoch,
@@ -407,11 +405,11 @@ class ServerLessMessageService {
   }
 
   Future<void> processMessage(Message message) async {
-    if(serverLessPacket.message.hasText()) {
+    if (message.hasText()) {
       try {
-        final text = serverLessPacket.message.text.text;
-        final uid = serverLessPacket.message.to.node;
-        serverLessPacket.message.text.text = (Encryption.decryptText(text,  uid));
+        final text = message.text.text;
+        final uid = message.to.node;
+        message.text.text = (Encryption.decryptText(text, uid));
       } catch (e) {
         _logger.e(e);
       }

@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:convert';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
-import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -209,11 +207,6 @@ class ServerLessService {
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      serverLessPacket.message.text.text = Encryption.encryptText(
-          serverLessPacket.message.text.text, serverLessPacket.message.to.node);
-    }
-
     try {
       return _dio.post(
         "http://$url:$SERVER_PORT",
@@ -414,6 +407,9 @@ class ServerLessService {
   String getMyIp() => _ip;
 
   Future<String?> getIpAsync(String uid) async {
+    if (uid.contains(LOCAL_MUC_ID)) {
+      return null;
+    }
     if (uid == _authRepo.currentUserUid.asString()) {
       return _ip;
     }
