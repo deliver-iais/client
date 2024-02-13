@@ -91,6 +91,11 @@ class DataStreamServices {
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return null;
     }
+    if (roomUid.isGroup() &&
+        (await _messageDao.getMessageByPacketId(roomUid, message.packetId)) !=
+            null) {
+      return null;
+    }
     //isOnlineMessage
     if (isOnlineMessage) {
       await _checkForReplyKeyBoard(message);

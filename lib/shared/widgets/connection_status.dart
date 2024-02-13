@@ -83,17 +83,17 @@ class ConnectionStatus extends StatelessWidget {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        if (settings.isSuperNode.value)
+                                        if (!settings.isSuperNode.value)
                                           Text(
                                             _i18n.get("local_network"),
                                             style:
-                                                const TextStyle(fontSize: 18),
+                                                const TextStyle(fontSize: 16),
                                           )
                                         else
                                           Text(
                                             _i18n.get("local_network_server"),
                                             style:
-                                                const TextStyle(fontSize: 18),
+                                                const TextStyle(fontSize: 16),
                                           ),
                                         const SizedBox(
                                           width: 5,
@@ -140,7 +140,8 @@ class ConnectionStatus extends StatelessWidget {
                                     ),
                                     Text(
                                       _i18n.get("internet"),
-                                      style: const TextStyle(fontSize: 15),
+                                      style: TextStyle(
+                                          fontSize: 14, color: theme.hintColor),
                                     ),
                                   ],
                                 ),

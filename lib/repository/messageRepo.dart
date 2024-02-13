@@ -275,7 +275,10 @@ class MessageRepo {
               lastLocalNetworkMessageId: roomMetadata.lastLocalId.toInt(),
               lastCurrentUserSentMessageId:
                   roomMetadata.lastCurrentUserSentMessageId.toInt(),
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              lastMessageId: roomMetadata.roomUid.isGroup()
+                  ? max(roomMetadata.lastMessageId.toInt(),
+                      (room?.lastMessageId) ?? 0)
+                  : roomMetadata.lastMessageId.toInt(),
               firstMessageId: roomMetadata.firstMessageId.toInt(),
               lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             ),

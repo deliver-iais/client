@@ -138,7 +138,8 @@ class ServerLessMucService {
   Future<void> addMember(Uid mucUid, List<Member> members) async {
     final olbMembers = await _mucDao.getAllMembers(mucUid);
 
-    for (final member in members) {
+    for (final member in members
+      ..addAll(olbMembers.map((e) => _convertMember(e)))) {
       final ip = _serverLessService.getIp(member.uid.asString());
       if (ip != null) {
         await _serverLessService.sendRequest(
@@ -232,7 +233,7 @@ class ServerLessMucService {
     await _dataStreamService.handleIncomingMessage(
       Message()
         ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
-        ..from = issuer
+        ..from = roomUId
         ..to = _authRepo.currentUserUid
         ..time = Int64(
           DateTime.now().millisecondsSinceEpoch,
@@ -301,23 +302,25 @@ class ServerLessMucService {
       );
     }
 
-    await _dataStreamService.handleIncomingMessage(
-      Message()
-        ..id = Int64(1)
-        ..from = createLocalMuc.uid
-        ..to = _authRepo.currentUserUid
-        ..time = Int64(
-          DateTime.now().millisecondsSinceEpoch,
-        )
-        ..persistEvent = PersistentEvent(
-          mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-            issue: MucSpecificPersistentEvent_Issue.MUC_CREATED,
-            issuer: createLocalMuc.creator,
-            assignee: createLocalMuc.uid,
-            name: createLocalMuc.name,
+    unawaited(
+      _dataStreamService.handleIncomingMessage(
+        Message()
+          ..id = Int64(1)
+          ..from = createLocalMuc.uid
+          ..to = _authRepo.currentUserUid
+          ..time = Int64(
+            DateTime.now().millisecondsSinceEpoch,
+          )
+          ..persistEvent = PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.MUC_CREATED,
+              issuer: createLocalMuc.creator,
+              assignee: createLocalMuc.uid,
+              name: createLocalMuc.name,
+            ),
           ),
-        ),
-      isOnlineMessage: true,
+        isOnlineMessage: true,
+      ),
     );
   }
 

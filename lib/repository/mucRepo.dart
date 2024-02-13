@@ -55,18 +55,8 @@ class MucRepo {
             groupNode: node,
           );
       final groupUid = Uid(category: Categories.GROUP, node: node);
-      try {
-        if (await _mucServices.createNewLocalGroup(groupName, info, node)) {
-          await _sendAndSaveMucMembers(
-            groupUid,
-            memberUidList,
-            groupName,
-            info,
-          );
-        }
-      } catch (e) {
-        _logger.e(e);
-      }
+      unawaited(
+          _syncGroupByServer(groupName, info, node, groupUid, memberUidList));
       return groupUid;
     } else {
       final groupUid = await _mucServices.createNewGroup(groupName, info);
@@ -81,6 +71,27 @@ class MucRepo {
       }
     }
     return null;
+  }
+
+  Future<void> _syncGroupByServer(
+    String groupName,
+    String info,
+    String node,
+    Uid groupUid,
+    List<Uid> memberUidList,
+  ) async {
+    try {
+      if (await _mucServices.createNewLocalGroup(groupName, info, node)) {
+        await _sendAndSaveMucMembers(
+          groupUid,
+          memberUidList,
+          groupName,
+          info,
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<Uid?> createNewChannel(
@@ -767,7 +778,25 @@ class MucRepo {
 
       if (GetIt.I.get<ServerLessService>().superNodeExit()) {
         await GetIt.I.get<ServerLessMucService>().addMember(mucUid, members);
-        unawaited(_sendMembersToServer(usersAddCode, mucUid, members));
+        unawaited(
+          _sendMembersToServer(
+            usersAddCode,
+            mucUid,
+            members,
+            needToSave: false,
+          ),
+        );
+        for (final element in members) {
+          _saveMembersInDb(mucUid, element);
+        }
+
+        unawaited(
+          _mucDao.updateMuc(
+            uid: mucUid,
+            population: members.length,
+          ),
+        );
+
         return StatusCode.ok;
       } else {
         return await _sendMembersToServer(usersAddCode, mucUid, members);
@@ -779,22 +808,39 @@ class MucRepo {
   }
 
   Future<int> _sendMembersToServer(
-      int usersAddCode, Uid mucUid, List<muc_pb.Member> members) async {
-    usersAddCode = await _addMucMember(
-      mucUid,
-      members,
-    );
+    int usersAddCode,
+    Uid mucUid,
+    List<muc_pb.Member> members, {
+    bool needToSave = true,
+  }) async {
+    try {
+      usersAddCode = await _addMucMember(
+        mucUid,
+        members,
+      );
 
-    if (usersAddCode == StatusCode.ok) {
-      for (final element in members) {
-        unawaited(_mucDao.saveMember(Member(
+      if (usersAddCode == StatusCode.ok && needToSave) {
+        for (final element in members) {
+          _saveMembersInDb(mucUid, element);
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+
+    return usersAddCode;
+  }
+
+  void _saveMembersInDb(Uid mucUid, muc_pb.Member element) {
+    unawaited(
+      _mucDao.saveMember(
+        Member(
           mucUid: mucUid,
           memberUid: element.uid,
           role: getLocalRole(element.role),
-        )));
-      }
-    }
-    return usersAddCode;
+        ),
+      ),
+    );
   }
 
   Future<int> _addMucMember(Uid mucUid, List<muc_pb.Member> members) {
