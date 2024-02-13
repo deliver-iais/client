@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
+import 'package:deliver/services/serverless/encryption.dart';
+// import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
@@ -203,22 +206,14 @@ class ServerLessService {
     }
   }
 
+
   Future<Response?> sendRequest(
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
-    // if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-    //   final iv = enc.IV.fromLength(16);
-    //   final encrypter =
-    //       enc.Encrypter(enc.AES(enc.Key.fromUtf8('12345678901234567890')));
-    //   final encrypted = encrypter
-    //       .encrypt(
-    //         serverLessPacket.message.text.text,
-    //         iv: iv,
-    //       )
-    //       .base64;
-    //   serverLessPacket.message.text.text = encrypted;
-    // }
+    if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
+      serverLessPacket.message.text.text = Encryption.encryptText(serverLessPacket.message.text.text, _authRepo.currentUserUid.node);
+    }
 
     try {
       return _dio.post(
@@ -271,7 +266,7 @@ class ServerLessService {
       if (serverLessPacket.hasLocalNetworkInfo()) {
         await _processRegister(serverLessPacket.localNetworkInfo);
         await request.response.close();
-      } else {
+      }
         unawaited(
           GetIt.I
               .get<ServerLessMessageService>()
@@ -279,7 +274,7 @@ class ServerLessService {
         );
         request.response.statusCode = HttpStatus.ok;
         await request.response.close();
-      }
+
     } catch (e) {
       request.response.statusCode = HttpStatus.internalServerError;
       _logger.e(e);
