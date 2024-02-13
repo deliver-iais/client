@@ -2,12 +2,12 @@ import 'package:encrypt/encrypt.dart';
 
 class Encryption {
   String key = "";
-  String setKey(String uid) {
+  static String setKey(String uid) {
     uid.length;
     return uid.replaceAll("-", "");
   }
 
-  String encryptText(String text, String uid) {
+  static String encryptText(String text, String uid) {
     final key = setKey(uid);
     final keyBytes = Key.fromUtf8(key);
     final iv = IV.fromLength(16); // Create a 16-byte initialization vector
@@ -20,7 +20,7 @@ class Encryption {
   }
 
 
-  String decryptText(String encryptedText, String uid) {
+  static String decryptText(String encryptedText, String uid) {
     final key = setKey(uid);
     final keyBytes = Key.fromUtf8(key);
     final iv = IV.fromBase16(encryptedText.substring(0 , 32));

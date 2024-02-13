@@ -310,7 +310,7 @@ class ServerLessMessageService {
             try {
               final text = serverLessPacket.message.text.text;
               final uid = serverLessPacket.message.from.node;
-              serverLessPacket.message.text.text = (Encryption().decryptText(text,  uid));
+              serverLessPacket.message.text.text = (Encryption.decryptText(text,  uid));
             } catch (e) {
               _logger.e(e);
             }
