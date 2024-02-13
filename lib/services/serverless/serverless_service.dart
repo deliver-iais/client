@@ -205,13 +205,13 @@ class ServerLessService {
     }
   }
 
-
   Future<Response?> sendRequest(
     ServerLessPacket serverLessPacket,
     String url,
   ) async {
     if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      serverLessPacket.message.text.text = Encryption.encryptText(serverLessPacket.message.text.text, serverLessPacket.message.to.node);
+      serverLessPacket.message.text.text = Encryption.encryptText(
+          serverLessPacket.message.text.text, serverLessPacket.message.to.node);
     }
 
     try {
@@ -266,16 +266,20 @@ class ServerLessService {
         await _processRegister(serverLessPacket.localNetworkInfo);
         await request.response.close();
       }
-        unawaited(
-          GetIt.I
-              .get<ServerLessMessageService>()
-              .processIncomingPacket(serverLessPacket),
-        );
-        request.response.statusCode = HttpStatus.ok;
-        await request.response.close();
-
+      unawaited(
+        GetIt.I
+            .get<ServerLessMessageService>()
+            .processIncomingPacket(serverLessPacket),
+      );
+      request.response.statusCode = HttpStatus.ok;
+      await request.response.close();
     } catch (e) {
-      request.response.statusCode = HttpStatus.internalServerError;
+      try {
+        request.response.statusCode = HttpStatus.internalServerError;
+      } catch (e) {
+        _logger.e(e);
+      }
+
       _logger.e(e);
       await request.response.close();
     }
