@@ -14,7 +14,6 @@ import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -23,7 +22,6 @@ import 'package:get/get.dart' as g;
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:encrypt/encrypt.dart';
 
 class ServerLessService {
   final Dio _dio = Dio();
@@ -31,14 +29,12 @@ class ServerLessService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
   final address = <String, String>{}.obs;
-  final superNodes = <String>{}.obs;
+  final superNodes = <String>[].obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
       GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
-
-  final String keyStoreId = 'mySecureKeyStore';
 
   HttpServer? _httpServer;
 
@@ -84,6 +80,8 @@ class ServerLessService {
     }
   }
 
+  bool superNodeExit() => superNodes.isNotEmpty;
+
   String? getSuperNodeIp() {
     try {
       if (superNodes.isEmpty) {
@@ -118,7 +116,9 @@ class ServerLessService {
   }
 
   Future<void> _dispose() async {
-    await _notificationForegroundService.stopForegroundTask();
+    if (Platform.isAndroid) {
+      await _notificationForegroundService.stopForegroundTask();
+    }
     await _httpServer?.close(force: true);
     _upSocket?.close();
     GetIt.I.get<ServerLessMessageService>().reset();
@@ -410,7 +410,7 @@ class ServerLessService {
 
   String getMyIp() => _ip;
 
-  Future<String?> getIp(String uid) async {
+  Future<String?> getIpAsync(String uid) async {
     if (uid == _authRepo.currentUserUid.asString()) {
       return _ip;
     }
@@ -430,6 +430,8 @@ class ServerLessService {
     }
     return null;
   }
+
+  String? getIp(String uid) => address[uid];
 
   void removeIp(String uid) {
     address.remove(uid);

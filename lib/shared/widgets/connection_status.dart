@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -67,83 +68,7 @@ class ConnectionStatus extends StatelessWidget {
                                 GestureDetector(
                                   behavior: HitTestBehavior.translucent,
                                   onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (c) => AlertDialog(
-                                        title: const Center(
-                                          child: Icon(CupertinoIcons
-                                              .antenna_radiowaves_left_right),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text("close"),
-                                          )
-                                        ],
-                                        content: SizedBox(
-                                          height: _serverLessService
-                                                      .address.length <
-                                                  4
-                                              ? _serverLessService
-                                                      .address.length *
-                                                  62
-                                              : 400,
-                                          width: 200,
-                                          child: Directionality(
-                                            textDirection: TextDirection.ltr,
-                                            child: ListView.builder(
-                                              itemCount: _serverLessService
-                                                  .address.length,
-                                              itemBuilder: (c, i) {
-                                                final uid = _serverLessService
-                                                    .address.keys
-                                                    .toList()[i]
-                                                    .asUid();
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                    _routingService
-                                                        .openRoom(uid);
-                                                  },
-                                                  child: Container(
-                                                    margin:
-                                                        const EdgeInsetsDirectional
-                                                            .all(4),
-                                                    padding:
-                                                        const EdgeInsets.all(5),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        15,
-                                                      ),
-                                                      border: Border.all(
-                                                        color: theme.focusColor,
-                                                      ),
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        CircleAvatarWidget(
-                                                          uid,
-                                                          20,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 20,
-                                                        ),
-                                                        RoomName(
-                                                          uid: uid,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
+                                    _buildDialog(context, theme);
                                   },
                                   child: SizedBox(
                                     height: 24,
@@ -158,10 +83,18 @@ class ConnectionStatus extends StatelessWidget {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        Text(
-                                          _i18n.get("local_network"),
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
+                                        if (settings.isSuperNode.value)
+                                          Text(
+                                            _i18n.get("local_network"),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          )
+                                        else
+                                          Text(
+                                            _i18n.get("local_network_server"),
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
                                         const SizedBox(
                                           width: 5,
                                         ),
@@ -198,14 +131,18 @@ class ConnectionStatus extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 22),
-                                  child: buildRowStatus(
-                                    status.data!,
-                                    state,
-                                    theme,
-                                    minSize: true,
-                                  ),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.clear,
+                                      size: 14,
+                                      color: Colors.redAccent,
+                                    ),
+                                    Text(
+                                      _i18n.get("internet"),
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ],
                                 ),
                               ],
                             )
@@ -218,6 +155,72 @@ class ConnectionStatus extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  void _buildDialog(BuildContext context, ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Center(
+          child: Icon(CupertinoIcons.antenna_radiowaves_left_right),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(c);
+            },
+            child: const Text("close"),
+          )
+        ],
+        content: SizedBox(
+          height: _serverLessService.address.length < 4
+              ? _serverLessService.address.length * 62
+              : 400,
+          width: 200,
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: ListView.builder(
+              itemCount: _serverLessService.address.length,
+              itemBuilder: (con, i) {
+                final uid = _serverLessService.address.keys.toList()[i].asUid();
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pop(c);
+                    _routingService.openRoom(uid);
+                  },
+                  child: Container(
+                    margin: const EdgeInsetsDirectional.all(4),
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        15,
+                      ),
+                      border: Border.all(
+                        color: theme.focusColor,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatarWidget(
+                          uid,
+                          20,
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        RoomName(
+                          uid: uid,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 

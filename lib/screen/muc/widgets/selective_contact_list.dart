@@ -14,6 +14,7 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -350,14 +351,12 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     if (_serverLessService.superNodes.isEmpty) {
       return items;
     } else {
-      return items
-        ..sort((a, b) {
-          if (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
+     //  final l1 = items.where(
+     //      (a) => (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)));
+     // items..removeWhere(
+     //      (a) => (a.uid != null && _serverLessService.inLocalNetwork(a.uid!)))
+     //  ..addAll(l1);
+      return items;
     }
   }
 }

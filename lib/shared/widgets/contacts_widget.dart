@@ -3,6 +3,7 @@ import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -13,6 +14,7 @@ import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactWidget extends StatelessWidget {
@@ -33,9 +35,9 @@ class ContactWidget extends StatelessWidget {
     this.onCircleIcon,
   });
 
-  static final _localNetworkDao = GetIt.I.get<LocalNetworkConnectionDao>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _serverLessService = GetIt.I.get<ServerLessService>();
 
   @override
   Widget build(BuildContext context) {
@@ -144,14 +146,13 @@ class ContactWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                    if (user.uid != null &&
-                        user.uid!.category == Categories.USER &&
-                        !_authRepo.isCurrentUser(user.uid!))
-                      StreamBuilder<LocalNetworkConnections?>(
-                        stream: _localNetworkDao.watch(user.uid!),
-                        builder: (c, la) {
-                          if (la.hasData && (la.data != null)) {
-                            return Row(
+                  if (user.uid != null &&
+                      user.uid!.category == Categories.USER &&
+                      !_authRepo.isCurrentUser(user.uid!))
+                    Obx(
+                      () => _serverLessService.address.keys
+                              .contains(user.uid!.asString())
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Container(
@@ -181,12 +182,9 @@ class ContactWidget extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                 ],
               ),
               AnimatedOpacity(

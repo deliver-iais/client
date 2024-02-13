@@ -677,7 +677,7 @@ class ServicesDiscoveryRepo {
                 ipOrAddress(LB_ADDRESS),
                 options: ChannelOptions(
                   credentials: channelCredentials,
-                  connectionTimeout: const Duration(seconds: 4),
+                  connectionTimeout: const Duration(seconds: 10),
                 ),
               ),
       );

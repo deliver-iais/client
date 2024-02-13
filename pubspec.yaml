@@ -34,7 +34,6 @@ dependency_overrides:
       path: wakelock_windows/ # folder
 
 dependencies:
-  encrypt: ^5.0.1
   all_sensors: 0.4.2
   android_intent_plus: ^4.0.2
   animate_do: ^3.1.2
@@ -72,7 +71,7 @@ dependencies:
 
   deliver_public_protocol:
     git:
-      ref: tags/v1.15.65
+      ref: tags/v1.15.68
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.4.1
   desktop_lifecycle: ^0.1.1

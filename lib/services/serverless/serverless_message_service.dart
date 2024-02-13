@@ -1,7 +1,4 @@
-// ignore_for_file: avoid_single_cascade_in_expression_statements
-
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
@@ -52,7 +49,6 @@ class ServerLessMessageService {
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _pendingMessageDao = GetIt.I.get<PendingMessageDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _callService = GetIt.I.get<CallService>();
   final _serverLessService = GetIt.I.get<ServerLessService>();
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
@@ -78,7 +74,7 @@ class ServerLessMessageService {
         break;
       case ClientPacket_Type.seen:
         final uid = clientPacket.seen.to;
-        if (await _serverLessService.getIp(uid.asString()) != null) {
+        if (await _serverLessService.getIpAsync(uid.asString()) != null) {
           unawaited(
             _sendSeen(
               Seen()
@@ -137,7 +133,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
-    final ip = await _serverLessService.getIp(activity.to.asString());
+    final ip = await _serverLessService.getIpAsync(activity.to.asString());
     if (ip != null) {
       unawaited(
         _serverLessService.sendRequest(
@@ -203,7 +199,7 @@ class ServerLessMessageService {
   Future<void> _sendMessage({required Uid to, required Message message}) async {
     _messagePacketIdes.add(message.packetId);
     if (to.category == Categories.USER) {
-      final ip = await _serverLessService.getIp(to.asString());
+      final ip = await _serverLessService.getIpAsync(to.asString());
       if (ip != null) {
         await _send(ip: ip, message: message);
       }
@@ -320,8 +316,10 @@ class ServerLessMessageService {
             }
           }
           if (serverLessPacket.proxyMessage) {
-            await _serverLessMucService
-                .sendMessageToMucUsers(serverLessPacket.message);
+            await _serverLessMucService.sendMessageToMucUsers(
+              serverLessPacket.message,
+              serverLessPacket.members,
+            );
           } else {
             await processMessage(serverLessPacket.message);
           }
@@ -330,15 +328,12 @@ class ServerLessMessageService {
         case ServerLessPacket_Type.createLocalMuc:
           await _serverLessMucService.handleCreateMuc(
             serverLessPacket.createLocalMuc,
-            serverLessPacket.proxyMessage,
+            proxyMessage: serverLessPacket.proxyMessage,
           );
           break;
-        case ServerLessPacket_Type.addMembersReq:
-          await _serverLessMucService.handleAddMember(
-            serverLessPacket.addMembersReq,
-            from: serverLessPacket.uid.asString(),
-            name: serverLessPacket.name,
-          );
+        case ServerLessPacket_Type.addMembers:
+          await _serverLessMucService
+              .handleAddMember(serverLessPacket.addMembers);
           break;
         case ServerLessPacket_Type.activity:
           _dataStreamService.handleActivity(serverLessPacket.activity);
@@ -411,7 +406,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendSeen(Seen seen) async {
-    final ip = await _serverLessService.getIp(seen.to.asString());
+    final ip = await _serverLessService.getIpAsync(seen.to.asString());
     if (ip != null) {
       unawaited(_serverLessService.sendRequest(
         ServerLessPacket(seen: seen),
@@ -419,7 +414,6 @@ class ServerLessMessageService {
       ));
     }
   }
-
 
   Future<void> processMessage(Message message) async {
     unawaited(_handleMessage(message));
@@ -547,7 +541,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendAck(MessageDeliveryAck ack) async {
-    final ip = await _serverLessService.getIp(ack.to.asString());
+    final ip = await _serverLessService.getIpAsync(ack.to.asString());
     if (ip != null) {
       unawaited(_serverLessService.sendRequest(
         ServerLessPacket(messageDeliveryAck: ack),
@@ -579,7 +573,7 @@ class ServerLessMessageService {
       callEvent.busy = callEventV2ByClient.busy;
     }
     final ip =
-        await _serverLessService.getIp(callEventV2ByClient.to.asString());
+        await _serverLessService.getIpAsync(callEventV2ByClient.to.asString());
     if (ip != null) {
       unawaited(_sendCallEventReq(callEvent, ip));
     }

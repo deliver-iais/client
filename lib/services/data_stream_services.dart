@@ -566,8 +566,7 @@ class DataStreamServices {
     final packetId = messageDeliveryAck.packetId;
 
     final time = messageDeliveryAck.time.toInt();
-    final isMessageSendByBroadcastMuc = _isBroadcastMessage(packetId);
-    if (isMessageSendByBroadcastMuc) {
+    if (_isBroadcastMessage(packetId)) {
       await _saveAndCreateBroadcastMessage(messageDeliveryAck);
     } else if (messageDeliveryAck.packetId.contains(LOCAL_MESSAGE_KEY)) {
       final mes = await _messageDao.getMessageByPacketId(
@@ -652,14 +651,8 @@ class DataStreamServices {
 
   bool _isBroadcastMessage(
     String packetId,
-  ) {
-    final splitPacketId = packetId.split("-");
-    if (splitPacketId.length > 3 && splitPacketId[2] == "1") {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  ) =>
+      packetId.contains(BROADCAST_KEY);
 
   Future<void> _saveAndCreateBroadcastMessage(
     MessageDeliveryAck messageDeliveryAck,
