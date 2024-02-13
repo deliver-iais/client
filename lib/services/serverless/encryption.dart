@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 
 class Encryption {
   String key = "";
