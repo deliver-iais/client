@@ -5,13 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 
 class Encryption {
-
+  String key = "";
   String setKey(String uid) {
-
-    return uid;
+    uid.length;
+    return uid.replaceAll("-", "");
   }
 
-  String encryptText(String text) {
+  String encryptText(String text, String uid) {
+    final key = setKey(uid);
     final keyBytes = Key.fromUtf8(key);
     final iv = IV.fromLength(16); // Create a 16-byte initialization vector
     final ivString = String.fromCharCodes(iv.base16.codeUnits);

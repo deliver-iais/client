@@ -312,8 +312,9 @@ class ServerLessMessageService {
         case ServerLessPacket_Type.message:
           if(serverLessPacket.message.hasText()) {
             try {
-              serverLessPacket.callEvent.from;
-              serverLessPacket.message.text.text = (Encryption().decryptText(serverLessPacket.message.text.text,  serverLessPacket.callEvent.from.toString()));
+              final text = serverLessPacket.message.text.text;
+              final uid = serverLessPacket.message.from.node;
+              serverLessPacket.message.text.text = (Encryption().decryptText(text,  uid));
             } catch (e) {
               _logger.e(e);
             }

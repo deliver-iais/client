@@ -212,7 +212,7 @@ class ServerLessService {
     String url,
   ) async {
     if (serverLessPacket.hasMessage() && serverLessPacket.message.hasText()) {
-      serverLessPacket.message.text.text = Encryption().encryptText(serverLessPacket.message.text.text);
+      serverLessPacket.message.text.text = Encryption().encryptText(serverLessPacket.message.text.text, _authRepo.currentUserUid.node);
     }
 
     try {
