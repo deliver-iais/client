@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NavigationBarPage extends StatefulWidget {
+
   const NavigationBarPage({super.key});
 
   @override

@@ -45,7 +45,6 @@ class HomePageState extends State<HomePage> {
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
   final _analyticsService = GetIt.I.get<AnalyticsService>();
-  final _backgroundService = GetIt.I.get<BackgroundService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();

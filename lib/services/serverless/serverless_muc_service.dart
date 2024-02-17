@@ -62,7 +62,9 @@ class ServerLessMucService {
         final uid = _serverLessService.getSuperNode();
         if (uid != null) {
           _sendClientPacket(
-              uid.asString(), serverLessPacket..proxyMessage = true,);
+            uid.asString(),
+            serverLessPacket..proxyMessage = true,
+          );
         }
       }
       unawaited(_saveLocalMuc(createGroup));
@@ -138,23 +140,29 @@ class ServerLessMucService {
   Future<void> addMember(Uid mucUid, List<Member> members) async {
     final olbMembers = await _mucDao.getAllMembers(mucUid);
 
+    final nm = members;
+
     for (final member in members
       ..addAll(olbMembers.map((e) => _convertMember(e)))) {
-      final ip = _serverLessService.getIp(member.uid.asString());
-      if (ip != null) {
-        await _serverLessService.sendRequest(
-          ServerLessPacket(
-            addMembers: AddMemberToLocalMuc(
-              name: (await _mucDao.get(mucUid))?.name ?? "",
-              issuer: Member(uid: _authRepo.currentUserUid),
-              mucUid: mucUid,
-              oldMembers: olbMembers.map((e) => _convertMember(e)),
-              newMembers: members,
+      try {
+        final ip = _serverLessService.getIp(member.uid.asString());
+        if (ip != null) {
+          unawaited(
+            _serverLessService.sendRequest(
+              ServerLessPacket(
+                addMembers: AddMemberToLocalMuc(
+                  name: (await _mucDao.get(mucUid))?.name ?? "",
+                  issuer: Member(uid: _authRepo.currentUserUid),
+                  mucUid: mucUid,
+                  oldMembers: olbMembers.map((e) => _convertMember(e)),
+                  newMembers: nm,
+                ),
+              ),
+              ip,
             ),
-          ),
-          ip,
-        );
-      }
+          );
+        }
+      } catch (e) {}
     }
   }
 
@@ -162,8 +170,10 @@ class ServerLessMucService {
 
   Future<void> handleAddMember(AddMemberToLocalMuc addMemberToLocalMuc) async {
     final muc = await _mucDao.get(addMemberToLocalMuc.mucUid);
-    await _uidIdNameDao.update(addMemberToLocalMuc.mucUid,
-        name: addMemberToLocalMuc.name);
+    await _uidIdNameDao.update(
+      addMemberToLocalMuc.mucUid,
+      name: addMemberToLocalMuc.name,
+    );
     unawaited(
       _mucDao.updateMuc(
         uid: addMemberToLocalMuc.mucUid,
@@ -234,6 +244,7 @@ class ServerLessMucService {
       Message()
         ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
         ..from = roomUId
+        ..packetId = DateTime.now().millisecondsSinceEpoch.toString()
         ..to = _authRepo.currentUserUid
         ..time = Int64(
           DateTime.now().millisecondsSinceEpoch,

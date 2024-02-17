@@ -141,7 +141,9 @@ class ConnectionStatus extends StatelessWidget {
                                     Text(
                                       _i18n.get("internet"),
                                       style: TextStyle(
-                                          fontSize: 14, color: theme.hintColor),
+                                        fontSize: 14,
+                                        color: theme.hintColor,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -174,22 +176,17 @@ class ConnectionStatus extends StatelessWidget {
           child: Icon(CupertinoIcons.antenna_radiowaves_left_right),
         ),
         actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(c);
-                },
-                child: const Text("close"),
-              ),
-            ],
+          TextButton(
+            onPressed: () {
+              Navigator.pop(c);
+            },
+            child: const Text("close"),
           )
         ],
         content: SizedBox(
           height: _serverLessService.address.length < 4
               ? _serverLessService.address.length * 62
-              : 400,
+              : 244,
           width: 200,
           child: Directionality(
             textDirection: TextDirection.ltr,
