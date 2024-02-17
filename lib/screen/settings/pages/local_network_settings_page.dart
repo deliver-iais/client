@@ -41,7 +41,7 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                           onToggle: ({required newValue}) {
                             _superNode.value = newValue;
                             settings.isSuperNode.set(newValue);
-                            _serverLessService.sendBroadCast();
+                            _serverLessService.sendMyLocalNetworkInfo();
                           },
                         ),
                         const Divider(),

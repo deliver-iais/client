@@ -383,7 +383,7 @@ class ServerLessMucService {
                 proxyMessage: true,
                 message: message,
               ),
-              _serverLessService.address[uid.asString()]!,
+              _serverLessService.getIp(uid.asString())!,
             ),
           );
         }

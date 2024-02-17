@@ -15,7 +15,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/encryption.dart';
-import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -36,7 +35,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-// import 'package:deliver/services/serverless/encryption.dart';
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -120,8 +118,11 @@ class ServerLessMessageService {
       ..id = Int64(id)
       ..edited = edited
       ..text = Text(
-          text: Encryption.encryptText(
-              messageByClient.text.text, messageByClient.to.node,),)
+        text: Encryption.encryptText(
+          messageByClient.text.text,
+          messageByClient.to.node,
+        ),
+      )
       ..forwardFrom = messageByClient.forwardFrom
       ..time = Int64(
         DateTime.now().millisecondsSinceEpoch,
@@ -263,7 +264,7 @@ class ServerLessMessageService {
     if (_messagePacketIdes.contains(packetId)) {
       _serverLessService
         ..removeIp(to.asString())
-        ..sendBroadCast(to: to);
+        ..sendMyLocalNetworkInfo();
     }
   }
 
@@ -288,12 +289,11 @@ class ServerLessMessageService {
     try {
       switch (serverLessPacket.whichType()) {
         case ServerLessPacket_Type.messageDeliveryAck:
-          unawaited(
-            _handleAck(serverLessPacket.messageDeliveryAck),
-          );
+          await _handleAck(serverLessPacket.messageDeliveryAck);
+
           break;
         case ServerLessPacket_Type.seen:
-          unawaited(_dataStreamService.handleSeen(serverLessPacket.seen));
+          await _dataStreamService.handleSeen(serverLessPacket.seen);
           break;
         case ServerLessPacket_Type.callEvent:
           final callEvents = CallEvents.callEvent(
@@ -327,7 +327,8 @@ class ServerLessMessageService {
         case ServerLessPacket_Type.activity:
           _dataStreamService.handleActivity(serverLessPacket.activity);
           break;
-        case ServerLessPacket_Type.localNetworkInfo:
+        case ServerLessPacket_Type.shareLocalNetworkInfo:
+        case ServerLessPacket_Type.myLocalNetworkInfo:
         case ServerLessPacket_Type.notSet:
           break;
       }
@@ -540,7 +541,7 @@ class ServerLessMessageService {
   }
 
   Future<void> _sendAck(MessageDeliveryAck ack) async {
-    final ip = await _serverLessService.getIpAsync(ack.to.asString());
+    final ip = _serverLessService.getIp(ack.to.asString());
     if (ip != null) {
       unawaited(_serverLessService.sendRequest(
         ServerLessPacket(messageDeliveryAck: ack),

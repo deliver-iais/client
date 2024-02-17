@@ -44,7 +44,7 @@ class ConnectionStatus extends StatelessWidget {
             ),
             AnimatedSwitchWidget(
               child: StreamBuilder<dynamic>(
-                key: Key(state),
+                key: Key(_getKey(state)),
                 stream: _i18n.localeStream,
                 builder: (context, snapshot) {
                   if (status.data == TitleStatusConditions.Connected) {
@@ -157,6 +157,13 @@ class ConnectionStatus extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _getKey(String  state){
+    if(_serverLessService.address.isNotEmpty){
+      return "local_network";
+    }
+    return state;
   }
 
   void _buildDialog(BuildContext context, ThemeData theme) {

@@ -37,7 +37,7 @@ class ServerLessFileService {
           name: name,
           filePath: path,
           uuid: uploadKey,
-          receiverIp: GetIt.I.get<ServerLessService>().address[uid.asString()]!,
+          receiverIp: GetIt.I.get<ServerLessService>().getIp(uid.asString())!,
         )) {
       if (isVoice) {
         audioWaveform0 = file_pb.AudioWaveform(data: [0]);

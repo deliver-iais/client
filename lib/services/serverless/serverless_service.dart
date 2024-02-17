@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
@@ -25,7 +24,7 @@ class ServerLessService {
   final _networkInfo = NetworkInfo();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
-  final address = <String, String>{}.obs;
+  final address = <String, Address>{}.obs;
   final superNodes = <String>[].obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
@@ -87,7 +86,7 @@ class ServerLessService {
       final uid = superNodes
           .where((element) => element != _authRepo.currentUserUid.asString())
           .first;
-      return address[uid];
+      return address[uid]?.url;
     } catch (e) {
       return null;
     }
@@ -146,6 +145,7 @@ class ServerLessService {
         _upSocket = udpSocket;
         udpSocket
           ..broadcastEnabled = true
+          ..multicastLoopback = true
           ..listen((_) {
             final data = udpSocket.receive()?.data;
             if (data != null) {
@@ -161,17 +161,14 @@ class ServerLessService {
     }
   }
 
-  void sendBroadCast({
-    Uid? to,
-  }) {
+  Future<void> _shareOthersLocation() async {
     try {
       _upSocket?.send(
-        LocalNetworkInfo(
-          from: _authRepo.currentUserUid,
-          to: to,
-          backupLocalMessage: settings.backupLocalNetworkMessages.value,
-          isSuperNode: settings.isSuperNode.value,
-          url: _ip,
+        ServerLessPacket(
+          shareLocalNetworkInfo: ShareLocalNetworkInfo(
+            from: _authRepo.currentUserUid,
+            address: _getAddressList(),
+          ),
         ).writeToBuffer(),
         InternetAddress(_wifiBroadcast),
         UDP_PORT,
@@ -181,32 +178,46 @@ class ServerLessService {
     }
   }
 
-  Future<void> _sendMyAddress(
-    String url,
-  ) async {
+  Future<void> sendMyLocalNetworkInfo({
+    bool retry = true,
+  }) async {
     try {
-      unawaited(
-        sendRequest(
-          ServerLessPacket(
-            localNetworkInfo: LocalNetworkInfo(
-              from: _authRepo.currentUserUid,
+      _upSocket?.send(
+        ServerLessPacket(
+          myLocalNetworkInfo: MyLocalNetworkInfo(
+            from: _authRepo.currentUserUid,
+            address: Address(
               url: _ip,
-              backupLocalMessage: settings.backupLocalNetworkMessages.value,
+              uid: _authRepo.currentUserUid,
               isSuperNode: settings.isSuperNode.value,
+              backupLocalMessage: settings.backupLocalNetworkMessages.value,
             ),
           ),
-          url,
-        ),
+        ).writeToBuffer(),
+        InternetAddress(_wifiBroadcast),
+        UDP_PORT,
       );
     } catch (e) {
+      if (retry) {
+        await Future.delayed(const Duration(milliseconds: 800));
+        await sendMyLocalNetworkInfo(retry: false);
+      }
       _logger.e(e);
     }
   }
 
-  Future<Response?> sendRequest(
-    ServerLessPacket serverLessPacket,
-    String url,
-  ) async {
+  List<Address> _getAddressList() => address.values.toList()
+    ..add(
+      Address(
+        uid: _authRepo.currentUserUid,
+        url: _ip,
+        backupLocalMessage: settings.backupLocalNetworkMessages.value,
+        isSuperNode: settings.isSuperNode.value,
+      ),
+    );
+
+  Future<Response?> sendRequest(ServerLessPacket serverLessPacket, String url,
+      {bool retry = true}) async {
     try {
       return _dio.post(
         "http://$url:$SERVER_PORT",
@@ -220,6 +231,9 @@ class ServerLessService {
       );
     } catch (e) {
       _logger.e(e);
+      if (retry) {
+        return sendRequest(serverLessPacket, url, retry: false);
+      }
     }
     return null;
   }
@@ -249,73 +263,63 @@ class ServerLessService {
       await _reset();
       _logger.e(e);
     }
-    sendBroadCast();
+    unawaited(sendMyLocalNetworkInfo());
   }
 
   Future<void> _processIncomingReq(HttpRequest request) async {
     try {
       final serverLessPacket = ServerLessPacket.fromBuffer(await request.first);
-      if (serverLessPacket.hasLocalNetworkInfo()) {
-        await _processRegister(serverLessPacket.localNetworkInfo);
-        await request.response.close();
-      }
-      unawaited(
-        GetIt.I
+      if (serverLessPacket.hasMyLocalNetworkInfo()) {
+      } else if (serverLessPacket.hasShareLocalNetworkInfo()) {
+        await _processShareLocalNetworkInfo(
+          serverLessPacket.shareLocalNetworkInfo,
+        );
+      } else {
+        await GetIt.I
             .get<ServerLessMessageService>()
-            .processIncomingPacket(serverLessPacket),
-      );
-      request.response.statusCode = HttpStatus.ok;
+            .processIncomingPacket(serverLessPacket);
+        request.response.statusCode = HttpStatus.ok;
+      }
+
       await request.response.close();
     } catch (e) {
-      try {
-        request.response.statusCode = HttpStatus.internalServerError;
-      } catch (e) {
-        _logger.e(e);
-      }
+      request.response.statusCode = HttpStatus.internalServerError;
 
       _logger.e(e);
       await request.response.close();
     }
   }
 
-  Future<void> _processRegister(LocalNetworkInfo info) async {
-    if (info.isSuperNode) {
-      superNodes.add(info.from.asString());
-    } else {
-      superNodes.remove(info.from.asString());
+  Future<void> _processIncomingMyLocalNetworkInfo(
+    MyLocalNetworkInfo myLocalNetworkInfo,
+  ) async {
+    try {
+      unawaited(_saveIp(myLocalNetworkInfo.address));
+    } catch (e) {
+      _logger.e(e);
     }
-    await saveIp(
-      uid: info.from.asString(),
-      ip: info.url,
-      backupLocalMessages: info.backupLocalMessage,
-    );
-    unawaited(
-      GetIt.I.get<ServerLessMessageService>().resendPendingPackets(info.from),
-    );
-    _startForeground();
+    unawaited(_shareOthersLocation());
+  }
+
+  Future<void> _processShareLocalNetworkInfo(
+    ShareLocalNetworkInfo shareLocalNetworkInfo,
+  ) async {
+    try {
+      for (final address in shareLocalNetworkInfo.address) {
+        unawaited(_saveIp(address));
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> _handleBroadCastMessage(Uint8List data) async {
     try {
-      final registrationReq = LocalNetworkInfo.fromBuffer(data);
-      if (registrationReq.isSuperNode) {
-        superNodes.add(registrationReq.from.asString());
-      } else {
-        superNodes.remove(registrationReq.from.asString());
-      }
-      if (!registrationReq.from
-          .isSameEntity(_authRepo.currentUserUid.asString())) {
-        await saveIp(
-            uid: registrationReq.from.asString(),
-            ip: registrationReq.url,
-            backupLocalMessages: registrationReq.backupLocalMessage);
-        _logger.i("new address....${registrationReq.url} +??? $_ip");
-        unawaited(
-          GetIt.I
-              .get<ServerLessMessageService>()
-              .resendPendingPackets(registrationReq.from),
-        );
-        await _sendMyAddress(registrationReq.url);
+      final packet = ServerLessPacket.fromBuffer(data);
+      if (packet.hasShareLocalNetworkInfo()) {
+        await _processShareLocalNetworkInfo(packet.shareLocalNetworkInfo);
+      } else if (packet.hasMyLocalNetworkInfo()) {
+        await _processIncomingMyLocalNetworkInfo(packet.myLocalNetworkInfo);
       }
       _startForeground();
     } catch (e) {
@@ -334,11 +338,21 @@ class ServerLessService {
     var newIp = "";
     final interfaces = await NetworkInterface.list(
       type: InternetAddressType.IPv4,
-      includeLinkLocal: true,
     );
 
     if (Platform.isAndroid) {
-      newIp = interfaces.last.addresses.first.address;
+      final wifiIp = await NetworkInfo().getWifiIP();
+      if (wifiIp == null) {
+        newIp = interfaces
+            .where((element) =>
+                element.addresses.first.address.split(".").last == "1")
+            .first
+            .addresses
+            .first
+            .address;
+      } else {
+        newIp = wifiIp;
+      }
     } else if (Platform.isWindows) {
       try {
         newIp = interfaces
@@ -365,18 +379,18 @@ class ServerLessService {
     return needToClearConnections;
   }
 
-  Future<void> saveIp(
-      {required String uid,
-      required String ip,
-      required bool backupLocalMessages}) async {
+  Future<void> _saveIp(
+    Address addresses,
+  ) async {
     try {
-      address[uid] = ip;
+      _logger.i("New info address ${addresses.url}");
+      address[addresses.uid.asString()] = addresses;
       unawaited(
         _localNetworkConnectionDao.save(
           LocalNetworkConnections(
-            uid: uid.asUid(),
-            ip: ip,
-            backupLocalMessages: backupLocalMessages,
+            uid: addresses.uid,
+            ip: addresses.url,
+            backupLocalMessages: addresses.backupLocalMessage,
             lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
           ),
         ),
@@ -415,14 +429,9 @@ class ServerLessService {
     }
     try {
       if (address[uid] != null) {
-        return address[uid];
-      }
-      final ip = (await _localNetworkConnectionDao.get(uid.asUid()))?.ip;
-      if (ip != null) {
-        address[uid] = ip;
-        return ip;
+        return address[uid]?.url;
       } else {
-        sendBroadCast(to: uid.asUid());
+        unawaited(sendMyLocalNetworkInfo());
       }
     } catch (e) {
       _logger.e(e);
@@ -430,7 +439,7 @@ class ServerLessService {
     return null;
   }
 
-  String? getIp(String uid) => address[uid];
+  String? getIp(String uid) => address[uid]?.url;
 
   void removeIp(String uid) {
     address.remove(uid);
