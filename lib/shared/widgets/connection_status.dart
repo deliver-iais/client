@@ -100,7 +100,7 @@ class ConnectionStatus extends StatelessWidget {
                                         ),
                                         SizedBox(
                                           height: 28,
-                                          width: 60,
+                                          width: 100,
                                           child: Stack(
                                             alignment: Alignment.center,
                                             children: [
@@ -159,8 +159,8 @@ class ConnectionStatus extends StatelessWidget {
     );
   }
 
-  String _getKey(String  state){
-    if(_serverLessService.address.isNotEmpty){
+  String _getKey(String state) {
+    if (_serverLessService.address.isNotEmpty) {
       return "local_network";
     }
     return state;

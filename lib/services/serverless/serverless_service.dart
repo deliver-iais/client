@@ -389,28 +389,31 @@ class ServerLessService {
   }
 
   Future<void> _saveIp(
-    Address addresses,
+    Address userAddress,
   ) async {
-    if (!addresses.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
+    if (!userAddress.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       try {
         _logger.i(
-            "----->>> New info address ${addresses.url}----------------------------");
-        address[addresses.uid.asString()] = addresses;
-        if (addresses.isSuperNode) {
-          superNodes.add(addresses.uid.asString());
+            "----->>> New info address ${userAddress.url}----------------------------");
+        address[userAddress.uid.asString()] = userAddress;
+        if (userAddress.isSuperNode) {
+          superNodes.add(userAddress.uid.asString());
         } else {
-          superNodes.remove(addresses.uid.asString());
+          superNodes.remove(userAddress.uid.asString());
         }
         unawaited(
           _localNetworkConnectionDao.save(
             LocalNetworkConnections(
-              uid: addresses.uid,
-              ip: addresses.url,
-              backupLocalMessages: addresses.backupLocalMessage,
+              uid: userAddress.uid,
+              ip: userAddress.url,
+              backupLocalMessages: userAddress.backupLocalMessage,
               lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
             ),
           ),
         );
+        unawaited(GetIt.I
+            .get<ServerLessMessageService>()
+            .resendPendingPackets(userAddress.uid));
       } catch (e) {
         _logger.e(e);
       }
