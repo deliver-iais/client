@@ -391,27 +391,29 @@ class ServerLessService {
   Future<void> _saveIp(
     Address addresses,
   ) async {
-    try {
-      _logger.i(
-          "----->>> New info address ${addresses.url}----------------------------");
-      address[addresses.uid.asString()] = addresses;
-      if (addresses.isSuperNode) {
-        superNodes.add(addresses.uid.asString());
-      } else {
-        superNodes.remove(addresses.uid.asString());
-      }
-      unawaited(
-        _localNetworkConnectionDao.save(
-          LocalNetworkConnections(
-            uid: addresses.uid,
-            ip: addresses.url,
-            backupLocalMessages: addresses.backupLocalMessage,
-            lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+    if (!addresses.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
+      try {
+        _logger.i(
+            "----->>> New info address ${addresses.url}----------------------------");
+        address[addresses.uid.asString()] = addresses;
+        if (addresses.isSuperNode) {
+          superNodes.add(addresses.uid.asString());
+        } else {
+          superNodes.remove(addresses.uid.asString());
+        }
+        unawaited(
+          _localNetworkConnectionDao.save(
+            LocalNetworkConnections(
+              uid: addresses.uid,
+              ip: addresses.url,
+              backupLocalMessages: addresses.backupLocalMessage,
+              lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+            ),
           ),
-        ),
-      );
-    } catch (e) {
-      _logger.e(e);
+        );
+      } catch (e) {
+        _logger.e(e);
+      }
     }
   }
 
