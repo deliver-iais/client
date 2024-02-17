@@ -182,6 +182,11 @@ class ServerLessService {
     bool retry = true,
   }) async {
     try {
+      if (settings.isSuperNode.value) {
+        superNodes.add(_authRepo.currentUserUid.asString());
+      } else {
+        superNodes.remove(_authRepo.currentUserUid.asString());
+      }
       _upSocket?.send(
         ServerLessPacket(
           myLocalNetworkInfo: MyLocalNetworkInfo(
@@ -316,9 +321,13 @@ class ServerLessService {
   Future<void> _handleBroadCastMessage(Uint8List data) async {
     try {
       final packet = ServerLessPacket.fromBuffer(data);
-      if (packet.hasShareLocalNetworkInfo()) {
+      if (packet.hasShareLocalNetworkInfo() &&
+          !packet.shareLocalNetworkInfo.from
+              .isSameEntity(_authRepo.currentUserUid.asString())) {
         await _processShareLocalNetworkInfo(packet.shareLocalNetworkInfo);
-      } else if (packet.hasMyLocalNetworkInfo()) {
+      } else if (packet.hasMyLocalNetworkInfo() &&
+          !packet.shareLocalNetworkInfo.from
+              .isSameEntity(_authRepo.currentUserUid.asString())) {
         await _processIncomingMyLocalNetworkInfo(packet.myLocalNetworkInfo);
       }
       _startForeground();
@@ -383,8 +392,14 @@ class ServerLessService {
     Address addresses,
   ) async {
     try {
-      _logger.i("New info address ${addresses.url}");
+      _logger.i(
+          "----->>> New info address ${addresses.url}----------------------------");
       address[addresses.uid.asString()] = addresses;
+      if (addresses.isSuperNode) {
+        superNodes.add(addresses.uid.asString());
+      } else {
+        superNodes.remove(addresses.uid.asString());
+      }
       unawaited(
         _localNetworkConnectionDao.save(
           LocalNetworkConnections(

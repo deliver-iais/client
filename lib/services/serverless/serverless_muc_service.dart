@@ -62,7 +62,7 @@ class ServerLessMucService {
         final uid = _serverLessService.getSuperNode();
         if (uid != null) {
           _sendClientPacket(
-              uid.asString(), serverLessPacket..proxyMessage = true);
+              uid.asString(), serverLessPacket..proxyMessage = true,);
         }
       }
       unawaited(_saveLocalMuc(createGroup));
