@@ -431,19 +431,27 @@ class ServerLessMessageService {
 
     final messageId = room.lastMessageId + 1;
     final lastLocalNetworkMessageId = room.lastLocalNetworkId + 1;
+
     unawaited(
       _processIncomingMessage(
         roomUid: uid.asUid(),
         message..id = Int64(messageId),
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
-      ),
+      ).then((value) {
+        if (!value) {
+          _rooms[uid] = (_rooms[uid] ?? (Room(uid: uid.asUid()).getLocalChat()))
+            ..lastMessageId = messageId - 1
+            ..lastLocalNetworkId = lastLocalNetworkMessageId - 1;
+        }
+      }),
     );
+
     _rooms[uid] = (_rooms[uid] ?? (Room(uid: uid.asUid()).getLocalChat()))
       ..lastMessageId = messageId
       ..lastLocalNetworkId = lastLocalNetworkMessageId;
   }
 
-  Future<void> _processIncomingMessage(
+  Future<bool> _processIncomingMessage(
     Message message, {
     required Uid roomUid,
     required int lastLocalNetworkMessageId,
@@ -477,35 +485,38 @@ class ServerLessMessageService {
         localNetworkMessageCount: 1,
         lastLocalNetworkMessageId: lastLocalNetworkMessageId,
       );
-    }
-    if (message.whichType() == Message_Type.callLog) {
-      final callLog = CallLog(
-        from: _authRepo.currentUserUid,
-        to: roomUid,
-        id: message.callLog.id,
-        isVideo: message.callLog.isVideo,
-      );
-      final packetId = DateTime.now().millisecondsSinceEpoch.toString() +
-          message.to.asString();
+      if (message.whichType() == Message_Type.callLog) {
+        final callLog = CallLog(
+          from: _authRepo.currentUserUid,
+          to: roomUid,
+          id: message.callLog.id,
+          isVideo: message.callLog.isVideo,
+        );
+        final packetId = DateTime.now().millisecondsSinceEpoch.toString() +
+            message.to.asString();
 
-      if (message.callLog.hasDecline() && !message.callLog.decline.isCaller) {
-        callLog.decline = message.callLog.decline;
-        callLog.decline.isCaller = true;
-        await (_reSendCallLog(callLog, packetId, callLog.to));
-      } else if (message.callLog.hasBusy() && !message.callLog.busy.isCaller) {
-        callLog.busy = message.callLog.busy;
-        callLog.busy.isCaller = true;
-        await (_reSendCallLog(callLog, packetId, callLog.to));
-      } else if (message.callLog.hasEnd() && message.callLog.end.isCaller) {
-        // callLog.end = message.callLog.end;
-        // callLog.end.isCaller = false;
-        // await (_reSendCallLog(callLog, packetId, callLog.to));
-      } else {
-        if (kDebugMode) {
-          print("received");
+        if (message.callLog.hasDecline() && !message.callLog.decline.isCaller) {
+          callLog.decline = message.callLog.decline;
+          callLog.decline.isCaller = true;
+          await (_reSendCallLog(callLog, packetId, callLog.to));
+        } else if (message.callLog.hasBusy() &&
+            !message.callLog.busy.isCaller) {
+          callLog.busy = message.callLog.busy;
+          callLog.busy.isCaller = true;
+          await (_reSendCallLog(callLog, packetId, callLog.to));
+        } else if (message.callLog.hasEnd() && message.callLog.end.isCaller) {
+          // callLog.end = message.callLog.end;
+          // callLog.end.isCaller = false;
+          // await (_reSendCallLog(callLog, packetId, callLog.to));
+        } else {
+          if (kDebugMode) {
+            print("received");
+          }
         }
       }
+      return true;
     }
+    return false;
   }
 
   Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {

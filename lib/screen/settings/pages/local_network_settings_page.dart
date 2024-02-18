@@ -4,6 +4,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +37,7 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                         SettingsTile.switchTile(
                           title: _i18n.get("super_node"),
                           leading:
-                              const Icon(Icons.settings_input_antenna_rounded),
+                              const Icon(CupertinoIcons.antenna_radiowaves_left_right),
                           switchValue: _superNode.value,
                           onToggle: ({required newValue}) {
                             _superNode.value = newValue;

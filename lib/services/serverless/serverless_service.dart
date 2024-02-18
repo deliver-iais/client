@@ -30,9 +30,9 @@ class ServerLessService {
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
+  GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
-
+  Completer? _saveIPCompleter;
   HttpServer? _httpServer;
 
   RawDatagramSocket? _upSocket;
@@ -58,7 +58,7 @@ class ServerLessService {
 
   bool inLocalNetwork(Uid uid) =>
       uid.asString().contains(LOCAL_MUC_ID) ||
-      address.containsKey(uid.asString());
+          address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -148,7 +148,9 @@ class ServerLessService {
           ..broadcastEnabled = true
           ..multicastLoopback = true
           ..listen((_) {
-            final data = udpSocket.receive()?.data;
+            final data = udpSocket
+                .receive()
+                ?.data;
             if (data != null) {
               _handleBroadCastMessage(data);
             }
@@ -212,15 +214,16 @@ class ServerLessService {
     }
   }
 
-  List<Address> _getAddressList() => address.values.toList()
-    ..add(
-      Address(
-        uid: _authRepo.currentUserUid,
-        url: _ip,
-        backupLocalMessage: settings.backupLocalNetworkMessages.value,
-        isSuperNode: settings.isSuperNode.value,
-      ),
-    );
+  List<Address> _getAddressList() =>
+      address.values.toList()
+        ..add(
+          Address(
+            uid: _authRepo.currentUserUid,
+            url: _ip,
+            backupLocalMessage: settings.backupLocalNetworkMessages.value,
+            isSuperNode: settings.isSuperNode.value,
+          ),
+        );
 
   Future<Response?> sendRequest(ServerLessPacket serverLessPacket, String url,
       {bool retry = true}) async {
@@ -290,25 +293,34 @@ class ServerLessService {
   }
 
   Future<void> _processIncomingMyLocalNetworkInfo(
-    MyLocalNetworkInfo myLocalNetworkInfo,
-  ) async {
+      MyLocalNetworkInfo myLocalNetworkInfo,) async {
     try {
-      unawaited(_saveIp(myLocalNetworkInfo.address));
+      unawaited(_shareOthersLocation());
+      await _processIp([myLocalNetworkInfo.address]);
     } catch (e) {
       _logger.e(e);
     }
-    unawaited(_shareOthersLocation());
   }
 
-  Future<void> _processShareLocalNetworkInfo(
-    ShareLocalNetworkInfo shareLocalNetworkInfo,
-  ) async {
+  void _processShareLocalNetworkInfo(
+      ShareLocalNetworkInfo shareLocalNetworkInfo,) {
     try {
-      for (final address in shareLocalNetworkInfo.address) {
-        unawaited(_saveIp(address));
-      }
+      _processIp(shareLocalNetworkInfo.address);
     } catch (e) {
       _logger.e(e);
+    }
+  }
+
+  Future<void> _processIp(List<Address> address) async {
+    if (_saveIPCompleter == null || _saveIPCompleter!.isCompleted) {
+      _saveIPCompleter = Completer();
+      for (final address in address) {
+        await _saveIp(address);
+      }
+      _saveIPCompleter?.complete();
+    } else {
+      await _saveIPCompleter?.future;
+      await _processIp(address);
     }
   }
 
@@ -318,9 +330,9 @@ class ServerLessService {
       if (packet.hasShareLocalNetworkInfo() &&
           !packet.shareLocalNetworkInfo.from
               .isSameEntity(_authRepo.currentUserUid.asString())) {
-        await _processShareLocalNetworkInfo(packet.shareLocalNetworkInfo);
+        _processShareLocalNetworkInfo(packet.shareLocalNetworkInfo);
       } else if (packet.hasMyLocalNetworkInfo() &&
-          !packet.shareLocalNetworkInfo.from
+          !packet.myLocalNetworkInfo.from
               .isSameEntity(_authRepo.currentUserUid.asString())) {
         await _processIncomingMyLocalNetworkInfo(packet.myLocalNetworkInfo);
       }
@@ -348,7 +360,9 @@ class ServerLessService {
       if (wifiIp == null) {
         newIp = interfaces
             .where((element) =>
-                element.addresses.first.address.split(".").last == "1")
+        element.addresses.first.address
+            .split(".")
+            .last == "1")
             .first
             .addresses
             .first
@@ -382,13 +396,12 @@ class ServerLessService {
     return needToClearConnections;
   }
 
-  Future<void> _saveIp(
-    Address userAddress,
-  ) async {
+  Future<void> _saveIp(Address userAddress,) async {
     if (!userAddress.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       try {
         _logger.i(
-            "----->>> New info address ${userAddress.url}----------------------------");
+            "----->>> New info address ${userAddress
+                .url}----------------------------");
         address[userAddress.uid.asString()] = userAddress;
         if (userAddress.isSuperNode) {
           superNodes.add(userAddress.uid.asString());
@@ -401,21 +414,20 @@ class ServerLessService {
               uid: userAddress.uid,
               ip: userAddress.url,
               backupLocalMessages: userAddress.backupLocalMessage,
-              lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+              lastUpdateTime: DateTime
+                  .now()
+                  .millisecondsSinceEpoch,
             ),
           ),
         );
-        unawaited(
-          GetIt.I
-              .get<ServerLessMessageService>()
-              .resendPendingPackets(userAddress.uid),
-        );
+
+        await GetIt.I
+            .get<ServerLessMessageService>()
+            .resendPendingPackets(userAddress.uid);
         if (settings.isSuperNode.value) {
-          unawaited(
-            GetIt.I
-                .get<ServerLessMucService>()
-                .resendPendingPackets(userAddress.uid),
-          );
+          await GetIt.I
+              .get<ServerLessMucService>()
+              .resendPendingPackets(userAddress.uid);
         }
       } catch (e) {
         _logger.e(e);
@@ -430,10 +442,12 @@ class ServerLessService {
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
+          _wifiBroadcast = (_ip.split(".")
+            ..last = "255").join(".");
         }
       } else if (Platform.isWindows) {
-        _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
+        _wifiBroadcast = (_ip.split(".")
+          ..last = "255").join(".");
       }
       _logger.i(_wifiBroadcast);
     } catch (e) {
