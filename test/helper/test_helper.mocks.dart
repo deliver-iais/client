@@ -2552,17 +2552,6 @@ class MockFileRepo extends _i1.Mock implements _i46.FileRepo {
         ),
         returnValueForMissingStub: null,
       );
-
-  @override
-  _i30.Future<void> uploadLocalNetworkFile(List<_i47.File>? files) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #uploadLocalNetworkFile,
-          [files],
-        ),
-        returnValue: _i30.Future<void>.value(),
-        returnValueForMissingStub: _i30.Future<void>.value(),
-      ) as _i30.Future<void>);
 }
 
 /// A class which mocks [LiveLocationRepo].
@@ -2799,6 +2788,24 @@ class MockMucServices extends _i1.Mock implements _i54.MucServices {
         ),
         returnValue: _i30.Future<_i4.Uid?>.value(),
       ) as _i30.Future<_i4.Uid?>);
+
+  @override
+  _i30.Future<bool> createNewLocalGroup(
+    String? groupName,
+    String? info,
+    String? node,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createNewLocalGroup,
+          [
+            groupName,
+            info,
+            node,
+          ],
+        ),
+        returnValue: _i30.Future<bool>.value(false),
+      ) as _i30.Future<bool>);
 
   @override
   _i30.Future<int> addGroupMembers(
@@ -5996,9 +6003,8 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
   _i30.Future<_i4.Uid?> createNewGroup(
     List<_i4.Uid>? memberUidList,
     String? groupName,
-    String? info, {
-    bool? isLocalGroup = false,
-  }) =>
+    String? info,
+  ) =>
       (super.noSuchMethod(
         Invocation.method(
           #createNewGroup,
@@ -6007,7 +6013,6 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
             groupName,
             info,
           ],
-          {#isLocalGroup: isLocalGroup},
         ),
         returnValue: _i30.Future<_i4.Uid?>.value(),
       ) as _i30.Future<_i4.Uid?>);

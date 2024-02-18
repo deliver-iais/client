@@ -49,6 +49,7 @@ import 'package:deliver/box/dao/registered_bot_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/scroll_position_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
+import 'package:deliver/box/dao/serverless_requests_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -69,6 +70,7 @@ import 'package:deliver/box/recent_search.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/box/serverless_requests.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/cache/file_cache.dart';
 import 'package:deliver/hive/avatar_hive.dart';
@@ -355,7 +357,8 @@ Future<void> dbSetupDI() async {
     ..registerAdapter(BroadcastSuccessAndFailedCountAdapter())
     ..registerAdapter(CurrentCallInfoHiveAdapter())
     ..registerAdapter(LastCallStatusHiveAdapter())
-    ..registerAdapter(QueryLogAdapter());
+    ..registerAdapter(QueryLogAdapter())
+    ..registerAdapter(ServerLessRequestAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -366,6 +369,7 @@ Future<void> dbSetupDI() async {
   registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
   registerSingleton<SeenDao>(SeenDaoImpl());
   registerSingleton<FileDao>(FileInfoDaoImpl());
+  registerSingleton<ServerLessRequestsDao>(ServerLessRequestsDao());
   registerSingleton<BlockDao>(BlockDaoImpl());
   registerSingleton<MuteDao>(MuteDaoImpl());
   registerSingleton<MucDao>(MucDaoImpl());

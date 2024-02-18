@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/serverless_requests_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart' as model;
 import 'package:deliver/box/role.dart';
+import 'package:deliver/box/serverless_requests.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -35,6 +37,7 @@ class ServerLessMucService {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+  final _serverLessRequestDao = GetIt.I.get<ServerLessRequestsDao>();
 
   Future<bool> createGroup({
     required String name,
@@ -56,15 +59,15 @@ class ServerLessMucService {
 
       if (settings.isSuperNode.value) {
         for (final member in members) {
-          _sendClientPacket(member.asString(), serverLessPacket);
+          unawaited(_sendClientPacket(member.asString(), serverLessPacket));
         }
       } else {
         final uid = _serverLessService.getSuperNode();
         if (uid != null) {
-          _sendClientPacket(
+          unawaited(_sendClientPacket(
             uid.asString(),
             serverLessPacket..proxyMessage = true,
-          );
+          ));
         }
       }
       unawaited(_saveLocalMuc(createGroup));
@@ -139,11 +142,34 @@ class ServerLessMucService {
 
   Future<void> addMember(Uid mucUid, List<Member> members) async {
     final olbMembers = await _mucDao.getAllMembers(mucUid);
+    final packet = ServerLessPacket(
+      addMembers: AddMemberToLocalMuc(
+        name: (await _mucDao.get(mucUid))?.name ?? "",
+        issuer: Member(uid: _authRepo.currentUserUid),
+        mucUid: mucUid,
+        oldMembers: olbMembers.map((e) => _convertMember(e)),
+        newMembers: members,
+      ),
+    );
+    if (settings.isSuperNode.value) {
+      unawaited(_propacateAddMemberToGroup(
+          members, olbMembers.map((e) => _convertMember(e)).toList(), mucUid));
+    } else {
+      unawaited(
+        _serverLessService.sendRequest(
+          packet..proxyMessage = true,
+          _serverLessService.getSuperNodeIp()!,
+        ),
+      );
+      //
+    }
+  }
 
+  Future<void> _propacateAddMemberToGroup(
+      List<Member> members, List<Member> olbMembers, Uid mucUid) async {
     final nm = members;
 
-    for (final member in members
-      ..addAll(olbMembers.map((e) => _convertMember(e)))) {
+    for (final member in members..addAll(olbMembers)) {
       try {
         final ip = _serverLessService.getIp(member.uid.asString());
         if (ip != null) {
@@ -154,7 +180,7 @@ class ServerLessMucService {
                   name: (await _mucDao.get(mucUid))?.name ?? "",
                   issuer: Member(uid: _authRepo.currentUserUid),
                   mucUid: mucUid,
-                  oldMembers: olbMembers.map((e) => _convertMember(e)),
+                  oldMembers: olbMembers,
                   newMembers: nm,
                 ),
               ),
@@ -162,13 +188,25 @@ class ServerLessMucService {
             ),
           );
         }
-      } catch (e) {}
+      } catch (e) {
+        _logger.e(e);
+      }
     }
   }
 
   Future<void> kickMember() async {}
 
-  Future<void> handleAddMember(AddMemberToLocalMuc addMemberToLocalMuc) async {
+  Future<void> handleAddMember(
+      AddMemberToLocalMuc addMemberToLocalMuc, bool proxy) async {
+    if (proxy) {
+      _propacateAddMemberToGroup(addMemberToLocalMuc.newMembers,
+          addMemberToLocalMuc.oldMembers, addMemberToLocalMuc.mucUid);
+    } else {
+      unawaited(_addMember(addMemberToLocalMuc));
+    }
+  }
+
+  Future<void> _addMember(AddMemberToLocalMuc addMemberToLocalMuc) async {
     final muc = await _mucDao.get(addMemberToLocalMuc.mucUid);
     await _uidIdNameDao.update(
       addMemberToLocalMuc.mucUid,
@@ -270,9 +308,11 @@ class ServerLessMucService {
           if (_authRepo.currentUserUid.isSameEntity(member.uid.asString())) {
             await _saveLocalMuc(createLocalMuc);
           } else {
-            _sendClientPacket(
-              member.uid.asString(),
-              ServerLessPacket(createLocalMuc: createLocalMuc),
+            unawaited(
+              _sendClientPacket(
+                member.uid.asString(),
+                ServerLessPacket(createLocalMuc: createLocalMuc),
+              ),
             );
           }
         }
@@ -416,13 +456,19 @@ class ServerLessMucService {
             if (message.hasFile()) {
               final fileInfo = await _sendFileToMucMember(message, member);
               if (fileInfo != null) {
-                _sendClientPacket(member.asString(),
-                    ServerLessPacket(message: message..file = fileInfo));
+                unawaited(
+                  _sendClientPacket(
+                    member.asString(),
+                    ServerLessPacket(message: message..file = fileInfo),
+                  ),
+                );
               }
             } else if (message.hasText()) {
-              _sendClientPacket(
-                member.asString(),
-                ServerLessPacket(message: message),
+              unawaited(
+                _sendClientPacket(
+                  member.asString(),
+                  ServerLessPacket(message: message),
+                ),
               );
             }
           }
@@ -445,16 +491,63 @@ class ServerLessMucService {
     return fileInfo;
   }
 
-  void _sendClientPacket(String memberUid, ServerLessPacket packet) {
+  Future<bool> _sendClientPacket(
+    String memberUid,
+    ServerLessPacket packet,
+  ) async {
     try {
       final ip = _serverLessService.getIp(memberUid);
       if (ip != null) {
-        unawaited(
-          _serverLessService.sendRequest(
-            packet,
-            ip,
-          ),
+        final res = await _serverLessService.sendRequest(
+          packet,
+          ip,
         );
+        if (res == null || res.statusCode != 200) {
+          unawaited(_saveUnSuccessClientPacket(memberUid, packet));
+          return false;
+        }
+      } else {
+        unawaited(_saveUnSuccessClientPacket(memberUid, packet));
+        return false;
+      }
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      unawaited(_saveUnSuccessClientPacket(memberUid, packet));
+      return false;
+    }
+  }
+
+  Future<void> _saveUnSuccessClientPacket(
+    String memberUid,
+    ServerLessPacket serverLessPacket,
+  ) async {
+    try {
+      unawaited(
+        _serverLessRequestDao.save(
+          ServerLessRequest(
+            uid: memberUid,
+            info: serverLessPacket.writeToJson(),
+            time: DateTime.now().microsecondsSinceEpoch,
+          ),
+        ),
+      );
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> resendPendingPackets(Uid uid) async {
+    try {
+      final packets = (await _serverLessRequestDao.getUserRequests(uid))
+        ..sort((a, b) => b.time - a.time);
+      for (final packet in packets) {
+        if (await _sendClientPacket(
+          uid.asString(),
+          ServerLessPacket.fromJson(packet.info),
+        )) {
+          unawaited(_serverLessRequestDao.remove(packet));
+        }
       }
     } catch (e) {
       _logger.e(e);

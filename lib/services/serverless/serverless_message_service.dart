@@ -321,8 +321,8 @@ class ServerLessMessageService {
           );
           break;
         case ServerLessPacket_Type.addMembers:
-          await _serverLessMucService
-              .handleAddMember(serverLessPacket.addMembers);
+          await _serverLessMucService.handleAddMember(
+              serverLessPacket.addMembers, serverLessPacket.proxyMessage);
           break;
         case ServerLessPacket_Type.activity:
           _dataStreamService.handleActivity(serverLessPacket.activity);

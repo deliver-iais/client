@@ -8,6 +8,7 @@ import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
+import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
@@ -274,17 +275,10 @@ class ServerLessService {
   Future<void> _processIncomingReq(HttpRequest request) async {
     try {
       final serverLessPacket = ServerLessPacket.fromBuffer(await request.first);
-      if (serverLessPacket.hasMyLocalNetworkInfo()) {
-      } else if (serverLessPacket.hasShareLocalNetworkInfo()) {
-        await _processShareLocalNetworkInfo(
-          serverLessPacket.shareLocalNetworkInfo,
-        );
-      } else {
-        await GetIt.I
-            .get<ServerLessMessageService>()
-            .processIncomingPacket(serverLessPacket);
-        request.response.statusCode = HttpStatus.ok;
-      }
+      await GetIt.I
+          .get<ServerLessMessageService>()
+          .processIncomingPacket(serverLessPacket);
+      request.response.statusCode = HttpStatus.ok;
 
       await request.response.close();
     } catch (e) {
@@ -411,9 +405,18 @@ class ServerLessService {
             ),
           ),
         );
-        unawaited(GetIt.I
-            .get<ServerLessMessageService>()
-            .resendPendingPackets(userAddress.uid));
+        unawaited(
+          GetIt.I
+              .get<ServerLessMessageService>()
+              .resendPendingPackets(userAddress.uid),
+        );
+        if (settings.isSuperNode.value) {
+          unawaited(
+            GetIt.I
+                .get<ServerLessMucService>()
+                .resendPendingPackets(userAddress.uid),
+          );
+        }
       } catch (e) {
         _logger.e(e);
       }
