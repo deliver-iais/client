@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/local_network_connections.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/notification_foreground_service.dart';
@@ -26,11 +29,13 @@ class ServerLessService {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
   final address = <String, Address>{}.obs;
+  final _accountDao = GetIt.I.get<AccountDao>();
+  final _uidInNameDao = GetIt.I.get<UidIdNameDao>();
   final superNodes = <String>[].obs;
   final _localNetworkConnectionDao = GetIt.I.get<LocalNetworkConnectionDao>();
   final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _notificationForegroundService =
-  GetIt.I.get<NotificationForegroundService>();
+      GetIt.I.get<NotificationForegroundService>();
   var _ip = "";
   Completer? _saveIPCompleter;
   HttpServer? _httpServer;
@@ -58,7 +63,7 @@ class ServerLessService {
 
   bool inLocalNetwork(Uid uid) =>
       uid.asString().contains(LOCAL_MUC_ID) ||
-          address.containsKey(uid.asString());
+      address.containsKey(uid.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -148,9 +153,7 @@ class ServerLessService {
           ..broadcastEnabled = true
           ..multicastLoopback = true
           ..listen((_) {
-            final data = udpSocket
-                .receive()
-                ?.data;
+            final data = udpSocket.receive()?.data;
             if (data != null) {
               _handleBroadCastMessage(data);
             }
@@ -197,6 +200,7 @@ class ServerLessService {
             address: Address(
               url: _ip,
               uid: _authRepo.currentUserUid,
+              username: _accountDao.getAccount().username,
               isSuperNode: settings.isSuperNode.value,
               backupLocalMessage: settings.backupLocalNetworkMessages.value,
             ),
@@ -214,16 +218,15 @@ class ServerLessService {
     }
   }
 
-  List<Address> _getAddressList() =>
-      address.values.toList()
-        ..add(
-          Address(
-            uid: _authRepo.currentUserUid,
-            url: _ip,
-            backupLocalMessage: settings.backupLocalNetworkMessages.value,
-            isSuperNode: settings.isSuperNode.value,
-          ),
-        );
+  List<Address> _getAddressList() => address.values.toList()
+    ..add(
+      Address(
+        uid: _authRepo.currentUserUid,
+        url: _ip,
+        backupLocalMessage: settings.backupLocalNetworkMessages.value,
+        isSuperNode: settings.isSuperNode.value,
+      ),
+    );
 
   Future<Response?> sendRequest(ServerLessPacket serverLessPacket, String url,
       {bool retry = true}) async {
@@ -293,7 +296,8 @@ class ServerLessService {
   }
 
   Future<void> _processIncomingMyLocalNetworkInfo(
-      MyLocalNetworkInfo myLocalNetworkInfo,) async {
+    MyLocalNetworkInfo myLocalNetworkInfo,
+  ) async {
     try {
       unawaited(_shareOthersLocation());
       await _processIp([myLocalNetworkInfo.address]);
@@ -303,7 +307,8 @@ class ServerLessService {
   }
 
   void _processShareLocalNetworkInfo(
-      ShareLocalNetworkInfo shareLocalNetworkInfo,) {
+    ShareLocalNetworkInfo shareLocalNetworkInfo,
+  ) {
     try {
       _processIp(shareLocalNetworkInfo.address);
     } catch (e) {
@@ -360,9 +365,7 @@ class ServerLessService {
       if (wifiIp == null) {
         newIp = interfaces
             .where((element) =>
-        element.addresses.first.address
-            .split(".")
-            .last == "1")
+                element.addresses.first.address.split(".").last == "1")
             .first
             .addresses
             .first
@@ -396,12 +399,13 @@ class ServerLessService {
     return needToClearConnections;
   }
 
-  Future<void> _saveIp(Address userAddress,) async {
+  Future<void> _saveIp(
+    Address userAddress,
+  ) async {
     if (!userAddress.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       try {
         _logger.i(
-            "----->>> New info address ${userAddress
-                .url}----------------------------");
+            "----->>> New info address ${userAddress.url}----------------------------");
         address[userAddress.uid.asString()] = userAddress;
         if (userAddress.isSuperNode) {
           superNodes.add(userAddress.uid.asString());
@@ -414,9 +418,7 @@ class ServerLessService {
               uid: userAddress.uid,
               ip: userAddress.url,
               backupLocalMessages: userAddress.backupLocalMessage,
-              lastUpdateTime: DateTime
-                  .now()
-                  .millisecondsSinceEpoch,
+              lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
             ),
           ),
         );
@@ -429,6 +431,8 @@ class ServerLessService {
               .get<ServerLessMucService>()
               .resendPendingPackets(userAddress.uid);
         }
+        unawaited(
+            _uidInNameDao.update(userAddress.uid, id: userAddress.username),);
       } catch (e) {
         _logger.e(e);
       }
@@ -442,12 +446,10 @@ class ServerLessService {
         if (wifi != null) {
           _wifiBroadcast = wifi;
         } else {
-          _wifiBroadcast = (_ip.split(".")
-            ..last = "255").join(".");
+          _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
         }
       } else if (Platform.isWindows) {
-        _wifiBroadcast = (_ip.split(".")
-          ..last = "255").join(".");
+        _wifiBroadcast = (_ip.split(".")..last = "255").join(".");
       }
       _logger.i(_wifiBroadcast);
     } catch (e) {
