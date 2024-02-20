@@ -173,23 +173,17 @@ class HomePageState extends State<HomePage> {
     settings.updateAppContext(context);
 
     final theme = Theme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_routingService.canPop()) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (_) async {
+        if (_routingService.isEmpty()) {
           if (await FlutterForegroundTask.isRunningService) {
-            if (false && !(await CallUtils.hasSystemAlertWindowPermission())) {
-              await CallUtils.checkForSystemAlertWindowPermission(
-                  showCallAlarm: true);
-            } else {
-              FlutterForegroundTask.minimizeApp();
-              return false;
-            }
-          } else {
-            return _routingService.maybePop();
+            FlutterForegroundTask.minimizeApp();
           }
+          _routingService.pop();
+        }else{
+          _routingService.pop();
         }
-        unawaited(_routingService.maybePop());
-        return false;
       },
       child: Container(
         color: theme.colorScheme.background,

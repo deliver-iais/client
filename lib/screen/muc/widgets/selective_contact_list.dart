@@ -57,7 +57,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   final _items = <User>[].obs;
 
-  List<User> contacts = [];
+  var _contacts = <String, User>{};
 
   List<Uid> members = [];
 
@@ -93,7 +93,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
       final dummyListData = <User>[];
-      for (final item in contacts) {
+      for (final item in _contacts.values) {
         final searchTerm = '${item.firstname}${item.lastname}'
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
@@ -117,7 +117,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     } else {
       _items
         ..clear()
-        ..addAll(_sortItems(contacts));
+        ..addAll(_sortItems(_contacts.values.toList()));
     }
   }
 
@@ -157,7 +157,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
-                    contacts = widget.useSmsBroadcastList
+                    final co = widget.useSmsBroadcastList
                         ? snapshot.data!
                             .where(
                               (element) => checkIsPhoneNumber(
@@ -165,8 +165,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                 element.phoneNumber.nationalNumber.toInt(),
                               ),
                             )
-                            .map((e) => e.toUser())
-                            .toList()
+                            .map(
+                              (e) => e.toUser(),
+                            )
                         : snapshot.data!
                             .whereNot((element) => element.uid == null)
                             .where(
@@ -174,12 +175,25 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                   !_authRepo.isCurrentUser(element.uid!) &&
                                   !(element.phoneNumber.countryCode == 0),
                             )
-                            .map((e) => e.toUser())
-                            .toList();
+                            .map(
+                              (e) => e.toUser(),
+                            );
+                    _contacts = Map.fromIterable(
+                      co,
+                      key: (e) {
+                        final user = e as User;
+                        return user.uid?.asString() ??
+                            user.phoneNumber!.nationalNumber.toString();
+                      },
+                      value: (e) => e,
+                    );
+                    if (_serverLessService.superNodeExit()) {
+                      _addLocalMembersToLocalMuc();
+                    }
 
                     _items
                       ..clear()
-                      ..addAll(_sortItems(contacts));
+                      ..addAll(_sortItems(_contacts.values.toList()));
 
                     return Obx(() => _items.isNotEmpty
                         ? ListView.builder(
@@ -339,6 +353,17 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
         ),
       ),
     );
+  }
+
+  void _addLocalMembersToLocalMuc() {
+    _serverLessService.address.forEach((key, value) {
+      if (_contacts[key] == null) {
+        _contacts[key] = User(
+          firstname: value.username,
+          uid: value.uid,
+        );
+      }
+    });
   }
 
   bool checkIsPhoneNumber(int countryCode, int phoneNumber) {

@@ -79,13 +79,8 @@ class AccountSettingsState extends State<AccountSettings> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
-        if (widget.forceToSetName) {
-          return false;
-        }
-        return true;
-      },
+    return PopScope(
+      canPop: !widget.forceToSetName,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: BlurredPreferredSizedWidget(
@@ -186,13 +181,14 @@ class AccountSettingsState extends State<AccountSettings> {
                               icon: const Icon(
                                 Icons.add_a_photo,
                               ),
-                              onPressed: () => AvatarHelper.attachAvatarFile(
-                                context: context,
-                                onAvatarAttached: (path) {
-                                  Navigator.pop(context);
-                                  setAvatar(path);
-                                },
-                              ),
+                              onPressed: () =>
+                                  AvatarHelper.attachAvatarFile(
+                                    context: context,
+                                    onAvatarAttached: (path) {
+                                      Navigator.pop(context);
+                                      setAvatar(path);
+                                    },
+                                  ),
                             ),
                           ),
                         )
@@ -241,8 +237,8 @@ class AccountSettingsState extends State<AccountSettings> {
                         Autocomplete<String>(
                           optionsBuilder: (textEditingValue) =>
                               _getUsernameSuggestion(
-                            textEditingValue.text,
-                          ),
+                                textEditingValue.text,
+                              ),
                           initialValue: TextEditingValue(
                             text: _usernameTextController.text,
                           ),
@@ -250,12 +246,10 @@ class AccountSettingsState extends State<AccountSettings> {
                             _usernameTextController.text = selection;
                             _usernameFormKey.currentState?.validate();
                           },
-                          fieldViewBuilder: (
-                            context,
-                            textEditingController,
-                            focusNode,
-                            onFieldSubmitted,
-                          ) {
+                          fieldViewBuilder: (context,
+                              textEditingController,
+                              focusNode,
+                              onFieldSubmitted,) {
                             return GestureDetector(
                               onTap: () {
                                 onFieldSubmitted();
@@ -287,11 +281,9 @@ class AccountSettingsState extends State<AccountSettings> {
                               ),
                             );
                           },
-                          optionsViewBuilder: (
-                            con,
-                            void Function(String) onSelected,
-                            options,
-                          ) {
+                          optionsViewBuilder: (con,
+                              void Function(String) onSelected,
+                              options,) {
                             return Stack(
                               children: [
                                 Material(
@@ -387,17 +379,17 @@ class AccountSettingsState extends State<AccountSettings> {
     name = regex.hasMatch(name)
         ? ""
         : name
-            .toLowerCase()
-            .replaceAll(RegExp(r"[^\s\w]"), "")
-            .replaceAll(" ", "");
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^\s\w]"), "")
+        .replaceAll(" ", "");
 
     var lastName = _lastnameTextController.text;
     lastName = regex.hasMatch(lastName)
         ? ""
         : lastName
-            .toLowerCase()
-            .replaceAll(RegExp(r"[^\s\w]"), "")
-            .replaceAll(" ", "");
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^\s\w]"), "")
+        .replaceAll(" ", "");
 
     if (name.isEmpty && lastName.isEmpty) {
       return [];
@@ -413,7 +405,7 @@ class AccountSettingsState extends State<AccountSettings> {
     suggestion = suggestion
         .map<String>(
           (e) => e.length > 20 ? e.substring(0, 20).trim() : e.trim(),
-        )
+    )
         .where((element) => element.length > 4 && element.contains(input))
         .toList();
 
@@ -427,20 +419,19 @@ class AccountSettingsState extends State<AccountSettings> {
     return res;
   }
 
-  InputDecoration buildInputDecoration(
-    String label, {
+  InputDecoration buildInputDecoration(String label, {
     bool isOptional = false,
     String hintText = "",
   }) {
     return InputDecoration(
       suffixIcon: isOptional
           ? const Padding(
-              padding: EdgeInsetsDirectional.only(top: 20, start: 25),
-              child: Text(
-                "*",
-                style: TextStyle(color: Colors.red),
-              ),
-            )
+        padding: EdgeInsetsDirectional.only(top: 20, start: 25),
+        child: Text(
+          "*",
+          style: TextStyle(color: Colors.red),
+        ),
+      )
           : const SizedBox.shrink(),
       labelText: label,
       hintText: hintText,
@@ -501,7 +492,7 @@ class AccountSettingsState extends State<AccountSettings> {
             _emailTextController.text != _account.email) {
           try {
             final res =
-                await _accountRepo.updateEmail(_emailTextController.text);
+            await _accountRepo.updateEmail(_emailTextController.text);
             if (!res) {
               if (context.mounted) {
                 ToastDisplay.showToast(
@@ -531,7 +522,7 @@ class AccountSettingsState extends State<AccountSettings> {
                   return const HomePage();
                 },
               ),
-              (r) => false,
+                  (r) => false,
             ).ignore();
           } else {
             _routingService.pop();

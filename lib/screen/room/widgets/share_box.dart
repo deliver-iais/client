@@ -108,8 +108,9 @@ class ShareBoxState extends State<ShareBox> {
         min((mq.size.height - (APPBAR_HEIGHT * 2)) / mq.size.height, 0.85);
 
     final bottomOffset = mq.viewInsets.bottom + mq.padding.bottom;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !isAnyFileSelected,
+      onPopInvoked: (_) {
         if (isAnyFileSelected) {
           setState(() {
             finalSelected.clear();
@@ -117,9 +118,7 @@ class ShareBoxState extends State<ShareBox> {
             selectedImagesMap.clear();
             selectedFilesMap.clear();
           });
-          return false;
         }
-        return true;
       },
       child: DraggableScrollableSheet(
         initialChildSize: percent,

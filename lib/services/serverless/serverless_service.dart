@@ -184,6 +184,12 @@ class ServerLessService {
     }
   }
 
+  void checkConnections() {
+    if (address.isEmpty) {
+      sendMyLocalNetworkInfo();
+    }
+  }
+
   Future<void> sendMyLocalNetworkInfo({
     bool retry = true,
   }) async {
@@ -431,8 +437,11 @@ class ServerLessService {
               .get<ServerLessMucService>()
               .resendPendingPackets(userAddress.uid);
         }
-        unawaited(
-            _uidInNameDao.update(userAddress.uid, id: userAddress.username),);
+        if (userAddress.username.isNotEmpty) {
+          unawaited(
+            _uidInNameDao.update(userAddress.uid, id: userAddress.username),
+          );
+        }
       } catch (e) {
         _logger.e(e);
       }

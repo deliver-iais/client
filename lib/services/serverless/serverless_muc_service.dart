@@ -557,8 +557,15 @@ class ServerLessMucService {
       final packets = (await _serverLessRequestDao.getUserRequests(uid))
         ..sort((a, b) => a.time - b.time);
       for (final packet in packets) {
-        if (await _sendClientPacket(
-            uid.asString(), ServerLessPacket.fromJson(packet.info),
+        final severLessPacket = ServerLessPacket.fromJson(packet.info);
+        if (severLessPacket.hasMessage() && severLessPacket.message.hasFile()) {
+          final fileInfo =
+              await _sendFileToMucMember(severLessPacket.message, uid);
+          if (fileInfo != null) {
+            severLessPacket.message.file = fileInfo;
+          }
+        }
+        if (await _sendClientPacket(uid.asString(), severLessPacket,
             needToSave: false)) {
           await _serverLessRequestDao.remove(packet);
         }

@@ -189,40 +189,27 @@ class RoomPageState extends State<RoomPage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if ((_repliedMessage.value?.id ?? 0) > 0 ||
-            _editableMessage.value != null ||
-            _selectedMessageListIndex.value.isNotEmpty) {
-          _resetRoomPageDetails();
-          return false;
-        } else {
-          _routingService.resetCurrentRoom();
-          return true;
-        }
-      },
-      child: DragDropWidget(
-        roomUid: widget.roomUid,
-        height: MediaQuery.of(context).size.height,
-        replyMessageId: _repliedMessage.value?.id ?? 0,
-        resetRoomPageDetails: _resetRoomPageDetails,
-        child: Stack(
-          children: [
-            StreamBuilder<Room>(
-              stream: _room,
-              builder: (context, snapshot) => Background(
-                id: snapshot.data?.lastMessageId ?? 0,
-              ),
+    return DragDropWidget(
+      roomUid: widget.roomUid,
+      height: MediaQuery.of(context).size.height,
+      replyMessageId: _repliedMessage.value?.id ?? 0,
+      resetRoomPageDetails: _resetRoomPageDetails,
+      child: Stack(
+        children: [
+          StreamBuilder<Room>(
+            stream: _room,
+            builder: (context, snapshot) => Background(
+              id: snapshot.data?.lastMessageId ?? 0,
             ),
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              extendBodyBehindAppBar: true,
-              appBar: buildAppbar(),
-              resizeToAvoidBottomInset: false,
-              body: buildBody(),
-            ),
-          ],
-        ),
+          ),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBodyBehindAppBar: true,
+            appBar: buildAppbar(),
+            resizeToAvoidBottomInset: false,
+            body: buildBody(),
+          ),
+        ],
       ),
     );
   }

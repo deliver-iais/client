@@ -63,11 +63,8 @@ class _MemberSelectionPageState extends State<MemberSelectionPage> {
   Widget build(BuildContext context) {
     _contactRepo.syncContacts(context);
     final theme = Theme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
-        _onBackButtonClick();
-        return true;
-      },
+    return PopScope(
+      onPopInvoked: (_) => _onBackButtonClick(),
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),

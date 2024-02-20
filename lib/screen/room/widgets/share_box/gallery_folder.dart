@@ -52,7 +52,6 @@ class _GalleryFolderState extends State<GalleryFolder> {
   final List<String> _selectedImage = [];
   final Map<String, AssetEntity> _imageFiles = {};
 
-
   Future<List<AssetEntity>?> _fetchImage(int index) async {
     var completer =
         _completerMap["image-${(index / FETCH_IMAGE_PAGE_SIZE).floor()}"];
@@ -91,15 +90,14 @@ class _GalleryFolderState extends State<GalleryFolder> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !_selectedImage.isNotEmpty,
+      onPopInvoked: (_) {
         if (_selectedImage.isNotEmpty) {
           setState(() {
             _selectedImage.clear();
           });
-          return false;
         }
-        return true;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -240,7 +238,9 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                                 child: widget.selectAsAvatar
                                                     ? const SizedBox.shrink()
                                                     : _buildSelecteButton(
-                                                        imagePath, isSelected,),
+                                                        imagePath,
+                                                        isSelected,
+                                                      ),
                                               ),
                                       ),
                                     ),

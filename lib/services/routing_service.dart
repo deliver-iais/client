@@ -70,6 +70,7 @@ import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
@@ -270,9 +271,11 @@ class RoutingService {
     _analyticsService.sendLogEvent(
       "localNetworkSettingsPage_open",
     );
-    _push(LocalNetworkSettingsPage(
-      key: const ValueKey("/local_network_settings_page"),
-    ),);
+    _push(
+      LocalNetworkSettingsPage(
+        key: const ValueKey("/local_network_settings_page"),
+      ),
+    );
   }
 
   String getCurrentRoomId() => _currentRoom;
@@ -288,7 +291,6 @@ class RoutingService {
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
   }) {
-
     _currentRoom = roomUid.asString();
     if (!isInRoom(roomUid.asString()) || forceToOpenRoom) {
       _recentRoomsDao.addRecentRoom(roomUid.asString());
@@ -299,7 +301,7 @@ class RoutingService {
       }
       _push(
         RoomPage(
-          key: ValueKey("/room/$roomUid"),
+          key: ValueKey("/room/${roomUid.asString()}"),
           roomUid: roomUid,
           forwardedMessages: forwardedMessages,
           forwardedMeta: forwardedMeta,
@@ -501,7 +503,7 @@ class RoutingService {
     Uid? mucUid,
     bool useSmsBroadcastList = false,
     bool openMucInfoDeterminationPage = true,
-    bool  createLocal = false,
+    bool createLocal = false,
   }) {
     _analyticsService.sendLogEvent(
       "new $categories open",
@@ -644,6 +646,8 @@ class RoutingService {
     if (canPop()) {
       _homeNavigatorState.currentState?.pop();
       _currentRoom = "";
+    } else {
+      SystemNavigator.pop();
     }
   }
 

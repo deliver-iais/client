@@ -139,6 +139,7 @@ class CoreServices {
 
   @visibleForTesting
   void startCheckerTimer() {
+    _serverLessService.checkConnections();
     sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
