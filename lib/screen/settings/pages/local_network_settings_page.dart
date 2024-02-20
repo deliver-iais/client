@@ -36,8 +36,8 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                       children: [
                         SettingsTile.switchTile(
                           title: _i18n.get("super_node"),
-                          leading:
-                              const Icon(CupertinoIcons.antenna_radiowaves_left_right),
+                          leading: const Icon(
+                              CupertinoIcons.antenna_radiowaves_left_right),
                           switchValue: _superNode.value,
                           onToggle: ({required newValue}) {
                             _superNode.value = newValue;
@@ -50,7 +50,7 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                           title: _i18n.get("backup_local_network_messages"),
                           leading: const Icon(Icons.backup_outlined),
                           switchValue: _backUp.value,
-                          onToggle: ({required newValue}) {
+                          onToggle: ({required newValue}) async {
                             _backUp.value = newValue;
                             settings.backupLocalNetworkMessages.set(newValue);
                           },

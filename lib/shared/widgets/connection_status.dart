@@ -186,7 +186,7 @@ class ConnectionStatus extends StatelessWidget {
         content: SizedBox(
           height: _serverLessService.address.length < 4
               ? _serverLessService.address.length * 62
-              : 244,
+              : 270,
           width: 200,
           child: Directionality(
             textDirection: TextDirection.ltr,
@@ -220,6 +220,8 @@ class ConnectionStatus extends StatelessWidget {
                           width: 20,
                         ),
                         RoomName(
+                          id: _serverLessService
+                              .address[uid.asString()]?.username,
                           uid: uid,
                         ),
                       ],

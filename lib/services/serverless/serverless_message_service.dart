@@ -167,6 +167,20 @@ class ServerLessMessageService {
     await _sendMessage(to: message.to, message: message);
   }
 
+  int getRoomLastMessageId(Uid uid) {
+    if (_rooms[uid.asString()] != null) {
+      final l = _rooms[uid.asString()];
+      if (l != null) {
+        _rooms[uid.asString()] =
+            (_rooms[uid.asString()] ?? (Room(uid: uid).getLocalChat()))
+              ..lastMessageId = (l.lastMessageId) + 1
+              ..lastLocalNetworkId = l.lastLocalNetworkId + 1;
+        return _rooms[uid.asString()]!.lastMessageId;
+      }
+    }
+    return 1;
+  }
+
   void deleteMessage(DeleteMessageReq deleteMessageReq) {
     _sendMessage(
       to: deleteMessageReq.roomUid,

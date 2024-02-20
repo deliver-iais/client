@@ -27,13 +27,11 @@ class SelectiveContactsList extends StatefulWidget {
   final bool useSmsBroadcastList;
   final MucCategories categories;
   final bool openMucInfoDeterminationPage;
-  final bool isLocalNetwork;
 
   const SelectiveContactsList({
     super.key,
     required this.categories,
     this.mucUid,
-    this.isLocalNetwork = false,
     this.useSmsBroadcastList = false,
     this.openMucInfoDeterminationPage = false,
   });
@@ -59,7 +57,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   var _contacts = <String, User>{};
 
-  List<Uid> members = [];
+  List<String> members = [];
 
   @override
   void dispose() {
@@ -82,7 +80,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   Future<void> getMembers() async {
     final res = await _mucRepo.getAllMembers(widget.mucUid!);
     for (final element in res) {
-      members.add(element.memberUid);
+      members.add(element.memberUid.asString());
     }
   }
 
@@ -139,7 +137,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
-            const SyncContact(),
+            if (_serverLessService.superNodes.isEmpty) const SyncContact(),
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(vertical: 4.0),
               child: SearchBox(
@@ -195,34 +193,16 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                       ..clear()
                       ..addAll(_sortItems(_contacts.values.toList()));
 
-                    return Obx(() => _items.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: _items.length,
-                            itemBuilder: (c, index) =>
-                                _getListItemTile(context, index),
-                          )
-                        : ListView(
-                            children: [
-                              const EmptyContacts(),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.symmetric(
-                                  horizontal: 32,
-                                ),
-                                child: TextButton(
-                                  onPressed: _routingService.openContacts,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(_i18n.get("contacts")),
-                                      const Icon(Icons.chevron_right_rounded),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ));
+                    return buildItems(context);
+                  } else {
+                    if (_serverLessService.superNodeExit()) {
+                      _addLocalMembersToLocalMuc();
+                      _items
+                        ..clear()
+                        ..addAll(_sortItems(_contacts.values.toList()));
+                    }
                   }
-                  return const SizedBox.shrink();
+                  return buildItems(context);
                 },
               ),
             ),
@@ -312,10 +292,40 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     );
   }
 
+  Obx buildItems(BuildContext context) {
+    return Obx(
+      () => _items.isNotEmpty
+          ? ListView.builder(
+              itemCount: _items.length,
+              itemBuilder: (c, index) => _getListItemTile(context, index),
+            )
+          : ListView(
+              children: [
+                const EmptyContacts(),
+                Padding(
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 32,
+                  ),
+                  child: TextButton(
+                    onPressed: _routingService.openContacts,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(_i18n.get("contacts")),
+                        const Icon(Icons.chevron_right_rounded),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        if (!members.contains(_items[index].uid)) {
+        if (!members.contains(_items[index].uid?.asString())) {
           if (!_createMucService.isSelected(
             _items[index],
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
@@ -349,7 +359,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             _items[index],
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
           ),
-          currentMember: members.contains(_items[index].uid),
+          currentMember: members.contains(_items[index].uid?.asString()),
         ),
       ),
     );

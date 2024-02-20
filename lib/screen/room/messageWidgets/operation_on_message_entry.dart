@@ -318,7 +318,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 value: OperationOnMessage.EDIT,
                 child: Row(
                   children: [
-                    const Icon(CupertinoIcons.paintbrush),
+                    const Icon(Icons.edit),
                     const SizedBox(width: p12),
                     Text(_i18n.get("edit")),
                   ],

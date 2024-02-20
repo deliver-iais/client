@@ -64,10 +64,12 @@ class ServerLessMucService {
       } else {
         final uid = _serverLessService.getSuperNode();
         if (uid != null) {
-          unawaited(_sendClientPacket(
-            uid.asString(),
-            serverLessPacket..proxyMessage = true,
-          ));
+          unawaited(
+            _sendClientPacket(
+              uid.asString(),
+              serverLessPacket..proxyMessage = true,
+            ),
+          );
         }
       }
       unawaited(_saveLocalMuc(createGroup));
@@ -285,10 +287,12 @@ class ServerLessMucService {
     Uid issuer,
     Uid roomUId,
   ) async {
-    final room = await _roomDao.getRoom(roomUId);
     await _dataStreamService.handleIncomingMessage(
       Message()
-        ..id = Int64(room != null ? room.lastMessageId + 1 : 1)
+        ..id = Int64(GetIt.I
+            .get<ServerLessMessageService>()
+            .getRoomLastMessageId(roomUId))
+        ..isLocalMessage = true
         ..from = roomUId
         ..packetId = DateTime.now().millisecondsSinceEpoch.toString()
         ..to = _authRepo.currentUserUid

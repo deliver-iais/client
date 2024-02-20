@@ -130,6 +130,7 @@ class ServerLessService {
 
   Future<void> _clearConnections() async {
     address.clear();
+    // superNodes.clear();
     await _localNetworkConnectionDao.deleteAll();
   }
 
@@ -307,6 +308,7 @@ class ServerLessService {
     try {
       unawaited(_shareOthersLocation());
       await _processIp([myLocalNetworkInfo.address]);
+      unawaited(_shareOthersLocation());
     } catch (e) {
       _logger.e(e);
     }
