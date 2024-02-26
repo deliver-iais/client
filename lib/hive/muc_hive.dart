@@ -41,12 +41,16 @@ class MucHive {
   @HiveField(9)
   MucRole currentUserRole;
 
+  @HiveField(10)
+  bool synced;
+
   MucHive({
     required this.uid,
     this.name = "",
     this.token = "",
     this.id = "",
     this.info = "",
+    this.synced = true,
     this.pinMessagesIdList = const [],
     this.population = 0,
     this.lastCanceledPinMessageId = 0,
@@ -62,6 +66,7 @@ class MucHive {
     String? info,
     List<int>? pinMessagesIdList,
     int? population,
+    bool? synced,
     int? lastCanceledPinMessageId,
     MucType? mucType,
     MucRole? currentUserRole,
@@ -69,6 +74,7 @@ class MucHive {
       MucHive(
         uid: uid,
         name: name ?? this.name,
+        synced: synced ?? this.synced,
         token: token ?? this.token,
         id: id ?? this.id,
         info: info ?? this.info,
@@ -93,6 +99,7 @@ class MucHive {
           const DeepCollectionEquality()
               .equals(other.pinMessagesIdList, pinMessagesIdList) &&
           const DeepCollectionEquality().equals(other.population, population) &&
+          const DeepCollectionEquality().equals(other.synced, synced) &&
           const DeepCollectionEquality().equals(
             other.lastCanceledPinMessageId,
             lastCanceledPinMessageId,
@@ -104,6 +111,7 @@ class MucHive {
         const DeepCollectionEquality().hash(uid),
         const DeepCollectionEquality().hash(name),
         const DeepCollectionEquality().hash(token),
+        const DeepCollectionEquality().hash(synced),
         const DeepCollectionEquality().hash(id),
         const DeepCollectionEquality().hash(info),
         const DeepCollectionEquality().hash(pinMessagesIdList),
@@ -121,6 +129,7 @@ class MucHive {
         lastCanceledPinMessageId: lastCanceledPinMessageId,
         mucType: mucType,
         info: info,
+        synced: synced,
         token: token,
         currentUserRole: currentUserRole,
         pinMessagesIdList: pinMessagesIdList,
@@ -132,6 +141,7 @@ extension MucHiveMapper on Muc {
         uid: uid.asString(),
         name: name,
         id: id,
+        synced: synced,
         currentUserRole: currentUserRole,
         population: population,
         lastCanceledPinMessageId: lastCanceledPinMessageId,

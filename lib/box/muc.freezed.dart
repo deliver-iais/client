@@ -31,6 +31,7 @@ mixin _$Muc {
   int get lastCanceledPinMessageId => throw _privateConstructorUsedError;
   MucType get mucType => throw _privateConstructorUsedError;
   MucRole get currentUserRole => throw _privateConstructorUsedError;
+  bool get synced => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -52,7 +53,8 @@ abstract class $MucCopyWith<$Res> {
       int population,
       int lastCanceledPinMessageId,
       MucType mucType,
-      MucRole currentUserRole});
+      MucRole currentUserRole,
+      bool synced});
 }
 
 /// @nodoc
@@ -77,6 +79,7 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
     Object? lastCanceledPinMessageId = null,
     Object? mucType = null,
     Object? currentUserRole = null,
+    Object? synced = null,
   }) {
     return _then(_value.copyWith(
       uid: null == uid
@@ -119,6 +122,10 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
           ? _value.currentUserRole
           : currentUserRole // ignore: cast_nullable_to_non_nullable
               as MucRole,
+      synced: null == synced
+          ? _value.synced
+          : synced // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -139,7 +146,8 @@ abstract class _$$MucImplCopyWith<$Res> implements $MucCopyWith<$Res> {
       int population,
       int lastCanceledPinMessageId,
       MucType mucType,
-      MucRole currentUserRole});
+      MucRole currentUserRole,
+      bool synced});
 }
 
 /// @nodoc
@@ -161,6 +169,7 @@ class __$$MucImplCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$MucImpl>
     Object? lastCanceledPinMessageId = null,
     Object? mucType = null,
     Object? currentUserRole = null,
+    Object? synced = null,
   }) {
     return _then(_$MucImpl(
       uid: null == uid
@@ -203,6 +212,10 @@ class __$$MucImplCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$MucImpl>
           ? _value.currentUserRole
           : currentUserRole // ignore: cast_nullable_to_non_nullable
               as MucRole,
+      synced: null == synced
+          ? _value.synced
+          : synced // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -220,7 +233,8 @@ class _$MucImpl implements _Muc {
       this.population = 0,
       this.lastCanceledPinMessageId = 0,
       this.mucType = MucType.Public,
-      this.currentUserRole = MucRole.NONE})
+      this.currentUserRole = MucRole.NONE,
+      this.synced = true})
       : _pinMessagesIdList = pinMessagesIdList;
 
   factory _$MucImpl.fromJson(Map<String, dynamic> json) =>
@@ -263,10 +277,13 @@ class _$MucImpl implements _Muc {
   @override
   @JsonKey()
   final MucRole currentUserRole;
+  @override
+  @JsonKey()
+  final bool synced;
 
   @override
   String toString() {
-    return 'Muc(uid: $uid, name: $name, token: $token, id: $id, info: $info, pinMessagesIdList: $pinMessagesIdList, population: $population, lastCanceledPinMessageId: $lastCanceledPinMessageId, mucType: $mucType, currentUserRole: $currentUserRole)';
+    return 'Muc(uid: $uid, name: $name, token: $token, id: $id, info: $info, pinMessagesIdList: $pinMessagesIdList, population: $population, lastCanceledPinMessageId: $lastCanceledPinMessageId, mucType: $mucType, currentUserRole: $currentUserRole, synced: $synced)';
   }
 
   @override
@@ -288,7 +305,8 @@ class _$MucImpl implements _Muc {
                 other.lastCanceledPinMessageId == lastCanceledPinMessageId) &&
             (identical(other.mucType, mucType) || other.mucType == mucType) &&
             (identical(other.currentUserRole, currentUserRole) ||
-                other.currentUserRole == currentUserRole));
+                other.currentUserRole == currentUserRole) &&
+            (identical(other.synced, synced) || other.synced == synced));
   }
 
   @JsonKey(ignore: true)
@@ -304,7 +322,8 @@ class _$MucImpl implements _Muc {
       population,
       lastCanceledPinMessageId,
       mucType,
-      currentUserRole);
+      currentUserRole,
+      synced);
 
   @JsonKey(ignore: true)
   @override
@@ -331,7 +350,8 @@ abstract class _Muc implements Muc {
       final int population,
       final int lastCanceledPinMessageId,
       final MucType mucType,
-      final MucRole currentUserRole}) = _$MucImpl;
+      final MucRole currentUserRole,
+      final bool synced}) = _$MucImpl;
 
   factory _Muc.fromJson(Map<String, dynamic> json) = _$MucImpl.fromJson;
 
@@ -356,6 +376,8 @@ abstract class _Muc implements Muc {
   MucType get mucType;
   @override
   MucRole get currentUserRole;
+  @override
+  bool get synced;
   @override
   @JsonKey(ignore: true)
   _$$MucImplCopyWith<_$MucImpl> get copyWith =>

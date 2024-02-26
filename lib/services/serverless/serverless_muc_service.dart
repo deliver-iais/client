@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:deliver/box/dao/muc_dao.dart';
-import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/serverless_requests_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart' as model;
@@ -34,7 +33,6 @@ class ServerLessMucService {
   final _logger = GetIt.I.get<Logger>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  final _roomDao = GetIt.I.get<RoomDao>();
   final _dataStreamService = GetIt.I.get<DataStreamServices>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _serverLessRequestDao = GetIt.I.get<ServerLessRequestsDao>();
@@ -226,6 +224,7 @@ class ServerLessMucService {
     );
     unawaited(
       _mucDao.updateMuc(
+        synced: false,
         uid: addMemberToLocalMuc.mucUid,
         name: addMemberToLocalMuc.name,
         // currentUserRole: getLocalRole(
@@ -342,6 +341,7 @@ class ServerLessMucService {
       name: createLocalMuc.name,
     );
     await _mucDao.updateMuc(
+      synced: false,
       uid: createLocalMuc.uid,
       name: createLocalMuc.name,
       currentUserRole: getLocalRole(

@@ -23,6 +23,7 @@ _$MucImpl _$$MucImplFromJson(Map<String, dynamic> json) => _$MucImpl(
       currentUserRole:
           $enumDecodeNullable(_$MucRoleEnumMap, json['currentUserRole']) ??
               MucRole.NONE,
+      synced: json['synced'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$MucImplToJson(_$MucImpl instance) => <String, dynamic>{
@@ -36,6 +37,7 @@ Map<String, dynamic> _$$MucImplToJson(_$MucImpl instance) => <String, dynamic>{
       'lastCanceledPinMessageId': instance.lastCanceledPinMessageId,
       'mucType': _$MucTypeEnumMap[instance.mucType]!,
       'currentUserRole': _$MucRoleEnumMap[instance.currentUserRole]!,
+      'synced': instance.synced,
     };
 
 const _$MucTypeEnumMap = {

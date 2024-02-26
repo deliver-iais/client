@@ -152,6 +152,7 @@ class MucDaoImpl extends MucDao {
     int? lastCanceledPinMessageId,
     int? population,
     String? id,
+    bool? synced,
     String? token,
     String? name,
     MucType? mucType,
@@ -257,5 +258,11 @@ class MucDaoImpl extends MucDao {
           .map((e) => e.fromIsar())
           .toList();
     }
+  }
+
+  @override
+  Future<List<Muc>> getNitSyncedLocalMuc() {
+    // TODO: implement getNitSyncedLocalMuc
+    throw UnimplementedError();
   }
 }

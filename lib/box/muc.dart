@@ -20,6 +20,8 @@ class Muc with _$Muc {
     @Default(0) int lastCanceledPinMessageId,
     @Default(MucType.Public) MucType mucType,
     @Default(MucRole.NONE) MucRole currentUserRole,
+    @Default(true) bool synced,
+
   }) = _Muc;
 
   factory Muc.fromJson(Map<String, Object?> json) => Muc.fromJson(json);

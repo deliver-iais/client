@@ -106,6 +106,7 @@ class MucDaoImpl extends MucDao {
     int? lastCanceledPinMessageId,
     int? population,
     String? id,
+    bool? synced,
     String? token,
     MucType? mucType,
     String? name,
@@ -120,6 +121,7 @@ class MucDaoImpl extends MucDao {
             uid: uid.asString(),
             info: info,
             id: id,
+            synced: synced,
             currentUserRole: currentUserRole,
             population: population,
             pinMessagesIdList: pinMessagesIdList,
@@ -151,5 +153,18 @@ class MucDaoImpl extends MucDao {
     final box = await _openMembers(mucUid.asString());
 
     return box.values.take(pageSize).map((e) => e.fromHive()).toList();
+  }
+
+  @override
+  Future<List<Muc>> getNitSyncedLocalMuc() async {
+    try {
+      final box = await _openMuc();
+      return box.values
+          .where((element) => !element.synced)
+          .map((e) => e.fromHive())
+          .toList();
+    } catch (_) {
+      return [];
+    }
   }
 }

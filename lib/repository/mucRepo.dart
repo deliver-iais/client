@@ -73,6 +73,17 @@ class MucRepo {
     return null;
   }
 
+  Future<void> syncLocalMucs() async {
+    final notSyncedMuc = await _mucDao.getNitSyncedLocalMuc();
+    for (final muc in notSyncedMuc) {}
+  }
+
+  Future<void> _syncLocalMuc(Uid uid) async {
+    try {} catch (e) {
+      _logger.e(e);
+    }
+  }
+
   Future<void> _syncGroupByServer(
     String groupName,
     String info,
@@ -88,6 +99,8 @@ class MucRepo {
           groupName,
           info,
         );
+      } else {
+        unawaited(_mucDao.updateMuc(uid: groupUid, synced: false));
       }
     } catch (e) {
       _logger.e(e);

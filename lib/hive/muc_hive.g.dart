@@ -22,6 +22,7 @@ class MucHiveAdapter extends TypeAdapter<MucHive> {
       token: fields[2] as String,
       id: fields[3] as String,
       info: fields[4] as String,
+      synced: fields[10] as bool,
       pinMessagesIdList: (fields[5] as List).cast<int>(),
       population: fields[6] as int,
       lastCanceledPinMessageId: fields[7] as int,
@@ -33,7 +34,7 @@ class MucHiveAdapter extends TypeAdapter<MucHive> {
   @override
   void write(BinaryWriter writer, MucHive obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class MucHiveAdapter extends TypeAdapter<MucHive> {
       ..writeByte(8)
       ..write(obj.mucType)
       ..writeByte(9)
-      ..write(obj.currentUserRole);
+      ..write(obj.currentUserRole)
+      ..writeByte(10)
+      ..write(obj.synced);
   }
 
   @override

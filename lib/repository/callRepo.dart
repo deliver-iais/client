@@ -167,7 +167,6 @@ class CallRepo {
   bool _isNotificationSelected = false;
   bool _isAccepted = false;
   bool _notifyIncomingCall = false;
-  bool _missedCall = true;
   Timer? timer;
   StreamSubscription<PhoneState?>? _phoneStateStream;
 
@@ -291,14 +290,12 @@ class CallRepo {
         case CallEventV2_Type.busy:
           _callEvents[callEvent.time.toInt()] = "Busy";
           if (isCallIdEqualToCurrentCallId(event)) {
-            _missedCall = false;
             unawaited(receivedBusyCall(event));
           }
           break;
         case CallEventV2_Type.decline:
           _callEvents[callEvent.time.toInt()] = "Declined";
           if (isCallIdEqualToCurrentCallId(event)) {
-            _missedCall = false;
             unawaited(receivedDeclinedCall());
           }
           break;

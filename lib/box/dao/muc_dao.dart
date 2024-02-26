@@ -12,6 +12,8 @@ abstract class MucDao {
 
   Future<void> delete(Uid uid);
 
+  Future<List<Muc>>getNitSyncedLocalMuc();
+
   Future<void> updateMuc({
     required Uid uid,
     String? info,
@@ -21,6 +23,7 @@ abstract class MucDao {
     String? id,
     String? token,
     String? name,
+    bool? synced,
     MucType? mucType,
     MucRole? currentUserRole,
   });
