@@ -49,10 +49,10 @@ class LocalNetworkSettingsPage extends StatelessWidget {
                         SettingsTile.switchTile(
                           title: _i18n.get("backup_local_network_messages"),
                           leading: const Icon(Icons.backup_outlined),
-                          switchValue: _backUp.value,
+                          switchValue: true,
                           onToggle: ({required newValue}) async {
-                            _backUp.value = newValue;
-                            settings.backupLocalNetworkMessages.set(newValue);
+                            // _backUp.value = newValue;
+                            // settings.backupLocalNetworkMessages.set(newValue);
                           },
                         ),
                         // SettingsTile.switchTile(

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:browser_image_compression/browser_image_compression.dart'
     as web_compression;
 import 'package:clock/clock.dart';
@@ -290,15 +290,22 @@ class FileService {
         return;
       }
       if (isAndroidNative) {
-        final downloadDir =
-            await _storagePathService.downloadDirPath(name, directory);
-        File(
-          downloadDir,
-        ).writeAsBytesSync(
-          name.endsWith(".webp")
+        ImageGallerySaver.saveImage(
+          Uint8List.fromList(name.endsWith(".webp")
               ? await convertImageToJpg(File(path))
-              : File(path).readAsBytesSync(),
+              : File(path).readAsBytesSync()),
+          quality: 100,
+          name: name,
         );
+        // final downloadDir =
+        //     await _storagePathService.downloadDirPath(name, directory);
+        // File(
+        //   downloadDir,
+        // ).writeAsBytesSync(
+        //   name.endsWith(".webp")
+        //       ? await convertImageToJpg(File(path))
+        //       : File(path).readAsBytesSync(),
+        // );
       } else {
         // if (isVideo(path)) {
         //   await GallerySaver.saveVideo(path);

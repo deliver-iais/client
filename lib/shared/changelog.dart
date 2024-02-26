@@ -1,23 +1,20 @@
 const FARSI_FEATURE_LIST = <String>[
-  "اضافه شدن قابلیت شبکه داخلی شامل :",
-  "   ارسال پبام متنی و فایل",
-  "   تماس صوتی وتصویری",
-  "   نمایش افراد داخل شبکه",
-  "   ذخیره سازی پیام ها بعد از انلاین شدن",
+  "اضافه شدن قابلیت سرور شبکه محلی",
+  "اضافه شدن قابلیت ایجاد گروه در شبکه داخلی",
+  "رفع مشکلات چت دونفره در شبکه داخلی",
+  "رفع مشکل ذخیره عکس در گالری",
 ];
 
 const ENGLISH_FEATURE_LIST = [
-  "Local network Chat",
-  "  Sending text and file messages",
-  "  Voice and video call",
-  "  Show people in  same lan",
-  "  Saving messages after going online",
+  "local super node",
+  "create local  group",
+  "local one-one chat bugs fix.",
+  "save in  gallery bug fix.",
 ];
 
 const ARABIC_FEATURE_LIST = [
-  "Local network Chat",
-  "1. Sending text and file messages",
-  "2. Voice and video call",
-  "3. Show people in  same lan",
-  "4. Saving messages after going online",
+  "local super node",
+  "create local  group",
+  "local one-one chat bugs fix.",
+  "save in  gallery bug fix.",
 ];

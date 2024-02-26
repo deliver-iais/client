@@ -81,6 +81,7 @@ dependencies:
       ref: main
       url: https://github.com/deliveriais/desktop_window
   device_info_plus: 9.0.2
+  image_gallery_saver: 2.0.3
   dio: ^5.3.3
   dismissible_page: 1.0.2
   expandable: 5.0.1

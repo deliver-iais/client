@@ -181,7 +181,7 @@ class HomePageState extends State<HomePage> {
             FlutterForegroundTask.minimizeApp();
           }
           _routingService.pop();
-        }else{
+        } else {
           _routingService.pop();
         }
       },
@@ -195,6 +195,7 @@ class HomePageState extends State<HomePage> {
   void checkIfVersionChange() {
     if (_accountRepo.shouldShowNewFeatureDialog()) {
       if (context.mounted) {
+        unawaited(GetIt.I.get<ContactRepo>().getContacts());
         showDialog(builder: (context) => NewFeatureDialog(), context: context)
             .ignore();
       }

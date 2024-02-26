@@ -248,7 +248,7 @@ class AccountRepo {
     try {
       final applicationVersion = settings.applicationVersion.value;
       final dbHashCode = settings.dbHashCode.value;
-      if (applicationVersion.isEmpty || applicationVersion == APP_VERSION) {
+      if (applicationVersion.isEmpty || applicationVersion != APP_VERSION) {
         if (dbHashCode != _dbManager.getDbVersionHashcode()) {
           try {
             try {

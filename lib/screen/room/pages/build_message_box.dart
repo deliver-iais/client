@@ -567,7 +567,7 @@ class OperationOnMessageSelection {
         onShare().ignore();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
-        onSaveTOGallery(context);
+        onSaveToGallery(context);
         break;
       case OperationOnMessage.SAVE_TO_DOWNLOADS:
         onSaveTODownloads();
@@ -690,7 +690,7 @@ class OperationOnMessageSelection {
     }
   }
 
-  void onSaveTOGallery(BuildContext context) {
+  void onSaveToGallery(BuildContext context) {
     final file = message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
     ToastDisplay.showToast(

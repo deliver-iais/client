@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/broadcast_member.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
@@ -409,17 +410,14 @@ class MucRepo {
             );
           }
 
-          unawaited(
-            _mucDao.updateMuc(
-              uid: mucUid,
-              name: group.info.name,
-              population: group.population.toInt(),
-              info: group.info.info,
-              token: group.token,
-              currentUserRole: getLocalRole(group.requesterRole),
-              pinMessagesIdList:
-                  group.pinMessages.map((e) => e.toInt()).toList(),
-            ),
+          await _mucDao.updateMuc(
+            uid: mucUid,
+            name: group.info.name,
+            population: group.population.toInt(),
+            info: group.info.info,
+            token: group.token,
+            currentUserRole: getLocalRole(group.requesterRole),
+            pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
           if (needToFetchMembers) {
