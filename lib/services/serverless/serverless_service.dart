@@ -238,23 +238,15 @@ class ServerLessService {
       {bool retry = true}) async {
     try {
       return http.post(
-        Uri.parse("http://$url:$SERVER_PORT",),
+        Uri.parse(
+          "http://$url:$SERVER_PORT",
+        ),
         headers: <String, String>{
           IP: _ip,
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: serverLessPacket.writeToBuffer(),
       );
-      // return _dio.post(
-      //   "http://$url:$SERVER_PORT",
-      //   data: serverLessPacket.writeToBuffer(),
-      //   options: Options(
-      //     headers: {
-      //       IP: _ip,
-      //     },
-      //     contentType: ContentType.binary.mimeType,
-      //   ),
-      // );
     } catch (e) {
       _logger.e(e);
       if (retry) {
