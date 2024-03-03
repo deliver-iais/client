@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:http/http.dart' as http;
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/local_network-connection_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -17,14 +17,12 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/register.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/server_less_packet.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart' as g;
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
 class ServerLessService {
-  final Dio _dio = Dio();
   final _networkInfo = NetworkInfo();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _logger = GetIt.I.get<Logger>();
@@ -235,19 +233,28 @@ class ServerLessService {
       ),
     );
 
-  Future<Response?> sendRequest(ServerLessPacket serverLessPacket, String url,
+  Future<http.Response?> sendRequest(
+      ServerLessPacket serverLessPacket, String url,
       {bool retry = true}) async {
     try {
-      return _dio.post(
-        "http://$url:$SERVER_PORT",
-        data: serverLessPacket.writeToBuffer(),
-        options: Options(
-          headers: {
-            IP: _ip,
-          },
-          contentType: ContentType.binary.mimeType,
-        ),
+      return http.post(
+        Uri.parse("http://$url:$SERVER_PORT",),
+        headers: <String, String>{
+          IP: _ip,
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: serverLessPacket.writeToBuffer(),
       );
+      // return _dio.post(
+      //   "http://$url:$SERVER_PORT",
+      //   data: serverLessPacket.writeToBuffer(),
+      //   options: Options(
+      //     headers: {
+      //       IP: _ip,
+      //     },
+      //     contentType: ContentType.binary.mimeType,
+      //   ),
+      // );
     } catch (e) {
       _logger.e(e);
       if (retry) {
@@ -412,8 +419,8 @@ class ServerLessService {
   ) async {
     if (!userAddress.uid.isSameEntity(_authRepo.currentUserUid.asString())) {
       try {
-        _logger.i(
-            "----->>> New info address ${userAddress.url}----------------------------");
+        // _logger.i(
+        //     "----->>> New info address ${userAddress.url}----------------------------");
         address[userAddress.uid.asString()] = userAddress;
         if (userAddress.isSuperNode) {
           superNodes.add(userAddress.uid.asString());
