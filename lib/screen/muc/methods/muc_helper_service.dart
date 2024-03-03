@@ -1,6 +1,7 @@
 import 'package:deliver/box/member.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -207,13 +208,13 @@ class MucHelperService {
           info,
         );
       case MucCategories.CHANNEL:
-        if ((await checkChannelId?.call(channelId) ?? false)) {
+        if (GetIt.I.get<ServerLessService>().superNodeExit() ||
+            (await checkChannelId?.call(channelId) ?? false)) {
           return _mucRepo.createNewChannel(
             channelId,
             memberUidList,
             name,
             channelType,
-            isLocalChannel: false,
             info,
           );
         }

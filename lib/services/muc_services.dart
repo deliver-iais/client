@@ -14,6 +14,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:synchronized/extension.dart';
 
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
@@ -42,6 +43,26 @@ class MucServices {
           ..info = info,
       );
       return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
+  Future<bool> syncLocalGroup(
+      {required Uid groupUid,
+      required Uid owner,
+      required String name,
+      required String info}) async {
+    try {
+      final result = await _serVices.groupServiceClient.syncLocalGroup(
+        group_pb.SyncLocalGroupReq()
+          ..groupUid = groupUid
+          ..info = info
+          ..name = name
+          ..owner = owner,
+      );
+      return result.synced;
     } catch (e) {
       _logger.e(e);
       return false;

@@ -167,4 +167,17 @@ class MucDaoImpl extends MucDao {
       return [];
     }
   }
+
+  @override
+  Future<Uid?> getLocalMucOwner(Uid uid) async {
+    try {
+      final box = await _openMembers(uid.asString());
+      return box.values
+          .where((element) => element.role == MucRole.OWNER)
+          .first
+          .memberUid
+          .asUid();
+    } catch (_) {}
+    return null;
+  }
 }

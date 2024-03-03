@@ -9,7 +9,6 @@ import 'package:deliver/box/serverless_requests.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
-import 'package:deliver/services/serverless/serverless_constance.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
@@ -37,16 +36,19 @@ class ServerLessMucService {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _serverLessRequestDao = GetIt.I.get<ServerLessRequestsDao>();
 
-  Future<bool> createGroup({
+  Future<bool> createMuc({
     required String name,
-    required String groupNode,
+    required String node,
     required List<Uid> members,
+    bool isChannel = false,
   }) async {
     try {
       members.add(_authRepo.currentUserUid);
       final createGroup = CreateLocalMuc(
         creator: _authRepo.currentUserUid,
-        uid: Uid(category: Categories.GROUP, node: groupNode),
+        uid: Uid(
+            category: isChannel ? Categories.CHANNEL : Categories.GROUP,
+            node: node),
         name: name,
         members: mapMembers(members),
       );
@@ -79,56 +81,6 @@ class ServerLessMucService {
     }
   }
 
-  Future<Uid?> createChannel({
-    required String name,
-    required List<Uid> members,
-  }) async {
-    try {
-      members.add(_authRepo.currentUserUid);
-      final node =
-          "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
-      final channelUid = Uid(node: node, category: Categories.CHANNEL);
-      if (settings.isSuperNode.value) {
-        for (final member in members) {
-          final ip = await _serverLessService.getIpAsync(member.asString());
-          if (ip != null) {
-            await _serverLessService.sendRequest(
-              ServerLessPacket(
-                createLocalMuc: CreateLocalMuc(
-                  creator: _authRepo.currentUserUid,
-                  uid: channelUid,
-                  name: name,
-                  members: mapMembers(members),
-                ),
-              ),
-              ip,
-            );
-          }
-        }
-      } else {
-        unawaited(
-          _serverLessService.sendRequest(
-            ServerLessPacket(
-              createLocalMuc: CreateLocalMuc(
-                creator: _authRepo.currentUserUid,
-                uid: channelUid,
-                name: name,
-                members: mapMembers(members),
-              ),
-              proxyMessage: true,
-            ),
-            _serverLessService.getSuperNodeIp()!,
-          ),
-        );
-      }
-
-      return channelUid;
-    } catch (_) {
-      _logger.e(_);
-    }
-    return null;
-  }
-
   Iterable<Member> mapMembers(List<Uid> members) {
     return members.map(
       (e) => Member(
@@ -152,7 +104,7 @@ class ServerLessMucService {
     final packet = ServerLessPacket(addMembers: addMemberToMuc);
     if (settings.isSuperNode.value) {
       unawaited(
-        _propactaingAddMemberToGroup(
+        _propactaingAddMemberToMuc(
           addMemberToMuc,
         ),
       );
@@ -167,7 +119,7 @@ class ServerLessMucService {
     }
   }
 
-  Future<void> _propactaingAddMemberToGroup(
+  Future<void> _propactaingAddMemberToMuc(
       AddMemberToLocalMuc addMemberToLocalMuc) async {
     final allMembers = [
       ...addMemberToLocalMuc.newMembers,
@@ -210,7 +162,7 @@ class ServerLessMucService {
   Future<void> handleAddMember(
       AddMemberToLocalMuc addMemberToLocalMuc, bool proxy) async {
     if (proxy) {
-      _propactaingAddMemberToGroup(addMemberToLocalMuc);
+      _propactaingAddMemberToMuc(addMemberToLocalMuc);
     } else {
       unawaited(_addMember(addMemberToLocalMuc));
     }
@@ -227,15 +179,6 @@ class ServerLessMucService {
         synced: false,
         uid: addMemberToLocalMuc.mucUid,
         name: addMemberToLocalMuc.name,
-        // currentUserRole: getLocalRole(
-        //   addMemberToLocalMuc.newMembers
-        //       .where(
-        //         (element) => element.uid
-        //             .isSameEntity(_authRepo.currentUserUid.asString()),
-        //       )
-        //       .first
-        //       .role,
-        // ),
         population: addMemberToLocalMuc.oldMembers.length +
             addMemberToLocalMuc.newMembers.length,
       ),
@@ -252,7 +195,7 @@ class ServerLessMucService {
         );
       }
       unawaited(
-        _createGroupMessage(
+        _createMessage(
           Member(uid: _authRepo.currentUserUid),
           addMemberToLocalMuc.name,
           addMemberToLocalMuc.issuer.uid,
@@ -269,7 +212,7 @@ class ServerLessMucService {
           ),
         );
         unawaited(
-          _createGroupMessage(
+          _createMessage(
             member,
             addMemberToLocalMuc.name,
             addMemberToLocalMuc.issuer.uid,
@@ -280,7 +223,7 @@ class ServerLessMucService {
     }
   }
 
-  Future<void> _createGroupMessage(
+  Future<void> _createMessage(
     Member member,
     String name,
     Uid issuer,

@@ -12,7 +12,7 @@ abstract class MucDao {
 
   Future<void> delete(Uid uid);
 
-  Future<List<Muc>>getNitSyncedLocalMuc();
+  Future<List<Muc>> getNitSyncedLocalMuc();
 
   Future<void> updateMuc({
     required Uid uid,
@@ -48,4 +48,6 @@ abstract class MucDao {
   Future<void> deleteMember(Member member);
 
   Future<void> deleteAllMembers(Uid mucUid);
+
+  Future<Uid?> getLocalMucOwner(Uid uid);
 }

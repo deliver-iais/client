@@ -306,9 +306,9 @@ class ServerLessService {
     MyLocalNetworkInfo myLocalNetworkInfo,
   ) async {
     try {
+      address[myLocalNetworkInfo.from.asString()] = myLocalNetworkInfo.address;
       unawaited(_shareOthersLocation());
       await _processIp([myLocalNetworkInfo.address]);
-      unawaited(_shareOthersLocation());
     } catch (e) {
       _logger.e(e);
     }

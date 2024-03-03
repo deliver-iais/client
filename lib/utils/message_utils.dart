@@ -88,8 +88,8 @@ class MessageUtils {
           ..from = msg.from
           ..time = Int64(msg.time);
         if (!settings.backupLocalNetworkMessages.value) {
-          packet.messageByClient =
-              message_pb.MessageByClient(isLocalMessage: true);
+          packet.localNetworkEmptyMessage =
+              message_pb.LocalNetworkEmptyMessage(to: msg.to);
         } else {
           if (msg.type == MessageType.CALL_LOG) {
             packet.callEvent =

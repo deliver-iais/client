@@ -265,4 +265,10 @@ class MucDaoImpl extends MucDao {
     // TODO: implement getNitSyncedLocalMuc
     throw UnimplementedError();
   }
+
+  @override
+  Future<Uid?> getLocalMucOwner(Uid uid) {
+    // TODO: implement getLocalMucOwner
+    throw UnimplementedError();
+  }
 }

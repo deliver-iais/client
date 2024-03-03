@@ -5,7 +5,6 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/broadcast_member.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
-import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
@@ -42,6 +41,7 @@ class MucRepo {
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
+
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
     String groupName,
@@ -50,10 +50,10 @@ class MucRepo {
     if (GetIt.I.get<ServerLessService>().superNodeExit()) {
       final node =
           "$LOCAL_MUC_ID${DateTime.now().millisecondsSinceEpoch}${_authRepo.currentUserUid.node}";
-      await GetIt.I.get<ServerLessMucService>().createGroup(
+      await GetIt.I.get<ServerLessMucService>().createMuc(
             name: groupName,
             members: memberUidList,
-            groupNode: node,
+            node: node,
           );
       final groupUid = Uid(category: Categories.GROUP, node: node);
       unawaited(
@@ -76,11 +76,36 @@ class MucRepo {
 
   Future<void> syncLocalMucs() async {
     final notSyncedMuc = await _mucDao.getNitSyncedLocalMuc();
-    for (final muc in notSyncedMuc) {}
+    for (final muc in notSyncedMuc) {
+      await _syncLocalMuc(muc);
+    }
   }
 
-  Future<void> _syncLocalMuc(Uid uid) async {
-    try {} catch (e) {
+  Future<void> _syncLocalMuc(Muc muc) async {
+    try {
+      final owner = await _mucDao.getLocalMucOwner(muc.uid);
+      if (owner != null) {
+        final res = await _mucServices.syncLocalGroup(
+          groupUid: muc.uid,
+          owner: owner,
+          name: muc.name,
+          info: muc.info,
+        );
+
+        unawaited(_mucDao.updateMuc(uid: muc.uid, synced: true));
+        if (res) {
+          unawaited(_syncLocalMucMembers(muc.uid));
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<void> _syncLocalMucMembers(Uid mucUid) async {
+    try {
+      //todo
+    } catch (e) {
       _logger.e(e);
     }
   }
@@ -113,32 +138,25 @@ class MucRepo {
     List<Uid> memberUidList,
     String channelName,
     ChannelType channelType,
-    String info, {
-    bool isLocalChannel = false,
-  }) async {
-    if (isLocalChannel) {
-      return GetIt.I
-          .get<ServerLessMucService>()
-          .createChannel(name: channelName, members: memberUidList);
-    } else {
-      final channelUid = await _mucServices.createNewChannel(
-        channelName,
-        channelType,
-        channelId,
-        info,
-      );
+    String info,
+  ) async {
+    final channelUid = await _mucServices.createNewChannel(
+      channelName,
+      channelType,
+      channelId,
+      info,
+    );
 
-      if (channelUid != null) {
-        await _sendAndSaveMucMembers(
-          channelUid,
-          memberUidList,
-          channelName,
-          info,
-          channelType: channelType,
-          channelId: channelId,
-        );
-        return channelUid;
-      }
+    if (channelUid != null) {
+      await _sendAndSaveMucMembers(
+        channelUid,
+        memberUidList,
+        channelName,
+        info,
+        channelType: channelType,
+        channelId: channelId,
+      );
+      return channelUid;
     }
 
     return null;
