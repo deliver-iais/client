@@ -91,6 +91,7 @@ class _UnreadMessageCounterWidgetState
       builder: (context, snapshot) {
         if (_watchSeen.value > 0) {
           return CircularCounterWidget(
+            usePadding: false,
             unreadCount: _watchSeen.value,
             needBorder: widget.needBorder,
             bgColor: _watchIsRoomMuted.value ? theme.disabledColor : null,

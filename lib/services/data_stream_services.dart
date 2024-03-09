@@ -35,7 +35,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -191,6 +190,13 @@ class DataStreamServices {
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
               await _onMessageDeleted(
+                roomUid,
+                message,
+                isOnlineMessage: isOnlineMessage,
+              );
+              break;
+            case MessageManipulationPersistentEvent_Action.OTHER_DELETED:
+              await _onOtherMessageDeleted(
                 roomUid,
                 message,
                 isOnlineMessage: isOnlineMessage,
@@ -373,6 +379,54 @@ class DataStreamServices {
               uid: room.uid,
             );
           }
+        }
+      }
+      messageEventSubject.add(
+        MessageEvent(
+          roomUid,
+          deleteActionTime,
+          id,
+          savedMsg.localNetworkMessageId!,
+          MessageEventAction.DELETE,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onOtherMessageDeleted(
+    Uid roomUid,
+    Message message, {
+    required bool isOnlineMessage,
+  }) async {
+    final id = message.persistEvent.messageManipulationPersistentEvent.messageId
+        .toInt();
+
+    final deleteActionTime = message.time.toInt();
+
+    final savedMsg = await _messageDao.getMessageById(roomUid, id);
+
+    if (savedMsg != null && !_authRepo.isCurrentUserSender(savedMsg)) {
+      if (savedMsg.type == MessageType.FILE && savedMsg.id != null) {
+        await _metaRepo.addDeletedMetaIndexFromMessage(savedMsg);
+      }
+      final msg = savedMsg.copyDeleted();
+      _cachingRepo.setMessage(roomUid, id, msg);
+      await _messageDao.updateMessage(msg);
+
+      if (isOnlineMessage) {
+        final room = await _roomDao.getRoom(roomUid);
+        if (room!.lastMessage != null && room.lastMessage!.id == id) {
+          final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
+            roomUid,
+            room.lastMessageId - 1,
+            room.firstMessageId,
+            localNetworkMessageCount: room.localNetworkMessageCount,
+          );
+
+          await _roomDao.updateRoom(
+            uid: roomUid,
+            lastMessage: lastNotHiddenMessage ?? savedMsg,
+          );
         }
       }
       messageEventSubject.add(
@@ -800,11 +854,14 @@ class DataStreamServices {
     bool needToBackup = false,
   }) async {
     try {
-      final msg = _messageExtractorServices.extractMessage(
+      var msg = _messageExtractorServices.extractMessage(
         message,
         needToBackup: needToBackup,
       );
 
+      if (message.deletedUid.contains(_authRepo.currentUserUid)) {
+        msg = msg.copyDeleted();
+      }
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {

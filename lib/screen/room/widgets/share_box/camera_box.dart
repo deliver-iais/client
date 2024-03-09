@@ -37,10 +37,6 @@ class _CameraBoxState extends State<CameraBox> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +268,7 @@ class _CameraBoxState extends State<CameraBox> {
   }
 
   void _sendMessage(File file, String caption) {
-    Navigator.pop(context);
     _messageRepo.sendFileMessage(widget.roomUid!, file, caption: caption);
+    Navigator.pop(context);
   }
 }

@@ -363,7 +363,7 @@ class ShareBoxState extends State<ShareBox> {
                           count: finalSelected.length,
                           onSend: (caption) {
                             _audioPlayer.stop();
-                            Navigator.pop(co);
+
 
                             _messageRepo.sendMultipleFilesMessages(
                               widget.currentRoomUid,
@@ -371,13 +371,14 @@ class ShareBoxState extends State<ShareBox> {
                               replyToId: widget.replyMessageId,
                               caption: caption,
                             );
-
+                            Navigator.pop(co);
                             setState(() {
                               finalSelected.clear();
                               selectedAudioMap.clear();
                               selectedImagesMap.clear();
                               selectedFilesMap.clear();
                             });
+
                           },
                         ),
                       ),

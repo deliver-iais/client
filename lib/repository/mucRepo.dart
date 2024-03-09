@@ -41,7 +41,6 @@ class MucRepo {
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
     String groupName,
@@ -104,7 +103,19 @@ class MucRepo {
 
   Future<void> _syncLocalMucMembers(Uid mucUid) async {
     try {
-      //todo
+      final localMembers = await _mucDao.getAllMembers(mucUid);
+      if (localMembers.isNotEmpty) {
+        await _mucServices.addMemberToLocalMuc(
+          mucUid,
+          localMembers
+              .map(
+                (e) => muc_pb.Member()
+                  ..uid = e.memberUid
+                  ..role = getRole(e.role),
+              )
+              .toList(),
+        );
+      }
     } catch (e) {
       _logger.e(e);
     }

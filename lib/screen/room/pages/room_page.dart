@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:animations/animations.dart';
-import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/meta_count_dao.dart';
 import 'package:deliver/box/dao/meta_dao.dart';
@@ -123,7 +122,7 @@ class RoomPageState extends State<RoomPage>
   static final _notificationServices = GetIt.I.get<NotificationServices>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _appLifecycleService = GetIt.I.get<AppLifecycleService>();
-
+  bool _forceToScrollToLastMessage = false;
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
@@ -521,6 +520,9 @@ class RoomPageState extends State<RoomPage>
 
   @override
   void initState() {
+    _forceToScrollToLastMessage =
+        (widget.forwardedMessages?.isNotEmpty ?? false) ||
+            (widget.forwardedMeta?.isNotEmpty ?? false);
     _selectedMessageListIndex.listen((value) {
       _highlightMessagesId.add(value);
     });
@@ -592,9 +594,11 @@ class RoomPageState extends State<RoomPage>
     });
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
-    _itemCountSubject.distinct().listen((event) {
+    _itemCountSubject.distinct().listen((event) async {
       if (event != 0) {
-        if (_itemCount - (_positionSubject.value) < 4) {
+        if (_forceToScrollToLastMessage ||
+            _itemCount - (_positionSubject.value) < 4) {
+          await _getMessage(event);
           _scrollToLastMessage();
         }
       }
@@ -1155,27 +1159,30 @@ class RoomPageState extends State<RoomPage>
           );
         });
       },
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: _scrollToLastMessage,
-        child: Stack(
-          children: [
-            FloatingActionButton(
-              heroTag: clock.now(),
-              mini: true,
-              onPressed: _scrollToLastMessage,
-              child: const Icon(CupertinoIcons.arrow_down),
-            ),
-            if (room.lastMessage != null &&
-                !_authRepo.isCurrentUser(room.lastMessage!.from))
-              Container(
-                transform: Matrix4.translationValues(-5, -5, 0),
-                child: UnreadMessageCounterWidget(
+      child: Container(
+        width: 47,
+        height: 47,
+        decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.circular(50)),
+        child: Padding(
+          padding: const EdgeInsets.all(3.0),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _scrollToLastMessage,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                UnreadMessageCounterWidget(
                   widget.roomUid,
                   room.lastMessageId,
                 ),
-              ),
-          ],
+                const Icon(CupertinoIcons.chevron_down),
+                // if (room.lastMessage != null &&
+                //     !_authRepo.isCurrentUser(room.lastMessage!.from))
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -1584,15 +1591,15 @@ class RoomPageState extends State<RoomPage>
     var initialScrollIndex = scrollIndex;
     var initialAlignment = 1.0;
 
-    if (_lastScrollPositionIndex < scrollIndex &&
+    if (!_forceToScrollToLastMessage &&
+        _lastScrollPositionIndex < scrollIndex &&
         _lastScrollPositionIndex != -1) {
       initialScrollIndex = _lastScrollPositionIndex;
       initialAlignment =
           _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
+    } else {
+      initialScrollIndex = _itemCount;
     }
-
-    //todo
-    // initialScrollIndex = _itemCount;
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
@@ -1922,7 +1929,7 @@ class RoomPageState extends State<RoomPage>
       _messageReplyHistory.remove(_messageReplyHistory.last);
     } else {
       _messageReplyHistory.clear();
-      _scrollToIndex(_itemCount - 1);
+      _scrollToIndex(_itemCount);
     }
   }
 

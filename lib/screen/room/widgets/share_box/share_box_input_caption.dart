@@ -66,12 +66,14 @@ class ShareBoxInputCaption extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: Icon(
-              CupertinoIcons.location,
-              size: 28,
-              color: theme.colorScheme.primary,
-            ),
-            onPressed: () => onSend(_controller.text),
+              icon: Icon(
+                CupertinoIcons.location,
+                size: 28,
+                color: theme.colorScheme.primary,
+              ),
+              onPressed: () {
+                onSend(_controller.text);
+              }
           ),
         ),
         Positioned(

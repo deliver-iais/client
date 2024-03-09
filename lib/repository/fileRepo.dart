@@ -87,11 +87,6 @@ class FileRepo {
               maxWidth: 500.0,
               duration: AnimationSettings.actualSuperUltraSlow,
             );
-            for (final packetId in packetIds) {
-              unawaited(
-                GetIt.I.get<MessageRepo>().deletePendingMessage(packetId),
-              );
-            }
             cancelUploadFile(uploadKey);
             await _analyticsService.sendLogEvent(
               "unSuccessFileUpload",
@@ -106,11 +101,11 @@ class FileRepo {
               maxWidth: 500.0,
               duration: AnimationSettings.actualSuperUltraSlow,
             );
-            for (final packetId in packetIds) {
-              unawaited(
-                GetIt.I.get<MessageRepo>().deletePendingMessage(packetId),
-              );
-            }
+            // for (final packetId in packetIds) {
+            //   unawaited(
+            //     GetIt.I.get<MessageRepo>().deletePendingMessage(packetId),
+            //   );
+            // }
             cancelUploadFile(uploadKey);
             await _analyticsService.sendLogEvent(
               "failedFileUpload",

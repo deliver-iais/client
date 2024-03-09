@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart' as db;
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver_public_protocol/pub/v1/broadcast.pb.dart'
     as broadcast_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
@@ -14,7 +13,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:synchronized/extension.dart';
 
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
@@ -74,14 +72,9 @@ class MucServices {
     Uid groupUid, {
     bool retry = false,
   }) async {
-    final addMemberRequest = group_pb.AddMembersReq();
-    for (final member in members) {
-      addMemberRequest.members.add(member);
-    }
-    addMemberRequest.group = groupUid;
     try {
       await _serVices.groupServiceClient.addMembers(
-        addMemberRequest,
+        group_pb.AddMembersReq(members: members)..group = groupUid,
         options: CallOptions(timeout: const Duration(seconds: 6)),
       );
       return StatusCode.ok;
@@ -611,6 +604,16 @@ class MucServices {
           ..uid = message.roomUid
           ..messageId = Int64(message.id!),
       );
+    }
+  }
+
+  Future<void> addMemberToLocalMuc(Uid groupUid, List<Member> members) async {
+    try {
+      await _serVices.groupServiceClient.addMemberToLocalMuc(
+        group_pb.AddMembersToLocalMucReq(members: members)..group = groupUid,
+      );
+    } catch (e) {
+      _logger.e(e);
     }
   }
 }

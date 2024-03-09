@@ -271,8 +271,8 @@ class _GalleryFolderState extends State<GalleryFolder> {
                   child: ShareBoxInputCaption(
                     count: _selectedImage.length,
                     onSend: (caption) {
-                      widget.pop();
                       _sendMessage(caption);
+                      widget.pop();
                     },
                   ),
                 ),
@@ -303,13 +303,13 @@ class _GalleryFolderState extends State<GalleryFolder> {
   }
 
   void _sendMessage(String caption) {
-    widget.pop();
     _messageRepo.sendMultipleFilesMessages(
       widget.roomUid!,
       _selectedImage.map(pathToFileModel).toList(),
       replyToId: widget.replyMessageId,
       caption: caption,
     );
+    widget.pop();
     widget.resetRoomPageDetails?.call();
   }
 

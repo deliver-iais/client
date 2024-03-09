@@ -1,5 +1,3 @@
-// TODO(any): change file name
-// ignore_for_file: file_names
 
 import 'dart:async';
 import 'dart:io' as dart_file;
@@ -25,6 +23,7 @@ import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
+import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -164,7 +163,7 @@ class MessageRepo {
 
   // @visibleForTesting
   Future<void> updatingRooms() async {
-    await updateLocalChats();
+    await _syncLocalChats();
     if (settings.lastRoomMetadataUpdateTime.value == 0 ||
         settings.lastRoomMetadataUpdateTime.value <
             _coreServices.lastRoomMetadataUpdateTime) {
@@ -785,9 +784,6 @@ class MessageRepo {
   }) async {
     final packetId = await _getPacketIdWithLastMessageId(room);
 
-    //first we compress the file if possible
-    file = await _fileService.compressFile(file);
-
     final msg = await buildMessageFromFile(
       room,
       file,
@@ -795,17 +791,14 @@ class MessageRepo {
       replyToId: replyToId,
       caption: caption,
     );
-
+    final pm =
+        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
+    unawaited(_savePendingMessage(pm));
     await _fileRepo.saveInFileInfo(
       dart_file.File(file.path),
       packetId,
       file.name,
     );
-
-    final pm =
-        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
-
-    await _savePendingMessage(pm);
 
     if (pm.roomUid.asString().contains(LOCAL_MUC_ID)) {
       _sendMessageToServer(
@@ -1609,10 +1602,18 @@ class MessageRepo {
       final request = DeleteMessageReq()
         ..messageId = Int64(message.id!)
         ..roomUid = message.roomUid;
-      if (GetIt.I.get<ServerLessService>().inLocalNetwork(message.to)) {
-        _serverLessMessageService.deleteMessage(request);
+      if (_authRepo.isCurrentUserSender(message)) {
+        if (GetIt.I.get<ServerLessService>().inLocalNetwork(message.to)) {
+          _serverLessMessageService.deleteMessage(request);
+        } else {
+          await _sdr.queryServiceClient.deleteMessage(request);
+        }
       } else {
-        await _sdr.queryServiceClient.deleteMessage(request);
+        if (GetIt.I.get<ServerLessService>().inLocalNetwork(message.to)) {
+          _serverLessMessageService.deleteMessage(request);
+        } else {
+          await _sdr.queryServiceClient.deleteOtherMessage(request);
+        }
       }
 
       return true;
@@ -1872,7 +1873,12 @@ class MessageRepo {
     }
   }
 
-  Future<void> updateLocalChats() async {
+  Future<void> _syncLocalChats() async {
+    unawaited(GetIt.I.get<MucRepo>().syncLocalMucs());
+    await _updateLocalChats();
+  }
+
+  Future<void> _updateLocalChats() async {
     const key = "save_local_chats";
     var completer = _completerMap[key];
     if (completer == null || completer.isCompleted) {

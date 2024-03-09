@@ -183,7 +183,7 @@ class VerificationPageState extends State<VerificationPage> {
                     if (verificationTypeSnapshot.hasData &&
                         verificationTypeSnapshot.data != null) {
                       return Text(
-                        "${_i18n.get("enter_code")}. ${verificationTypeSnapshot.data! == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
+                        "${verificationTypeSnapshot.data! == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
                         textDirection: _i18n.defaultTextDirection,
                         style: theme.textTheme.titleMedium,
                       );
@@ -298,7 +298,8 @@ class VerificationPageState extends State<VerificationPage> {
                                           verificationTypeSnapshot.data! ==
                                                   VerificationType.MESSAGE
                                               ? _i18n.get(
-                                                  "get_verification_code_by_sms",)
+                                                  "get_verification_code_by_sms",
+                                                )
                                               : _i18n.get("resend_sms_code"),
                                         ),
                                       );
