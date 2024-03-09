@@ -52,7 +52,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
   final _logger = GetIt.I.get<Logger>();
@@ -209,6 +208,7 @@ class DataStreamServices {
       roomUid,
       needToBackup: isLocalNetworkMessage,
     ))!;
+    MessageUtils.createMessageByClientOfLocalMessages([msg], message.id.toInt());
 
     final isHidden = msg.isHidden || (message.edited && message.isLocalMessage);
     if (msg.edited && message.isLocalMessage) {

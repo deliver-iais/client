@@ -12,6 +12,7 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/local_chat_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/services/back_up_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/encryption.dart';
@@ -102,6 +103,8 @@ class ServerLessMessageService {
         break;
       case ClientPacket_Type.notSet:
         break;
+      case ClientPacket_Type.localChatMessage:
+        // TODO: Handle this case.
     }
   }
 
@@ -387,7 +390,6 @@ class ServerLessMessageService {
                 ),
             );
           }
-
           if (_pendingMessageMap[uid]?.isNotEmpty ?? false) {
             _pendingMessageMap[uid]?.removeLast();
           }
@@ -486,6 +488,10 @@ class ServerLessMessageService {
           ),
         ),
       );
+
+      final localChatMessage = MessageUtils.createMessageByClientOfLocalMessages([MessageUtils.convertMessageToMessage(message, roomUid)],message.id.toInt()).first;
+      await BackUpService.sendMessage(localChatMessage);
+
     }
     if (await _messageDao.getMessageByPacketId(roomUid, message.packetId) ==
         null) {
@@ -537,8 +543,7 @@ class ServerLessMessageService {
     try {
       _messagePacketIdes.remove(messageDeliveryAck.packetId);
       final uid = messageDeliveryAck.from;
-      final room = _rooms[uid.asString()] ??
-          (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
+      final room = _rooms[uid.asString()] ?? (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
       if (room.lastPacketId != messageDeliveryAck.packetId) {
         final messageId = room.lastMessageId + 1;
         final localNetworkMessageId = room.lastLocalNetworkId + 1;
