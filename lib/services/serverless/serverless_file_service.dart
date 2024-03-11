@@ -80,6 +80,14 @@ class ServerLessFileService {
         type: detectFileMimeByFileModel(model.File(path, name)),
         sign: DateTime.now().millisecondsSinceEpoch.toString(),
       );
+    } else {
+      GetIt.I.get<ServerLessService>()
+        ..removeIp(uid.asString())
+        ..sendMyLocalNetworkInfo(
+          targetUser: uid,
+        );
+
+      await Future.delayed(const Duration(milliseconds: 1400));
     }
     return null;
   }

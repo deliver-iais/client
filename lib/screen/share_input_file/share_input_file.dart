@@ -80,6 +80,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
     if (_selectedRooms.length == 1) {
       _routingServices.openRoom(
         _selectedRooms.first,
+        scrollToLastMessage: true,
         popAllBeforePush: true,
       );
     } else {

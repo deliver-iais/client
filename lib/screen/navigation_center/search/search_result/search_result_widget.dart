@@ -5,7 +5,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/search/not_result_widget.dart';
 import 'package:deliver/screen/navigation_center/search/room_information_widget.dart';
 import 'package:deliver/theme/theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -36,7 +36,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     super.initState();
   }
 
-  bool _localHasResult = false;
+  final _localHasResult = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
         StreamBuilder<List<UidIdName>>(
           stream: _roomRepo.searchInRooms(widget.searchBoxController.text),
           builder: (c, snaps) {
-            _localHasResult =
+            _localHasResult.value =
                 snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
             if (snaps.connectionState == ConnectionState.waiting &&
                 (!snaps.hasData || snaps.data!.isEmpty)) {
@@ -95,8 +95,12 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                     );
                   }
                   final global = snaps.data!;
-                  if (global.isEmpty && !_localHasResult) {
-                    return const NoResultWidget();
+                  if (global.isEmpty) {
+                    return Obx(
+                      () => _localHasResult.value
+                          ? const SizedBox.shrink()
+                          : const NoResultWidget(),
+                    );
                   }
                   return Column(
                     children: [

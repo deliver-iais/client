@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:animations/animations.dart';
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/isar_manager.dart'
-    if (dart.library.html) 'package:deliver/box/dao/web_isar_manager.dart';
+if (dart.library.html) 'package:deliver/box/dao/web_isar_manager.dart';
 import 'package:deliver/box/dao/recent_rooms_dao.dart';
 import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/message.dart';
@@ -85,20 +85,20 @@ const _empty = Empty(key: ValueKey("empty"));
 const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
-    LanguageSettingsPage(key: ValueKey("/language-settings"));
+LanguageSettingsPage(key: ValueKey("/language-settings"));
 
 const _powerSaverSettings =
-    PowerSaverSettingsPage(key: ValueKey("/power-saver-settings"));
+PowerSaverSettingsPage(key: ValueKey("/power-saver-settings"));
 
 const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
 const _securitySettings =
-    SecuritySettingsPage(key: ValueKey("/security-settings"));
+SecuritySettingsPage(key: ValueKey("/security-settings"));
 
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
 const _aboutSoftwarePage =
-    AboutSoftwarePage(key: ValueKey("/about-software-page"));
+AboutSoftwarePage(key: ValueKey("/about-software-page"));
 
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
@@ -126,8 +126,9 @@ class PreMaybePopScope {
 
   void unregister(String name) => map.remove(name);
 
-  Future<bool> maybePop() => Future.wait<bool>(map.values.map((e) => e.call()))
-      .then((list) => !list.any((e) => !e));
+  Future<bool> maybePop() =>
+      Future.wait<bool>(map.values.map((e) => e.call()))
+          .then((list) => !list.any((e) => !e));
 }
 
 class RoutingService {
@@ -146,7 +147,7 @@ class RoutingService {
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
-      BehaviorSubject.seeded(false);
+  BehaviorSubject.seeded(false);
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
@@ -282,14 +283,14 @@ class RoutingService {
 
   void resetCurrentRoom() => _currentRoom = "";
 
-  void openRoom(
-    Uid roomUid, {
+  void openRoom(Uid roomUid, {
     int? initialIndex,
     List<Message> forwardedMessages = const [],
     List<Meta> forwardedMeta = const [],
     bool popAllBeforePush = false,
     pro.ShareUid? shareUid,
     bool forceToOpenRoom = false,
+    bool scrollToLastMessage = false,
   }) {
     _currentRoom = roomUid.asString();
     if (!isInRoom(roomUid.asString()) || forceToOpenRoom) {
@@ -305,6 +306,7 @@ class RoutingService {
           roomUid: roomUid,
           forwardedMessages: forwardedMessages,
           forwardedMeta: forwardedMeta,
+          scrollToLastMessage:scrollToLastMessage,
           shareUid: shareUid,
           initialIndex: initialIndex,
         ),
@@ -366,8 +368,7 @@ class RoutingService {
         ),
       );
 
-  void openCallScreen(
-    Uid roomUid, {
+  void openCallScreen(Uid roomUid, {
     bool isIncomingCall = false,
     bool isCallInitialized = false,
     bool isCallAccepted = false,
@@ -397,15 +398,15 @@ class RoutingService {
         ),
       );
 
-  void openProfile(String roomId) => _push(
+  void openProfile(String roomId) =>
+      _push(
         ProfilePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/profile"),
         ),
       );
 
-  Future<dynamic>? openManageMuc(
-    String roomId, {
+  Future<dynamic>? openManageMuc(String roomId, {
     MucType mucType = MucType.Public,
   }) =>
       _push(
@@ -439,16 +440,16 @@ class RoutingService {
   }) =>
       !isMacOSNative
           ? _push(
-              AllMediaPage(
-                key: const ValueKey("/media-details"),
-                roomUid: roomUid,
-                messageId: messageId,
-                filePath: filePath,
-                initialMediaIndex: initIndex,
-                message: message,
-              ),
-              useTransparentRoute: true,
-            )
+        AllMediaPage(
+          key: const ValueKey("/media-details"),
+          roomUid: roomUid,
+          messageId: messageId,
+          filePath: filePath,
+          initialMediaIndex: initIndex,
+          message: message,
+        ),
+        useTransparentRoute: true,
+      )
           : OpenFilex.open(filePath);
 
   void openShowAllImage({
@@ -584,8 +585,7 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  Future<dynamic>? _push(
-    Widget widget, {
+  Future<dynamic>? _push(Widget widget, {
     bool popAllBeforePush = false,
     bool useTransparentRoute = false,
   }) {
@@ -594,20 +594,20 @@ class RoutingService {
     _analyticsRepo.incPVF(path);
     final route = useTransparentRoute
         ? TransparentRoute(
-            backgroundColor: Colors.transparent,
-            transitionDuration: AnimationSettings.slow,
-            reverseTransitionDuration: AnimationSettings.slow,
-            builder: (c) => widget,
-            settings: RouteSettings(name: path),
-          )
+      backgroundColor: Colors.transparent,
+      transitionDuration: AnimationSettings.slow,
+      reverseTransitionDuration: AnimationSettings.slow,
+      builder: (c) => widget,
+      settings: RouteSettings(name: path),
+    )
         : customPageRoute(
-            RouteSettings(name: path),
-            (c, animation, secondaryAnimation) => widget,
-          );
+      RouteSettings(name: path),
+          (c, animation, secondaryAnimation) => widget,
+    );
     if (popAllBeforePush) {
       return _homeNavigatorState.currentState?.pushAndRemoveUntil(
         route,
-        (r) => r.isFirst,
+            (r) => r.isFirst,
       );
     } else {
       return _homeNavigatorState.currentState?.push(
@@ -616,10 +616,8 @@ class RoutingService {
     }
   }
 
-  PageRouteBuilder customPageRoute(
-    RouteSettings setting,
-    RoutePageBuilder builder,
-  ) =>
+  PageRouteBuilder customPageRoute(RouteSettings setting,
+      RoutePageBuilder builder,) =>
       PageRouteBuilder(
         settings: setting,
         pageBuilder: builder,
@@ -633,10 +631,8 @@ class RoutingService {
         },
       );
 
-  void registerPreMaybePopScope(
-    String name,
-    Future<bool> Function() callback,
-  ) =>
+  void registerPreMaybePopScope(String name,
+      Future<bool> Function() callback,) =>
       _preMaybePopScope.register(name, callback);
 
   void unregisterPreMaybePopScope(String name) =>
@@ -679,17 +675,17 @@ class RoutingService {
         ],
         onGenerateRoute: (r) =>
             customPageRoute(RouteSettings(arguments: r.arguments, name: "/"),
-                (c, animation, secondaryAnimation) {
-          try {
-            if (isLarge(c)) {
-              return const AnnouncementPage();
-            } else {
-              return _navigationBar;
-            }
-          } catch (_) {
-            return _empty;
-          }
-        }),
+                    (c, animation, secondaryAnimation) {
+                  try {
+                    if (isLarge(c)) {
+                      return const AnnouncementPage();
+                    } else {
+                      return _navigationBar;
+                    }
+                  } catch (_) {
+                    return _empty;
+                  }
+                }),
       ),
     );
 
@@ -737,7 +733,7 @@ class RoutingService {
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),
-        (route) => false,
+            (route) => false,
       );
     }
   }
@@ -780,7 +776,9 @@ class BackButtonWidget extends StatelessWidget {
       iconSize: p24,
       color: color,
       alignment: Alignment.center,
-      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      tooltip: MaterialLocalizations
+          .of(context)
+          .backButtonTooltip,
       onPressed: onPressed,
     );
   }
@@ -795,13 +793,16 @@ class RouteEvent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other.runtimeType == runtimeType &&
-          other is RouteEvent &&
-          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
-          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+          (other.runtimeType == runtimeType &&
+              other is RouteEvent &&
+              const DeepCollectionEquality().equals(
+                  other.prevRoute, prevRoute) &&
+              const DeepCollectionEquality().equals(
+                  other.nextRoute, nextRoute));
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode =>
+      Object.hash(
         runtimeType,
         const DeepCollectionEquality().hash(prevRoute),
         const DeepCollectionEquality().hash(nextRoute),
@@ -812,7 +813,7 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
   final void Function() animateFunction;
 
   final currentRoute =
-      BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
+  BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
   RoutingServiceNavigatorObserver(this.animateFunction);
 

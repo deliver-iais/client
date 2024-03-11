@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
@@ -60,13 +58,23 @@ class FileRepo {
         convertToDataByteInWeb: true,
       );
       if (uid != null && GetIt.I.get<ServerLessService>().inLocalNetwork(uid)) {
-        return GetIt.I.get<ServerLessFileService>().buildMessageFile(
+        final res = await GetIt.I.get<ServerLessFileService>().buildMessageFile(
               name: name,
               path: clonedFilePath!,
               uid: uid,
               uploadKey: uploadKey,
               isVoice: isVoice,
             );
+        if (res == null) {
+          return uploadClonedFile(
+            uploadKey,
+            name,
+            isVoice: isVoice,
+            uid: uid,
+            packetIds: packetIds,
+          );
+        }
+        return res;
       } else {
         Response? value;
         try {
@@ -402,5 +410,4 @@ class FileRepo {
   ) {
     Pasteboard.writeFiles([path]);
   }
-
 }

@@ -210,7 +210,6 @@ class CoreServices {
             _logger.d(serverPacket);
 
             _analyticRepo.incCSF("server/${serverPacket.whichType().name}");
-
             switch (serverPacket.whichType()) {
               case ServerPacket_Type.message:
                 unawaited(_dataStreamServices.handleIncomingMessage(

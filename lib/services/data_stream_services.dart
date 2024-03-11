@@ -644,12 +644,10 @@ class DataStreamServices {
     } else {
       final pm = await _pendingMessageDao.getPendingMessage(packetId);
       if (pm != null) {
-        if (isLocalNetworkMessage) {
-          serverLessMessageService.removePendingFromCache(
-            pm.roomUid.asString(),
-            packetId,
-          );
-        }
+        serverLessMessageService.removePendingFromCache(
+          pm.roomUid.asString(),
+          packetId,
+        );
 
         final msg = pm.msg.copyWith(
           id: messageDeliveryAck.id.toInt(),
@@ -858,10 +856,8 @@ class DataStreamServices {
         message,
         needToBackup: needToBackup,
       );
+      msg = _checkIsDeleted(message, msg);
 
-      if (message.deletedUid.contains(_authRepo.currentUserUid)) {
-        msg = msg.copyDeleted();
-      }
       await _messageDao.insertMessage(msg);
       return msg;
     } catch (e) {
@@ -879,39 +875,33 @@ class DataStreamServices {
   }) async {
     var pointer = lastMessageId + 1;
     message_model.Message? lastNotHiddenMessage;
-    while (pointer > 0) {
-      pointer -= 1;
 
-      try {
-        final msg = await _messageDao.getMessageById(roomUid, pointer);
+    try {
+      final msg = await _messageDao.getMessageById(roomUid, pointer);
 
-        if (msg != null) {
-          if (msg.id! <= firstMessageId ||
-              (msg.isHidden && msg.id == firstMessageId + 1)) {
-            // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
-            // _roomDao
-            //     .updateRoom(uid: roomUid, deleted: true)
-            //
-            //     .ignore();
-            // await _roomRepo.deleteRoom(roomUid);
-            //todo check  !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            break;
-          } else if (!msg.isHidden) {
-            lastNotHiddenMessage = msg;
-            break;
-          }
-        } else {
-          lastNotHiddenMessage = await _getLastNotHiddenMessageFromServer(
-            roomUid,
-            lastMessageId - localNetworkMessageCount,
-            firstMessageId,
-            appRunInForeground: appRunInForeground,
-          );
-          break;
+      if (msg != null) {
+        if (msg.id! <= firstMessageId ||
+            (msg.isHidden && msg.id == firstMessageId + 1)) {
+          // TODO(bitbeter): revert back after core changes - https://gitlab.iais.co/deliver/wiki/-/issues/1084
+          // _roomDao
+          //     .updateRoom(uid: roomUid, deleted: true)
+          //
+          //     .ignore();
+          // await _roomRepo.deleteRoom(roomUid);
+          //todo check  !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        } else if (!msg.isHidden) {
+          lastNotHiddenMessage = msg;
         }
-      } catch (_) {
-        return null;
+      } else {
+        lastNotHiddenMessage = await _getLastNotHiddenMessageFromServer(
+          roomUid,
+          lastMessageId - localNetworkMessageCount,
+          firstMessageId,
+          appRunInForeground: appRunInForeground,
+        );
       }
+    } catch (_) {
+      return null;
     }
 
     if (lastNotHiddenMessage != null) {
@@ -963,6 +953,7 @@ class DataStreamServices {
             return msg;
           }
         }
+        return null;
       } on GrpcError catch (e) {
         _logger.e(e);
         if (e.code == StatusCode.notFound) {
@@ -1006,6 +997,17 @@ class DataStreamServices {
               isOnlineMessage: false,
             );
             break;
+          case MessageManipulationPersistentEvent_Action.OTHER_DELETED:
+            var msg = await _messageDao.getMessageById(
+                roomId,
+                message
+                    .persistEvent.messageManipulationPersistentEvent.messageId
+                    .toInt());
+            if (msg != null) {
+              msg = msg.copyDeleted();
+              unawaited(_messageDao.insertMessage(msg));
+            }
+            break;
         }
         break;
       }
@@ -1031,10 +1033,24 @@ class DataStreamServices {
       } else if (_authRepo.isCurrentUser(message.from)) {
         await _pendingMessageDao.deletePendingMessage(message.packetId);
       }
-      msgList.add(_messageExtractorServices.extractMessage(message));
+      var msg = _messageExtractorServices.extractMessage(message);
+      msg = _checkIsDeleted(message, msg);
+      msgList.add(msg);
     }
     unawaited(_save(messages));
     return msgList;
+  }
+
+  message_model.Message _checkIsDeleted(
+      Message message, message_model.Message msg) {
+    if (message.deletedUid.isNotEmpty) {
+      if (message.deletedUid
+          .map((e) => e.asString())
+          .contains(_authRepo.currentUserUid.asString())) {
+        msg = msg.copyDeleted();
+      }
+    }
+    return msg;
   }
 
   Future<void> _save(

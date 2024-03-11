@@ -559,31 +559,35 @@ class RoomRepo {
       yield [];
     }
 
-    final searchRooms = <UidIdName>[];
+    final searchRooms = <Uid, UidIdName>{};
 
-    for (final r in await _roomDao.getAllRooms()) {
-      final n = await getName(r.uid);
-      if (n.contains(text)) {
-        searchRooms.add(UidIdName(uid: r.uid, name: n));
-      }
+    if (text.contains("sa".toLowerCase()) ||
+        text.contains("پی") ||
+        text.contains("ذخی")) {
+      searchRooms[_authRepo.currentUserUid] =
+          UidIdName(uid: _authRepo.currentUserUid, name: "saved_message");
     }
-    if (text.contains("sa") || text.contains("پی") || text.contains("ذخی")) {
-      searchRooms
-          .add(UidIdName(uid: _authRepo.currentUserUid, name: "saved_message"));
-    }
-    yield searchRooms;
-
-    final res = {for (final e in searchRooms) e.uid: e};
+    yield searchRooms.values.toList();
 
     final searchInContacts = await _uidIdNameDao.searchInContacts(text);
 
-    for (final element in searchInContacts) {
-      if (!res.containsKey(element.uid)) {
-        searchRooms.add(element);
+    yield searchInContacts;
+
+    searchRooms.addAll({for (final e in searchInContacts) e.uid: e});
+
+    var j = 4;
+    for (final r in await _roomDao.getAllRooms()) {
+      final n = await getName(r.uid);
+      if (n.toLowerCase().contains(text.toLowerCase()) && searchRooms[r.uid] == null) {
+        j++;
+        searchRooms[r.uid] = UidIdName(uid: r.uid, name: n);
+        if (j % 4 == 0) {
+          yield searchRooms.values.toList();
+        }
       }
     }
 
-    yield searchRooms;
+    yield searchRooms.values.toList();
   }
 
   Future<Uid> getUidById(String id) async {

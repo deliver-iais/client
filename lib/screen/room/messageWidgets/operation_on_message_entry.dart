@@ -55,6 +55,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   @override
   void initState() {
     _hasPermissionToDeleteMsg = widget.message.id == null ||
+        (widget.message.roomUid.isUser()) ||
         _autRepo.isCurrentUserSender(widget.message) ||
         (widget.message.roomUid.isChannel() && widget.hasPermissionInChannel) ||
         (widget.message.roomUid.isGroup() && widget.hasPermissionInGroup);

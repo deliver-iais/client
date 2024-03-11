@@ -86,11 +86,13 @@ class RoomPage extends StatefulWidget {
   final List<Message>? forwardedMessages;
   final proto.ShareUid? shareUid;
   final List<Meta>? forwardedMeta;
+  final bool scrollToLastMessage;
 
   const RoomPage({
     super.key,
     required this.roomUid,
     this.forwardedMessages,
+    this.scrollToLastMessage = false,
     this.forwardedMeta,
     this.shareUid,
     this.initialIndex,
@@ -130,6 +132,7 @@ class RoomPageState extends State<RoomPage>
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
   int _currentScrollIndex = 0;
+  var initialScrollIndex = 0;
   bool _appIsActive = true;
   double _defaultMessageHeight = 1000;
   final List<Message> _backgroundMessages = [];
@@ -444,16 +447,14 @@ class RoomPageState extends State<RoomPage>
               StreamBuilder<ScrollingState>(
                 stream: _isScrolling,
                 builder: (context, snapshot) {
-                  final showArrow = checkShowArrowDown(snapshot);
-
                   return Positioned(
                     right: 16,
                     bottom: 16,
                     child: AnimatedSwitcher(
-                      duration: AnimationSettings.slow,
+                      duration: AnimationSettings.standard,
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
-                      child: !showArrow
+                      child: !checkShowArrowDown(snapshot)
                           ? const SizedBox.shrink()
                           : scrollDownButtonWidget(),
                     ),
@@ -478,7 +479,8 @@ class RoomPageState extends State<RoomPage>
   ) {
     return ((snapshot.data?.isScrolling ?? false) &&
         (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
-        (snapshot.data?.scrollingDirection == ScrollingDirection.DOWN));
+        (!(initialScrollIndex + 1 < _itemCount) ||
+            snapshot.data?.scrollingDirection == ScrollingDirection.DOWN));
   }
 
   bool backToReplyMessage() => (_messageReplyHistory.isNotEmpty);
@@ -520,9 +522,9 @@ class RoomPageState extends State<RoomPage>
 
   @override
   void initState() {
-    _forceToScrollToLastMessage =
+    _forceToScrollToLastMessage = widget.scrollToLastMessage ||
         (widget.forwardedMessages?.isNotEmpty ?? false) ||
-            (widget.forwardedMeta?.isNotEmpty ?? false);
+        (widget.forwardedMeta?.isNotEmpty ?? false);
     _selectedMessageListIndex.listen((value) {
       _highlightMessagesId.add(value);
     });
@@ -1143,6 +1145,7 @@ class RoomPageState extends State<RoomPage>
 
   Widget scrollDownButtonWidget() {
     return MouseRegion(
+      key: Key(DateTime.now().microsecondsSinceEpoch.toString()),
       cursor: SystemMouseCursors.click,
       onHover: (s) {
         _isArrowIconFocused = true;
@@ -1163,8 +1166,9 @@ class RoomPageState extends State<RoomPage>
         width: 47,
         height: 47,
         decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            borderRadius: BorderRadius.circular(50)),
+          color: Theme.of(context).canvasColor,
+          borderRadius: BorderRadius.circular(50),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(3.0),
           child: GestureDetector(
@@ -1588,7 +1592,7 @@ class RoomPageState extends State<RoomPage>
             : _itemCount
         : 0);
 
-    var initialScrollIndex = scrollIndex;
+    initialScrollIndex = scrollIndex;
     var initialAlignment = 1.0;
 
     if (!_forceToScrollToLastMessage &&
@@ -1929,7 +1933,7 @@ class RoomPageState extends State<RoomPage>
       _messageReplyHistory.remove(_messageReplyHistory.last);
     } else {
       _messageReplyHistory.clear();
-      _scrollToIndex(_itemCount);
+      _scrollToIndex(_itemCount - 1);
     }
   }
 

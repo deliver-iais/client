@@ -191,6 +191,7 @@ class ServerLessService {
 
   Future<void> sendMyLocalNetworkInfo({
     bool retry = true,
+    Uid? targetUser,
   }) async {
     try {
       if (settings.isSuperNode.value) {
@@ -201,6 +202,7 @@ class ServerLessService {
       _upSocket?.send(
         ServerLessPacket(
           myLocalNetworkInfo: MyLocalNetworkInfo(
+            target: targetUser,
             from: _authRepo.currentUserUid,
             address: Address(
               url: _ip,
@@ -287,10 +289,18 @@ class ServerLessService {
   Future<void> _processIncomingReq(HttpRequest request) async {
     try {
       final serverLessPacket = ServerLessPacket.fromBuffer(await request.first);
-      await GetIt.I
-          .get<ServerLessMessageService>()
-          .processIncomingPacket(serverLessPacket);
-      request.response.statusCode = HttpStatus.ok;
+      if (serverLessPacket.hasMyLocalNetworkInfo()) {
+        unawaited(
+          _processIncomingMyLocalNetworkInfo(
+            serverLessPacket.myLocalNetworkInfo,
+          ),
+        );
+      } else {
+        await GetIt.I
+            .get<ServerLessMessageService>()
+            .processIncomingPacket(serverLessPacket);
+        request.response.statusCode = HttpStatus.ok;
+      }
 
       await request.response.close();
     } catch (e) {
@@ -306,7 +316,19 @@ class ServerLessService {
   ) async {
     try {
       address[myLocalNetworkInfo.from.asString()] = myLocalNetworkInfo.address;
-      unawaited(_shareOthersLocation());
+      if (myLocalNetworkInfo.hasTarget()) {
+        unawaited(
+          sendRequest(
+            ServerLessPacket()
+              ..myLocalNetworkInfo = MyLocalNetworkInfo(
+                  address: Address(uid: _authRepo.currentUserUid, url: _ip),
+                  from: _authRepo.currentUserUid),
+            myLocalNetworkInfo.address.url,
+          ),
+        );
+      } else {
+        unawaited(_shareOthersLocation());
+      }
       await _processIp([myLocalNetworkInfo.address]);
     } catch (e) {
       _logger.e(e);

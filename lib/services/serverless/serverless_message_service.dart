@@ -13,8 +13,10 @@ import 'package:deliver/models/local_chat_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/encryption.dart';
+import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -45,6 +47,7 @@ class ServerLessMessageService {
   final _callService = GetIt.I.get<CallService>();
   final _serverLessService = GetIt.I.get<ServerLessService>();
   final _serverLessMucService = GetIt.I.get<ServerLessMucService>();
+  final _serverLessFileService = GetIt.I.get<ServerLessFileService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final _logger = GetIt.I.get<Logger>();
   final Map<String, List<PendingMessage>> _pendingMessageMap = {};
@@ -52,16 +55,17 @@ class ServerLessMessageService {
   final _messagePacketIdes = <String>{};
 
   Future<void> sendClientPacket(ClientPacket clientPacket, {int? id}) async {
+    var needToSendToServer = false;
     switch (clientPacket.whichType()) {
       case ClientPacket_Type.message:
         if (clientPacket.message.hasText()) {
-          await _sendTextMessage(
+          needToSendToServer = await _sendTextMessage(
             clientPacket.message,
             id ?? 1,
             edited: id != null,
           );
         } else if (clientPacket.message.hasFile()) {
-          await _sendFileMessage(clientPacket.message, 1);
+          needToSendToServer = await _sendFileMessage(clientPacket.message, 1);
         }
         break;
       case ClientPacket_Type.seen:
@@ -102,10 +106,32 @@ class ServerLessMessageService {
         break;
       case ClientPacket_Type.notSet:
         break;
+      case ClientPacket_Type.localChatMessage:
+      // TODO: Handle this case.
+    }
+    if (needToSendToServer) {
+      unawaited(_sendLocalMessageToServer(clientPacket));
     }
   }
 
-  Future<void> _sendTextMessage(
+  Future<void> _sendLocalMessageToServer(ClientPacket clientPacket) async {
+    try {
+      if (clientPacket.hasMessage()) {
+        if (clientPacket.message.hasFile()) {
+          await _serverLessFileService
+              .uploadLocalNetworkFile([clientPacket.message.file]);
+        }
+        unawaited(
+          GetIt.I.get<CoreServices>().sendMessage(clientPacket.message,
+              forceToSendToServer: true, resend: false),
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<bool> _sendTextMessage(
     MessageByClient messageByClient,
     int id, {
     bool edited = false,
@@ -128,7 +154,7 @@ class ServerLessMessageService {
         DateTime.now().millisecondsSinceEpoch,
       );
 
-    await _sendMessage(to: message.to, message: message);
+    return _sendMessage(to: message.to, message: message);
   }
 
   Future<void> _sendActivity(ActivityByClient activity) async {
@@ -149,7 +175,7 @@ class ServerLessMessageService {
     }
   }
 
-  Future<void> _sendFileMessage(
+  Future<bool> _sendFileMessage(
     MessageByClient messageByClient,
     int id,
   ) async {
@@ -164,7 +190,7 @@ class ServerLessMessageService {
       ..time = Int64(
         DateTime.now().millisecondsSinceEpoch,
       );
-    await _sendMessage(to: message.to, message: message);
+    return _sendMessage(to: message.to, message: message);
   }
 
   int getRoomLastMessageId(Uid uid) {
@@ -209,13 +235,14 @@ class ServerLessMessageService {
     );
   }
 
-  Future<void> _sendMessage({required Uid to, required Message message}) async {
+  Future<bool> _sendMessage({required Uid to, required Message message}) async {
     _messagePacketIdes.add(message.packetId);
     if (to.category == Categories.USER) {
       final ip = await _serverLessService.getIpAsync(to.asString());
       if (ip != null) {
-        await _send(ip: ip, message: message);
+        return _send(ip: ip, message: message);
       }
+      return true;
     } else if (to.category == Categories.GROUP ||
         to.category == Categories.CHANNEL) {
       unawaited(_serverLessMucService.sendMessage(message));
@@ -232,6 +259,8 @@ class ServerLessMessageService {
           ),
         ),
       );
+
+      return false;
     }
     if (message.whichType() != Message_Type.callLog &&
         message.to.category == Categories.USER) {
@@ -243,32 +272,36 @@ class ServerLessMessageService {
         ),
       );
     }
+    await Future.delayed(const Duration(milliseconds: 1300));
+    return false;
   }
 
-  Future<void> _send({required String ip, required Message message}) async {
+  Future<bool> _send({required String ip, required Message message}) async {
     try {
       final res = await _serverLessService.sendRequest(
-          ServerLessPacket(message: message), ip);
+        ServerLessPacket(message: message),
+        ip,
+      );
       if (res != null && res.statusCode == HttpStatus.ok) {
         if (!message.edited && !message.hasCallLog()) {
-          unawaited(
-            _handleAck(
-              MessageDeliveryAck(
-                to: message.from,
-                packetId: message.packetId,
-                time: Int64(
-                  DateTime.now().millisecondsSinceEpoch,
-                ),
-                id: message.id,
-                from: message.to,
+          await _handleAck(
+            MessageDeliveryAck(
+              to: message.from,
+              packetId: message.packetId,
+              time: Int64(
+                DateTime.now().millisecondsSinceEpoch,
               ),
+              id: message.id,
+              from: message.to,
             ),
           );
         }
+        return false;
       }
     } catch (e) {
       _logger.e(e);
     }
+    return true;
   }
 
   Future<void> _checkPendingStatus(
@@ -278,7 +311,7 @@ class ServerLessMessageService {
     if (_messagePacketIdes.contains(packetId)) {
       _serverLessService
         ..removeIp(to.asString())
-        ..sendMyLocalNetworkInfo();
+        ..sendMyLocalNetworkInfo(targetUser: to);
     }
   }
 

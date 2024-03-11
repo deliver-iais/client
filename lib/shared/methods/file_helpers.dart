@@ -229,9 +229,7 @@ extension MimeTypeOfFileName on String? {
 bool isImageFileType(String fileType) {
   final lt = fileType.toLowerCase();
 
-  return _isImageFileType(lt) &&
-      !lt.contains("svg") &&
-      !lt.contains("photoshop");
+  return _isImageFileType(lt);
 }
 
 bool isCompressibleImageFileType(String fileType) {
