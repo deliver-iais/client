@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:deliver/box/message.dart' as model;
 import 'package:deliver/box/message_type.dart';
@@ -11,7 +10,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as messag
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 
 class MessageUtils {
@@ -74,42 +72,6 @@ class MessageUtils {
         break;
     }
     return byClient;
-  }
-
-  static model.Message convertMessageToMessage(message_pb.Message message, Uid roomUid) {
-    var json = " ";
-    if(message.hasText()) {
-      json = jsonEncode(message.text);
-    } else if(message.hasFile()) {
-      json = jsonEncode(message.file);
-    } else if(message.hasLocation()) {
-      json = jsonEncode(message.location);
-    } else if(message.hasSticker()) {
-      json = jsonEncode(message.sticker);
-    } else if(message.hasFormResult()) {
-      json = jsonEncode(message.formResult);
-    } else if(message.hasShareUid()) {
-      json = jsonEncode(message.shareUid);
-    } else if(message.hasSharePrivateDataAcceptance()) {
-      json = jsonEncode(message.sharePrivateDataAcceptance);
-    } else if(message.hasLocation()) {
-      json = jsonEncode(message.location);
-    } else if(message.hasForm()) {
-      json = jsonEncode(message.form);
-    } else if(message.hasCallEvent()) {
-      json = jsonEncode(message.callEvent);
-    } else if(message.hasTable()) {
-      json = jsonEncode(message.table);
-    }
-    final result = model.Message(
-        roomUid: roomUid,
-        from: message.from,
-        to: message.to,
-        packetId: message.packetId,
-        time: message.time.toInt(),
-        json: json,
-    );
-    return result;
   }
 
 

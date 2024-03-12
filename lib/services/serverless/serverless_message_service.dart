@@ -12,7 +12,6 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/local_chat_room.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/services/back_up_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -20,6 +19,7 @@ import 'package:deliver/services/serverless/encryption.dart';
 import 'package:deliver/services/serverless/serverless_file_service.dart';
 import 'package:deliver/services/serverless/serverless_muc_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -38,6 +38,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:deliver/box/message.dart' as message_model;
 
 class ServerLessMessageService {
   final Map<String, List<Seen>> _pendingSeen = {};
@@ -111,7 +112,7 @@ class ServerLessMessageService {
       // TODO: Handle this case.
     }
     if (needToSendToServer) {
-      unawaited(_sendLocalMessageToServer(clientPacket));
+      // unawaited(_sendLocalMessageToServer(clientPacket));
     }
   }
 
@@ -123,8 +124,11 @@ class ServerLessMessageService {
               .uploadLocalNetworkFile([clientPacket.message.file]);
         }
         unawaited(
-          GetIt.I.get<CoreServices>().sendMessage(clientPacket.message,
-              forceToSendToServer: true, resend: false),
+          GetIt.I.get<CoreServices>().sendMessage(
+                clientPacket.message,
+                forceToSendToServer: true,
+                resend: false,
+              ),
         );
       }
     } catch (e) {
@@ -519,18 +523,15 @@ class ServerLessMessageService {
           ),
         ),
       );
-
-      final localChatMessage = MessageUtils.createMessageByClientOfLocalMessages([MessageUtils.convertMessageToMessage(message, roomUid)],message.id.toInt()).first;
-      await BackUpService.sendMessage(localChatMessage);
-
     }
     if (await _messageDao.getMessageByPacketId(roomUid, message.packetId) ==
         null) {
-      await _dataStreamService.handleIncomingMessage(
+      final msg = await _dataStreamService.handleIncomingMessage(
         message,
         isOnlineMessage: true,
         isLocalNetworkMessage: true,
       );
+
       await _roomDao.updateRoom(
         uid: roomUid,
         localNetworkMessageCount: 1,
@@ -565,25 +566,49 @@ class ServerLessMessageService {
           }
         }
       }
+      if (msg != null) {
+        unawaited(_syncMessageByServer(msg, lastLocalNetworkMessageId - 1));
+      }
       return true;
     }
     return false;
+  }
+
+  bool _backupTheMessage(String from, String to) {
+    return true;
+    return from.compareTo(to) > 0;
+  }
+
+  Future<void> _syncMessageByServer(
+    message_model.Message msg,
+    int lastLocalNetworkMessageId,
+  ) async {
+    if (_backupTheMessage(msg.from.asString(), msg.to.asString())) {
+      msg = msg.copyWith.call(packetId: "$LOCAL_MESSAGE_KEY${msg.packetId}");
+      final localChatMessage =
+          MessageUtils.createMessageByClientOfLocalMessages(
+        [msg],
+        lastLocalNetworkMessageId,
+      );
+
+      GetIt.I.get<CoreServices>().syncLocalMessageToServer(
+            localChatMessage.first,
+          );
+
+    }
   }
 
   Future<void> _handleAck(MessageDeliveryAck messageDeliveryAck) async {
     try {
       _messagePacketIdes.remove(messageDeliveryAck.packetId);
       final uid = messageDeliveryAck.from;
-      final room = _rooms[uid.asString()] ?? (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
+      final room = _rooms[uid.asString()] ??
+          (((await _roomDao.getRoom(uid)) ?? Room(uid: uid)).getLocalChat());
       if (room.lastPacketId != messageDeliveryAck.packetId) {
         final messageId = room.lastMessageId + 1;
         final localNetworkMessageId = room.lastLocalNetworkId + 1;
         unawaited(
-          _dataStreamService.handleAckMessage(
-            messageDeliveryAck..id = Int64(messageId),
-            isLocalNetworkMessage: true,
-            localNetworkMessageId: localNetworkMessageId,
-          ),
+          _processAck(messageDeliveryAck, messageId, localNetworkMessageId),
         );
         _rooms[uid.asString()] =
             (_rooms[uid.asString()] ?? (Room(uid: uid).getLocalChat()))
@@ -596,6 +621,19 @@ class ServerLessMessageService {
     }
   }
 
+  Future<void> _processAck(MessageDeliveryAck messageDeliveryAck, int messageId,
+      int localNetworkMessageId) async {
+    final msg = await _dataStreamService.handleAckMessage(
+      messageDeliveryAck..id = Int64(messageId),
+      isLocalNetworkMessage: true,
+      localNetworkMessageId: localNetworkMessageId,
+    );
+
+    if (msg != null) {
+      unawaited(_syncMessageByServer(msg, localNetworkMessageId));
+    }
+  }
+
   void reset() {
     _rooms.clear();
     _pendingMessageMap.clear();
@@ -604,10 +642,12 @@ class ServerLessMessageService {
   Future<void> _sendAck(MessageDeliveryAck ack) async {
     final ip = _serverLessService.getIp(ack.to.asString());
     if (ip != null) {
-      unawaited(_serverLessService.sendRequest(
-        ServerLessPacket(messageDeliveryAck: ack),
-        ip,
-      ));
+      unawaited(
+        _serverLessService.sendRequest(
+          ServerLessPacket(messageDeliveryAck: ack),
+          ip,
+        ),
+      );
     }
   }
 

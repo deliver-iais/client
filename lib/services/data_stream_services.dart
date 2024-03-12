@@ -35,6 +35,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/utils/message_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -51,6 +52,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
   final _logger = GetIt.I.get<Logger>();
@@ -214,7 +216,8 @@ class DataStreamServices {
       roomUid,
       needToBackup: isLocalNetworkMessage,
     ))!;
-    MessageUtils.createMessageByClientOfLocalMessages([msg], message.id.toInt());
+    MessageUtils.createMessageByClientOfLocalMessages(
+        [msg], message.id.toInt());
 
     final isHidden = msg.isHidden || (message.edited && message.isLocalMessage);
     if (msg.edited && message.isLocalMessage) {
@@ -613,14 +616,14 @@ class DataStreamServices {
     );
   }
 
-  Future<void> handleAckMessage(
+  Future<message_model.Message?> handleAckMessage(
     MessageDeliveryAck messageDeliveryAck, {
     bool isLocalNetworkMessage = false,
     int localNetworkMessageId = 0,
   }) async {
     final serverLessMessageService = GetIt.I.get<ServerLessMessageService>();
     if (messageDeliveryAck.id.toInt() == 0) {
-      return;
+      return null;
     }
     final packetId = messageDeliveryAck.packetId;
 
@@ -685,15 +688,7 @@ class DataStreamServices {
           unawaited(
             serverLessMessageService.sendPendingMessage(msg.roomUid.asString()),
           );
-          // if (settings.backupLocalNetworkMessages.value) {
-          //   unawaited(
-          //     GetIt.I.get<CoreServices>().sendLocalMessageToServer(
-          //           MessageUtils.createMessageByClient(pm.msg)
-          //             ..isLocalMessage = true
-          //             ..packetId = "$LOCAL_MESSAGE_KEY${pm.packetId}",
-          //         ),
-          //   );
-          // }
+          return msg;
         }
       } else {
         await _analyticsService.sendLogEvent(
@@ -704,6 +699,7 @@ class DataStreamServices {
         );
       }
     }
+    return null;
   }
 
   bool _isBroadcastMessage(

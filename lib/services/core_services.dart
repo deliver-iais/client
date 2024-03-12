@@ -297,13 +297,6 @@ class CoreServices {
     _uptimeStartTime.add(0);
   }
 
-  //todo use
-  Future<void> sendLocalMessageToServer(MessageByClient messageByClient) async {
-    if (connectionStatus.value == ConnectionStatus.Connected) {
-      unawaited(sendMessage(messageByClient, forceToSendToServer: true));
-    }
-  }
-
   Future<void> sendMessage(
     MessageByClient message, {
     bool resend = true,
@@ -331,6 +324,13 @@ class CoreServices {
       _changeAppToDisconnectedAfterSendMessage();
       _logger.e(e);
     }
+  }
+
+  void syncLocalMessageToServer(LocalChatMessage localChatMessage) {
+    final clientPacket = ClientPacket()
+      ..localChatMessage = localChatMessage
+      ..id = clock.now().microsecondsSinceEpoch.toString();
+    _sendClientPacketToServer(clientPacket, true);
   }
 
   void _changeAppToDisconnectedAfterSendMessage() {
