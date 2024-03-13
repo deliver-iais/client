@@ -561,33 +561,40 @@ class RoomRepo {
 
     final searchRooms = <Uid, UidIdName>{};
 
+    final chatRooms = <Uid, Room>{};
+
     if (text.contains("sa".toLowerCase()) ||
         text.contains("پی") ||
         text.contains("ذخی")) {
       searchRooms[_authRepo.currentUserUid] =
           UidIdName(uid: _authRepo.currentUserUid, name: "saved_message");
     }
-    yield searchRooms.values.toList();
+    if (searchRooms.isNotEmpty) {
+      yield searchRooms.values.toList();
+    }
+
+    chatRooms
+        .addAll({for (final e in (await _roomDao.getAllRooms())) e.uid: e});
 
     final searchInContacts = await _uidIdNameDao.searchInContacts(text);
 
-    yield searchInContacts;
+    yield _sortSearchResult(searchInContacts, chatRooms);
 
     searchRooms.addAll({for (final e in searchInContacts) e.uid: e});
-
-    var j = 4;
-    for (final r in await _roomDao.getAllRooms()) {
+    var j = 10;
+    for (final r in chatRooms.values) {
       final n = await getName(r.uid);
-      if (n.toLowerCase().contains(text.toLowerCase()) && searchRooms[r.uid] == null) {
+      if (searchRooms[r.uid] == null &&
+          n.toLowerCase().contains(text.toLowerCase())) {
         j++;
         searchRooms[r.uid] = UidIdName(uid: r.uid, name: n);
-        if (j % 4 == 0) {
-          yield searchRooms.values.toList();
+        if (j % 10 == 0) {
+          yield _sortSearchResult(searchRooms.values.toList(), chatRooms);
         }
       }
     }
 
-    yield searchRooms.values.toList();
+    yield _sortSearchResult(searchRooms.values.toList(), chatRooms);
   }
 
   Future<Uid> getUidById(String id) async {
@@ -663,4 +670,19 @@ class RoomRepo {
     };
     return mapper[customNotificationSound] ?? "";
   }
+
+  List<UidIdName> _sortSearchResult(
+    List<UidIdName> items,
+    Map<Uid, Room> chatRooms,
+  ) {
+    items.sort(
+      (a, b) =>
+          _sortRooms(a.uid, chatRooms[a.uid]) -
+          _sortRooms(b.uid, chatRooms[b.uid]),
+    );
+
+    return items;
+  }
+
+  int _sortRooms(Uid uid, Room? room) => room != null ? room.lastUpdateTime : 1;
 }

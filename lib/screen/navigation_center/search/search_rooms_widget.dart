@@ -16,11 +16,6 @@ class SearchRoomsWidget extends StatefulWidget {
 
 class _SearchRoomsWidgetState extends State<SearchRoomsWidget>
     with SingleTickerProviderStateMixin {
- @override
-  void dispose() {
-   widget.searchBoxController.clear();
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
     if (widget.searchBoxController.text.isNotEmpty) {

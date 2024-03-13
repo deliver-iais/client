@@ -112,7 +112,9 @@ class ServerLessMessageService {
       // TODO: Handle this case.
     }
     if (needToSendToServer) {
-      // unawaited(_sendLocalMessageToServer(clientPacket));
+      if (!_serverLessService.inLocalNetwork(clientPacket.message.to)) {
+        unawaited(_sendLocalMessageToServer(clientPacket));
+      }
     }
   }
 
@@ -241,13 +243,13 @@ class ServerLessMessageService {
   }
 
   Future<bool> _sendMessage({required Uid to, required Message message}) async {
+    bool needSendToServer = false;
     _messagePacketIdes.add(message.packetId);
     if (to.category == Categories.USER) {
       final ip = await _serverLessService.getIpAsync(to.asString());
       if (ip != null) {
-        return _send(ip: ip, message: message);
+        needSendToServer = await _send(ip: ip, message: message);
       }
-      return true;
     } else if (to.category == Categories.GROUP ||
         to.category == Categories.CHANNEL) {
       unawaited(_serverLessMucService.sendMessage(message));
@@ -264,21 +266,20 @@ class ServerLessMessageService {
           ),
         ),
       );
-
-      return false;
+      needSendToServer = false;
     }
     if (message.whichType() != Message_Type.callLog &&
         message.to.category == Categories.USER) {
       Timer(
-        const Duration(seconds: 3),
+        const Duration(seconds: 2),
         () => _checkPendingStatus(
           message.packetId,
           to: to,
         ),
       );
     }
-    await Future.delayed(const Duration(milliseconds: 1300));
-    return false;
+    await Future.delayed(const Duration(milliseconds: 1000));
+    return needSendToServer;
   }
 
   Future<bool> _send({required String ip, required Message message}) async {
@@ -319,23 +320,6 @@ class ServerLessMessageService {
         ..sendMyLocalNetworkInfo(targetUser: to);
     }
   }
-
-  // // await _pendingMessageDao.savePendingMessage(
-  //         //   PendingMessage(
-  //         //     roomUid: callLog.to,
-  //         //     packetId: packetId,
-  //         //     msg: model.Message(
-  //         //       roomUid: roomUid,
-  //         //       from: callLog.from,
-  //         //       to: roomUid,
-  //         //       packetId: packetId,
-  //         //       time: DateTime.now().millisecondsSinceEpoch,
-  //         //       json: callLog.writeToJson(),
-  //         //       type: MessageType.CALL_LOG,
-  //         //     ),
-  //         //     status: SendingStatus.PENDING,
-  //         //   ),
-  //         // );
 
   Future<void> processIncomingPacket(ServerLessPacket serverLessPacket) async {
     try {
@@ -594,7 +578,6 @@ class ServerLessMessageService {
       GetIt.I.get<CoreServices>().syncLocalMessageToServer(
             localChatMessage.first,
           );
-
     }
   }
 

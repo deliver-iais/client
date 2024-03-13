@@ -23,6 +23,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _scrollController = ScrollController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
 
@@ -36,7 +37,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
     super.initState();
   }
 
-  final _localHasResult = false.obs;
+  final _localHasResult = true.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +46,8 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
         StreamBuilder<List<UidIdName>>(
           stream: _roomRepo.searchInRooms(widget.searchBoxController.text),
           builder: (c, snaps) {
-            _localHasResult.value =
-                snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
+            // _localHasResult.value =
+            //     snaps.hasData && snaps.data != null && snaps.data!.isNotEmpty;
             if (snaps.connectionState == ConnectionState.waiting &&
                 (!snaps.hasData || snaps.data!.isEmpty)) {
               return const Center(
@@ -56,26 +57,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                 ),
               );
             }
-            final contacts = snaps.data!
-                .where((element) => element.isContact ?? false)
-                .toList();
-            final roomAndContacts = snaps.data!
-                .where((element) => !(element.isContact ?? false))
-                .toList();
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (roomAndContacts.isNotEmpty) ...[
-                    buildTitle(_i18n.get("local_search")),
-                    ...searchResultWidget(roomAndContacts)
-                  ],
-                  if (contacts.isNotEmpty) ...[
-                    buildTitle(_i18n.get("contacts")),
-                    ...searchResultWidget(contacts),
-                  ],
-                ],
-              ),
-            );
+            return searchResultWidget(snaps.data!);
           },
         ),
         StreamBuilder<String>(
@@ -106,7 +88,7 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
                     children: [
                       if (global.isNotEmpty) ...[
                         buildTitle(_i18n.get("global_search")),
-                        ...searchResultWidget(global)
+                        searchResultWidget(global)
                       ]
                     ],
                   );
@@ -139,16 +121,19 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
   Future<List<UidIdName>> globalSearchUser(String query) =>
       _contactRepo.searchUser(query);
 
-  List<Widget> searchResultWidget(List<UidIdName> uidList) {
-    return List.generate(
-      uidList.length,
-      (index) {
-        return RoomInformationWidget(
+  Widget searchResultWidget(List<UidIdName> uidList) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        controller: _scrollController,
+        itemCount: uidList.length,
+        itemBuilder: (c, index) => RoomInformationWidget(
           uid: uidList[index].uid,
           name: uidList[index].name,
           id: uidList[index].id,
-        );
-      },
+        ),
+      ),
     );
   }
 }

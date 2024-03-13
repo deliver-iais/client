@@ -20,6 +20,7 @@ class RoomName extends StatelessWidget {
   final TextOverflow overflow;
   final bool forceToReturnSavedMessage;
   final bool showMuteIcon;
+  final bool showId;
 
   const RoomName({
     super.key,
@@ -27,6 +28,7 @@ class RoomName extends StatelessWidget {
     this.name,
     this.id,
     this.style,
+    this.showId = false,
     this.maxLines = 1,
     this.overflow = TextOverflow.ellipsis,
     this.status,
@@ -65,7 +67,8 @@ class RoomName extends StatelessWidget {
               ),
               LoadingDotAnimation(
                 dotsColor: Theme.of(context).colorScheme.primary,
-              )
+              ),
+              Text("@$id")
             ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),

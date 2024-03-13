@@ -66,7 +66,7 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: 200,
+                        width: MediaQuery.of(context).size.width*0.7,
                         child: RoomName(
                           id: widget.id,
                           name: widget.name,

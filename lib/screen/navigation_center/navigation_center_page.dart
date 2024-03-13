@@ -56,7 +56,6 @@ class NavigationCenterState extends State<NavigationCenter>
   static final _i18n = GetIt.I.get<I18N>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _searchMessageService = GetIt.I.get<SearchMessageService>();
-  final SearchController _searchBoxController = SearchController();
   final ScrollController _sliverScrollController = ScrollController();
   final _sliverScrollControllerOffset = BehaviorSubject<double>.seeded(0);
   final Map<Categories?, ScrollController> _chatsScrollController = {};
@@ -174,7 +173,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                     actions: [
                       NavigationCenterAppbarActionsWidget(
-                        searchController: _searchBoxController,
+
                       ),
                     ],
                     bottom: PreferredSize(

@@ -12,12 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NavigationCenterAppbarActionsWidget extends StatefulWidget {
-  final SearchController searchController;
-
   const NavigationCenterAppbarActionsWidget({
-    Key? key,
-    required this.searchController,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<NavigationCenterAppbarActionsWidget> createState() =>
@@ -28,6 +25,7 @@ class _NavigationCenterAppbarActionsWidgetState
     extends State<NavigationCenterAppbarActionsWidget> with CustomPopupMenu {
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  final SearchController _searchBoxController = SearchController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +35,7 @@ class _NavigationCenterAppbarActionsWidgetState
         Directionality(
           textDirection: _i18n.reverseDefaultTextDirection,
           child: SearchAnchor(
-            searchController: widget.searchController,
+            searchController: _searchBoxController,
             viewHintText: _i18n.get("search"),
             dividerColor: theme.dividerColor.withAlpha(60),
             suggestionsBuilder: (context, controller) {
@@ -52,19 +50,20 @@ class _NavigationCenterAppbarActionsWidgetState
             },
             viewTrailing: [
               IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    if (widget.searchController.text.isEmpty) {
-                      Navigator.pop(context);
-                    } else {
-                      widget.searchController.clear();
-                    }
-                  },)
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  if (_searchBoxController.text.isEmpty) {
+                    Navigator.pop(context);
+                  } else {
+                    _searchBoxController.clear();
+                  }
+                },
+              )
             ],
             builder: (context, controller) {
               return IconButton(
                 icon: const Icon(Icons.search_rounded),
-                onPressed: () => widget.searchController.openView(),
+                onPressed: () => _searchBoxController.openView(),
               );
             },
           ),

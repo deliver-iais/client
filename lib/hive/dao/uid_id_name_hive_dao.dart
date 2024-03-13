@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manager.dart';
@@ -42,7 +44,7 @@ class UidIdNameDaoImpl extends UidIdNameDao {
 
     final byUid = box.get(uid.asString());
     if (byUid == null) {
-      await box.put(
+      unawaited(box.put(
         uid.asString(),
         UidIdNameHive(
           uid: uid.asString(),
@@ -52,19 +54,19 @@ class UidIdNameDaoImpl extends UidIdNameDao {
           realName: realName,
           lastUpdate: lastUpdateTime,
         ),
-      );
+      ));
     } else {
-      await box.put(
+      unawaited(box.put(
         uid.asString(),
         byUid.copyWith(
           uid: uid.asString(),
-          id: id,
-          isContact: isContact ?? false,
-          realName: realName,
-          name: name,
+          id: id ?? byUid.id,
+          isContact: isContact ?? byUid.isContact,
+          realName: realName ?? byUid.realName,
+          name: name ?? byUid.name,
           lastUpdate: lastUpdateTime,
         ),
-      );
+      ));
     }
 
     if (byUid != null && byUid.id != null && byUid.id != id) {
