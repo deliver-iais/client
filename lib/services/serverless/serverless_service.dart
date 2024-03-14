@@ -48,9 +48,11 @@ class ServerLessService {
   }
 
   void _start() {
-    address.clear();
-    _startServices();
-    _startForeground();
+    if (Platform.isAndroid) {
+      address.clear();
+      _startServices();
+      _startForeground();
+    }
   }
 
   void _startForeground() {

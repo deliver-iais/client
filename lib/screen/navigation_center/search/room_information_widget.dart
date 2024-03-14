@@ -17,8 +17,17 @@ class RoomInformationWidget extends StatefulWidget {
   final Uid uid;
   final String? name;
   final String? id;
+  final double width;
+  final int flex;
 
-  const RoomInformationWidget({super.key, required this.uid, this.name, this.id});
+  const RoomInformationWidget({
+    super.key,
+    required this.uid,
+    this.name,
+    this.id,
+    this.width = 80,
+    this.flex = 1,
+  });
 
   @override
   State<RoomInformationWidget> createState() => _RoomInformationWidgetState();
@@ -66,8 +75,10 @@ class _RoomInformationWidgetState extends State<RoomInformationWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width*0.7,
+                        width: MediaQuery.of(context).size.width * 0.9,
                         child: RoomName(
+                          width: widget.width,
+                          flex: widget.flex,
                           id: widget.id,
                           name: widget.name,
                           uid: widget.uid,

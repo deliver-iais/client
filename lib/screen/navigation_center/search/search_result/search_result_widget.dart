@@ -130,6 +130,8 @@ class _SearchResultWidgetState extends State<SearchResultWidget> {
         itemCount: uidList.length,
         itemBuilder: (c, index) => RoomInformationWidget(
           uid: uidList[index].uid,
+          width: 200,
+          flex: 0,
           name: uidList[index].name,
           id: uidList[index].id,
         ),

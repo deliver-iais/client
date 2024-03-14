@@ -578,20 +578,20 @@ class RoomRepo {
 
     final searchInContacts = await _uidIdNameDao.searchInContacts(text);
 
-    yield _sortSearchResult(searchInContacts, chatRooms);
+    // yield _sortSearchResult(searchInContacts, chatRooms);
 
     searchRooms.addAll({for (final e in searchInContacts) e.uid: e});
-    var j = 10;
+    var j = 1;
     for (final r in chatRooms.values) {
       final n = await getName(r.uid);
       if (searchRooms[r.uid] == null &&
           n.toLowerCase().contains(text.toLowerCase())) {
-        j++;
         searchRooms[r.uid] = UidIdName(uid: r.uid, name: n);
-        if (j % 10 == 0) {
-          yield _sortSearchResult(searchRooms.values.toList(), chatRooms);
-        }
       }
+      if (j % 14 == 0) {
+        yield _sortSearchResult(searchRooms.values.toList(), chatRooms);
+      }
+      j++;
     }
 
     yield _sortSearchResult(searchRooms.values.toList(), chatRooms);
@@ -677,8 +677,8 @@ class RoomRepo {
   ) {
     items.sort(
       (a, b) =>
-          _sortRooms(a.uid, chatRooms[a.uid]) -
-          _sortRooms(b.uid, chatRooms[b.uid]),
+          _sortRooms(a.uid, chatRooms[b.uid]) -
+          _sortRooms(b.uid, chatRooms[a.uid]),
     );
 
     return items;

@@ -21,6 +21,8 @@ class RoomName extends StatelessWidget {
   final bool forceToReturnSavedMessage;
   final bool showMuteIcon;
   final bool showId;
+  final double width;
+  final int flex;
 
   const RoomName({
     super.key,
@@ -30,6 +32,8 @@ class RoomName extends StatelessWidget {
     this.style,
     this.showId = false,
     this.maxLines = 1,
+    this.width = 80,
+    this.flex = 1,
     this.overflow = TextOverflow.ellipsis,
     this.status,
     this.forceToReturnSavedMessage = false,
@@ -49,7 +53,9 @@ class RoomName extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Flexible(
+              flex: flex,
               child: TextLoader(
+                width: width,
                 text: Text(
                   String.fromCharCodes(name.replaceAll('', '\u200B').runes),
                   style: (style ?? theme.textTheme.titleSmall)!
@@ -68,7 +74,6 @@ class RoomName extends StatelessWidget {
               LoadingDotAnimation(
                 dotsColor: Theme.of(context).colorScheme.primary,
               ),
-              Text("@$id")
             ],
             FutureBuilder<bool>(
               initialData: _roomRepo.fastForwardIsVerified(uid),
