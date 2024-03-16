@@ -357,16 +357,29 @@ class FileRepo {
     });
   }
 
-  void saveFileInDownloadDir(
+  Future<void> saveFileInGallery(
+    String uuid,
+    String name,
+  ) async {
+    final res = await getFileIfExist(uuid);
+    if (res != null) {
+      unawaited(_fileService.saveInGallery(res, name,));
+    }
+  }
+
+  Future<void> saveFileInDownloadDir(
     String uuid,
     String name,
     String dir,
-  ) {
-    getFileIfExist(uuid).then(
-      (path) => isDesktopNative
-          ? _fileService.saveFileInDesktopDownloadFolder(name, path!)
-          : _fileService.saveFileInMobileDownloadFolder(path!, name, dir),
-    );
+  ) async {
+    final res = await getFileIfExist(uuid);
+    if (res != null) {
+      if (isDesktopNative) {
+        unawaited(_fileService.saveFileInDesktopDownloadFolder(name, res));
+      } else {
+        unawaited(_fileService.saveFileInMobileDownloadFolder(res, name, dir));
+      }
+    }
   }
 
   void cancelUploadFile(String uuid) {

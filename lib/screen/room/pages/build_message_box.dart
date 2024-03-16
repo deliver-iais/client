@@ -692,7 +692,7 @@ class OperationOnMessageSelection {
 
   void onSaveToGallery(BuildContext context) {
     final file = message.json.toFile();
-    _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
+    _fileRepo.saveFileInGallery(file.uuid, file.name);
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
