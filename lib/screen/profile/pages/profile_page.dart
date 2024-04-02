@@ -88,7 +88,8 @@ class ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     _selectMediasForForward.close();
-    _roomRepo.updateRoomInfo(widget.roomUid, foreToUpdate: true,needToFetchMembers: true);
+    _roomRepo.updateRoomInfo(widget.roomUid,
+        foreToUpdate: true, needToFetchMembers: true);
     _setupRoomSettings();
     super.initState();
   }
@@ -280,7 +281,9 @@ class ProfilePageState extends State<ProfilePage>
     final paths = <String>[];
     for (final media in metas) {
       final file = media.json.toFile();
-      final path = await (_fileRepo.getFileIfExist(file.uuid,));
+      final path = await (_fileRepo.getFileIfExist(
+        file.uuid,
+      ));
       if (path != null) {
         paths.add(path);
       }
@@ -309,15 +312,24 @@ class ProfilePageState extends State<ProfilePage>
               IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () async {
-                  final muc = await _mucRepo.getMuc(
-                    widget.roomUid,
-                  );
-                  unawaited(
-                    _routingService.openManageMuc(
-                      widget.roomUid.asString(),
-                      mucType: muc!.mucType,
-                    ),
-                  );
+                  if (widget.roomUid.isBot()) {
+                    unawaited(
+                      _routingService.openManageMuc(
+                        widget.roomUid.asString(),
+                      ),
+                    );
+                  } else {
+                    final muc = await _mucRepo.getMuc(
+                      widget.roomUid,
+                    );
+                    unawaited(
+                      _routingService.openManageMuc(
+                        widget.roomUid.asString(),
+                        mucType: muc!.mucType,
+                      ),
+                    );
+                  }
+
                   // showManageDialog();
                 },
               ),

@@ -1718,44 +1718,52 @@ class CallRepo {
   }
 
   void _sendBusy(CallEvents? event) {
-    //Send Busy
-    final callEventBusy = (CallEventBusy()..isCaller = _isCaller);
+    if (roomUid != null) {
+      final callEventBusy = (CallEventBusy()..isCaller = _isCaller);
 
-    final callEventV2ByClient = (CallEventV2ByClient()
-      ..id = _callService.getCallId
-      ..to = _roomUid!
-      ..isVideo = _isVideo
-      ..busy = callEventBusy);
-    _coreServices.sendCallEvent(callEventV2ByClient);
-    _callEvents[clock.now().millisecondsSinceEpoch] = "Send Busy";
-    _checkRetryCallEvent(callEventV2ByClient);
+      final callEventV2ByClient = (CallEventV2ByClient()
+        ..id = _callService.getCallId
+        ..to = _roomUid!
+        ..isVideo = _isVideo
+        ..busy = callEventBusy);
+      _coreServices.sendCallEvent(callEventV2ByClient);
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Send Busy";
+      _checkRetryCallEvent(callEventV2ByClient);
+    }
+    //Send Busy
   }
 
   void _sendDeclined() {
-    //Send Declined
-    final callEventDecline = (CallEventDecline()..isCaller = _isCaller);
+    if(roomUid!= null){
+      final callEventDecline = (CallEventDecline()..isCaller = _isCaller);
 
-    final callEventV2ByClient = (CallEventV2ByClient()
-      ..id = _callService.getCallId
-      ..to = _roomUid!
-      ..isVideo = _isVideo
-      ..decline = callEventDecline);
-    _coreServices.sendCallEvent(callEventV2ByClient);
-    _callEvents[clock.now().millisecondsSinceEpoch] = "Send Decline";
-    _checkRetryCallEvent(callEventV2ByClient);
+      final callEventV2ByClient = (CallEventV2ByClient()
+        ..id = _callService.getCallId
+        ..to = _roomUid!
+        ..isVideo = _isVideo
+        ..decline = callEventDecline);
+      _coreServices.sendCallEvent(callEventV2ByClient);
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Send Decline";
+      _checkRetryCallEvent(callEventV2ByClient);
+    }
+    //Send Declined
+
   }
 
   void _sendEndCall(int callDuration) {
     //Send End Call
-    final callEventV2ByClient = (CallEventV2ByClient()
-      ..id = _callService.getCallId
-      ..to = _roomUid!
-      ..isVideo = _isVideo
-      ..end =
-          CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
-    _coreServices.sendCallEvent(callEventV2ByClient);
-    _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
-    // _checkRetryCallEvent(callEventV2ByClient);
+    if(roomUid!= null){
+      final callEventV2ByClient = (CallEventV2ByClient()
+        ..id = _callService.getCallId
+        ..to = _roomUid!
+        ..isVideo = _isVideo
+        ..end =
+        CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
+      _coreServices.sendCallEvent(callEventV2ByClient);
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
+      // _checkRetryCallEvent(callEventV2ByClient);
+    }
+
   }
 
   Future<void> _calculateCandidateAndSendAnswer() async {
