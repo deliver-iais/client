@@ -450,7 +450,7 @@ void main() async {
     document.onContextMenu.listen((e) => e.preventDefault());
   }
 
-  Paint.enableDithering = true;
+  // Paint. = true;
   runApp(
     const FeatureDiscovery.withProvider(
       persistenceProvider: NoPersistenceProvider(),

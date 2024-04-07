@@ -170,6 +170,8 @@ class RoomPageState extends State<RoomPage>
   Timer? highlightMessageTimer;
   bool _isArrowIconFocused = false;
 
+  int _currentPositionIndex = 0;
+
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
 
@@ -469,6 +471,9 @@ class RoomPageState extends State<RoomPage>
   }
 
   bool checkShowArrowDown(AsyncSnapshot<ScrollingState> snapshot) {
+    if (_currentPositionIndex == 0 || _itemCount - _currentPositionIndex < 5) {
+      return false;
+    }
     return dontShowCursorNearToEndOfPage(snapshot) ||
         backToReplyMessage() ||
         showOnScrollDownAndNotNearToEndOfPage(snapshot);
@@ -478,7 +483,6 @@ class RoomPageState extends State<RoomPage>
     AsyncSnapshot<ScrollingState> snapshot,
   ) {
     return ((snapshot.data?.isScrolling ?? false) &&
-        (!(snapshot.data?.isInNearToEndOfPage ?? false)) &&
         (!(initialScrollIndex + 1 < _itemCount) ||
             snapshot.data?.scrollingDirection == ScrollingDirection.DOWN));
   }
@@ -561,6 +565,7 @@ class RoomPageState extends State<RoomPage>
       final position = _itemPositionsListener.itemPositions.value;
 
       if (position.isNotEmpty) {
+        _currentPositionIndex = max(position.first.index, position.last.index);
         _syncLastPinMessageWithItemPosition();
 
         if (widget.roomUid.isGroup()) {
@@ -1145,7 +1150,10 @@ class RoomPageState extends State<RoomPage>
 
   Widget scrollDownButtonWidget() {
     return MouseRegion(
-      key: Key(DateTime.now().microsecondsSinceEpoch.toString()),
+      key: Key(
+        DateTime.now().microsecondsSinceEpoch.toString() +
+            Random().nextInt(1000).toString(),
+      ),
       cursor: SystemMouseCursors.click,
       onHover: (s) {
         _isArrowIconFocused = true;

@@ -187,9 +187,7 @@ class CallRepo {
           isInComingAnswerCameFromAnotherSession(event)) {
         unawaited(_dispose());
       }
-      if (event.callEvent == null ||
-          checkCallExpireTimeFailed(event) ||
-          checkSession(event)) {
+      if (event.callEvent == null || checkSession(event)) {
         return;
       }
       final callEvent = event.callEvent!;
@@ -445,11 +443,11 @@ class CallRepo {
     _sendBusy(event);
   }
 
-  bool checkCallExpireTimeFailed(CallEvents event) {
-    return ((event.callEvent!.time.toInt() - clock.now().millisecondsSinceEpoch)
-            .abs()) >
-        60000;
-  }
+  // bool checkCallExpireTimeFailed(CallEvents event) {
+  //   return ((event.callEvent!.time.toInt() - clock.now().millisecondsSinceEpoch)
+  //           .abs()) >
+  //       60000;
+  // }
 
   bool checkSession(CallEvents event) {
     return event.callEvent!.to.sessionId != "*" &&
@@ -1193,6 +1191,7 @@ class CallRepo {
       _audioToggleOnCall();
       _notifyIncomingCall = true;
       if (_isNotificationSelected) {
+        _logger.i("_isNotificationSelected................");
         modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
           CallNotificationActionInBackground(
             roomId: _roomUid!.asString(),
@@ -1205,6 +1204,8 @@ class CallRepo {
         if (_appLifecycleService.isActive &&
             (_routingService.isInRoom(_roomUid!.asString()) ||
                 (isAndroidNative && !(await _requiredPermissionIsGranted())))) {
+          _logger.i(
+              "modifyRoutingByCallNotificationActionInBackgroundInAndroid.......");
           modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
             CallNotificationActionInBackground(
               roomId: _roomUid!.asString(),
@@ -1213,6 +1214,7 @@ class CallRepo {
             ),
           );
         } else {
+          _logger.i("notification on incoming  call.......");
           await _notificationServices.notifyIncomingCall(
             _roomUid!.asString(),
             callEventJson: callEventJson,
@@ -1681,10 +1683,12 @@ class CallRepo {
   }
 
   Future<void> _sendOffer() async {
+    _logger.i("send offer..............................");
     //wait till offer is Ready
     await _waitUntilOfferReady();
     // Send Candidate to Receiver
     final jsonCandidates = jsonEncode(_candidate);
+    _logger.i("send offer on stwep 2");
     //Send offer and Candidate as message to Receiver
     final callEventV2ByClient = (CallEventV2ByClient()
       ..id = _callService.getCallId
@@ -1734,7 +1738,7 @@ class CallRepo {
   }
 
   void _sendDeclined() {
-    if(roomUid!= null){
+    if (roomUid != null) {
       final callEventDecline = (CallEventDecline()..isCaller = _isCaller);
 
       final callEventV2ByClient = (CallEventV2ByClient()
@@ -1747,23 +1751,21 @@ class CallRepo {
       _checkRetryCallEvent(callEventV2ByClient);
     }
     //Send Declined
-
   }
 
   void _sendEndCall(int callDuration) {
     //Send End Call
-    if(roomUid!= null){
+    if (roomUid != null) {
       final callEventV2ByClient = (CallEventV2ByClient()
         ..id = _callService.getCallId
         ..to = _roomUid!
         ..isVideo = _isVideo
-        ..end =
-        CallEventEnd(callDuration: Int64(callDuration), isCaller: _isCaller));
+        ..end = CallEventEnd(
+            callDuration: Int64(callDuration), isCaller: _isCaller));
       _coreServices.sendCallEvent(callEventV2ByClient);
       _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
       // _checkRetryCallEvent(callEventV2ByClient);
     }
-
   }
 
   Future<void> _calculateCandidateAndSendAnswer() async {

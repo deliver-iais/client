@@ -1036,6 +1036,7 @@ class AndroidNotifier implements Notifier {
     String roomName,
     String? callEventJson,
   ) async {
+    _logger.i("notifyIncomingCall on service.......");
     final la =
         await _avatarRepo.getLastAvatar(roomUid.asUid(), needToFetch: false);
     String? path;
@@ -1048,6 +1049,7 @@ class AndroidNotifier implements Notifier {
     final callEventV2 = callEventJson?.toCallEventV2();
     final isVideoCall = callEventV2!.isVideo;
     final ceJson = callEventJson ?? "";
+    _logger.i("notifyIncomingCall on service. 22222.");
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),

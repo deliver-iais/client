@@ -1,7 +1,7 @@
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/shared/methods/colors.dart' as color;
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +33,8 @@ class ExtraThemeData {
   }
 
   CustomColorScheme createColorWithString(Uid str) {
-    final hctColor = Hct.fromInt(ColorUtils.stringToHexInt(str.asString()));
-
+    final hctColor =
+        Hct.fromInt(color.ColorUtils.stringToHexInt(str.asString()));
     if (colorScheme.brightness == Brightness.light) {
       return CustomColorScheme.light(
         TonalPalette.of(hctColor.hue, hctColor.chroma),

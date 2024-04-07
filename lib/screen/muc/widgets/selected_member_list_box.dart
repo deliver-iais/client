@@ -3,6 +3,7 @@ import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
+import 'package:deliver/shared/widgets/muc_member_selction_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -71,7 +72,7 @@ class SelectedMemberListBox extends StatelessWidget {
                   ? ListView.builder(
                       shrinkWrap: true,
                       itemCount: _createMucService.selected.length,
-                      itemBuilder: (context, index) => ContactWidget(
+                      itemBuilder: (context, index) => MucMemberSelectionWidget(
                         user: _createMucService.getSelected(
                           useBroadcastSmsContacts: useSmsBroadcastList,
                         )[index],

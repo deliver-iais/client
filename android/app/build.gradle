@@ -54,9 +54,9 @@ android {
         minSdkVersion 23
         targetSdkVersion 33
 //        versionCode flutterVersionCode.toInteger()
-        versionCode 3094
+        versionCode 3095
 //        versionName flutterVersionName
-        versionName "5.6"
+        versionName "5.7"
         multiDexEnabled true
     }
     signingConfigs {

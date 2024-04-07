@@ -16,6 +16,7 @@ import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
+import 'package:deliver/shared/widgets/muc_member_selction_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -137,7 +138,6 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
-            if (_serverLessService.superNodes.isEmpty) const SyncContact(),
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(vertical: 4.0),
               child: SearchBox(
@@ -353,7 +353,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
         }
       },
       child: Obx(
-        () => ContactWidget(
+        () => MucMemberSelectionWidget(
           user: _items[index],
           isSelected: _createMucService.isSelected(
             _items[index],
