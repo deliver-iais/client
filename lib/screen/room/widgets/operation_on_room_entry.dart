@@ -412,7 +412,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 final c1NavigatorState = Navigator.of(c1);
 
                 final usersAddCode =
-                    await _mucRepo.addMucMember(widget.roomUid, [uid]);
+                    await _mucRepo.addMucMember(widget.roomUid, [uid],null);
                 if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();

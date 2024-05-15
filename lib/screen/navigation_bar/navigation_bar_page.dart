@@ -108,6 +108,7 @@ class NavigationBarPageState extends State<NavigationBarPage> {
   }
 
   bool _showStore() {
+    return false;
     try {
       return GetInfoRes.fromJson(settings.servicesInfo.value)
           .clientSettings

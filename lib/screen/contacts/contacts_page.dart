@@ -121,12 +121,12 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
               children: [
                 Column(
                   children: [
-                    const SyncContact(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                        vertical: 8,
-                      ),
-                    ),
+                    // const SyncContact(
+                    //   padding: EdgeInsets.symmetric(
+                    //     horizontal: 24.0,
+                    //     vertical: 8,
+                    //   ),
+                    // ),
                     if (_messengerContacts.isEmpty) const EmptyContacts(),
                     Expanded(
                       child: Padding(

@@ -27,7 +27,7 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = 5;
-const REVISION = 7;
+const REVISION = 8;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 

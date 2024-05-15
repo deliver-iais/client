@@ -204,10 +204,7 @@ class MucRepo {
     String? channelId,
   }) async {
     unawaited(
-      addMucMember(
-        mucUid,
-        memberUidList,
-      ),
+      addMucMember(mucUid, memberUidList, channelType),
     );
     unawaited(
       _insertNewMucInfoToDb(
@@ -793,16 +790,25 @@ class MucRepo {
     );
   }
 
-  Future<int> addMucMember(Uid mucUid, List<Uid> memberUids) async {
+  MucType convertMucType(ChannelType type) {
+    if (type == ChannelType.PUBLIC) {
+      return MucType.Public;
+    }
+    return MucType.Private;
+  }
+
+  Future<int> addMucMember(
+      Uid mucUid, List<Uid> memberUids, ChannelType? channelType) async {
     try {
       const usersAddCode = 0;
       final members = <muc_pb.Member>[];
       var role = muc_pb.Role.MEMBER;
       if (mucUid.isChannel()) {
-        final mucInfo = await _mucDao.get(mucUid);
-        role = mucInfo!.mucType == MucType.Private
-            ? muc_pb.Role.MEMBER
-            : muc_pb.Role.NONE;
+        final mucType = (channelType != null
+            ? convertMucType(channelType)
+            : (await _mucDao.get(mucUid))?.mucType ?? ChannelType.PUBLIC);
+        role =
+            mucType == MucType.Private ? muc_pb.Role.MEMBER : muc_pb.Role.NONE;
       }
       for (final uid in memberUids) {
         members.add(

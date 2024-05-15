@@ -1,5 +1,6 @@
 const FARSI_FEATURE_LIST = <String>[
-  "رفع مشکل تماس در برخی گوشی ها",
+  "رفع مشکل اضافه و حذف عضو در کانال",
+  "رفع مشکل نمایش مخاطبین",
 ];
 
 const ENGLISH_FEATURE_LIST = [

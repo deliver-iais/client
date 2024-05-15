@@ -50,7 +50,7 @@ class MucDaoImpl extends MucDao {
   Future<void> deleteMember(Member member) async {
     final box = await _openMembers(member.mucUid.asString());
 
-    return box.delete(member.memberUid);
+    return box.delete(member.memberUid.asString());
   }
 
   @override
