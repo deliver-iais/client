@@ -134,14 +134,14 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                           horizontal: 16.0,
                         ),
                         child: FlexibleFixedHeightGridView(
+                          height: 70,
                           itemCount: contacts.length,
                           itemBuilder: (context, index) {
                             final c = contacts[index];
                             if (c.uid != null) {
                               return GestureDetector(
                                 onTap: () => c.uid != null
-                                    ? _routingService
-                                        .openRoom(c.uid!)
+                                    ? _routingService.openRoom(c.uid!)
                                     : null,
                                 child: ContactWidget(
                                   user: c.toUser(),
@@ -316,6 +316,7 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
     return Padding(
       padding: const EdgeInsetsDirectional.symmetric(horizontal: 24.0),
       child: FlexibleFixedHeightGridView(
+        height: 70,
         itemCount: filteredContacts.length,
         itemBuilder: (context, index) {
           final c = filteredContacts[index];

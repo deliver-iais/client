@@ -77,6 +77,7 @@ class GalleryBoxState extends State<GalleryBox> {
             finalFolders.add(f);
           }
         }
+        finalFolders.sort((a, b) => _checkName(a.name) - _checkName(b.name));
         _folders.add(finalFolders);
       }
       await _checkPermissionServices.checkCameraRecorderPermission();
@@ -87,6 +88,8 @@ class GalleryBoxState extends State<GalleryBox> {
       print(_);
     }
   }
+
+  int _checkName(String name) => name.toLowerCase().contains("camera") ? 0 : 1;
 
   Future<bool> checkAccessMediaLocationPermission() async {
     return _checkPermissionServices.checkAccessMediaLocationPermission(

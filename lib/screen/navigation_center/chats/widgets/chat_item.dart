@@ -251,7 +251,7 @@ class ChatItemState extends State<ChatItem> {
                     ),
                   ),
                   if (widget.room.lastMessage != null)
-                    ..._buildLastMessageTimeAndSeenStatus(
+                    ...buildLastMessageTimeAndSeenStatus(
                       widget.room.lastMessage!,
                     ),
                 ],
@@ -365,7 +365,7 @@ class ChatItemState extends State<ChatItem> {
     );
   }
 
-  List<Widget> _buildLastMessageTimeAndSeenStatus(Message message) {
+  List<Widget> buildLastMessageTimeAndSeenStatus(Message message) {
     return [
       if (_authRepo.isCurrentUser(message.from))
         Padding(
@@ -378,7 +378,7 @@ class ChatItemState extends State<ChatItem> {
         ),
       Text(
         dateTimeFromNowFormat(
-          date(widget.room.lastMessage!.time),
+          date(message.time),
           summery: true,
         ),
         maxLines: 1,

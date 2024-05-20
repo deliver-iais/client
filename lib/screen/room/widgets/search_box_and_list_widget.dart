@@ -1,3 +1,4 @@
+import 'package:deliver/box/room.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -13,7 +14,7 @@ class SearchBoxAndListWidget extends StatelessWidget {
   static final authRepo = GetIt.I.get<AuthRepo>();
   static final queryTermDebouncedSubject = BehaviorSubject<String>.seeded("");
 
-  final Widget Function(List<Uid>) listWidget;
+  final Widget Function(List<Room>) listWidget;
   final Widget emptyWidget;
 
   const SearchBoxAndListWidget({
@@ -35,22 +36,24 @@ class SearchBoxAndListWidget extends StatelessWidget {
           builder: (context, query) {
             return Expanded(
               child: query.data == null || query.data!.isEmpty
-                  ? FutureBuilder<List<Uid>>(
+                  ? FutureBuilder<List<Room>>(
                       future: roomRepo.getAllRooms(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
                             snapshot.data!.isNotEmpty) {
-                          if (snapshot.data!
-                              .map((e) => e.asString())
-                              .contains(authRepo.currentUserUid.asString())) {
-                            final index = snapshot.data!
-                                .map((e) => e.asString())
-                                .toList()
-                                .indexOf(authRepo.currentUserUid.asString());
-                            snapshot.data!.removeAt(index);
-                          }
-                          snapshot.data!.insert(0, authRepo.currentUserUid);
+                          final savesMessage = snapshot.data!
+                              .where(
+                                (element) => element.uid.isSameEntity(
+                                  authRepo.currentUserUid.asString(),
+                                ),
+                              )
+                              .firstOrNull;
+                          snapshot.data!.remove(savesMessage);
+                          snapshot.data!.insert(
+                            0,
+                            savesMessage ?? Room(uid: authRepo.currentUserUid),
+                          );
                           return listWidget(snapshot.data!);
                         } else {
                           return emptyWidget;
@@ -77,7 +80,9 @@ class SearchBoxAndListWidget extends StatelessWidget {
                             UidIdName(uid: authRepo.currentUserUid),
                           );
                           return listWidget(
-                            snapshot.data!.map((e) => e.uid).toList(),
+                            snapshot.data!
+                                .map((e) => Room(uid: e.uid))
+                                .toList(),
                           );
                         } else {
                           return emptyWidget;

@@ -4,6 +4,7 @@ import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -71,7 +72,7 @@ class ShareBoxInputCaption extends StatelessWidget {
 
   Widget buildSendButton(ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(right: 3),
+      padding: const EdgeInsets.only(right: 13),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[
@@ -80,7 +81,7 @@ class ShareBoxInputCaption extends StatelessWidget {
                 shape: BoxShape.circle, color: theme.primaryColor),
             child: IconButton(
                 icon: Icon(
-                  Icons.send,
+                  CupertinoIcons.location,
                   size: 28,
                   textDirection: TextDirection.ltr,
                   color: theme.colorScheme.background,
@@ -91,7 +92,7 @@ class ShareBoxInputCaption extends StatelessWidget {
           ),
           Positioned(
             top: 0,
-            right: 3,
+            left:1 ,
             child: AnimatedScale(
               duration: AnimationSettings.verySlow,
               curve: Curves.easeInOut,

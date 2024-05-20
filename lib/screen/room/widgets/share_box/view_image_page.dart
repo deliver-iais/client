@@ -21,7 +21,7 @@ class ViewImagePage extends StatefulWidget {
   final List<String>? selectedImage;
   final Function(String)? onTap;
   final Function(String) onEditEnd;
-  final Function(String)? onSend;
+  final Function(String, String)? onSend;
   final bool forceToShowCaptionTextField;
   final bool sendSingleImage;
 
@@ -117,7 +117,7 @@ class _ViewImagePageState extends State<ViewImagePage> {
                           toolbarTitle: _i18n.get("cropper"),
                           cropFrameColor: theme.primaryColorDark,
                           toolbarColor: theme.bottomAppBarTheme.color,
-                          toolbarWidgetColor: theme.colorScheme.onSurface,
+                          toolbarWidgetColor: theme.colorScheme.background,
                           activeControlsWidgetColor: theme.colorScheme.primary,
                           initAspectRatio: CropAspectRatioPreset.original,
                           lockAspectRatio: false,
@@ -229,7 +229,6 @@ class _ViewImagePageState extends State<ViewImagePage> {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-
                         image: imagePath.imageProvider(),
                       ),
                     ),
@@ -249,15 +248,12 @@ class _ViewImagePageState extends State<ViewImagePage> {
                         : 0,
                     onSend: (caption) {
                       Navigator.pop(context);
-                      setState(() {
-                        widget.onEditEnd(imagePath);
-                      });
                       if (widget.sendSingleImage &&
                           (widget.selectedImage == null ||
                               widget.selectedImage!.isEmpty)) {
                         widget.selectedImage!.add(imagePath);
                       }
-                      widget.onSend!(caption);
+                      widget.onSend!(caption, imagePath);
                     },
                   ),
                 )

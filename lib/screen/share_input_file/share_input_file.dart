@@ -9,6 +9,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../box/room.dart';
+
 class ShareInputFile extends StatefulWidget {
   final List<String> inputSharedFilePath;
   final String inputShareText;
@@ -163,7 +165,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
     );
   }
 
-  Widget buildSharedList(List<Uid> uidList) {
+  Widget buildSharedList(List<Room> uidList) {
     final theme = Theme.of(context);
     return ListView.builder(
       itemCount: uidList.length,
@@ -172,26 +174,26 @@ class _ShareInputFileState extends State<ShareInputFile> {
           behavior: HitTestBehavior.translucent,
           onTap: () {
             if (_selectedRooms.contains(
-              uidList[index],
+              uidList[index].uid,
             )) {
               _selectedRooms.remove(
-                uidList[index],
+                uidList[index].uid,
               );
             } else {
-              _selectedRooms.add(uidList[index]);
+              _selectedRooms.add(uidList[index].uid);
             }
             setState(() {});
           },
           child: Container(
             color: _selectedRooms.contains(
-              uidList[index],
+              uidList[index].uid,
             )
                 ? theme.hoverColor
                 : theme.colorScheme.background,
             child: ShareChatItem(
-              uid: uidList[index],
+              room: uidList[index],
               selected: _selectedRooms.contains(
-                uidList[index],
+                uidList[index].uid,
               ),
             ),
           ),

@@ -551,8 +551,7 @@ class RoomRepo {
         }
       });
 
-  Future<List<Uid>> getAllRooms() async =>
-      (await _roomDao.getAllRooms()).map((e) => e.uid).toList();
+  Future<List<Room>> getAllRooms() async => _roomDao.getAllRooms();
 
   Stream<List<UidIdName>> searchInRooms(String text) async* {
     if (text.isEmpty) {

@@ -73,6 +73,7 @@ class SelectedMemberListBox extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: _createMucService.selected.length,
                       itemBuilder: (context, index) => MucMemberSelectionWidget(
+                        showLastSeen: false,
                         user: _createMucService.getSelected(
                           useBroadcastSmsContacts: useSmsBroadcastList,
                         )[index],

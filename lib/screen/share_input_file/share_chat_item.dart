@@ -1,6 +1,6 @@
+import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chat_avatar.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -8,10 +8,10 @@ import 'package:get_it/get_it.dart';
 class ShareChatItem extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  final Uid uid;
+  final Room room;
   final bool selected;
 
-  const ShareChatItem({super.key, required this.uid, required this.selected});
+  const ShareChatItem({super.key, required this.room, required this.selected});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,8 @@ class ShareChatItem extends StatelessWidget {
         child: SizedBox(
           height: 50,
           child: FutureBuilder<String>(
-            future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
+            future:
+                _roomRepo.getName(room.uid, forceToReturnSavedMessage: true),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 return Row(
@@ -32,7 +33,7 @@ class ShareChatItem extends StatelessWidget {
                     Stack(
                       children: [
                         if (!selected)
-                          ChatAvatar(uid)
+                          ChatAvatar(room.uid)
                         else
                           Icon(
                             CupertinoIcons.checkmark_alt_circle_fill,

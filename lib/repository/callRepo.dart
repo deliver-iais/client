@@ -509,7 +509,8 @@ class CallRepo {
   }
 
   // This function use for setting up and managing the real-time communication between two peers.
-  Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
+  Future<RTCPeerConnection?> _createPeerConnection(bool isOffer,
+      {bool checkPermission = true}) async {
     // maybe this line is what i'm looking for (createPeerConnection)
     final pc = await createPeerConnection(
       CallUtils.getIceServers(
@@ -517,7 +518,18 @@ class CallRepo {
       ),
       CallUtils.getConfig(),
     );
-    _localStream = await CallUtils.getUserMedia(isVideo: _isVideo);
+    try {
+      _localStream = await CallUtils.getUserMedia(isVideo: _isVideo);
+    } catch (e) {
+      if (checkPermission) {
+        if (await Permission.camera.request() == PermissionStatus.granted) {
+          if (await Permission.audio.request() == PermissionStatus.granted) {
+            return _createPeerConnection(isOffer, checkPermission: false);
+          }
+        }
+      }
+    }
+
     final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isDesktopNative) {
       _audioService.turnDownTheCallVolume();
@@ -565,7 +577,7 @@ class CallRepo {
             await onRTCPeerConnectionConnected();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-            onRTCPeerConnectionDisconnected();
+            onRTCPeerConnectionDisconnected(forceEnd: true);
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
@@ -786,23 +798,28 @@ class CallRepo {
     }
   }
 
-  void onRTCPeerConnectionDisconnected() {
+  void onRTCPeerConnectionDisconnected({bool forceEnd = false}) {
     try {
       _callEvents[clock.now().millisecondsSinceEpoch] = "disConnected";
       isConnectedSubject.add(false);
-      Timer(const Duration(seconds: 1), () {
-        if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
-          if (_peerConnection!.connectionState ==
-              RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
-            _reconnectTry = true;
-            _reconnectingAfterFailedConnection();
-            callingStatus.add(CallStatus.DISCONNECTED);
-            timerDisconnected = Timer(const Duration(seconds: 12), () {
-              if (callingStatus.value != CallStatus.CONNECTED) {
-                _logger.i("Disconnected and Call Ended!");
-                endCall();
-              }
-            });
+      Timer(const Duration(milliseconds: 200), () {
+        if (forceEnd) {
+          callingStatus.add(CallStatus.DISCONNECTED);
+          endCall();
+        } else {
+          if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
+            if (_peerConnection!.connectionState ==
+                RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
+              _reconnectTry = true;
+              _reconnectingAfterFailedConnection();
+              callingStatus.add(CallStatus.DISCONNECTED);
+              timerDisconnected = Timer(const Duration(seconds: 12), () {
+                if (callingStatus.value != CallStatus.CONNECTED) {
+                  _logger.i("Disconnected and Call Ended!");
+                  endCall();
+                }
+              });
+            }
           }
         }
       });

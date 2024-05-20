@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/screen/room/widgets/msg_time.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 class CallMessageWidget extends StatelessWidget {
@@ -22,7 +24,10 @@ class CallMessageWidget extends StatelessWidget {
   final CallLog? _callLog;
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _callRepo = GetIt.I.get<CallRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _callService = GetIt.I.get<CallService>();
+
+  var startDelete = false.obs;
 
   CallMessageWidget({
     super.key,
@@ -38,9 +43,9 @@ class CallMessageWidget extends StatelessWidget {
     final bool isVideo;
     final bool isIncomingCall;
     if (_callEvent != null) {
-      callDuration = _callLog?.end.callDuration.toInt()??0;
+      callDuration = _callLog?.end.callDuration.toInt() ?? 0;
       isVideo = _callEvent!.callType == CallEvent_CallType.VIDEO;
-      isIncomingCall = !(_callLog?.end.isCaller??false);
+      isIncomingCall = !(_callLog?.end.isCaller ?? false);
     } else {
       if (_callLog!.hasEnd()) {
         callDuration = _callLog!.end.callDuration.toInt();
@@ -53,66 +58,95 @@ class CallMessageWidget extends StatelessWidget {
     return Container(
       width: 210,
       margin: const EdgeInsetsDirectional.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        alignment: Alignment.centerLeft,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CallState(
-                callEvent: _callEvent,
-                callLog: _callLog,
-                isIncomingCall : !(_callLog?.end.isCaller??false)
-                ,
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              DefaultTextStyle(
-                style: TextStyle(
-                  color: ExtraTheme.of(context)
-                      .messageColorScheme(message.from)
-                      .onPrimaryContainerLowlight(),
-                  fontSize: 13,
-                ),
-                child: Row(
+          Obx(
+            () => startDelete.isTrue
+                ? const CircularProgressIndicator(
+                    strokeWidth: 3,
+                  )
+                : IconButton(
+                    onPressed: () async {
+                      startDelete.value = true;
+                      await _messageRepo.deleteMessage([message]);
+                      await Future.delayed(const Duration(seconds: 1));
+                      startDelete.value = false;
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 50),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      isIncomingCall ? Icons.call_made : Icons.call_received,
-                      color: callDuration != 0 ? Colors.green : Colors.red,
-                      size: 14,
-                    ),
-                    MsgTime(
-                      time: DateTime.fromMillisecondsSinceEpoch(message.time),
+                    CallState(
+                      callEvent: _callEvent,
+                      callLog: _callLog,
+                      isIncomingCall: !(_callLog?.end.isCaller ?? false),
                     ),
                     const SizedBox(
-                      width: 10,
+                      height: 5,
                     ),
-                    CallTime(
-                      time: DateTime.fromMicrosecondsSinceEpoch(
-                        callDuration * 1000,
-                        isUtc: true,
+                    DefaultTextStyle(
+                      style: TextStyle(
+                        color: ExtraTheme.of(context)
+                            .messageColorScheme(message.from)
+                            .onPrimaryContainerLowlight(),
+                        fontSize: 13,
                       ),
-                    )
+                      child: Row(
+                        children: [
+                          Icon(
+                            isIncomingCall
+                                ? Icons.call_made
+                                : Icons.call_received,
+                            color:
+                                callDuration != 0 ? Colors.green : Colors.red,
+                            size: 14,
+                          ),
+                          MsgTime(
+                            time: DateTime.fromMillisecondsSinceEpoch(
+                                message.time),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          CallTime(
+                            time: DateTime.fromMicrosecondsSinceEpoch(
+                              callDuration * 1000,
+                              isUtc: true,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          InkWell(
-            onTap: (_callService.getUserCallState == UserCallState.NO_CALL)
-                ? () => _callRepo.openCallScreen(
-                      message.roomUid,
-                      isVideoCall: isVideo,
-                    )
-                : null,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Icon(
-                isVideo ? CupertinoIcons.video_camera : CupertinoIcons.phone,
-                color: colorScheme.primary,
-                size: 35,
-              ),
+                InkWell(
+                  onTap:
+                      (_callService.getUserCallState == UserCallState.NO_CALL)
+                          ? () => _callRepo.openCallScreen(
+                                message.roomUid,
+                                isVideoCall: isVideo,
+                              )
+                          : null,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      isVideo
+                          ? CupertinoIcons.video_camera
+                          : CupertinoIcons.phone,
+                      color: colorScheme.primary,
+                      size: 35,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

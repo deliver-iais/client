@@ -349,7 +349,7 @@ class RoutingService {
     required String imagePath,
     String caption = "",
     required Function(String) onEditEnd,
-    Function(String)? onSend,
+    Function(String,String)? onSend,
     Function(String)? onTap,
     bool sendSingleImage = false,
     List<String>? selectedImage,

@@ -46,6 +46,7 @@ class _CropImageState extends State<CropImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: Text(_i18n.get("cropper")),
         actions: [
           StreamBuilder<bool?>(

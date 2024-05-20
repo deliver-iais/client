@@ -230,9 +230,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                               }
                             }
                             final usersAddCode = await _mucRepo.addMucMember(
-                              widget.mucUid!,
-                              users,null
-                            );
+                                widget.mucUid!, users, null);
                             if (usersAddCode == StatusCode.ok) {
                               _routingService.openRoom(
                                 widget.mucUid!,

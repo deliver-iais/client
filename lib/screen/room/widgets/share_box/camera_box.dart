@@ -8,6 +8,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/colors.dart';
+import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/widgets/blurred_container.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -36,7 +37,6 @@ class _CameraBoxState extends State<CameraBox> {
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
-
 
   @override
   Widget build(BuildContext context) {
@@ -211,8 +211,13 @@ class _CameraBoxState extends State<CameraBox> {
                                   }
                                   Navigator.pop(context);
                                 },
-                                onSend: (caption) =>
-                                    _sendMessage(file, caption),
+                                onSend: (caption, path) {
+                                  Navigator.pop(context);
+                                  _sendMessage(
+                                    pathToFileModel(path),
+                                    caption,
+                                  );
+                                },
                                 forceToShowCaptionTextField: true,
                               );
                             }

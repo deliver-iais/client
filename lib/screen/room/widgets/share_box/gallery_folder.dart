@@ -157,13 +157,19 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                         }
                                       : _routingService.openViewImagePage(
                                           imagePath: imagePath,
-                                          onEditEnd: (path) => imagePath = path,
+                                          onEditEnd: (path) {
+                                            imagePath = path;
+                                          },
                                           sendSingleImage: true,
                                           onTap: onTap,
                                           selectedImage: _selectedImage,
-                                          onSend: (path) {
-                                            _sendMessage(path);
+                                          onSend: (caption,path) {
                                             Navigator.pop(context);
+                                            _selectedImage
+                                              ..remove(imagePath)
+                                              ..add(path);
+                                            _sendMessage(caption);
+
                                           },
                                         ),
                                   child: AnimatedContainer(
@@ -187,8 +193,7 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                         child: isVideo(imagePath)
                                             ? Container(
                                                 decoration: BoxDecoration(
-                                                  border:
-                                                      Border.all(width: 1.0),
+                                                  border: Border.all(),
                                                   borderRadius:
                                                       const BorderRadius.all(
                                                     Radius.circular(
