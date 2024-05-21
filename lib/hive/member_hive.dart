@@ -20,9 +20,17 @@ class MemberHive {
   @HiveField(2)
   MucRole role;
 
+  @HiveField(3)
+  String id;
+
+  @HiveField(4)
+  String name;
+
   MemberHive({
     required this.mucUid,
     required this.memberUid,
+    this.id = "",
+    this.name = "",
     this.role = MucRole.NONE,
   });
 
@@ -51,14 +59,17 @@ class MemberHive {
   Member fromHive() => Member(
         mucUid: mucUid.asUid(),
         memberUid: memberUid.asUid(),
+        username: id,
+        name: name,
         role: role,
       );
 }
 
 extension MemberHiveMapper on Member {
   MemberHive toHive() => MemberHive(
-        mucUid: mucUid.asString(),
-        memberUid: memberUid.asString(),
-        role: role,
-      );
+      mucUid: mucUid.asString(),
+      memberUid: memberUid.asString(),
+      role: role,
+      name: name,
+      id: username);
 }

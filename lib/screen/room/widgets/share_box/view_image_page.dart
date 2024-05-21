@@ -115,12 +115,13 @@ class _ViewImagePageState extends State<ViewImagePage> {
                       uiSettings: [
                         AndroidUiSettings(
                           toolbarTitle: _i18n.get("cropper"),
-                          cropFrameColor: theme.primaryColorDark,
-                          toolbarColor: theme.bottomAppBarTheme.color,
-                          toolbarWidgetColor: theme.colorScheme.background,
+                          cropFrameColor: theme.primaryColor,
+                           toolbarColor: theme.colorScheme.background,
+                          toolbarWidgetColor: theme.colorScheme.onBackground,
                           activeControlsWidgetColor: theme.colorScheme.primary,
                           initAspectRatio: CropAspectRatioPreset.original,
                           lockAspectRatio: false,
+
                         ),
                         IOSUiSettings(
                           title: _i18n.get("cropper"),

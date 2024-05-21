@@ -40,6 +40,7 @@ class MucRepo {
   final _mucServices = GetIt.I.get<MucServices>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final Map<String, List<Member>> _groupMembers = {};
 
   Future<Uid?> createNewGroup(
     List<Uid> memberUidList,
@@ -232,14 +233,14 @@ class MucRepo {
   /*
   * Get muc member with query only works on Group
    */
+
   Future<List<Member>> fetchMucMembers(
     Uid mucUid,
     int len, {
     String query = "",
   }) async {
     try {
-      final pageSize = max(min(len, 50), 1);
-
+      final pageSize = max(min(len, 100), 1);
       var i = 0;
       var membersSize = 0;
 
@@ -368,10 +369,11 @@ class MucRepo {
             _mucDao.updateMuc(
               uid: mucUid,
               name: channel.info.name,
-              population: channel.population.toInt(),
+              population: needToFetchMembers ? channel.population.toInt() : 0,
               info: channel.info.info,
               currentUserRole: getLocalRole(channel.requesterRole),
               token: channel.token,
+              lastUpdateTime: channel.lastUpdate.toInt(),
               lastCanceledPinMessageId:
                   c != null ? c.lastCanceledPinMessageId : 0,
               pinMessagesIdList:
@@ -390,7 +392,10 @@ class MucRepo {
             );
           }
 
-          if (needToFetchMembers &&
+          if (((c == null ||
+                      c.population != channel.population.toInt() ||
+                      c.lastUpdateTime < channel.lastUpdate.toInt()) &&
+                  needToFetchMembers) &&
               (channel.requesterRole == muc_pb.Role.ADMIN ||
                   channel.requesterRole == muc_pb.Role.OWNER)) {
             unawaited(
@@ -439,14 +444,18 @@ class MucRepo {
           await _mucDao.updateMuc(
             uid: mucUid,
             name: group.info.name,
-            population: group.population.toInt(),
+            lastUpdateTime: group.lastUpdate.toInt(),
+            population: needToFetchMembers ? group.population.toInt() : 0,
             info: group.info.info,
             token: group.token,
             currentUserRole: getLocalRole(group.requesterRole),
             pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
-          if (needToFetchMembers) {
+          if (true || (true || m == null ||
+                  m.population != group.population.toInt() ||
+                  group.lastUpdate.toInt() > m.lastUpdateTime) &&
+              needToFetchMembers) {
             unawaited(
               fetchMucMembers(
                 mucUid,
@@ -498,29 +507,12 @@ class MucRepo {
     Uid mucUid, {
     String query = "*",
   }) async {
-    var members = <Member>[];
     try {
-      final membersWithUsername = await _mucServices.getGroupMembers(
-        mucUid,
-        50,
-        0,
-        query: query,
-      );
-      for (final member in membersWithUsername.$1) {
-        final m = Member(
-          mucUid: mucUid,
-          memberUid: member.uid,
-          realName: member.name,
-          role: getLocalRole(member.role),
-          username: member.userName,
-        );
-        await _mucDao.saveMember(m);
-        members.add(m);
-      }
+      final membersWithUsername = await _mucDao.getAllMembers(mucUid);
+      return membersWithUsername;
     } catch (_) {
-      members = await _mucDao.getAllMembers(mucUid);
+      return [];
     }
-    return members;
   }
 
   Stream<List<Member>> watchAllMembers(Uid mucUid) =>
@@ -907,6 +899,9 @@ class MucRepo {
     Uid mucUid,
     List<Member> members,
   ) async {
+    if (mucUid.isGroup()) {
+      members = await getUserName(members);
+    }
     // if (members.isNotEmpty) {
     //   await _mucDao.deleteAllMembers(mucUid);
     // }
@@ -915,6 +910,20 @@ class MucRepo {
         unawaited(_mucDao.saveMember(member));
       }
     }
+  }
+
+  Future<List<Member>> getUserName(List<Member> members) async {
+    var res = <Member>[];
+    for (var m in members) {
+      if (m.username.isEmpty) {
+        final id = await GetIt.I.get<RoomRepo>().getIdByUid(m.memberUid);
+        if (id.isNotEmpty) {
+          m = m.copyWith(username: id);
+        }
+      }
+      res.add(m);
+    }
+    return res;
   }
 
   muc_pb.Role getRole(MucRole role) {
@@ -949,10 +958,13 @@ class MucRepo {
     String? query,
   }) async {
     if (query == null || query.isEmpty) {
-      return getAllMembersWithUserName(roomUid);
+      final members = await getAllMembersWithUserName(roomUid);
+      _groupMembers[roomUid.asString()] = members;
+      return members;
     }
 
-    final members = await _mucDao.getAllMembers(roomUid);
+    final members = _groupMembers[roomUid.asString()] ??
+        await _mucDao.getAllMembers(roomUid);
 
     final fuzzyId =
         _getFuzzyList(members.map((event) => event.username).toList(), query);

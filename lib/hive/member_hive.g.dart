@@ -19,6 +19,8 @@ class MemberHiveAdapter extends TypeAdapter<MemberHive> {
     return MemberHive(
       mucUid: fields[0] as String,
       memberUid: fields[1] as String,
+      id: fields[3] as String,
+      name: fields[4] as String,
       role: fields[2] as MucRole,
     );
   }
@@ -26,13 +28,17 @@ class MemberHiveAdapter extends TypeAdapter<MemberHive> {
   @override
   void write(BinaryWriter writer, MemberHive obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.mucUid)
       ..writeByte(1)
       ..write(obj.memberUid)
       ..writeByte(2)
-      ..write(obj.role);
+      ..write(obj.role)
+      ..writeByte(3)
+      ..write(obj.id)
+      ..writeByte(4)
+      ..write(obj.name);
   }
 
   @override

@@ -1096,6 +1096,7 @@ class RoomPageState extends State<RoomPage>
   Future<void> fetchMucInfo(Uid uid) async {
     final muc = await _mucRepo.fetchMucInfo(
       widget.roomUid,
+      needToFetchMembers: widget.roomUid.isGroup(),
     );
     if (muc != null) {
       if (muc.uid.isChannel()) {

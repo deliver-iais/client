@@ -148,6 +148,7 @@ class MucDaoImpl extends MucDao {
   Future<void> updateMuc({
     required Uid uid,
     String? info,
+    int? lastUpdateTime,
     List<int>? pinMessagesIdList,
     int? lastCanceledPinMessageId,
     int? population,

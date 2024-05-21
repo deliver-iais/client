@@ -1527,7 +1527,7 @@ class CallRepo {
 
   Future<void> receivedEndCall() async {
     if (!_isEnded) {
-      await _callService.saveCallStatusData();
+       unawaited(_callService.saveCallStatusData());
       _isEnded = true;
       if (isDesktopNative) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
@@ -1695,7 +1695,7 @@ class CallRepo {
   Future<void> _calculateCandidate() async {
     _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
-    await _waitUntilCandidateConditionDone();
+    unawaited(_waitUntilCandidateConditionDone());
     _logger.i("Candidate Number is :${_candidate.length}");
   }
 
@@ -1715,12 +1715,8 @@ class CallRepo {
         ..body = _offerSdp
         ..candidates = jsonCandidates));
     _coreServices.sendCallEvent(callEventV2ByClient);
-    _sendCallOffer(callEventV2ByClient);
+    _logger.i("send Offer");
     _callEvents[clock.now().millisecondsSinceEpoch] = "Created";
-  }
-
-  void _sendCallOffer(CallEventV2ByClient callEventV2ByClient) {
-    _coreServices.sendCallEvent(callEventV2ByClient);
   }
 
   void _sendRinging({
@@ -1778,10 +1774,10 @@ class CallRepo {
         ..to = _roomUid!
         ..isVideo = _isVideo
         ..end = CallEventEnd(
-            callDuration: Int64(callDuration), isCaller: _isCaller));
+            callDuration: Int64(callDuration), isCaller: _isCaller,));
       _coreServices.sendCallEvent(callEventV2ByClient);
       _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
-      // _checkRetryCallEvent(callEventV2ByClient);
+      _checkRetryCallEvent(callEventV2ByClient);
     }
   }
 
@@ -1802,7 +1798,7 @@ class CallRepo {
       ..answer = (CallEventAnswer()
         ..body = _answerSdp
         ..candidates = jsonCandidates));
-    _logger.i(_candidate);
+    _logger.i("send Answer");
     _coreServices.sendCallEvent(callEventV2ByClient);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Send Answer";
 
@@ -1826,10 +1822,10 @@ class CallRepo {
     if (isRepeated) {
       _logger.i("Repeated Call Event");
     } else {
-      timerResendEvent = Timer(const Duration(seconds: 5), () {
+      timerResendEvent = Timer(const Duration(seconds: 2), () {
         _callEvents[clock.now().millisecondsSinceEpoch] = "Retry Send Event";
         _coreServices.sendCallEvent(callEvent);
-        if (timerResendEvent != null && isRetry) {
+        if (timerResendEvent != null && isRetry && roomUid != null) {
           _checkRetryCallEvent(callEvent);
           _logger.i("retry send Call Event");
         }
@@ -1856,11 +1852,11 @@ class CallRepo {
         _timerStatReport!.cancel();
       }
       if (_isAccepted && !_isConnected) {
-        await _analyticsService.sendLogEvent(
+         unawaited(_analyticsService.sendLogEvent(
           "non-connectedCall",
-        );
+        ));
       }
-      await cancelCallNotification();
+       unawaited(cancelCallNotification());
       if (hasSpeakerCapability && _localStream != null) {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
       }
@@ -2061,7 +2057,7 @@ class CallRepo {
 
   void _cancelTimerResendEvent() {
     if (timerResendEvent != null) {
-      timerResendEvent!.cancel();
+      timerResendEvent?.cancel();
     }
     _logger.i("timerResendEvent: ${timerResendEvent?.isActive}");
   }

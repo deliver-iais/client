@@ -1,4 +1,3 @@
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -13,7 +12,10 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ws.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pinput/pinput.dart';
 
@@ -28,6 +30,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _logger = GetIt.I.get<Logger>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _newPasFormKey = GlobalKey<FormState>();
   final _currentPassFormKey = GlobalKey<FormState>();
@@ -35,6 +38,33 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
   var _currentPass = "";
   var _pass = "";
   var _repeatedPass = "";
+
+  final LocalAuthentication _auth = LocalAuthentication();
+
+  final _atthIsAvailable = false.obs;
+
+  @override
+  void initState() {
+    _init();
+    super.initState();
+  }
+
+  Future<void> _init() async {
+    try {
+      _atthIsAvailable.value = await _auth.canCheckBiometrics;
+      if (_atthIsAvailable.value) {
+        List<BiometricType> availableBiometrics;
+        try {
+          availableBiometrics = await _auth.getAvailableBiometrics();
+          print(availableBiometrics.length);
+        } catch (e) {
+          print("error enumerate biometrics $e");
+        }
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

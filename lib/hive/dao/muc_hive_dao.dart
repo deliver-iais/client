@@ -111,6 +111,7 @@ class MucDaoImpl extends MucDao {
     MucType? mucType,
     String? name,
     MucRole? currentUserRole,
+    int? lastUpdateTime,
   }) async {
     final box = await _openMuc();
     final muc = box.get(uid.asString()) ?? MucHive(uid: uid.asString());
@@ -121,6 +122,7 @@ class MucDaoImpl extends MucDao {
             uid: uid.asString(),
             info: info,
             id: id,
+            lastUpdateTime: lastUpdateTime,
             synced: synced,
             currentUserRole: currentUserRole,
             population: population,

@@ -5,6 +5,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
@@ -12,6 +13,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/dot_animation/loading_dot_animation/loading_dot_animation.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -60,97 +62,117 @@ class ConnectionStatus extends StatelessWidget {
                       ],
                     );
                   } else {
-                    return Obx(
-                      () => _serverLessService.address.isNotEmpty
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  behavior: HitTestBehavior.translucent,
-                                  onTap: () {
-                                    _buildDialog(context, theme);
-                                  },
-                                  child: SizedBox(
-                                    height: 24,
-                                    child: Row(
-                                      children: [
+                    if (APPLICATION == Applications.mokeb) {
+                      return Obx(() => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () {
+                                  _buildDialog(context, theme);
+                                },
+                                child: SizedBox(
+                                  height: 24,
+                                  child: Row(
+                                    children: [
+                                      if (_serverLessService.address.isNotEmpty)
                                         Icon(
                                           CupertinoIcons
                                               .antenna_radiowaves_left_right,
                                           color: ACTIVE_COLOR,
                                           size: 12,
+                                        )
+                                      else
+                                        const Icon(
+                                          Icons.clear,
+                                          size: 14,
+                                          color: Colors.redAccent,
                                         ),
-                                        const SizedBox(
-                                          width: 10,
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      if (!settings.isSuperNode.value)
+                                        Text(
+                                          _i18n.get("local_network"),
+                                          style: const TextStyle(fontSize: 16),
+                                        )
+                                      else
+                                        Text(
+                                          _i18n.get("local_network_server"),
+                                          style: const TextStyle(fontSize: 16),
                                         ),
-                                        if (!settings.isSuperNode.value)
-                                          Text(
-                                            _i18n.get("local_network"),
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          )
-                                        else
-                                          Text(
-                                            _i18n.get("local_network_server"),
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          ),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        SizedBox(
-                                          height: 28,
-                                          width: 100,
-                                          child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              for (var i = 0;
-                                                  i <
-                                                      min(
-                                                        4,
-                                                        _serverLessService
-                                                            .address.length,
-                                                      );
-                                                  i++)
-                                                Positioned(
-                                                  left: (14 * i).toDouble(),
-                                                  top: 1,
-                                                  bottom: 1,
-                                                  child: CircleAvatarWidget(
-                                                    _serverLessService
-                                                        .address.keys
-                                                        .elementAt(i)
-                                                        .asUid(),
-                                                    14,
-                                                  ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      SizedBox(
+                                        height: 28,
+                                        width: 100,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            for (var i = 0;
+                                                i <
+                                                    min(
+                                                      4,
+                                                      _serverLessService
+                                                          .address.length,
+                                                    );
+                                                i++)
+                                              Positioned(
+                                                left: (14 * i).toDouble(),
+                                                top: 1,
+                                                bottom: 1,
+                                                child: CircleAvatarWidget(
+                                                  _serverLessService
+                                                      .address.keys
+                                                      .elementAt(i)
+                                                      .asUid(),
+                                                  14,
                                                 ),
-                                            ],
-                                          ),
+                                              ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Row(
-                                  children: [
+                              ),
+                              Row(
+                                children: [
+                                  if (status.data ==
+                                      TitleStatusConditions.Connected)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      size: 14,
+                                      color: Colors.green,
+                                    )
+                                  else if (status.data ==
+                                      TitleStatusConditions.Disconnected)
                                     const Icon(
                                       Icons.clear,
                                       size: 14,
                                       color: Colors.redAccent,
+                                    )
+                                  else
+                                    const Icon(
+                                      CupertinoIcons.repeat,
+                                      size: 14,
+                                      color: Colors.yellow,
                                     ),
-                                    Text(
-                                      _i18n.get("internet"),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: theme.hintColor,
-                                      ),
+                                  Text(
+                                    _i18n.get("internet"),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: theme.hintColor,
                                     ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : buildRowStatus(status.data!, state, theme),
-                    );
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ));
+                    } else {
+                      return buildRowStatus(status.data!, state, theme);
+                    }
                   }
                 },
               ),

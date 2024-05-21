@@ -17,6 +17,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   image_compression_flutter
   isar_flutter_libs
   livekit_client
+  local_auth_windows
   pasteboard
   permission_handler_windows
   record_windows

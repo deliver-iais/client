@@ -14,7 +14,7 @@ class NoResultWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Ws.asset('assets/duck_animation/not_found.ws'),
+        const Ws.asset('assets/duck_animation/dizzy.ws'),
         const SizedBox(height: 10),
         Text(
           text ?? _i18n.get("no_results"),

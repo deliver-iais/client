@@ -184,8 +184,8 @@ class MucServices {
       group_pb.GetMembersReq()
         ..uid = groupUid
         ..pointer = pointer
-        ..limit = limit
-        ..query = query,
+        ..limit = 20
+        ..query = "*",
     );
     return (request.members, request.finished);
   }

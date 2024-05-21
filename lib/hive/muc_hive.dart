@@ -44,6 +44,9 @@ class MucHive {
   @HiveField(10)
   bool synced;
 
+  @HiveField(11)
+  int lastUpdateTime;
+
   MucHive({
     required this.uid,
     this.name = "",
@@ -51,6 +54,7 @@ class MucHive {
     this.id = "",
     this.info = "",
     this.synced = true,
+    this.lastUpdateTime = 0,
     this.pinMessagesIdList = const [],
     this.population = 0,
     this.lastCanceledPinMessageId = 0,
@@ -67,6 +71,7 @@ class MucHive {
     List<int>? pinMessagesIdList,
     int? population,
     bool? synced,
+    int? lastUpdateTime,
     int? lastCanceledPinMessageId,
     MucType? mucType,
     MucRole? currentUserRole,
@@ -78,6 +83,7 @@ class MucHive {
         token: token ?? this.token,
         id: id ?? this.id,
         info: info ?? this.info,
+        lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
         pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
         population: population ?? this.population,
         lastCanceledPinMessageId:
@@ -94,6 +100,8 @@ class MucHive {
           const DeepCollectionEquality().equals(other.uid, uid) &&
           const DeepCollectionEquality().equals(other.name, name) &&
           const DeepCollectionEquality().equals(other.token, token) &&
+          const DeepCollectionEquality()
+              .equals(other.lastUpdateTime, lastUpdateTime) &&
           const DeepCollectionEquality().equals(other.id, id) &&
           const DeepCollectionEquality().equals(other.info, info) &&
           const DeepCollectionEquality()
@@ -130,6 +138,7 @@ class MucHive {
         mucType: mucType,
         info: info,
         synced: synced,
+        lastUpdateTime: lastUpdateTime,
         token: token,
         currentUserRole: currentUserRole,
         pinMessagesIdList: pinMessagesIdList,
@@ -146,6 +155,7 @@ extension MucHiveMapper on Muc {
         population: population,
         lastCanceledPinMessageId: lastCanceledPinMessageId,
         mucType: mucType,
+        lastUpdateTime: lastUpdateTime,
         info: info,
         token: token,
         pinMessagesIdList: pinMessagesIdList,

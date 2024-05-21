@@ -18,6 +18,7 @@ _$MucImpl _$$MucImplFromJson(Map<String, dynamic> json) => _$MucImpl(
           const [],
       population: json['population'] as int? ?? 0,
       lastCanceledPinMessageId: json['lastCanceledPinMessageId'] as int? ?? 0,
+      lastUpdateTime: json['lastUpdateTime'] as int? ?? 0,
       mucType: $enumDecodeNullable(_$MucTypeEnumMap, json['mucType']) ??
           MucType.Public,
       currentUserRole:
@@ -35,6 +36,7 @@ Map<String, dynamic> _$$MucImplToJson(_$MucImpl instance) => <String, dynamic>{
       'pinMessagesIdList': instance.pinMessagesIdList,
       'population': instance.population,
       'lastCanceledPinMessageId': instance.lastCanceledPinMessageId,
+      'lastUpdateTime': instance.lastUpdateTime,
       'mucType': _$MucTypeEnumMap[instance.mucType]!,
       'currentUserRole': _$MucRoleEnumMap[instance.currentUserRole]!,
       'synced': instance.synced,

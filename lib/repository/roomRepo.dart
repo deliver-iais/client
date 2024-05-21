@@ -295,6 +295,19 @@ class RoomRepo {
     }
   }
 
+  Future<String> getIdByUid(Uid uid) async {
+    try {
+      var m = _cachingRepo.getId(uid);
+      if (m == null) {
+        m = (await _uidIdNameDao.getByUid(uid))?.id;
+        m ??= await _getIdByUidFromServer(uid) ?? "";
+      }
+      return m ?? "";
+    } catch (e) {
+      return "";
+    }
+  }
+
   Future<String?> _getIdByUidFromServer(Uid uid) async {
     try {
       final result = await _sdr.queryServiceClient.getIdByUid(

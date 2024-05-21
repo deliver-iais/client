@@ -29,6 +29,7 @@ mixin _$Muc {
   List<int> get pinMessagesIdList => throw _privateConstructorUsedError;
   int get population => throw _privateConstructorUsedError;
   int get lastCanceledPinMessageId => throw _privateConstructorUsedError;
+  int get lastUpdateTime => throw _privateConstructorUsedError;
   MucType get mucType => throw _privateConstructorUsedError;
   MucRole get currentUserRole => throw _privateConstructorUsedError;
   bool get synced => throw _privateConstructorUsedError;
@@ -52,6 +53,7 @@ abstract class $MucCopyWith<$Res> {
       List<int> pinMessagesIdList,
       int population,
       int lastCanceledPinMessageId,
+      int lastUpdateTime,
       MucType mucType,
       MucRole currentUserRole,
       bool synced});
@@ -77,6 +79,7 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
     Object? pinMessagesIdList = null,
     Object? population = null,
     Object? lastCanceledPinMessageId = null,
+    Object? lastUpdateTime = null,
     Object? mucType = null,
     Object? currentUserRole = null,
     Object? synced = null,
@@ -114,6 +117,10 @@ class _$MucCopyWithImpl<$Res, $Val extends Muc> implements $MucCopyWith<$Res> {
           ? _value.lastCanceledPinMessageId
           : lastCanceledPinMessageId // ignore: cast_nullable_to_non_nullable
               as int,
+      lastUpdateTime: null == lastUpdateTime
+          ? _value.lastUpdateTime
+          : lastUpdateTime // ignore: cast_nullable_to_non_nullable
+              as int,
       mucType: null == mucType
           ? _value.mucType
           : mucType // ignore: cast_nullable_to_non_nullable
@@ -145,6 +152,7 @@ abstract class _$$MucImplCopyWith<$Res> implements $MucCopyWith<$Res> {
       List<int> pinMessagesIdList,
       int population,
       int lastCanceledPinMessageId,
+      int lastUpdateTime,
       MucType mucType,
       MucRole currentUserRole,
       bool synced});
@@ -167,6 +175,7 @@ class __$$MucImplCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$MucImpl>
     Object? pinMessagesIdList = null,
     Object? population = null,
     Object? lastCanceledPinMessageId = null,
+    Object? lastUpdateTime = null,
     Object? mucType = null,
     Object? currentUserRole = null,
     Object? synced = null,
@@ -204,6 +213,10 @@ class __$$MucImplCopyWithImpl<$Res> extends _$MucCopyWithImpl<$Res, _$MucImpl>
           ? _value.lastCanceledPinMessageId
           : lastCanceledPinMessageId // ignore: cast_nullable_to_non_nullable
               as int,
+      lastUpdateTime: null == lastUpdateTime
+          ? _value.lastUpdateTime
+          : lastUpdateTime // ignore: cast_nullable_to_non_nullable
+              as int,
       mucType: null == mucType
           ? _value.mucType
           : mucType // ignore: cast_nullable_to_non_nullable
@@ -232,6 +245,7 @@ class _$MucImpl implements _Muc {
       final List<int> pinMessagesIdList = const [],
       this.population = 0,
       this.lastCanceledPinMessageId = 0,
+      this.lastUpdateTime = 0,
       this.mucType = MucType.Public,
       this.currentUserRole = MucRole.NONE,
       this.synced = true})
@@ -273,6 +287,9 @@ class _$MucImpl implements _Muc {
   final int lastCanceledPinMessageId;
   @override
   @JsonKey()
+  final int lastUpdateTime;
+  @override
+  @JsonKey()
   final MucType mucType;
   @override
   @JsonKey()
@@ -283,7 +300,7 @@ class _$MucImpl implements _Muc {
 
   @override
   String toString() {
-    return 'Muc(uid: $uid, name: $name, token: $token, id: $id, info: $info, pinMessagesIdList: $pinMessagesIdList, population: $population, lastCanceledPinMessageId: $lastCanceledPinMessageId, mucType: $mucType, currentUserRole: $currentUserRole, synced: $synced)';
+    return 'Muc(uid: $uid, name: $name, token: $token, id: $id, info: $info, pinMessagesIdList: $pinMessagesIdList, population: $population, lastCanceledPinMessageId: $lastCanceledPinMessageId, lastUpdateTime: $lastUpdateTime, mucType: $mucType, currentUserRole: $currentUserRole, synced: $synced)';
   }
 
   @override
@@ -303,6 +320,8 @@ class _$MucImpl implements _Muc {
             (identical(
                     other.lastCanceledPinMessageId, lastCanceledPinMessageId) ||
                 other.lastCanceledPinMessageId == lastCanceledPinMessageId) &&
+            (identical(other.lastUpdateTime, lastUpdateTime) ||
+                other.lastUpdateTime == lastUpdateTime) &&
             (identical(other.mucType, mucType) || other.mucType == mucType) &&
             (identical(other.currentUserRole, currentUserRole) ||
                 other.currentUserRole == currentUserRole) &&
@@ -321,6 +340,7 @@ class _$MucImpl implements _Muc {
       const DeepCollectionEquality().hash(_pinMessagesIdList),
       population,
       lastCanceledPinMessageId,
+      lastUpdateTime,
       mucType,
       currentUserRole,
       synced);
@@ -349,6 +369,7 @@ abstract class _Muc implements Muc {
       final List<int> pinMessagesIdList,
       final int population,
       final int lastCanceledPinMessageId,
+      final int lastUpdateTime,
       final MucType mucType,
       final MucRole currentUserRole,
       final bool synced}) = _$MucImpl;
@@ -372,6 +393,8 @@ abstract class _Muc implements Muc {
   int get population;
   @override
   int get lastCanceledPinMessageId;
+  @override
+  int get lastUpdateTime;
   @override
   MucType get mucType;
   @override

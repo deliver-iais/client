@@ -19,6 +19,7 @@ abstract class MucDao {
     String? info,
     List<int>? pinMessagesIdList,
     int? lastCanceledPinMessageId,
+    int? lastUpdateTime,
     int? population,
     String? id,
     String? token,

@@ -37,8 +37,8 @@ import 'package:deliver/box/meta.dart' as _i87;
 import 'package:deliver/box/meta_count.dart' as _i90;
 import 'package:deliver/box/meta_type.dart' as _i88;
 import 'package:deliver/box/muc.dart' as _i78;
-import 'package:deliver/box/muc_type.dart' as _i81;
-import 'package:deliver/box/role.dart' as _i80;
+import 'package:deliver/box/muc_type.dart' as _i80;
+import 'package:deliver/box/role.dart' as _i81;
 import 'package:deliver/box/room.dart' as _i35;
 import 'package:deliver/box/seen.dart' as _i3;
 import 'package:deliver/box/uid_id_name.dart' as _i40;
@@ -706,6 +706,12 @@ class MockLogger extends _i1.Mock implements _i26.Logger {
   }
 
   @override
+  _i30.Future<void> get init => (super.noSuchMethod(
+        Invocation.getter(#init),
+        returnValue: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
+
+  @override
   void v(
     dynamic message, {
     DateTime? time,
@@ -1299,6 +1305,21 @@ class MockRoomRepo extends _i1.Mock implements _i36.RoomRepo {
       ) as _i30.Future<bool>);
 
   @override
+  _i30.Future<String> getIdByUid(_i4.Uid? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getIdByUid,
+          [uid],
+        ),
+        returnValue: _i30.Future<String>.value(_i38.dummyValue<String>(
+          this,
+          Invocation.method(
+            #getIdByUid,
+            [uid],
+          ),
+        )),
+      ) as _i30.Future<String>);
+
+  @override
   _i30.Future<List<_i35.Room>> getAllBots() => (super.noSuchMethod(
         Invocation.method(
           #getAllBots,
@@ -1664,13 +1685,13 @@ class MockRoomRepo extends _i1.Mock implements _i36.RoomRepo {
       ) as _i30.Future<void>);
 
   @override
-  _i30.Future<List<_i4.Uid>> getAllRooms() => (super.noSuchMethod(
+  _i30.Future<List<_i35.Room>> getAllRooms() => (super.noSuchMethod(
         Invocation.method(
           #getAllRooms,
           [],
         ),
-        returnValue: _i30.Future<List<_i4.Uid>>.value(<_i4.Uid>[]),
-      ) as _i30.Future<List<_i4.Uid>>);
+        returnValue: _i30.Future<List<_i35.Room>>.value(<_i35.Room>[]),
+      ) as _i30.Future<List<_i35.Room>>);
 
   @override
   _i30.Stream<List<_i40.UidIdName>> searchInRooms(String? text) =>
@@ -2483,12 +2504,29 @@ class MockFileRepo extends _i1.Mock implements _i46.FileRepo {
       );
 
   @override
-  void saveFileInDownloadDir(
+  _i30.Future<void> saveFileInGallery(
+    String? uuid,
+    String? name,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveFileInGallery,
+          [
+            uuid,
+            name,
+          ],
+        ),
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
+
+  @override
+  _i30.Future<void> saveFileInDownloadDir(
     String? uuid,
     String? name,
     String? dir,
   ) =>
-      super.noSuchMethod(
+      (super.noSuchMethod(
         Invocation.method(
           #saveFileInDownloadDir,
           [
@@ -2497,8 +2535,9 @@ class MockFileRepo extends _i1.Mock implements _i46.FileRepo {
             dir,
           ],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
 
   @override
   void cancelUploadFile(String? uuid) => super.noSuchMethod(
@@ -2803,6 +2842,27 @@ class MockMucServices extends _i1.Mock implements _i54.MucServices {
             info,
             node,
           ],
+        ),
+        returnValue: _i30.Future<bool>.value(false),
+      ) as _i30.Future<bool>);
+
+  @override
+  _i30.Future<bool> syncLocalGroup({
+    required _i4.Uid? groupUid,
+    required _i4.Uid? owner,
+    required String? name,
+    required String? info,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #syncLocalGroup,
+          [],
+          {
+            #groupUid: groupUid,
+            #owner: owner,
+            #name: name,
+            #info: info,
+          },
         ),
         returnValue: _i30.Future<bool>.value(false),
       ) as _i30.Future<bool>);
@@ -3337,6 +3397,23 @@ class MockMucServices extends _i1.Mock implements _i54.MucServices {
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
+
+  @override
+  _i30.Future<void> addMemberToLocalMuc(
+    _i4.Uid? groupUid,
+    List<_i11.Member>? members,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addMemberToLocalMuc,
+          [
+            groupUid,
+            members,
+          ],
+        ),
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
 }
 
 /// A class which mocks [DataStreamServices].
@@ -3412,7 +3489,7 @@ class MockDataStreamServices extends _i1.Mock
       );
 
   @override
-  _i30.Future<void> handleAckMessage(
+  _i30.Future<_i33.Message?> handleAckMessage(
     _i58.MessageDeliveryAck? messageDeliveryAck, {
     bool? isLocalNetworkMessage = false,
     int? localNetworkMessageId = 0,
@@ -3426,9 +3503,8 @@ class MockDataStreamServices extends _i1.Mock
             #localNetworkMessageId: localNetworkMessageId,
           },
         ),
-        returnValue: _i30.Future<void>.value(),
-        returnValueForMissingStub: _i30.Future<void>.value(),
-      ) as _i30.Future<void>);
+        returnValue: _i30.Future<_i33.Message?>.value(),
+      ) as _i30.Future<_i33.Message?>);
 
   @override
   void handleRoomPresenceTypeChange(
@@ -3684,18 +3760,6 @@ class MockCoreServices extends _i1.Mock implements _i61.CoreServices {
       );
 
   @override
-  _i30.Future<void> sendLocalMessageToServer(
-          _i58.MessageByClient? messageByClient) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #sendLocalMessageToServer,
-          [messageByClient],
-        ),
-        returnValue: _i30.Future<void>.value(),
-        returnValueForMissingStub: _i30.Future<void>.value(),
-      ) as _i30.Future<void>);
-
-  @override
   _i30.Future<void> sendMessage(
     _i58.MessageByClient? message, {
     bool? resend = true,
@@ -3713,6 +3777,16 @@ class MockCoreServices extends _i1.Mock implements _i61.CoreServices {
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
+
+  @override
+  void syncLocalMessageToServer(_i58.LocalChatMessage? localChatMessage) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #syncLocalMessageToServer,
+          [localChatMessage],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void sendPing() => super.noSuchMethod(
@@ -4417,6 +4491,27 @@ class MockQueryServiceClient extends _i1.Mock
           this,
           Invocation.method(
             #deleteMessage,
+            [request],
+            {#options: options},
+          ),
+        ),
+      ) as _i8.ResponseFuture<_i5.DeleteMessageRes>);
+
+  @override
+  _i8.ResponseFuture<_i5.DeleteMessageRes> deleteOtherMessage(
+    _i5.DeleteMessageReq? request, {
+    _i8.CallOptions? options,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteOtherMessage,
+          [request],
+          {#options: options},
+        ),
+        returnValue: _FakeResponseFuture_10<_i5.DeleteMessageRes>(
+          this,
+          Invocation.method(
+            #deleteOtherMessage,
             [request],
             {#options: options},
           ),
@@ -6018,14 +6113,23 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
       ) as _i30.Future<_i4.Uid?>);
 
   @override
+  _i30.Future<void> syncLocalMucs() => (super.noSuchMethod(
+        Invocation.method(
+          #syncLocalMucs,
+          [],
+        ),
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
+
+  @override
   _i30.Future<_i4.Uid?> createNewChannel(
     String? channelId,
     List<_i4.Uid>? memberUidList,
     String? channelName,
     _i12.ChannelType? channelType,
-    String? info, {
-    bool? isLocalChannel = false,
-  }) =>
+    String? info,
+  ) =>
       (super.noSuchMethod(
         Invocation.method(
           #createNewChannel,
@@ -6036,7 +6140,6 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
             channelType,
             info,
           ],
-          {#isLocalChannel: isLocalChannel},
         ),
         returnValue: _i30.Future<_i4.Uid?>.value(),
       ) as _i30.Future<_i4.Uid?>);
@@ -6511,9 +6614,19 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
       ) as _i30.Future<void>);
 
   @override
+  _i80.MucType convertMucType(_i12.ChannelType? type) => (super.noSuchMethod(
+        Invocation.method(
+          #convertMucType,
+          [type],
+        ),
+        returnValue: _i80.MucType.Private,
+      ) as _i80.MucType);
+
+  @override
   _i30.Future<int> addMucMember(
     _i4.Uid? mucUid,
     List<_i4.Uid>? memberUids,
+    _i12.ChannelType? channelType,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -6521,13 +6634,24 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
           [
             mucUid,
             memberUids,
+            channelType,
           ],
         ),
         returnValue: _i30.Future<int>.value(0),
       ) as _i30.Future<int>);
 
   @override
-  _i11.Role getRole(_i80.MucRole? role) => (super.noSuchMethod(
+  _i30.Future<List<_i74.Member>> getUserName(List<_i74.Member>? members) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getUserName,
+          [members],
+        ),
+        returnValue: _i30.Future<List<_i74.Member>>.value(<_i74.Member>[]),
+      ) as _i30.Future<List<_i74.Member>>);
+
+  @override
+  _i11.Role getRole(_i81.MucRole? role) => (super.noSuchMethod(
         Invocation.method(
           #getRole,
           [role],
@@ -6542,13 +6666,13 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
       ) as _i11.Role);
 
   @override
-  _i80.MucRole getLocalRole(_i11.Role? role) => (super.noSuchMethod(
+  _i81.MucRole getLocalRole(_i11.Role? role) => (super.noSuchMethod(
         Invocation.method(
           #getLocalRole,
           [role],
         ),
-        returnValue: _i80.MucRole.NONE,
-      ) as _i80.MucRole);
+        returnValue: _i81.MucRole.NONE,
+      ) as _i81.MucRole);
 
   @override
   _i30.Future<List<_i74.Member>> getFilteredMember(
@@ -6565,17 +6689,17 @@ class MockMucRepo extends _i1.Mock implements _i77.MucRepo {
       ) as _i30.Future<List<_i74.Member>>);
 
   @override
-  _i81.MucType pbMucTypeToHiveMucType(_i12.ChannelType? channelType) =>
+  _i80.MucType pbMucTypeToHiveMucType(_i12.ChannelType? channelType) =>
       (super.noSuchMethod(
         Invocation.method(
           #pbMucTypeToHiveMucType,
           [channelType],
         ),
-        returnValue: _i81.MucType.Private,
-      ) as _i81.MucType);
+        returnValue: _i80.MucType.Private,
+      ) as _i80.MucType);
 
   @override
-  _i12.ChannelType hiveMucTypeToPbMucType(_i81.MucType? mucType) =>
+  _i12.ChannelType hiveMucTypeToPbMucType(_i80.MucType? mucType) =>
       (super.noSuchMethod(
         Invocation.method(
           #hiveMucTypeToPbMucType,
@@ -7878,17 +8002,28 @@ class MockMucDao extends _i1.Mock implements _i101.MucDao {
       ) as _i30.Future<void>);
 
   @override
+  _i30.Future<List<_i78.Muc>> getNitSyncedLocalMuc() => (super.noSuchMethod(
+        Invocation.method(
+          #getNitSyncedLocalMuc,
+          [],
+        ),
+        returnValue: _i30.Future<List<_i78.Muc>>.value(<_i78.Muc>[]),
+      ) as _i30.Future<List<_i78.Muc>>);
+
+  @override
   _i30.Future<void> updateMuc({
     required _i4.Uid? uid,
     String? info,
     List<int>? pinMessagesIdList,
     int? lastCanceledPinMessageId,
+    int? lastUpdateTime,
     int? population,
     String? id,
     String? token,
     String? name,
-    _i81.MucType? mucType,
-    _i80.MucRole? currentUserRole,
+    bool? synced,
+    _i80.MucType? mucType,
+    _i81.MucRole? currentUserRole,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -7899,10 +8034,12 @@ class MockMucDao extends _i1.Mock implements _i101.MucDao {
             #info: info,
             #pinMessagesIdList: pinMessagesIdList,
             #lastCanceledPinMessageId: lastCanceledPinMessageId,
+            #lastUpdateTime: lastUpdateTime,
             #population: population,
             #id: id,
             #token: token,
             #name: name,
+            #synced: synced,
             #mucType: mucType,
             #currentUserRole: currentUserRole,
           },
@@ -8015,6 +8152,15 @@ class MockMucDao extends _i1.Mock implements _i101.MucDao {
         returnValue: _i30.Future<void>.value(),
         returnValueForMissingStub: _i30.Future<void>.value(),
       ) as _i30.Future<void>);
+
+  @override
+  _i30.Future<_i4.Uid?> getLocalMucOwner(_i4.Uid? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getLocalMucOwner,
+          [uid],
+        ),
+        returnValue: _i30.Future<_i4.Uid?>.value(),
+      ) as _i30.Future<_i4.Uid?>);
 }
 
 /// A class which mocks [Settings].
@@ -9261,6 +9407,7 @@ class MockRoutingService extends _i1.Mock implements _i105.RoutingService {
     bool? popAllBeforePush = false,
     _i58.ShareUid? shareUid,
     bool? forceToOpenRoom = false,
+    bool? scrollToLastMessage = false,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -9273,6 +9420,7 @@ class MockRoutingService extends _i1.Mock implements _i105.RoutingService {
             #popAllBeforePush: popAllBeforePush,
             #shareUid: shareUid,
             #forceToOpenRoom: forceToOpenRoom,
+            #scrollToLastMessage: scrollToLastMessage,
           },
         ),
         returnValueForMissingStub: null,
@@ -9319,7 +9467,10 @@ class MockRoutingService extends _i1.Mock implements _i105.RoutingService {
     required String? imagePath,
     String? caption = r'',
     required dynamic Function(String)? onEditEnd,
-    dynamic Function(String)? onSend,
+    dynamic Function(
+      String,
+      String,
+    )? onSend,
     dynamic Function(String)? onTap,
     bool? sendSingleImage = false,
     List<String>? selectedImage,
@@ -9395,7 +9546,7 @@ class MockRoutingService extends _i1.Mock implements _i105.RoutingService {
   @override
   _i30.Future<dynamic>? openManageMuc(
     String? roomId, {
-    _i81.MucType? mucType = _i81.MucType.Public,
+    _i80.MucType? mucType = _i80.MucType.Public,
   }) =>
       (super.noSuchMethod(Invocation.method(
         #openManageMuc,
@@ -10114,15 +10265,6 @@ class MockCallRepo extends _i1.Mock implements _i96.CallRepo {
       ) as bool);
 
   @override
-  bool checkCallExpireTimeFailed(_i17.CallEvents? event) => (super.noSuchMethod(
-        Invocation.method(
-          #checkCallExpireTimeFailed,
-          [event],
-        ),
-        returnValue: false,
-      ) as bool);
-
-  @override
   bool checkSession(_i17.CallEvents? event) => (super.noSuchMethod(
         Invocation.method(
           #checkSession,
@@ -10174,10 +10316,12 @@ class MockCallRepo extends _i1.Mock implements _i96.CallRepo {
       ) as _i30.Future<void>);
 
   @override
-  void onRTCPeerConnectionDisconnected() => super.noSuchMethod(
+  void onRTCPeerConnectionDisconnected({bool? forceEnd = false}) =>
+      super.noSuchMethod(
         Invocation.method(
           #onRTCPeerConnectionDisconnected,
           [],
+          {#forceEnd: forceEnd},
         ),
         returnValueForMissingStub: null,
       );
@@ -11154,6 +11298,23 @@ class MockFileService extends _i1.Mock implements _i48.FileService {
         ),
         returnValue: _i30.Future<_i27.File?>.value(),
       ) as _i30.Future<_i27.File?>);
+
+  @override
+  _i30.Future<void> saveInGallery(
+    String? path,
+    String? name,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveInGallery,
+          [
+            path,
+            name,
+          ],
+        ),
+        returnValue: _i30.Future<void>.value(),
+        returnValueForMissingStub: _i30.Future<void>.value(),
+      ) as _i30.Future<void>);
 
   @override
   _i30.Future<void> saveFileInMobileDownloadFolder(

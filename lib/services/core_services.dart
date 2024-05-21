@@ -399,11 +399,26 @@ class CoreServices {
   }
 
   void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
+    _logger.i("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     if (callEventV2ByClient.id != "") {
       final clientPacket = ClientPacket()
         ..callEvent = callEventV2ByClient
         ..id = callEventV2ByClient.id;
       _sendClientPacket(clientPacket, to: callEventV2ByClient.to);
+      unawaited(_resendClientPacket(clientPacket));
+    }
+  }
+
+  Future<void> _resendClientPacket(
+    ClientPacket packet, {
+    bool retry = true,
+  }) async {
+    try {
+      await _services.coreServiceClient.sendClientPacket(packet);
+    } catch (e) {
+      if (retry) {
+        unawaited(_resendClientPacket(packet, retry: false));
+      }
     }
   }
 
