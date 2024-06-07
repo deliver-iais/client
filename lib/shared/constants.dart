@@ -6,10 +6,10 @@ import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "We";
+const APPLICATION_NAME = "Owais";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-const APPLICATION = Applications.we;
+const APPLICATION = Applications.owais;
 const LOCAL_MESSAGE_KEY = "Local_Message_Key";
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
@@ -26,8 +26,8 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = 5;
-const REVISION = 9;
+const VERSION = 1;
+const REVISION = 0;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -343,33 +343,21 @@ bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
   if (isDesktopDevice ||
-      MediaQuery
-          .of(context)
-          .orientation == Orientation.portrait) {
+      MediaQuery.of(context).orientation == Orientation.portrait) {
     return isLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+      MediaQuery.of(context).size.width,
     );
   } else {
     return isLargeHeight(
-      MediaQuery
-          .of(context)
-          .size
-          .height,
+      MediaQuery.of(context).size.height,
     );
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
-bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+bool isVeryLarge(BuildContext context) => isVeryLargeWidth(
+      MediaQuery.of(context).size.width,
     );
 
 // Dynamics

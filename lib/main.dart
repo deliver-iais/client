@@ -124,6 +124,7 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
 import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_auto_play_service.dart';
@@ -540,7 +541,7 @@ class _MyAppState extends State<MyApp> {
                                 if (authRepo.isLoggedIn()) {
                                   return const HomePage();
                                 }
-                                return const IntroPage();
+                                return const LoginPage();
                               },
                             );
                           },
@@ -652,6 +653,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: Builder(
         builder: (context) {
+          return Container();
           return Container(
             color: Colors.black,
             child: Center(
