@@ -1,52 +1,26 @@
 {
   "project_info": {
-    "project_number": "192675293547",
-    "firebase_url": "https://deliver-d705a.firebaseio.com",
-    "project_id": "deliver-d705a",
-    "storage_bucket": "deliver-d705a.appspot.com"
+    "project_number": "900149705055",
+    "project_id": "owais-messenger",
+    "storage_bucket": "owais-messenger.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:192675293547:android:da0e239d7495d09ddb042e",
+        "mobilesdk_app_id": "1:900149705055:android:f9e7a0ceef8aa190bf1eea",
         "android_client_info": {
-          "package_name": "ir.we.deliver"
+          "package_name": "ir.we.oweis"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "192675293547-rqr50h441m0on66gegre58assn1cl8f8.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "ir.we.deliver",
-            "certificate_hash": "b3d3c32e9f4b03af3c0ee1dc9f1be5fc92029db2"
-          }
-        },
-        {
-          "client_id": "192675293547-kvc3gkbhpr0brju81m8l6vll88op0r0d.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBsOupIsPBuSkEziy7azdTgIlJ4e1dp1bQ"
+          "current_key": "AIzaSyDacrm2FAeYYbRKRuRfnRyAr404yjgXvtQ"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "192675293547-kvc3gkbhpr0brju81m8l6vll88op0r0d.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "ir.we.deliver"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

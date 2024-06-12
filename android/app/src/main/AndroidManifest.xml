@@ -49,7 +49,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
 
     <application
-            android:label="Owais"
+            android:label="Oweis"
             android:installLocation="auto"
             android:usesCleartextTraffic="true"
             android:allowBackup="false"

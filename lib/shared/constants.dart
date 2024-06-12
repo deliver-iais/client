@@ -6,14 +6,14 @@ import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "Owais";
+const APPLICATION_NAME = "Oweis";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
 const APPLICATION = Applications.owais;
 const LOCAL_MESSAGE_KEY = "Local_Message_Key";
 // Links Constants
-const APPLICATION_FOLDER_NAME = "We";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const APPLICATION_FOLDER_NAME = "Oweis";
+const APPLICATION_DOMAIN = "dcys.ir";
 const ABORTED_ADDRESS = "wemessenger.ir";
 const LB_ADDRESS = "lb.wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
