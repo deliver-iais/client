@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -142,12 +143,23 @@ class GalleryBoxState extends State<GalleryBox> {
                       onTap: () async {
                         if (hasCamera) {
                           await _cameraService.enableRecordAudio();
+                          _routingService.openCameraBox(
+                            selectAsAvatar: widget.selectAsAvatar,
+                            roomUid: widget.roomUid,
+                            onAvatarSelected: widget.onAvatarSelected,
+                          );
+                        } else {
+                          Timer(const Duration(milliseconds: 800), () async {
+                            if (hasCamera) {
+                              await _cameraService.enableRecordAudio();
+                              _routingService.openCameraBox(
+                                selectAsAvatar: widget.selectAsAvatar,
+                                roomUid: widget.roomUid,
+                                onAvatarSelected: widget.onAvatarSelected,
+                              );
+                            }
+                          });
                         }
-                        _routingService.openCameraBox(
-                          selectAsAvatar: widget.selectAsAvatar,
-                          roomUid: widget.roomUid,
-                          onAvatarSelected: widget.onAvatarSelected,
-                        );
                       },
                       child: Stack(
                         fit: StackFit.expand,

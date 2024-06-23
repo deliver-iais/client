@@ -29,6 +29,7 @@ import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/utils/call_utils.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -1303,19 +1304,25 @@ class CallRepo {
         _sendRinging();
         unawaited(_audioLevelDetection());
         if (hasForegroundServiceCapability) {
-          final foregroundStatus =
-              await _notificationForegroundService.callForegroundServiceStart();
-          if (foregroundStatus) {
-            _receivePort = _notificationForegroundService.getReceivePort;
-            _receivePort?.listen((message) {
-              if (message == ForeGroundConstant.STOP_CALL) {
-                endCall();
-              } else if (message == 'onNotificationPressed') {
-                _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
-              } else {
-                _logger.i('receive callStatus: $message');
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+          if (androidInfo.version.sdkInt < 34) {
+            try {
+              final foregroundStatus = await _notificationForegroundService
+                  .callForegroundServiceStart();
+              if (foregroundStatus) {
+                _receivePort = _notificationForegroundService.getReceivePort;
+                _receivePort?.listen((message) {
+                  if (message == ForeGroundConstant.STOP_CALL) {
+                    endCall();
+                  } else if (message == 'onNotificationPressed') {
+                    _routingService.openCallScreen(roomUid!,
+                        isVideoCall: isVideo);
+                  } else {
+                    _logger.i('receive callStatus: $message');
+                  }
+                });
               }
-            });
+            } catch (e) {}
           }
         }
         //this delay because we want show video animation to user
@@ -1398,20 +1405,26 @@ class CallRepo {
       unawaited(_audioLevelDetection());
       _callEvents[clock.now().millisecondsSinceEpoch] = "Accept Call";
       if (hasForegroundServiceCapability) {
-        final foregroundStatus =
-            await _notificationForegroundService.callForegroundServiceStart();
-        if (foregroundStatus) {
-          _receivePort = _notificationForegroundService.getReceivePort;
-          _receivePort?.listen((message) {
-            if (message == ForeGroundConstant.STOP_CALL) {
-              endCall();
-            } else if (message == 'onNotificationPressed') {
-              _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
-            } else {
-              _logger.i('receive callStatus: $message');
+        try {
+          final androidInfo = await DeviceInfoPlugin().androidInfo;
+          if (androidInfo.version.sdkInt < 34) {
+            final foregroundStatus = await _notificationForegroundService
+                .callForegroundServiceStart();
+            if (foregroundStatus) {
+              _receivePort = _notificationForegroundService.getReceivePort;
+              _receivePort?.listen((message) {
+                if (message == ForeGroundConstant.STOP_CALL) {
+                  endCall();
+                } else if (message == 'onNotificationPressed') {
+                  _routingService.openCallScreen(roomUid!,
+                      isVideoCall: isVideo);
+                } else {
+                  _logger.i('receive callStatus: $message');
+                }
+              });
             }
-          });
-        }
+          }
+        } catch (e) {}
       }
     } catch (e, es) {
       _logger
@@ -1527,7 +1540,7 @@ class CallRepo {
 
   Future<void> receivedEndCall() async {
     if (!_isEnded) {
-       unawaited(_callService.saveCallStatusData());
+      unawaited(_callService.saveCallStatusData());
       _isEnded = true;
       if (isDesktopNative) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
@@ -1774,7 +1787,9 @@ class CallRepo {
         ..to = _roomUid!
         ..isVideo = _isVideo
         ..end = CallEventEnd(
-            callDuration: Int64(callDuration), isCaller: _isCaller,));
+          callDuration: Int64(callDuration),
+          isCaller: _isCaller,
+        ));
       _coreServices.sendCallEvent(callEventV2ByClient);
       _callEvents[clock.now().millisecondsSinceEpoch] = "Send EndCall";
       _checkRetryCallEvent(callEventV2ByClient);
@@ -1852,11 +1867,11 @@ class CallRepo {
         _timerStatReport!.cancel();
       }
       if (_isAccepted && !_isConnected) {
-         unawaited(_analyticsService.sendLogEvent(
+        unawaited(_analyticsService.sendLogEvent(
           "non-connectedCall",
         ));
       }
-       unawaited(cancelCallNotification());
+      unawaited(cancelCallNotification());
       if (hasSpeakerCapability && _localStream != null) {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
       }
