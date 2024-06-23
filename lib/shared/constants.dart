@@ -26,8 +26,8 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = 5;
-const REVISION = 9;
+const VERSION = 6;
+const REVISION = 0;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 

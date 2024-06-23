@@ -452,10 +452,10 @@ class MucRepo {
             pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
-          if (true || (true || m == null ||
-                  m.population != group.population.toInt() ||
+          if (m == null ||
+              ((m.population != group.population.toInt() ||
                   group.lastUpdate.toInt() > m.lastUpdateTime) &&
-              needToFetchMembers) {
+              needToFetchMembers)) {
             unawaited(
               fetchMucMembers(
                 mucUid,
