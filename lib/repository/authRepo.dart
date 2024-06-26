@@ -277,6 +277,7 @@ class AuthRepo {
     bool retry = true,
     int timeout = 1,
   }) async {
+    return;
     try {
       final startTime = clock.now().millisecondsSinceEpoch; // eg. 1000
       final getInfoRes = await _sdr.lbcClient.getInfo(

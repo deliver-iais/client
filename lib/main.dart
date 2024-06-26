@@ -470,7 +470,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _animating = BehaviorSubject.seeded(true);
+  final _animating = BehaviorSubject.seeded(false);
   final _initiating = BehaviorSubject.seeded(true);
   late final Stream<bool> _loading = MergeStream([_initiating, _animating])
       .shareValueSeeded(true)
