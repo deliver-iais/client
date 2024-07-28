@@ -28,7 +28,7 @@ enum Language {
     changelogs: ARABIC_FEATURE_LIST,
   );
 
-  static const defaultLanguage = Language.FARSI;
+  static const defaultLanguage = Language.ARABIC;
 
   final String languageCode;
   final String languageName;

@@ -195,9 +195,10 @@ class HomePageState extends State<HomePage> {
   void checkIfVersionChange() {
     if (_accountRepo.shouldShowNewFeatureDialog()) {
       if (context.mounted) {
+        //todo
         unawaited(GetIt.I.get<ContactRepo>().getContacts());
-        showDialog(builder: (context) => NewFeatureDialog(), context: context)
-            .ignore();
+        // showDialog(builder: (context) => NewFeatureDialog(), context: context)
+        //     .ignore();
       }
       unawaited(_accountRepo.updatePlatformVersion());
     }

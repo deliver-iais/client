@@ -28,6 +28,8 @@ class NewContactState extends State<NewContact> {
 
   String _firstName = "";
   String _lastName = "";
+  int _maxLength = 10;
+  int _minLength = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +72,16 @@ class NewContactState extends State<NewContact> {
                     textDirection: TextDirection.ltr,
                     child: IntlPhoneField(
                       controller: TextEditingController(),
-                      onMaxAndMinLengthChanged: (_, p) {},
-                      validator: (value) =>
-                          (value!.length == 11 && value[0] != '0') ||
-                                  (value.length < 10 &&
-                                      (value.isNotEmpty && value[0] == '0'))
-                              ? _i18n.get("invalid_mobile_number")
-                              : null,
+                      onMaxAndMinLengthChanged: (min, max) {
+                        _maxLength = max;
+                        _minLength = min;
+                      },
+                      validator: (value) => value == null ||
+                              value.isEmpty ||
+                              value.length > _maxLength ||
+                              value.length < _minLength
+                          ? _i18n.get("invalid_mobile_number")
+                          : null,
                       style: theme.textTheme.bodyLarge,
                       onChanged: (ph) {
                         _phoneNumber = ph;

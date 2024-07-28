@@ -13,7 +13,7 @@ const APPLICATION = Applications.owais;
 const LOCAL_MESSAGE_KEY = "Local_Message_Key";
 // Links Constants
 const APPLICATION_FOLDER_NAME = "Yechat";
-const APPLICATION_DOMAIN = "dcys.ir";
+const APPLICATION_DOMAIN = "yechat.org";
 const ABORTED_ADDRESS = "wemessenger.ir";
 const LB_ADDRESS = "lb.wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
@@ -27,7 +27,7 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = 1;
-const REVISION = 0;
+const REVISION = 2;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -105,6 +105,10 @@ const TURN_SERVER_PASSWORD_1 = 'Deliver2@123';
 const TURN_SERVER_URL_2 = 'turn:217.218.7.16:3478?transport=udp';
 const TURN_SERVER_USERNAME_2 = 'deliver';
 const TURN_SERVER_PASSWORD_2 = 'Deliver@123';
+
+
+//
+const HAS_CALL_KEY = "HAS_CALL_KEY_4";
 
 //Status Webrtc
 const STATUS_CAMERA_OPEN = "camera-open";

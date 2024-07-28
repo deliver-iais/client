@@ -9,7 +9,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
-    if (dart.library.html) 'package:grpc/grpc_web.dart';
+if (dart.library.html) 'package:grpc/grpc_web.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart' as bot;
 import 'package:deliver_public_protocol/pub/v1/broadcast.pbgrpc.dart';
@@ -47,7 +47,8 @@ class ServicesDiscoveryRepo {
   UserServiceClient? _userServiceClient;
   AuthServiceClient? _authServiceClient;
 
-  ChannelCredentials get channelCredentials => ChannelCredentials.secure(
+  ChannelCredentials get channelCredentials =>
+      ChannelCredentials.secure(
         onBadCertificate: (c, d) => settings.useBadCertificateConnection.value,
       );
 
@@ -668,18 +669,19 @@ class ServicesDiscoveryRepo {
 
   String get fileServiceBaseUrl => _fileServiceBaseUrl;
 
-  LBClient get lbcClient => LBClient(
+  LBClient get lbcClient =>
+      LBClient(
         isWeb
             ? GrpcWebClientChannel.xhr(
-                Uri.parse('https://gwp-$LB_ADDRESS'),
-              )
+          Uri.parse('https://gwp-$LB_ADDRESS'),
+        )
             : ClientChannel(
-                ipOrAddress(LB_ADDRESS),
-                options: ChannelOptions(
-                  credentials: channelCredentials,
-                  connectionTimeout: const Duration(seconds: 10),
-                ),
-              ),
+          ipOrAddress(LB_ADDRESS),
+          options: ChannelOptions(
+            credentials: channelCredentials,
+            connectionTimeout: const Duration(seconds: 10),
+          ),
+        ),
       );
 
   Map<String, String> _getDefaultHeader(String value) => {"service": value};

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/call_data_usage.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -40,8 +42,19 @@ class CallService {
   final _lastCallStatus = GetIt.I.get<LastCallStatusDao>();
   final _callDataUsage = GetIt.I.get<CallDataUsageDao>();
   final _logger = GetIt.I.get<Logger>();
+  SharedPreferences? _shared;
 
   final _i18n = GetIt.I.get<I18N>();
+
+  CallService() {
+    if (Platform.isAndroid) {
+      SharedPreferences.getInstance().then(
+        (_) => {
+          _shared = _,
+        },
+      );
+    }
+  }
 
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
@@ -138,9 +151,25 @@ class CallService {
 
   RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
 
-  bool get hasCall => _callState != UserCallState.NO_CALL;
+  bool hasCall() {
+    // if (_shared != null) {
+    //   SharedPreferences.getInstance().then(
+    //     (_) => {
+    //       print(
+    //           "call4444444444444444 state .........\t+${_.getBool(HAS_CALL_KEY)}")
+    //     },
+    //   );
+    //   var t = _shared?.getBool(HAS_CALL_KEY) ?? false;
+    //   print("call state .........\t+$t");
+    //   print("call state .........\t+$t");
+    //   return t;
+    // }
+    return _callState != UserCallState.NO_CALL;
+  }
 
-  set setUserCallState(UserCallState cs) => _callState = cs;
+  set setUserCallState(UserCallState cs) {
+    _callState = cs;
+  }
 
   set setRoomUid(Uid ru) => _roomUid = ru;
 

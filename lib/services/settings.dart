@@ -99,12 +99,6 @@ class Settings {
     SharedKeys.SHARED_DAO_SEND_BY_ENTER.inSharedDaoStorage(),
     defaultValue: isDesktopDevice,
   );
-
-  // final inLocalNetwork = BooleanPersistent(
-  //   SharedKeys.SHARED_DAO_IN_LOCAL_NETWORK.inSharedDaoStorage(),
-  //   defaultValue: false,
-  // );
-
   final useDefaultUdpAddress = BooleanPersistent(
     SharedKeys.SHARED_DAO_USE_DEFAULT_UDP_ADDRESS.inSharedDaoStorage(),
     defaultValue: false,
@@ -246,7 +240,7 @@ class Settings {
   );
   final useBadCertificateConnection = BooleanPersistent(
     SharedKeys.USE_BAD_CERTIFICATE_CONNECTION.inSharedDaoStorage(),
-    defaultValue: false,
+    defaultValue: true,
   );
   final isSuperNode = BooleanPersistent(
     SharedKeys.SUPER_NODE.inSharedDaoStorage(),

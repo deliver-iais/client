@@ -112,8 +112,7 @@ class AuthRepo {
     final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = phone
-        ..type =
-            forceToSendSms ? VerificationType.SMS : VerificationType.SMS
+        ..type = forceToSendSms ? VerificationType.SMS : VerificationType.SMS
         ..platform = platform,
       options: CallOptions(
         timeout: const Duration(seconds: 10),
@@ -277,7 +276,6 @@ class AuthRepo {
     bool retry = true,
     int timeout = 1,
   }) async {
-    return;
     try {
       final startTime = clock.now().millisecondsSinceEpoch; // eg. 1000
       final getInfoRes = await _sdr.lbcClient.getInfo(
@@ -309,8 +307,8 @@ class AuthRepo {
           ),
         );
       }
-      // Just ignore this option and set "Zero"
       _initServicesWhenGetInfoFromServerNotResponse();
+      // Just ignore this option and set "Zero"
     }
   }
 
@@ -423,7 +421,7 @@ class AuthRepo {
     settings.accessTokenExpireTime
         .set(clock.now().millisecondsSinceEpoch + (900 * 1000));
     settings.refreshTokenExpireTime
-        .set(clock.now().millisecondsSinceEpoch +( 3000000 * 1000));
+        .set(clock.now().millisecondsSinceEpoch + (3000000 * 1000));
     settings.accessToken.set(accessToken);
     settings.refreshToken.set(refreshToken);
     settings.refreshTokenDao.set(refreshToken);

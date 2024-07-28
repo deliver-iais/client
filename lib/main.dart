@@ -630,6 +630,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _init() async {
+
     await setupDI();
 
     // Init anyway after some time - no more than 2 seconds

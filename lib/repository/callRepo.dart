@@ -41,6 +41,7 @@ import 'package:phone_state/phone_state.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 
 enum CallStatus {
@@ -262,13 +263,15 @@ class CallRepo {
                 _sendOfferInSynchronousCalls = true;
                 _isCaller = false;
                 _callService.setUserCallState = UserCallState.IN_USER_CALL;
+                _saveCallState(true);
               }
             }
-            if (!_callService.hasCall && !callEvent.ringing.fromAnswerSide) {
+            if (!_callService.hasCall() && !callEvent.ringing.fromAnswerSide) {
               _logger.i(
                 "-----------------------------------${_callService.getUserCallState}",
               );
               _callService.setUserCallState = UserCallState.IN_USER_CALL;
+              _saveCallState(true);
               _handleIncomingCallOnReceiver(callEvent);
             } else if (_isCaller && isCallIdEqualToCurrentCallId(event)) {
               _cancelTimerResendEvent();
@@ -1272,9 +1275,14 @@ class CallRepo {
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     try {
-      if (!_callService.hasCall) {
+      if (!_callService.hasCall()) {
         unawaited(_sendLog(isVideo));
         //can't call another ppl or received any call notification
+        unawaited(
+          SharedPreferences.getInstance().then((_) {
+            _.setBool("hasCall", true);
+          }),
+        );
         _callService
           ..setUserCallState = UserCallState.IN_USER_CALL
           ..setRoomUid = roomId
@@ -1861,7 +1869,10 @@ class CallRepo {
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
     _logger.i("!!!!Disposed!!!!");
+    _saveCallState(false);
     unawaited(_resetVariables());
+    _callService.setUserCallState = UserCallState.NO_CALL;
+
     try {
       if (_timerStatReport != null) {
         _timerStatReport!.cancel();
@@ -2171,6 +2182,16 @@ class CallRepo {
     }
   }
 
+  void _saveCallState(bool state) {
+    print("Saving call state    "+state.toString());
+    print("Saving call state    "+state.toString());
+    SharedPreferences.getInstance().then(
+      (_) => {
+        _.setBool(HAS_CALL_KEY, state),
+      },
+    );
+  }
+
   Future<void> _decreaseCandidateAndWaitingTime() async {
     final candidateNumber = settings.iceCandidateTimeLimit.value;
     if (candidateNumber >= 19) {
@@ -2188,7 +2209,7 @@ class CallRepo {
     Uid room, {
     bool isVideoCall = false,
   }) {
-    if (!_callService.hasCall) {
+    if (!_callService.hasCall()) {
       _routingService.openCallScreen(
         room,
         isVideoCall: isVideoCall,

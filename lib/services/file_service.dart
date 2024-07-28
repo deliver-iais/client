@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/io.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:browser_image_compression/browser_image_compression.dart'
-as web_compression;
+    as web_compression;
 import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
@@ -22,7 +23,7 @@ import 'package:get_it/get_it.dart';
 import 'package:image/image.dart';
 import 'package:image_compression/image_compression.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart'
-as compress2;
+    as compress2;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -47,7 +48,7 @@ class FileService {
   }
 
   final BehaviorSubject<Map<String, FileStatus>> _fileStatus =
-  BehaviorSubject.seeded({});
+      BehaviorSubject.seeded({});
 
   Stream<Map<String, FileStatus>> watchFileStatus() => _fileStatus;
 
@@ -58,10 +59,10 @@ class FileService {
       _fileStatus.add(_fileStatus.value..[uuid] = status);
 
   final BehaviorSubject<Map<String, CancelToken>> _cancelTokens =
-  BehaviorSubject.seeded({});
+      BehaviorSubject.seeded({});
 
   BehaviorSubject<Map<String, double>> filesProgressBarStatus =
-  BehaviorSubject.seeded({});
+      BehaviorSubject.seeded({});
 
   void cancelUploadOrDownloadFile(String uuid) {
     if (_cancelTokens.value[uuid] != null) {
@@ -102,9 +103,11 @@ class FileService {
     return '$path/$fileUuid.$fileType';
   }
 
-  Future<String> localThumbnailFilePath(String fileUuid,
-      String fileType,
-      ThumbnailSize size,) async {
+  Future<String> localThumbnailFilePath(
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     final path = await _storagePathService.localPath;
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
@@ -121,20 +124,25 @@ class FileService {
     return File("${directory.path}/$APPLICATION_FOLDER_NAME/$filePath");
   }
 
-  Future<File> localThumbnailFile(String fileUuid,
-      String fileType,
-      ThumbnailSize size,) async {
+  Future<File> localThumbnailFile(
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     return File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    };
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           options.baseUrl =
-              GetIt.I
-                  .get<ServicesDiscoveryRepo>()
-                  .fileServiceBaseUrl;
+              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
           options.headers["service"] = "ms-file";
           options.headers["Accept-Language"] = _i18n.locale.languageCode;
@@ -145,13 +153,14 @@ class FileService {
     _cancelUploadFile();
   }
 
-  Future<String?> getFile(String uuid,
-      String filename, {
-        String? directUrl,
-        ThumbnailSize? size,
-        bool initProgressbar = true,
-        bool showAlertOnError = false,
-      }) async {
+  Future<String?> getFile(
+    String uuid,
+    String filename, {
+    String? directUrl,
+    ThumbnailSize? size,
+    bool initProgressbar = true,
+    bool showAlertOnError = false,
+  }) async {
     if (initProgressbar) {
       updateFileStatus(uuid, FileStatus.STARTED);
     }
@@ -176,17 +185,17 @@ class FileService {
   Future<String?> saveFile(String uuid, String filename, List<int> data) async {
     final file = await localFile(
       uuid,
-      filename
-          .split('.')
-          .last,
+      filename.split('.').last,
     );
     file.writeAsBytesSync(data);
     return file.path;
   }
 
-  Future<String> saveFileInAppDirectory(File file,
-      String name,
-      String type,) async {
+  Future<String> saveFileInAppDirectory(
+    File file,
+    String name,
+    String type,
+  ) async {
     final newFile = await localFile(
       name,
       type,
@@ -195,12 +204,13 @@ class FileService {
     return newFile.path;
   }
 
-  Future<String?> _getFile(String uuid,
-      String filename, {
-        String? directUrl,
-        bool initProgressbar = true,
-        bool showAlertOnError = false,
-      }) async {
+  Future<String?> _getFile(
+    String uuid,
+    String filename, {
+    String? directUrl,
+    bool initProgressbar = true,
+    bool showAlertOnError = false,
+  }) async {
     try {
       final cancelToken = CancelToken();
       if (directUrl == null) {
@@ -231,7 +241,7 @@ class FileService {
       if ((e as DioError).type != DioErrorType.cancel && showAlertOnError) {
         Timer(
           const Duration(milliseconds: 500),
-              () {
+          () {
             ToastDisplay.showToast(
               toastText: _i18n.get("network_unavailable"),
             );
@@ -297,9 +307,11 @@ class FileService {
     }
   }
 
-  Future<void> saveFileInMobileDownloadFolder(String path,
-      String name,
-      String directory,) async {
+  Future<void> saveFileInMobileDownloadFolder(
+    String path,
+    String name,
+    String directory,
+  ) async {
     try {
       // Insure there is no desktop function call here!
       if (!isMobileNative) {
@@ -307,7 +319,7 @@ class FileService {
       }
       if (isAndroidNative) {
         final downloadDir =
-        await _storagePathService.downloadDirPath(name, directory);
+            await _storagePathService.downloadDirPath(name, directory);
         File(
           downloadDir,
         ).writeAsBytesSync(
@@ -321,8 +333,10 @@ class FileService {
     }
   }
 
-  Future<void> saveFileInDesktopDownloadFolder(String name,
-      String filePath,) async {
+  Future<void> saveFileInDesktopDownloadFolder(
+    String name,
+    String filePath,
+  ) async {
     try {
       final file = await _downloadedFileDir(name.replaceAll(".webp", ".jpg"));
       file.writeAsBytesSync(
@@ -335,17 +349,14 @@ class FileService {
     }
   }
 
-  Future<void> saveFileToSpecifiedAddress(String path,
-      String address, {
-        bool convertToJpg = true,
-      }) async {
+  Future<void> saveFileToSpecifiedAddress(
+    String path,
+    String address, {
+    bool convertToJpg = true,
+  }) async {
     try {
-      final fileFormat = path
-          .split(".")
-          .last;
-      final ad = (fileFormat != address
-          .split(".")
-          .last)
+      final fileFormat = path.split(".").last;
+      final ad = (fileFormat != address.split(".").last)
           ? "$address.$fileFormat"
           : address;
       File(ad.replaceAll(".webp", ".jpg")).writeAsBytesSync(
@@ -364,18 +375,17 @@ class FileService {
     }
   }
 
-  Future<String?> _getFileThumbnail(String uuid,
-      String filename,
-      ThumbnailSize size, {
-        bool initProgressbar = true,
-      }) async {
+  Future<String?> _getFileThumbnail(
+    String uuid,
+    String filename,
+    ThumbnailSize size, {
+    bool initProgressbar = true,
+  }) async {
     try {
       final cancelToken = CancelToken();
       _addCancelToken(cancelToken, uuid);
       final res = await _dio.get(
-        "/${enumToString(size)}/$uuid/.${filename
-            .split('.')
-            .last}",
+        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
         options: Options(responseType: ResponseType.bytes),
         cancelToken: cancelToken,
       );
@@ -384,9 +394,7 @@ class FileService {
         return Uri.dataFromBytes(res.data).toString();
       } else {
         final file =
-        await localThumbnailFile(uuid, filename
-            .split(".")
-            .last, size);
+            await localThumbnailFile(uuid, filename.split(".").last, size);
         file.writeAsBytesSync(res.data);
         return file.path;
       }
@@ -417,10 +425,7 @@ class FileService {
 
       final param = ImageFileConfiguration(input: input, config: config);
       final output = await compressInQueue(param);
-      final name = clock
-          .now()
-          .millisecondsSinceEpoch
-          .toString();
+      final name = clock.now().millisecondsSinceEpoch.toString();
       final extension = getExtensionFromContentType(output.contentType)!;
       final outPutFile = await localFile(name, extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
@@ -430,7 +435,8 @@ class FileService {
     }
   }
 
-  Future<String> compressImageInMacOrLinux(File file, {
+  Future<String> compressImageInMacOrLinux(
+    File file, {
     int quality = 30,
   }) async {
     try {
@@ -444,12 +450,9 @@ class FileService {
       );
 
       final param =
-      compress2.ImageFileConfiguration(input: input, config: config);
+          compress2.ImageFileConfiguration(input: input, config: config);
       final output = await compress2.compressor.compressWebpThenJpg(param);
-      final name = clock
-          .now()
-          .millisecondsSinceEpoch
-          .toString();
+      final name = clock.now().millisecondsSinceEpoch.toString();
       final extension = getExtensionFromContentType(output.contentType)!;
       final outPutFile = await localFile(name, extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
@@ -459,12 +462,11 @@ class FileService {
     }
   }
 
-  Future<String> compressImageInMobile(File file,) async {
+  Future<String> compressImageInMobile(
+    File file,
+  ) async {
     try {
-      final name = clock
-          .now()
-          .millisecondsSinceEpoch
-          .toString();
+      final name = clock.now().millisecondsSinceEpoch.toString();
       final targetFilePath = await localFilePath(name, "webp");
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
@@ -481,7 +483,9 @@ class FileService {
     }
   }
 
-  Future<String> compressImageInWeb(model.File file,) async {
+  Future<String> compressImageInWeb(
+    model.File file,
+  ) async {
     try {
       final bytes = await web_compression.BrowserImageCompression.compressImage(
         file.name,
@@ -542,12 +546,13 @@ class FileService {
   }
 
   /// file path is path of file in native device and data byte in web
-  Future<Response<dynamic>?> uploadFile(String filePath,
-      String filename, {
-        String? uploadKey,
-        bool isVoice = false,
-        void Function(int)? sendActivity,
-      }) async {
+  Future<Response<dynamic>?> uploadFile(
+    String filePath,
+    String filename, {
+    String? uploadKey,
+    bool isVoice = false,
+    void Function(int)? sendActivity,
+  }) async {
     updateFileStatus(uploadKey!, FileStatus.STARTED);
     final res = await compressFile(model.File(filePath, filename));
     filename = res.name;
@@ -564,7 +569,7 @@ class FileService {
     }
     _logger.i("/checkUpload?fileName=$filename&fileSize=$size");
     final result =
-    await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
+        await _dio.get("/checkUpload?fileName=$filename&fileSize=$size");
     final Map<String, dynamic> decoded = jsonDecode(result.data);
     if (result.statusCode! == 200) {
       //add fileUploadToken to header
@@ -639,15 +644,11 @@ class FileService {
     try {
       var filePath = file.path;
       if (isCompressibleImageFileType(file.path.getMimeString())) {
-        final time = clock
-            .now()
-            .millisecondsSinceEpoch;
+        final time = clock.now().millisecondsSinceEpoch;
         if (isWeb) {
           filePath = await compressImageInWeb(file);
           file = file.copyWith(
-            name: "${clock
-                .now()
-                .millisecondsSinceEpoch}.webp",
+            name: "${clock.now().millisecondsSinceEpoch}.webp",
             path: filePath,
             size: filePath.length,
             extension: "webp",
@@ -670,9 +671,7 @@ class FileService {
           );
         }
         _logger.i(
-          "compressTime : ${clock
-              .now()
-              .millisecondsSinceEpoch - time}",
+          "compressTime : ${clock.now().millisecondsSinceEpoch - time}",
         );
       }
     } catch (_) {

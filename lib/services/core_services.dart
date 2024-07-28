@@ -399,7 +399,6 @@ class CoreServices {
   }
 
   void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
-    _logger.i("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     if (callEventV2ByClient.id != "") {
       final clientPacket = ClientPacket()
         ..callEvent = callEventV2ByClient
