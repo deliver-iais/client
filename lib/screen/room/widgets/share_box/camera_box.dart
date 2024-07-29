@@ -159,7 +159,7 @@ class _CameraBoxState extends State<CameraBox> {
                     ),
                     StreamBuilder<bool>(
                       stream: _cameraService.isRecordingVideo(),
-                      builder: (context, snapshot) {
+                      builder: (c, snapshot) {
                         final isRecording = snapshot.data ?? false;
                         return GestureDetector(
                           child: Column(
@@ -200,6 +200,7 @@ class _CameraBoxState extends State<CameraBox> {
                           onTap: () =>
                               _cameraService.takePicture().then((file) {
                             if (widget.selectAsAvatar) {
+                              Navigator.pop(c);
                               Navigator.pop(context);
                               widget.onAvatarSelected!(file.path);
                             } else {
@@ -209,7 +210,7 @@ class _CameraBoxState extends State<CameraBox> {
                                   if (widget.selectAsAvatar) {
                                     widget.onAvatarSelected!(path);
                                   }
-                                  Navigator.pop(context);
+                                  Navigator.pop(c);
                                 },
                                 onSend: (caption, path) {
                                   Navigator.pop(context);

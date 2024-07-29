@@ -604,8 +604,8 @@ class DataStreamServices {
       ..addCallEvent(callEvents)
       ..shouldRemoveData = true;
 
-    await GetIt.I.get<CoreServices>().initStreamConnection();
-  }
+     await GetIt.I.get<CoreServices>().initStreamConnection();
+   }
 
   void handleActivity(Activity activity) {
     _roomRepo.updateActivity(activity);

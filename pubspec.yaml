@@ -72,7 +72,7 @@ dependencies:
 
   deliver_public_protocol:
     git:
-      ref: tags/v1.15.83
+      ref: tags/v1.15.84
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.4.1
   desktop_lifecycle: ^0.1.1
@@ -153,7 +153,7 @@ dependencies:
   image_compression_flutter: ^1.0.3
   image_cropper: 5.0.0
   image_size_getter: 2.1.2
-  intl: ^0.18.1
+  intl: 0.19.0
   isar: 3.1.0+1
   isar_flutter_libs: 3.1.0+1
   js: 0.6.7
@@ -167,7 +167,7 @@ dependencies:
   map_launcher: 2.5.0+1
   marquee: 2.2.3
   material_color_utilities: 0.8.0
-  meta: 1.11.0
+  meta: 1.12.0
   metadata_fetch:
     git:
       ref: 422b4113f75db7c076fdd8b23437d4fb02b32f6e
@@ -186,10 +186,7 @@ dependencies:
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.3
   permission_handler: ^11.0.1
-  persian_datetime_picker:
-    git:
-      ref: master
-      url: https://github.com/deliveriais/persian-datetime-picker
+  persian_datetime_picker: 2.7.0
   persian_number_utility: 1.1.3
   phone_state: ^1.0.3
   photo_manager: ^3.0.0-dev.5

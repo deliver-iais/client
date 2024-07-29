@@ -149,7 +149,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                               _selectedCountry = filteredCountries[index];
                               _select.add(_selectedCountry);
                               _changeMaxLength();
-                              Navigator.of(context).pop();
+                              Navigator.of(c).pop();
                             },
                           ),
                           const Divider(thickness: 1),

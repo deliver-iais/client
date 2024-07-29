@@ -59,10 +59,11 @@ class AvatarHelper {
                       Container(
                         padding: const EdgeInsets.all(0),
                         child: GalleryBox.setAvatar(
-                          scrollController: scrollController,
-                          onAvatarSelected: (path) =>
-                              _viewSelectedImage(path, onAvatarAttached),
-                        ),
+                            scrollController: scrollController,
+                            onAvatarSelected: (path) {
+                              // Navigator.pop(context);
+                              _viewSelectedImage(path, onAvatarAttached);
+                            }),
                       ),
                     ],
                   ),

@@ -1305,7 +1305,7 @@ class CallRepo {
         unawaited(_audioLevelDetection());
         if (hasForegroundServiceCapability) {
           final androidInfo = await DeviceInfoPlugin().androidInfo;
-          if (androidInfo.version.sdkInt < 34) {
+          if (false && androidInfo.version.sdkInt < 34) {
             try {
               final foregroundStatus = await _notificationForegroundService
                   .callForegroundServiceStart();
@@ -1408,21 +1408,21 @@ class CallRepo {
         try {
           final androidInfo = await DeviceInfoPlugin().androidInfo;
           if (androidInfo.version.sdkInt < 34) {
-            final foregroundStatus = await _notificationForegroundService
-                .callForegroundServiceStart();
-            if (foregroundStatus) {
-              _receivePort = _notificationForegroundService.getReceivePort;
-              _receivePort?.listen((message) {
-                if (message == ForeGroundConstant.STOP_CALL) {
-                  endCall();
-                } else if (message == 'onNotificationPressed') {
-                  _routingService.openCallScreen(roomUid!,
-                      isVideoCall: isVideo);
-                } else {
-                  _logger.i('receive callStatus: $message');
-                }
-              });
-            }
+            // final foregroundStatus = await _notificationForegroundService
+            //     .callForegroundServiceStart();
+            // if (foregroundStatus) {
+            //   _receivePort = _notificationForegroundService.getReceivePort;
+            //   _receivePort?.listen((message) {
+            //     if (message == ForeGroundConstant.STOP_CALL) {
+            //       endCall();
+            //     } else if (message == 'onNotificationPressed') {
+            //       _routingService.openCallScreen(roomUid!,
+            //           isVideoCall: isVideo);
+            //     } else {
+            //       _logger.i('receive callStatus: $message');
+            //     }
+            //   });
+            // }
           }
         } catch (e) {}
       }

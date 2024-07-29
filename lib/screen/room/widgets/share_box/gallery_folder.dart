@@ -151,9 +151,9 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                 return GestureDetector(
                                   onTap: () => widget.selectAsAvatar
                                       ? {
-                                          widget.onAvatarSelected!(imagePath),
                                           Navigator.pop(context),
                                           widget.pop(),
+                                          widget.onAvatarSelected!(imagePath),
                                         }
                                       : _routingService.openViewImagePage(
                                           imagePath: imagePath,
@@ -163,13 +163,12 @@ class _GalleryFolderState extends State<GalleryFolder> {
                                           sendSingleImage: true,
                                           onTap: onTap,
                                           selectedImage: _selectedImage,
-                                          onSend: (caption,path) {
+                                          onSend: (caption, path) {
                                             Navigator.pop(context);
                                             _selectedImage
                                               ..remove(imagePath)
                                               ..add(path);
                                             _sendMessage(caption);
-
                                           },
                                         ),
                                   child: AnimatedContainer(

@@ -5,6 +5,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/constants.dart';
@@ -30,7 +31,6 @@ external set _decodeMessageForCallFromJs(Function f);
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
-
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
@@ -165,7 +165,10 @@ Future<void> _backgroundRemoteMessageHandler(
 ) async {
   try {
     // hive does not support multithreading
-    await Hive.close();
+    try {
+      await Hive.close();
+    } catch (e) {}
+
     await setupDI();
   } catch (_) {
     GetIt.I.get<Settings>().reInitialize();
@@ -183,9 +186,7 @@ Future<void> _backgroundRemoteMessageHandler(
 
       //check is message repeated or not
       final lastRoomMessageId =
-          (await GetIt.I.get<RoomDao>().getRoom(roomUid))
-                  ?.lastMessageId ??
-              0;
+          (await GetIt.I.get<RoomDao>().getRoom(roomUid))?.lastMessageId ?? 0;
 
       if (lastRoomMessageId < msg.id.toInt()) {
         await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
