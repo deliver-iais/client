@@ -9,6 +9,8 @@ import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/analytics_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/background_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -23,6 +25,7 @@ import 'package:deliver/utils/call_utils.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
@@ -91,6 +94,11 @@ class HomePageState extends State<HomePage> {
     if (isMobileNative) {
       checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();
+      unawaited(
+        SharedPreferences.getInstance().then((_) {
+          _.setBool(APP_IS_OPEN, true);
+        }),
+      );
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
@@ -176,6 +184,10 @@ class HomePageState extends State<HomePage> {
     return PopScope(
       canPop: false,
       onPopInvoked: (_) async {
+        _coreServices.closeConnection();
+        unawaited(SharedPreferences.getInstance().then((_) {
+          _.setBool(APP_IS_OPEN, false);
+        }));
         if (_routingService.isEmpty()) {
           if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();

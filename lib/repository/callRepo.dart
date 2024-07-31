@@ -90,6 +90,7 @@ class CallRepo {
   String _offerSdp = "";
   String _answerSdp = "";
   int _candidateStartTime = 0;
+  String lasCallId = "";
 
   RTCPeerConnection? _peerConnection;
 
@@ -395,6 +396,7 @@ class CallRepo {
       ..setRoomUid = callEvent.from;
 
     _isVideo = callEvent.isVideo;
+
     // this if statement is used to check if user peak up the phone (probably)
     if (_isAccepted) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
@@ -409,8 +411,13 @@ class CallRepo {
         //get call Info and Save on DB
         _saveCallInfoOnDB(callEvent);
       }
+      final isDuplicated = !(lasCallId.isEmpty || lasCallId != callEvent.id);
+      if (!isDuplicated) {
+        lasCallId = callEvent.id;
+      }
+
       _incomingCall(
-        _notifyIncomingCall,
+        isDuplicated,
         callEvent.writeToJson(),
       );
     }
@@ -1207,7 +1214,6 @@ class CallRepo {
   ) async {
     try {
       _audioToggleOnCall();
-      _notifyIncomingCall = true;
       if (_isNotificationSelected) {
         _logger.i("_isNotificationSelected................");
         modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
@@ -1828,7 +1834,6 @@ class CallRepo {
     CallEventV2ByClient callEvent, {
     bool isRetry = true,
   }) async {
-    _cancelTimerResendEvent();
     final isRepeated = await _callService.checkIncomingCallIsRepeated(
           callEvent.id,
           callEvent.to.asString(),
@@ -1837,14 +1842,12 @@ class CallRepo {
     if (isRepeated) {
       _logger.i("Repeated Call Event");
     } else {
-      timerResendEvent = Timer(const Duration(seconds: 2), () {
-        _callEvents[clock.now().millisecondsSinceEpoch] = "Retry Send Event";
-        _coreServices.sendCallEvent(callEvent);
-        if (timerResendEvent != null && isRetry && roomUid != null) {
-          _checkRetryCallEvent(callEvent);
-          _logger.i("retry send Call Event");
-        }
-      });
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Retry Send Event";
+      _coreServices.sendCallEvent(callEvent);
+      if (isRetry) {
+        _checkRetryCallEvent(callEvent, isRetry: false);
+        _logger.i("retry send Call Event");
+      }
     }
   }
 
@@ -1861,7 +1864,7 @@ class CallRepo {
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
     _logger.i("!!!!Disposed!!!!");
-    unawaited(_resetVariables());
+    unawaited(resetVariables());
     try {
       if (_timerStatReport != null) {
         _timerStatReport!.cancel();
@@ -2009,7 +2012,7 @@ class CallRepo {
     }
   }
 
-  Future<void> _resetVariables() async {
+  Future<void> resetVariables() async {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Dispose";
     //reset variable values
     _sendOfferInSynchronousCalls = false;
@@ -2142,6 +2145,8 @@ class CallRepo {
       _logger.e(e);
     }
   }
+
+  CallStatus getCallStatus() => callingStatus.value;
 
   final callingStatus = BehaviorSubject.seeded(CallStatus.NO_CALL);
   final switching = BehaviorSubject.seeded(false);

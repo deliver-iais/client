@@ -7,6 +7,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -14,11 +15,13 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/serverless/serverless_message_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/services/settings.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -29,6 +32,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum SendingPanel { SERVER, LOCAL }
 
@@ -243,9 +247,22 @@ class CoreServices {
                 final callEvents = CallEvents.callEvent(
                   serverPacket.callEvent,
                 );
+                var appIsOpen = true;
+                if (_callService.hasCall &&
+                    serverPacket.callEvent.whichType() ==
+                        CallEventV2_Type.ringing) {
+                  final sharedPref = await SharedPreferences.getInstance();
+                  appIsOpen = sharedPref.getBool(APP_IS_OPEN) ?? true;
+                  if (!appIsOpen) {
+                    _callService.setUserCallState = UserCallState.NO_CALL;
+                    await _callService.disposeCallData(forceToClearData: true);
+                    await _callService.clearCallData();
+                    await GetIt.I.get<CallRepo>().resetVariables();
+                  }
+                }
                 _callService
                   ..addCallEvent(callEvents)
-                  ..shouldRemoveData = false;
+                  ..shouldRemoveData = !appIsOpen;
                 break;
               case ServerPacket_Type.pong:
                 _lastPongTime = serverPacket.pong.serverTime.toInt();
@@ -399,7 +416,6 @@ class CoreServices {
   }
 
   void sendCallEvent(call_pb.CallEventV2ByClient callEventV2ByClient) {
-    _logger.i("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     if (callEventV2ByClient.id != "") {
       final clientPacket = ClientPacket()
         ..callEvent = callEventV2ByClient
