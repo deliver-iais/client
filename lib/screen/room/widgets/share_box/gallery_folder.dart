@@ -42,7 +42,7 @@ class GalleryFolder extends StatefulWidget {
   State<GalleryFolder> createState() => _GalleryFolderState();
 }
 
-const int FETCH_IMAGE_PAGE_SIZE = 20;
+const int FETCH_IMAGE_PAGE_SIZE = 30;
 
 class _GalleryFolderState extends State<GalleryFolder> {
   static final _logger = GetIt.I.get<Logger>();

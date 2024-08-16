@@ -26,7 +26,7 @@ abstract class CameraService {
 
   double getAspectRatio();
 
-  Widget buildPreview();
+  Widget buildPreview({Widget? child});
 
   Stream<int> getDuration();
 
@@ -46,7 +46,7 @@ class MobileCameraService extends CameraService {
   late CameraController _controller;
   List<CameraDescription> _cameras = [];
   final BehaviorSubject<int> _duration = BehaviorSubject.seeded(0);
-  final ResolutionPreset _resolutionPreset = ResolutionPreset.medium;
+  final ResolutionPreset _resolutionPreset = ResolutionPreset.max;
 
   final BehaviorSubject<bool> _isRecordingVideo = BehaviorSubject.seeded(false);
 
@@ -89,7 +89,7 @@ class MobileCameraService extends CameraService {
       enableAudio: _controller.enableAudio,
     );
     await _controller.initialize();
-    _onChanged.add(int.parse(_controller.description.name));
+    _onChanged.add(_controller.cameraId);
   }
 
   @override
@@ -117,8 +117,9 @@ class MobileCameraService extends CameraService {
   }
 
   @override
-  Widget buildPreview() => CameraPreview(
+  Widget buildPreview({Widget? child}) => CameraPreview(
         _controller,
+        child: child,
       );
 
   @override

@@ -28,7 +28,7 @@ const APP_IS_OPEN = "APP_IS_OPEN";
 
 // Version Constants
 const VERSION = 6;
-const REVISION = 1;
+const REVISION = 2;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 

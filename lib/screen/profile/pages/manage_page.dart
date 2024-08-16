@@ -650,7 +650,7 @@ class MucManagePageState extends State<MucManagePage>
     initProfileAvatar();
     if (widget.roomUid.isMuc()) {
       try {
-        final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid);
+        final fetchMucInfo = await _mucRepo.fetchMucInfo(widget.roomUid,needToFetchMembers: true);
         _roomName = fetchMucInfo?.name ?? "";
         final currentUserRole = await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
           widget.roomUid,

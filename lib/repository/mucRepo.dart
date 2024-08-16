@@ -369,7 +369,7 @@ class MucRepo {
             _mucDao.updateMuc(
               uid: mucUid,
               name: channel.info.name,
-              population: needToFetchMembers ? channel.population.toInt() : 0,
+              population: channel.population.toInt() ,
               info: channel.info.info,
               currentUserRole: getLocalRole(channel.requesterRole),
               token: channel.token,
@@ -445,14 +445,14 @@ class MucRepo {
             uid: mucUid,
             name: group.info.name,
             lastUpdateTime: group.lastUpdate.toInt(),
-            population: needToFetchMembers ? group.population.toInt() : 0,
+            population: group.population.toInt(),
             info: group.info.info,
             token: group.token,
             currentUserRole: getLocalRole(group.requesterRole),
             pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
-          if (m == null ||
+          if (needToFetchMembers || m == null ||
               ((m.population != group.population.toInt() ||
                   group.lastUpdate.toInt() > m.lastUpdateTime) &&
               needToFetchMembers)) {

@@ -18,6 +18,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/caching_repo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/metaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -597,14 +598,17 @@ class DataStreamServices {
   }
 
   Future<void> handleCallEvent(call_pb.CallEventV2 callEventV2) async {
-    final callEvents = CallEvents.callEvent(
-      callEventV2,
-    );
-    _callService
-      ..addCallEvent(callEvents)
-      ..shouldRemoveData = true;
-
-    unawaited(GetIt.I.get<CoreServices>().initStreamConnection());
+    // final callEvents = CallEvents.callEvent(
+    //   callEventV2,
+    // );
+    // _callService
+    //   ..addCallEvent(callEvents)
+    //   ..shouldRemoveData = true;
+    unawaited(GetIt.I.get<CallRepo>().handelBackGroundCallEvent(callEventV2));
+    //
+    // GetIt.I.get<CoreServices>()
+    //   ..listenFromBackground = true
+    //   ..initStreamConnection();
   }
 
   void handleActivity(Activity activity) {

@@ -19,6 +19,7 @@ import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -737,7 +738,7 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallNotificationTap(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
-    await GetIt.I.get<CallService>().disposeCallData();
+    await GetIt.I.get<CallService>().disposeCallData(forceToClearData: true);
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     final isVideoCall = _detectVideoCall(callEvent.callType);
     Notifier.onCallNotificationAction(
@@ -750,17 +751,15 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    await GetIt.I.get<CallService>().clearCallData();
-    await GetIt.I.get<CallService>().disposeCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     final isVideoCall = _detectVideoCall(callEvent.callType);
     Notifier.onCallNotificationAction(
       callEvent.userInfo!["uid"]!,
       isVideoCall: isVideoCall,
     );
-    await _callService.saveIsSelectedOrAccepted(
+     unawaited(_callService.saveIsSelectedOrAccepted(
       isAccepted: true,
-    );
+    ));
   }
 
   @override

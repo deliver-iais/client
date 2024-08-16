@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
@@ -55,6 +56,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    GetIt.I.get<CallRepo>().startListener();
     _coreServices.initStreamConnection();
     _messageRepo.createConnectionStatusHandler();
     if (isMacOSNative) {
@@ -184,10 +186,6 @@ class HomePageState extends State<HomePage> {
     return PopScope(
       canPop: false,
       onPopInvoked: (_) async {
-        _coreServices.closeConnection();
-        unawaited(SharedPreferences.getInstance().then((_) {
-          _.setBool(APP_IS_OPEN, false);
-        }));
         if (_routingService.isEmpty()) {
           if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();

@@ -5,6 +5,7 @@ import 'package:deliver/services/settings.dart';
 import 'package:deliver/shared/methods/dialog.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/persistent_variable.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -167,10 +168,17 @@ class CheckPermissionsService {
     BuildContext? context,
   }) async {
     if (isAndroidNative) {
-      return _checkAndGetPermission(
+      if (await _checkAndGetPermission(
         Permission.accessMediaLocation,
         context: context,
-      );
+      )) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        return androidInfo.version.sdkInt < 32 ||
+            (await _checkAndGetPermission(
+              Permission.photos,
+              context: context,
+            ));
+      }
     } else if (isIOSNative) {
       return _checkAndGetPermission(
         Permission.photos,

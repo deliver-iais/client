@@ -57,13 +57,13 @@ class ServerLessService {
 
   void _startForeground() {
     if (address.isNotEmpty && Platform.isAndroid) {
-      _startForegroundService();
+      // _startForegroundService();
     }
   }
 
-  bool inLocalNetwork(Uid uid) =>
-      uid.asString().contains(LOCAL_MUC_ID) ||
-      address.containsKey(uid.asString());
+  bool inLocalNetwork(Uid? uid) =>
+      uid != null && uid.asString().contains(LOCAL_MUC_ID) ||
+      address.containsKey(uid?.asString());
 
   Future<void> _startForegroundService() async {
     try {
@@ -113,11 +113,11 @@ class ServerLessService {
   }
 
   Future<void> restart() async {
-    await _dispose();
+    await dispose();
     _start();
   }
 
-  Future<void> _dispose() async {
+  Future<void> dispose() async {
     if (Platform.isAndroid) {
       await _notificationForegroundService.stopForegroundTask();
     }

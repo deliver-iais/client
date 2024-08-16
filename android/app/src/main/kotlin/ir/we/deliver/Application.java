@@ -90,7 +90,7 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
     @Override
     public void registerWith(PluginRegistry registry) {
 //        FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));
-        PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
+//        PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
     }
 
     @Override

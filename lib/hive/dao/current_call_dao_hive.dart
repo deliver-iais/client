@@ -65,13 +65,19 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
     String callOfferCandidate,
   ) async {
     final box = await _open();
-    final callInfo = box.get(CurrentCallInfoHive.CURRENT_CALL_ID);
-    callInfo!.offerBody = callOfferBody;
-    callInfo.offerCandidate = callOfferCandidate;
-    return box.put(
-      CurrentCallInfoHive.CURRENT_CALL_ID,
-      callInfo,
-    );
+    try{
+      final callInfo = box.get(CurrentCallInfoHive.CURRENT_CALL_ID);
+      callInfo!.offerBody = callOfferBody;
+      callInfo.offerCandidate = callOfferCandidate;
+      return box.put(
+        CurrentCallInfoHive.CURRENT_CALL_ID,
+        callInfo,
+      );
+    }catch(e){
+      print(e);
+
+    }
+
   }
 
   @override

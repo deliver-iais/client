@@ -36,11 +36,10 @@ enum UserCallState {
 }
 
 class CallService {
-  final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
+  final _currentCallDao = GetIt.I.get<CurrentCallInfoDao>();
   final _lastCallStatus = GetIt.I.get<LastCallStatusDao>();
   final _callDataUsage = GetIt.I.get<CallDataUsageDao>();
   final _logger = GetIt.I.get<Logger>();
-
 
   final _i18n = GetIt.I.get<I18N>();
 
@@ -66,36 +65,36 @@ class CallService {
   }
 
   Future<void> saveCallOnDb(CurrentCallInfo callInfo) async {
-    await _currentCall.save(callInfo);
+    await _currentCallDao.save(callInfo);
   }
 
   Future<void> saveIsSelectedOrAccepted({
     bool isAccepted = false,
     bool isSelectNotification = false,
   }) async {
-    await _currentCall.saveAcceptOrSelectNotification(
+     unawaited(_currentCallDao.saveAcceptOrSelectNotification(
       isAccepted: isAccepted,
       isSelectNotification: isSelectNotification,
-    );
+    ));
   }
 
   Future<void> saveCallOfferOnDb(
     String offerBody,
     String offerCandidate,
   ) async {
-    await _currentCall.saveCallOffer(offerBody, offerCandidate);
+    await _currentCallDao.saveCallOffer(offerBody, offerCandidate);
   }
 
   Stream<CurrentCallInfo?> watchCurrentCall() {
-    return _currentCall.watchCurrentCall();
+    return _currentCallDao.watchCurrentCall();
   }
 
   Future<void> removeCallFromDb() async {
-    await _currentCall.remove();
+    await _currentCallDao.remove();
   }
 
   Future<CurrentCallInfo?> loadCurrentCall() async {
-    return _currentCall.get();
+    return _currentCallDao.get();
   }
 
   Future<void> initRenderer() async {
@@ -110,8 +109,13 @@ class CallService {
   }
 
   Future<void> _disposeRenderer() async {
-    await _localRenderer.dispose();
-    await _remoteRenderer.dispose();
+    try {
+      await _localRenderer.dispose();
+      await _remoteRenderer.dispose();
+    } catch (e) {
+      _logger.e(e);
+    }
+
     _logger.i("Dispose Renderers");
   }
 
@@ -242,9 +246,8 @@ class CallService {
   }) async {
     if (shouldRemoveData || forceToClearData) {
       await FlutterForegroundTask.clearAllData();
-      if (isInitRenderer) {
-        await _disposeRenderer();
-      }
+
+      await _disposeRenderer();
     }
   }
 

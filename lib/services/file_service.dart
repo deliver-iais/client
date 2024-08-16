@@ -412,7 +412,7 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        jpgQuality: 30,
+        jpgQuality: 70,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
@@ -469,7 +469,7 @@ class FileService {
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
-        quality: 60,
+        quality: 90,
         format: CompressFormat.webp,
       );
       if (result != null) {
