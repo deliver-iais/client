@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:deliver/shared/methods/platform.dart';
@@ -11,6 +12,7 @@ enum AppLifecycle {
 }
 
 class AppLifecycleService {
+  static const MethodChannel _channel = MethodChannel("screen_management");
   final BehaviorSubject<AppLifecycle> _state =
       BehaviorSubject.seeded(AppLifecycle.ACTIVE);
 
@@ -38,6 +40,7 @@ class AppLifecycleService {
             _state.add(AppLifecycle.PAUSE);
           } else if (message == AppLifecycleState.paused.toString()) {
             _state.add(AppLifecycle.PAUSE);
+            unawaited(_channel.invokeMethod("closeApp"));
           } else {
             _state.add(AppLifecycle.ACTIVE);
           }
