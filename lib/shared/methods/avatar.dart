@@ -44,13 +44,13 @@ class AvatarHelper {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          isDismissible: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
             return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              expand: false,
+              controller: DraggableScrollableController(),
+              initialChildSize: 0.6,
+              minChildSize: 0.1,
+              // expand: true,
               builder: (context, scrollController) {
                 return Container(
                   color: Colors.white,

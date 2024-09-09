@@ -220,6 +220,12 @@ class AuthRepo {
 
   bool isLocalLockEnabled() => settings.localPassword.value != "";
 
+  bool isLocalAuthEnabled() => settings.localAuth.value;
+
+  void changeAuthState()=>settings.localAuth.set(!settings.localAuth.value);
+
+
+
   Stream<bool> get isLocalLockEnabledStream =>
       settings.localPassword.stream.map((pass) => pass != "");
 

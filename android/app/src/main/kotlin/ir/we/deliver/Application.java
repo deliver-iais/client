@@ -10,7 +10,7 @@ import com.nabinbhandari.android.permissions.Permissions;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-
+//import io.flutter.plugins.localauth.LocalAuthPlugin;
 import android.os.Bundle;
 import android.os.PowerManager;
 import androidx.annotation.NonNull;
@@ -19,20 +19,20 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-
-
+import io.flutter.embedding.android.FlutterFragmentActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.android.FlutterActivity;
-
 import com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin;
-
 import io.flutter.plugins.pathprovider.PathProviderPlugin;
+
 import java.util.Objects;
 import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.FlutterEngine;
 
-public class Application extends FlutterActivity implements PluginRegistrantCallback {
+public class Application extends FlutterFragmentActivity implements PluginRegistrantCallback {
     private static final String GET_MEDIA_CHANNEL = "read_external";
     private static final String GET_PATH_CHANNEL = "get_path";
 
@@ -40,20 +40,32 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
     private PowerManager powerManager;
     private PowerManager.WakeLock wakeLock;
     private int field = 0x00000020;
+    private FlutterEngine flutterEngine;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void registerWith(PluginRegistry registry) {
+//        FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));
+//        PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
+    }
+
+    @Override
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        super.configureFlutterEngine(flutterEngine);
         StoragePathPlugin storagePathPlugin = new StoragePathPlugin(this);
 
-        new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), GET_MEDIA_CHANNEL).setMethodCallHandler(
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), GET_MEDIA_CHANNEL).setMethodCallHandler(
                 (call, result) -> {
                     if (call.method.equals("get_all_music")) {
                         storagePathPlugin.getAudioPath(result);
                     }
                 });
 
-        new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), GET_PATH_CHANNEL).setMethodCallHandler(
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), GET_PATH_CHANNEL).setMethodCallHandler(
                 (call, result) -> {
                     result.success(Environment.getExternalStoragePublicDirectory(call.argument("type")).getPath());
                 });
@@ -66,7 +78,8 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(field, getLocalClassName());
 
-        new MethodChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), GET_SCREEN_CHANNEL).setMethodCallHandler(
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), GET_SCREEN_CHANNEL).setMethodCallHandler(
                 new MethodChannel.MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
@@ -76,7 +89,9 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                                 System.out.println("turn Off");
                             }
                         }
-
+                        if (call.method.equals("closeApp")) {
+                            finishAffinity();
+                        }
                         if (call.method.equals("turnOn")) {
                             if (wakeLock.isHeld()) {
                                 wakeLock.release();
@@ -85,17 +100,6 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                         }
                     }
                 });
-    }
-
-    @Override
-    public void registerWith(PluginRegistry registry) {
-//        FlutterLocalNotificationsPlugin.registerWith(registry.registrarFor("com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"));
-//        PathProviderPlugin.registerWith(registry.registrarFor("io.flutter.plugins.pathprovider.PathProviderPlugin"));
-    }
-
-    @Override
-    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
     }
 
 

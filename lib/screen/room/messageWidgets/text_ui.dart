@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -58,7 +59,11 @@ class TextUI extends StatefulWidget {
     if (msg.type == MessageType.TEXT) {
       return msg.json.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
-      return msg.json.toFile().caption.trim();
+      try {
+        return jsonDecode(msg.json.toFile().caption.trim());
+      } catch (e) {
+        return msg.json.toFile().caption;
+      }
     } else {
       return "";
     }

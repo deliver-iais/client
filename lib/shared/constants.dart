@@ -24,11 +24,10 @@ const LOGIN_URL = "login";
 const USER_URL = "user";
 const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
-const APP_IS_OPEN = "APP_IS_OPEN";
 
 // Version Constants
 const VERSION = 6;
-const REVISION = 2;
+const REVISION = 3;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -154,6 +153,7 @@ enum SharedKeys {
   SHARED_DAO_REFRESH_TOKEN_KEY,
   SHARED_DAO_REFRESH_TOKEN_KEY_PREV,
   SHARED_DAO_LOCAL_PASSWORD,
+  SHARED_DAO_LOCAL_AUTH,
   SHARED_DAO_THEME_IS_DARK,
   SHARED_DAO_AUTO_UPDATE_IS_ENABLE,
   SHARED_DAO_THEME_COLOR,

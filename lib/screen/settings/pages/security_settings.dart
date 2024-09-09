@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
 import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pinput/pinput.dart';
@@ -41,28 +42,16 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
   final LocalAuthentication _auth = LocalAuthentication();
 
-  final _atthIsAvailable = false.obs;
-
   @override
-  void initState() {
-    _init();
-    super.initState();
+  void dispose() {
+    _dispose();
+    super.dispose();
   }
 
-  Future<void> _init() async {
-    try {
-      _atthIsAvailable.value = await _auth.canCheckBiometrics;
-      if (_atthIsAvailable.value) {
-        List<BiometricType> availableBiometrics;
-        try {
-          availableBiometrics = await _auth.getAvailableBiometrics();
-          print(availableBiometrics.length);
-        } catch (e) {
-          print("error enumerate biometrics $e");
-        }
-      }
-    } catch (e) {
-      _logger.e(e);
+  Future<void> _dispose() async {
+    final i = await _auth.getAvailableBiometrics();
+    if (_authRepo.isLocalAuthEnabled() && i.isEmpty) {
+      _authRepo.changeAuthState();
     }
   }
 
@@ -84,7 +73,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               text: "",
               imagePath: "assets/images/security.webp",
               alignment: Alignment(0.0, -0.4),
-              topFreeHeight: 380,
+              topFreeHeight: 280,
             ),
             Section(
               title: _i18n.get("lock_app"),
@@ -134,11 +123,64 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   _buildAccountInfo(),
                   _buildEditTwoStepVerification()
                 ],
-              )
+              ),
+            FutureBuilder(
+                future: Future.wait(
+                  [_auth.isDeviceSupported(), _auth.canCheckBiometrics],
+                ),
+                builder: (c, s) {
+                  final result = s.data ?? [];
+                  if (result.length > 1 && result[0] && result[1]) {
+                    return Section(children: [
+                      SettingsTile.switchTile(
+                        switchValue: _authRepo.isLocalAuthEnabled(),
+                        title: _i18n.get("enable_fingerPrint"),
+                        leading: const Icon(
+                          IconData(0xf075, fontFamily: 'MaterialIcons'),
+                        ),
+                        onToggle: ({required newValue}) {
+                          _enableLocalAuth(enable: newValue);
+                        },
+                      ),
+                    ]);
+                  }
+                  return const SizedBox.shrink();
+                }),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _enableLocalAuth({bool enable = true}) async {
+    try {
+      await _auth.stopAuthentication();
+      final authenticated = await _auth.authenticate(
+        localizedReason: " ",
+        authMessages: [
+          AndroidAuthMessages(
+            signInTitle: enable
+                ? _i18n.get("enable_fingerPrint")
+                : _i18n.get("disable_fingerPrint"),
+            goToSettingsDescription: _i18n.get("go_To_Settings_Description"),
+            goToSettingsButton: _i18n.get("go_To_Settings_Button"),
+            biometricHint: _i18n.get("biometric_Hint"),
+            biometricRequiredTitle: enable
+                ? _i18n.get("enable_fingerPrint")
+                : _i18n.get("disable_fingerPrint"),
+            cancelButton: _i18n.get("cancel"),
+          ),
+        ],
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+        ),
+      );
+
+      _authRepo.changeAuthState();
+      setState(() {});
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Widget disableLocalPassword() {

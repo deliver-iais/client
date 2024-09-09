@@ -122,8 +122,10 @@ import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/intro/pages/intro_page.dart';
+import 'package:deliver/screen/lock/local_auth_page.dart';
 import 'package:deliver/screen/lock/lock.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
+import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/services/analytics_service.dart';
 import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/audio_auto_play_service.dart';
@@ -533,7 +535,9 @@ class _MyAppState extends State<MyApp> {
                               builder: (context) {
                                 settings.updateAppContext(context);
                                 final authRepo = GetIt.I.get<AuthRepo>();
-
+                                if (authRepo.isLocalAuthEnabled()) {
+                                  return const LocalAuthPage();
+                                }
                                 if (authRepo.isLocalLockEnabled()) {
                                   return const LockPage();
                                 }

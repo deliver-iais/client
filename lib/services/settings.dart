@@ -66,6 +66,12 @@ class Settings {
     defaultValue: "",
   );
 
+
+  final localAuth = BooleanPersistent(
+    SharedKeys.SHARED_DAO_LOCAL_AUTH.inSharedPreferenceStorage(),
+    defaultValue: false,
+  );
+
   final applicationVersion = StringPersistent(
     SharedKeys.VERSION.inSharedDaoStorage(),
     defaultValue: "",

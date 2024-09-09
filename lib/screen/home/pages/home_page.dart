@@ -96,11 +96,6 @@ class HomePageState extends State<HomePage> {
     if (isMobileNative) {
       checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();
-      unawaited(
-        SharedPreferences.getInstance().then((_) {
-          _.setBool(APP_IS_OPEN, true);
-        }),
-      );
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
