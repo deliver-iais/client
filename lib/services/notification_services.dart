@@ -668,7 +668,7 @@ class AndroidNotifier implements Notifier {
     ConnectycubeFlutterCallKit.instance.init(
       onCallAccepted: onCallAccepted,
       onCallRejected: onCallRejected,
-      onNotificationTap: onCallNotificationTap,
+      // onNotificationTap: onCallNotificationTap,
     );
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
@@ -1056,10 +1056,10 @@ class AndroidNotifier implements Notifier {
         callType: _detectCallTypeByBool(isVideo: isVideoCall).index,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
-        avatarPath: path,
+        callPhoto: path,
         opponentsIds: const {1},
-        rejectActionText: _i18n.get("decline"),
-        acceptActionText: _i18n.get("accept"),
+        // rejectActionText: _i18n.get("decline"),
+        // acceptActionText: _i18n.get("accept"),
       ),
     );
     vibrate(duration: 60000, pattern: List.filled(60, 1000)).ignore();

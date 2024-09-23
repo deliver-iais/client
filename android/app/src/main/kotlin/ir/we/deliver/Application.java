@@ -5,8 +5,8 @@ import android.app.Activity;
 
 import android.content.Context;
 import android.os.Environment;
-import com.nabinbhandari.android.permissions.PermissionHandler;
-import com.nabinbhandari.android.permissions.Permissions;
+//import com.nabinbhandari.android.permissions.PermissionHandler;
+//import com.nabinbhandari.android.permissions.Permissions;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
 import io.flutter.plugins.GeneratedPluginRegistrant;

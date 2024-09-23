@@ -5,13 +5,15 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
-
+import 'package:get_it/get_it.dart';
+import 'package:deliver/services/routing_service.dart';
 enum AppLifecycle {
   ACTIVE,
   PAUSE,
 }
 
 class AppLifecycleService {
+  var _routingService = GetIt.I.get<RoutingService>();
   static const MethodChannel _channel = MethodChannel("screen_management");
   final BehaviorSubject<AppLifecycle> _state =
       BehaviorSubject.seeded(AppLifecycle.ACTIVE);
@@ -40,7 +42,10 @@ class AppLifecycleService {
             _state.add(AppLifecycle.PAUSE);
           } else if (message == AppLifecycleState.paused.toString()) {
             _state.add(AppLifecycle.PAUSE);
-            unawaited(_channel.invokeMethod("closeApp"));
+            if(_routingService.isEmpty()){
+              unawaited(_channel.invokeMethod("closeApp"));
+            }
+
           } else {
             _state.add(AppLifecycle.ACTIVE);
           }

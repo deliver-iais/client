@@ -54,9 +54,9 @@ android {
         minSdkVersion 23
         targetSdkVersion 34
 //        versionCode flutterVersionCode.toInteger()
-        versionCode 3103
+        versionCode 3104
 //        versionName flutterVersionName
-        versionName "6.3"
+        versionName "6.4"
         multiDexEnabled true
     }
     signingConfigs {
@@ -98,7 +98,7 @@ flutter {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.nabinbhandari.android:permissions:3.8'
+//    implementation 'com.nabinbhandari.android:permissions:3.8'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "androidx.core:core-ktx:1.6.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

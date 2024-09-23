@@ -15,8 +15,8 @@ import androidx.core.app.NotificationCompat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.nabinbhandari.android.permissions.PermissionHandler;
-import com.nabinbhandari.android.permissions.Permissions;
+//import com.nabinbhandari.android.permissions.PermissionHandler;
+//import com.nabinbhandari.android.permissions.Permissions;
 
 import io.flutter.plugin.common.MethodChannel.Result;
 
@@ -39,46 +39,46 @@ public class StoragePathPlugin {
 
 
     public void getAudioPath(Result result) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
-            getAllAudio(result);
-        } else {
-            Permissions.check(activity, Manifest.permission.READ_MEDIA_AUDIO, null, new PermissionHandler() {
-                @Override
-                public void onGranted() {
-                    getAllAudio(result);
-                }
-
-                @Override
-                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
-                    result.error("1", "Permission denied", null);
-                }
-            });
-        }
+//        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+//            getAllAudio(result);
+//        } else {
+//            Permissions.check(activity, Manifest.permission.READ_MEDIA_AUDIO, null, new PermissionHandler() {
+//                @Override
+//                public void onGranted() {
+//                    getAllAudio(result);
+//                }
+//
+//                @Override
+//                public void onDenied(Context context, ArrayList<String> deniedPermissions) {
+//                    result.error("1", "Permission denied", null);
+//                }
+//            });
+//        }
 
 
     }
 
     private void getAllAudio(Result result) {
-        try {
-            List<String> allMusicPath = new ArrayList<>();
-            //retrieve song info
-            ContentResolver musicResolver = activity.getContentResolver();
-            Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-
-            if (musicCursor != null && musicCursor.moveToFirst()) {
-                //get columns
-                int data = musicCursor.getColumnIndex
-                        (MediaStore.Audio.Media.DATA);
-                do {
-                    allMusicPath.add((musicCursor.getString(data)));
-                } while (musicCursor.moveToNext());
-            }
-            Gson gson = new GsonBuilder().create();
-
-            result.success(gson.toJson(allMusicPath));
-        } catch (Exception e) {
-            result.error("1", e.toString(), null);
-        }
+//        try {
+//            List<String> allMusicPath = new ArrayList<>();
+//            //retrieve song info
+//            ContentResolver musicResolver = activity.getContentResolver();
+//            Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//            Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+//
+//            if (musicCursor != null && musicCursor.moveToFirst()) {
+//                //get columns
+//                int data = musicCursor.getColumnIndex
+//                        (MediaStore.Audio.Media.DATA);
+//                do {
+//                    allMusicPath.add((musicCursor.getString(data)));
+//                } while (musicCursor.moveToNext());
+//            }
+//            Gson gson = new GsonBuilder().create();
+//
+//            result.success(gson.toJson(allMusicPath));
+//        } catch (Exception e) {
+//            result.error("1", e.toString(), null);
+//        }
     }
 }
