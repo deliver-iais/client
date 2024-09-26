@@ -90,7 +90,7 @@ dependencies:
   fast_contacts: 4.0.0
   feature_discovery:
     git:
-      ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
+      ref: 4296617f806de9875cef07a35f47c06f8b4b9860
       url: https://github.com/deliveriais/feature_discovery
   file_picker: 8.1.2
   file_selector: 0.9.2+3
