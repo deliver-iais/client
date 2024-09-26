@@ -7,5 +7,6 @@
 -keep class io.flutter.plugins.** { *; }
 -keep class com.google.firebase.** { *; }
 -keep class org.videolan.libvlc.** { *; }
+-keep public class androidx.camera.core.impl.CameraCaptureMetaData$** { *; }
 -dontwarn io.flutter.embedding.**
 -ignorewarnings

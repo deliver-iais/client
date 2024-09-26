@@ -42,7 +42,6 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final _i18n = GetIt.I.get<I18N>();
-
   final _routingService = GetIt.I.get<RoutingService>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
@@ -53,9 +52,30 @@ class HomePageState extends State<HomePage> {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  static const platform = MethodChannel('BACK_PRESSED');
+
+  Future<void> _handleBackButton(MethodCall call) async {
+    if (call.method == 'onBackPressed') {
+      if (_routingService.isEmpty()) {
+        if (await FlutterForegroundTask.isRunningService) {
+          FlutterForegroundTask.minimizeApp();
+        } else {
+          if (_routingService.canPop()) {
+            _routingService.pop();
+          } else {
+            unawaited(_routingService.closeApp());
+          }
+        }
+      } else {
+        _routingService.pop();
+      }
+    }
+  }
 
   @override
   void initState() {
+    platform.setMethodCallHandler(_handleBackButton);
+    super.initState();
     GetIt.I.get<CallRepo>().startListener();
     _coreServices.initStreamConnection();
     _messageRepo.createConnectionStatusHandler();
@@ -178,22 +198,9 @@ class HomePageState extends State<HomePage> {
     settings.updateAppContext(context);
 
     final theme = Theme.of(context);
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (_) async {
-        if (_routingService.isEmpty()) {
-          if (await FlutterForegroundTask.isRunningService) {
-            FlutterForegroundTask.minimizeApp();
-          }
-          _routingService.pop();
-        } else {
-          _routingService.pop();
-        }
-      },
-      child: Container(
-        color: theme.colorScheme.background,
-        child: _routingService.outlet(context),
-      ),
+    return Container(
+      color: theme.colorScheme.background,
+      child: _routingService.outlet(context),
     );
   }
 

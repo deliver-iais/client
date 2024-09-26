@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as file_model;
 import 'package:deliver/screen/room/widgets/share_box/file_box_item.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
+import 'package:deliver/services/app_lifecycle_service.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -79,14 +80,13 @@ class FilesBoxState extends State<FilesBox> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      margin:
-                          const EdgeInsetsDirectional.only(top: 16.0, start: 8, end: 8),
+                      margin: const EdgeInsetsDirectional.only(
+                          top: 16.0, start: 8, end: 8),
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () async {
                           final result = await FilePicker.platform
                               .pickFiles(allowMultiple: true);
-
                           final files = (result?.files ?? []).map(
                             filePickerPlatformFileToFileModel,
                           );
@@ -141,8 +141,9 @@ class FilesBoxState extends State<FilesBox> {
                 return GestureDetector(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    color:
-                        selected ? theme.colorScheme.primary.withOpacity(0.3) : null,
+                    color: selected
+                        ? theme.colorScheme.primary.withOpacity(0.3)
+                        : null,
                     child: Column(
                       children: [
                         FileBoxItem(

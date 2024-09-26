@@ -757,7 +757,7 @@ class AndroidNotifier implements Notifier {
       callEvent.userInfo!["uid"]!,
       isVideoCall: isVideoCall,
     );
-     unawaited(_callService.saveIsSelectedOrAccepted(
+    unawaited(_callService.saveIsSelectedOrAccepted(
       isAccepted: true,
     ));
   }
@@ -1375,7 +1375,8 @@ class MacOSNotifier implements Notifier {
 
 String createNotificationTextFromMessageBrief(MessageSimpleRepresentative mb) {
   var text = "";
-  if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
+  if (mb.sender.isNotEmpty &&
+      (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot)) {
     text += "${mb.sender.trim()}: ";
   }
   if (mb.typeDetails.isNotEmpty) {

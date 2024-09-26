@@ -594,6 +594,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _setWindowSize() async {
+    return;
     setWindowMinSize(
       WindowFrame.minSize.toSize(),
     );

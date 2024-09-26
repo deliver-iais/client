@@ -138,7 +138,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                         leading: const Icon(
                           IconData(0xf075, fontFamily: 'MaterialIcons'),
                         ),
-                        onToggle: ({required newValue}) {
+                        onToggle: ({required newValue}) async{
                           _enableLocalAuth(enable: newValue);
                         },
                       ),

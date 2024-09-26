@@ -98,31 +98,29 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   @override
   Widget build(BuildContext context) {
     return ((widget.files.isNotEmpty) || widget.editableMessage != null)
-        ? SingleChildScrollView(
-            child: AlertDialog(
-              contentPadding: const EdgeInsets.all(0),
-              actionsPadding: const EdgeInsets.all(0),
-              content: Container(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height - 300,
-                ),
-                width: 330,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.editableMessage == null) ...[
-                      _buildSelectedFileTitle(),
-                      const Divider()
-                    ],
-                    _buildFilesListWidget(),
-                    const Divider(),
-                    _buildCaptionInputBox(),
-                  ],
-                ),
-              ),
-              actions: [_buildActionButtonsRow()],
+        ? AlertDialog(
+          contentPadding: const EdgeInsets.all(0),
+          actionsPadding: const EdgeInsets.all(0),
+          content: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height - 300,
             ),
-          )
+            width: 330,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.editableMessage == null) ...[
+                  _buildSelectedFileTitle(),
+                  const Divider()
+                ],
+                _buildFilesListWidget(),
+                const Divider(),
+                _buildCaptionInputBox(),
+              ],
+            ),
+          ),
+          actions: [_buildActionButtonsRow()],
+        )
         : const SizedBox.shrink();
   }
 

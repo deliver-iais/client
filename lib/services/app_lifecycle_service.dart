@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:get_it/get_it.dart';
 import 'package:deliver/services/routing_service.dart';
+
 enum AppLifecycle {
   ACTIVE,
   PAUSE,
 }
 
 class AppLifecycleService {
-  var _routingService = GetIt.I.get<RoutingService>();
-  static const MethodChannel _channel = MethodChannel("screen_management");
+  final _routingService = GetIt.I.get<RoutingService>();
+
   final BehaviorSubject<AppLifecycle> _state =
       BehaviorSubject.seeded(AppLifecycle.ACTIVE);
 
@@ -37,16 +39,14 @@ class AppLifecycleService {
       SystemChannels.lifecycle.setMessageHandler((message) async {
         if (message != null) {
           if (message == AppLifecycleState.resumed.toString()) {
+            GetIt.I.get<CoreServices>().checkConnectionTimer();
             _state.add(AppLifecycle.ACTIVE);
           } else if (message == AppLifecycleState.inactive.toString()) {
             _state.add(AppLifecycle.PAUSE);
           } else if (message == AppLifecycleState.paused.toString()) {
             _state.add(AppLifecycle.PAUSE);
-            if(_routingService.isEmpty()){
-              unawaited(_channel.invokeMethod("closeApp"));
-            }
-
           } else {
+            GetIt.I.get<CoreServices>().checkConnectionTimer();
             _state.add(AppLifecycle.ACTIVE);
           }
         }
