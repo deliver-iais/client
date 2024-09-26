@@ -471,7 +471,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _animating = BehaviorSubject.seeded(true);
+  final _animating = BehaviorSubject.seeded(false);
   final _initiating = BehaviorSubject.seeded(true);
   late final Stream<bool> _loading = MergeStream([_initiating, _animating])
       .shareValueSeeded(true)
@@ -533,6 +533,7 @@ class _MyAppState extends State<MyApp> {
                           onGenerateRoute: (_) {
                             return MaterialPageRoute(
                               builder: (context) {
+                                 // return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [Text("2222222222"),Text("11111111111111")],);
                                 settings.updateAppContext(context);
                                 final authRepo = GetIt.I.get<AuthRepo>();
                                 if (authRepo.isLocalAuthEnabled()) {
@@ -594,9 +595,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _setWindowSize() async {
-    setWindowMinSize(
-      WindowFrame.minSize.toSize(),
-    );
+    // setWindowMinSize(
+    //   WindowFrame.minSize.toSize(),
+    // );
 
     final windowFrame = settings.windowsFrame.value;
     var rect = windowFrame.toRect();
@@ -643,7 +644,7 @@ class _MyAppState extends State<MyApp> {
 
     try {
       if (isDesktopNative) {
-        unawaited(_setWindowSize());
+         // await _setWindowSize();
       }
     } catch (_) {}
 
@@ -656,6 +657,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: Builder(
         builder: (context) {
+          return Container();
           return Container(
             color: Colors.black,
             child: Center(

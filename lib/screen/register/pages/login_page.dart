@@ -140,7 +140,7 @@ class LoginPageState extends State<LoginPage> {
 
   Future<void> checkAndGoNext() async {
     if (_formKey.currentState?.validate() ?? false) {
-      if (!(_acceptPrivacyKey.currentState?.validate() ?? false)) {
+      if (!(_acceptPrivacyKey.currentState?.validate() ?? true)) {
         unawaited(_shakeWidgetController.shake());
       } else {
         final navigatorState = Navigator.of(context);
@@ -344,45 +344,45 @@ class LoginPageState extends State<LoginPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Form(
-                              key: _acceptPrivacyKey,
-                              child: FormField<bool>(
-                                builder: (state) {
-                                  return StreamBuilder<bool>(
-                                    stream: _acceptPrivacy.stream,
-                                    builder: (context, snapshot) {
-                                      return Checkbox(
-                                        value: snapshot.data ?? false,
-                                        onChanged: (value) =>
-                                            _acceptPrivacy.add(value ?? false),
-                                      );
-                                    },
-                                  );
-                                },
-                                validator: (value) {
-                                  if (!_acceptPrivacy.value) {
-                                    return 'You need to accept terms';
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                              ),
-                            ),
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    _acceptPrivacy.add(!_acceptPrivacy.value),
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: buildText(
-                                      "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
-                                      theme,
-                                    ),
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // Form(
+                            //   key: _acceptPrivacyKey,
+                            //   child: FormField<bool>(
+                            //     builder: (state) {
+                            //       return StreamBuilder<bool>(
+                            //         stream: _acceptPrivacy.stream,
+                            //         builder: (context, snapshot) {
+                            //           return Checkbox(
+                            //             value: snapshot.data ?? false,
+                            //             onChanged: (value) =>
+                            //                 _acceptPrivacy.add(value ?? false),
+                            //           );
+                            //         },
+                            //       );
+                            //     },
+                            //     validator: (value) {
+                            //       if (!_acceptPrivacy.value) {
+                            //         return 'You need to accept terms';
+                            //       } else {
+                            //         return null;
+                            //       }
+                            //     },
+                            //   ),
+                            // ),
+                            // Flexible(
+                            //   child: GestureDetector(
+                            //     onTap: () =>
+                            //         _acceptPrivacy.add(!_acceptPrivacy.value),
+                            //     child: RichText(
+                            //       text: TextSpan(
+                            //         children: buildText(
+                            //           "${!_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl ? _i18n.get("i_read_and_accept") : ""}",
+                            //           theme,
+                            //         ),
+                            //         style: theme.textTheme.bodyMedium,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

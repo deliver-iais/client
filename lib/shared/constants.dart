@@ -6,16 +6,16 @@ import 'package:deliver_public_protocol/pub/v1/models/platform.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
-const APPLICATION_NAME = "We";
+const APPLICATION_NAME = "Yechat";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 const APPLICATION_LANDING_URL = "https://wemessenger.ir";
-const APPLICATION = Applications.we;
+const APPLICATION = Applications.owais;
 const LOCAL_MESSAGE_KEY = "Local_Message_Key";
 // Links Constants
-const APPLICATION_FOLDER_NAME = "We";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const APPLICATION_FOLDER_NAME = "Yechat";
+const APPLICATION_DOMAIN = "yechat.org";
 const ABORTED_ADDRESS = "wemessenger.ir";
-const LB_ADDRESS = "lb.wemessenger.ir";
+const LB_ADDRESS = "lb.test.org"; //todo
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
 const SEND_TEXT_URL = "text";
@@ -26,8 +26,8 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = 6;
-const REVISION = 3;
+const VERSION = 1;
+const REVISION = 5;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 

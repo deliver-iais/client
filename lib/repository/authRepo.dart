@@ -314,8 +314,8 @@ class AuthRepo {
           ),
         );
       }
-      // Just ignore this option and set "Zero"
       _initServicesWhenGetInfoFromServerNotResponse();
+      // Just ignore this option and set "Zero"
     }
   }
 
