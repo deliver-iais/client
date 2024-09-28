@@ -545,7 +545,7 @@ class _MyAppState extends State<MyApp> {
                                 if (authRepo.isLoggedIn()) {
                                   return const HomePage();
                                 }
-                                return const IntroPage();
+                                return const LoginPage();
                               },
                             );
                           },
