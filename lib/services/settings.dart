@@ -252,7 +252,7 @@ class Settings {
   );
   final useBadCertificateConnection = BooleanPersistent(
     SharedKeys.USE_BAD_CERTIFICATE_CONNECTION.inSharedDaoStorage(),
-    defaultValue: false,
+    defaultValue: true,
   );
   final isSuperNode = BooleanPersistent(
     SharedKeys.SUPER_NODE.inSharedDaoStorage(),
