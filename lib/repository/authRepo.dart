@@ -426,7 +426,7 @@ class AuthRepo {
     required String refreshToken,
   }) {
     settings.accessTokenExpireTime
-        .set(clock.now().millisecondsSinceEpoch + (900 * 1000));
+        .set(clock.now().millisecondsSinceEpoch + (900000));
     settings.refreshTokenExpireTime
         .set(clock.now().millisecondsSinceEpoch +( 3000000 * 1000));
     settings.accessToken.set(accessToken);

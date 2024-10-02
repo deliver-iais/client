@@ -42,22 +42,23 @@ class Settings {
     defaultValue: "",
   );
   final accessTokenGetTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_KEY.inSharedPreferenceStorage(),
     defaultValue: 0,
   );
 
   final accessTokenExpireTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_EXP_KEY.inSharedPreferenceStorage(),
     defaultValue: 0,
   );
 
   final refreshTokenGetTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_KEY.inSharedPreferenceStorage(),
     defaultValue: 0,
   );
 
   final refreshTokenExpireTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_EXP_KEY
+        .inSharedPreferenceStorage(),
     defaultValue: 0,
   );
 
@@ -65,7 +66,6 @@ class Settings {
     SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
     defaultValue: "",
   );
-
 
   final localAuth = BooleanPersistent(
     SharedKeys.SHARED_DAO_LOCAL_AUTH.inSharedPreferenceStorage(),
