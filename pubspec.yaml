@@ -53,11 +53,12 @@ dependencies:
   badges: ^3.1.2
   battery_plus: 3.0.3
   brotli: ^0.6.0
+  image_picker: ^1.1.2
   browser_image_compression:
     git:
       ref: 6805a29e07d95fab29392654afddfc225020a5e5
       url: https://github.com/deliveriais/browser_image_compression.git
-  camera: ^0.11.0+1
+  camera: 0.10.5+9
   card_swiper: ^3.0.1
   chewie: ^1.7.1
   circular_countdown_timer: 0.2.3
@@ -94,7 +95,7 @@ dependencies:
       url: https://github.com/deliveriais/feature_discovery
   file_picker: 8.1.2
   file_selector: 0.9.2+3
-  file_selector_linux: 0.9.1+1
+  file_selector_linux: ^0.9.3
   firebase_analytics: 10.2.1
   firebase_core: 2.10.0
   firebase_core_platform_interface: 4.6.0
