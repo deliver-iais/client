@@ -369,7 +369,7 @@ class MucRepo {
             _mucDao.updateMuc(
               uid: mucUid,
               name: channel.info.name,
-              population: channel.population.toInt() ,
+              population: channel.population.toInt(),
               info: channel.info.info,
               currentUserRole: getLocalRole(channel.requesterRole),
               token: channel.token,
@@ -394,7 +394,7 @@ class MucRepo {
 
           if (((c == null ||
                       c.population != channel.population.toInt() ||
-                      c.lastUpdateTime < channel.lastUpdate.toInt()) &&
+                      c.lastUpdateTime < channel.lastUpdate.toInt()) ||
                   needToFetchMembers) &&
               (channel.requesterRole == muc_pb.Role.ADMIN ||
                   channel.requesterRole == muc_pb.Role.OWNER)) {
@@ -405,7 +405,6 @@ class MucRepo {
               ),
             );
           }
-
           return _mucDao.get(mucUid);
         }
 
@@ -452,10 +451,11 @@ class MucRepo {
             pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
-          if (needToFetchMembers || m == null ||
+          if (needToFetchMembers ||
+              m == null ||
               ((m.population != group.population.toInt() ||
-                  group.lastUpdate.toInt() > m.lastUpdateTime) &&
-              needToFetchMembers)) {
+                      group.lastUpdate.toInt() > m.lastUpdateTime) &&
+                  needToFetchMembers)) {
             unawaited(
               fetchMucMembers(
                 mucUid,

@@ -237,17 +237,15 @@ class CallRepo {
             unawaited(_dispose());
           } else {
             if (isCallIdEqualToCurrentCallId(event)) {
-              if (!isDesktopNative) {
-                _cancelTimerResendEvent();
-                _callOfferBody = callEvent.offer.body;
-                _callOfferCandidate = callEvent.offer.candidates;
-                _saveOfferOnDB(
-                  callEvent.offer.body,
-                  callEvent.offer.candidates,
-                );
-                if (inSynchronousCalls) {
-                  await _checkCallOfferIsReady();
-                }
+              _cancelTimerResendEvent();
+              _callOfferBody = callEvent.offer.body;
+              _callOfferCandidate = callEvent.offer.candidates;
+              _saveOfferOnDB(
+                callEvent.offer.body,
+                callEvent.offer.candidates,
+              );
+              if (inSynchronousCalls) {
+                await _checkCallOfferIsReady();
               }
             } else if (callEvent.id != _callService.getCallId) {
               unawaited(_busyCall(event));
@@ -1574,7 +1572,8 @@ class CallRepo {
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     } else if (isDesktopNative) {
-      _notificationServices.cancelRoomNotifications(roomUid!.node);
+      // todo
+      //  _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
   }
 
@@ -1892,7 +1891,7 @@ class CallRepo {
       }
       unawaited(cancelCallNotification());
       if (hasSpeakerCapability && _localStream != null) {
-        _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
+        _localStream?.getAudioTracks()[0].enableSpeakerphone(false);
       }
       if (hasForegroundServiceCapability) {
         await _notificationForegroundService.foregroundServiceStop();
@@ -1914,7 +1913,9 @@ class CallRepo {
         }
       } else {
         try {
-          _audioService.stopCallAudioPlayer();
+          //todo
+
+          // _audioService.stopCallAudioPlayer();
         } catch (e) {
           _logger.e(e);
         }
@@ -1925,24 +1926,26 @@ class CallRepo {
           var byteSend = 0;
           var byteReceived = 0;
           if (_videoSender != null) {
-            final videoSender = await _videoSender!.getStats();
-            for (final stat in videoSender) {
-              if (stat.type == "transport") {
-                _logger.i(stat.values);
-                byteSend += stat.values["bytesSent"] as int;
-                byteReceived += stat.values["bytesReceived"] as int;
-              }
-            }
+            //todo
+            // final videoSender = await _videoSender!.getStats();
+            // for (final stat in videoSender) {
+            //   if (stat.type == "transport") {
+            //     _logger.i(stat.values);
+            //     byteSend += stat.values["bytesSent"] as int;
+            //     byteReceived += stat.values["bytesReceived"] as int;
+            //   }
+            // }
           }
           if (_audioSender != null) {
-            final videoSender = await _audioSender!.getStats();
-            for (final stat in videoSender) {
-              if (stat.type == "transport") {
-                _logger.i(stat.values);
-                byteSend += stat.values["bytesSent"] as int;
-                byteReceived += stat.values["bytesReceived"] as int;
-              }
-            }
+            //todo
+            // final videoSender = await _audioSender!.getStats();
+            // for (final stat in videoSender) {
+            //   if (stat.type == "transport") {
+            //     _logger.i(stat.values);
+            //     byteSend += stat.values["bytesSent"] as int;
+            //     byteReceived += stat.values["bytesReceived"] as int;
+            //   }
+            // }
           }
           unawaited(_callService.saveCallDataUsage(byteSend, byteReceived));
         } catch (e) {
@@ -1959,16 +1962,16 @@ class CallRepo {
 
       callingStatus.add(CallStatus.ENDED);
       _logger.i("end call in service");
-
-      await _cleanLocalStream();
+//todo
+      // await _cleanLocalStream();
       _candidate = [];
     } catch (e) {
       _logger.e(e);
     } finally {
       try {
         if (_peerConnection != null) {
-          await _peerConnection?.close();
-          await _peerConnection?.dispose();
+          unawaited(_peerConnection?.close());
+          unawaited(_peerConnection?.dispose());
           _peerConnection = null;
         }
       } catch (e) {
@@ -1989,7 +1992,8 @@ class CallRepo {
         }
 
         if (_isConnected) {
-          _audioService.playEndCallSound();
+          //todo
+          // _audioService.playEndCallSound();
         }
 
         _isEnded = false;
@@ -1999,9 +2003,10 @@ class CallRepo {
         _isVideo = false;
         _isCallInitiated = false;
         callTimer.add(CountTimer(0, 0, 0));
-        _audioService
-          ..turnUpTheCallVolume()
-          ..stopCallAudioPlayer();
+        if (isMobileDevice)
+          _audioService
+            ..turnUpTheCallVolume()
+            ..stopCallAudioPlayer();
         _audioToggleOnCall();
 
         try {
@@ -2062,7 +2067,7 @@ class CallRepo {
     incomingAudioMuted.add(false);
     speakingAmplitude.add(0.0);
     incomingSpeakingAmplitude.add(0.0);
-    await _phoneStateStream?.cancel();
+    if (isAndroidNative) await _phoneStateStream?.cancel();
     isSpeaker.add(false);
   }
 

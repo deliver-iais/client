@@ -1,11 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="ir.we.deliver">
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />  <!-- If you want to use the limited access feature. -->
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-permission
+            android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>  <!-- If you want to use the limited access feature. -->
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -17,8 +18,8 @@
     <uses-feature android:name="android.hardware.camera.autofocus"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<!--    <uses-permission android:name="android.permission.SEND_SMS"/>-->
-<!--    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>-->
+    <!--    <uses-permission android:name="android.permission.SEND_SMS"/>-->
+    <!--    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
@@ -55,6 +56,7 @@
             android:installLocation="auto"
             android:usesCleartextTraffic="true"
             android:allowBackup="false"
+            android:enableOnBackInvokedCallback="false"
             android:launchMode="singleTask"
             android:fullBackupOnly="false"
             android:requestLegacyExternalStorage="true"

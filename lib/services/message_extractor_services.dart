@@ -114,6 +114,7 @@ class MessageExtractorServices {
 
   Future<String> getMessageSender(Uid from, Uid roomUid) async {
     if (roomUid.isChannel()) {
+      return "";
       final isMucOwnerOrAdminInChannel =
           await _mucRepo.getCurrentUserRoleIsAdminOrOwner(
         roomUid,
@@ -492,8 +493,10 @@ class MessageExtractorServices {
     return msg;
   }
 
-  Message extractMessage(message_pb.Message message,
-      {bool needToBackup = false,}) {
+  Message extractMessage(
+    message_pb.Message message, {
+    bool needToBackup = false,
+  }) {
     var body = EMPTY_MESSAGE;
     var isHidden = false;
 

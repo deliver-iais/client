@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:image_picker/image_picker.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_box_item_icon.dart';
@@ -194,7 +194,7 @@ class GalleryBoxState extends State<GalleryBox> {
                                 onAvatarSelected: widget.onAvatarSelected,
                               );
                             } else {
-                              Timer(const Duration(milliseconds: 800),
+                              Timer(const Duration(milliseconds: 500),
                                   () async {
                                 if (hasCamera) {
                                   await _cameraService.enableRecordAudio();
@@ -203,6 +203,34 @@ class GalleryBoxState extends State<GalleryBox> {
                                     roomUid: widget.roomUid,
                                     onAvatarSelected: widget.onAvatarSelected,
                                   );
+                                } else {
+                                  try {
+                                    final picker = ImagePicker();
+                                    final media = await picker.pickImage(
+                                        source: ImageSource.camera);
+                                    if (media != null &&
+                                        media.path.isNotEmpty) {
+                                      if (widget.selectAsAvatar) {
+                                        Navigator.pop(context);
+                                        widget.onAvatarSelected!(media.path);
+                                      } else {
+                                        Navigator.pop(context);
+                                        _routingService.openViewImagePage(
+                                          imagePath: media.path,
+                                          onEditEnd: (path) {
+                                            if (widget.selectAsAvatar) {
+                                              widget.onAvatarSelected!(path);
+                                            }
+                                          },
+                                          onSend: (caption, path) {
+                                            _sendTakedImage(path, caption);
+                                            Navigator.pop(c);
+                                          },
+                                          forceToShowCaptionTextField: true,
+                                        );
+                                      }
+                                    }
+                                  } catch (_) {}
                                 }
                               });
                             }
@@ -382,6 +410,16 @@ class GalleryBoxState extends State<GalleryBox> {
       _selectedImage.add(imagePath);
     }
     setState(() {});
+  }
+
+  void _sendTakedImage(String path, String caption) {
+    _messageRepo.sendMultipleFilesMessages(
+      widget.roomUid!,
+      {path}.map(pathToFileModel).toList(),
+      replyToId: widget.replyMessageId,
+      caption: caption,
+    );
+    widget.resetRoomPageDetails?.call();
   }
 
   void _sendMessage(String caption) {

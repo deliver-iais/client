@@ -42,6 +42,14 @@ public class Application extends FlutterFragmentActivity implements PluginRegist
     private int field = 0x00000020;
     private FlutterEngine flutterEngine;
 
+    private static final String CHANNEL = "BACK_PRESSED";
+
+    @Override
+    public void onBackPressed() {
+        // Send a message to Flutter when back button is pressed
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL).invokeMethod("onBackPressed", null);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +65,7 @@ public class Application extends FlutterFragmentActivity implements PluginRegist
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
         StoragePathPlugin storagePathPlugin = new StoragePathPlugin(this);
+        this.flutterEngine = flutterEngine;
 
         new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), GET_MEDIA_CHANNEL).setMethodCallHandler(
                 (call, result) -> {
@@ -100,6 +109,8 @@ public class Application extends FlutterFragmentActivity implements PluginRegist
                         }
                     }
                 });
+
+
     }
 
 
