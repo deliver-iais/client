@@ -63,7 +63,7 @@
             android:extractNativeLibs="false"
             android:icon="@mipmap/ic_launcher">
         <activity
-                android:name="io.flutter.embedding.android.FlutterFragmentActivity"
+                android:name=".Application"
                 android:launchMode="singleTask"
                 android:exported="true"
                 android:theme="@style/LaunchTheme"
