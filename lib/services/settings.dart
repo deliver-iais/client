@@ -30,11 +30,11 @@ class Settings {
   final powerSaverBatteryLevel = PerformanceMonitor.powerSaverBatteryLevel;
 
   final accessToken = StringPersistent(
-    SharedKeys.SHARED_DAO_ACCESS_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_ACCESS_TOKEN_KEY.inSharedDaoStorage(),
     defaultValue: "",
   );
   final refreshToken = StringPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_KEY.inSharedDaoStorage(),
     defaultValue: "",
   );
   final refreshTokenDao = StringPersistent(
@@ -42,33 +42,32 @@ class Settings {
     defaultValue: "",
   );
   final accessTokenGetTime = IntPersistent(
-    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_KEY.inSharedDaoStorage(),
     defaultValue: 0,
   );
 
   final accessTokenExpireTime = IntPersistent(
-    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_EXP_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_ACCESS_TOKEN_TIME_EXP_KEY.inSharedDaoStorage(),
     defaultValue: 0,
   );
 
   final refreshTokenGetTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_KEY.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_KEY.inSharedDaoStorage(),
     defaultValue: 0,
   );
 
   final refreshTokenExpireTime = IntPersistent(
-    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_EXP_KEY
-        .inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_REFRESH_TOKEN_TIME_EXP_KEY.inSharedDaoStorage(),
     defaultValue: 0,
   );
 
   final localPassword = StringPersistent(
-    SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_LOCAL_PASSWORD.inSharedDaoStorage(),
     defaultValue: "",
   );
 
   final localAuth = BooleanPersistent(
-    SharedKeys.SHARED_DAO_LOCAL_AUTH.inSharedPreferenceStorage(),
+    SharedKeys.SHARED_DAO_LOCAL_AUTH.inSharedDaoStorage(),
     defaultValue: false,
   );
 
@@ -149,7 +148,7 @@ class Settings {
     toJsonMap: AccountToJson,
   );
   final lastMessageDeliveryAck = ProtoPersistent<MessageDeliveryAck>(
-    SharedKeys.LAST_MESSAGE_DELIVERY_ACK.inSharedPreferenceStorage(),
+    SharedKeys.LAST_MESSAGE_DELIVERY_ACK.inSharedDaoStorage(),
     defaultValue: MessageDeliveryAck.getDefault(),
     fromJson: MessageDeliveryAck.fromJson,
   );
