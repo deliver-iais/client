@@ -119,7 +119,7 @@ class MucMemberWidgetState extends State<MucMemberWidget> {
     final res = <Member>[];
     for (final member in _members) {
       final name = await _roomRepo.getName(member.memberUid);
-      if (name.contains(term)) {
+      if (name.contains(term) || name.toLowerCase().contains(term)) {
         res.add(member);
       }
     }

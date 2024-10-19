@@ -263,7 +263,7 @@ class BroadcastService {
         .toList();
 
     if (recipientUidList.isEmpty) {
-      recipientUidList = (await _mucRepo.fetchMucMembers(broadcastUid, 4))
+      recipientUidList = (await _mucRepo.fetchMucMembers(broadcastUid, 4, 1))
           .map((e) => e.memberUid)
           .toList();
     }
