@@ -241,7 +241,7 @@ dependencies:
   uuid: 3.0.7
   vibration: ^1.8.2
   video_player: ^2.7.2
-  wakelock: 0.6.2
+  wakelock_plus: 1.2.8
   win_toast:
     git:
       path: packages/win_toast

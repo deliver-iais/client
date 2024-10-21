@@ -42,7 +42,7 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 enum CallStatus {
   CREATED,
@@ -876,7 +876,7 @@ class CallRepo {
       if (_isVideo) {
         if (hasSpeakerCapability) {
           try {
-            await Wakelock.enable();
+            await WakelockPlus.enable();
           } catch (e) {
             _logger.e(e);
           }
@@ -884,6 +884,12 @@ class CallRepo {
           isSpeaker.add(true);
         }
       } else if (hasSpeakerCapability) {
+        try {
+          unawaited(WakelockPlus.enable());
+        } catch (_) {
+          _logger.e(e);
+        }
+
         _localStream!.getAudioTracks()[0].enableSpeakerphone(isSpeaker.value);
       }
 
@@ -2017,7 +2023,7 @@ class CallRepo {
           );
           if (isMobileDevice) {
             try {
-              await Wakelock.disable();
+              await WakelockPlus.disable();
             } catch (e) {
               _logger.e(e);
             }
