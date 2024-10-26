@@ -7,6 +7,8 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/animation_settings.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -30,7 +32,7 @@ class HasCallRowState extends State<HasCallRow> {
       initialData: CallStatus.NO_CALL,
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
-        if (callRepo.isCallFromNotActiveState) {
+        if (false &&callRepo.isCallFromNotActiveState) {
           return const SizedBox.shrink();
         }
         Widget renderer;

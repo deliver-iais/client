@@ -1,20 +1,17 @@
 const FARSI_FEATURE_LIST = <String>[
-  "اضافه شدن قابلیت  اثرانگشت در بخش امنیت",
-  "رفع مشکل نمایش توضیحات در فایل ها",
-  "رفع مشکل تغییر عکس پروفایل",
-  "رفع مشکل تماس با ویندوز",
-  "رفع مشکل اتصال بعد از به خواب رفتن برنامه ",
+  "رفع مشکل صدا در تماس طولانی",
+  "رفع مشکل نصب در ویندوز 10",
   "رفع مشکل نمایش اعضا گروه",
 ];
 
 const ENGLISH_FEATURE_LIST = [
-  "Added fingerprint lock feature",
-  "Fixed the problem of displaying caption in files",
-  "Fixing the problem of changing the profile picture",
+  "Fixing the sound problem in a long call",
+  "Fixing the installation problem in Windows 10",
+  "Fixing the problem of displaying group members",
 ];
 
 const ARABIC_FEATURE_LIST = [
-  "تمت إضافة ميزة قفل بصمة الإصبع",
-  "تم إصلاح مشكلة عرض الأوصاف في الملفات",
-  "تم إصلاح مشكلة عرض الأوصاف في الملفات",
+  "إصلاح مشكلة الصوت في المكالمة الطويلة",
+  "إصلاح مشكلة التثبيت في نظام التشغيل Windows 10",
+  "إصلاح مشكلة ظهور أعضاء المجموعة"
 ];

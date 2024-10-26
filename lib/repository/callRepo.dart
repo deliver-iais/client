@@ -1079,29 +1079,32 @@ class CallRepo {
   Future<void> shareScreen({
     DesktopCapturerSource? source,
   }) async {
-    if (!_isSharing) {
-      //before sharing if camera on make it off
-      if (videoing.value) {
-        muteCamera();
-      }
+    final isGranted = await Helper.requestCapturePermission();
+    if (isGranted) {
+      if (!_isSharing) {
+        //before sharing if camera on make it off
+        if (videoing.value) {
+          muteCamera();
+        }
 
-      _localStreamShare = await CallUtils.getUserDisplay(source);
-      final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
-      await _videoSender!.replaceTrack(screenVideoTrack);
-      onLocalStream?.call(_localStreamShare!);
-      _isSharing = true;
-      sharing.add(true);
-      if (_isDCReceived) {
-        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
-      }
-    } else {
-      final camVideoTrack = _localStream!.getVideoTracks()[0];
-      await _videoSender!.replaceTrack(camVideoTrack);
-      onLocalStream?.call(_localStream!);
-      _isSharing = false;
-      sharing.add(false);
-      if (_isDCReceived) {
-        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+        _localStreamShare = await CallUtils.getUserDisplay(source);
+        final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
+        await _videoSender!.replaceTrack(screenVideoTrack);
+        onLocalStream?.call(_localStreamShare!);
+        _isSharing = true;
+        sharing.add(true);
+        if (_isDCReceived) {
+          return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+        }
+      } else {
+        final camVideoTrack = _localStream!.getVideoTracks()[0];
+        await _videoSender!.replaceTrack(camVideoTrack);
+        onLocalStream?.call(_localStream!);
+        _isSharing = false;
+        sharing.add(false);
+        if (_isDCReceived) {
+          return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+        }
       }
     }
   }
