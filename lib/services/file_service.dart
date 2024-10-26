@@ -134,8 +134,8 @@ class FileService {
 
   FileService() {
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
-      client.badCertificateCallback = (cert, host, port) => true;
+        (client) {
+      client.badCertificateCallback = (cert, host, port) => false;
       return client;
     };
     _dio.interceptors.add(
