@@ -42,7 +42,7 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 enum CallStatus {
   CREATED,
@@ -876,7 +876,7 @@ class CallRepo {
       if (_isVideo) {
         if (hasSpeakerCapability) {
           try {
-            await Wakelock.enable();
+            await WakelockPlus.enable();
           } catch (e) {
             _logger.e(e);
           }
@@ -884,6 +884,12 @@ class CallRepo {
           isSpeaker.add(true);
         }
       } else if (hasSpeakerCapability) {
+        try {
+          unawaited(WakelockPlus.enable());
+        } catch (_) {
+          _logger.e(e);
+        }
+
         _localStream!.getAudioTracks()[0].enableSpeakerphone(isSpeaker.value);
       }
 
@@ -1073,29 +1079,32 @@ class CallRepo {
   Future<void> shareScreen({
     DesktopCapturerSource? source,
   }) async {
-    if (!_isSharing) {
-      //before sharing if camera on make it off
-      if (videoing.value) {
-        muteCamera();
-      }
+    final isGranted = await Helper.requestCapturePermission();
+    if (isGranted) {
+      if (!_isSharing) {
+        //before sharing if camera on make it off
+        if (videoing.value) {
+          muteCamera();
+        }
 
-      _localStreamShare = await CallUtils.getUserDisplay(source);
-      final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
-      await _videoSender!.replaceTrack(screenVideoTrack);
-      onLocalStream?.call(_localStreamShare!);
-      _isSharing = true;
-      sharing.add(true);
-      if (_isDCReceived) {
-        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
-      }
-    } else {
-      final camVideoTrack = _localStream!.getVideoTracks()[0];
-      await _videoSender!.replaceTrack(camVideoTrack);
-      onLocalStream?.call(_localStream!);
-      _isSharing = false;
-      sharing.add(false);
-      if (_isDCReceived) {
-        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+        _localStreamShare = await CallUtils.getUserDisplay(source);
+        final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
+        await _videoSender!.replaceTrack(screenVideoTrack);
+        onLocalStream?.call(_localStreamShare!);
+        _isSharing = true;
+        sharing.add(true);
+        if (_isDCReceived) {
+          return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+        }
+      } else {
+        final camVideoTrack = _localStream!.getVideoTracks()[0];
+        await _videoSender!.replaceTrack(camVideoTrack);
+        onLocalStream?.call(_localStream!);
+        _isSharing = false;
+        sharing.add(false);
+        if (_isDCReceived) {
+          return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+        }
       }
     }
   }
@@ -2017,7 +2026,7 @@ class CallRepo {
           );
           if (isMobileDevice) {
             try {
-              await Wakelock.disable();
+              await WakelockPlus.disable();
             } catch (e) {
               _logger.e(e);
             }

@@ -236,7 +236,8 @@ class MucRepo {
 
   Future<List<Member>> fetchMucMembers(
     Uid mucUid,
-    int len, {
+    int len,
+    int lastUpdate, {
     String query = "",
   }) async {
     try {
@@ -298,6 +299,11 @@ class MucRepo {
           population: membersSize,
         );
       }
+
+      await _mucDao.updateMuc(
+        uid: mucUid,
+        lastUpdateTime: lastUpdate,
+      );
 
       return members;
     } catch (e) {
@@ -373,7 +379,6 @@ class MucRepo {
               info: channel.info.info,
               currentUserRole: getLocalRole(channel.requesterRole),
               token: channel.token,
-              lastUpdateTime: channel.lastUpdate.toInt(),
               lastCanceledPinMessageId:
                   c != null ? c.lastCanceledPinMessageId : 0,
               pinMessagesIdList:
@@ -392,17 +397,13 @@ class MucRepo {
             );
           }
 
-          if (((c == null ||
-                      c.population != channel.population.toInt() ||
-                      c.lastUpdateTime < channel.lastUpdate.toInt()) ||
+          if (((c == null || c.lastUpdateTime < channel.lastUpdate.toInt()) ||
                   needToFetchMembers) &&
               (channel.requesterRole == muc_pb.Role.ADMIN ||
                   channel.requesterRole == muc_pb.Role.OWNER)) {
             unawaited(
-              fetchMucMembers(
-                mucUid,
-                channel.population.toInt(),
-              ),
+              fetchMucMembers(mucUid, channel.population.toInt(),
+                  channel.lastUpdate.toInt()),
             );
           }
           return _mucDao.get(mucUid);
@@ -422,7 +423,8 @@ class MucRepo {
           );
           if (needToFetchMembers) {
             unawaited(
-              fetchMucMembers(mucUid, broadcast.population.toInt()),
+              fetchMucMembers(mucUid, broadcast.population.toInt(),
+                  broadcast.lastUpdate.toInt()),
             );
           }
         }
@@ -443,7 +445,6 @@ class MucRepo {
           await _mucDao.updateMuc(
             uid: mucUid,
             name: group.info.name,
-            lastUpdateTime: group.lastUpdate.toInt(),
             population: group.population.toInt(),
             info: group.info.info,
             token: group.token,
@@ -451,15 +452,13 @@ class MucRepo {
             pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
           );
 
-          if (needToFetchMembers ||
-              m == null ||
-              ((m.population != group.population.toInt() ||
-                      group.lastUpdate.toInt() > m.lastUpdateTime) &&
-                  needToFetchMembers)) {
+          if (needToFetchMembers &&
+              (m == null || group.lastUpdate.toInt() > m.lastUpdateTime)) {
             unawaited(
               fetchMucMembers(
                 mucUid,
                 group.population.toInt(),
+                group.lastUpdate.toInt(),
               ),
             );
           }
@@ -902,9 +901,9 @@ class MucRepo {
     if (mucUid.isGroup()) {
       members = await getUserName(members);
     }
-    // if (members.isNotEmpty) {
-    //   await _mucDao.deleteAllMembers(mucUid);
-    // }
+    if (members.isNotEmpty) {
+      await _mucDao.deleteAllMembers(mucUid);
+    }
     for (final member in members) {
       {
         unawaited(_mucDao.saveMember(member));
@@ -913,7 +912,7 @@ class MucRepo {
   }
 
   Future<List<Member>> getUserName(List<Member> members) async {
-    var res = <Member>[];
+    final res = <Member>[];
     for (var m in members) {
       if (m.username.isEmpty) {
         final id = await GetIt.I.get<RoomRepo>().getIdByUid(m.memberUid);
