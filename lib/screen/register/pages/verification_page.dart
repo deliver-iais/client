@@ -14,6 +14,7 @@ import 'package:deliver/shared/methods/number_input_formatter.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/intro_widget.dart';
 import 'package:deliver/shared/widgets/ws.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,8 +26,17 @@ import 'package:rxdart/rxdart.dart';
 
 class VerificationPage extends StatefulWidget {
   final VerificationType verificationType;
+  final PhoneNumber? phoneNumber;
+  final String? email;
+  final LoginType loginType;
 
-  const VerificationPage({super.key, required this.verificationType});
+  const VerificationPage({
+    super.key,
+    required this.verificationType,
+    this.phoneNumber,
+    required this.loginType,
+    this.email,
+  });
 
   @override
   VerificationPageState createState() => VerificationPageState();
@@ -172,7 +182,7 @@ class VerificationPageState extends State<VerificationPage> {
                   child: Ws.asset(
                     "assets/animations/code.ws",
                     repeat: false,
-                    height: 150,
+                    height: 120,
                     width: 150,
                   ),
                 ),
@@ -182,14 +192,62 @@ class VerificationPageState extends State<VerificationPage> {
                   builder: (context, verificationTypeSnapshot) {
                     if (verificationTypeSnapshot.hasData &&
                         verificationTypeSnapshot.data != null) {
-                      return Text(
-                        "${verificationTypeSnapshot.data! == VerificationType.MESSAGE ? _i18n.get("verification_code_send_in_other_device") : _i18n.get("verification_code_send_by_sms")}",
-                        textDirection: _i18n.defaultTextDirection,
-                        style: theme.textTheme.titleMedium,
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _i18n.get(
+                              "we_send_verification_code",
+                            ),
+                          ),
+                          if (widget.loginType == LoginType.LOGIN_BY_PHONE)
+                            Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Text(
+                                "+${widget.phoneNumber!.countryCode}\t${widget.phoneNumber!.nationalNumber}\t",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          else
+                            Text(
+                              "\t${widget.email}\t",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                        ],
                       );
                     }
                     return const SizedBox.shrink();
                   },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        widget.loginType == LoginType.LOGIN_BY_PHONE
+                            ? _i18n.get("change_phone_number")
+                            : _i18n.get(
+                                "change_email",
+                              ),
+                      ),
+                    ),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Icon(Icons.edit)),
+                  ],
+                ),
+                const SizedBox(
+                  height: 6,
                 ),
                 const SizedBox(height: p16),
                 Padding(
@@ -271,7 +329,9 @@ class VerificationPageState extends State<VerificationPage> {
                                     timer.data != null &&
                                     timer.data! > 0) {
                                   return Text("${_i18n.get(
-                                    "you_can_request_an_sms_after",
+                                    widget.loginType == LoginType.LOGIN_BY_PHONE
+                                        ? "you_can_request_an_sms_after"
+                                        : "you_can_request_an_email_after",
                                   )} ${formatDuration(
                                     Duration(seconds: timer.data!),
                                   )}");
@@ -286,7 +346,7 @@ class VerificationPageState extends State<VerificationPage> {
                                           try {
                                             _verificationType.add(
                                               await _authRepo
-                                                  .getVerificationCode(
+                                                  .getVerificationCodeByPhone(
                                                 forceToSendSms: true,
                                               ),
                                             );
@@ -295,12 +355,17 @@ class VerificationPageState extends State<VerificationPage> {
                                           }
                                         },
                                         child: Text(
-                                          verificationTypeSnapshot.data! ==
-                                                  VerificationType.MESSAGE
-                                              ? _i18n.get(
-                                                  "get_verification_code_by_sms",
-                                                )
-                                              : _i18n.get("resend_sms_code"),
+                                          widget.loginType ==
+                                                  LoginType.LOGIN_BY_EMAIL
+                                              ? _i18n.get("resend_email_code")
+                                              : verificationTypeSnapshot
+                                                          .data! ==
+                                                      VerificationType.MESSAGE
+                                                  ? _i18n.get(
+                                                      "get_verification_code_by_sms",
+                                                    )
+                                                  : _i18n
+                                                      .get("resend_sms_code"),
                                         ),
                                       );
                                     }

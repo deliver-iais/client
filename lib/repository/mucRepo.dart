@@ -397,7 +397,9 @@ class MucRepo {
             );
           }
 
-          if (((c == null || c.lastUpdateTime < channel.lastUpdate.toInt()) ||
+          if (((c == null ||
+                      channel.lastUpdate == 0 ||
+                      c.lastUpdateTime < channel.lastUpdate.toInt()) ||
                   needToFetchMembers) &&
               (channel.requesterRole == muc_pb.Role.ADMIN ||
                   channel.requesterRole == muc_pb.Role.OWNER)) {
@@ -453,7 +455,10 @@ class MucRepo {
           );
 
           if (needToFetchMembers &&
-              (m == null || group.lastUpdate.toInt() > m.lastUpdateTime)) {
+              (m == null ||
+                  group.lastUpdate.toInt() == 0 ||
+                  group.lastUpdate.toInt() > m.lastUpdateTime)) {
+            print("ffffffffffffffffffffffffffffffffffff");
             unawaited(
               fetchMucMembers(
                 mucUid,

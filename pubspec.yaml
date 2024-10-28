@@ -74,8 +74,8 @@ dependencies:
 
   deliver_public_protocol:
     git:
-      ref: tags/v1.15.84
-      url: https://github.com/deliver-iais/pub-dart-artifactory
+      ref: tags/v1.15.88
+      url: https://gitlab.iais.co/deliver/protocol/pub-dart-artifactory.git
   desktop_drop: 0.4.1
   desktop_lifecycle: ^0.1.1
   desktop_window:

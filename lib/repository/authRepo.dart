@@ -97,7 +97,7 @@ class AuthRepo {
     await syncTimeAndServersSettingWithServer();
   }
 
-  Future<VerificationType> getVerificationCode({
+  Future<VerificationType> getVerificationCodeByPhone({
     PhoneNumber? phoneNumber,
     bool forceToSendSms = false,
   }) async {
@@ -112,11 +112,10 @@ class AuthRepo {
     final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = phone
-        ..type =
-            forceToSendSms ? VerificationType.SMS : VerificationType.SMS
+        ..type = forceToSendSms ? VerificationType.SMS : VerificationType.SMS
         ..platform = platform,
       options: CallOptions(
-        timeout: const Duration(seconds: 10),
+        timeout: const Duration(seconds: 5),
         metadata: {"no_access_token": ""},
       ),
     );
@@ -128,6 +127,24 @@ class AuthRepo {
     }
     _tmpPhoneNumber = phone;
 
+    return res.type;
+  }
+
+  Future<VerificationType> getVerificationCodeByEmail({
+    required String email,
+  }) async {
+    final platform = await getPlatformPB();
+
+    final res = await _sdr.authServiceClient.getVerificationCode(
+      GetVerificationCodeReq()
+        ..email = email
+        ..type = VerificationType.EMAIL
+        ..platform = platform,
+      options: CallOptions(
+        timeout: const Duration(seconds: 5),
+        metadata: {"no_access_token": ""},
+      ),
+    );
     return res.type;
   }
 
@@ -222,9 +239,7 @@ class AuthRepo {
 
   bool isLocalAuthEnabled() => settings.localAuth.value;
 
-  void changeAuthState()=>settings.localAuth.set(!settings.localAuth.value);
-
-
+  void changeAuthState() => settings.localAuth.set(!settings.localAuth.value);
 
   Stream<bool> get isLocalLockEnabledStream =>
       settings.localPassword.stream.map((pass) => pass != "");
@@ -428,7 +443,7 @@ class AuthRepo {
     settings.accessTokenExpireTime
         .set(clock.now().millisecondsSinceEpoch + (900 * 1000));
     settings.refreshTokenExpireTime
-        .set(clock.now().millisecondsSinceEpoch +( 3000000 * 1000));
+        .set(clock.now().millisecondsSinceEpoch + (3000000 * 1000));
     settings.accessToken.set(accessToken);
     settings.refreshToken.set(refreshToken);
     settings.refreshTokenDao.set(refreshToken);
