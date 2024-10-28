@@ -11,6 +11,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/avatar.dart';
+import 'package:deliver/shared/methods/email_validator.dart';
 import 'package:deliver/shared/methods/file_helpers.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -464,17 +465,6 @@ class AccountSettingsState extends State<AccountSettings> {
     return null;
   }
 
-  String? validateEmail(String? value) {
-    const Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    final regex = RegExp(pattern.toString());
-    if (value!.isEmpty) {
-      return null;
-    } else if (!regex.hasMatch(value)) {
-      return _i18n.get("email_not_valid");
-    }
-    return null;
-  }
 
   Future<void> checkAndSend() async {
     final navigatorState = Navigator.of(context);

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
@@ -13,6 +14,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/email_validator.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
@@ -27,6 +29,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -42,6 +45,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
+  final loginType = LoginType.LOGIN_BY_PHONE.obs;
+  final _emailController = TextEditingController();
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -50,6 +55,7 @@ class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _acceptPrivacyKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
+
   bool loginWithQrCode = isDesktopDevice;
   final BehaviorSubject<bool> _acceptPrivacy =
       BehaviorSubject.seeded(kDebugMode);
@@ -144,16 +150,26 @@ class LoginPageState extends State<LoginPage> {
         unawaited(_shakeWidgetController.shake());
       } else {
         final navigatorState = Navigator.of(context);
-        if (phoneNumber != null) {
+        if (loginType.value == LoginType.LOGIN_BY_EMAIL ||
+            phoneNumber != null) {
           _isLoading.add(true);
           try {
             final verificationType =
-                await _authRepo.getVerificationCode(phoneNumber: phoneNumber);
+                await (loginType.value == LoginType.LOGIN_BY_PHONE
+                    ? _authRepo.getVerificationCodeByPhone(
+                        phoneNumber: phoneNumber,
+                      )
+                    : _authRepo.getVerificationCodeByEmail(
+                        email: _emailController.text,
+                      ));
             navigatorState
                 .push(
                   MaterialPageRoute(
                     builder: (c) => VerificationPage(
                       verificationType: verificationType,
+                      phoneNumber: phoneNumber,
+                      email: _emailController.text,
+                      loginType: loginType.value,
                     ),
                   ),
                 )
@@ -201,6 +217,30 @@ class LoginPageState extends State<LoginPage> {
           child: Scaffold(
             appBar: AppBar(
               centerTitle: true,
+              actions: [
+                SizedBox(
+                  width: 120,
+                  height: 60,
+                  child: SettingsTile(
+                    title: "",
+                    subtitle: _i18n.language.languageName,
+                    leading: const Icon(CupertinoIcons.globe),
+                    onPressed: (context) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) {
+                            return const LanguageSettingsPage(
+                              rootFromLoginPage: true,
+                            );
+                          },
+                        ),
+                      );
+                      // _routingService.openLanguageSettings();
+                    },
+                  ),
+                ),
+              ],
               title: Text(_i18n.get("login")),
               backgroundColor: theme.scaffoldBackgroundColor,
             ),
@@ -300,44 +340,105 @@ class LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                const SizedBox(
+                  height: 30,
+                ),
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      border: Border.all(style: BorderStyle.solid, width: 0.80),
+                    ),
+                    child: DropdownButton<LoginType>(
+                      underline: const SizedBox(),
+                      borderRadius: BorderRadius.circular(20),
+                      value: loginType.value,
+                      items: LoginType.values.map((value) {
+                        return DropdownMenuItem<LoginType>(
+                          value: value,
+                          child: buildLoginTypeUi(value),
+                        );
+                      }).toList(),
+                      onChanged: (_) {
+                        if (_ != null) {
+                          loginType.value = _;
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
                 Expanded(
                   child: Column(
                     children: <Widget>[
                       const SizedBox(height: 20),
-                      Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: IntlPhoneField(
-                          initialCountryCode: phoneNumber != null
-                              ? phoneNumber!.countryCode.toString()
-                              : null,
-                          controller: controller,
-                          validator: (value) => value == null ||
-                                  value.isEmpty ||
-                                  value.length > _maxLength ||
-                                  value.length < _minLength
-                              ? i18n.get("invalid_mobile_number")
-                              : null,
-                          onChanged: (p) {
-                            phoneNumber = p;
-                          },
-                          onMaxAndMinLengthChanged: (min, max) {
-                            _maxLength = max;
-                            _minLength = min;
-                          },
-                          onSubmitted: (p) {
-                            phoneNumber = p;
-                            if (_acceptPrivacy.value) {
-                              checkAndGoNext();
-                            }
-                          },
-                          key: const Key("IntlPhoneField"),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        i18n.get("insert_phone_and_code"),
-                        style: theme.textTheme.labelSmall,
-                      ),
+                      Obx(() => Column(
+                            children: loginType.value ==
+                                    LoginType.LOGIN_BY_PHONE
+                                ? [
+                                    Directionality(
+                                      textDirection: TextDirection.ltr,
+                                      child: IntlPhoneField(
+                                        initialCountryCode: phoneNumber != null
+                                            ? phoneNumber!.countryCode
+                                                .toString()
+                                            : null,
+                                        controller: controller,
+                                        validator: (value) => value == null ||
+                                                value.isEmpty ||
+                                                value.length > _maxLength ||
+                                                value.length < _minLength
+                                            ? i18n.get("invalid_mobile_number")
+                                            : null,
+                                        onChanged: (p) {
+                                          phoneNumber = p;
+                                        },
+                                        onMaxAndMinLengthChanged: (min, max) {
+                                          _maxLength = max;
+                                          _minLength = min;
+                                        },
+                                        onSubmitted: (p) {
+                                          phoneNumber = p;
+                                          if (_acceptPrivacy.value) {
+                                            checkAndGoNext();
+                                          }
+                                        },
+                                        key: const Key("IntlPhoneField"),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      i18n.get("insert_phone_and_code"),
+                                      style: theme.textTheme.labelSmall,
+                                    ),
+                                  ]
+                                : [
+                                    Container(
+                                      width: 370,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: TextFormField(
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          textAlign: TextAlign.center,
+                                          controller: _emailController,
+                                          validator: (_) =>
+                                              validateEmail(_, required: true),
+                                          decoration: const InputDecoration(
+                                              hintText: "test@gmail.com",
+                                              hintStyle: TextStyle(
+                                                  color: Colors.black26),
+                                              suffixIcon:
+                                                  Icon(Icons.email_outlined)),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                          )),
                       const SizedBox(height: 24),
                       ShakeWidget(
                         controller: _shakeWidgetController,
@@ -387,31 +488,6 @@ class LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant,
-                    borderRadius: secondaryBorder,
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: SettingsTile(
-                    title: _i18n.get("language"),
-                    subtitle: _i18n.language.languageName,
-                    leading: const Icon(CupertinoIcons.globe),
-                    onPressed: (context) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (c) {
-                            return const LanguageSettingsPage(
-                              rootFromLoginPage: true,
-                            );
-                          },
-                        ),
-                      );
-                      // _routingService.openLanguageSettings();
-                    },
                   ),
                 ),
                 StreamBuilder<bool>(
@@ -487,6 +563,30 @@ class LoginPageState extends State<LoginPage> {
           );
         }
       },
+    );
+  }
+
+  Widget buildLoginTypeUi(LoginType type) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10, left: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: type == LoginType.LOGIN_BY_PHONE
+            ? [
+                Text(_i18n.get("login_by_phone")),
+                const SizedBox(
+                  width: 10,
+                ),
+                const Icon(Icons.phone),
+              ]
+            : [
+                Text(_i18n.get("login_by_email")),
+                const SizedBox(
+                  width: 10,
+                ),
+                const Icon(Icons.mail_outline),
+              ],
+      ),
     );
   }
 

@@ -146,6 +146,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.file:
         final type = msg.file.type;
+
         final superType = type.split("/").first;
 
         if (isImageFileType(type)) {
@@ -157,7 +158,11 @@ class MessageExtractorServices {
         } else {
           typeDetails = _i18n.get(superType);
         }
-        text = msg.file.caption;
+        text = isImageFileType(type) ||
+                isAudioFileType(type) ||
+                isVideoFileType(type)
+            ? msg.file.caption
+            : msg.file.name;
         break;
       case message_pb.Message_Type.sticker:
         typeDetails = _i18n.get("sticker");

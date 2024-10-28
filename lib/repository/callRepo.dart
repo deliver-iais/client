@@ -1581,8 +1581,7 @@ class CallRepo {
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     } else if (isDesktopNative) {
-      // todo
-      //  _notificationServices.cancelRoomNotifications(roomUid!.node);
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
   }
 
