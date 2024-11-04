@@ -458,7 +458,6 @@ class MucRepo {
               (m == null ||
                   group.lastUpdate.toInt() == 0 ||
                   group.lastUpdate.toInt() > m.lastUpdateTime)) {
-            print("ffffffffffffffffffffffffffffffffffff");
             unawaited(
               fetchMucMembers(
                 mucUid,
