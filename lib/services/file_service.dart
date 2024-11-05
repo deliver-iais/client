@@ -557,7 +557,7 @@ class FileService {
     final res = await compressFile(model.File(filePath, filename));
     filename = res.name;
     filePath = res.path;
-    filename = getFileName(filename);
+    filename = getFileName(filename).replaceAll("&", "_");
     filePath = normalizePath(filePath);
     final String size;
     late final Uint8List webBytes;
