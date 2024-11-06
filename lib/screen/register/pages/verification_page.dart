@@ -344,12 +344,22 @@ class VerificationPageState extends State<VerificationPage> {
                                       return TextButton(
                                         onPressed: () async {
                                           try {
-                                            _verificationType.add(
-                                              await _authRepo
-                                                  .getVerificationCodeByPhone(
-                                                forceToSendSms: true,
-                                              ),
-                                            );
+                                            if (widget.loginType ==
+                                                LoginType.LOGIN_BY_PHONE) {
+                                              _verificationType.add(
+                                                await _authRepo
+                                                    .getVerificationCodeByPhone(
+                                                  forceToSendSms: true,
+                                                ),
+                                              );
+                                            } else {
+                                              _verificationType.add(
+                                                await _authRepo
+                                                    .getVerificationCodeByEmail(
+                                                  email: widget.email!,
+                                                ),
+                                              );
+                                            }
                                           } catch (_) {
                                             _logger.e(_);
                                           }

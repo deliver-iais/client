@@ -138,7 +138,7 @@ class AuthRepo {
     final res = await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..email = email
-        ..type = VerificationType.EMAIL
+        ..loginType = LoginType.LOGIN_BY_EMAIL
         ..platform = platform,
       options: CallOptions(
         timeout: const Duration(seconds: 5),
