@@ -145,21 +145,24 @@ class AuthRepo {
         metadata: {"no_access_token": ""},
       ),
     );
+    _startResendTimer();
     return res.type;
   }
 
-  Future<AccessTokenRes> sendVerificationCode(
-    String code, {
-    String? password,
-  }) async {
+  Future<AccessTokenRes> sendVerificationCode(String code, LoginType loginType,
+      {String? password, String email = "",}) async {
     final platform = await getPlatformPB();
     final device = await getDeviceName();
 
     final res = await _sdr.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
-        ..phoneNumber = _tmpPhoneNumber!
+        ..phoneNumber = loginType == LoginType.LOGIN_BY_PHONE
+            ? _tmpPhoneNumber!
+            : PhoneNumber()
+        ..email = email
         ..code = code
         ..device = device
+        ..loginType = loginType
         ..platform = platform
         ..password = password ?? "",
       options: CallOptions(metadata: {"no_access_token": ""}),
@@ -329,8 +332,8 @@ class AuthRepo {
           ),
         );
       }
-      // Just ignore this option and set "Zero"
       _initServicesWhenGetInfoFromServerNotResponse();
+      // Just ignore this option and set "Zero"
     }
   }
 
@@ -441,7 +444,7 @@ class AuthRepo {
     required String refreshToken,
   }) {
     settings.accessTokenExpireTime
-        .set(clock.now().millisecondsSinceEpoch + (900 * 1000));
+        .set(clock.now().millisecondsSinceEpoch + (900000));
     settings.refreshTokenExpireTime
         .set(clock.now().millisecondsSinceEpoch + (3000000 * 1000));
     settings.accessToken.set(accessToken);

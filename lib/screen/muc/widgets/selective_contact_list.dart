@@ -52,9 +52,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
   late TextEditingController editingController;
 
-  List<User> selectedList = [];
-
-  final _items = <User>[].obs;
+  final _items = <String, User>{}.obs;
 
   var _contacts = <String, User>{};
 
@@ -111,13 +109,32 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       }
       _items
         ..clear()
-        ..addAll(_sortItems(dummyListData));
+        ..addAll(
+          {
+            for (final u in _createMucService.selected)
+              (u).uid?.node ?? (u).phoneNumber!.nationalNumber.toString(): u,
+          },
+        );
+      // ..addAll(_sortItems(dummyListData));
       searchById(query, dummyListData);
     } else {
       _items
         ..clear()
-        ..addAll(_sortItems(_contacts.values.toList()));
+        ..addAll(
+          {
+            for (final u in _createMucService.selected)
+              (u).uid?.node ?? (u).phoneNumber!.nationalNumber.toString(): u,
+          },
+        )
+        ..addAll(_convertUser(_sortItems(_contacts.values.toList())));
     }
+  }
+
+  Map<String, User> _convertUser(List<User> users) {
+    return Map.fromIterable(users,
+        key: (u) =>
+            (u as User).uid?.node ??
+            (u).phoneNumber!.nationalNumber.toString());
   }
 
   Future<void> searchById(String id, List<User> filtered) async {
@@ -126,9 +143,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       filtered.addAll(
         fil.map((e) => User(firstname: e.name ?? "", id: e.id, uid: e.uid)),
       );
-      _items
-        ..clear()
-        ..addAll(_sortItems(filtered));
+      _items.addAll(_convertUser(_sortItems(filtered)));
     }
   }
 
@@ -191,7 +206,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
                     _items
                       ..clear()
-                      ..addAll(_sortItems(_contacts.values.toList()));
+                      ..addAll(
+                          _convertUser(_sortItems(_contacts.values.toList())));
 
                     return buildItems(context);
                   } else {
@@ -199,7 +215,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                       _addLocalMembersToLocalMuc();
                       _items
                         ..clear()
-                        ..addAll(_sortItems(_contacts.values.toList()));
+                        ..addAll(_convertUser(
+                            _sortItems(_contacts.values.toList())));
                     }
                   }
                   return buildItems(context);
@@ -299,7 +316,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             )
           : ListView(
               children: [
-                const EmptyContacts(),
+                // const EmptyContacts(),
                 Padding(
                   padding: const EdgeInsetsDirectional.symmetric(
                     horizontal: 32,
@@ -323,18 +340,18 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        if (!members.contains(_items[index].uid?.asString())) {
+        if (!members.contains(_items.values.toList()[index].uid?.asString())) {
           if (!_createMucService.isSelected(
-            _items[index],
+            _items.values.toList()[index],
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
           )) {
             if (_createMucService.selected.length + members.length <
                 _createMucService.getMaxMemberLength(widget.categories)) {
               _createMucService.addSelected(
-                _items[index],
+                _items.values.toList()[index],
                 useBroadcastSmsContacts: widget.useSmsBroadcastList,
               );
-              editingController.clear();
+              // editingController.clear();
             } else {
               ToastDisplay.showToast(
                 toastText: _i18n.get("member_max_length_error"),
@@ -343,21 +360,22 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             }
           } else {
             _createMucService.deleteFromSelected(
-              _items[index],
+              _items.values.toList()[index],
               useBroadcastSmsContacts: widget.useSmsBroadcastList,
             );
-            editingController.clear();
+            // editingController.clear();
           }
         }
       },
       child: Obx(
         () => MucMemberSelectionWidget(
-          user: _items[index],
+          user: _items.values.toList()[index],
           isSelected: _createMucService.isSelected(
-            _items[index],
+            _items.values.toList()[index],
             useBroadcastSmsContacts: widget.useSmsBroadcastList,
           ),
-          currentMember: members.contains(_items[index].uid?.asString()),
+          currentMember:
+              members.contains(_items.values.toList()[index].uid?.asString()),
         ),
       ),
     );

@@ -343,16 +343,18 @@ class LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 30,
                 ),
+                if(false)
                 Obx(
                   () => Container(
+                    height: 42,
                     padding: const EdgeInsets.symmetric(horizontal: 0.0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
+                      borderRadius: BorderRadius.circular(35.0),
                       border: Border.all(style: BorderStyle.solid, width: 0.80),
                     ),
                     child: DropdownButton<LoginType>(
                       underline: const SizedBox(),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(35),
                       value: loginType.value,
                       items: LoginType.values.map((value) {
                         return DropdownMenuItem<LoginType>(
@@ -369,7 +371,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 40,
                 ),
                 Expanded(
                   child: Column(
@@ -573,14 +575,14 @@ class LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: type == LoginType.LOGIN_BY_PHONE
             ? [
-                Text(_i18n.get("login_by_phone")),
+                Text(_i18n.get("login_by_phone"),style: TextStyle(fontSize: 13),),
                 const SizedBox(
                   width: 10,
                 ),
                 const Icon(Icons.phone),
               ]
             : [
-                Text(_i18n.get("login_by_email")),
+                Text(_i18n.get("login_by_email"),style: TextStyle(fontSize: 13)),
                 const SizedBox(
                   width: 10,
                 ),

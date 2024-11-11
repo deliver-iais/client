@@ -623,18 +623,23 @@ class ProfilePageState extends State<ProfilePage>
     return Padding(
       padding: const EdgeInsetsDirectional.only(top: 8.0, bottom: 10.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
             padding: EdgeInsetsDirectional.symmetric(horizontal: 12.0),
             child: Icon(Icons.info),
           ),
-          Text(
-            info,
-            maxLines: 8,
-            textDirection: _i18n.defaultTextDirection,
-            style: const TextStyle(
-              fontSize: 12.0,
-              letterSpacing: -0.2,
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: Text(
+              info,
+              maxLines: 8,
+              overflow: TextOverflow.ellipsis,
+              textDirection: _i18n.defaultTextDirection,
+              style: const TextStyle(
+                fontSize: 12.0,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ],

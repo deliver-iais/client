@@ -66,6 +66,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                 final res = widget.verificationCode != null
                     ? await _autRepo.sendVerificationCode(
                         widget.verificationCode!,
+                        LoginType.LOGIN_BY_PHONE,
                         password: _password,
                       )
                     : await _autRepo.checkQrCodeToken(
@@ -219,7 +220,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                           Form(
                                             key: _formKey,
                                             child: IntlPhoneField(
-                                              controller: _phoneNumberController,
+                                              controller:
+                                                  _phoneNumberController,
                                               onMaxAndMinLengthChanged:
                                                   (min, max) {
                                                 _maxLength = max;
@@ -228,7 +230,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                               validator: (value) => value ==
                                                           null ||
                                                       value.isEmpty ||
-                                                      value.length > _maxLength ||
+                                                      value.length >
+                                                          _maxLength ||
                                                       value.length < _minLength
                                                   ? _i18n.get(
                                                       "invalid_mobile_number",
