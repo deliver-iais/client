@@ -82,6 +82,8 @@ class VerificationPageState extends State<VerificationPage> {
     FocusScope.of(context).requestFocus(_focusNode);
     final result = _authRepo.sendVerificationCode(
       _pinController.text.replaceFarsiNumber(),
+      widget.loginType,
+      email: widget.email ?? "",
     );
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {

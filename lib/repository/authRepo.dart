@@ -145,21 +145,24 @@ class AuthRepo {
         metadata: {"no_access_token": ""},
       ),
     );
+    _startResendTimer();
     return res.type;
   }
 
-  Future<AccessTokenRes> sendVerificationCode(
-    String code, {
-    String? password,
-  }) async {
+  Future<AccessTokenRes> sendVerificationCode(String code, LoginType loginType,
+      {String? password, String email = "",}) async {
     final platform = await getPlatformPB();
     final device = await getDeviceName();
 
     final res = await _sdr.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
-        ..phoneNumber = _tmpPhoneNumber!
+        ..phoneNumber = loginType == LoginType.LOGIN_BY_PHONE
+            ? _tmpPhoneNumber!
+            : PhoneNumber()
+        ..email = email
         ..code = code
         ..device = device
+        ..loginType = loginType
         ..platform = platform
         ..password = password ?? "",
       options: CallOptions(metadata: {"no_access_token": ""}),

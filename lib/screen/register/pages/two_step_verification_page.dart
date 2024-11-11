@@ -65,7 +65,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
               try {
                 final res = widget.verificationCode != null
                     ? await _autRepo.sendVerificationCode(
-                        widget.verificationCode!,
+                        widget.verificationCode!,LoginType.LOGIN_BY_PHONE,
                         password: _password,
                       )
                     : await _autRepo.checkQrCodeToken(
