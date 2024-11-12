@@ -275,12 +275,14 @@ class VerificationPageState extends State<VerificationPage> {
                                     length: 5,
                                     focusNode: _focusNode,
                                     autofocus: true,
-                                    androidSmsAutofillMethod:
-                                        smsAutofillSnapshot.data!
-                                            ? AndroidSmsAutofillMethod
-                                                .smsUserConsentApi
-                                            : AndroidSmsAutofillMethod.none,
-                                    listenForMultipleSmsOnAndroid: true,
+
+
+                                    // androidSmsAutofillMethod:
+                                    //     smsAutofillSnapshot.data!
+                                    //         ? AndroidSmsAutofillMethod
+                                    //             .smsUserConsentApi
+                                    //         : AndroidSmsAutofillMethod.none,
+                                    // listenForMultipleSmsOnAndroid: true,
                                     inputFormatters: [NumberInputFormatter],
                                     hapticFeedbackType:
                                         HapticFeedbackType.lightImpact,

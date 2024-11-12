@@ -234,7 +234,9 @@ class _AllMediaPageState extends State<AllMediaPage>
     final i = await _getMediaIndex();
     if (i != null && widget.message != null) {
       final m = await _getMedia(i);
-      if (m == null || m.messageId != widget.messageId) {
+      //todo  bug  when file is video
+      if (widget.message?.json.toFile().isVideoFileProto() ??
+          false || m == null || m.messageId != widget.messageId) {
         return null;
       }
       return i;
