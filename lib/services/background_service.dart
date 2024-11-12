@@ -7,12 +7,12 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/settings.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-
-import 'package:telephony/telephony.dart';
+//
+// import 'package:telephony/telephony.dart';
 import 'package:workmanager/workmanager.dart';
 
 class BackgroundService {
-  final _telephony = Telephony.instance;
+  // final _telephony = Telephony.instance;
 
   Future<void> startBackgroundService() async {
     // await Workmanager().initialize(
@@ -44,19 +44,19 @@ class BackgroundService {
     bool listenOnSms = false,
   }) {
     try {
-      _telephony.connectionStream.listen((_) {});
-      _telephony.listenOnAndroidReceiver(
-        listenOnCall: listenOnCall,
-        listenOnSms: listenOnSms,
-        onNewMessage: (_) {},
-        onBackgroundMessage: backgroundMessageHandler,
-      );
+      // _telephony.connectionStream.listen((_) {});
+      // _telephony.listenOnAndroidReceiver(
+      //   listenOnCall: listenOnCall,
+      //   listenOnSms: listenOnSms,
+      //   onNewMessage: (_) {},
+      //   onBackgroundMessage: backgroundMessageHandler,
+      // );
     } catch (_) {}
   }
 }
 
-@pragma('vm:entry-point')
-Future<void> backgroundMessageHandler(SmsMessage message) => update();
+// @pragma('vm:entry-point')
+// Future<void> backgroundMessageHandler(SmsMessage message) => update();
 
 @pragma('vm:entry-point')
 void backgroundHandler() {

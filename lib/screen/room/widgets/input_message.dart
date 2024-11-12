@@ -903,6 +903,40 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
+    } else if (event is RawKeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+            event.logicalKey == LogicalKeyboardKey.arrowRight)) {
+      var offset = widget.textController.selection.base.offset;
+      final textDirection = _i18n.getDirection(widget.textController.text);
+      if (textDirection == TextDirection.ltr) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          offset = max(0, offset - 1);
+        } else {
+          offset = min(offset + 1, widget.textController.text.length);
+        }
+      } else {
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          offset = max(0, offset - 1);
+        } else {
+          offset = min(offset + 1, widget.textController.text.length);
+        }
+      }
+
+      widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(
+          offset: offset,
+        ),
+      );
+      return KeyEventResult.handled;
+    } else if (event is RawKeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      final position = widget.textController.selection.base.offset;
+      widget.textController.selection = TextSelection.fromPosition(
+        TextPosition(
+          offset: position - 1,
+        ),
+      );
+      return KeyEventResult.handled;
     }
     if (((!settings.sendByEnter.value && event.isShiftPressed) ||
             (settings.sendByEnter.value && !event.isShiftPressed)) &&

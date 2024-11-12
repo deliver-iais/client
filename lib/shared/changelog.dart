@@ -1,17 +1,17 @@
 const FARSI_FEATURE_LIST = <String>[
-  "رفع مشکل صدا در تماس طولانی",
-  "رفع مشکل نصب در ویندوز 10",
   "رفع مشکل نمایش اعضا گروه",
+  "رفع مشکل جابجایی در متن فارسی در نوشتن پیام",
+  "رفع مشکل اضافه کردن عضو به گروه با شناسه",
 ];
 
 const ENGLISH_FEATURE_LIST = [
-  "Fixing the sound problem in a long call",
-  "Fixing the installation problem in Windows 10",
-  "Fixing the problem of displaying group members",
+  "Fixing the issue with displaying group members",
+  "Fixing the issue with text cursor movement in Persian while typing messages",
+  "Fixing the issue with adding a member to the group by ID",
 ];
 
 const ARABIC_FEATURE_LIST = [
-  "إصلاح مشكلة الصوت في المكالمة الطويلة",
-  "إصلاح مشكلة التثبيت في نظام التشغيل Windows 10",
-  "إصلاح مشكلة ظهور أعضاء المجموعة"
+  "حل مشكلة عرض أعضاء المجموعة",
+  "حل مشكلة تحرك المؤشر في النص الفارسي أثناء كتابة الرسائل",
+  "حل مشكلة إضافة عضو إلى المجموعة باستخدام المعرف",
 ];
