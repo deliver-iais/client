@@ -5,8 +5,6 @@ import 'package:deliver/models/user.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/contacts/empty_contacts.dart';
-import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/methods/muc_helper_service.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -15,7 +13,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/serverless/serverless_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/muc_member_selction_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -114,9 +111,10 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             for (final u in _createMucService.selected)
               (u).uid?.node ?? (u).phoneNumber!.nationalNumber.toString(): u,
           },
-        );
-      // ..addAll(_sortItems(dummyListData));
-      searchById(query, dummyListData);
+        )
+        ..addAll(_convertUser(_sortItems(dummyListData)));
+
+      searchById(query);
     } else {
       _items
         ..clear()
@@ -137,13 +135,14 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
             (u).phoneNumber!.nationalNumber.toString());
   }
 
-  Future<void> searchById(String id, List<User> filtered) async {
+  Future<void> searchById(String id) async {
     final fil = await _contactRepo.searchUser(id);
+    final res = <User>[];
     if (fil.isNotEmpty) {
-      filtered.addAll(
+      res.addAll(
         fil.map((e) => User(firstname: e.name ?? "", id: e.id, uid: e.uid)),
       );
-      _items.addAll(_convertUser(_sortItems(filtered)));
+      _items.addAll(_convertUser(_sortItems(res)));
     }
   }
 

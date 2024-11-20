@@ -1,13 +1,12 @@
 const FARSI_FEATURE_LIST = <String>[
-  "رفع مشکل نمایش اعضا گروه",
-  "رفع مشکل جابجایی در متن فارسی در نوشتن پیام",
-  "رفع مشکل اضافه کردن عضو به گروه با شناسه",
+  "رفع مشکل بروزرسانی ",
+  "رفع مشکل اشاره گر در ویندوز موقع نوشتن پیام ",
+
 ];
 
 const ENGLISH_FEATURE_LIST = [
-  "Fixing the issue with displaying group members",
-  "Fixing the issue with text cursor movement in Persian while typing messages",
-  "Fixing the issue with adding a member to the group by ID",
+  "رفع مشکل ساخت گروه جدید",
+
 ];
 
 const ARABIC_FEATURE_LIST = [
