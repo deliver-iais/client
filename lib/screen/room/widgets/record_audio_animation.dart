@@ -14,6 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
+
+enum RecordState{
+  AUDIO,CAMARA
+}
+
 class RecordAudioAnimation extends StatelessWidget {
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
@@ -25,6 +30,7 @@ class RecordAudioAnimation extends StatelessWidget {
   final _isCanceled = BehaviorSubject.seeded(false);
   final _pointerOffset = BehaviorSubject.seeded(Offset.zero);
   final _buttonOffset = BehaviorSubject.seeded(Offset.zero);
+
 
   bool get _isRecordingInCurrentRoom =>
       _audioService.recordingRoom == roomUid.asString();
@@ -268,7 +274,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                     shape: BoxShape.circle,
                                     color: (isRecording)
                                         ? Color.lerp(
-                                            theme.colorScheme.error,
+                                            Colors.lightGreenAccent,
                                             theme.colorScheme.errorContainer,
                                             amplitude / 96,
                                           )
