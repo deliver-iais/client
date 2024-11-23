@@ -27,7 +27,7 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = 7;
-const REVISION = 0;
+const REVISION = 1;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -329,7 +329,7 @@ const double NAVIGATION_PANEL_MIN_WIDTH = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2000;
 const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
-const MAIN_BORDER_RADIUS_SIZE = 28.0;
+const MAIN_BORDER_RADIUS_SIZE = 20.0;
 const CHAT_AVATAR_RADIUS = 26.0;
 const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));

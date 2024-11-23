@@ -55,7 +55,7 @@ android {
         targetSdkVersion 34
 //        versionCode flutterVersionCode.toInteger()
         versionCode 3111//        versionName flutterVersionName
-        versionName "7.0"
+        versionName "7.1"
         multiDexEnabled true
     }
     signingConfigs {
