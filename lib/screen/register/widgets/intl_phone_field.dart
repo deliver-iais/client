@@ -83,7 +83,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
       );
     } else {
       _selectedCountry =
-          countries.firstWhere((element) => element["code"] == "IR");
+          countries.firstWhere((element) => element["code"] == "YE");
     }
 
     _changeMaxLength();

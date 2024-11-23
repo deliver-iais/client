@@ -13,11 +13,11 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/js.dart'
-    if (dart.library.html) 'package:js/js.dart' as js;
+if (dart.library.html) 'package:js/js.dart' as js;
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
+as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -34,8 +34,7 @@ class FireBaseServices {
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
-    notification,
-  ) async {
+      notification,) async {
     final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);
@@ -53,7 +52,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      if (!settings.firebaseSettingIsSet.value) {
+      if (true || !settings.firebaseSettingIsSet.value) {
         try {
           String? token;
           try {
@@ -105,7 +104,8 @@ class FireBaseServices {
     try {
       try {
         await _services.firebaseServiceClient
-            .registration(RegistrationReq()..tokenId = fireBaseToken);
+            .registration(RegistrationReq()
+          ..tokenId = fireBaseToken);
         settings.firebaseSettingIsSet.set(true);
       } catch (e) {
         _logger.e(e);
@@ -142,7 +142,8 @@ class FireBaseServices {
         await _services.queryServiceClient.sendGlitch(
           SendGlitchReq()
             ..offlineNotification =
-                (GlitchOfOfflineNotification()..room = roomUid.asUid()),
+            (GlitchOfOfflineNotification()
+              ..room = roomUid.asUid()),
         );
 
         _requestedRoom.add(roomUid);
@@ -161,8 +162,7 @@ message_pb.Message _decodeMessage(String notificationBody) {
 
 @pragma('vm:entry-point')
 Future<void> _backgroundRemoteMessageHandler(
-  RemoteMessage remoteMessage,
-) async {
+    RemoteMessage remoteMessage,) async {
   try {
     // hive does not support multithreading
     try {
@@ -178,7 +178,9 @@ Future<void> _backgroundRemoteMessageHandler(
       final msg = _decodeMessage(remoteMessage.data["body"]);
 
       String? roomName = remoteMessage.data['title'];
-      if ((roomName ?? "").trim().isEmpty) {
+      if ((roomName ?? "")
+          .trim()
+          .isEmpty) {
         roomName = null;
       }
 
@@ -190,11 +192,11 @@ Future<void> _backgroundRemoteMessageHandler(
 
       if (lastRoomMessageId < msg.id.toInt()) {
         await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
-              msg,
-              roomName: roomName,
-              isOnlineMessage: true,
-              isFirebaseMessage: true,
-            );
+          msg,
+          roomName: roomName,
+          isOnlineMessage: true,
+          isFirebaseMessage: true,
+        );
       }
 
       return;
@@ -204,7 +206,7 @@ Future<void> _backgroundRemoteMessageHandler(
   } else if (remoteMessage.data.containsKey("seen")) {
     try {
       final seen =
-          pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
+      pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
 
       return await GetIt.I.get<DataStreamServices>().handleSeen(seen);
     } catch (e) {
