@@ -611,7 +611,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
     );
   }
 
-  StreamBuilder<bool> userVideoWidget(
+  Widget userVideoWidget(
     double x,
     double y,
     double width,

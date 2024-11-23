@@ -630,11 +630,11 @@ class ProfilePageState extends State<ProfilePage>
             child: Icon(Icons.info),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
+            width: isLarge(context)?500:300,
             child: Text(
               info,
               maxLines: 8,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.clip,
               textDirection: _i18n.defaultTextDirection,
               style: const TextStyle(
                 fontSize: 12.0,

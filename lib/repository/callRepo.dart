@@ -1311,7 +1311,7 @@ class CallRepo {
           }
         });
         _generateNewCallId();
-        sendRinging();
+        unawaited(sendRinging());
         unawaited(_audioLevelDetection());
         if (hasForegroundServiceCapability) {
           final androidInfo = await DeviceInfoPlugin().androidInfo;
@@ -1380,8 +1380,6 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
-    final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool("hsaCall", true);
     try {
       _cancelTimerResendEvent();
       if (hasVibrationCapability) {
@@ -1393,10 +1391,6 @@ class CallRepo {
       }
       _roomUid ??= roomId;
 
-      // if (_roomUid == null || roomId.node != _roomUid!.node) {
-      //   endCall();
-      // }
-
       callingStatus.add(CallStatus.CONNECTING);
       _audioService.stopCallAudioPlayer();
       _timerRinging?.cancel();
@@ -1407,7 +1401,7 @@ class CallRepo {
       if (!_isCallInitiated) {
         await initCall();
       }
-      _localStream = await CallUtils.getUserMedia(isVideo: _isVideo);
+      _localStream ??= await CallUtils.getUserMedia(isVideo: _isVideo);
       // change location of this line from mediaStream get to this line for prevent
       // exception on callScreen and increase call speed .
       onLocalStream?.call(_localStream!);
@@ -1934,26 +1928,24 @@ class CallRepo {
           var byteSend = 0;
           var byteReceived = 0;
           if (_videoSender != null) {
-            //todo
-            // final videoSender = await _videoSender!.getStats();
-            // for (final stat in videoSender) {
-            //   if (stat.type == "transport") {
-            //     _logger.i(stat.values);
-            //     byteSend += stat.values["bytesSent"] as int;
-            //     byteReceived += stat.values["bytesReceived"] as int;
-            //   }
-            // }
+            final videoSender = await _videoSender!.getStats();
+            for (final stat in videoSender) {
+              if (stat.type == "transport") {
+                _logger.i(stat.values);
+                byteSend += stat.values["bytesSent"] as int;
+                byteReceived += stat.values["bytesReceived"] as int;
+              }
+            }
           }
           if (_audioSender != null) {
-            //todo
-            // final videoSender = await _audioSender!.getStats();
-            // for (final stat in videoSender) {
-            //   if (stat.type == "transport") {
-            //     _logger.i(stat.values);
-            //     byteSend += stat.values["bytesSent"] as int;
-            //     byteReceived += stat.values["bytesReceived"] as int;
-            //   }
-            // }
+            final videoSender = await _audioSender!.getStats();
+            for (final stat in videoSender) {
+              if (stat.type == "transport") {
+                _logger.i(stat.values);
+                byteSend += stat.values["bytesSent"] as int;
+                byteReceived += stat.values["bytesReceived"] as int;
+              }
+            }
           }
           unawaited(_callService.saveCallDataUsage(byteSend, byteReceived));
         } catch (e) {
@@ -1971,7 +1963,7 @@ class CallRepo {
       callingStatus.add(CallStatus.ENDED);
       _logger.i("end call in service");
 //todo
-      // await _cleanLocalStream();
+      await _cleanLocalStream();
       _candidate = [];
     } catch (e) {
       _logger.e(e);

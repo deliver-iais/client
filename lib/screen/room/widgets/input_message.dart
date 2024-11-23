@@ -754,7 +754,6 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
                 onPressed: () {
                   _keyboardStatus.add(KeyboardStatus.OFF);
-
                   _attachFile();
                 },
               ),
