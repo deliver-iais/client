@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:deliver/shared/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class BlurContainer extends StatelessWidget {
@@ -31,6 +32,9 @@ class BlurContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(kIsWeb){
+      return const SizedBox();
+    }
     final theme = Theme.of(context);
     if (!blurIsEnabled) {
       return Container(

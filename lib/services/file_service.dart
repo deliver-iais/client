@@ -133,11 +133,11 @@ class FileService {
   }
 
   FileService() {
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      client.badCertificateCallback = (cert, host, port) => false;
-      return client;
-    };
+    // (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+    //     (client) {
+    //   client.badCertificateCallback = (cert, host, port) => false;
+    //   return client;
+    // };
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
