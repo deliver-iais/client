@@ -225,7 +225,7 @@ dependencies:
   sensors_plus: ^3.0.3
   service_worker: 0.3.0
   share: 2.0.4
-  shared_preferences: ^2.2.1
+  shared_preferences: 2.3.3
   shimmer: 3.0.0
   simple_animations: ^5.0.2
   smooth_page_indicator: 1.1.0
