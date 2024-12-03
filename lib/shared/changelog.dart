@@ -1,11 +1,13 @@
 const FARSI_FEATURE_LIST = <String>[
-  "رفع مشکل تماس تصویری ",
+  "اضافه شدن قابلیت ورود با شماره مجازی",
+  "رفع مشکل پخش فیلم در ویندوز",
 ];
 
 const ENGLISH_FEATURE_LIST = [
-  "رفع مشکل تماس تصویری ",
+  "Adding the ability to log in with a virtual number",
 ];
 
 const ARABIC_FEATURE_LIST = [
-  "رفع مشکل تماس تصویری ",
+  "إضافة إمكانية تسجيل الدخول برقم افتراضي ",
+  "حل مشكلة تشغيل الافلام في الويندوز"
 ];

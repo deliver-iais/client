@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/login_vi_virtula_number_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
@@ -55,6 +57,7 @@ class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _acceptPrivacyKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
+  final _keyboardVisibilityController = KeyboardVisibilityController();
 
   bool loginWithQrCode = isDesktopDevice;
   final BehaviorSubject<bool> _acceptPrivacy =
@@ -68,9 +71,15 @@ class LoginPageState extends State<LoginPage> {
   final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
   int _maxLength = 10;
   int _minLength = 10;
+  final _showVirtualButton = true.obs;
 
   @override
   void initState() {
+    if (hasVirtualKeyboardCapability) {
+      _keyboardVisibilityController.onChange.listen((event) {
+        _showVirtualButton.value = !event;
+      });
+    }
     if (phoneNumber != null) {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
@@ -218,6 +227,18 @@ class LoginPageState extends State<LoginPage> {
             appBar: AppBar(
               centerTitle: true,
               actions: [
+                if (isDesktopDevice)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          loginWithQrCode = true;
+                        });
+                      },
+                      child: Icon(Icons.qr_code),
+                    ),
+                  ),
                 SizedBox(
                   width: 120,
                   height: 60,
@@ -246,7 +267,7 @@ class LoginPageState extends State<LoginPage> {
             ),
             body: loginWithQrCode
                 ? buildLoginWithQrCode(_i18n, theme)
-                : buildNormalLogin(_i18n, theme),
+                : buildNormalLogin(_i18n, theme,context),
           ),
         ),
       ),
@@ -327,7 +348,7 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildNormalLogin(I18N i18n, ThemeData theme) {
+  Widget buildNormalLogin(I18N i18n, ThemeData theme,BuildContext context) {
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
       stream: _isLoading,
@@ -343,39 +364,44 @@ class LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 30,
                 ),
-                if(false)
-                Obx(
-                  () => Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(35.0),
-                      border: Border.all(style: BorderStyle.solid, width: 0.80),
-                    ),
-                    child: DropdownButton<LoginType>(
-                      underline: const SizedBox(),
-                      borderRadius: BorderRadius.circular(35),
-                      value: loginType.value,
-                      items: LoginType.values.map((value) {
-                        return DropdownMenuItem<LoginType>(
-                          value: value,
-                          child: buildLoginTypeUi(value),
-                        );
-                      }).toList(),
-                      onChanged: (_) {
-                        if (_ != null) {
-                          loginType.value = _;
-                        }
-                      },
+                if (false)
+                  Obx(
+                    () => Container(
+                      height: 42,
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(35.0),
+                        border:
+                            Border.all(style: BorderStyle.solid, width: 0.80),
+                      ),
+                      child: DropdownButton<LoginType>(
+                        underline: const SizedBox(),
+                        borderRadius: BorderRadius.circular(35),
+                        value: loginType.value,
+                        items: LoginType.values.map((value) {
+                          return DropdownMenuItem<LoginType>(
+                            value: value,
+                            child: buildLoginTypeUi(value),
+                          );
+                        }).toList(),
+                        onChanged: (_) {
+                          if (_ != null) {
+                            loginType.value = _;
+                          }
+                        },
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(
                   height: 40,
                 ),
                 Expanded(
                   child: Column(
                     children: <Widget>[
+                      Text(
+                        i18n.get("insert_phone_and_code"),
+                        style: theme.textTheme.labelSmall,
+                      ),
                       const SizedBox(height: 20),
                       Obx(() => Column(
                             children: loginType.value ==
@@ -388,6 +414,7 @@ class LoginPageState extends State<LoginPage> {
                                             ? phoneNumber!.countryCode
                                                 .toString()
                                             : null,
+                                        autoFocus: false,
                                         controller: controller,
                                         validator: (value) => value == null ||
                                                 value.isEmpty ||
@@ -412,10 +439,6 @@ class LoginPageState extends State<LoginPage> {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    Text(
-                                      i18n.get("insert_phone_and_code"),
-                                      style: theme.textTheme.labelSmall,
-                                    ),
                                   ]
                                 : [
                                     Container(
@@ -441,7 +464,7 @@ class LoginPageState extends State<LoginPage> {
                                     )
                                   ],
                           )),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 10),
                       ShakeWidget(
                         controller: _shakeWidgetController,
                         child: Row(
@@ -489,6 +512,44 @@ class LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Obx(
+                        () => _showVirtualButton.value
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  // color: Colors.white,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 0,
+                                      blurRadius: 1,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                  // border: Border.all(color: Colors.blueGrey),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (c) {
+                                          return LoginViVirtualNumberPage();
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    _i18n.get("login_vi_virtual_number"),
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
+                      ),
                     ],
                   ),
                 ),
@@ -532,21 +593,22 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 Row(
                   children: [
-                    if (isDesktopDevice)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: TextButton(
-                            child: Text(_i18n.get("login_with_qr_code")),
-                            onPressed: () {
-                              setState(() {
-                                loginWithQrCode = true;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
+                    // TextButton(
+                    //   onPressed: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (c) {
+                    //           return LoginViVirtualNumberPage();
+                    //         },
+                    //       ),
+                    //     );
+                    //   },
+                    //   child: Text(
+                    //     _i18n.get("login_vi_virtual_number"),
+                    //     style: const TextStyle(fontSize: 15),
+                    //   ),
+                    // ),
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -575,14 +637,18 @@ class LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: type == LoginType.LOGIN_BY_PHONE
             ? [
-                Text(_i18n.get("login_by_phone"),style: TextStyle(fontSize: 13),),
+                Text(
+                  _i18n.get("login_by_phone"),
+                  style: TextStyle(fontSize: 13),
+                ),
                 const SizedBox(
                   width: 10,
                 ),
                 const Icon(Icons.phone),
               ]
             : [
-                Text(_i18n.get("login_by_email"),style: TextStyle(fontSize: 13)),
+                Text(_i18n.get("login_by_email"),
+                    style: TextStyle(fontSize: 13)),
                 const SizedBox(
                   width: 10,
                 ),

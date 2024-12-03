@@ -19,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -149,8 +150,12 @@ class AuthRepo {
     return res.type;
   }
 
-  Future<AccessTokenRes> sendVerificationCode(String code, LoginType loginType,
-      {String? password, String email = "",}) async {
+  Future<AccessTokenRes> sendVerificationCode(
+    String code,
+    LoginType loginType, {
+    String? password,
+    String email = "",
+  }) async {
     final platform = await getPlatformPB();
     final device = await getDeviceName();
 
@@ -533,6 +538,62 @@ class AuthRepo {
         return _checkRefreshTokenIsExpired();
       }
     }
+  }
+
+  Future<bool> loginByUsername({
+    required int phone,
+    required String password,
+  }) async {
+    try {
+      final platform = await getPlatformPB();
+      final device = await getDeviceName();
+      final res = await _sdr.authServiceClient
+          .verifyAndGetAccessTokenByUsernameAndPassword(
+        UsernameAndPasswordReqVerificationReq()
+          ..username = Int64(phone)
+          ..password = password
+          ..device = device
+          ..platform = platform
+          ..loginType = LoginType.LOGIN_BY_USERNAME,
+      );
+
+      if (res.status == AccessTokenRes_Status.OK) {
+        await login(
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        );
+        return true;
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+    return false;
+  }
+
+  Future<bool> saveUsernameAndPassword(
+      {required int username, required String password}) async {
+    try {
+      final res = await _sdr.authServiceClient.saveUsernameAndPassword(
+        SaveUsernameReq()
+          ..username = Int64(username)
+          ..password = password,
+      );
+      return true;
+    } catch (e) {
+      _logger.e(e);
+    }
+    return false;
+  }
+
+  Future<int?> getVirtualNumber() async {
+    try {
+      final result =
+          await _sdr.authServiceClient.getRandomUsername(RandomNumberReq());
+      return result.username.toInt();
+    } catch (e) {
+      _logger.e(e);
+    }
+    return null;
   }
 }
 

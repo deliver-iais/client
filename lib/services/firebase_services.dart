@@ -48,12 +48,12 @@ class FireBaseServices {
 
   late FirebaseMessaging _firebaseMessaging;
 
-  Future<void> sendFireBaseToken() async {
+  Future<void> sendFireBaseToken({bool force = false}) async {
     if (hasFirebaseCapability) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      if (!settings.firebaseSettingIsSet.value) {
+      if (force || !settings.firebaseSettingIsSet.value) {
         try {
           String? token;
           try {
@@ -137,6 +137,7 @@ class FireBaseServices {
   }
 
   Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
+    await sendFireBaseToken(force: true);
     if (!_requestedRoom.contains(roomUid)) {
       try {
         await _services.queryServiceClient.sendGlitch(

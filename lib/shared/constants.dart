@@ -27,7 +27,7 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = 7;
-const REVISION = 1;
+const REVISION = 2;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -348,33 +348,21 @@ bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
   if (isDesktopDevice ||
-      MediaQuery
-          .of(context)
-          .orientation == Orientation.portrait) {
+      MediaQuery.of(context).orientation == Orientation.portrait) {
     return isLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+      MediaQuery.of(context).size.width,
     );
   } else {
     return isLargeHeight(
-      MediaQuery
-          .of(context)
-          .size
-          .height,
+      MediaQuery.of(context).size.height,
     );
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
-bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+bool isVeryLarge(BuildContext context) => isVeryLargeWidth(
+      MediaQuery.of(context).size.width,
     );
 
 // Dynamics

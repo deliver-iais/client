@@ -14,6 +14,7 @@ class AvatarHelper {
   static Future<void> attachAvatarFile({
     required BuildContext context,
     required Function(String) onAvatarAttached,
+    bool canPop = true,
   }) async {
     String? path;
     if (isDesktopNativeOrWeb) {
@@ -37,7 +38,11 @@ class AvatarHelper {
       }
 
       if (path != null) {
-        _viewSelectedImage(path, onAvatarAttached);
+        if (canPop) {
+          _viewSelectedImage(path, onAvatarAttached);
+        } else {
+          onAvatarAttached(path);
+        }
       }
     } else {
       unawaited(

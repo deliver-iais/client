@@ -231,12 +231,16 @@ class _AllMediaPageState extends State<AllMediaPage>
   }
 
   Future<int?> _getCorrectIndexOfMedia() async {
+    if (widget.message?.json.toFile().isVideoFileProto() ?? false) {
+      //todo  bug  when file is video
+      return null;
+    }
+
     final i = await _getMediaIndex();
     if (i != null && widget.message != null) {
       final m = await _getMedia(i);
-      //todo  bug  when file is video
-      if (widget.message?.json.toFile().isVideoFileProto() ??
-          false || m == null || m.messageId != widget.messageId) {
+
+      if (m == null || m.messageId != widget.messageId) {
         return null;
       }
       return i;

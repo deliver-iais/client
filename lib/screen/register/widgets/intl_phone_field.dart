@@ -28,6 +28,7 @@ class IntlPhoneField extends StatefulWidget {
   final Brightness keyboardAppearance;
   final String? initialValue;
   final Function(int, int) onMaxAndMinLengthChanged;
+  final autoFocus;
 
   /// 2 Letter ISO Code
   final String? initialCountryCode;
@@ -43,6 +44,7 @@ class IntlPhoneField extends StatefulWidget {
     this.textAlign = TextAlign.left,
     this.onTap,
     this.readOnly = false,
+    this.autoFocus = true,
     this.initialValue,
     this.keyboardType = TextInputType.number,
     required this.controller,
@@ -242,7 +244,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                 inputFormatters: [NumberInputFormatter],
                 enabled: widget.enabled,
                 maxLength: _maxLength,
-                autofocus: true,
+                autofocus: widget.autoFocus,
                 keyboardAppearance: widget.keyboardAppearance,
               ),
             ),
