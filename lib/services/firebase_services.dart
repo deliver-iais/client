@@ -13,11 +13,11 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/web_classes/js.dart'
-if (dart.library.html) 'package:js/js.dart' as js;
+    if (dart.library.html) 'package:js/js.dart' as js;
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-as message_pb;
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -34,7 +34,8 @@ class FireBaseServices {
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
-      notification,) async {
+    notification,
+  ) async {
     final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);
@@ -47,12 +48,12 @@ class FireBaseServices {
 
   late FirebaseMessaging _firebaseMessaging;
 
-  Future<void> sendFireBaseToken() async {
+  Future<void> sendFireBaseToken({bool force = false}) async {
     if (hasFirebaseCapability) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      if (true || !settings.firebaseSettingIsSet.value) {
+      if (force || !settings.firebaseSettingIsSet.value) {
         try {
           String? token;
           try {
@@ -137,13 +138,13 @@ class FireBaseServices {
   }
 
   Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
+    await sendFireBaseToken(force: true);
     if (!_requestedRoom.contains(roomUid)) {
       try {
         await _services.queryServiceClient.sendGlitch(
           SendGlitchReq()
             ..offlineNotification =
-            (GlitchOfOfflineNotification()
-              ..room = roomUid.asUid()),
+                (GlitchOfOfflineNotification()..room = roomUid.asUid()),
         );
 
         _requestedRoom.add(roomUid);
@@ -178,9 +179,7 @@ Future<void> _backgroundRemoteMessageHandler(
       final msg = _decodeMessage(remoteMessage.data["body"]);
 
       String? roomName = remoteMessage.data['title'];
-      if ((roomName ?? "")
-          .trim()
-          .isEmpty) {
+      if ((roomName ?? "").trim().isEmpty) {
         roomName = null;
       }
 
@@ -192,11 +191,11 @@ Future<void> _backgroundRemoteMessageHandler(
 
       if (lastRoomMessageId < msg.id.toInt()) {
         await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
-          msg,
-          roomName: roomName,
-          isOnlineMessage: true,
-          isFirebaseMessage: true,
-        );
+              msg,
+              roomName: roomName,
+              isOnlineMessage: true,
+              isFirebaseMessage: true,
+            );
       }
 
       return;

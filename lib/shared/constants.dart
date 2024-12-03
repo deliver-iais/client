@@ -27,7 +27,7 @@ const CHANNEL_URL = "channel";
 
 // Version Constants
 const VERSION = 2;
-const REVISION = 1;
+const REVISION = 2;
 const APP_VERSION = "$VERSION.$REVISION";
 // const INSTALL_FROM = "سایت";
 
@@ -329,7 +329,7 @@ const double NAVIGATION_PANEL_MIN_WIDTH = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2000;
 const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
-const MAIN_BORDER_RADIUS_SIZE = 30.0;
+const MAIN_BORDER_RADIUS_SIZE = 20.0;
 const CHAT_AVATAR_RADIUS = 26.0;
 const mainBorder = BorderRadius.all(Radius.circular(MAIN_BORDER_RADIUS_SIZE));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
@@ -348,33 +348,21 @@ bool isLargeHeight(double height) => height > LARGE_BREAKDOWN_SIZE_HEIGHT;
 
 bool isLarge(BuildContext context) {
   if (isDesktopDevice ||
-      MediaQuery
-          .of(context)
-          .orientation == Orientation.portrait) {
+      MediaQuery.of(context).orientation == Orientation.portrait) {
     return isLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+      MediaQuery.of(context).size.width,
     );
   } else {
     return isLargeHeight(
-      MediaQuery
-          .of(context)
-          .size
-          .height,
+      MediaQuery.of(context).size.height,
     );
   }
 }
 
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
-bool isVeryLarge(BuildContext context) =>
-    isVeryLargeWidth(
-      MediaQuery
-          .of(context)
-          .size
-          .width,
+bool isVeryLarge(BuildContext context) => isVeryLargeWidth(
+      MediaQuery.of(context).size.width,
     );
 
 // Dynamics

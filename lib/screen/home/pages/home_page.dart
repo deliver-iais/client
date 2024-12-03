@@ -75,7 +75,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     platform.setMethodCallHandler(_handleBackButton);
-    super.initState();
+
     GetIt.I.get<CallRepo>().startListener();
     _coreServices.initStreamConnection();
     _messageRepo.createConnectionStatusHandler();
